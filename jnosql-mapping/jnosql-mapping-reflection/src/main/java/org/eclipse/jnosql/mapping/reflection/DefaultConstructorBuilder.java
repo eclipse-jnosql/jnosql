@@ -52,7 +52,17 @@ final class DefaultConstructorBuilder implements ConstructorBuilder {
 
     @Override
     public void addEmptyParameter() {
-        this.values.add(null);
+        Constructor<?> constructor = ((DefaultConstructorMetadata) this.metadata).constructor();
+        Class<?> type = constructor.getParameterTypes()[this.values.size()];
+        if(boolean.class.equals(type)) {
+           this.values.add(Boolean.FALSE);
+        } else if(char.class.equals(type)) {
+            this.values.add(Character.valueOf((char)0));
+        } else if(type.isPrimitive()) {
+            this.values.add(Byte.valueOf((byte)0));
+        } else {
+            this.values.add(null);
+        }
     }
 
     @Override

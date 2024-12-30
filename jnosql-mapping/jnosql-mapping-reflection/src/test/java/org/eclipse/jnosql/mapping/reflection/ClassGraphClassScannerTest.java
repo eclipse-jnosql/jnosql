@@ -40,7 +40,7 @@ class ClassGraphClassScannerTest {
     void shouldReturnEntities() {
         Set<Class<?>> entities = classScanner.entities();
         Assertions.assertNotNull(entities);
-        assertThat(entities).hasSize(31)
+        assertThat(entities).hasSize(32)
                 .contains(Person.class);
     }
 
