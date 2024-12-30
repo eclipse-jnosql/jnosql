@@ -21,6 +21,7 @@ import org.eclipse.jnosql.mapping.metadata.ConstructorBuilder;
 import org.eclipse.jnosql.mapping.metadata.ConstructorMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.reflection.entities.constructor.BookUser;
+import org.eclipse.jnosql.mapping.reflection.entities.constructor.Counter;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,12 +35,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DefaultConstructorBuilderTest {
 
     private ConstructorMetadata constructor;
+    private ConstructorMetadata counterConstructor;
 
     @BeforeEach
     void setUp(){
         ClassConverter converter = new ReflectionClassConverter();
         EntityMetadata entityMetadata = converter.apply(BookUser.class);
         this.constructor = entityMetadata.constructor();
+        
+        EntityMetadata counterMetadata = converter.apply(Counter.class);
+        this.counterConstructor = counterMetadata.constructor();
     }
 
     @Test
@@ -98,5 +103,19 @@ class DefaultConstructorBuilderTest {
         ConstructorBuilder other = DefaultConstructorBuilder.of(constructor);
         assertThat(builder).isEqualTo(other);
         assertThat(builder).hasSameHashCodeAs(other);
+    }
+    
+    @Test
+    void shouldHandleEmptyPrimitives() {
+        ConstructorBuilder builder = DefaultConstructorBuilder.of(counterConstructor);
+    	builder.addEmptyParameter();
+    	builder.addEmptyParameter();
+    	builder.addEmptyParameter();
+    	builder.addEmptyParameter();
+    	Counter counter = builder.build();
+    	assertThat(counter.count()).isEqualTo(0);
+    	assertThat(counter.active()).isFalse();
+    	assertThat(counter.ratio()).isEqualTo(0d);
+    	assertThat(counter.code()).isEqualTo((char)0);
     }
 }
