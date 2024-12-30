@@ -25,6 +25,7 @@ import org.eclipse.jnosql.mapping.metadata.MappingType;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -89,8 +90,9 @@ final class DefaultCollectionFieldMetadata extends AbstractFieldMetadata impleme
     }
 
     private boolean hasFieldAnnotation(Class<?> annotation) {
-        return ((Class) ((ParameterizedType) this.field
-                .getGenericType())
+        ParameterizedType collectionType = Reflections.findParameterizedType(this.field.getGenericType(), Collection.class)
+                .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Unable to find parameterized Collection implementation for {0}", this.field)));
+        return ((Class) collectionType
                 .getActualTypeArguments()[0])
                 .getAnnotation(annotation) != null;
     }
