@@ -22,6 +22,8 @@ import org.eclipse.jnosql.mapping.metadata.MappingType;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.text.MessageFormat;
+import java.util.Map;
 import java.util.Objects;
 
 final class DefaultMapFieldMetadata extends AbstractFieldMetadata implements MapFieldMetadata {
@@ -29,7 +31,7 @@ final class DefaultMapFieldMetadata extends AbstractFieldMetadata implements Map
     private final TypeSupplier<?> typeSupplier;
 
     private final Class<?> keyType;
-
+    
     private final Class<?> valueType;
 
     DefaultMapFieldMetadata(MappingType type, Field field, String name, TypeSupplier<?> typeSupplier,
@@ -37,12 +39,10 @@ final class DefaultMapFieldMetadata extends AbstractFieldMetadata implements Map
                             FieldReader reader, FieldWriter writer, String udt) {
         super(type, field, name, converter, reader, writer, udt);
         this.typeSupplier = typeSupplier;
-        this.keyType = (Class<?>) ((ParameterizedType) this.field
-                .getGenericType())
-                .getActualTypeArguments()[0];
-        this.valueType = (Class<?>) ((ParameterizedType) this.field
-                .getGenericType())
-                .getActualTypeArguments()[1];
+        ParameterizedType mapType = Reflections.findParameterizedType(this.field.getGenericType(), Map.class)
+            .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Unable to find parameterized Map implementation for {0}", this.field)));
+        this.keyType = (Class<?>) mapType.getActualTypeArguments()[0];
+        this.valueType = (Class<?>) mapType.getActualTypeArguments()[1];
     }
 
     @Override

@@ -32,6 +32,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -362,6 +364,41 @@ public class Reflections {
                 .map(Column::udt)
                 .filter(StringUtils::isNotBlank)
                 .orElse(null);
+    }
+
+    /**
+     * Attempts to locate the specific generic declaration of the desired type,
+     * walking the interface and superclass hierarchy to locate it.
+     * 
+     * @param type the type to scan, such as a field's generic type
+     * @param parentType the type to search for, such as {@code Map}
+     * @return an {@link Optional} describing the found declaration, or an
+     *         empty one if it cannot be found
+     * @since 1.1.5
+     */
+    public static Optional<ParameterizedType> findParameterizedType(Type type, Class<?> parentType) {
+        if(type instanceof ParameterizedType parameterizedType && parameterizedType.getRawType() instanceof Class rawClass) {
+            if(parentType.isAssignableFrom(rawClass)) {
+                return Optional.of(parameterizedType);
+            }
+        }
+        if(type instanceof Class classType) {
+            Type superType = classType.getGenericSuperclass();
+            if(superType != null) {
+                Optional<ParameterizedType> superResult = findParameterizedType(superType, parentType);
+                if(superResult.isPresent()) {
+                    return superResult;
+                }
+            }
+            for(Type superInterface : classType.getGenericInterfaces()) {
+                Optional<ParameterizedType> superResult = findParameterizedType(superInterface, parentType);
+                if(superResult.isPresent()) {
+                    return superResult;
+                }
+            }
+        }
+        
+        return Optional.empty();
     }
 
 

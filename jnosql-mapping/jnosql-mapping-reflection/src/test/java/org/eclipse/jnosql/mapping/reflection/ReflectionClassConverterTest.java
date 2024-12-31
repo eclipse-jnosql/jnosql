@@ -22,6 +22,7 @@ import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
 import org.eclipse.jnosql.mapping.metadata.MappingType;
 import org.eclipse.jnosql.mapping.reflection.entities.Actor;
 import org.eclipse.jnosql.mapping.reflection.entities.Director;
+import org.eclipse.jnosql.mapping.reflection.entities.JsonContainer;
 import org.eclipse.jnosql.mapping.reflection.entities.Machine;
 import org.eclipse.jnosql.mapping.reflection.entities.NoConstructorEntity;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
@@ -204,4 +205,10 @@ class ReflectionClassConverterTest {
         assertEquals(5, constructor.parameters().size());
     }
 
+    
+    @Test
+    void shouldHandleCollectionInterfaceChildren() {
+        ClassConverter converter = new ReflectionClassConverter();
+        assertDoesNotThrow(() -> converter.apply(JsonContainer.class));
+    }
 }
