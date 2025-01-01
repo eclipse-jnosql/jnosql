@@ -17,7 +17,6 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 import jakarta.data.Limit;
 import jakarta.data.page.PageRequest;
 import jakarta.data.Sort;
-import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.repository.SpecialParameters;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +27,6 @@ import org.mockito.MockitoAnnotations;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.junit.jupiter.api.Assertions.assertEquals;

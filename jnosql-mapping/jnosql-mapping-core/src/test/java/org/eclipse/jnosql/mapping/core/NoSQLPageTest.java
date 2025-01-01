@@ -18,9 +18,6 @@ import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.core.entities.Person;
-import org.eclipse.jnosql.mapping.core.entities.inheritance.LargeProject;
-import org.eclipse.jnosql.mapping.core.entities.inheritance.Notification;
-import org.eclipse.jnosql.mapping.core.entities.inheritance.SmsNotification;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

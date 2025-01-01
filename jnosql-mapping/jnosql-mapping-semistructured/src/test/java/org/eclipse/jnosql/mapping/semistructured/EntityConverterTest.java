@@ -50,8 +50,6 @@ import org.eclipse.jnosql.mapping.semistructured.entities.Worker;
 import org.eclipse.jnosql.mapping.semistructured.entities.WorkflowStep;
 import org.eclipse.jnosql.mapping.semistructured.entities.ZipCode;
 import org.eclipse.jnosql.mapping.semistructured.entities.constructor.BookBag;
-import org.eclipse.jnosql.mapping.semistructured.entities.constructor.Guest;
-import org.eclipse.jnosql.mapping.semistructured.entities.constructor.Room;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;

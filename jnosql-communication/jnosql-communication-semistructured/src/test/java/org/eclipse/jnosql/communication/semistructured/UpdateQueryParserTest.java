@@ -10,7 +10,6 @@
  */
 package org.eclipse.jnosql.communication.semistructured;
 
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.QueryException;

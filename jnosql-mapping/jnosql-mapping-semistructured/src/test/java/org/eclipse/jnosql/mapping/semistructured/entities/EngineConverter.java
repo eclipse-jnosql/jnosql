@@ -17,13 +17,9 @@ package org.eclipse.jnosql.mapping.semistructured.entities;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.nosql.AttributeConverter;
-import org.eclipse.jnosql.communication.TypeReference;
-import org.eclipse.jnosql.communication.semistructured.Element;
 
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 
 public class EngineConverter implements AttributeConverter<Engine,Object> {

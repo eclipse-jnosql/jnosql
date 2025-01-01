@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.reflection;
 
 
-import jakarta.inject.Inject;
 import jakarta.nosql.Column;
 import org.assertj.core.api.Assertions;
 import jakarta.nosql.Embeddable;

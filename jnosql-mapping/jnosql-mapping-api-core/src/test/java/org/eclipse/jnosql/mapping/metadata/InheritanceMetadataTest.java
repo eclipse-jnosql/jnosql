@@ -14,11 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.metadata;
 
-import org.assertj.core.api.SoftAssertionsProvider;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
-import static org.assertj.core.api.SoftAssertionsProvider.assertSoftly;
 import static org.junit.jupiter.api.Assertions.*;
 
 

@@ -19,8 +19,6 @@ import jakarta.nosql.Column;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Convert;
 
-import java.util.List;
-
 @Entity
 public class Worker {
 

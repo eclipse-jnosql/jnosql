@@ -17,13 +17,10 @@ package org.eclipse.jnosql.mapping;
 import jakarta.enterprise.inject.spi.AnnotatedMember;
 import jakarta.enterprise.inject.spi.ProcessProducer;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

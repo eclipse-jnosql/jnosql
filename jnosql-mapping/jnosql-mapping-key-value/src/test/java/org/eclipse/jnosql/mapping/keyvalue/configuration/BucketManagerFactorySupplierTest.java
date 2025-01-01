@@ -14,9 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.keyvalue.configuration;
 
-import jakarta.data.exceptions.MappingException;
 import jakarta.inject.Inject;
-import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.communication.keyvalue.BucketManagerFactory;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.keyvalue.KeyValueEntityConverter;
@@ -35,7 +33,6 @@ import org.mockito.Mockito;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.KEY_VALUE_DATABASE;
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.KEY_VALUE_PROVIDER;
-import static org.junit.jupiter.api.Assertions.*;
 
 
 @EnableAutoWeld

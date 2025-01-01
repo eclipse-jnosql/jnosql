@@ -32,7 +32,6 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.BOOLEAN;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SpecialParametersTest {

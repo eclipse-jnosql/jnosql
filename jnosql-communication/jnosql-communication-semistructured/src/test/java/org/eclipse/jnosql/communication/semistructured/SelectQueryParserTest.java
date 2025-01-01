@@ -17,7 +17,6 @@ import org.eclipse.jnosql.communication.QueryException;
 import jakarta.data.Sort;
 import jakarta.data.Direction;
 import org.eclipse.jnosql.communication.TypeReference;
-import org.eclipse.jnosql.communication.Value;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
@@ -26,7 +25,6 @@ import org.mockito.Mockito;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.eq;

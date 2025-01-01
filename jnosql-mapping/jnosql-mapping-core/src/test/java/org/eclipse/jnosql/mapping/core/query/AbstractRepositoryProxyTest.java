@@ -14,19 +14,10 @@
  */
 package org.eclipse.jnosql.mapping.core.query;
 
-import jakarta.nosql.MappingException;
 import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Method;
-import jakarta.enterprise.inject.spi.CDI;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.lang.reflect.Method;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
