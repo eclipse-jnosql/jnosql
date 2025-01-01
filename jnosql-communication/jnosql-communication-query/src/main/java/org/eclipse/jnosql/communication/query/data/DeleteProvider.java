@@ -22,7 +22,7 @@ import java.util.function.Function;
  * This class extends {@link AbstractWhere}, utilizing its capabilities to parse conditional expressions
  * and determine the target entity for deletion based on the parsed query.
  *
- * <p>The class implements {@link Function<String, DeleteQuery>}, accepting a query string and returning
+ * <p>The class implements {@link Function}, accepting a query string and returning
  * a configured {@link DeleteQuery} that encapsulates the entity to be deleted and any applicable conditions
  * specified in the WHERE clause.</p>
  */
