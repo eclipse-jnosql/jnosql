@@ -65,6 +65,7 @@ final class DefaultConstructorBuilder implements ConstructorBuilder {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T build() {
         Constructor<?> constructor = ((DefaultConstructorMetadata) metadata).constructor();
