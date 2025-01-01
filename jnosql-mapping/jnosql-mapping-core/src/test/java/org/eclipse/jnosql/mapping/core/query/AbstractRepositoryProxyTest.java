@@ -87,9 +87,7 @@ class AbstractRepositoryProxyTest {
     void shouldInvokeThrowsMappingException() throws Throwable {
         Method method = TestRepository.class.getMethod("customMethod");
 
-        assertThrows(UnsupportedOperationException.class, () -> {
-            proxy.invoke(proxy, method, new Object[]{});
-        });
+        assertThrows(UnsupportedOperationException.class, () -> proxy.invoke(proxy, method, new Object[]{}));
     }
 
 }

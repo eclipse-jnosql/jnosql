@@ -472,9 +472,7 @@ class DefaultSemiStructuredTemplateTest {
         var captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).count(captor.capture());
         var query = captor.getValue();
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(query.condition()).isEmpty();
-        });
+        SoftAssertions.assertSoftly(soft -> soft.assertThat(query.condition()).isEmpty());
     }
 
 

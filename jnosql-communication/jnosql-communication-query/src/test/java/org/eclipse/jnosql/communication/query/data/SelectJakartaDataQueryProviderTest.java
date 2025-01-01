@@ -81,9 +81,7 @@ class SelectJakartaDataQueryProviderTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"", " "})
     void shouldReturnErrorWhenEntityIsMissing(String query) {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            selectProvider.apply(query, null);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> selectProvider.apply(query, null));
     }
 
 
@@ -533,9 +531,7 @@ class SelectJakartaDataQueryProviderTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "Select id Where isOdd = true and (id = :id or id < :exclusiveMax) Order by id Desc")
     void shouldReturnErrorWhenUseParenthesis(String query) {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
-            selectProvider.apply(query, "entity");
-        });
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> selectProvider.apply(query, "entity"));
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
