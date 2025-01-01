@@ -59,7 +59,7 @@ enum RepositoryFilter implements Predicate<Class<?>> {
      * an entity type that is not annotated with the {@link Entity} annotation
      * 
      * @param type The repository type
-     * @return
+     * @return if the repository is valid
      */
     public boolean isValid(Class<?> type) {
         Optional<Class<?>> entity = getEntity(type);
