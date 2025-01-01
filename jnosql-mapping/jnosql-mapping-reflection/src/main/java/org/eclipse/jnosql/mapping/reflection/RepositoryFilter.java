@@ -46,7 +46,7 @@ enum RepositoryFilter implements Predicate<Class<?>> {
      * {@link RepositoryFilter#PROVIDER} or {@link Repository#ANY_PROVIDER}
      * 
      * @param type The repository type
-     * @return
+     * @return if the repository is supported
      */
     public boolean isSupported(Class<?> type) {
         Optional<String> provider = getProvider(type);
