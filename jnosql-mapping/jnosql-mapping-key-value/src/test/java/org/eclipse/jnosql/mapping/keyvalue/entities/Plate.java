@@ -61,7 +61,7 @@ public final class Plate {
 
     public static Plate of(String value) {
         String[] values = value.split("-");
-        return new Plate(Integer.valueOf(values[0]), values[1]);
+        return new Plate(Integer.parseInt(values[0]), values[1]);
     }
 
 

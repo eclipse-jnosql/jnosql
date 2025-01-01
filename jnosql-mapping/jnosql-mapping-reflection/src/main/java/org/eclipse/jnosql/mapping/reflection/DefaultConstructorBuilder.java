@@ -57,9 +57,9 @@ final class DefaultConstructorBuilder implements ConstructorBuilder {
         if(boolean.class.equals(type)) {
            this.values.add(Boolean.FALSE);
         } else if(char.class.equals(type)) {
-            this.values.add(Character.valueOf((char)0));
+            this.values.add((char) 0);
         } else if(type.isPrimitive()) {
-            this.values.add(Byte.valueOf((byte)0));
+            this.values.add((byte) 0);
         } else {
             this.values.add(null);
         }

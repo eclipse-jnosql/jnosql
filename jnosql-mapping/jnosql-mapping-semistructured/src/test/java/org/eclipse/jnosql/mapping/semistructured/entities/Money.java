@@ -46,7 +46,7 @@ public record Money(String currency, BigDecimal value) {
     public static Money parse(String dbData) {
         String[] values = dbData.split(" ");
         String currency = values[0];
-        BigDecimal value = BigDecimal.valueOf(Double.valueOf(values[1]));
+        BigDecimal value = BigDecimal.valueOf(Double.parseDouble(values[1]));
         return new Money(currency, value);
     }
 }
