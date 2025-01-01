@@ -90,7 +90,7 @@
         <!-- testing libraries -->
         <junit.version>5.11.4</junit.version>
         <mockito.verson>5.14.2</mockito.verson>
-        <assertj.version>3.27.0</assertj.version>
+        <assertj.version>3.27.1</assertj.version>
         <awaitility.version>4.2.2</awaitility.version>
         <datafaker.version>2.4.2</datafaker.version>
         <pi-test.version>1.16.1</pi-test.version>
