@@ -70,7 +70,7 @@ enum RepositoryFilter implements Predicate<Class<?>> {
     private Optional<String> getProvider(Class<?> repository) {
         Annotation[] annos = repository.getAnnotations();       
         return Stream.of(annos)
-                .filter(a -> Repository.class.isInstance(a))
+                .filter(Repository.class::isInstance)
                 .map(a -> ((Repository) a).provider())
                 .findAny(); // @Repostiory and provider are not repeatable and thus only 1 or 0 can be present
     }
