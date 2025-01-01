@@ -59,10 +59,9 @@ public final class Book {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Book)) {
+        if (!(o instanceof Book book)) {
             return false;
         }
-        Book book = (Book) o;
         return Objects.equals(id, book.id);
     }
 

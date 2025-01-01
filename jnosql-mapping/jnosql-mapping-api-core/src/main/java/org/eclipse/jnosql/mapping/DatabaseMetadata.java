@@ -81,10 +81,9 @@ public final class DatabaseMetadata {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof DatabaseMetadata)) {
+        if (!(o instanceof DatabaseMetadata that)) {
             return false;
         }
-        DatabaseMetadata that = (DatabaseMetadata) o;
         return type == that.type &&
                 Objects.equals(provider, that.provider);
     }

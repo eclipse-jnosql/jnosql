@@ -165,10 +165,9 @@ class DefaultEntityMetadata implements EntityMetadata {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof DefaultEntityMetadata)) {
+        if (!(o instanceof DefaultEntityMetadata that)) {
             return false;
         }
-        DefaultEntityMetadata that = (DefaultEntityMetadata) o;
         return Objects.equals(type, that.type);
     }
 

@@ -39,10 +39,9 @@ public final class EntityPrePersist implements Supplier<Object>  {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof EntityPrePersist)) {
+        if (!(o instanceof EntityPrePersist that)) {
             return false;
         }
-        EntityPrePersist that = (EntityPrePersist) o;
         return Objects.equals(value, that.value);
     }
 

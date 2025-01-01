@@ -40,10 +40,9 @@ public final class EntityPostPersist implements Supplier<Object> {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof EntityPostPersist)) {
+        if (!(o instanceof EntityPostPersist that)) {
             return false;
         }
-        EntityPostPersist that = (EntityPostPersist) o;
         return Objects.equals(value, that.value);
     }
 
