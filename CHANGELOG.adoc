@@ -8,6 +8,10 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 == [Unreleased]
 
+=== Fixed
+
+-  improve handling of collection subclass columns
+
 == [1.1.4] - 2024-12-21
 
 == [1.1.3] - 2024-10-24
