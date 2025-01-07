@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2022,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -59,9 +59,9 @@ public class DocumentExtension implements Extension {
 
         Set<Class<?>> customRepositories = scanner.customRepositories();
 
-        LOGGER.info(String.format("Processing Document extension: %d databases crud %d found, custom repositories: %d",
+        LOGGER.info(() -> String.format("Processing Document extension: %d databases crud %d found, custom repositories: %d",
                 databases.size(), crudTypes.size(), customRepositories.size()));
-        LOGGER.info("Processing repositories as a Document implementation: " + crudTypes);
+        LOGGER.info(() -> "Processing repositories as a Document implementation: " + crudTypes);
 
         databases.forEach(type -> {
             if (!type.getProvider().isBlank()) {

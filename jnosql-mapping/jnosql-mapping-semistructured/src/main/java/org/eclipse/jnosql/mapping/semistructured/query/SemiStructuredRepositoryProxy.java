@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2022,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -65,7 +65,7 @@ public class SemiStructuredRepositoryProxy<T, K> extends AbstractSemiStructuredR
         this.repositoryType =  repositoryType;
     }
 
-    SemiStructuredRepositoryProxy(SemiStructuredTemplate template,
+    protected SemiStructuredRepositoryProxy(SemiStructuredTemplate template,
                                   EntityMetadata metadata, Class<?> typeClass,
                                   Converters converters) {
         this.template = template;
