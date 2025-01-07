@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2024,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -20,6 +20,7 @@ import jakarta.data.page.Page;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.Query;
 import jakarta.enterprise.inject.spi.CDI;
+
 import org.eclipse.jnosql.communication.semistructured.QueryType;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
@@ -42,6 +43,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.eclipse.jnosql.mapping.core.query.AnnotationOperation.DELETE;
@@ -74,7 +77,7 @@ public class CustomRepositoryHandler implements InvocationHandler {
 
     private final SemiStructuredRepositoryProxy<?, ?> defaultRepository;
 
-    CustomRepositoryHandler(EntitiesMetadata entitiesMetadata, SemiStructuredTemplate template,
+    protected CustomRepositoryHandler(EntitiesMetadata entitiesMetadata, SemiStructuredTemplate template,
                             Class<?> customRepositoryType,
                             Converters converters) {
         this.entitiesMetadata = entitiesMetadata;
@@ -88,7 +91,7 @@ public class CustomRepositoryHandler implements InvocationHandler {
     public Object invoke(Object instance, Method method, Object[] params) throws Throwable {
 
         RepositoryType type = RepositoryType.of(method, customRepositoryType);
-        LOGGER.fine("Executing the method " + method + " with the parameters " + Arrays.toString(params) + " and the type " + type);
+        LOGGER.fine(() -> "Executing the method " + method + " with the parameters " + Arrays.toString(params) + " and the type " + type);
 
         switch (type) {
             case SAVE -> {
@@ -131,20 +134,23 @@ public class CustomRepositoryHandler implements InvocationHandler {
                     var query = method.getAnnotation(Query.class);
                     var queryType = QueryType.parse(query.value());
                     var returnType = method.getReturnType();
-                    LOGGER.fine("Executing the query " + query.value() + " with the type " + queryType + " and the return type " + returnType);
-                    queryType.checkValidReturn(returnType, query.value());
+                    boolean namedParameters = queryContainsNamedParameters(query);
+                    LOGGER.fine(() -> "Executing the query " + query.value()
+                            + (namedParameters ? " with named parameters, " : "")
+                            + " with the type " + queryType + " and the return type " + returnType);
                     Map<String, Object> parameters = RepositoryReflectionUtils.INSTANCE.getParams(method, params);
-                    LOGGER.fine("Parameters: " + parameters);
+                    LOGGER.fine(() -> "Parameters: " + parameters);
                     var prepare = template.prepare(query.value());
-                    parameters.forEach(prepare::bind);
+                    parameters.entrySet().stream()
+                        .filter(namedParameters ?
+                                        (parameter -> !isOrdinalParameter(parameter))
+                                        : parameter -> isOrdinalParameter(parameter))
+                        .forEach(param -> prepare.bind(param.getKey(), param.getValue()));
                     if (prepare.isCount()) {
                         return prepare.count();
                     }
                     Stream<?> entities = prepare.result();
-                    if (isLong(method)) {
-                        return entities.count();
-                    }
-                    return Void.class;
+                    return toResultOfQueryMethod(method, entities);
                 } else if (repositoryMetadata.metadata().isPresent()) {
                     return unwrapInvocationTargetException(() -> repository(method).executeQuery(instance, method, params));
                 } else {
@@ -166,6 +172,28 @@ public class CustomRepositoryHandler implements InvocationHandler {
         }
     }
 
+    /**
+     * Return an object based on the repository method return type.
+     * Jakarta Data allows only void, int and long return types.
+     * The boolean return type is no longer supported, compared to JNoSQL 1.1.x to align with the Jakarta Data specification, see https://github.com/jakartaee/data/issues/923
+     *
+     * @return {@code Void.class} if {@code void} return type.
+     *         Number of entities if {@code int} or {@code long}.
+     */
+    private Object toResultOfQueryMethod(Method method, Stream<?> entities) {
+        if(returnsLong(method)) {
+            return entities.count();
+        }
+        if (returnsInt(method)) {
+            return (int)entities.count();
+        }
+        return Void.class;
+    }
+
+    private static boolean isOrdinalParameter(Map.Entry<String, Object> parameter) {
+        return parameter.getKey().startsWith("?");
+    }
+
     protected Object unwrapInvocationTargetException(ThrowingSupplier<Object> supplier) throws Throwable {
         try {
             return supplier.get();
@@ -184,17 +212,17 @@ public class CustomRepositoryHandler implements InvocationHandler {
     }
 
     private SemiStructuredRepositoryProxy<?, ?> findDefaultRepository() {
-        LOGGER.fine("Looking for the default repository from the custom repository methods: " + customRepositoryType);
+        LOGGER.fine(() -> "Looking for the default repository from the custom repository methods: " + customRepositoryType);
         Method[] methods = customRepositoryType.getMethods();
         for (Method method : methods) {
             var type = RepositoryType.of(method, customRepositoryType);
             switch (type) {
                 case PARAMETER_BASED, CURSOR_PAGINATION, FIND_ALL, FIND_BY -> {
-                    LOGGER.fine("The default repository found: " + method);
+                    LOGGER.fine(() -> "The default repository found: " + method);
                     return repository(method);
                 }
                 case SAVE, INSERT, UPDATE -> {
-                    LOGGER.fine("The default repository found: " + method);
+                    LOGGER.fine(() -> "The default repository found: " + method);
                     return repository(method, method.getParameters());
                 }
                 default -> {
@@ -216,8 +244,13 @@ public class CustomRepositoryHandler implements InvocationHandler {
     private SemiStructuredRepositoryProxy<?, ?> repository(Method method) {
         RepositoryMetadata result = repositoryMetadata(method);
         Class<?> entityType = result.typeClass();
-        return result.metadata().map(entityMetadata -> new SemiStructuredRepositoryProxy<>(template, entityMetadata, entityType, converters, entitiesMetadata))
+        return result.metadata().map(entityMetadata -> createRepositoryProxy(template, entityMetadata, entityType, converters, entitiesMetadata))
                 .orElseThrow(() -> new UnsupportedOperationException("The repository does not support the method " + method));
+    }
+
+    protected SemiStructuredRepositoryProxy<Object, Object> createRepositoryProxy(
+            SemiStructuredTemplate template, EntityMetadata entityMetadata,  Class<?> entityType, Converters converters, EntitiesMetadata entities) {
+        return new SemiStructuredRepositoryProxy<>(template, entityMetadata, entityType, converters, entities);
     }
 
     private RepositoryMetadata repositoryMetadata(Method method) {
@@ -234,6 +267,17 @@ public class CustomRepositoryHandler implements InvocationHandler {
         }
         Optional<EntityMetadata> metadata = getEntityMetadataBy(typeClass);
         return new RepositoryMetadata(typeClass, metadata);
+    }
+
+    private static boolean queryContainsNamedParameters(Query query) {
+        final String ordinalParameterPattern = "\\?\\d+";
+        final String identifierFirstCharacterPattern = "(\\p{Alpha}|_|$)";
+        final String identifierAfterFirstCharacterpattern = "\\p{Alnum}|_|$";
+        String namedParameterPattern = ":" + identifierFirstCharacterPattern
+                + "(" + identifierAfterFirstCharacterpattern + ")*";
+        Pattern p = Pattern.compile("(" + ordinalParameterPattern + ")|(" + namedParameterPattern + ")");
+        Matcher m = p.matcher(query.value());
+        return m.find() && m.group().startsWith(":");
     }
 
     private Optional<EntityMetadata> getEntityMetadataBy(Class<?> typeClass) {
@@ -268,7 +312,7 @@ public class CustomRepositoryHandler implements InvocationHandler {
         }
         Class<?> typeClass = getTypeClassFromParameter(params[0]);
         return getEntityMetadataBy(typeClass)
-                .map(entityMetadata -> new SemiStructuredRepositoryProxy<>(template, entityMetadata, typeClass, converters, entitiesMetadata))
+                .map(entityMetadata -> createRepositoryProxy(template, entityMetadata, typeClass, converters, entitiesMetadata))
                 .orElseThrow(() -> new UnsupportedOperationException("The repository does not support the method: " + method));
     }
 
@@ -295,8 +339,16 @@ public class CustomRepositoryHandler implements InvocationHandler {
         throw new IllegalArgumentException("Cannot determine generic type from parameter");
     }
 
-    private static boolean isLong(Method method) {
+    private static boolean returnsLong(Method method) {
         return method.getReturnType().equals(long.class) || method.getReturnType().equals(Long.class);
+    }
+
+    private static boolean returnsInt(Method method) {
+        return method.getReturnType().equals(int.class) || method.getReturnType().equals(Integer.class);
+    }
+
+    private static boolean returnsBoolean(Method method) {
+        return method.getReturnType().equals(boolean.class) || method.getReturnType().equals(Boolean.class);
     }
 
 

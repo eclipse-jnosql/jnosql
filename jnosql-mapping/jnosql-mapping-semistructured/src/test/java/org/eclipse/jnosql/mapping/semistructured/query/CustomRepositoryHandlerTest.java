@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2024,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -18,10 +18,10 @@ import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import jakarta.inject.Inject;
+
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
-import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.PreparedStatement;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -482,22 +482,24 @@ class CustomRepositoryHandlerTest {
     }
 
     @Test
-    void shouldReturnNotSupportedWhenQueryIsNotSelectAsDelete() {
+    void shouldReturnNumberOfDeletedEntitiesFromDeleteQuery() {
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
-        Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
-        Mockito.when(template.query(Mockito.anyString()))
-                .thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
-        Assertions.assertThatThrownBy(() -> people.deleteByNameReturnInt())
-                .isInstanceOf(UnsupportedOperationException.class);
+        Mockito.when(template.prepare(Mockito.anyString(), Mockito.any())).thenReturn(preparedStatement);
+        Mockito.when(preparedStatement.isCount())
+                .thenReturn(false);
+        Mockito.when(preparedStatement.singleResult())
+                .thenReturn(Optional.of(1L));
+        Assertions.assertThat(people.deleteByNameReturnLong("Ada")).isEqualTo(1L);
     }
 
     @Test
-    void shouldReturnNotSupportedWhenQueryIsNotSelectAsUpdate() {
+    void shouldReturnNumberOfUpdatedEntitiesFromUpdateQuery() {
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
-        Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
-        Mockito.when(template.query(Mockito.anyString()))
-                .thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
-        Assertions.assertThatThrownBy(() -> people.updateReturnInt())
-                .isInstanceOf(UnsupportedOperationException.class);
+        Mockito.when(template.prepare(Mockito.anyString(), Mockito.any())).thenReturn(preparedStatement);
+        Mockito.when(preparedStatement.isCount())
+                .thenReturn(false);
+        Mockito.when(preparedStatement.singleResult())
+                .thenReturn(Optional.of(1L));
+        Assertions.assertThat(people.updateReturnLong("Ada")).isEqualTo(1L);
     }
 }
