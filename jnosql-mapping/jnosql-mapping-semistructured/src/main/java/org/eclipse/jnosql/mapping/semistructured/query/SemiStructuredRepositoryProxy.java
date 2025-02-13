@@ -65,7 +65,7 @@ public class SemiStructuredRepositoryProxy<T, K> extends AbstractSemiStructuredR
         this.repositoryType =  repositoryType;
     }
 
-    SemiStructuredRepositoryProxy(SemiStructuredTemplate template,
+    protected SemiStructuredRepositoryProxy(SemiStructuredTemplate template,
                                   EntityMetadata metadata, Class<?> typeClass,
                                   Converters converters) {
         this.template = template;
