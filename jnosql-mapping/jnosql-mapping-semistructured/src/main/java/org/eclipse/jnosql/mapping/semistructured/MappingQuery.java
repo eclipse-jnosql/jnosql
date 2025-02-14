@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.semistructured;
 
 
 import jakarta.data.Sort;
+
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 
@@ -23,13 +24,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Collections.emptyList;
 
 /**
  * This record represents a mapping implementation of the {@link SelectQuery} interface.
  * It encapsulates information about sorting, limit, skip, criteria condition, and the entity name.
  */
-public record MappingQuery(List<Sort<?>> sorts, long limit, long skip, CriteriaCondition criteriaCondition, String entity)
+public record MappingQuery(List<Sort<?>> sorts, long limit, long skip, CriteriaCondition criteriaCondition, String entity, List<String> columns)
         implements SelectQuery {
 
 
@@ -41,11 +41,6 @@ public record MappingQuery(List<Sort<?>> sorts, long limit, long skip, CriteriaC
     @Override
     public Optional<CriteriaCondition> condition() {
         return Optional.ofNullable(criteriaCondition);
-    }
-
-    @Override
-    public List<String> columns() {
-        return emptyList();
     }
 
     @Override

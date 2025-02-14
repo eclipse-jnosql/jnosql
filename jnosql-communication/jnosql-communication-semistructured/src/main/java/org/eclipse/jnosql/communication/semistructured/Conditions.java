@@ -17,12 +17,12 @@ import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.Where;
 
-final class Conditions {
+public final class Conditions {
 
     private Conditions() {
     }
 
-    static CriteriaCondition getCondition(Where where, Params params, CommunicationObserverParser observer, String entity) {
+    public static CriteriaCondition getCondition(Where where, Params params, CommunicationObserverParser observer, String entity) {
         QueryCondition condition = where.condition();
         return getCondition(condition, params, observer, entity);
     }

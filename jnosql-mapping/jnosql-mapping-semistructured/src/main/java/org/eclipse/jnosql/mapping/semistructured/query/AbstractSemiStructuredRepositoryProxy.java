@@ -21,6 +21,7 @@ import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Select;
 import jakarta.data.restrict.Restriction;
+
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.QueryType;
@@ -39,6 +40,8 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
+
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -50,6 +53,10 @@ import static java.util.stream.Collectors.toList;
 public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSemiStructuredRepository<T, K> {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractSemiStructuredRepositoryProxy.class.getName());
+
+    // redeclare so that it can be accessed in this package
+    @Override
+    protected abstract AbstractRepository<T, K> repository();
 
     @Override
     protected Object executeQuery(Object instance, Method method, Object[] params) {

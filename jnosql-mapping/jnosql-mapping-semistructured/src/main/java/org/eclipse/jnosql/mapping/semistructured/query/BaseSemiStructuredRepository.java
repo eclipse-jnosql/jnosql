@@ -230,7 +230,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                     condition = condition.and(columnCondition);
                 }
                 return new MappingQuery(query.sorts(), query.limit(), query.skip(),
-                        condition, query.name());
+                        condition, query.name(), query.columns());
             }
         }
         return query;
@@ -287,7 +287,8 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
             return new MappingQuery(sorts, max,
                     skip,
                     selectQuery.condition().orElse(null),
-                    selectQuery.name());
+                    selectQuery.name(),
+                    selectQuery.columns());
         }
 
         if (limit.isPresent()) {
@@ -299,7 +300,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
             return new MappingQuery(sorts, max,
                     skip,
                     selectQuery.condition().orElse(null),
-                    selectQuery.name());
+                    selectQuery.name(), selectQuery.columns());
         }
 
         return special.pageRequest().<SelectQuery>map(p -> {
@@ -311,13 +312,13 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                 sorts.addAll(special.sorts());
             }
             return new MappingQuery(sorts, size, skip,
-                    selectQuery.condition().orElse(null), selectQuery.name());
+                    selectQuery.condition().orElse(null), selectQuery.name(), selectQuery.columns());
         }).orElseGet(() -> {
             if (!special.sorts().isEmpty()) {
                 List<Sort<?>> sorts = new ArrayList<>(selectQuery.sorts());
                 sorts.addAll(special.sorts());
                 return new MappingQuery(sorts, selectQuery.limit(), selectQuery.skip(),
-                        selectQuery.condition().orElse(null), selectQuery.name());
+                        selectQuery.condition().orElse(null), selectQuery.name(), selectQuery.columns());
             }
             return selectQuery;
         });
@@ -335,10 +336,10 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
             if (conditionOptional.isPresent()) {
                 CriteriaCondition condition = conditionOptional.orElseThrow();
                 updateQuery = new MappingQuery(selectQuery.sorts(), selectQuery.limit(),
-                        selectQuery.skip(), condition.and(conditionConverted), selectQuery.name());
+                        selectQuery.skip(), condition.and(conditionConverted), selectQuery.name(), selectQuery.columns());
             } else {
                 updateQuery = new MappingQuery(selectQuery.sorts(), selectQuery.limit(),
-                        selectQuery.skip(), conditionConverted, selectQuery.name());
+                        selectQuery.skip(), conditionConverted, selectQuery.name(), selectQuery.columns());
             }
         }
         return updateQuery;

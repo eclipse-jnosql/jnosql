@@ -57,7 +57,7 @@ public class DynamicQuery implements Supplier<SelectQuery> {
             return new MappingQuery(sorts, max,
                     skip,
                     query.condition().orElse(null),
-                    query.name());
+                    query.name(), query.columns());
         }
 
         if (limit.isPresent()) {
@@ -71,7 +71,8 @@ public class DynamicQuery implements Supplier<SelectQuery> {
             return new MappingQuery(sorts, max,
                     skip,
                     query.condition().orElse(null),
-                    query.name());
+                    query.name(),
+                    query.columns());
         }
 
         return special.pageRequest().<SelectQuery>map(p -> {
@@ -83,7 +84,7 @@ public class DynamicQuery implements Supplier<SelectQuery> {
                 sorts.addAll(special.sorts());
             }
             return new MappingQuery(sorts, size, skip,
-                    query.condition().orElse(null), query.name());
+                    query.condition().orElse(null), query.name(), query.columns());
         }).orElse(query);
     }
 

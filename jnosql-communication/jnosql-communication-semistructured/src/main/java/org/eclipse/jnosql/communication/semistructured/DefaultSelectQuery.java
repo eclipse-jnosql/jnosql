@@ -25,7 +25,7 @@ import static java.util.Optional.ofNullable;
 /**
  * The default implementation of column query.
  */
-record DefaultSelectQuery(long limit, long skip, String name,
+public record DefaultSelectQuery(long limit, long skip, String name,
                           List<String> columns, List<Sort<?>> sorts, CriteriaCondition criteriaCondition, boolean count)
         implements SelectQuery {
 

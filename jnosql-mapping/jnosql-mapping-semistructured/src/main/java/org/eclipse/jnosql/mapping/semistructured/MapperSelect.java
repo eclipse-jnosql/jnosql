@@ -155,7 +155,7 @@ final class MapperSelect extends AbstractMapperQuery implements MapperFrom, Mapp
         return this;
     }
     private SelectQuery build() {
-        return new MappingQuery(sorts, limit, start, condition, entity);
+        return new MappingQuery(sorts, limit, start, condition, entity, List.of());
     }
 
     @Override
