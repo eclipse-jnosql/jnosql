@@ -164,7 +164,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                     condition = condition.and(columnCondition);
                 }
                 return new MappingQuery(query.sorts(), query.limit(), query.skip(),
-                        condition, query.name());
+                        condition, query.name(), query.columns());
             }
         }
         return query;
@@ -213,7 +213,8 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
             return new MappingQuery(sorts, max,
                     skip,
                     documentQuery.condition().orElse(null),
-                    documentQuery.name());
+                    documentQuery.name(),
+                    documentQuery.columns());
         }
 
         if (limit.isPresent()) {
@@ -222,7 +223,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
             return new MappingQuery(documentQuery.sorts(), max,
                     skip,
                     documentQuery.condition().orElse(null),
-                    documentQuery.name());
+                    documentQuery.name(), documentQuery.columns());
         }
 
         return special.pageRequest().<org.eclipse.jnosql.communication.semistructured.SelectQuery>map(p -> {
@@ -234,7 +235,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                 sorts.addAll(special.sorts());
             }
             return new MappingQuery(sorts, size, skip,
-                    documentQuery.condition().orElse(null), documentQuery.name());
+                    documentQuery.condition().orElse(null), documentQuery.name(), documentQuery.columns());
         }).orElse(documentQuery);
     }
 

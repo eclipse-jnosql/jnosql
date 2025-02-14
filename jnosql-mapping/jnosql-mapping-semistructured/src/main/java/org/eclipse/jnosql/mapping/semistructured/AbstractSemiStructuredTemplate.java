@@ -351,7 +351,7 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         requireNonNull(query, "query is required");
         requireNonNull(pageRequest, "pageRequest is required");
         var queryPage = new MappingQuery(query.sorts(), pageRequest.size(), NoSQLPage.skip(pageRequest),
-                query.condition().orElse(null), query.name());
+                query.condition().orElse(null), query.name(), query.columns());
         Stream<T> result = select(queryPage);
         return NoSQLPage.of(result.toList(), pageRequest);
     }

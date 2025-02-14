@@ -18,6 +18,7 @@ import jakarta.data.Sort;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Query;
+
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.QueryType;
 import org.eclipse.jnosql.mapping.core.repository.DynamicQueryMethodReturn;
@@ -31,6 +32,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
+
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -43,6 +46,10 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
 
     private static final Logger LOGGER = Logger.getLogger(AbstractSemiStructuredRepositoryProxy.class.getName());
 
+    // redeclare so that it can be accessed in this package
+    @Override
+    protected abstract AbstractRepository<T, K> repository();
+    
     @Override
     protected Object executeQuery(Object instance, Method method, Object[] params) {
         LOGGER.finest("Executing query on method: " + method);

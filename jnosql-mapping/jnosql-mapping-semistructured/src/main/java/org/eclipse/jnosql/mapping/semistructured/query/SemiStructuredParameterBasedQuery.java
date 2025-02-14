@@ -62,7 +62,7 @@ public enum SemiStructuredParameterBasedQuery {
 
         var condition = condition(conditions);
         var entity = entityMetadata.name();
-        return new MappingQuery(updateSorter, 0L, 0L, condition, entity);
+        return new MappingQuery(updateSorter, 0L, 0L, condition, entity, List.of());
     }
 
     /**
@@ -91,7 +91,7 @@ public enum SemiStructuredParameterBasedQuery {
             limit = pageRequest.size();
             skip = NoSQLPage.skip(pageRequest);
         }
-        return new MappingQuery(updateSorter, limit, skip, condition, entity);
+        return new MappingQuery(updateSorter, limit, skip, condition, entity, List.of());
     }
 
     private CriteriaCondition condition(List<CriteriaCondition> conditions) {

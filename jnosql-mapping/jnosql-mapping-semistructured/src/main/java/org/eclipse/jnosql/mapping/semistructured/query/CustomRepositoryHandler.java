@@ -251,7 +251,8 @@ public class CustomRepositoryHandler implements InvocationHandler {
                 .orElseThrow(() -> new UnsupportedOperationException("The repository does not support the method " + method));
     }
 
-    protected AbstractSemiStructuredRepositoryProxy<Object, Object> createRepositoryProxy(SemiStructuredTemplate template, EntityMetadata entityMetadata,  Class<?> entityType, Converters converters) {
+    protected AbstractSemiStructuredRepositoryProxy<Object, Object> createRepositoryProxy(
+            SemiStructuredTemplate template, EntityMetadata entityMetadata,  Class<?> entityType, Converters converters) {
         return new SemiStructuredRepositoryProxy<>(template, entityMetadata, entityType, converters);
     }
 

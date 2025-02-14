@@ -57,7 +57,7 @@ public abstract class AbstractSemiStructuredRepository<T, K> extends AbstractRep
         });
         SelectQuery query = new MappingQuery(sorts,
                 pageRequest.size(), NoSQLPage.skip(pageRequest)
-                , null ,metadata.name());
+                , null ,metadata.name(), List.of());
 
         List<T> entities = template().<T>select(query).toList();
         return NoSQLPage.of(entities, pageRequest);
