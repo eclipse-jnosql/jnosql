@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * A Value that allows to set value instead of be immutable. This Value will use at the Dynamic query.
  */
-final class ParamValue implements Value {
+public final class ParamValue implements Value {
 
     private final String name;
 
