@@ -88,7 +88,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
                             sorts.addAll(sortsFromAnnotation);
                             return new MappingQuery(sorts, selectQuery.limit(), selectQuery.skip(),
                                     selectQuery.condition().orElse(null)
-                                    , entity);
+                                    , entity, selectQuery.columns());
                         });
                     }
                     return prepare;
