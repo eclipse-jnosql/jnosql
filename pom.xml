@@ -70,7 +70,7 @@
         <maven-javadoc-plugin.vesion>3.11.1</maven-javadoc-plugin.vesion>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven.checkstyle.plugin.version>3.5.0</maven.checkstyle.plugin.version>
-        <maven.compile.version>3.13.0</maven.compile.version>
+        <maven.compile.version>3.14.0</maven.compile.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.surefire.plugin.version>3.5.0</maven.surefire.plugin.version>
@@ -88,7 +88,7 @@
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <checkstyle.version>10.21.1</checkstyle.version>
         <!-- testing libraries -->
-        <junit.version>5.11.4</junit.version>
+        <junit.version>5.12.0</junit.version>
         <mockito.verson>5.15.2</mockito.verson>
         <assertj.version>3.27.3</assertj.version>
         <awaitility.version>4.2.2</awaitility.version>
