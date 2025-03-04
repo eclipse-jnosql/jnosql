@@ -38,8 +38,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @AddPackages(value = {Converters.class, EntityConverter.class, GraphTemplate.class})
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
-@AddExtensions({EntityMetadataExtension.class, DocumentExtension.class})
-class DocumentExtensionTest {
+@AddExtensions({EntityMetadataExtension.class, GraphExtension.class})
+class GraphExtensionTest {
 
 
     @Inject

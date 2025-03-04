@@ -19,7 +19,7 @@ import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.graph.MockProducer;
-import org.eclipse.jnosql.mapping.graph.spi.DocumentExtension;
+import org.eclipse.jnosql.mapping.graph.spi.GraphExtension;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
@@ -39,7 +39,7 @@ import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.DOCUM
 @AddPackages(value = {Converters.class, EntityConverter.class})
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
-@AddExtensions({EntityMetadataExtension.class, DocumentExtension.class})
+@AddExtensions({EntityMetadataExtension.class, GraphExtension.class})
 class GraphManagerSupplierTest {
 
     @Inject

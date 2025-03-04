@@ -39,15 +39,15 @@ import java.util.logging.Logger;
  * Upon initialization, it maintains a set of {@link DatabaseMetadata} instances representing the document databases.
  * </p>
  */
-public class DocumentExtension implements Extension {
+public class GraphExtension implements Extension {
 
-    private static final Logger LOGGER = Logger.getLogger(DocumentExtension.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(GraphExtension.class.getName());
 
     private final Set<DatabaseMetadata> databases = new HashSet<>();
 
 
     <T, X extends DatabaseManager> void observes(@Observes final ProcessProducer<T, X> pp) {
-        Databases.addDatabase(pp, DatabaseType.DOCUMENT, databases);
+        Databases.addDatabase(pp, DatabaseType.GRAPH, databases);
     }
 
 
@@ -59,9 +59,9 @@ public class DocumentExtension implements Extension {
 
         Set<Class<?>> customRepositories = scanner.customRepositories();
 
-        LOGGER.info(String.format("Processing Document extension: %d databases crud %d found, custom repositories: %d",
+        LOGGER.info(String.format("Processing Graph extension: %d databases crud %d found, custom repositories: %d",
                 databases.size(), crudTypes.size(), customRepositories.size()));
-        LOGGER.info("Processing repositories as a Document implementation: " + crudTypes);
+        LOGGER.info("Processing repositories as a Graph implementation: " + crudTypes);
 
         databases.forEach(type -> {
             if (!type.getProvider().isBlank()) {
@@ -71,7 +71,7 @@ public class DocumentExtension implements Extension {
         });
 
         crudTypes.forEach(type -> {
-            if (!databases.contains(DatabaseMetadata.DEFAULT_DOCUMENT)) {
+            if (!databases.contains(DatabaseMetadata.DEFAULT_GRAPH)) {
                 afterBeanDiscovery.addBean(new RepositoryGraphBean<>(type, ""));
             }
             databases.forEach(database ->
@@ -79,7 +79,7 @@ public class DocumentExtension implements Extension {
         });
 
         customRepositories.forEach(type -> {
-            if (!databases.contains(DatabaseMetadata.DEFAULT_DOCUMENT)) {
+            if (!databases.contains(DatabaseMetadata.DEFAULT_GRAPH)) {
                 afterBeanDiscovery.addBean(new CustomRepositoryDocumentBean<>(type, ""));
             }
             databases.forEach(database ->

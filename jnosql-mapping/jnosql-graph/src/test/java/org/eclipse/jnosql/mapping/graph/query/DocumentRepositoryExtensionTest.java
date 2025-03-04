@@ -23,7 +23,7 @@ import org.eclipse.jnosql.mapping.graph.GraphTemplate;
 import org.eclipse.jnosql.mapping.graph.MockProducer;
 import org.eclipse.jnosql.mapping.graph.entities.Person;
 import org.eclipse.jnosql.mapping.graph.entities.PersonRepository;
-import org.eclipse.jnosql.mapping.graph.spi.DocumentExtension;
+import org.eclipse.jnosql.mapping.graph.spi.GraphExtension;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredRepositoryProxy;
@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class, SemiStructuredRepositoryProxy.class})
 @AddPackages({MockProducer.class, GraphTemplate.class, Reflections.class})
-@AddExtensions({EntityMetadataExtension.class, DocumentExtension.class})
+@AddExtensions({EntityMetadataExtension.class, GraphExtension.class})
 class DocumentRepositoryExtensionTest {
 
     @Inject
