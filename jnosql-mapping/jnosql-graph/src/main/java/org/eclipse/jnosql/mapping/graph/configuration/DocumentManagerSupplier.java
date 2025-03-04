@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.DOCUMENT_DATABASE;
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.DOCUMENT_PROVIDER;
+import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.GRAPH_PROVIDER;
 
 @ApplicationScoped
 class DocumentManagerSupplier implements Supplier<DatabaseManager> {
@@ -47,7 +48,7 @@ class DocumentManagerSupplier implements Supplier<DatabaseManager> {
     public DatabaseManager get() {
         Settings settings = MicroProfileSettings.INSTANCE;
 
-        DatabaseConfiguration configuration = settings.get(DOCUMENT_PROVIDER, Class.class)
+        DatabaseConfiguration configuration = settings.get(GRAPH_PROVIDER, Class.class)
                 .filter(DatabaseConfiguration.class::isAssignableFrom)
                 .map(c -> {
                     final Reflections reflections = CDI.current().select(Reflections.class).get();
@@ -61,13 +62,13 @@ class DocumentManagerSupplier implements Supplier<DatabaseManager> {
                 + DOCUMENT_DATABASE.get()));
         DatabaseManager manager = managerFactory.apply(db);
 
-        LOGGER.log(Level.FINEST, "Starting  a DocumentManager instance using Eclipse MicroProfile Config," +
+        LOGGER.log(Level.FINEST, "Starting  a GraphManager instance using Eclipse MicroProfile Config," +
                 " database name: " + db);
         return manager;
     }
 
-    public void close(@Disposes @Database(DatabaseType.DOCUMENT) DatabaseManager manager) {
-        LOGGER.log(Level.FINEST, "Closing DocumentManager resource, database name: " + manager.name());
+    public void close(@Disposes @Database(DatabaseType.GRAPH) DatabaseManager manager) {
+        LOGGER.log(Level.FINEST, "Closing GraphManager resource, database name: " + manager.name());
         manager.close();
     }
 }
