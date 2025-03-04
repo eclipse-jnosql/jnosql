@@ -43,7 +43,7 @@ class DocumentManagerSupplier implements Supplier<DatabaseManager> {
     @Override
     @Produces
     @ApplicationScoped
-    @Database(DatabaseType.DOCUMENT)
+    @Database(DatabaseType.GRAPH)
     public DatabaseManager get() {
         Settings settings = MicroProfileSettings.INSTANCE;
 
