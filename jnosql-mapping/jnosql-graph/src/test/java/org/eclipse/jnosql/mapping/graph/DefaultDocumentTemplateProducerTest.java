@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 @EnableAutoWeld
-@AddPackages(value = {Converters.class, EntityConverter.class, DocumentTemplate.class})
+@AddPackages(value = {Converters.class, EntityConverter.class, GraphTemplate.class})
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({EntityMetadataExtension.class, DocumentExtension.class})
@@ -50,7 +50,7 @@ class DefaultDocumentTemplateProducerTest {
     @Test
     void shouldReturn() {
         var manager = Mockito.mock(DatabaseManager.class);
-        DocumentTemplate documentTemplate = producer.apply(manager);
-        assertNotNull(documentTemplate);
+        GraphTemplate graphTemplate = producer.apply(manager);
+        assertNotNull(graphTemplate);
     }
 }

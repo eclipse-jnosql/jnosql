@@ -18,7 +18,7 @@ import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseType;
-import org.eclipse.jnosql.mapping.graph.DocumentTemplate;
+import org.eclipse.jnosql.mapping.graph.GraphTemplate;
 import org.eclipse.jnosql.mapping.graph.MockProducer;
 import org.eclipse.jnosql.mapping.graph.entities.Person;
 import org.eclipse.jnosql.mapping.graph.entities.PersonRepository;
@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 @EnableAutoWeld
-@AddPackages(value = {Converters.class, EntityConverter.class, DocumentTemplate.class})
+@AddPackages(value = {Converters.class, EntityConverter.class, GraphTemplate.class})
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({EntityMetadataExtension.class, DocumentExtension.class})
@@ -52,10 +52,10 @@ class DocumentExtensionTest {
 
     @Inject
     @Database(value = DatabaseType.DOCUMENT, provider = "documentRepositoryMock")
-    private DocumentTemplate templateMock;
+    private GraphTemplate templateMock;
 
     @Inject
-    private DocumentTemplate template;
+    private GraphTemplate template;
 
     @Test
     void shouldInitiate() {

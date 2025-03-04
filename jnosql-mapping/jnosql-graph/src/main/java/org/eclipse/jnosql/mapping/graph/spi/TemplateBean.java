@@ -20,7 +20,7 @@ import jakarta.nosql.Template;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
-import org.eclipse.jnosql.mapping.graph.DocumentTemplate;
+import org.eclipse.jnosql.mapping.graph.GraphTemplate;
 import org.eclipse.jnosql.mapping.graph.DocumentTemplateProducer;
 import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
 
@@ -29,9 +29,9 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Set;
 
-class TemplateBean extends AbstractBean<DocumentTemplate> {
+class TemplateBean extends AbstractBean<GraphTemplate> {
 
-    private static final Set<Type> TYPES = Set.of(DocumentTemplate.class, Template.class);
+    private static final Set<Type> TYPES = Set.of(GraphTemplate.class, Template.class);
 
     private final String provider;
 
@@ -49,12 +49,12 @@ class TemplateBean extends AbstractBean<DocumentTemplate> {
 
     @Override
     public Class<?> getBeanClass() {
-        return DocumentTemplate.class;
+        return GraphTemplate.class;
     }
 
 
     @Override
-    public DocumentTemplate create(CreationalContext<DocumentTemplate> context) {
+    public GraphTemplate create(CreationalContext<GraphTemplate> context) {
 
         var producer = getInstance(DocumentTemplateProducer.class);
         var manager = getManager();
@@ -77,7 +77,7 @@ class TemplateBean extends AbstractBean<DocumentTemplate> {
 
     @Override
     public String getId() {
-        return DocumentTemplate.class.getName() + DatabaseType.DOCUMENT + "-" + provider;
+        return GraphTemplate.class.getName() + DatabaseType.DOCUMENT + "-" + provider;
     }
 
 }

@@ -35,7 +35,7 @@ import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
  *
  * @see SemiStructuredTemplate
  */
-public interface DocumentTemplate extends SemiStructuredTemplate {
+public interface GraphTemplate extends SemiStructuredTemplate {
 
 
 }

@@ -29,11 +29,11 @@ import java.util.Objects;
 import java.util.function.Function;
 
 /**
- * An {@code ApplicationScoped} producer class responsible for creating instances of {@link DocumentTemplate}.
- * It implements the {@link Function} interface with {@link DatabaseManager} as input and {@link DocumentTemplate} as output.
+ * An {@code ApplicationScoped} producer class responsible for creating instances of {@link GraphTemplate}.
+ * It implements the {@link Function} interface with {@link DatabaseManager} as input and {@link GraphTemplate} as output.
  */
 @ApplicationScoped
-public class DocumentTemplateProducer implements Function<DatabaseManager, DocumentTemplate> {
+public class DocumentTemplateProducer implements Function<DatabaseManager, GraphTemplate> {
 
     @Inject
     private EntityConverter converter;
@@ -49,14 +49,14 @@ public class DocumentTemplateProducer implements Function<DatabaseManager, Docum
 
 
     @Override
-    public DocumentTemplate apply(DatabaseManager manager) {
+    public GraphTemplate apply(DatabaseManager manager) {
         Objects.requireNonNull(manager, "manager is required");
-        return new ProducerDocumentTemplate(converter, manager,
+        return new ProducerGraphTemplate(converter, manager,
                 eventManager, entities, converters);
     }
 
     @Vetoed
-    static class ProducerDocumentTemplate  extends AbstractSemiStructuredTemplate implements DocumentTemplate {
+    static class ProducerGraphTemplate extends AbstractSemiStructuredTemplate implements GraphTemplate {
 
         private final EntityConverter converter;
 
@@ -68,11 +68,11 @@ public class DocumentTemplateProducer implements Function<DatabaseManager, Docum
 
         private final  Converters converters;
 
-        ProducerDocumentTemplate(EntityConverter converter,
-                               DatabaseManager manager,
-                               EventPersistManager eventManager,
-                               EntitiesMetadata entities,
-                               Converters converters) {
+        ProducerGraphTemplate(EntityConverter converter,
+                              DatabaseManager manager,
+                              EventPersistManager eventManager,
+                              EntitiesMetadata entities,
+                              Converters converters) {
             this.converter = converter;
             this.manager = manager;
             this.eventManager = eventManager;
@@ -80,7 +80,7 @@ public class DocumentTemplateProducer implements Function<DatabaseManager, Docum
             this.converters = converters;
         }
 
-        ProducerDocumentTemplate() {
+        ProducerGraphTemplate() {
             this(null, null, null, null, null);
         }
 

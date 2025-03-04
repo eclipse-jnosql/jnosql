@@ -19,7 +19,7 @@ import jakarta.enterprise.context.spi.CreationalContext;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
-import org.eclipse.jnosql.mapping.graph.DocumentTemplate;
+import org.eclipse.jnosql.mapping.graph.GraphTemplate;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
 import org.eclipse.jnosql.mapping.core.util.AnnotationLiteralUtil;
@@ -84,8 +84,8 @@ public class RepositoryDocumentBean<T extends DataRepository<T, ?>> extends Abst
     @SuppressWarnings("unchecked")
     public T create(CreationalContext<T> context) {
         EntitiesMetadata entities = getInstance(EntitiesMetadata.class);
-        var template = provider.isEmpty() ? getInstance(DocumentTemplate.class) :
-                getInstance(DocumentTemplate.class, DatabaseQualifier.ofDocument(provider));
+        var template = provider.isEmpty() ? getInstance(GraphTemplate.class) :
+                getInstance(GraphTemplate.class, DatabaseQualifier.ofDocument(provider));
 
         Converters converters = getInstance(Converters.class);
 

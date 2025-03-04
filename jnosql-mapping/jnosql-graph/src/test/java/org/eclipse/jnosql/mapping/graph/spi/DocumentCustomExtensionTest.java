@@ -20,7 +20,7 @@ import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
-import org.eclipse.jnosql.mapping.graph.DocumentTemplate;
+import org.eclipse.jnosql.mapping.graph.GraphTemplate;
 import org.eclipse.jnosql.mapping.graph.MockProducer;
 import org.eclipse.jnosql.mapping.graph.entities.People;
 import org.eclipse.jnosql.mapping.graph.entities.Person;
@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 @EnableAutoWeld
-@AddPackages(value = {Converters.class, EntityConverter.class, DocumentTemplate.class})
+@AddPackages(value = {Converters.class, EntityConverter.class, GraphTemplate.class})
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({EntityMetadataExtension.class, DocumentExtension.class})

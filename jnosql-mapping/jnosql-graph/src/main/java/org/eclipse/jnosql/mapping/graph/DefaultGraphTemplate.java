@@ -30,7 +30,7 @@ import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 @Default
 @ApplicationScoped
 @Database(DatabaseType.DOCUMENT)
-class DefaultDocumentTemplate extends AbstractSemiStructuredTemplate implements DocumentTemplate {
+class DefaultGraphTemplate extends AbstractSemiStructuredTemplate implements GraphTemplate {
 
 
     private final EntityConverter converter;
@@ -46,10 +46,10 @@ class DefaultDocumentTemplate extends AbstractSemiStructuredTemplate implements 
 
 
     @Inject
-    DefaultDocumentTemplate(EntityConverter converter,
-                            @Database(DatabaseType.DOCUMENT) DatabaseManager manager,
-                            EventPersistManager eventManager,
-                            EntitiesMetadata entities, Converters converters){
+    DefaultGraphTemplate(EntityConverter converter,
+                         @Database(DatabaseType.DOCUMENT) DatabaseManager manager,
+                         EventPersistManager eventManager,
+                         EntitiesMetadata entities, Converters converters){
         this.converter = converter;
         this.manager = manager;
         this.eventManager = eventManager;
@@ -57,7 +57,7 @@ class DefaultDocumentTemplate extends AbstractSemiStructuredTemplate implements 
         this.converters = converters;
     }
 
-    DefaultDocumentTemplate() {
+    DefaultGraphTemplate() {
         this(null, null, null, null, null);
     }
 
