@@ -40,10 +40,10 @@ import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.DOCUM
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({EntityMetadataExtension.class, DocumentExtension.class})
-class DocumentManagerSupplierTest {
+class GraphManagerSupplierTest {
 
     @Inject
-    private DocumentManagerSupplier supplier;
+    private GraphManagerSupplier supplier;
 
     @BeforeEach
     void beforeEach(){

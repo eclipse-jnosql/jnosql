@@ -33,13 +33,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.DOCUMENT_DATABASE;
-import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.DOCUMENT_PROVIDER;
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.GRAPH_PROVIDER;
 
 @ApplicationScoped
-class DocumentManagerSupplier implements Supplier<DatabaseManager> {
+class GraphManagerSupplier implements Supplier<DatabaseManager> {
 
-    private static final Logger LOGGER = Logger.getLogger(DocumentManagerSupplier.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(GraphManagerSupplier.class.getName());
 
     @Override
     @Produces
