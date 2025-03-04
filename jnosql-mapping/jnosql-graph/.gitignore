@@ -1,0 +1,15 @@
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+test-output/
+/doc
+*.iml
+*.log
+.classpath
+-project
+/.resourceCache
+/.project
+/.idea
+.settings/
