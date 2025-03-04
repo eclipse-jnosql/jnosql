@@ -62,7 +62,7 @@ class TemplateBean extends AbstractBean<GraphTemplate> {
     }
 
     private DatabaseManager getManager() {
-        return getInstance(DatabaseManager.class, DatabaseQualifier.ofDocument(provider));
+        return getInstance(DatabaseManager.class, DatabaseQualifier.ofGraph(provider));
     }
 
     @Override
@@ -77,7 +77,7 @@ class TemplateBean extends AbstractBean<GraphTemplate> {
 
     @Override
     public String getId() {
-        return GraphTemplate.class.getName() + DatabaseType.DOCUMENT + "-" + provider;
+        return GraphTemplate.class.getName() + DatabaseType.GRAPH + "-" + provider;
     }
 
 }
