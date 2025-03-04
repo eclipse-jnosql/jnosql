@@ -24,7 +24,7 @@ import org.eclipse.jnosql.mapping.DatabaseMetadata;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.Databases;
 import org.eclipse.jnosql.mapping.graph.query.CustomRepositoryDocumentBean;
-import org.eclipse.jnosql.mapping.graph.query.RepositoryDocumentBean;
+import org.eclipse.jnosql.mapping.graph.query.RepositoryGraphBean;
 import org.eclipse.jnosql.mapping.metadata.ClassScanner;
 
 import java.util.HashSet;
@@ -72,10 +72,10 @@ public class DocumentExtension implements Extension {
 
         crudTypes.forEach(type -> {
             if (!databases.contains(DatabaseMetadata.DEFAULT_DOCUMENT)) {
-                afterBeanDiscovery.addBean(new RepositoryDocumentBean<>(type, ""));
+                afterBeanDiscovery.addBean(new RepositoryGraphBean<>(type, ""));
             }
             databases.forEach(database ->
-                afterBeanDiscovery.addBean(new RepositoryDocumentBean<>(type, database.getProvider())));
+                afterBeanDiscovery.addBean(new RepositoryGraphBean<>(type, database.getProvider())));
         });
 
         customRepositories.forEach(type -> {
