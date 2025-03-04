@@ -23,7 +23,7 @@
         <version>1.1.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jnosql-mapping-document</artifactId>
+    <artifactId>jnosql-mapping-graph</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
