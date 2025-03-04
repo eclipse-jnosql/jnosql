@@ -35,6 +35,7 @@
         <module>jnosql-mapping-reflection</module>
         <module>jnosql-mapping-core</module>
         <module>jnosql-mapping-semistructured</module>
+        <module>jnosql-mapping-graph</module>
         <module>jnosql-mapping-document</module>
         <module>jnosql-mapping-column</module>
         <module>jnosql-mapping-key-value</module>
