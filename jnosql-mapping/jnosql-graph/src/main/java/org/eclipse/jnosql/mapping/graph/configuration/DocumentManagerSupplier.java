@@ -12,7 +12,7 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.document.configuration;
+package org.eclipse.jnosql.mapping.graph.configuration;
 
 import jakarta.data.exceptions.MappingException;
 import org.eclipse.jnosql.communication.Settings;

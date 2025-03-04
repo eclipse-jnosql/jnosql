@@ -12,18 +12,17 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.document.query;
+package org.eclipse.jnosql.mapping.graph.query;
 
-import jakarta.data.repository.DataRepository;
 import jakarta.enterprise.context.spi.CreationalContext;
-import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
-import org.eclipse.jnosql.mapping.document.DocumentTemplate;
-import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
 import org.eclipse.jnosql.mapping.core.util.AnnotationLiteralUtil;
-import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredRepositoryProxy;
+import org.eclipse.jnosql.mapping.graph.DocumentTemplate;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.semistructured.query.CustomRepositoryHandler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Proxy;
@@ -34,7 +33,7 @@ import java.util.Set;
 
 
 /**
- * This class serves as a JNoSQL discovery bean for CDI extension, responsible for registering Repository instances.
+ * This class serves as a JNoSQL discovery bean for CDI extension, responsible for registering Custom Repository instances.
  * It extends {@link AbstractBean} and is parameterized with type {@code T} representing the repository type.
  * <p>
  * Upon instantiation, it initializes with the provided repository type, provider name, and qualifiers.
@@ -44,7 +43,7 @@ import java.util.Set;
  * @param <T> the type of the repository
  * @see AbstractBean
  */
-public class RepositoryDocumentBean<T extends DataRepository<T, ?>> extends AbstractBean<T> {
+public class CustomRepositoryDocumentBean<T> extends AbstractBean<T> {
 
     private final Class<T> type;
 
@@ -61,7 +60,7 @@ public class RepositoryDocumentBean<T extends DataRepository<T, ?>> extends Abst
      * @param provider    the provider name, that must be a
      */
     @SuppressWarnings("unchecked")
-    public RepositoryDocumentBean(Class<?> type, String provider) {
+    public CustomRepositoryDocumentBean(Class<?> type, String provider) {
         this.type = (Class<T>) type;
         this.types = Collections.singleton(type);
         this.provider = provider;
@@ -80,17 +79,22 @@ public class RepositoryDocumentBean<T extends DataRepository<T, ?>> extends Abst
         return type;
     }
 
-    @Override
     @SuppressWarnings("unchecked")
+    @Override
     public T create(CreationalContext<T> context) {
-        EntitiesMetadata entities = getInstance(EntitiesMetadata.class);
+        var entities = getInstance(EntitiesMetadata.class);
         var template = provider.isEmpty() ? getInstance(DocumentTemplate.class) :
                 getInstance(DocumentTemplate.class, DatabaseQualifier.ofDocument(provider));
 
-        Converters converters = getInstance(Converters.class);
+        var converters = getInstance(Converters.class);
 
-        var handler = new SemiStructuredRepositoryProxy<>(template,
-                entities, type, converters);
+        var handler = CustomRepositoryHandler.builder()
+                .entitiesMetadata(entities)
+                .template(template)
+                .customRepositoryType(type)
+                .converters(converters)
+                .build();
+
         return (T) Proxy.newProxyInstance(type.getClassLoader(),
                 new Class[]{type},
                 handler);

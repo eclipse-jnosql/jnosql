@@ -12,7 +12,7 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.document;
+package org.eclipse.jnosql.mapping.graph;
 
 
 import jakarta.annotation.Priority;

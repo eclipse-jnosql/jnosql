@@ -12,7 +12,7 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.document.spi;
+package org.eclipse.jnosql.mapping.graph.spi;
 
 
 import jakarta.enterprise.event.Observes;
@@ -23,8 +23,8 @@ import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.DatabaseMetadata;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.Databases;
-import org.eclipse.jnosql.mapping.document.query.CustomRepositoryDocumentBean;
-import org.eclipse.jnosql.mapping.document.query.RepositoryDocumentBean;
+import org.eclipse.jnosql.mapping.graph.query.CustomRepositoryDocumentBean;
+import org.eclipse.jnosql.mapping.graph.query.RepositoryDocumentBean;
 import org.eclipse.jnosql.mapping.metadata.ClassScanner;
 
 import java.util.HashSet;

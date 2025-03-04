@@ -12,7 +12,7 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.document.spi;
+package org.eclipse.jnosql.mapping.graph.spi;
 
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
@@ -20,10 +20,10 @@ import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
-import org.eclipse.jnosql.mapping.document.DocumentTemplate;
-import org.eclipse.jnosql.mapping.document.MockProducer;
-import org.eclipse.jnosql.mapping.document.entities.People;
-import org.eclipse.jnosql.mapping.document.entities.Person;
+import org.eclipse.jnosql.mapping.graph.DocumentTemplate;
+import org.eclipse.jnosql.mapping.graph.MockProducer;
+import org.eclipse.jnosql.mapping.graph.entities.People;
+import org.eclipse.jnosql.mapping.graph.entities.Person;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.jboss.weld.junit5.auto.AddExtensions;

@@ -12,4 +12,4 @@
 #
 #   Otavio Santana
 #
-org.eclipse.jnosql.mapping.document.spi.DocumentExtension
+org.eclipse.jnosql.mapping.graph.spi.DocumentExtension

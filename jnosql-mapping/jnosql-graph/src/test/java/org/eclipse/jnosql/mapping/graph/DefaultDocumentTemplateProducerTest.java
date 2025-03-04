@@ -12,13 +12,12 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.document;
+package org.eclipse.jnosql.mapping.graph;
 
 import jakarta.inject.Inject;
-import jakarta.nosql.Template;
+import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.Database;
-import org.eclipse.jnosql.mapping.document.spi.DocumentExtension;
+import org.eclipse.jnosql.mapping.graph.spi.DocumentExtension;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
@@ -27,31 +26,31 @@ import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import static org.eclipse.jnosql.mapping.DatabaseType.DOCUMENT;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class, DocumentTemplate.class})
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({EntityMetadataExtension.class, DocumentExtension.class})
-class DocumentTemplateTest {
+class DefaultDocumentTemplateProducerTest {
 
     @Inject
-    private Template template;
-
-    @Inject
-    @Database(DOCUMENT)
-    private Template qualifier;
+    private DocumentTemplateProducer producer;
 
 
     @Test
-    void shouldInjectTemplate() {
-        Assertions.assertNotNull(template);
+    void shouldReturnErrorWhenManagerNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> producer.apply(null));
     }
 
     @Test
-    void shouldInjectQualifier() {
-        Assertions.assertNotNull(qualifier);
+    void shouldReturn() {
+        var manager = Mockito.mock(DatabaseManager.class);
+        DocumentTemplate documentTemplate = producer.apply(manager);
+        assertNotNull(documentTemplate);
     }
 }

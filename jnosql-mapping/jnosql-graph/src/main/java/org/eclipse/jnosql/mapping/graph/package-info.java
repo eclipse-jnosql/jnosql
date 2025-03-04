@@ -40,4 +40,4 @@
  * for programming web applications, which are subject to continual change in place, and where speed of deployment
  * is an important issue.
  */
-package org.eclipse.jnosql.mapping.document;
+package org.eclipse.jnosql.mapping.graph;

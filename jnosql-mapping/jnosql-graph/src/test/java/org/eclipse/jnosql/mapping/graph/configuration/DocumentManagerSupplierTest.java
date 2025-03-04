@@ -12,14 +12,14 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.document.configuration;
+package org.eclipse.jnosql.mapping.graph.configuration;
 
 import jakarta.data.exceptions.MappingException;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.document.MockProducer;
-import org.eclipse.jnosql.mapping.document.spi.DocumentExtension;
+import org.eclipse.jnosql.mapping.graph.MockProducer;
+import org.eclipse.jnosql.mapping.graph.spi.DocumentExtension;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
