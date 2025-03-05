@@ -26,6 +26,24 @@ import java.util.Map;
 public interface Edge<S, T> {
 
     /**
+     * Gets the unique identifier of the edge.
+     *
+     * @return the edge ID, which can be of type Long (Neo4j), String, UUID, or other types in TinkerPop.
+     */
+    Object id();
+
+    /**
+     * Gets the unique identifier of the edge and converts it to the specified type.
+     *
+     * @param <T>  the expected ID type
+     * @param type the class of the expected ID type
+     * @return the edge ID converted to the specified type
+     * @throws NullPointerException if the provided type is null
+     * @throws ClassCastException   if the ID cannot be converted to the specified type
+     */
+    <T> T id(Class<T> type);
+
+    /**
      * Gets the source vertex of the edge.
      *
      * @return the source entity
