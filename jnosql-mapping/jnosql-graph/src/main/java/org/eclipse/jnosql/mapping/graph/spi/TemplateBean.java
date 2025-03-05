@@ -44,7 +44,7 @@ class TemplateBean extends AbstractBean<GraphTemplate> {
      */
     public TemplateBean( String provider) {
         this.provider = provider;
-        this.qualifiers = Collections.singleton(DatabaseQualifier.ofDocument(provider));
+        this.qualifiers = Collections.singleton(DatabaseQualifier.ofGraph(provider));
     }
 
     @Override
