@@ -56,7 +56,7 @@ class GraphManagerSupplier implements Supplier<DatabaseManager> {
 
         Optional<String> database = settings.get(GRAPH_DATABASE, String.class);
         String db = database.orElseGet(() ->{
-            LOGGER.log(Level.WARNING, "The database name is required, default value `{0}` is used", DEFAULT_GRAPH_DATABASE);
+            LOGGER.log(Level.FINE, "The database name is required, default value `{0}` is used", DEFAULT_GRAPH_DATABASE);
             return DEFAULT_GRAPH_DATABASE;
         });
         DatabaseManager manager = managerFactory.apply(db);

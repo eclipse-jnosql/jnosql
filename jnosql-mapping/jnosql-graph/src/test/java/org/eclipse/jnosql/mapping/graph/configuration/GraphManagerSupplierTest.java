@@ -33,7 +33,9 @@ import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.DOCUMENT_DATABASE;
-import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.DOCUMENT_PROVIDER;
+import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.GRAPH_DATABASE;
+import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.GRAPH_PROVIDER;
+import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.GRAPH_PROVIDER;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -47,14 +49,14 @@ class GraphManagerSupplierTest {
 
     @BeforeEach
     void beforeEach(){
-        System.clearProperty(DOCUMENT_PROVIDER.get());
-        System.clearProperty(DOCUMENT_DATABASE.get());
+        System.clearProperty(GRAPH_PROVIDER.get());
+        System.clearProperty(GRAPH_DATABASE.get());
     }
 
     @Test
     void shouldGetManager() {
-        System.setProperty(DOCUMENT_PROVIDER.get(), GraphConfigurationMock.class.getName());
-        System.setProperty(DOCUMENT_DATABASE.get(), "database");
+        System.setProperty(GRAPH_PROVIDER.get(), GraphConfigurationMock.class.getName());
+        System.setProperty(GRAPH_DATABASE.get(), "database");
         DatabaseManager manager = supplier.get();
         Assertions.assertNotNull(manager);
         assertThat(manager).isInstanceOf(GraphConfigurationMock.GraphManagerMock.class);
@@ -63,8 +65,8 @@ class GraphManagerSupplierTest {
 
     @Test
     void shouldUseDefaultConfigurationWhenProviderIsWrong() {
-        System.setProperty(DOCUMENT_PROVIDER.get(), Integer.class.getName());
-        System.setProperty(DOCUMENT_DATABASE.get(), "database");
+        System.setProperty(GRAPH_PROVIDER.get(), Integer.class.getName());
+        System.setProperty(GRAPH_DATABASE.get(), "database");
         DatabaseManager manager = supplier.get();
         Assertions.assertNotNull(manager);
         assertThat(manager).isInstanceOf(GraphConfigurationMock2.GraphManagerMock.class);
@@ -72,15 +74,10 @@ class GraphManagerSupplierTest {
 
     @Test
     void shouldUseDefaultConfiguration() {
-        System.setProperty(DOCUMENT_DATABASE.get(), "database");
+        System.setProperty(GRAPH_DATABASE.get(), "database");
         DatabaseManager manager = supplier.get();
         Assertions.assertNotNull(manager);
         assertThat(manager).isInstanceOf(GraphConfigurationMock2.GraphManagerMock.class);
-    }
-
-    @Test
-    void shouldReturnErrorWhenThereIsNotDatabase() {
-        Assertions.assertThrows(MappingException.class, () -> supplier.get());
     }
 
     @Test
