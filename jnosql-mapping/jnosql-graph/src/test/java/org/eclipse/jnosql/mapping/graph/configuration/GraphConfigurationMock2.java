@@ -25,7 +25,7 @@ import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import java.time.Duration;
 import java.util.stream.Stream;
 
-public class DocumentConfigurationMock2 implements DatabaseConfiguration {
+public class GraphConfigurationMock2 implements DatabaseConfiguration {
 
 
     @Override
@@ -36,8 +36,8 @@ public class DocumentConfigurationMock2 implements DatabaseConfiguration {
     public record DocumentManagerFactoryMock(Settings settings) implements DatabaseManagerFactory {
 
         @Override
-            public DocumentManagerMock apply(String database) {
-                return new DocumentManagerMock(database);
+            public GraphManagerMock apply(String database) {
+                return new GraphManagerMock(database);
             }
 
             @Override
@@ -46,7 +46,7 @@ public class DocumentConfigurationMock2 implements DatabaseConfiguration {
             }
         }
 
-    public record DocumentManagerMock(String name) implements DatabaseManager {
+    public record GraphManagerMock(String name) implements DatabaseManager {
 
         @Override
         public CommunicationEntity insert(CommunicationEntity entity) {

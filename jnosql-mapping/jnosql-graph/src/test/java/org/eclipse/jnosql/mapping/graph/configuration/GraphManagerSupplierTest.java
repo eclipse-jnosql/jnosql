@@ -53,11 +53,11 @@ class GraphManagerSupplierTest {
 
     @Test
     void shouldGetManager() {
-        System.setProperty(DOCUMENT_PROVIDER.get(), DocumentConfigurationMock.class.getName());
+        System.setProperty(DOCUMENT_PROVIDER.get(), GraphConfigurationMock.class.getName());
         System.setProperty(DOCUMENT_DATABASE.get(), "database");
         DatabaseManager manager = supplier.get();
         Assertions.assertNotNull(manager);
-        assertThat(manager).isInstanceOf(DocumentConfigurationMock.DocumentManagerMock.class);
+        assertThat(manager).isInstanceOf(GraphConfigurationMock.GraphManagerMock.class);
     }
 
 
@@ -67,7 +67,7 @@ class GraphManagerSupplierTest {
         System.setProperty(DOCUMENT_DATABASE.get(), "database");
         DatabaseManager manager = supplier.get();
         Assertions.assertNotNull(manager);
-        assertThat(manager).isInstanceOf(DocumentConfigurationMock2.DocumentManagerMock.class);
+        assertThat(manager).isInstanceOf(GraphConfigurationMock2.GraphManagerMock.class);
     }
 
     @Test
@@ -75,7 +75,7 @@ class GraphManagerSupplierTest {
         System.setProperty(DOCUMENT_DATABASE.get(), "database");
         DatabaseManager manager = supplier.get();
         Assertions.assertNotNull(manager);
-        assertThat(manager).isInstanceOf(DocumentConfigurationMock2.DocumentManagerMock.class);
+        assertThat(manager).isInstanceOf(GraphConfigurationMock2.GraphManagerMock.class);
     }
 
     @Test
