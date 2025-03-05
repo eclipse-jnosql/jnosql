@@ -14,9 +14,12 @@
  */
 package org.eclipse.jnosql.mapping.graph;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 
+@SuppressWarnings("unchecked")
 class DefaultEdgeBuilder<T, S> implements EdgeBuilder, EdgeBuilder.SourceStep<T>, EdgeBuilder.LabelStep<T>, EdgeBuilder.TargetStep<T, S> {
 
     private Object id;
@@ -25,28 +28,35 @@ class DefaultEdgeBuilder<T, S> implements EdgeBuilder, EdgeBuilder.SourceStep<T>
 
     private Object target;
 
-    private Map<String, Object> properties;
+    private Map<String, Object> properties = new HashMap<>();
 
     private String label;
 
     @Override
     public <S> SourceStep<S> source(S source) {
-        return null;
+        Objects.requireNonNull(source, "source is required");
+        this.source = source;
+        return (SourceStep<S>) this;
     }
 
     @Override
     public <T1> TargetStep<T, T1> target(T1 target) {
-        return null;
+        Objects.requireNonNull(target, "target is required");
+        this.target = target;
+        return (TargetStep<T, T1>) this;
     }
 
     @Override
     public LabelStep<T> label(String label) {
-        return null;
+        Objects.requireNonNull(label, "label is required");
+        this.label = label;
+        return this;
     }
 
     @Override
     public LabelStep<T> label(Supplier<String> label) {
-        return null;
+        Objects.requireNonNull(label, "label is required");
+        return label(label.get());
     }
 
     @Override
@@ -56,6 +66,9 @@ class DefaultEdgeBuilder<T, S> implements EdgeBuilder, EdgeBuilder.SourceStep<T>
 
     @Override
     public TargetStep<T, S> property(String key, Object value) {
-        return null;
+        Objects.requireNonNull(key, "key is required");
+        Objects.requireNonNull(value, "value is required");
+        properties.put(key, value);
+        return this;
     }
 }
