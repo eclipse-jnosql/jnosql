@@ -42,7 +42,7 @@ public class MockProducer implements Supplier<DatabaseManager> {
 
     @Produces
     @Override
-    @Database(DatabaseType.DOCUMENT)
+    @Database(DatabaseType.GRAPH)
     public DatabaseManager get() {
         CommunicationEntity entity = CommunicationEntity.of("Person");
         entity.add(Element.of("name", "Default"));
@@ -53,7 +53,7 @@ public class MockProducer implements Supplier<DatabaseManager> {
     }
 
     @Produces
-    @Database(value = DatabaseType.DOCUMENT, provider = "documentRepositoryMock")
+    @Database(value = DatabaseType.GRAPH, provider = "graphRepositoryMock")
     public DatabaseManager getDocumentManagerMock() {
         CommunicationEntity entity = CommunicationEntity.of("Person");
         entity.add(Element.of("name", "documentRepositoryMock"));

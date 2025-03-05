@@ -65,7 +65,7 @@ public class GraphExtension implements Extension {
 
         databases.forEach(type -> {
             if (!type.getProvider().isBlank()) {
-                final TemplateBean bean = new TemplateBean(type.getProvider());
+                var bean = new TemplateBean(type.getProvider());
                 afterBeanDiscovery.addBean(bean);
             }
         });

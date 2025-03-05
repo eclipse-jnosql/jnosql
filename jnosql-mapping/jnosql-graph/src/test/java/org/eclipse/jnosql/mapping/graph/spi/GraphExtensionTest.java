@@ -43,15 +43,15 @@ class GraphExtensionTest {
 
 
     @Inject
-    @Database(value = DatabaseType.DOCUMENT)
+    @Database(value = DatabaseType.GRAPH)
     private PersonRepository repository;
 
     @Inject
-    @Database(value = DatabaseType.DOCUMENT, provider = "documentRepositoryMock")
+    @Database(value = DatabaseType.GRAPH, provider = "graphRepositoryMock")
     private PersonRepository repositoryMock;
 
     @Inject
-    @Database(value = DatabaseType.DOCUMENT, provider = "documentRepositoryMock")
+    @Database(value = DatabaseType.GRAPH, provider = "graphRepositoryMock")
     private GraphTemplate templateMock;
 
     @Inject
