@@ -46,7 +46,7 @@ class GraphCustomExtensionTest {
     private People people;
 
     @Inject
-    @Database(value = DatabaseType.DOCUMENT, provider = "graphRepositoryMock")
+    @Database(value = DatabaseType.GRAPH, provider = "graphRepositoryMock")
     private People pepoleMock;
 
     @Inject

@@ -29,11 +29,11 @@ class GraphConfigurationMock implements DatabaseConfiguration {
 
 
     @Override
-    public DocumentManagerFactoryMock apply(Settings settings) {
-        return new DocumentManagerFactoryMock(settings);
+    public GraphManagerFactoryMock apply(Settings settings) {
+        return new GraphManagerFactoryMock(settings);
     }
 
-    public record DocumentManagerFactoryMock(Settings settings) implements DatabaseManagerFactory {
+    public record GraphManagerFactoryMock(Settings settings) implements DatabaseManagerFactory {
 
         @Override
             public GraphManagerMock apply(String database) {

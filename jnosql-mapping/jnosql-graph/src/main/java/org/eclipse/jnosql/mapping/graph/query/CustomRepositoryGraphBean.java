@@ -66,7 +66,7 @@ public class CustomRepositoryGraphBean<T> extends AbstractBean<T> {
         this.provider = provider;
         if (provider.isEmpty()) {
             this.qualifiers = new HashSet<>();
-            qualifiers.add(DatabaseQualifier.ofDocument());
+            qualifiers.add(DatabaseQualifier.ofGraph());
             qualifiers.add(AnnotationLiteralUtil.DEFAULT_ANNOTATION);
             qualifiers.add(AnnotationLiteralUtil.ANY_ANNOTATION);
         } else {
@@ -84,7 +84,7 @@ public class CustomRepositoryGraphBean<T> extends AbstractBean<T> {
     public T create(CreationalContext<T> context) {
         var entities = getInstance(EntitiesMetadata.class);
         var template = provider.isEmpty() ? getInstance(GraphTemplate.class) :
-                getInstance(GraphTemplate.class, DatabaseQualifier.ofDocument(provider));
+                getInstance(GraphTemplate.class, DatabaseQualifier.ofGraph(provider));
 
         var converters = getInstance(Converters.class);
 
