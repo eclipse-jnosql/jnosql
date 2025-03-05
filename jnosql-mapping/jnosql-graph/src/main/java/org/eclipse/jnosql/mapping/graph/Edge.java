@@ -18,10 +18,41 @@ import java.util.Map;
 
 /**
  * Represents an Edge (Relationship) in a Graph database.
- * An Edge connects two vertices and may contain additional properties.
- * In Neo4j, edges are called "relationships," whereas in Apache TinkerPop, edges are directional with
- * "out" (source) and "in" (target) vertices.
- * This interface abstracts the common behavior for edges in both Neo4j and TinkerPop.
+ * <p>
+ * In our system, vertices are Java classes annotated with {@code @Entity}, representing nodes in the graph.
+ * This ensures structured data modeling while maintaining flexibility in relationships.
+ * </p>
+ * <p>
+ * An Edge connects two {@code @Entity} classes and may contain additional properties.
+ * </p>
+ * <p>
+ * <b>Directionality:</b>
+ * <ul>
+ *   <li><b>In Neo4j:</b> Relationships are defined from a <b>start node</b> to an <b>end node</b>.</li>
+ *   <li><b>In TinkerPop:</b> Edges connect an <b>outgoing vertex</b> ("out") to an <b>incoming vertex</b> ("in").</li>
+ * </ul>
+ * </p>
+ * <p>
+ * <b>Terminology Mapping:</b>
+ * </p>
+ * <table border="1">
+ *   <tr>
+ *     <th>Concept</th> <th>Neo4j Term</th> <th>TinkerPop Term</th>
+ *   </tr>
+ *   <tr>
+ *     <td>Relationship</td> <td><b>Relationship</b></td> <td><b>Edge</b></td>
+ *   </tr>
+ *   <tr>
+ *     <td>Start Node</td> <td><b>Start Node</b></td> <td><b>Outgoing Vertex ("out")</b></td>
+ *   </tr>
+ *   <tr>
+ *     <td>End Node</td> <td><b>End Node</b></td> <td><b>Incoming Vertex ("in")</b></td>
+ *   </tr>
+ *   <tr>
+ *     <td>Edge Properties</td> <td><b>Properties</b></td> <td><b>Properties</b></td>
+ *   </tr>
+ * </table>
+ *
  * @param <S> the source entity type (outgoing vertex in TinkerPop, start node in Neo4j)
  * @param <T> the target entity type (incoming vertex in TinkerPop, end node in Neo4j)
  */
@@ -29,8 +60,15 @@ public interface Edge<S, T> {
 
     /**
      * Gets the unique identifier of the edge.
+     * <p>
+     * The ID format depends on the underlying database:
+     * </p>
+     * <ul>
+     *   <li><b>Neo4j:</b> Typically a {@code Long} ID.</li>
+     *   <li><b>TinkerPop (Gremlin):</b> May use {@code String}, {@code UUID}, or another format.</li>
+     * </ul>
      *
-     * @return the edge ID, which can be of type Long (Neo4j), String, UUID, or other types in TinkerPop.
+     * @return the edge ID
      */
     Object id();
 
