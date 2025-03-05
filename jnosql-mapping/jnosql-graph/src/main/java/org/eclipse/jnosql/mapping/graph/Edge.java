@@ -84,23 +84,54 @@ public interface Edge<S, T> {
     <K> T id(Class<K> type);
 
     /**
-     * Gets the source vertex of the edge.
+     * Gets the source vertex (start node) of the edge.
+     * <p>
+     * This represents the entity where the relationship originates.
+     * </p>
+     * <p>
+     * <b>Directionality:</b>
+     * <ul>
+     *   <li><b>Neo4j:</b> This is the <b>start node</b> of the relationship.</li>
+     *   <li><b>TinkerPop:</b> This is the <b>outgoing vertex</b> (often referred to as "out").</li>
+     * </ul>
+     * </p>
      *
-     * @return the source entity
+     * @return the source entity (start node or outgoing vertex)
      */
     S source();
 
     /**
-     * Gets the target vertex of the edge.
+     * Gets the target vertex (end node) of the edge.
+     * <p>
+     * This represents the entity where the relationship points to.
+     * </p>
+     * <p>
+     * <b>Directionality:</b>
+     * <ul>
+     *   <li><b>Neo4j:</b> This is the <b>end node</b> of the relationship.</li>
+     *   <li><b>TinkerPop:</b> This is the <b>incoming vertex</b> (often referred to as "in").</li>
+     * </ul>
+     * </p>
      *
-     * @return the target entity
+     * @return the target entity (end node or incoming vertex)
      */
     T target();
 
     /**
      * Gets the label of the edge, representing the type of relationship.
+     * <p>
+     * The label is a key identifier that describes the nature of the relationship
+     * between the source and target vertices.
+     * </p>
+     * <p>
+     * <b>Graph-Specific Behavior:</b>
+     * <ul>
+     *   <li><b>Neo4j:</b> Relationship types are always labeled and must be defined explicitly.</li>
+     *   <li><b>TinkerPop:</b> Labels are optional but often used for classification.</li>
+     * </ul>
+     * </p>
      *
-     * @return the edge label
+     * @return the edge label (relationship type)
      */
     String label();
 
