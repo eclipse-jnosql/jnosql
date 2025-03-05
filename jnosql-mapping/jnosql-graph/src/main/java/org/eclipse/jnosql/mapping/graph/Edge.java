@@ -156,4 +156,9 @@ public interface Edge<S, T> {
      * @throws ClassCastException   if the property value cannot be cast to the specified type
      */
     <V> Optional<V> property(String key, Class<V> type);
+
+    static <S> EdgeBuilder.SourceStep<S> source(S source) {
+        EdgeBuilder builder = new DefaultEdgeBuilder<>();
+        return builder.source(source);
+    }
 }
