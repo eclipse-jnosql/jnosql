@@ -19,9 +19,11 @@ import java.util.Map;
 /**
  * Represents an Edge (Relationship) in a Graph database.
  * An Edge connects two vertices and may contain additional properties.
- *
- * @param <S> the source entity type
- * @param <T> the target entity type
+ * In Neo4j, edges are called "relationships," whereas in Apache TinkerPop, edges are directional with
+ * "out" (source) and "in" (target) vertices.
+ * This interface abstracts the common behavior for edges in both Neo4j and TinkerPop.
+ * @param <S> the source entity type (outgoing vertex in TinkerPop, start node in Neo4j)
+ * @param <T> the target entity type (incoming vertex in TinkerPop, end node in Neo4j)
  */
 public interface Edge<S, T> {
 
