@@ -21,7 +21,7 @@ import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.graph.GraphTemplate;
-import org.eclipse.jnosql.mapping.graph.DocumentTemplateProducer;
+import org.eclipse.jnosql.mapping.graph.GraphTemplateProducer;
 import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
 
 import java.lang.annotation.Annotation;
@@ -56,7 +56,7 @@ class TemplateBean extends AbstractBean<GraphTemplate> {
     @Override
     public GraphTemplate create(CreationalContext<GraphTemplate> context) {
 
-        var producer = getInstance(DocumentTemplateProducer.class);
+        var producer = getInstance(GraphTemplateProducer.class);
         var manager = getManager();
         return producer.apply(manager);
     }

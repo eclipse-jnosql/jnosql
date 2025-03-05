@@ -33,7 +33,7 @@ import java.util.function.Function;
  * It implements the {@link Function} interface with {@link DatabaseManager} as input and {@link GraphTemplate} as output.
  */
 @ApplicationScoped
-public class DocumentTemplateProducer implements Function<DatabaseManager, GraphTemplate> {
+public class GraphTemplateProducer implements Function<DatabaseManager, GraphTemplate> {
 
     @Inject
     private EntityConverter converter;
