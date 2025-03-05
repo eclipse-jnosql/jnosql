@@ -113,7 +113,7 @@ public class CustomRepositoryGraphBean<T> extends AbstractBean<T> {
 
     @Override
     public String getId() {
-        return type.getName() + '@' + DatabaseType.DOCUMENT + "-" + provider;
+        return type.getName() + '@' + DatabaseType.GRAPH + "-" + provider;
     }
 
 }
