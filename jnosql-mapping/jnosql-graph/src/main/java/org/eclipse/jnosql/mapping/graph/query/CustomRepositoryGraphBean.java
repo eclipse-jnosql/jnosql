@@ -70,7 +70,7 @@ public class CustomRepositoryGraphBean<T> extends AbstractBean<T> {
             qualifiers.add(AnnotationLiteralUtil.DEFAULT_ANNOTATION);
             qualifiers.add(AnnotationLiteralUtil.ANY_ANNOTATION);
         } else {
-            this.qualifiers = Collections.singleton(DatabaseQualifier.ofDocument(provider));
+            this.qualifiers = Collections.singleton(DatabaseQualifier.ofGraph(provider));
         }
     }
 

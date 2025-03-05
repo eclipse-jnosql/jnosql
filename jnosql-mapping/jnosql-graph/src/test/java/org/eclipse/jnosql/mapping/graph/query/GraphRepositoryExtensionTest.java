@@ -39,14 +39,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @AddPackages(value = {Converters.class, EntityConverter.class, SemiStructuredRepositoryProxy.class})
 @AddPackages({MockProducer.class, GraphTemplate.class, Reflections.class})
 @AddExtensions({EntityMetadataExtension.class, GraphExtension.class})
-class DocumentRepositoryExtensionTest {
+class GraphRepositoryExtensionTest {
 
     @Inject
-    @Database(value = DatabaseType.DOCUMENT)
+    @Database(value = DatabaseType.GRAPH)
     private PersonRepository repository;
 
     @Inject
-    @Database(value = DatabaseType.DOCUMENT, provider = "documentRepositoryMock")
+    @Database(value = DatabaseType.GRAPH, provider = "graphRepositoryMock")
     private PersonRepository repositoryMock;
 
     @Test
