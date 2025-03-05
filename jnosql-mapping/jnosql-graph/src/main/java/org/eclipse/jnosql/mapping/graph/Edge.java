@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.graph;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -53,6 +54,17 @@ import java.util.Optional;
  *     <td>Edge Properties</td> <td><b>Properties</b></td> <td><b>Properties</b></td>
  *   </tr>
  * </table>
+ * <p><strong>Example Usage:</strong></p>
+ * <pre>
+ *     Person person = new Person();
+ *     Book book = new Book();
+ *     Edge<Person, Book> edge = Edge.source(person)
+ *          .label("READS")
+ *          .target(book)
+ *          .property("since", 2019)
+ *          .property("where", "digital")
+ *          .build();
+ * </pre>
  *
  * @param <S> the source entity type (outgoing vertex in TinkerPop, start node in Neo4j)
  * @param <T> the target entity type (incoming vertex in TinkerPop, end node in Neo4j)
@@ -157,7 +169,16 @@ public interface Edge<S, T> {
      */
     <V> Optional<V> property(String key, Class<V> type);
 
+    /**
+     * Creates a new {@link EdgeBuilder} to construct an edge starting from the given source vertex.
+     *
+     * @param <S>    the type of the source entity
+     * @param source the entity serving as the source vertex
+     * @return an {@link EdgeBuilder.SourceStep} to continue the edge construction process
+     * @throws NullPointerException if the source is null
+     */
     static <S> EdgeBuilder.SourceStep<S> source(S source) {
+        Objects.requireNonNull(source, "source is required");
         EdgeBuilder builder = new DefaultEdgeBuilder<>();
         return builder.source(source);
     }
