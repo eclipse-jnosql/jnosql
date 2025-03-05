@@ -29,7 +29,7 @@ import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 
 @Default
 @ApplicationScoped
-@Database(DatabaseType.DOCUMENT)
+@Database(DatabaseType.GRAPH)
 class DefaultGraphTemplate extends AbstractSemiStructuredTemplate implements GraphTemplate {
 
 
