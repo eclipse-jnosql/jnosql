@@ -15,8 +15,9 @@
 package org.eclipse.jnosql.mapping.graph;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
-class DefaultEdgeBuilder {
+class DefaultEdgeBuilder<T, S> implements EdgeBuilder, EdgeBuilder.SourceStep<T>, EdgeBuilder.LabelStep<T>, EdgeBuilder.TargetStep<T, S> {
 
     private Object id;
 
@@ -27,4 +28,34 @@ class DefaultEdgeBuilder {
     private Map<String, Object> properties;
 
     private String label;
+
+    @Override
+    public <S> SourceStep<S> source(S source) {
+        return null;
+    }
+
+    @Override
+    public <T1> TargetStep<T, T1> target(T1 target) {
+        return null;
+    }
+
+    @Override
+    public LabelStep<T> label(String label) {
+        return null;
+    }
+
+    @Override
+    public LabelStep<T> label(Supplier<String> label) {
+        return null;
+    }
+
+    @Override
+    public Edge<T, S> build() {
+        return null;
+    }
+
+    @Override
+    public TargetStep<T, S> property(String key, Object value) {
+        return null;
+    }
 }
