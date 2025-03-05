@@ -33,14 +33,14 @@ import java.util.Set;
 
 
 /**
- * This class serves as a JNoSQL discovery bean for CDI extension, responsible for registering Custom Repository instances.
- * It extends {@link AbstractBean} and is parameterized with type {@code T} representing the repository type.
+ * A CDI bean for dynamically creating repository implementations for graph databases.
  * <p>
- * Upon instantiation, it initializes with the provided repository type, provider name, and qualifiers.
- * The provider name specifies the database provider for the repository.
+ * This class extends {@link AbstractBean} and provides integration with JNoSQL's
+ * custom repository handling mechanism. It facilitates the creation of repositories
+ * with support for CDI discovery and dependency injection.
  * </p>
  *
- * @param <T> the type of the repository
+ * @param <T> the type of the repository interface
  * @see AbstractBean
  */
 public class CustomRepositoryGraphBean<T> extends AbstractBean<T> {
@@ -54,10 +54,10 @@ public class CustomRepositoryGraphBean<T> extends AbstractBean<T> {
     private final Set<Annotation> qualifiers;
 
     /**
-     * Constructor
+     * Constructs a new {@code CustomRepositoryGraphBean} for the specified repository type and provider.
      *
-     * @param type        the tye
-     * @param provider    the provider name, that must be a
+     * @param type     the repository interface type
+     * @param provider the database provider name; if empty, the default provider is used
      */
     @SuppressWarnings("unchecked")
     public CustomRepositoryGraphBean(Class<?> type, String provider) {
