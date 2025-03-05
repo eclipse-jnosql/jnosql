@@ -14,5 +14,43 @@
  */
 package org.eclipse.jnosql.mapping.graph;
 
-public interface Edge {
+import java.util.Map;
+
+/**
+ * Represents an Edge (Relationship) in a Graph database.
+ * An Edge connects two vertices and may contain additional properties.
+ *
+ * @param <S> the source entity type
+ * @param <T> the target entity type
+ */
+public interface Edge<S, T> {
+
+    /**
+     * Gets the source vertex of the edge.
+     *
+     * @return the source entity
+     */
+    S getSource();
+
+    /**
+     * Gets the target vertex of the edge.
+     *
+     * @return the target entity
+     */
+    T getTarget();
+
+    /**
+     * Gets the label of the edge, representing the type of relationship.
+     *
+     * @return the edge label
+     */
+    String getLabel();
+
+    /**
+     * Gets the properties associated with the edge.
+     * These properties represent additional information about the relationship.
+     *
+     * @return a map of key-value pairs representing edge properties
+     */
+    Map<String, Object> getProperties();
 }
