@@ -39,14 +39,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({EntityMetadataExtension.class, GraphExtension.class})
-class DocumentCustomExtensionTest {
+class GraphCustomExtensionTest {
 
     @Inject
-    @Database(value = DatabaseType.DOCUMENT)
+    @Database(value = DatabaseType.GRAPH)
     private People people;
 
     @Inject
-    @Database(value = DatabaseType.DOCUMENT, provider = "documentRepositoryMock")
+    @Database(value = DatabaseType.DOCUMENT, provider = "graphRepositoryMock")
     private People pepoleMock;
 
     @Inject
