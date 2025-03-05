@@ -59,38 +59,6 @@ import java.util.Optional;
  */
 public interface Edge<S, T> {
 
-
-    /**
-     * Gets the unique identifier of the edge, if available.
-     * <p>
-     * The ID may not be present if the edge has not been persisted in the database yet.
-     * </p>
-     * <p>
-     * <b>Graph-Specific Behavior:</b>
-     * <ul>
-     *   <li><b>Neo4j:</b> Relationship IDs are usually <b>Long</b> values.</li>
-     *   <li><b>TinkerPop:</b> The ID type is flexible and may be a <b>String, UUID, or other types</b>.</li>
-     * </ul>
-     * </p>
-     *
-     * @return an {@link Optional} containing the edge ID if it exists, otherwise {@link Optional#empty()}
-     */
-    Optional<Object> id();
-
-    /**
-     * Gets the unique identifier of the edge and converts it to the specified type, if available.
-     * <p>
-     * The ID may not be present if the edge has not been persisted in the database yet.
-     * </p>
-     *
-     * @param <K>  the expected ID type
-     * @param type the class of the expected ID type
-     * @return an {@link Optional} containing the edge ID converted to the specified type if present, otherwise {@link Optional#empty()}
-     * @throws NullPointerException if the provided type is null
-     * @throws ClassCastException   if the ID cannot be converted to the specified type
-     */
-    <K> Optional<K> id(Class<K> type);
-
     /**
      * Gets the source vertex (start node) of the edge.
      * <p>
@@ -146,8 +114,46 @@ public interface Edge<S, T> {
     /**
      * Gets the properties associated with the edge.
      * These properties represent additional information about the relationship.
+     * <p>
+     * Properties are key-value pairs that store metadata about the edge.
+     * </p>
+     * <p>
+     * <b>Graph-Specific Behavior:</b>
+     * <ul>
+     *   <li><b>Neo4j:</b> Edge properties are stored as key-value pairs.</li>
+     *   <li><b>TinkerPop:</b> Edge properties function similarly and can be stored in different formats.</li>
+     * </ul>
+     * </p>
      *
      * @return a map of key-value pairs representing edge properties
      */
     Map<String, Object> properties();
+
+    /**
+     * Retrieves a single property value from the edge, converted to the specified type.
+     * <p>
+     * This method allows fetching specific edge properties while ensuring type safety.
+     * </p>
+     * <p>
+     * <b>Example Usage:</b>
+     * <pre>{@code
+     * Optional<Integer> weight = edge.property("weight", Integer.class);
+     * }</pre>
+     * </p>
+     * <p>
+     * <b>Graph-Specific Behavior:</b>
+     * <ul>
+     *   <li><b>Neo4j:</b> Properties are stored as key-value pairs inside relationships.</li>
+     *   <li><b>TinkerPop:</b> Edge properties function similarly but may support richer structures.</li>
+     * </ul>
+     * </p>
+     *
+     * @param <V>   the expected type of the property value
+     * @param key   the property key
+     * @param type  the expected return type of the property
+     * @return an {@link Optional} containing the property value converted to the specified type, or {@link Optional#empty()} if not found
+     * @throws NullPointerException if the key or type is null
+     * @throws ClassCastException   if the property value cannot be cast to the specified type
+     */
+    <V> Optional<V> property(String key, Class<V> type);
 }
