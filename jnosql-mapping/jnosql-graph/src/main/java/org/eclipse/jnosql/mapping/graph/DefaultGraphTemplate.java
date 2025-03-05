@@ -47,7 +47,7 @@ class DefaultGraphTemplate extends AbstractSemiStructuredTemplate implements Gra
 
     @Inject
     DefaultGraphTemplate(EntityConverter converter,
-                         @Database(DatabaseType.DOCUMENT) DatabaseManager manager,
+                         @Database(DatabaseType.GRAPH) DatabaseManager manager,
                          EventPersistManager eventManager,
                          EntitiesMetadata entities, Converters converters){
         this.converter = converter;

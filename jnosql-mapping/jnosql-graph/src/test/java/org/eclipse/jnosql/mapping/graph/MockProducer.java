@@ -54,7 +54,7 @@ public class MockProducer implements Supplier<DatabaseManager> {
 
     @Produces
     @Database(value = DatabaseType.GRAPH, provider = "graphRepositoryMock")
-    public DatabaseManager getDocumentManagerMock() {
+    public DatabaseManager getGraphManagerMock() {
         CommunicationEntity entity = CommunicationEntity.of("Person");
         entity.add(Element.of("name", "documentRepositoryMock"));
         entity.add(Element.of("age", 10));
