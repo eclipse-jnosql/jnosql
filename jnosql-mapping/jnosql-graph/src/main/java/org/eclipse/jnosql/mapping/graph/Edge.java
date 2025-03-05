@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.graph;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents an Edge (Relationship) in a Graph database.
@@ -58,30 +59,37 @@ import java.util.Map;
  */
 public interface Edge<S, T> {
 
-    /**
-     * Gets the unique identifier of the edge.
-     * <p>
-     * The ID format depends on the underlying database:
-     * </p>
-     * <ul>
-     *   <li><b>Neo4j:</b> Typically a {@code Long} ID.</li>
-     *   <li><b>TinkerPop (Gremlin):</b> May use {@code String}, {@code UUID}, or another format.</li>
-     * </ul>
-     *
-     * @return the edge ID
-     */
-    Object id();
 
     /**
-     * Gets the unique identifier of the edge and converts it to the specified type.
+     * Gets the unique identifier of the edge, if available.
+     * <p>
+     * The ID may not be present if the edge has not been persisted in the database yet.
+     * </p>
+     * <p>
+     * <b>Graph-Specific Behavior:</b>
+     * <ul>
+     *   <li><b>Neo4j:</b> Relationship IDs are usually <b>Long</b> values.</li>
+     *   <li><b>TinkerPop:</b> The ID type is flexible and may be a <b>String, UUID, or other types</b>.</li>
+     * </ul>
+     * </p>
+     *
+     * @return an {@link Optional} containing the edge ID if it exists, otherwise {@link Optional#empty()}
+     */
+    Optional<Object> id();
+
+    /**
+     * Gets the unique identifier of the edge and converts it to the specified type, if available.
+     * <p>
+     * The ID may not be present if the edge has not been persisted in the database yet.
+     * </p>
      *
      * @param <K>  the expected ID type
      * @param type the class of the expected ID type
-     * @return the edge ID converted to the specified type
+     * @return an {@link Optional} containing the edge ID converted to the specified type if present, otherwise {@link Optional#empty()}
      * @throws NullPointerException if the provided type is null
      * @throws ClassCastException   if the ID cannot be converted to the specified type
      */
-    <K> T id(Class<K> type);
+    <K> Optional<K> id(Class<K> type);
 
     /**
      * Gets the source vertex (start node) of the edge.
