@@ -34,14 +34,14 @@ import java.util.Set;
 
 
 /**
- * This class serves as a JNoSQL discovery bean for CDI extension, responsible for registering Repository instances.
- * It extends {@link AbstractBean} and is parameterized with type {@code T} representing the repository type.
+ * A CDI bean for dynamically creating repository implementations for graph databases.
  * <p>
- * Upon instantiation, it initializes with the provided repository type, provider name, and qualifiers.
- * The provider name specifies the database provider for the repository.
+ * This class extends {@link AbstractBean} and provides integration with JNoSQL's
+ * custom repository handling mechanism. It facilitates the creation of repositories
+ * with support for CDI discovery and dependency injection.
  * </p>
  *
- * @param <T> the type of the repository
+ * @param <T> the type of the repository interface
  * @see AbstractBean
  */
 public class RepositoryGraphBean<T extends DataRepository<T, ?>> extends AbstractBean<T> {
@@ -55,10 +55,10 @@ public class RepositoryGraphBean<T extends DataRepository<T, ?>> extends Abstrac
     private final Set<Annotation> qualifiers;
 
     /**
-     * Constructor
+     * Constructs a new {@code CustomRepositoryGraphBean} for the specified repository type and provider.
      *
-     * @param type        the tye
-     * @param provider    the provider name, that must be a
+     * @param type     the repository interface type
+     * @param provider the database provider name; if empty, the default provider is used
      */
     @SuppressWarnings("unchecked")
     public RepositoryGraphBean(Class<?> type, String provider) {
@@ -67,7 +67,7 @@ public class RepositoryGraphBean<T extends DataRepository<T, ?>> extends Abstrac
         this.provider = provider;
         if (provider.isEmpty()) {
             this.qualifiers = new HashSet<>();
-            qualifiers.add(DatabaseQualifier.ofDocument());
+            qualifiers.add(DatabaseQualifier.ofGraph());
             qualifiers.add(AnnotationLiteralUtil.DEFAULT_ANNOTATION);
             qualifiers.add(AnnotationLiteralUtil.ANY_ANNOTATION);
         } else {
@@ -83,11 +83,11 @@ public class RepositoryGraphBean<T extends DataRepository<T, ?>> extends Abstrac
     @Override
     @SuppressWarnings("unchecked")
     public T create(CreationalContext<T> context) {
-        EntitiesMetadata entities = getInstance(EntitiesMetadata.class);
+        var entities = getInstance(EntitiesMetadata.class);
         var template = provider.isEmpty() ? getInstance(GraphTemplate.class) :
-                getInstance(GraphTemplate.class, DatabaseQualifier.ofDocument(provider));
+                getInstance(GraphTemplate.class, DatabaseQualifier.ofGraph(provider));
 
-        Converters converters = getInstance(Converters.class);
+        var converters = getInstance(Converters.class);
 
         var handler = new SemiStructuredRepositoryProxy<>(template,
                 entities, type, converters);
@@ -109,7 +109,7 @@ public class RepositoryGraphBean<T extends DataRepository<T, ?>> extends Abstrac
 
     @Override
     public String getId() {
-        return type.getName() + '@' + DatabaseType.DOCUMENT + "-" + provider;
+        return type.getName() + '@' + DatabaseType.GRAPH + "-" + provider;
     }
 
 }
