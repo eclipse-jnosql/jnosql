@@ -14,7 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.graph.configuration;
 
-import jakarta.data.exceptions.MappingException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Disposes;
 import jakarta.enterprise.inject.Produces;
@@ -31,13 +30,15 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.DOCUMENT_DATABASE;
+import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.GRAPH_DATABASE;
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.GRAPH_PROVIDER;
 
 @ApplicationScoped
 class GraphManagerSupplier implements Supplier<DatabaseManager> {
 
     private static final Logger LOGGER = Logger.getLogger(GraphManagerSupplier.class.getName());
+
+    private static final String DEFAULT_GRAPH_DATABASE = "graph";
 
     @Override
     @Produces
@@ -53,9 +54,11 @@ class GraphManagerSupplier implements Supplier<DatabaseManager> {
 
         var managerFactory = configuration.apply(settings);
 
-        Optional<String> database = settings.get(DOCUMENT_DATABASE, String.class);
-        String db = database.orElseThrow(() -> new MappingException("Please, inform the database filling up the property "
-                + DOCUMENT_DATABASE.get()));
+        Optional<String> database = settings.get(GRAPH_DATABASE, String.class);
+        String db = database.orElseGet(() ->{
+            LOGGER.log(Level.WARNING, "The database name is required, default value `{0}` is used", DEFAULT_GRAPH_DATABASE);
+            return DEFAULT_GRAPH_DATABASE;
+        });
         DatabaseManager manager = managerFactory.apply(db);
 
         LOGGER.log(Level.FINEST, "Starting  a GraphManager instance using Eclipse MicroProfile Config," +
