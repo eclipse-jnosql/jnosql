@@ -30,21 +30,21 @@ public interface Edge<S, T> {
      *
      * @return the source entity
      */
-    S getSource();
+    S source();
 
     /**
      * Gets the target vertex of the edge.
      *
      * @return the target entity
      */
-    T getTarget();
+    T target();
 
     /**
      * Gets the label of the edge, representing the type of relationship.
      *
      * @return the edge label
      */
-    String getLabel();
+    String label();
 
     /**
      * Gets the properties associated with the edge.
@@ -52,5 +52,5 @@ public interface Edge<S, T> {
      *
      * @return a map of key-value pairs representing edge properties
      */
-    Map<String, Object> getProperties();
+    Map<String, Object> properties();
 }
