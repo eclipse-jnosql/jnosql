@@ -30,7 +30,7 @@ import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 @Default
 @ApplicationScoped
 @Database(DatabaseType.GRAPH)
-class DefaultGraphTemplate extends AbstractSemiStructuredTemplate implements GraphTemplate {
+class DefaultGraphTemplate extends AbstractGraphTemplate implements GraphTemplate {
 
 
     private final EntityConverter converter;
@@ -42,7 +42,6 @@ class DefaultGraphTemplate extends AbstractSemiStructuredTemplate implements Gra
     private final  EntitiesMetadata entities;
 
     private final  Converters converters;
-
 
 
     @Inject

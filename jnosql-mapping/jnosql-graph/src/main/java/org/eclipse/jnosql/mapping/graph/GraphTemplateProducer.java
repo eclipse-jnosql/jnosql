@@ -56,7 +56,7 @@ public class GraphTemplateProducer implements Function<DatabaseManager, GraphTem
     }
 
     @Vetoed
-    static class ProducerGraphTemplate extends AbstractSemiStructuredTemplate implements GraphTemplate {
+    static class ProducerGraphTemplate extends AbstractGraphTemplate implements GraphTemplate {
 
         private final EntityConverter converter;
 
