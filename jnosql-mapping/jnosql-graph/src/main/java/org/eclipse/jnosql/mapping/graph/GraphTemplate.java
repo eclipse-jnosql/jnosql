@@ -82,6 +82,20 @@ public interface GraphTemplate extends SemiStructuredTemplate {
     <T, E> Edge<T, E> edge(Edge<T, E> edge);
 
     /**
+     * Deletes a specified edge from the graph.
+     *
+     * <p>This method removes the given edge, including its properties and relationship, from the graph database.
+     * If the edge does not exist, the operation is safely ignored.</p>
+     *
+     * @param <T>   the source entity type
+     * @param <E>   the target entity type
+     * @param edge  the edge to be deleted
+     * @throws NullPointerException if the edge is null
+     */
+    <T, E> void delete(Edge<T, E> edge);
+
+
+    /**
      * Deletes an edge (relationship) from the graph database by its unique identifier.
      *
      * @param <K> the type of the edge identifier
