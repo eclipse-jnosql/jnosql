@@ -23,7 +23,7 @@ import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.DatabaseMetadata;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.Databases;
-import org.eclipse.jnosql.mapping.graph.query.CustomRepositoryDocumentBean;
+import org.eclipse.jnosql.mapping.graph.query.CustomRepositoryGraphBean;
 import org.eclipse.jnosql.mapping.graph.query.RepositoryGraphBean;
 import org.eclipse.jnosql.mapping.metadata.ClassScanner;
 
@@ -80,10 +80,10 @@ public class GraphExtension implements Extension {
 
         customRepositories.forEach(type -> {
             if (!databases.contains(DatabaseMetadata.DEFAULT_GRAPH)) {
-                afterBeanDiscovery.addBean(new CustomRepositoryDocumentBean<>(type, ""));
+                afterBeanDiscovery.addBean(new CustomRepositoryGraphBean<>(type, ""));
             }
             databases.forEach(database ->
-                    afterBeanDiscovery.addBean(new CustomRepositoryDocumentBean<>(type, database.getProvider())));
+                    afterBeanDiscovery.addBean(new CustomRepositoryGraphBean<>(type, database.getProvider())));
         });
 
     }

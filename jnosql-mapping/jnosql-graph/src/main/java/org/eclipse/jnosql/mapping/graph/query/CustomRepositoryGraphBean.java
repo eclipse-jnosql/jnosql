@@ -43,7 +43,7 @@ import java.util.Set;
  * @param <T> the type of the repository
  * @see AbstractBean
  */
-public class CustomRepositoryDocumentBean<T> extends AbstractBean<T> {
+public class CustomRepositoryGraphBean<T> extends AbstractBean<T> {
 
     private final Class<T> type;
 
@@ -60,7 +60,7 @@ public class CustomRepositoryDocumentBean<T> extends AbstractBean<T> {
      * @param provider    the provider name, that must be a
      */
     @SuppressWarnings("unchecked")
-    public CustomRepositoryDocumentBean(Class<?> type, String provider) {
+    public CustomRepositoryGraphBean(Class<?> type, String provider) {
         this.type = (Class<T>) type;
         this.types = Collections.singleton(type);
         this.provider = provider;
