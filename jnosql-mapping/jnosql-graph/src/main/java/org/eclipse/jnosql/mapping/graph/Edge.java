@@ -20,23 +20,15 @@ import java.util.Optional;
 
 /**
  * Represents an Edge (Relationship) in a Graph database.
- * <p>
  * In our system, vertices are Java classes annotated with {@code @Entity}, representing nodes in the graph.
  * This ensures structured data modeling while maintaining flexibility in relationships.
- * </p>
- * <p>
  * An Edge connects two {@code @Entity} classes and may contain additional properties.
- * </p>
- * <p>
  * <b>Directionality:</b>
  * <ul>
  *   <li><b>In Neo4j:</b> Relationships are defined from a <b>start node</b> to an <b>end node</b>.</li>
  *   <li><b>In TinkerPop:</b> Edges connect an <b>outgoing vertex</b> ("out") to an <b>incoming vertex</b> ("in").</li>
  * </ul>
- * </p>
- * <p>
  * <b>Terminology Mapping:</b>
- * </p>
  * <table border="1">
  *   <tr>
  *     <th>Concept</th> <th>Neo4j Term</th> <th>TinkerPop Term</th>
