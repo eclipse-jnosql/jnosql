@@ -21,17 +21,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-record DefaultEdge<S, T>(S source, T target, String label, Map<String, Object> properties) implements Edge<S, T> {
+record DefaultEdge<S, T>(S source, T target, String label, Map<String, Object> properties, Object key) implements Edge<S, T> {
 
 
     @Override
     public Optional<Object> id() {
-        return Optional.empty();
+        return Optional.ofNullable(key);
     }
 
     @Override
     public <K> Optional<K> id(Class<K> type) {
-        return Optional.empty();
+        return Optional.ofNullable(key).map(Value::of).map(v -> v.get(type));
     }
 
     @Override
