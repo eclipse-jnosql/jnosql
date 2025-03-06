@@ -35,9 +35,7 @@ import java.util.logging.Logger;
 /**
  * This CDI extension, {@code GraphExtension}, observes the CDI container lifecycle events to perform tasks related to
  * graph-based databases and repository beans.
- * <p>
  * Upon initialization, it maintains a set of {@link DatabaseMetadata} instances representing the graph databases.
- * </p>
  */
 public class GraphExtension implements Extension {
 
