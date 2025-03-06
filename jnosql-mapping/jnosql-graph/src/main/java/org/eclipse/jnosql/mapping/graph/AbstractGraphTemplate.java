@@ -1,5 +1,6 @@
 package org.eclipse.jnosql.mapping.graph;
 
+import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.mapping.semistructured.AbstractSemiStructuredTemplate;
 
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.function.Supplier;
 
 public abstract class AbstractGraphTemplate extends AbstractSemiStructuredTemplate implements GraphTemplate {
 
+    protected abstract GraphDatabaseManager manager();
 
     @Override
     public <T, E> Edge<T, E> edge(T source, String label, E target, Map<String, Object> properties) {
