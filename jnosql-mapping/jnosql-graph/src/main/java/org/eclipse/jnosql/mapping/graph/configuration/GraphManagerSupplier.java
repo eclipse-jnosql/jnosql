@@ -17,7 +17,9 @@ package org.eclipse.jnosql.mapping.graph.configuration;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Disposes;
 import jakarta.enterprise.inject.Produces;
+import org.eclipse.jnosql.communication.CommunicationException;
 import org.eclipse.jnosql.communication.Settings;
+import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DatabaseConfiguration;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.Database;
@@ -43,8 +45,7 @@ class GraphManagerSupplier implements Supplier<DatabaseManager> {
     @Override
     @Produces
     @ApplicationScoped
-    @Database(DatabaseType.GRAPH)
-    public DatabaseManager get() {
+    public GraphDatabaseManager get() {
         Settings settings = MicroProfileSettings.INSTANCE;
 
         DatabaseConfiguration configuration = settings.get(GRAPH_PROVIDER, Class.class)
@@ -59,11 +60,15 @@ class GraphManagerSupplier implements Supplier<DatabaseManager> {
             LOGGER.log(Level.FINE, "The database name is required, default value `{0}` is used", DEFAULT_GRAPH_DATABASE);
             return DEFAULT_GRAPH_DATABASE;
         });
-        DatabaseManager manager = managerFactory.apply(db);
+        var manager = managerFactory.apply(db);
 
-        LOGGER.log(Level.FINEST, "Starting  a GraphManager instance using Eclipse MicroProfile Config," +
-                " database name: " + db);
-        return manager;
+        if(manager instanceof GraphDatabaseManager) {
+            LOGGER.log(Level.FINEST, "Starting  a GraphManager instance using Eclipse MicroProfile Config," +
+                    " database name: " + db);
+            return (GraphDatabaseManager) manager;
+        }
+        throw new CommunicationException("The database manager is not a GraphDatabaseManager instance, " +
+                "check the configuration, the current instance is: " + manager.getClass());
     }
 
     public void close(@Disposes @Database(DatabaseType.GRAPH) DatabaseManager manager) {
