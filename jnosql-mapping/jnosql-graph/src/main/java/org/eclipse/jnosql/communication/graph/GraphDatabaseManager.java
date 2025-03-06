@@ -76,8 +76,9 @@ public interface GraphDatabaseManager extends DatabaseManager {
      * @param target     the target entity (incoming vertex in TinkerPop, second node in Neo4j).
      * @param properties additional attributes for the relationship.
      * @throws NullPointerException if {@code source}, {@code target}, or {@code label} is null.
+     * @return the created edge instance with assigned properties.
      */
-    void edge(CommunicationEntity source, String label, CommunicationEntity target, Map<String, Object> properties);
+    CommunicationEdge edge(CommunicationEntity source, String label, CommunicationEntity target, Map<String, Object> properties);
 
     /**
      * Removes an existing relationship (edge) between two {@link CommunicationEntity} nodes.
