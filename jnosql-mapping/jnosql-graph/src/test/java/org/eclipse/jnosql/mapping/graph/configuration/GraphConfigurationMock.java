@@ -15,6 +15,8 @@
 package org.eclipse.jnosql.mapping.graph.configuration;
 
 import org.eclipse.jnosql.communication.Settings;
+import org.eclipse.jnosql.communication.graph.CommunicationEdge;
+import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.DatabaseConfiguration;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
@@ -23,6 +25,8 @@ import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 
 import java.time.Duration;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 class GraphConfigurationMock implements DatabaseConfiguration {
@@ -46,7 +50,7 @@ class GraphConfigurationMock implements DatabaseConfiguration {
             }
         }
 
-    public record GraphManagerMock(String name) implements DatabaseManager {
+    public record GraphManagerMock(String name) implements GraphDatabaseManager {
 
         @Override
         public CommunicationEntity insert(CommunicationEntity entity) {
@@ -96,6 +100,26 @@ class GraphConfigurationMock implements DatabaseConfiguration {
         @Override
         public void close() {
 
+        }
+
+        @Override
+        public CommunicationEdge edge(CommunicationEntity source, String label, CommunicationEntity target, Map<String, Object> properties) {
+            return null;
+        }
+
+        @Override
+        public void remove(CommunicationEntity source, String label, CommunicationEntity target) {
+
+        }
+
+        @Override
+        public <K> void deleteEdge(K id) {
+
+        }
+
+        @Override
+        public <K> Optional<CommunicationEdge> findEdgeById(K id) {
+            return Optional.empty();
         }
     }
 }
