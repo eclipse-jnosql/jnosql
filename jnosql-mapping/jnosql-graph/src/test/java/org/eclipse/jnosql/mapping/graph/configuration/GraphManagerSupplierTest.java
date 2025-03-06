@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.graph.configuration;
 
 import jakarta.data.exceptions.MappingException;
 import jakarta.inject.Inject;
+import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.graph.MockProducer;
@@ -82,7 +83,7 @@ class GraphManagerSupplierTest {
 
     @Test
     void shouldClose(){
-        DatabaseManager manager = Mockito.mock(DatabaseManager.class);
+        var manager = Mockito.mock(GraphDatabaseManager.class);
         supplier.close(manager);
         Mockito.verify(manager).close();
     }

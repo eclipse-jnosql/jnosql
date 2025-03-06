@@ -22,8 +22,6 @@ import org.eclipse.jnosql.communication.Settings;
 import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DatabaseConfiguration;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
-import org.eclipse.jnosql.mapping.Database;
-import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.config.MicroProfileSettings;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 
@@ -71,7 +69,7 @@ class GraphManagerSupplier implements Supplier<DatabaseManager> {
                 "check the configuration, the current instance is: " + manager.getClass());
     }
 
-    public void close(@Disposes @Database(DatabaseType.GRAPH) DatabaseManager manager) {
+    public void close(@Disposes GraphDatabaseManager manager) {
         LOGGER.log(Level.FINEST, "Closing GraphManager resource, database name: " + manager.name());
         manager.close();
     }
