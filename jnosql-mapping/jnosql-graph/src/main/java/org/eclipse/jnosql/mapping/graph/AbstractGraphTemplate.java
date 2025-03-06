@@ -89,8 +89,8 @@ public abstract class AbstractGraphTemplate extends AbstractSemiStructuredTempla
 
         var communicationEdge = manager().edge(sourceCommunication, label, targetCommunication, properties);
         LOGGER.fine(() -> "Created edge for " + label + " between " + source + " and " + target + " with id: " + communicationEdge.id());
-        T updatedSource = (T) converter().toCommunication(communicationEdge.source());
-        E updatedTarget = (E) converter().toCommunication(communicationEdge.target());
+        T updatedSource = (T) converter().toEntity(communicationEdge.source());
+        E updatedTarget = (E) converter().toEntity(communicationEdge.target());
 
         return new DefaultEdge<>(updatedSource, updatedTarget, label,properties, communicationEdge.id());
     }
