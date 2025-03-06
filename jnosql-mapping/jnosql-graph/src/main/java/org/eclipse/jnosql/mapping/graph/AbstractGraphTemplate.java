@@ -75,6 +75,7 @@ public abstract class AbstractGraphTemplate extends AbstractSemiStructuredTempla
 
     private static final Logger LOGGER = Logger.getLogger(AbstractGraphTemplate.class.getName());
 
+    @Override
     protected abstract GraphDatabaseManager manager();
 
     @Override

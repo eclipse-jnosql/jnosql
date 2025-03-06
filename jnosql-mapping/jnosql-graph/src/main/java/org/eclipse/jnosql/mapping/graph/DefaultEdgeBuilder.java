@@ -33,17 +33,17 @@ class DefaultEdgeBuilder<T, S> implements EdgeBuilder, EdgeBuilder.SourceStep<T>
     private String label;
 
     @Override
-    public <S> SourceStep<S> source(S source) {
+    public <I> SourceStep<I> source(I source) {
         Objects.requireNonNull(source, "source is required");
         this.source = source;
-        return (SourceStep<S>) this;
+        return (SourceStep<I>) this;
     }
 
     @Override
-    public <T1> TargetStep<T, T1> target(T1 target) {
+    public <F> TargetStep<T, F> target(F target) {
         Objects.requireNonNull(target, "target is required");
         this.target = target;
-        return (TargetStep<T, T1>) this;
+        return (TargetStep<T, F>) this;
     }
 
     @Override
