@@ -69,7 +69,11 @@ public abstract class AbstractGraphTemplate extends AbstractSemiStructuredTempla
         Objects.requireNonNull(id, "id is required");
         LOGGER.fine(() -> "Finding edge for " + id);
         Optional<CommunicationEdge> edge = manager().findEdgeById(id);
-        return Optional.empty();
+        return edge.map(e -> {
+            LOGGER.fine(() -> "Found edge for " + id);
+            T source = converter().toEntity(e.source());
+            E target = converter().toEntity(e.target());
+            return new DefaultEdge<>(source, target, e.label(), e.properties(), e.id());
+        });
     }
-
 }
