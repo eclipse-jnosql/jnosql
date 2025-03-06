@@ -14,7 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.graph.configuration;
 
-import jakarta.data.exceptions.MappingException;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
