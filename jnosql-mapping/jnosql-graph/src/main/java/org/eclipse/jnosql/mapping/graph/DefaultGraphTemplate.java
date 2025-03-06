@@ -49,7 +49,8 @@ class DefaultGraphTemplate extends AbstractGraphTemplate implements GraphTemplat
     DefaultGraphTemplate(EntityConverter converter,
                          GraphDatabaseManager manager,
                          EventPersistManager eventManager,
-                         EntitiesMetadata entities, Converters converters){
+                         EntitiesMetadata entities,
+                         Converters converters){
         this.converter = converter;
         this.manager = manager;
         this.eventManager = eventManager;

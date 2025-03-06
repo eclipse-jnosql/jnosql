@@ -19,7 +19,9 @@ import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.Produces;
+import jakarta.enterprise.inject.Typed;
 import jakarta.interceptor.Interceptor;
+import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -38,27 +40,29 @@ import static org.mockito.Mockito.when;
 @ApplicationScoped
 @Alternative
 @Priority(Interceptor.Priority.APPLICATION)
-public class MockProducer implements Supplier<DatabaseManager> {
+public class MockProducer implements Supplier<GraphDatabaseManager> {
 
     @Produces
     @Override
     @Database(DatabaseType.GRAPH)
-    public DatabaseManager get() {
+    @Typed(GraphDatabaseManager.class)
+    public GraphDatabaseManager get() {
         CommunicationEntity entity = CommunicationEntity.of("Person");
         entity.add(Element.of("name", "Default"));
         entity.add(Element.of("age", 10));
-        DatabaseManager manager = mock(DatabaseManager.class);
+        var manager = mock(GraphDatabaseManager.class);
         when(manager.insert(Mockito.any(CommunicationEntity.class))).thenReturn(entity);
         return manager;
     }
 
     @Produces
     @Database(value = DatabaseType.GRAPH, provider = "graphRepositoryMock")
-    public DatabaseManager getGraphManagerMock() {
+    @Typed(GraphDatabaseManager.class)
+    public GraphDatabaseManager getGraphManagerMock() {
         CommunicationEntity entity = CommunicationEntity.of("Person");
-        entity.add(Element.of("name", "documentRepositoryMock"));
+        entity.add(Element.of("name", "graphRepositoryMock"));
         entity.add(Element.of("age", 10));
-        DatabaseManager manager = mock(DatabaseManager.class);
+        var manager = mock(GraphDatabaseManager.class);
         when(manager.insert(Mockito.any(CommunicationEntity.class))).thenReturn(entity);
         when(manager.singleResult(Mockito.any(SelectQuery.class))).thenReturn(Optional.empty());
         return manager;

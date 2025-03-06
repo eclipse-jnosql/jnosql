@@ -17,11 +17,11 @@ package org.eclipse.jnosql.mapping.graph.configuration;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Disposes;
 import jakarta.enterprise.inject.Produces;
+import jakarta.enterprise.inject.Typed;
 import org.eclipse.jnosql.communication.CommunicationException;
 import org.eclipse.jnosql.communication.Settings;
 import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DatabaseConfiguration;
-import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.core.config.MicroProfileSettings;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 
@@ -34,7 +34,7 @@ import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.GRAPH
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.GRAPH_PROVIDER;
 
 @ApplicationScoped
-class GraphManagerSupplier implements Supplier<DatabaseManager> {
+class GraphManagerSupplier implements Supplier<GraphDatabaseManager> {
 
     private static final Logger LOGGER = Logger.getLogger(GraphManagerSupplier.class.getName());
 
@@ -43,6 +43,7 @@ class GraphManagerSupplier implements Supplier<DatabaseManager> {
     @Override
     @Produces
     @ApplicationScoped
+    @Typed(GraphDatabaseManager.class)
     public GraphDatabaseManager get() {
         Settings settings = MicroProfileSettings.INSTANCE;
 

@@ -69,7 +69,7 @@ class GraphCustomExtensionTest {
         Person person = pepoleMock.insert(Person.builder().build());
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(person).isNotNull();
-            soft.assertThat(person.getName()).isEqualTo("documentRepositoryMock");
+            soft.assertThat(person.getName()).isEqualTo("graphRepositoryMock");
         });
     }
 
