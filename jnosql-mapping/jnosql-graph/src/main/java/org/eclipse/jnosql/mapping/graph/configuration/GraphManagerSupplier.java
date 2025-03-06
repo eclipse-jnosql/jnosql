@@ -43,7 +43,6 @@ class GraphManagerSupplier implements Supplier<GraphDatabaseManager> {
     @Override
     @Produces
     @ApplicationScoped
-    @Typed(GraphDatabaseManager.class)
     public GraphDatabaseManager get() {
         Settings settings = MicroProfileSettings.INSTANCE;
 

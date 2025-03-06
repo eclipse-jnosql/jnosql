@@ -60,6 +60,6 @@ class GraphRepositoryExtensionTest {
     void shouldUseInstantiation(){
         assertNotNull(repositoryMock);
         Person person = repositoryMock.save(Person.builder().build());
-        assertEquals("documentRepositoryMock", person.getName());
+        assertEquals("graphRepositoryMock", person.getName());
     }
 }

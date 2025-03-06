@@ -18,12 +18,12 @@ package org.eclipse.jnosql.mapping.graph;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Alternative;
+import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 import jakarta.enterprise.inject.Typed;
 import jakarta.interceptor.Interceptor;
 import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
-import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.Database;
@@ -45,7 +45,7 @@ public class MockProducer implements Supplier<GraphDatabaseManager> {
     @Produces
     @Override
     @Database(DatabaseType.GRAPH)
-    @Typed(GraphDatabaseManager.class)
+    @Default
     public GraphDatabaseManager get() {
         CommunicationEntity entity = CommunicationEntity.of("Person");
         entity.add(Element.of("name", "Default"));
