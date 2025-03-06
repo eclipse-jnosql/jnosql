@@ -14,7 +14,31 @@
  */
 package org.eclipse.jnosql.communication.graph;
 
+import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 
+import java.util.Map;
+
 public interface GraphDatabaseManager extends DatabaseManager {
+
+    /**
+     * Creates a relationship (edge) between two {@link CommunicationEntity} nodes.
+     *
+     * @param source           the source entity.
+     * @param target           the target entity.
+     * @param label the type of relationship to create.
+     * @throws NullPointerException  if {@code source}, {@code target}, or {@code label} is null.
+     */
+    void edge(CommunicationEntity source, String label, CommunicationEntity target, Map<String, Object> properties);
+
+    /**
+     * Removes an existing relationship (edge) between two {@link CommunicationEntity} nodes.
+     *
+     * @param source           the source entity, which must already exist in the database.
+     * @param target           the target entity, which must already exist in the database.
+     * @param label the type of relationship to remove.
+     * @throws NullPointerException       if {@code source}, {@code target}, or {@code label} is null.
+     */
+    void remove(CommunicationEntity source, String label, CommunicationEntity target);
+
 }
