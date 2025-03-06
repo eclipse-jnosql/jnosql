@@ -114,12 +114,10 @@ public interface GraphDatabaseManager extends DatabaseManager {
      * </p>
      *
      * @param <K> the type of the edge identifier.
-     * @param <T> the source entity type.
-     * @param <E> the target entity type.
      * @param id  the unique identifier of the edge.
      * @return an {@link Optional} containing the edge if found, otherwise an empty {@link Optional}.
      * @throws NullPointerException if the {@code id} is null.
      */
-    <K, T, E> Optional<Edge<T, E>> findEdgeById(K id);
+    <K> Optional<CommunicationEdge> findEdgeById(K id);
 }
 
