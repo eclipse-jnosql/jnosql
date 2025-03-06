@@ -483,6 +483,9 @@ The `EdgeBuilder` provides a fluent API to define edges between entities, includ
 
 [source,java]
 ----
+
+private GraphTemplate template;
+
 Person person = new Person();
 Book book = new Book();
 
@@ -492,6 +495,8 @@ Edge<Person, Book> edge = Edge.source(person)
         .property("since", 2019)
         .property("format", "digital")
         .build();
+
+template.edge(edge);
 ----
 
 ==== Configuring a Graph Database
@@ -502,9 +507,6 @@ You can configure your graph database using MicroProfile Config properties.
 ----
 jnosql.graph.database=<DATABASE>
 jnosql.graph.provider=<CLASS-DRIVER>
-jnosql.provider.host=<HOST>
-jnosql.provider.user=<USER>
-jnosql.provider.password=<PASSWORD>
 ----
 
 You can also configure the database programmatically by providing a `GraphDatabaseManager` implementation.
