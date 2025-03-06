@@ -462,6 +462,86 @@ public DocumentManager getManagerB() {
 }
 ----
 
+=== Graph
+
+Eclipse JNoSQL provides a Graph API that simplifies working with graph databases such as Neo4j and Apache TinkerPop. This API enables seamless integration with graph databases while following the Jakarta NoSQL specifications.
+
+To start using graph databases with Eclipse JNoSQL, add the required dependency:
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.eclipse.jnosql.mapping</groupId>
+    <artifactId>jnosql-mapping-graph</artifactId>
+    <version>1.1.4</version>
+</dependency>
+----
+
+==== Using the Relationship on Graph (Edge)
+
+The `EdgeBuilder` provides a fluent API to define edges between entities, including properties.
+
+[source,java]
+----
+Person person = new Person();
+Book book = new Book();
+
+Edge<Person, Book> edge = Edge.source(person)
+        .label("READS")
+        .target(book)
+        .property("since", 2019)
+        .property("format", "digital")
+        .build();
+----
+
+==== Configuring a Graph Database
+
+You can configure your graph database using MicroProfile Config properties.
+
+[source,properties]
+----
+jnosql.graph.database=<DATABASE>
+jnosql.graph.provider=<CLASS-DRIVER>
+jnosql.provider.host=<HOST>
+jnosql.provider.user=<USER>
+jnosql.provider.password=<PASSWORD>
+----
+
+You can also configure the database programmatically by providing a `GraphDatabaseManager` implementation.
+
+[source,java]
+----
+@Alternative
+@Priority(Interceptor.Priority.APPLICATION)
+@ApplicationScoped
+public class GraphManagerSupplier implements Supplier<GraphDatabaseManager> {
+
+    @Produces
+    @Database(DatabaseType.GRAPH)
+    @Default
+    public GraphDatabaseManager get() {
+        Settings settings = Settings.builder()
+                .put("credential", "value")
+                .build();
+        GraphConfiguration configuration = new NoSQLGraphProvider();
+        GraphDatabaseManagerFactory factory = configuration.apply(settings);
+        return factory.apply("database");
+    }
+}
+----
+
+By using the `@Database` annotation, multiple graph database instances can be configured for CDI injection.
+
+[source,java]
+----
+@Inject
+@Database(value = DatabaseType.GRAPH, provider = "graphA")
+private GraphTemplate graphA;
+
+@Inject
+@Database(value = DatabaseType.GRAPH, provider = "graphB")
+private GraphTemplate graphB;
+----
 
 === Jakarta Data
 
