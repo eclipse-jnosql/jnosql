@@ -61,7 +61,7 @@ class DefaultEdgeBuilder<T, S> implements EdgeBuilder, EdgeBuilder.SourceStep<T>
 
     @Override
     public Edge<T, S> build() {
-        return null;
+        return (Edge<T, S>) new DefaultEdge<>(source, target, label, properties, id);
     }
 
     @Override
