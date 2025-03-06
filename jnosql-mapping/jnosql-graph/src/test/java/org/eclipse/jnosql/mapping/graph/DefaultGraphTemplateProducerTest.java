@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.graph;
 
 import jakarta.inject.Inject;
+import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.graph.spi.GraphExtension;
@@ -49,7 +50,7 @@ class DefaultGraphTemplateProducerTest {
 
     @Test
     void shouldReturn() {
-        var manager = Mockito.mock(DatabaseManager.class);
+        var manager = Mockito.mock(GraphDatabaseManager.class);
         GraphTemplate graphTemplate = producer.apply(manager);
         assertNotNull(graphTemplate);
     }

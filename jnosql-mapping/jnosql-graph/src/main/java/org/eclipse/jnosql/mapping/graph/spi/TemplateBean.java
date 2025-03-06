@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.graph.spi;
 
 import jakarta.enterprise.context.spi.CreationalContext;
 import jakarta.nosql.Template;
+import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
@@ -61,8 +62,8 @@ class TemplateBean extends AbstractBean<GraphTemplate> {
         return producer.apply(manager);
     }
 
-    private DatabaseManager getManager() {
-        return getInstance(DatabaseManager.class, DatabaseQualifier.ofGraph(provider));
+    private GraphDatabaseManager getManager() {
+        return getInstance(GraphDatabaseManager.class, DatabaseQualifier.ofGraph(provider));
     }
 
     @Override

@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.graph;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
+import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseType;
@@ -35,7 +36,7 @@ class DefaultGraphTemplate extends AbstractGraphTemplate implements GraphTemplat
 
     private final EntityConverter converter;
 
-    private final  DatabaseManager manager;
+    private final  GraphDatabaseManager manager;
 
     private final  EventPersistManager eventManager;
 
@@ -46,7 +47,7 @@ class DefaultGraphTemplate extends AbstractGraphTemplate implements GraphTemplat
 
     @Inject
     DefaultGraphTemplate(EntityConverter converter,
-                         @Database(DatabaseType.GRAPH) DatabaseManager manager,
+                         GraphDatabaseManager manager,
                          EventPersistManager eventManager,
                          EntitiesMetadata entities, Converters converters){
         this.converter = converter;
@@ -66,7 +67,7 @@ class DefaultGraphTemplate extends AbstractGraphTemplate implements GraphTemplat
     }
 
     @Override
-    protected DatabaseManager manager() {
+    protected GraphDatabaseManager manager() {
         return manager;
     }
 

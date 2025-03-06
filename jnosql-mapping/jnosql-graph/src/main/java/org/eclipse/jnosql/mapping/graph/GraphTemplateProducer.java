@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.graph;
 
+import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
@@ -30,10 +31,10 @@ import java.util.function.Function;
 
 /**
  * An {@code ApplicationScoped} producer class responsible for creating instances of {@link GraphTemplate}.
- * It implements the {@link Function} interface with {@link DatabaseManager} as input and {@link GraphTemplate} as output.
+ * It implements the {@link Function} interface with {@link GraphDatabaseManager} as input and {@link GraphTemplate} as output.
  */
 @ApplicationScoped
-public class GraphTemplateProducer implements Function<DatabaseManager, GraphTemplate> {
+public class GraphTemplateProducer implements Function<GraphDatabaseManager, GraphTemplate> {
 
     @Inject
     private EntityConverter converter;
@@ -49,7 +50,7 @@ public class GraphTemplateProducer implements Function<DatabaseManager, GraphTem
 
 
     @Override
-    public GraphTemplate apply(DatabaseManager manager) {
+    public GraphTemplate apply(GraphDatabaseManager manager) {
         Objects.requireNonNull(manager, "manager is required");
         return new ProducerGraphTemplate(converter, manager,
                 eventManager, entities, converters);
@@ -60,7 +61,7 @@ public class GraphTemplateProducer implements Function<DatabaseManager, GraphTem
 
         private final EntityConverter converter;
 
-        private final  DatabaseManager manager;
+        private final GraphDatabaseManager manager;
 
         private final EventPersistManager eventManager;
 
@@ -69,7 +70,7 @@ public class GraphTemplateProducer implements Function<DatabaseManager, GraphTem
         private final  Converters converters;
 
         ProducerGraphTemplate(EntityConverter converter,
-                              DatabaseManager manager,
+                              GraphDatabaseManager manager,
                               EventPersistManager eventManager,
                               EntitiesMetadata entities,
                               Converters converters) {
@@ -90,7 +91,7 @@ public class GraphTemplateProducer implements Function<DatabaseManager, GraphTem
         }
 
         @Override
-        protected DatabaseManager manager() {
+        protected GraphDatabaseManager manager() {
             return manager;
         }
 
