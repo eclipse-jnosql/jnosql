@@ -20,6 +20,7 @@ and then referenced by URL https://nexus.cicd.portit.io/repository/portit-webapp
         <exclude name="LongVariable" />
         <exclude name="MethodArgumentCouldBeFinal" />
         <exclude name="ShortMethodName" />
+        <exclude name="ShortClassName" />
         <exclude name="ShortVariable" />
         <exclude name="AtLeastOneConstructor" />
         <exclude name="LocalVariableCouldBeFinal" />
