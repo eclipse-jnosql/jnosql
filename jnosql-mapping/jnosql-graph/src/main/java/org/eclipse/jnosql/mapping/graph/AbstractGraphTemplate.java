@@ -2,7 +2,6 @@ package org.eclipse.jnosql.mapping.graph;
 
 import org.eclipse.jnosql.communication.graph.CommunicationEdge;
 import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
-import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.mapping.semistructured.AbstractSemiStructuredTemplate;
 
 import java.util.Map;
