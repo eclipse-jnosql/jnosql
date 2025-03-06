@@ -17,7 +17,6 @@ package org.eclipse.jnosql.mapping.graph.configuration;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Disposes;
 import jakarta.enterprise.inject.Produces;
-import jakarta.enterprise.inject.Typed;
 import org.eclipse.jnosql.communication.CommunicationException;
 import org.eclipse.jnosql.communication.Settings;
 import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;

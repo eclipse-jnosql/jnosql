@@ -14,8 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.graph;
 
-import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.graph.CommunicationEdge;
+import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
@@ -27,13 +28,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.assertj.core.api.SoftAssertions;
 
 import java.util.Map;
 import java.util.Optional;
 
-import static org.mockito.Mockito.*;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DefaultGraphTemplateTest {
