@@ -16,8 +16,10 @@ package org.eclipse.jnosql.communication.graph;
 
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
+import org.eclipse.jnosql.mapping.graph.Edge;
 
 import java.util.Map;
+import java.util.Optional;
 
 public interface GraphDatabaseManager extends DatabaseManager {
 
@@ -41,4 +43,24 @@ public interface GraphDatabaseManager extends DatabaseManager {
      */
     void remove(CommunicationEntity source, String label, CommunicationEntity target);
 
+    /**
+     * Deletes an edge (relationship) from the graph database by its unique identifier.
+     *
+     * @param <K> the type of the edge identifier
+     * @param id  the unique identifier of the edge to delete
+     * @throws NullPointerException if the ID is null
+     */
+    <K> void deleteEdge(K id);
+
+    /**
+     * Finds an edge (relationship) in the graph database by its unique identifier.
+     *
+     * @param <K> the type of the edge identifier
+     * @param <T> the source entity type
+     * @param <E> the target entity type
+     * @param id  the unique identifier of the edge
+     * @return an {@link Optional} containing the edge if found, otherwise an empty {@link Optional}
+     * @throws NullPointerException if the ID is null
+     */
+    <K, T, E> Optional<Edge<T, E>> findEdgeById(K id);
 }
