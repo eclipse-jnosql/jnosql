@@ -170,7 +170,19 @@ public interface Edge<S, T> {
 
     /**
      * Creates a new {@link EdgeBuilder} to construct an edge starting from the given source vertex.
-     *
+     * <p>Example usage:</p>
+     * <pre>{@code
+     *     EdgeBuilder builder = ...;
+     *     Person person = new Person();
+     *     Book book = new Book();
+     *     Edge<Person, Book> edge = builder
+     *          .source(person)
+     *          .label("READS")
+     *          .target(book)
+     *          .property("since", 2019)
+     *          .property("where", "kindle")
+     *          .build();
+     * }</pre>
      * @param <S>    the type of the source entity
      * @param source the entity serving as the source vertex
      * @return an {@link EdgeBuilder.SourceStep} to continue the edge construction process

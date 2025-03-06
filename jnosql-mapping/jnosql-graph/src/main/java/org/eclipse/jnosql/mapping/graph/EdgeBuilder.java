@@ -32,7 +32,7 @@ import java.util.function.Supplier;
  * </ol>
  *
  * <p>Example usage:</p>
- * <pre>
+ * <pre>{@code
  *     EdgeBuilder builder = ...;
  *     Person person = new Person();
  *     Book book = new Book();
@@ -43,7 +43,7 @@ import java.util.function.Supplier;
  *          .property("since", 2019)
  *          .property("where", "kindle")
  *          .build();
- * </pre>
+ * }</pre>
  */
 public interface EdgeBuilder {
 
