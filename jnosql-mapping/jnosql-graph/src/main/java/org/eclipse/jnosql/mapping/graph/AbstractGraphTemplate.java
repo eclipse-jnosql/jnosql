@@ -10,6 +10,53 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
+/**
+ * Provides a base implementation of the {@link GraphTemplate} interface using the
+ * <b>Template Method Pattern</b>, ensuring consistent interaction with a {@link GraphDatabaseManager}.
+ * <p>
+ * This abstract class simplifies working with graph databases by handling common operations like:
+ * <ul>
+ *     <li>Creating edges (relationships) between entities.</li>
+ *     <li>Deleting edges by reference or ID.</li>
+ *     <li>Finding edges based on their unique identifiers.</li>
+ * </ul>
+ * <p>
+ * Implementations of this class must provide a concrete {@link GraphDatabaseManager} via {@link #manager()},
+ * which defines the actual database-specific behavior.
+ * </p>
+ *
+ * <p><strong>Example Usage:</strong></p>
+ * <pre>{@code
+ * class MyGraphTemplate extends AbstractGraphTemplate {
+ *     private final GraphDatabaseManager manager;
+ *
+ *     MyGraphTemplate(GraphDatabaseManager manager) {
+ *         this.manager = manager;
+ *     }
+ *
+ *     @Override
+ *     protected GraphDatabaseManager manager() {
+ *         return manager;
+ *     }
+ * }
+ *
+ * GraphTemplate template = new MyGraphTemplate(graphManager);
+ * Person person = new Person();
+ * Book book = new Book();
+ *
+ * // Creating an edge
+ * Edge<Person, Book> edge = template.edge(person, "READS", book, Map.of("since", 2020));
+ *
+ * // Finding an edge
+ * Optional<Edge<Person, Book>> foundEdge = template.findEdgeById(edge.id().orElseThrow());
+ *
+ * // Deleting an edge
+ * template.delete(edge);
+ * }</pre>
+ *
+ * @see GraphTemplate
+ * @see GraphDatabaseManager
+ */
 public abstract class AbstractGraphTemplate extends AbstractSemiStructuredTemplate implements GraphTemplate {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractGraphTemplate.class.getName());
