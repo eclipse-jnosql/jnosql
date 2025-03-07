@@ -31,7 +31,6 @@ import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 @Database(DatabaseType.GRAPH)
 class DefaultGraphTemplate extends AbstractGraphTemplate implements GraphTemplate {
 
-
     private final EntityConverter converter;
 
     private final  GraphDatabaseManager manager;
