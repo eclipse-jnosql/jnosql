@@ -53,6 +53,10 @@ public enum MappingConfigurations implements Supplier<String> {
      */
     GRAPH_PROVIDER("jnosql.graph.provider"),
     /**
+     * Define the graph database name.
+     */
+    GRAPH_DATABASE("jnosql.graph.database"),
+    /**
      * Activate the automatic transaction at Graph database. By default it is true.
      */
     GRAPH_TRANSACTION_AUTOMATIC("jnosql.graph.transaction.automatic");
