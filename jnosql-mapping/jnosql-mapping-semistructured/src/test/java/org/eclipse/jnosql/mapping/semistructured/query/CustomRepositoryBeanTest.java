@@ -46,32 +46,12 @@ class CustomRepositoryBeanTest {
             protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
                 return SemiStructuredTemplate.class;
             }
-
-            @Override
-            protected DatabaseQualifier getDatabaseQualifier() {
-                return DatabaseQualifier.ofGraph();
-            }
-
-            @Override
-            protected DatabaseQualifier getDatabaseQualifier(String provider) {
-                return DatabaseQualifier.ofGraph(provider);
-            }
         };
 
         defaultRepositoryBean = new CustomRepositoryBean<>(MockRepository.class, "", DatabaseType.GRAPH) {
             @Override
             protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
                 return SemiStructuredTemplate.class;
-            }
-
-            @Override
-            protected DatabaseQualifier getDatabaseQualifier() {
-                return DatabaseQualifier.ofGraph();
-            }
-
-            @Override
-            protected DatabaseQualifier getDatabaseQualifier(String provider) {
-                return DatabaseQualifier.ofGraph(provider);
             }
         };
     }
