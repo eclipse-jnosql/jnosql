@@ -35,11 +35,11 @@ import java.util.Set;
  */
 public abstract class AbstractBean<T> implements Bean<T>, PassivationCapable {
 
-    protected <T> T getInstance(Class<T> bean) {
+    public  <T> T getInstance(Class<T> bean) {
         return CDI.current().select(bean).get();
     }
 
-    protected <T> T getInstance(Class<T> bean, Annotation qualifier) {
+    public  <T> T getInstance(Class<T> bean, Annotation qualifier) {
         return CDI.current().select(bean, qualifier).get();
     }
 
