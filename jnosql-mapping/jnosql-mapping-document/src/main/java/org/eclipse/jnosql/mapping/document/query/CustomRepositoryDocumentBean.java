@@ -14,7 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.document.query;
 
-import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
 import org.eclipse.jnosql.mapping.document.DocumentTemplate;

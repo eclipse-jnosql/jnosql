@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.column.query;
 
 import jakarta.data.repository.DataRepository;
-import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.column.ColumnTemplate;
 import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
