@@ -15,24 +15,12 @@
 package org.eclipse.jnosql.mapping.column.query;
 
 import jakarta.data.repository.DataRepository;
-import jakarta.enterprise.context.spi.CreationalContext;
-import org.eclipse.jnosql.mapping.column.ColumnTemplate;
-import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
-import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.column.ColumnTemplate;
 import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
-import org.eclipse.jnosql.mapping.core.util.AnnotationLiteralUtil;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.query.RepositoryBean;
-import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredRepositoryProxy;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * This class serves as a JNoSQL discovery bean for CDI extension, responsible for registering Repository instances.
