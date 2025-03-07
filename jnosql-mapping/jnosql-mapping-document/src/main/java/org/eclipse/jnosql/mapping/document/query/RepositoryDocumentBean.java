@@ -23,6 +23,7 @@ import org.eclipse.jnosql.mapping.document.DocumentTemplate;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
 import org.eclipse.jnosql.mapping.core.util.AnnotationLiteralUtil;
+import org.eclipse.jnosql.mapping.semistructured.query.RepositoryBean;
 import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredRepositoryProxy;
 
 import java.lang.annotation.Annotation;
@@ -44,72 +45,30 @@ import java.util.Set;
  * @param <T> the type of the repository
  * @see AbstractBean
  */
-public class RepositoryDocumentBean<T extends DataRepository<T, ?>> extends AbstractBean<T> {
 
-    private final Class<T> type;
+import org.eclipse.jnosql.mapping.DatabaseType;
+import org.eclipse.jnosql.mapping.DatabaseQualifier;
+import org.eclipse.jnosql.mapping.document.DocumentTemplate;
+import org.eclipse.jnosql.mapping.common.query.RepositoryBean;
 
-    private final Set<Type> types;
+public class RepositoryDocumentBean<T extends DataRepository<T, ?>> extends RepositoryBean<T> {
 
-    private final String provider;
-
-    private final Set<Annotation> qualifiers;
-
-    /**
-     * Constructor
-     *
-     * @param type        the tye
-     * @param provider    the provider name, that must be a
-     */
-    @SuppressWarnings("unchecked")
     public RepositoryDocumentBean(Class<?> type, String provider) {
-        this.type = (Class<T>) type;
-        this.types = Collections.singleton(type);
-        this.provider = provider;
-        if (provider.isEmpty()) {
-            this.qualifiers = new HashSet<>();
-            qualifiers.add(DatabaseQualifier.ofDocument());
-            qualifiers.add(AnnotationLiteralUtil.DEFAULT_ANNOTATION);
-            qualifiers.add(AnnotationLiteralUtil.ANY_ANNOTATION);
-        } else {
-            this.qualifiers = Collections.singleton(DatabaseQualifier.ofDocument(provider));
-        }
+        super(type, provider, DatabaseType.DOCUMENT);
     }
 
     @Override
-    public Class<?> getBeanClass() {
-        return type;
+    protected Class<?> getTemplateClass() {
+        return DocumentTemplate.class;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public T create(CreationalContext<T> context) {
-        EntitiesMetadata entities = getInstance(EntitiesMetadata.class);
-        var template = provider.isEmpty() ? getInstance(DocumentTemplate.class) :
-                getInstance(DocumentTemplate.class, DatabaseQualifier.ofDocument(provider));
-
-        Converters converters = getInstance(Converters.class);
-
-        var handler = new SemiStructuredRepositoryProxy<>(template,
-                entities, type, converters);
-        return (T) Proxy.newProxyInstance(type.getClassLoader(),
-                new Class[]{type},
-                handler);
-    }
-
-
-    @Override
-    public Set<Type> getTypes() {
-        return types;
+    protected DatabaseQualifier getDatabaseQualifier() {
+        return DatabaseQualifier.ofDocument();
     }
 
     @Override
-    public Set<Annotation> getQualifiers() {
-        return qualifiers;
+    protected DatabaseQualifier getDatabaseQualifier(String provider) {
+        return DatabaseQualifier.ofDocument(provider);
     }
-
-    @Override
-    public String getId() {
-        return type.getName() + '@' + DatabaseType.DOCUMENT + "-" + provider;
-    }
-
 }
