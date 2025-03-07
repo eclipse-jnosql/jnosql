@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.graph.query;
 
 import jakarta.data.repository.DataRepository;
-import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
 import org.eclipse.jnosql.mapping.graph.GraphTemplate;
@@ -43,15 +42,5 @@ public class RepositoryGraphBean<T extends DataRepository<T, ?>> extends Reposit
     @Override
     protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
         return GraphTemplate.class;
-    }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier() {
-        return DatabaseQualifier.ofGraph();
-    }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier(String provider) {
-        return DatabaseQualifier.ofGraph(provider);
     }
 }

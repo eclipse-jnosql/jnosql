@@ -14,7 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.column.query;
 
-import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.column.ColumnTemplate;
 import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
@@ -42,15 +41,5 @@ public class CustomRepositoryColumnBean<T> extends CustomRepositoryBean<T> {
     @Override
     protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
         return ColumnTemplate.class;
-    }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier() {
-        return DatabaseQualifier.ofColumn();
-    }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier(String provider) {
-        return DatabaseQualifier.ofColumn(provider);
     }
 }

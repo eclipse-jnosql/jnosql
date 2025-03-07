@@ -15,12 +15,12 @@
 package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.data.repository.DataRepository;
-import java.lang.reflect.InvocationHandler;
-import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
+
+import java.lang.reflect.InvocationHandler;
 
 public class RepositoryBean<T extends DataRepository<T, ?>> extends BaseRepositoryBean<T> {
 
@@ -31,16 +31,6 @@ public class RepositoryBean<T extends DataRepository<T, ?>> extends BaseReposito
     @Override
     protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
         return SemiStructuredTemplate.class;
-    }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier() {
-        return DatabaseQualifier.ofGraph();
-    }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier(String provider) {
-        return DatabaseQualifier.ofGraph(provider);
     }
 
     @Override

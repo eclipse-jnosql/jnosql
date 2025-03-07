@@ -21,7 +21,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
-public class CustomRepositoryBean<T> extends BaseRepositoryBean<T> {
+public abstract class CustomRepositoryBean<T> extends BaseRepositoryBean<T> {
 
     public CustomRepositoryBean(Class<?> type, String provider, DatabaseType databaseType) {
         super(type, provider, databaseType);
@@ -30,16 +30,6 @@ public class CustomRepositoryBean<T> extends BaseRepositoryBean<T> {
     @Override
     protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
         return SemiStructuredTemplate.class;
-    }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier() {
-        return DatabaseQualifier.ofGraph();
-    }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier(String provider) {
-        return DatabaseQualifier.ofGraph(provider);
     }
 
     @Override

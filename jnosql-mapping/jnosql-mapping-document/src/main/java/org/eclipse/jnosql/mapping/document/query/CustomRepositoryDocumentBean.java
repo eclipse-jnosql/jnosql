@@ -43,14 +43,4 @@ public class CustomRepositoryDocumentBean<T> extends CustomRepositoryBean<T> {
     protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
         return DocumentTemplate.class;
     }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier() {
-        return DatabaseQualifier.ofDocument();
-    }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier(String provider) {
-        return DatabaseQualifier.ofDocument(provider);
-    }
 }

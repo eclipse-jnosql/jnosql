@@ -43,14 +43,4 @@ public class RepositoryColumnBean<T extends DataRepository<T, ?>> extends Reposi
     protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
         return ColumnTemplate.class;
     }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier() {
-        return DatabaseQualifier.ofColumn();
-    }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier(String provider) {
-        return DatabaseQualifier.ofColumn(provider);
-    }
 }

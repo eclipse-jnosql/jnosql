@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.document.query;
 
 import jakarta.data.repository.DataRepository;
-import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.document.DocumentTemplate;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
@@ -30,15 +29,5 @@ public class RepositoryDocumentBean<T extends DataRepository<T, ?>> extends Repo
     @Override
     protected Class<? extends SemiStructuredTemplate>  getTemplateClass() {
         return DocumentTemplate.class;
-    }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier() {
-        return DatabaseQualifier.ofDocument();
-    }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier(String provider) {
-        return DatabaseQualifier.ofDocument(provider);
     }
 }

@@ -44,32 +44,12 @@ class RepositoryBeanTest {
             protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
                 return SemiStructuredTemplate.class;
             }
-
-            @Override
-            protected DatabaseQualifier getDatabaseQualifier() {
-                return DatabaseQualifier.ofDocument();
-            }
-
-            @Override
-            protected DatabaseQualifier getDatabaseQualifier(String provider) {
-                return DatabaseQualifier.ofDocument(provider);
-            }
         };
 
         repositoryBeanDefault = new RepositoryBean<>(MockRepository.class, "", DatabaseType.DOCUMENT) {
             @Override
             protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
                 return SemiStructuredTemplate.class;
-            }
-
-            @Override
-            protected DatabaseQualifier getDatabaseQualifier() {
-                return DatabaseQualifier.ofDocument();
-            }
-
-            @Override
-            protected DatabaseQualifier getDatabaseQualifier(String provider) {
-                return DatabaseQualifier.ofDocument(provider);
             }
         };
 

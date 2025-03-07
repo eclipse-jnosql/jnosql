@@ -43,14 +43,4 @@ public class CustomRepositoryGraphBean<T> extends CustomRepositoryBean<T> {
     protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
         return GraphTemplate.class;
     }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier() {
-        return DatabaseQualifier.ofGraph();
-    }
-
-    @Override
-    protected DatabaseQualifier getDatabaseQualifier(String provider) {
-        return DatabaseQualifier.ofGraph(provider);
-    }
 }

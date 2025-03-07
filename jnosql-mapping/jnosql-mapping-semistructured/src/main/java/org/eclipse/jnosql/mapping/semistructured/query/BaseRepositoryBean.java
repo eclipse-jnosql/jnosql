@@ -65,8 +65,24 @@ abstract class BaseRepositoryBean<T> extends AbstractBean<T> {
     }
 
     protected abstract Class<? extends SemiStructuredTemplate> getTemplateClass();
-    protected abstract DatabaseQualifier getDatabaseQualifier();
-    protected abstract DatabaseQualifier getDatabaseQualifier(String provider);
+
+    private DatabaseQualifier getDatabaseQualifier() {
+        return switch (databaseType) {
+            case COLUMN -> DatabaseQualifier.ofColumn();
+            case DOCUMENT -> DatabaseQualifier.ofDocument();
+            case GRAPH -> DatabaseQualifier.ofGraph();
+            default -> throw new IllegalArgumentException("Unsupported database type: " + databaseType);
+        };
+    }
+
+    private DatabaseQualifier getDatabaseQualifier(String provider) {
+        return switch (databaseType) {
+            case COLUMN -> DatabaseQualifier.ofColumn(provider);
+            case DOCUMENT -> DatabaseQualifier.ofDocument(provider);
+            case GRAPH -> DatabaseQualifier.ofGraph(provider);
+            default -> throw new IllegalArgumentException("Unsupported database type: " + databaseType);
+        };
+    }
 
     /**
      * Subclasses define how the repository handler is created.
