@@ -14,8 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import jakarta.enterprise.context.spi.CreationalContext;
 import jakarta.data.repository.DataRepository;
 import org.assertj.core.api.SoftAssertions;
