@@ -14,98 +14,41 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
-import jakarta.enterprise.context.spi.CreationalContext;
+import java.lang.reflect.InvocationHandler;
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
-import org.eclipse.jnosql.mapping.core.util.AnnotationLiteralUtil;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+public class CustomRepositoryBean<T> extends BaseRepositoryBean<T> {
 
-/**
- * The template method class for Custom Repository Beans to reduce duplication across different database types.
- */
-public abstract class CustomRepositoryBean<T>  extends AbstractBean<T> {
-
-    private final Class<T> type;
-    private final Set<Type> types;
-    private final String provider;
-    private final Set<Annotation> qualifiers;
-    private final DatabaseType databaseType;
-
-    @SuppressWarnings("unchecked")
-    protected CustomRepositoryBean(Class<?> type, String provider, DatabaseType databaseType) {
-        this.type = (Class<T>) type;
-        this.types = Collections.singleton(type);
-        this.provider = provider;
-        this.databaseType = databaseType;
-        this.qualifiers = initializeQualifiers();
+    public CustomRepositoryBean(Class<?> type, String provider, DatabaseType databaseType) {
+        super(type, provider, databaseType);
     }
-
-    private Set<Annotation> initializeQualifiers() {
-        if (provider.isEmpty()) {
-            Set<Annotation> defaultQualifiers = new HashSet<>();
-            defaultQualifiers.add(getDatabaseQualifier());
-            defaultQualifiers.add(AnnotationLiteralUtil.DEFAULT_ANNOTATION);
-            defaultQualifiers.add(AnnotationLiteralUtil.ANY_ANNOTATION);
-            return defaultQualifiers;
-        }
-        return Collections.singleton(getDatabaseQualifier(provider));
-    }
-
-    protected abstract Class<? extends SemiStructuredTemplate> getTemplateClass();
-
-    protected abstract DatabaseQualifier getDatabaseQualifier();
-
-    protected abstract DatabaseQualifier getDatabaseQualifier(String provider);
 
     @Override
-    public Class<?> getBeanClass() {
-        return type;
+    protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
+        return SemiStructuredTemplate.class;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public T create(CreationalContext<T> context) {
-        var entities = getInstance(EntitiesMetadata.class);
-        var template = provider.isEmpty()
-                ? getInstance(getTemplateClass())
-                : getInstance(getTemplateClass(), getDatabaseQualifier(provider));
+    protected DatabaseQualifier getDatabaseQualifier() {
+        return DatabaseQualifier.ofGraph();
+    }
 
-        var converters = getInstance(Converters.class);
+    @Override
+    protected DatabaseQualifier getDatabaseQualifier(String provider) {
+        return DatabaseQualifier.ofGraph(provider);
+    }
 
-        var handler = CustomRepositoryHandler.builder()
+    @Override
+    protected InvocationHandler createHandler(EntitiesMetadata entities, SemiStructuredTemplate template, Converters converters) {
+        return CustomRepositoryHandler.builder()
                 .entitiesMetadata(entities)
                 .template(template)
-                .customRepositoryType(type)
+                .customRepositoryType(getBeanClass())
                 .converters(converters)
                 .build();
-
-        return (T) Proxy.newProxyInstance(type.getClassLoader(),
-                new Class[]{type},
-                handler);
-    }
-
-    @Override
-    public Set<Type> getTypes() {
-        return types;
-    }
-
-    @Override
-    public Set<Annotation> getQualifiers() {
-        return qualifiers;
-    }
-
-    @Override
-    public String getId() {
-        return type.getName() + '@' + databaseType + "-" + provider;
     }
 }

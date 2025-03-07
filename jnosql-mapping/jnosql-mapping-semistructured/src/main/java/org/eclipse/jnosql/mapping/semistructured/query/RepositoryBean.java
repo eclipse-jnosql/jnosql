@@ -13,90 +13,39 @@
  *   Otavio Santana
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
+
 import jakarta.data.repository.DataRepository;
-import jakarta.enterprise.context.spi.CreationalContext;
+import java.lang.reflect.InvocationHandler;
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
-import org.eclipse.jnosql.mapping.core.util.AnnotationLiteralUtil;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+public class RepositoryBean<T extends DataRepository<T, ?>> extends BaseRepositoryBean<T> {
 
-/**
- * Abstract class for repository beans that dynamically create repository instances.
- */
-public abstract class RepositoryBean<T extends DataRepository<T, ?>> extends AbstractBean<T> {
-
-    private final Class<T> type;
-    private final Set<Type> types;
-    private final String provider;
-    private final Set<Annotation> qualifiers;
-    private final DatabaseType databaseType;
-
-    protected RepositoryBean(Class<?> type, String provider, DatabaseType databaseType) {
-        this.type = (Class<T>) type;
-        this.types = Collections.singleton(type);
-        this.provider = provider;
-        this.databaseType = databaseType;
-        this.qualifiers = initializeQualifiers();
-    }
-
-    private Set<Annotation> initializeQualifiers() {
-        if (provider.isEmpty()) {
-            Set<Annotation> defaultQualifiers = new HashSet<>();
-            defaultQualifiers.add(getDatabaseQualifier());
-            defaultQualifiers.add(AnnotationLiteralUtil.DEFAULT_ANNOTATION);
-            defaultQualifiers.add(AnnotationLiteralUtil.ANY_ANNOTATION);
-            return defaultQualifiers;
-        }
-        return Collections.singleton(getDatabaseQualifier(provider));
-    }
-
-    protected abstract Class<? extends SemiStructuredTemplate> getTemplateClass();
-
-    protected abstract DatabaseQualifier getDatabaseQualifier();
-
-    protected abstract DatabaseQualifier getDatabaseQualifier(String provider);
-
-    @Override
-    public Class<?> getBeanClass() {
-        return type;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public T create(CreationalContext<T> context) {
-        var entities = getInstance(EntitiesMetadata.class);
-        var template = provider.isEmpty()
-                ? getInstance(getTemplateClass())
-                : getInstance(getTemplateClass(), getDatabaseQualifier(provider));
-
-        var converters = getInstance(Converters.class);
-
-        var handler = new SemiStructuredRepositoryProxy<>(template, entities, type, converters);
-        return (T) Proxy.newProxyInstance(type.getClassLoader(), new Class[]{type}, handler);
+    public RepositoryBean(Class<?> type, String provider, DatabaseType databaseType) {
+        super(type, provider, databaseType);
     }
 
     @Override
-    public Set<Type> getTypes() {
-        return types;
+    protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
+        return SemiStructuredTemplate.class;
     }
 
     @Override
-    public Set<Annotation> getQualifiers() {
-        return qualifiers;
+    protected DatabaseQualifier getDatabaseQualifier() {
+        return DatabaseQualifier.ofGraph();
     }
 
     @Override
-    public String getId() {
-        return type.getName() + '@' + databaseType + "-" + provider;
+    protected DatabaseQualifier getDatabaseQualifier(String provider) {
+        return DatabaseQualifier.ofGraph(provider);
+    }
+
+    @Override
+    protected InvocationHandler createHandler(EntitiesMetadata entities, SemiStructuredTemplate template, Converters converters) {
+        return new SemiStructuredRepositoryProxy<>(template, entities, getBeanClass(), converters);
     }
 }
+
