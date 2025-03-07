@@ -14,22 +14,12 @@
  */
 package org.eclipse.jnosql.mapping.graph.query;
 
-import jakarta.enterprise.context.spi.CreationalContext;
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
-import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
-import org.eclipse.jnosql.mapping.core.util.AnnotationLiteralUtil;
 import org.eclipse.jnosql.mapping.graph.GraphTemplate;
-import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
-import org.eclipse.jnosql.mapping.semistructured.query.CustomRepositoryHandler;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
+import org.eclipse.jnosql.mapping.semistructured.query.CustomRepositoryBean;
 
 
 /**
@@ -43,77 +33,24 @@ import java.util.Set;
  * @param <T> the type of the repository interface
  * @see AbstractBean
  */
-public class CustomRepositoryGraphBean<T> extends AbstractBean<T> {
+public class CustomRepositoryGraphBean<T> extends CustomRepositoryBean<T> {
 
-    private final Class<T> type;
-
-    private final Set<Type> types;
-
-    private final String provider;
-
-    private final Set<Annotation> qualifiers;
-
-    /**
-     * Constructs a new {@code CustomRepositoryGraphBean} for the specified repository type and provider.
-     *
-     * @param type     the repository interface type
-     * @param provider the database provider name; if empty, the default provider is used
-     */
-    @SuppressWarnings("unchecked")
     public CustomRepositoryGraphBean(Class<?> type, String provider) {
-        this.type = (Class<T>) type;
-        this.types = Collections.singleton(type);
-        this.provider = provider;
-        if (provider.isEmpty()) {
-            this.qualifiers = new HashSet<>();
-            qualifiers.add(DatabaseQualifier.ofGraph());
-            qualifiers.add(AnnotationLiteralUtil.DEFAULT_ANNOTATION);
-            qualifiers.add(AnnotationLiteralUtil.ANY_ANNOTATION);
-        } else {
-            this.qualifiers = Collections.singleton(DatabaseQualifier.ofGraph(provider));
-        }
+        super(type, provider, DatabaseType.GRAPH);
     }
 
     @Override
-    public Class<?> getBeanClass() {
-        return type;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public T create(CreationalContext<T> context) {
-        var entities = getInstance(EntitiesMetadata.class);
-        var template = provider.isEmpty() ? getInstance(GraphTemplate.class) :
-                getInstance(GraphTemplate.class, DatabaseQualifier.ofGraph(provider));
-
-        var converters = getInstance(Converters.class);
-
-        var handler = CustomRepositoryHandler.builder()
-                .entitiesMetadata(entities)
-                .template(template)
-                .customRepositoryType(type)
-                .converters(converters)
-                .build();
-
-        return (T) Proxy.newProxyInstance(type.getClassLoader(),
-                new Class[]{type},
-                handler);
-    }
-
-
-    @Override
-    public Set<Type> getTypes() {
-        return types;
+    protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
+        return GraphTemplate.class;
     }
 
     @Override
-    public Set<Annotation> getQualifiers() {
-        return qualifiers;
+    protected DatabaseQualifier getDatabaseQualifier() {
+        return DatabaseQualifier.ofGraph();
     }
 
     @Override
-    public String getId() {
-        return type.getName() + '@' + DatabaseType.GRAPH + "-" + provider;
+    protected DatabaseQualifier getDatabaseQualifier(String provider) {
+        return DatabaseQualifier.ofGraph(provider);
     }
-
 }

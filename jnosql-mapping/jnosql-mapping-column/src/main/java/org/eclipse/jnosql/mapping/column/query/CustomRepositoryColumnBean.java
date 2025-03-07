@@ -22,6 +22,8 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
 import org.eclipse.jnosql.mapping.core.util.AnnotationLiteralUtil;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
+import org.eclipse.jnosql.mapping.semistructured.query.CustomRepositoryBean;
 import org.eclipse.jnosql.mapping.semistructured.query.CustomRepositoryHandler;
 
 import java.lang.annotation.Annotation;
@@ -43,77 +45,24 @@ import java.util.Set;
  * @param <T> the type of the repository
  * @see AbstractBean
  */
-public class CustomRepositoryColumnBean<T> extends AbstractBean<T> {
+public class CustomRepositoryColumnBean<T> extends CustomRepositoryBean<T> {
 
-    private final Class<T> type;
-
-    private final Set<Type> types;
-
-    private final String provider;
-
-    private final Set<Annotation> qualifiers;
-
-    /**
-     * Constructor
-     *
-     * @param type        the tye
-     * @param provider    the provider name, that must be a
-     */
-    @SuppressWarnings("unchecked")
     public CustomRepositoryColumnBean(Class<?> type, String provider) {
-        this.type = (Class<T>) type;
-        this.types = Collections.singleton(type);
-        this.provider = provider;
-        if (provider.isEmpty()) {
-            this.qualifiers = new HashSet<>();
-            qualifiers.add(DatabaseQualifier.ofColumn());
-            qualifiers.add(AnnotationLiteralUtil.DEFAULT_ANNOTATION);
-            qualifiers.add(AnnotationLiteralUtil.ANY_ANNOTATION);
-        } else {
-            this.qualifiers = Collections.singleton(DatabaseQualifier.ofColumn(provider));
-        }
+        super(type, provider, DatabaseType.COLUMN);
     }
 
     @Override
-    public Class<?> getBeanClass() {
-        return type;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public T create(CreationalContext<T> context) {
-        var entities = getInstance(EntitiesMetadata.class);
-        var template = provider.isEmpty() ? getInstance(ColumnTemplate.class) :
-                getInstance(ColumnTemplate.class, DatabaseQualifier.ofColumn(provider));
-
-        var converters = getInstance(Converters.class);
-
-        var handler = CustomRepositoryHandler.builder()
-                .entitiesMetadata(entities)
-                .template(template)
-                .customRepositoryType(type)
-                .converters(converters)
-                .build();
-
-        return (T) Proxy.newProxyInstance(type.getClassLoader(),
-                new Class[]{type},
-                handler);
-    }
-
-
-    @Override
-    public Set<Type> getTypes() {
-        return types;
+    protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
+        return ColumnTemplate.class;
     }
 
     @Override
-    public Set<Annotation> getQualifiers() {
-        return qualifiers;
+    protected DatabaseQualifier getDatabaseQualifier() {
+        return DatabaseQualifier.ofColumn();
     }
 
     @Override
-    public String getId() {
-        return type.getName() + '@' + DatabaseType.COLUMN + "-" + provider;
+    protected DatabaseQualifier getDatabaseQualifier(String provider) {
+        return DatabaseQualifier.ofColumn(provider);
     }
-
 }

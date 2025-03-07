@@ -22,6 +22,7 @@ import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
 import org.eclipse.jnosql.mapping.core.util.AnnotationLiteralUtil;
 import org.eclipse.jnosql.mapping.document.DocumentTemplate;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.semistructured.query.CustomRepositoryBean;
 import org.eclipse.jnosql.mapping.semistructured.query.CustomRepositoryHandler;
 
 import java.lang.annotation.Annotation;
@@ -43,77 +44,24 @@ import java.util.Set;
  * @param <T> the type of the repository
  * @see AbstractBean
  */
-public class CustomRepositoryDocumentBean<T> extends AbstractBean<T> {
+public class CustomRepositoryDocumentBean<T> extends CustomRepositoryBean<T> {
 
-    private final Class<T> type;
-
-    private final Set<Type> types;
-
-    private final String provider;
-
-    private final Set<Annotation> qualifiers;
-
-    /**
-     * Constructor
-     *
-     * @param type        the tye
-     * @param provider    the provider name, that must be a
-     */
-    @SuppressWarnings("unchecked")
     public CustomRepositoryDocumentBean(Class<?> type, String provider) {
-        this.type = (Class<T>) type;
-        this.types = Collections.singleton(type);
-        this.provider = provider;
-        if (provider.isEmpty()) {
-            this.qualifiers = new HashSet<>();
-            qualifiers.add(DatabaseQualifier.ofDocument());
-            qualifiers.add(AnnotationLiteralUtil.DEFAULT_ANNOTATION);
-            qualifiers.add(AnnotationLiteralUtil.ANY_ANNOTATION);
-        } else {
-            this.qualifiers = Collections.singleton(DatabaseQualifier.ofDocument(provider));
-        }
+        super(type, provider, DatabaseType.DOCUMENT);
     }
 
     @Override
-    public Class<?> getBeanClass() {
-        return type;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public T create(CreationalContext<T> context) {
-        var entities = getInstance(EntitiesMetadata.class);
-        var template = provider.isEmpty() ? getInstance(DocumentTemplate.class) :
-                getInstance(DocumentTemplate.class, DatabaseQualifier.ofDocument(provider));
-
-        var converters = getInstance(Converters.class);
-
-        var handler = CustomRepositoryHandler.builder()
-                .entitiesMetadata(entities)
-                .template(template)
-                .customRepositoryType(type)
-                .converters(converters)
-                .build();
-
-        return (T) Proxy.newProxyInstance(type.getClassLoader(),
-                new Class[]{type},
-                handler);
-    }
-
-
-    @Override
-    public Set<Type> getTypes() {
-        return types;
+    protected Class<?> getTemplateClass() {
+        return DocumentTemplate.class;
     }
 
     @Override
-    public Set<Annotation> getQualifiers() {
-        return qualifiers;
+    protected DatabaseQualifier getDatabaseQualifier() {
+        return DatabaseQualifier.ofDocument();
     }
 
     @Override
-    public String getId() {
-        return type.getName() + '@' + DatabaseType.DOCUMENT + "-" + provider;
+    protected DatabaseQualifier getDatabaseQualifier(String provider) {
+        return DatabaseQualifier.ofDocument(provider);
     }
-
 }
