@@ -102,7 +102,7 @@ class MicroProfileSettingsTest {
     @Test
     void shouldSize() {
         Settings settings = Settings.of(singletonMap("jnosql.key", "value"));
-        assertTrue(settings.size() >= 1);
+        assertFalse(settings.isEmpty());
 
     }
 
