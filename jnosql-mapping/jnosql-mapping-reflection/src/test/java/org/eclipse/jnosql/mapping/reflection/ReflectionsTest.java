@@ -40,14 +40,16 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Optional;
 
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static jakarta.nosql.DiscriminatorColumn.DEFAULT_DISCRIMINATOR_COLUMN;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @EnableAutoWeld
 @AddPackages(value = Convert.class)
-@AddPackages(value = ReflectionGroupEntityMetadata.class)
+@AddPackages(value = DefaultGroupEntityMetadata.class)
 class ReflectionsTest {
 
     @Inject
