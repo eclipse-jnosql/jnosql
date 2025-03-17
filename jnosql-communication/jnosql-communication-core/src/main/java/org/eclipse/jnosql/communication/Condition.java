@@ -55,6 +55,14 @@ public enum Condition {
      */
     LIKE,
     /**
+     * Represents a text contains another text condition.
+     */
+    CONTAINS,
+    /**
+     * Represents a text contains another text at the end condition.
+     */
+    ENDS_WITH,
+    /**
      * Represents a logical conjunction condition.
      */
     AND,
@@ -66,6 +74,10 @@ public enum Condition {
      * Represents a negation condition.
      */
     NOT,
+    /**
+     * Represents a condition with ignore case flag.
+     */
+    IGNORE_CASE,
     /**
      * Represents a range check condition.
      */

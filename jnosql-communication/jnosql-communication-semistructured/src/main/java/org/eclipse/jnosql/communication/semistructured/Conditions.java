@@ -58,6 +58,16 @@ public final class Conditions {
                     .get()
                     .stream().map(v -> getCondition(v, parameters, observer, entity))
                     .toArray(CriteriaCondition[]::new));
+            case CONTAINS -> CriteriaCondition.contains(Element.of(getName(condition, observer, entity),
+                    Values.get(condition.value(),
+                            parameters)));
+            case ENDS_WITH -> CriteriaCondition.endsWith(Element.of(getName(condition, observer, entity),
+                    Values.get(condition.value(),
+                            parameters)));
+            case IGNORE_CASE -> CriteriaCondition.ignoreCase(ConditionQueryValue.class.cast(condition.value())
+                    .get()
+                    .stream().map(v -> getCondition(v, parameters, observer, entity))
+                    .findAny().orElseThrow());
             default -> throw new QueryException("There is not support the type: " + condition.condition());
         };
     }
