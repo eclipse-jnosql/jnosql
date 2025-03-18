@@ -46,7 +46,7 @@ class DefaultEntitiesMetadataTest {
     private DefaultEntitiesMetadata mappings;
 
     @Test
-    void shouldGet(){
+    void shouldGet() {
         this.mappings.load(Person.class);
         this.mappings.load(Vendor.class);
 
@@ -56,7 +56,7 @@ class DefaultEntitiesMetadataTest {
     }
 
     @Test
-    void shouldFindByName(){
+    void shouldFindByName() {
         this.mappings.load(Person.class);
         this.mappings.load(Vendor.class);
 
@@ -64,8 +64,9 @@ class DefaultEntitiesMetadataTest {
         Assertions.assertNotNull(mapping);
         Assertions.assertEquals(Vendor.class, mapping.type());
     }
+
     @Test
-    void shouldFindBySimpleName(){
+    void shouldFindBySimpleName() {
         this.mappings.load(Person.class);
         this.mappings.load(Vendor.class);
 
@@ -78,7 +79,7 @@ class DefaultEntitiesMetadataTest {
     }
 
     @Test
-    void shouldFindByClassName(){
+    void shouldFindByClassName() {
         this.mappings.load(Person.class);
         this.mappings.load(Vendor.class);
 
@@ -134,7 +135,7 @@ class DefaultEntitiesMetadataTest {
     }
 
     @Test
-    void shouldLoadUsingGet(){
+    void shouldLoadUsingGet() {
         this.mappings.load(Movie.class);
         EntityMetadata mapping = mappings.findByName("Movie");
         assertThat(mapping).isNotNull();

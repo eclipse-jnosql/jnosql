@@ -19,7 +19,7 @@ import jakarta.nosql.Template;
 import jakarta.nosql.Convert;
 import org.eclipse.jnosql.mapping.core.VetedConverter;
 import org.eclipse.jnosql.mapping.core.entities.Person;
-import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
+import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.reflection.ReflectionClassConverter;
@@ -38,7 +38,7 @@ import java.util.Optional;
 @AddPackages(value = Convert.class)
 @AddPackages(value = EntitiesMetadata.class)
 @AddPackages(value = VetedConverter.class)
-@AddExtensions(EntityMetadataExtension.class)
+@AddExtensions(ReflectionEntityMetadataExtension.class)
 @AddPackages(value = ReflectionClassConverter.class)
 class AbstractRepositoryTest {
 

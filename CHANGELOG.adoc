@@ -12,10 +12,12 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 -  Improve handling of collection subclass columns
 -  Handle empty primitive parameters in DefaultConstructorBuilder
+-  Moved the `ReflectionEntityMetadataExtension` to the `jnosql-mapping-reflection` module
 
 === Added
 
 - Define GraphTemplate and Graph API to support the Graph database
+- Added `ReflectionGroupEntityMetadata` to the `jnosql-mapping-reflection` module
 
 == [1.1.4] - 2024-12-21
 

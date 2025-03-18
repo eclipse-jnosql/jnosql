@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2022 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -10,10 +10,11 @@
  *
  *   Contributors:
  *
- *   Otavio Santana
+ *   Maximillian Arruda
  */
 package org.eclipse.jnosql.mapping.reflection;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.jnosql.mapping.metadata.ClassConverter;
 import org.eclipse.jnosql.mapping.metadata.ClassScanner;
@@ -23,17 +24,21 @@ import org.eclipse.jnosql.mapping.metadata.GroupEntityMetadata;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
+/**
+ * The default implementation of {@link GroupEntityMetadata}.
+ * It will load all Classes and put in a {@link ConcurrentHashMap}.
+ * Where the key is {@link Class#getName()} and the value is {@link EntityMetadata}
+ */
 @ApplicationScoped
 public class ReflectionGroupEntityMetadata implements GroupEntityMetadata {
 
-    private final Map<String, EntityMetadata> mappings = new ConcurrentHashMap<>();
+    private final Map<Class<?>, EntityMetadata> classes=new ConcurrentHashMap<>();
+    private final Map<String, EntityMetadata> mappings=new ConcurrentHashMap<>();
 
-    private final Map<Class<?>, EntityMetadata> classes = new ConcurrentHashMap<>();
-
-    public ReflectionGroupEntityMetadata() {
-        ClassConverter converter = ClassConverter.load();
-        ClassScanner scanner = ClassScanner.load();
+    @PostConstruct
+    public void postConstruct() {
+        var converter = ClassConverter.load();
+        var scanner = ClassScanner.load();
         for (Class<?> entity : scanner.entities()) {
             EntityMetadata entityMetadata = converter.apply(entity);
             if (entityMetadata.hasEntityName()) {
@@ -49,11 +54,12 @@ public class ReflectionGroupEntityMetadata implements GroupEntityMetadata {
 
     @Override
     public Map<String, EntityMetadata> mappings() {
-        return mappings;
+        return this.mappings;
     }
 
     @Override
     public Map<Class<?>, EntityMetadata> classes() {
-        return classes;
+        return this.classes;
     }
+
 }

@@ -22,10 +22,10 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.DynamicQueryException;
 import org.eclipse.jnosql.mapping.core.VetedConverter;
 import org.eclipse.jnosql.mapping.core.entities.Person;
-import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
+import org.eclipse.jnosql.mapping.reflection.Reflections;
+import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
-import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -42,7 +42,7 @@ import java.util.Optional;
 @AddPackages(value = Converters.class)
 @AddPackages(value = VetedConverter.class)
 @AddPackages(value = Reflections.class)
-@AddExtensions(EntityMetadataExtension.class)
+@AddExtensions(ReflectionEntityMetadataExtension.class)
 class ParamsBinderTest {
 
     @Inject

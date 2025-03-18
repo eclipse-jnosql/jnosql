@@ -18,7 +18,7 @@ import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
+import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.graph.GraphTemplate;
 import org.eclipse.jnosql.mapping.graph.MockProducer;
 import org.eclipse.jnosql.mapping.graph.entities.Person;
@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class, SemiStructuredRepositoryProxy.class})
 @AddPackages({MockProducer.class, GraphTemplate.class, Reflections.class})
-@AddExtensions({EntityMetadataExtension.class, GraphExtension.class})
+@AddExtensions({ReflectionEntityMetadataExtension.class, GraphExtension.class})
 class GraphRepositoryExtensionTest {
 
     @Inject
