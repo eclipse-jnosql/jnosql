@@ -30,7 +30,7 @@ import org.eclipse.jnosql.mapping.semistructured.entities.inheritance.SmallProje
 import org.eclipse.jnosql.mapping.semistructured.entities.inheritance.SmsNotification;
 import org.eclipse.jnosql.mapping.semistructured.entities.inheritance.SocialMediaNotification;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
-import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
+import org.eclipse.jnosql.mapping.core.spi.ReflectionEntityMetadataExtension;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -51,7 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @AddPackages(value = {Converters.class, EntityConverter.class})
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
-@AddExtensions({EntityMetadataExtension.class})
+@AddExtensions({ReflectionEntityMetadataExtension.class})
 class EntityConverterInheritanceTest {
 
     @Inject

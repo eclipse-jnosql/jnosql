@@ -10,11 +10,11 @@
  *
  *   Contributors:
  *
- *   Otavio Santana
  *   Maximillian Arruda
  */
 package org.eclipse.jnosql.mapping.reflection;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.jnosql.mapping.metadata.ClassConverter;
 import org.eclipse.jnosql.mapping.metadata.ClassScanner;
@@ -30,15 +30,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * Where the key is {@link Class#getName()} and the value is {@link EntityMetadata}
  */
 @ApplicationScoped
-public class DefaultGroupEntityMetadata implements GroupEntityMetadata {
+public class ReflectionGroupEntityMetadata implements GroupEntityMetadata {
 
-    private final Map<String, EntityMetadata> mappings = new ConcurrentHashMap<>();
+    private final Map<Class<?>, EntityMetadata> classes=new ConcurrentHashMap<>();
+    private final Map<String, EntityMetadata> mappings=new ConcurrentHashMap<>();
 
-    private final Map<Class<?>, EntityMetadata> classes = new ConcurrentHashMap<>();
-
-    public DefaultGroupEntityMetadata() {
-        ClassConverter converter = ClassConverter.load();
-        ClassScanner scanner = ClassScanner.load();
+    @PostConstruct
+    public void postConstruct() {
+        var converter = ClassConverter.load();
+        var scanner = ClassScanner.load();
         for (Class<?> entity : scanner.entities()) {
             EntityMetadata entityMetadata = converter.apply(entity);
             if (entityMetadata.hasEntityName()) {
@@ -54,11 +54,12 @@ public class DefaultGroupEntityMetadata implements GroupEntityMetadata {
 
     @Override
     public Map<String, EntityMetadata> mappings() {
-        return mappings;
+        return this.mappings;
     }
 
     @Override
     public Map<Class<?>, EntityMetadata> classes() {
-        return classes;
+        return this.classes;
     }
+
 }

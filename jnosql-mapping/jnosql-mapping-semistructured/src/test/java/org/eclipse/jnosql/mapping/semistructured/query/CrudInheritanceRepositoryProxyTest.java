@@ -26,7 +26,7 @@ import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.entities.inheritance.EmailNotification;
 import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
+import org.eclipse.jnosql.mapping.core.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.jboss.weld.junit5.auto.AddExtensions;
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.verify;
 @AddPackages(value = {Converters.class, EntityConverter.class})
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
-@AddExtensions({EntityMetadataExtension.class})
+@AddExtensions({ReflectionEntityMetadataExtension.class})
 class CrudInheritanceRepositoryProxyTest {
 
     private SemiStructuredTemplate template;

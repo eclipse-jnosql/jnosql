@@ -13,4 +13,4 @@
 #   Otavio Santana
 #
 
-org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension
+org.eclipse.jnosql.mapping.core.spi.ReflectionEntityMetadataExtension

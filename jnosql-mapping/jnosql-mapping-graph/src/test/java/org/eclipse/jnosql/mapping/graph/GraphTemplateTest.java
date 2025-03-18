@@ -18,7 +18,7 @@ import jakarta.inject.Inject;
 import jakarta.nosql.Template;
 import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
+import org.eclipse.jnosql.mapping.core.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.graph.spi.GraphExtension;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
@@ -34,7 +34,7 @@ import static org.eclipse.jnosql.mapping.DatabaseType.GRAPH;
 @AddPackages(value = {Converters.class, EntityConverter.class, GraphTemplate.class})
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
-@AddExtensions({EntityMetadataExtension.class, GraphExtension.class})
+@AddExtensions({ReflectionEntityMetadataExtension.class, GraphExtension.class})
 class GraphTemplateTest {
 
     @Inject

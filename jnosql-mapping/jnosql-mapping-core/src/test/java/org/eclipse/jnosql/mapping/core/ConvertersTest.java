@@ -18,7 +18,7 @@ import jakarta.inject.Inject;
 import jakarta.nosql.AttributeConverter;
 import jakarta.nosql.Convert;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
-import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
+import org.eclipse.jnosql.mapping.core.spi.ReflectionEntityMetadataExtension;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @EnableAutoWeld
 @AddPackages(value = Convert.class)
 @AddPackages(value = VetedConverter.class)
-@AddExtensions(EntityMetadataExtension.class)
+@AddExtensions(ReflectionEntityMetadataExtension.class)
 class ConvertersTest {
 
     @Inject

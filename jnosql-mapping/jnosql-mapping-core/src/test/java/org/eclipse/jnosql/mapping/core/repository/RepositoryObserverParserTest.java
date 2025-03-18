@@ -23,7 +23,7 @@ import org.eclipse.jnosql.mapping.core.entities.Worker;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
-import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
+import org.eclipse.jnosql.mapping.core.spi.ReflectionEntityMetadataExtension;
 
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 @AddPackages(value = Converters.class)
 @AddPackages(value = VetedConverter.class)
 @AddPackages(value = Reflections.class)
-@AddExtensions(EntityMetadataExtension.class)
+@AddExtensions(ReflectionEntityMetadataExtension.class)
 class RepositoryObserverParserTest {
 
     @Inject
