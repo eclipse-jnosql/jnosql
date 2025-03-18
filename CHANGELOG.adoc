@@ -17,7 +17,7 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 === Added
 
 - Define GraphTemplate and Graph API to support the Graph database
-- Added a `ReflectionGroupEntityMetadata` in the `jnosql-mapping-reflection` module
+- Added `ReflectionGroupEntityMetadata` to the `jnosql-mapping-reflection` module
 
 == [1.1.4] - 2024-12-21
 
