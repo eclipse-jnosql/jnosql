@@ -24,7 +24,7 @@ import org.eclipse.jnosql.mapping.column.entities.Person;
 import org.eclipse.jnosql.mapping.column.entities.PersonRepository;
 import org.eclipse.jnosql.mapping.column.spi.ColumnExtension;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
-import org.eclipse.jnosql.mapping.core.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredRepositoryProxy;
 import org.jboss.weld.junit5.auto.AddExtensions;

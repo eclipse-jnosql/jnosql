@@ -21,7 +21,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.IdNotFoundException;
 import org.eclipse.jnosql.mapping.keyvalue.spi.KeyValueExtension;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
-import org.eclipse.jnosql.mapping.core.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.keyvalue.entities.Car;
 import org.eclipse.jnosql.mapping.keyvalue.entities.Person;
 import org.eclipse.jnosql.mapping.keyvalue.entities.Plate;

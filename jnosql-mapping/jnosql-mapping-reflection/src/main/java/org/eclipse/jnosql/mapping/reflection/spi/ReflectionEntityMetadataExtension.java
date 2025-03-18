@@ -13,7 +13,7 @@
  *   Otavio Santana
  *   Maximillian Arruda
  */
-package org.eclipse.jnosql.mapping.core.spi;
+package org.eclipse.jnosql.mapping.reflection.spi;
 
 
 import jakarta.enterprise.context.ApplicationScoped;
