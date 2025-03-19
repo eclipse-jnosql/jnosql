@@ -30,7 +30,10 @@ import org.eclipse.jnosql.mapping.metadata.GroupEntityMetadata;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.util.Optional.ofNullable;
 
 /**
  * This class is a CDI extension to load all class that has {@link Entity} annotation.
@@ -74,8 +77,12 @@ public class ReflectionEntityMetadataExtension implements Extension {
                     EntityMetadata entityMetadata = converter.apply(embeddable);
                     ENTITY_METADATA_BY_CLASS.put(embeddable, entityMetadata);
                 });
-        LOGGER.fine("Finishing the scanning with: %d Entity and Embeddable scanned classes and %s Named entities"
-                .formatted(ENTITY_METADATA_BY_CLASS.size(), ENTITY_METADATA_BY_ENTITY_NAME.size()));
+
+        ofNullable(LOGGER)
+                .filter(l -> l.isLoggable(Level.FINEST))
+                .ifPresent(l -> l.fine("Finishing the scanning with: %d Entity and Embeddable scanned classes and %s Named entities"
+                        .formatted(ENTITY_METADATA_BY_CLASS.size(), ENTITY_METADATA_BY_ENTITY_NAME.size())));
+
     }
 
     public static class CDIGroupEntityMetadata implements GroupEntityMetadata {
