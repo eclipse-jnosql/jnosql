@@ -94,7 +94,7 @@
         <awaitility.version>4.2.2</awaitility.version>
         <datafaker.version>2.4.2</datafaker.version>
         <pi-test.version>1.16.1</pi-test.version>
-        <pitest-junit5-plugin.version>1.2.1</pitest-junit5-plugin.version>
+        <pitest-junit5-plugin.version>1.2.2</pitest-junit5-plugin.version>
         <apache.pdm.plugin.version>3.24.0</apache.pdm.plugin.version>
         <pmd.url>https://raw.githubusercontent.com/eclipse/jnosql/refs/heads/main/pmd/pmd-rules.xml</pmd.url>
     </properties>
