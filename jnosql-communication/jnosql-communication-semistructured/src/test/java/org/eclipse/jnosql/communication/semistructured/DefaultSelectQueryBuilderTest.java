@@ -312,7 +312,7 @@ class DefaultSelectQueryBuilderTest {
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         String columnFamily = "columnFamily";
         Stream<CommunicationEntity> entities = select().from(columnFamily).getResult(manager);
-        entities.collect(Collectors.toList());
+        entities.toList();
         Mockito.verify(manager).select(queryCaptor.capture());
         checkQuery(queryCaptor, columnFamily);
     }
