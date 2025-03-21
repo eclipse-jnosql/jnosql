@@ -20,7 +20,7 @@ Eclipse JNoSQL is a compatible implementation of the https://jakarta.ee/specific
 
 == One Mapping API to Multiples NoSQL Databases
 
-Eclipse JNoSQL provides one API for each NoSQL database type. However, it incorporates the same annotations from the https://jakarta.ee/specifications/persistence/[Jakarta Persistence] specification and heritage Java Persistence API (JPA) to map Java objects. Therefore, with just these annotations that look like JPA, there is support for more than twenty NoSQL databases.
+Eclipse JNoSQL provides one API for each NoSQL database type. However, it incorporates the same annotations from the https://jakarta.ee/specifications/persistence/[Jakarta Persistence] specification and inherits from the Java Persistence Java Persistence API (JPA) to map Java objects. Therefore, with just these annotations that look like JPA, there is support for more than twenty NoSQL databases.
 
 [source,java]
 ----
@@ -37,7 +37,7 @@ public class Car {
 }
 ----
 
-Theses annotations from the Mapping API will look familiar to the Jakarta Persistence/JPA developer:
+These annotations from the Mapping API will look familiar to the Jakarta Persistence/JPA developer:
 
 [cols="Annotation description"]
 |===
@@ -684,7 +684,7 @@ This migration guide explains how to upgrade from Eclipse JNoSQL version 1.0.0-b
 
 link:MIGRATION.adoc[Migration Guide]
 
-== To know more
+== Learn More
 
 If you want to know more about both the communication and mapping layer, there are two complementary files for it each specific topic:
 
