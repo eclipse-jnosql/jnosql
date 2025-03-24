@@ -8,6 +8,8 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 == [Unreleased]
 
+== [1.1.6] - 2025-03-24
+
 == [1.1.5] - 2025-03-23
 
 === Fixed
