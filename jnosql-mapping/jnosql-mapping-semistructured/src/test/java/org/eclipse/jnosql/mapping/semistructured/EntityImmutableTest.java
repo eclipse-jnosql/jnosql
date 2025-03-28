@@ -154,5 +154,18 @@ class EntityImmutableTest {
         });
     }
 
+    @Test
+    void shouldConvertFromByteArray() {
+        var entity = CommunicationEntity.of("Failure");
+        entity.add("_id", "test");
+        entity.add("data", new byte[]{'a','b','c','d'});
+        Failure failure = converter.toEntity(entity);
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(failure.id()).isEqualTo("test");
+            softly.assertThat(failure.data()).isEqualTo(new byte[]{'a','b','c','d'});
+        });
+    }
+
+
 
 }
