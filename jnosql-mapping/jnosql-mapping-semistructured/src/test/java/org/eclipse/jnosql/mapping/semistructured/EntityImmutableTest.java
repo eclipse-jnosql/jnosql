@@ -15,10 +15,12 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.inject.Inject;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.semistructured.entities.Car;
+import org.eclipse.jnosql.mapping.semistructured.entities.Failure;
 import org.eclipse.jnosql.mapping.semistructured.entities.Hero;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
@@ -29,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Year;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -135,6 +138,20 @@ class EntityImmutableTest {
                     soft.assertThat(hero.name()).isEqualTo("Iron man");
                 }
         );
+    }
+
+    @Test
+    void shouldConvertByteArray() {
+        var failure = new Failure("test", new byte[]{'a','b','c','d'});
+        CommunicationEntity entity = converter.toCommunication(failure);
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(entity.name()).isEqualTo("Failure");
+            softly.assertThat(entity.size()).isEqualTo(2);
+            Object id = entity.find("_id").orElseThrow().get();
+            Object data = entity.find("data").orElseThrow().get();
+            softly.assertThat(id).isEqualTo("test");
+            softly.assertThat(data).isEqualTo(new byte[]{'a','b','c','d'});
+        });
     }
 
 
