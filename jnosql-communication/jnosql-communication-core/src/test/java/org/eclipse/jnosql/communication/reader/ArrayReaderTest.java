@@ -49,9 +49,19 @@ public class ArrayReaderTest {
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(bytes).as("Should be able to convert List to byte[]").isNotNull();
             softly.assertThat(bytes.length).as("Should be able to convert List to byte[]").isEqualTo(elements.size());
-            for (int i = 0; i < elements.size(); i++) {
-                softly.assertThat(bytes[i]).as("Should be able to convert List to byte[]").isEqualTo(elements.get(i));
-            }
+            softly.assertThat(bytes).isNotNull().isEqualTo(new byte[]{97,98,99,100});
+        });
+    }
+
+    @Test
+    void shouldConvertToTheSameInstance() {
+        var data = new byte[]{'a','b','c','d'};
+        byte[] bytes = valueReader.read(byte[].class, data);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(bytes).as("Should be able to convert List to byte[]").isNotNull();
+            softly.assertThat(bytes.length).as("Should be able to convert List to byte[]").isEqualTo(data.length);
+            softly.assertThat(bytes).isNotNull().isEqualTo(new byte[]{97,98,99,100});
         });
     }
 }
