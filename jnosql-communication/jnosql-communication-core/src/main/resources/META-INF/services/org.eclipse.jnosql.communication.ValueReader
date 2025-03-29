@@ -26,3 +26,4 @@ org.eclipse.jnosql.communication.reader.OffsetDateTimeReader
 org.eclipse.jnosql.communication.reader.OffsetTimeReader
 org.eclipse.jnosql.communication.reader.UUIDValueReader
 org.eclipse.jnosql.communication.reader.ArrayReader
+org.eclipse.jnosql.communication.reader.InstantReader
