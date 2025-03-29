@@ -52,8 +52,10 @@ public final class ArrayReader implements ValueReader {
             }
             return convert(type, items);
         }
-        Object array = Array.newInstance(type, 1);
-        Array.set(array, 0, value);
+        Class<?> componentType = type.getComponentType();
+        Object array = Array.newInstance(componentType, 1);
+
+        Array.set(array, 0, Value.of(value).get(componentType));
         return (T) array;
     }
 
