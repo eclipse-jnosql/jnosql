@@ -19,20 +19,40 @@ package org.eclipse.jnosql.communication.reader;
 import org.eclipse.jnosql.communication.ValueReader;
 
 import java.time.Instant;
+import java.util.Calendar;
+import java.util.Date;
 
-/**
- * Class to reads and converts to {@link Instant} type
- *
- */
 public class InstantReader implements ValueReader {
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T read(Class<T> type, Object value) {
-        return null;
+        return (T) getInstant(value);
     }
 
     @Override
     public boolean test(Class<?> aClass) {
         return Instant.class.isAssignableFrom(aClass);
     }
+
+    private Instant getInstant(Object value) {
+        if (value instanceof Instant instant) {
+            return instant;
+        }
+
+        if (value instanceof Calendar calendar) {
+            return calendar.toInstant();
+        }
+
+        if (value instanceof Date date) {
+            return date.toInstant();
+        }
+
+        if (value instanceof Number number) {
+            return Instant.ofEpochMilli(number.longValue());
+        }
+
+        return Instant.parse(value.toString());
+    }
 }
+
