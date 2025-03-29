@@ -32,9 +32,10 @@ public final class YearMonthReader implements ValueReader {
         return YearMonth.class.equals(type);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T read(Class<T> type, Object value) {
-        if (YearMonth.class.isInstance(value)) {
+        if (value instanceof YearMonth) {
             return (T) value;
         }
         return (T) YearMonth.parse(value.toString());
