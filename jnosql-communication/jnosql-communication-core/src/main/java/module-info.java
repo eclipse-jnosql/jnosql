@@ -55,7 +55,9 @@ module org.eclipse.jnosql.communication.core {
             org.eclipse.jnosql.communication.reader.ZonedDateTimeReader,
             org.eclipse.jnosql.communication.reader.LocalTimeReader,
             org.eclipse.jnosql.communication.reader.OffsetDateTimeReader,
-            org.eclipse.jnosql.communication.reader.OffsetTimeReader;
+            org.eclipse.jnosql.communication.reader.OffsetTimeReader,
+            org.eclipse.jnosql.communication.reader.UUIDValueReader,
+            org.eclipse.jnosql.communication.reader.ArrayReader;
     provides org.eclipse.jnosql.communication.ValueWriter with org.eclipse.jnosql.communication.writer.EnumValueWriter,
             org.eclipse.jnosql.communication.writer.OptionalValueWriter,
             org.eclipse.jnosql.communication.writer.TemporalValueWriter;
