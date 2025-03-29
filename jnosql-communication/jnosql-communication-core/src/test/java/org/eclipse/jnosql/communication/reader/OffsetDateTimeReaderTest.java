@@ -50,6 +50,7 @@ class OffsetDateTimeReaderTest {
     @DisplayName("Should be abe to convert to OffsetTime")
     void shouldConvert() {
         final OffsetDateTime offsetDateTime = OffsetDateTime.now();
+        final String text = offsetDateTime.toString();
         final Date date = new Date();
         final Calendar calendar = Calendar.getInstance();
 
@@ -63,10 +64,13 @@ class OffsetDateTimeReaderTest {
             softly.assertThat(dateReader.read(OffsetDateTime.class, calendar)).as("Calendar conversion")
                     .isEqualTo(calendar.toInstant().atZone(ZoneId.systemDefault()).toOffsetDateTime());
 
-            softly.assertThat(dateReader.read(OffsetDateTime.class, date.getTime())).as("Number conversion")
+            softly.assertThat(dateReader.read(OffsetDateTime.class, date)).as("Number conversion")
                     .isEqualTo(date.toInstant().atZone(ZoneId.systemDefault()).toOffsetDateTime());
 
             softly.assertThat(dateReader.read(OffsetDateTime.class, date.getTime())).as("Default conversion")
+                    .isEqualToIgnoringSeconds(OffsetDateTime.parse(offsetDateTime.toString()));
+
+            softly.assertThat(dateReader.read(OffsetDateTime.class,text)).as("Default conversion")
                     .isEqualToIgnoringSeconds(OffsetDateTime.parse(offsetDateTime.toString()));
         });
     }
