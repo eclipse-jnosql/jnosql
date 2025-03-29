@@ -30,7 +30,6 @@ import java.util.List;
  */
 public final class ArrayReader implements ValueReader {
 
-
     @SuppressWarnings("unchecked")
     @Override
     public <T> T read(Class<T> type, Object value) {
@@ -65,12 +64,14 @@ public final class ArrayReader implements ValueReader {
 
     @SuppressWarnings("unchecked")
     private <T> T convert(Class<T> type, List<Object> items) {
-        Object array = Array.newInstance(type, items.size());
         Class<?> componentType = type.getComponentType();
+        Object array = Array.newInstance(componentType, items.size());
         for (int index = 0; index < items.size(); index++) {
             var value = Value.of(items.get(index));
-            Array.set(array, index, value.get(componentType));
+            Object item = value.get(componentType);
+            Array.set(array, index, item);
         }
         return (T) array;
     }
+
 }
