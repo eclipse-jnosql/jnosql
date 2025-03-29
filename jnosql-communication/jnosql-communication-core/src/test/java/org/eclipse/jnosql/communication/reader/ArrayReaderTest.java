@@ -76,4 +76,16 @@ public class ArrayReaderTest {
             softly.assertThat(bytes).isNotNull().isEqualTo(new byte[]{1,2,3,4});
         });
     }
+
+    @Test
+    void shouldConvertSingleElement() {
+        var elements = 1;;
+        byte[] bytes = valueReader.read(byte[].class, elements);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(bytes).as("Should be able to convert List to byte[]").isNotNull();
+            softly.assertThat(bytes.length).as("Should be able to convert List to byte[]").isEqualTo(1);
+            softly.assertThat(bytes).isNotNull().isEqualTo(new byte[]{1});
+        });
+    }
 }
