@@ -56,10 +56,6 @@ public class OffsetDateTimeReader implements ValueReader {
             return new Date(number.longValue()).toInstant().atZone(ZoneId.systemDefault()).toOffsetDateTime();
         }
 
-        if (value instanceof CharSequence text) {
-            return OffsetDateTime.parse(text);
-        }
-
         return OffsetDateTime.parse(value.toString());
     }
 }
