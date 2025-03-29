@@ -22,7 +22,6 @@ import org.eclipse.jnosql.communication.ValueReader;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * The {@code ArrayReader} is a {@link ValueReader} that reads an array of
