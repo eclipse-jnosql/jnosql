@@ -19,12 +19,14 @@ package org.eclipse.jnosql.communication.reader;
 
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Value;
+import org.eclipse.jnosql.communication.ValueReader;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 public class ArrayReaderTest {
 
+    private final ValueReader valueReader = new ArrayReader();
 
     @Test
     void shouldConvertListToArray() {
