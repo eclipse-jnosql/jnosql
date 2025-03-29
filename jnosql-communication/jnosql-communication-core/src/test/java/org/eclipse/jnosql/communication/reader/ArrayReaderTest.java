@@ -29,10 +29,22 @@ public class ArrayReaderTest {
     private final ValueReader valueReader = new ArrayReader();
 
     @Test
+    void shouldIsValid() {
+        SoftAssertions.assertSoftly(softly -> {
+          softly.assertThat(valueReader.test(Integer.class)).isFalse();
+            softly.assertThat(valueReader.test(String.class)).isFalse();
+            softly.assertThat(valueReader.test(Object.class)).isFalse();
+
+            softly.assertThat(valueReader.test(Object[].class)).isTrue();
+            softly.assertThat(valueReader.test(byte[].class)).isTrue();
+            softly.assertThat(valueReader.test(String[].class)).isTrue();
+        });
+    }
+
+    @Test
     void shouldConvertListToArray() {
         List<Integer> elements = List.of(97,98,99,100);
-        Value value = Value.of(elements);
-        byte[] bytes = value.get(byte[].class);
+        byte[] bytes = valueReader.read(byte[].class, elements);
 
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(bytes).as("Should be able to convert List to byte[]").isNotNull();
