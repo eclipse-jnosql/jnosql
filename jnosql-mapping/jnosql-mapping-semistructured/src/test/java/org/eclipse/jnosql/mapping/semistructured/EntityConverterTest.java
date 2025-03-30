@@ -28,7 +28,7 @@ import org.eclipse.jnosql.mapping.semistructured.entities.Address;
 import org.eclipse.jnosql.mapping.semistructured.entities.AppointmentBook;
 import org.eclipse.jnosql.mapping.semistructured.entities.Book;
 import org.eclipse.jnosql.mapping.semistructured.entities.Citizen;
-import org.eclipse.jnosql.mapping.semistructured.entities.Computer;
+import org.eclipse.jnosql.mapping.semistructured.entities.MobileApp;
 import org.eclipse.jnosql.mapping.semistructured.entities.Contact;
 import org.eclipse.jnosql.mapping.semistructured.entities.ContactType;
 import org.eclipse.jnosql.mapping.semistructured.entities.Director;
@@ -975,13 +975,13 @@ class EntityConverterTest {
                 "Renamer",
                 Map.of("twitter", "x")
         );
-        var computer = Computer.of("Computer",Map.of("Renamer", program));
+        var computer = MobileApp.of("Computer",Map.of("Renamer", program));
 
         var entity = converter.toCommunication(computer);
 
         SoftAssertions.assertSoftly(softly->{
            softly.assertThat(entity).isNotNull();
-            softly.assertThat(entity.name()).isEqualTo("Computer");
+            softly.assertThat(entity.name()).isEqualTo("MobileApp");
             softly.assertThat(entity.size()).isEqualTo(2);
             softly.assertThat(entity.find("_id").orElseThrow().get()).isEqualTo("Computer");
             var programs = entity.find("programs").orElseThrow();
@@ -999,7 +999,7 @@ class EntityConverterTest {
     @Test
     void shouldConvertToMap() {
 
-        var communication = CommunicationEntity.of("Computer");
+        var communication = CommunicationEntity.of("MobileApp");
         communication.add("_id", "Computer");
         communication.add("programs", List.of(
                 Element.of("Renamer", List.of(
@@ -1008,7 +1008,7 @@ class EntityConverterTest {
                 ))
         ));
 
-        Computer entity = converter.toEntity(communication);
+        MobileApp entity = converter.toEntity(communication);
 
         SoftAssertions.assertSoftly(softly->{
            softly.assertThat(entity).isNotNull();

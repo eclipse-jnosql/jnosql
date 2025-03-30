@@ -22,20 +22,20 @@ import java.util.Map;
 import java.util.Objects;
 
 @Entity
-public class Computer {
+public class MobileApp {
     @Id
     private String name;
 
     @Column
     private Map<String, Program> programs;
 
-    private Computer(String name, Map<String, Program> programs) {
+    private MobileApp(String name, Map<String, Program> programs) {
         this.name = name;
         this.programs = programs;
     }
 
     @Deprecated
-    Computer() {
+    MobileApp() {
     }
 
     public String getName() {
@@ -49,8 +49,8 @@ public class Computer {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Computer computer = (Computer) o;
-        return Objects.equals(name, computer.name);
+        MobileApp mobileApp = (MobileApp) o;
+        return Objects.equals(name, mobileApp.name);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class Computer {
     }
 
 
-    public static Computer of(String name, Map<String, Program> programs) {
-        return new Computer(name, programs);
+    public static MobileApp of(String name, Map<String, Program> programs) {
+        return new MobileApp(name, programs);
     }
 }
