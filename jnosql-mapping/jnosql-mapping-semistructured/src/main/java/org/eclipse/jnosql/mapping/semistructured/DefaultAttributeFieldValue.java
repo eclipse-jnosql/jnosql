@@ -14,18 +14,17 @@
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
+import jakarta.nosql.AttributeConverter;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.semistructured.Element;
-import jakarta.nosql.AttributeConverter;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.ArrayFieldMetadata;
-import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
-import org.eclipse.jnosql.mapping.metadata.MapFieldMetadata;
-import org.eclipse.jnosql.mapping.metadata.MapParameterMetaData;
-import org.eclipse.jnosql.mapping.metadata.MappingType;
-import org.eclipse.jnosql.mapping.metadata.FieldValue;
-import org.eclipse.jnosql.mapping.metadata.DefaultFieldValue;
 import org.eclipse.jnosql.mapping.metadata.CollectionFieldMetadata;
+import org.eclipse.jnosql.mapping.metadata.DefaultFieldValue;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldValue;
+import org.eclipse.jnosql.mapping.metadata.MapFieldMetadata;
+import org.eclipse.jnosql.mapping.metadata.MappingType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,13 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Collections.singletonList;
 import static org.eclipse.jnosql.mapping.metadata.MappingType.ARRAY;
 import static org.eclipse.jnosql.mapping.metadata.MappingType.COLLECTION;
-
 import static org.eclipse.jnosql.mapping.metadata.MappingType.EMBEDDED;
 import static org.eclipse.jnosql.mapping.metadata.MappingType.EMBEDDED_GROUP;
 import static org.eclipse.jnosql.mapping.metadata.MappingType.ENTITY;
-import static java.util.Collections.singletonList;
 import static org.eclipse.jnosql.mapping.metadata.MappingType.MAP;
 
 final class DefaultAttributeFieldValue implements AttributeFieldValue {
