@@ -28,6 +28,7 @@ import org.eclipse.jnosql.mapping.semistructured.entities.Address;
 import org.eclipse.jnosql.mapping.semistructured.entities.AppointmentBook;
 import org.eclipse.jnosql.mapping.semistructured.entities.Book;
 import org.eclipse.jnosql.mapping.semistructured.entities.Citizen;
+import org.eclipse.jnosql.mapping.semistructured.entities.Computer;
 import org.eclipse.jnosql.mapping.semistructured.entities.Contact;
 import org.eclipse.jnosql.mapping.semistructured.entities.ContactType;
 import org.eclipse.jnosql.mapping.semistructured.entities.Director;
@@ -41,6 +42,7 @@ import org.eclipse.jnosql.mapping.semistructured.entities.MainStepType;
 import org.eclipse.jnosql.mapping.semistructured.entities.Money;
 import org.eclipse.jnosql.mapping.semistructured.entities.Movie;
 import org.eclipse.jnosql.mapping.semistructured.entities.Person;
+import org.eclipse.jnosql.mapping.semistructured.entities.Program;
 import org.eclipse.jnosql.mapping.semistructured.entities.SocialMediaContact;
 import org.eclipse.jnosql.mapping.semistructured.entities.Transition;
 import org.eclipse.jnosql.mapping.semistructured.entities.Vendor;
@@ -964,6 +966,27 @@ class EntityConverterTest {
             softly.assertThat(communication.find("_id").orElseThrow().get()).isEqualTo("12");
             softly.assertThat(communication.find("studentId").orElseThrow().get()).isEqualTo("123");
             softly.assertThat(communication.find("fullName").orElseThrow().get()).isEqualTo("Ada");
+        });
+    }
+
+    @Test
+    void shouldConvertFromMap() {
+        var program = Program.of(
+                "Renamer",
+                Map.of("twitter", "x")
+        );
+        var computer = Computer.of("Computer",Map.of("Renamer", program));
+
+        var entity = converter.toCommunication(computer);
+
+        SoftAssertions.assertSoftly(softly->{
+           softly.assertThat(entity).isNotNull();
+            softly.assertThat(entity.name()).isEqualTo("Computer");
+            softly.assertThat(entity.size()).isEqualTo(2);
+            softly.assertThat(entity.find("_id").orElseThrow().get()).isEqualTo("Computer");
+            Element programs = entity.find("programs").orElseThrow();
+            Object map = programs.get();
+
         });
     }
 
