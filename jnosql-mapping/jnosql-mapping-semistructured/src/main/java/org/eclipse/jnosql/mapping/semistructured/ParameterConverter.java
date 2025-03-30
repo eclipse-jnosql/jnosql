@@ -107,8 +107,8 @@ enum ParameterConverter {
                     var entity = getEntity(converter, map, type);
                     mapEntity.put(key.toString(), entity);
                 }  else {
-                    throw new IllegalStateException("The value of the map is not embeddable, Please use a converter or a Entity or " +
-                            "Embeddable type in this map, the value type is: " + mapParameterMetaData.valueType());
+                    throw new IllegalStateException("Invalid map value type: expected a basic attribute, or a type annotated " +
+                            "with @Entity or @Embeddable from jakarta.nosql, but found: " + mapParameterMetaData.valueType());
                 }
             }
             builder.add(mapEntity);
