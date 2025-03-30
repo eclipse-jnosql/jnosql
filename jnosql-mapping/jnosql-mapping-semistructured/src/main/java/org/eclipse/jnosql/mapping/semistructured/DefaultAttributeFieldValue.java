@@ -19,6 +19,8 @@ import jakarta.nosql.AttributeConverter;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.ArrayFieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
+import org.eclipse.jnosql.mapping.metadata.MapFieldMetadata;
+import org.eclipse.jnosql.mapping.metadata.MapParameterMetaData;
 import org.eclipse.jnosql.mapping.metadata.MappingType;
 import org.eclipse.jnosql.mapping.metadata.FieldValue;
 import org.eclipse.jnosql.mapping.metadata.DefaultFieldValue;
@@ -36,6 +38,7 @@ import static org.eclipse.jnosql.mapping.metadata.MappingType.EMBEDDED;
 import static org.eclipse.jnosql.mapping.metadata.MappingType.EMBEDDED_GROUP;
 import static org.eclipse.jnosql.mapping.metadata.MappingType.ENTITY;
 import static java.util.Collections.singletonList;
+import static org.eclipse.jnosql.mapping.metadata.MappingType.MAP;
 
 final class DefaultAttributeFieldValue implements AttributeFieldValue {
 
@@ -75,6 +78,9 @@ final class DefaultAttributeFieldValue implements AttributeFieldValue {
             return singletonList(Element.of(name(), columnsToArray(converter)));
         } else if(ARRAY.equals(type())) {
             return singletonList(Element.of(name(), columnsToArray()));
+        } else if(isEmbeddableMap()) {
+            Object value = value();
+            System.out.println("Value: " + value);
         }
         Optional<Class<AttributeConverter<Object, Object>>> optionalConverter = field().converter();
         if (optionalConverter.isPresent()) {
@@ -110,7 +116,11 @@ final class DefaultAttributeFieldValue implements AttributeFieldValue {
     }
 
     private boolean isEmbeddableCollection() {
-        return COLLECTION.equals(type()) && isEmbeddableElement();
+        return COLLECTION.equals(type()) && isEmbeddableElement() ;
+    }
+
+    private boolean isEmbeddableMap() {
+        return MAP.equals(type()) && ((MapFieldMetadata) field()).isEmbeddable();
     }
 
     private boolean isEmbeddableArray() {
