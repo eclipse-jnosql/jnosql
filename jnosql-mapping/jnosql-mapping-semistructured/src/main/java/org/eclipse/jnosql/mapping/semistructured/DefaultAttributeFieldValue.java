@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
+import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import jakarta.nosql.AttributeConverter;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -29,6 +30,7 @@ import org.eclipse.jnosql.mapping.metadata.CollectionFieldMetadata;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.eclipse.jnosql.mapping.metadata.MappingType.ARRAY;
@@ -79,8 +81,7 @@ final class DefaultAttributeFieldValue implements AttributeFieldValue {
         } else if(ARRAY.equals(type())) {
             return singletonList(Element.of(name(), columnsToArray()));
         } else if(isEmbeddableMap()) {
-            Object value = value();
-            System.out.println("Value: " + value);
+            return convertMap(converter);
         }
         Optional<Class<AttributeConverter<Object, Object>>> optionalConverter = field().converter();
         if (optionalConverter.isPresent()) {
@@ -88,6 +89,17 @@ final class DefaultAttributeFieldValue implements AttributeFieldValue {
             return singletonList(Element.of(name(), attributeConverter.convertToDatabaseColumn((X) value())));
         }
         return singletonList(Element.of(name(), value()));
+    }
+
+    private List<Element> convertMap(EntityConverter converter) {
+        var map = (Map<?, ?>) value();
+        var elements = new ArrayList<>();
+        for (var key : map.keySet()) {
+            var item = map.get(key);
+            var element = Element.of(key.toString(), Value.of(converter.toCommunication(item).elements()));
+            elements.add(element);
+        }
+        return singletonList(Element.of(name(), elements));
     }
 
     private List<List<Element>> columns(EntityConverter converter) {
