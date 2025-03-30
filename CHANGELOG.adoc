@@ -12,6 +12,11 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 - Include support to ArrayReader
 - Include support to InstantReader
+- Include support to Map on EntityConverter
+
+=== Changed
+
+- Enhance the ValueReaderDecorator for faster reading
 
 == [1.1.6] - 2025-03-24
 
