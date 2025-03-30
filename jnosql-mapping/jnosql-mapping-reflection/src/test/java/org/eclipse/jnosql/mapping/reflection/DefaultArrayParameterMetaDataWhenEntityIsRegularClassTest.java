@@ -44,11 +44,15 @@ class DefaultArrayParameterMetaDataWhenEntityIsRegularClassTest implements Defau
             return Book.class;
         }
 
-
         @Test
         void shouldArrayInstance() {
             List<Book> magazines = List.of(Book.builder().build(), Book.builder().build());
             Book[] value = (Book[]) fieldMetadata().arrayInstance(magazines);
             assertThat(value).containsExactlyElementsOf(magazines);
+        }
+
+        @Test
+        void shouldIsEmbeddable() {
+            assertThat(fieldMetadata().isEmbeddable()).isTrue();
         }
     }
