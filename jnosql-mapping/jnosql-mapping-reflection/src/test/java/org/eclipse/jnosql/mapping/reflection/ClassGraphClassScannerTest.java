@@ -104,4 +104,24 @@ class ClassGraphClassScannerTest {
         assertThat(repositories).hasSize(1)
                 .contains(Library.class);
     }
+
+    @Test
+    void shouldReturnRepositoriesStandard() {
+        Set<Class<?>> repositories = classScanner.repositoriesStandard();
+        assertThat(repositories).hasSize(3);
+    }
+
+    @Test
+    void shouldReturnCustomRepository() {
+        Set<Class<?>> repositories = classScanner.customRepositories();
+        assertThat(repositories).hasSize(1)
+                .contains(Library.class);
+    }
+
+    @Test
+    void shouldFindRepository() {
+        Set<Class<?>> repositories = classScanner.repositories(NoSQLRepository.class);
+        assertThat(repositories).hasSize(1);
+    }
+
 }

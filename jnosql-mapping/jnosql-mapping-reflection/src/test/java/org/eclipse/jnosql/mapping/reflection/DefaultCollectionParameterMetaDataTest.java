@@ -57,4 +57,9 @@ class DefaultCollectionParameterMetaDataTest {
         Collection<?> collection = this.fieldMetadata.collectionInstance();
         assertThat(collection).isInstanceOf(List.class);
     }
+
+    @Test
+    void shouldIsEmbeddable() {
+        assertThat(fieldMetadata.isEmbeddable()).isTrue();
+    }
 }

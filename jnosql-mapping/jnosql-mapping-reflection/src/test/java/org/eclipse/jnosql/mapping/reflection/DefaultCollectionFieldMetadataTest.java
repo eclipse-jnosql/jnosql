@@ -79,4 +79,10 @@ class DefaultCollectionFieldMetadataTest {
     void shouldNewConverter(){
         assertThat(fieldMetadata.newConverter()).isNotNull().isEmpty();
     }
+
+
+    @Test
+    void shouldIsEmbeddable() {
+        assertThat(fieldMetadata.isEmbeddable()).isFalse();
+    }
 }
