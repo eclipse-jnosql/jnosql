@@ -140,15 +140,15 @@ enum ParameterConverter {
 
     static ParameterConverter of(ParameterMetaData parameter, EntitiesMetadata entities) {
         return switch (parameter.mappingType()) {
-            case COLLECTION -> collectionConverter(parameter, entities);
-            case ARRAY -> arrayConverter(parameter, entities);
+            case COLLECTION -> collectionConverter(parameter);
+            case ARRAY -> arrayConverter(parameter);
             case MAP -> MAP;
             case ENTITY, EMBEDDED_GROUP, EMBEDDED -> ENTITY;
             default -> DEFAULT;
         };
     }
 
-    private static ParameterConverter collectionConverter(ParameterMetaData parameter, EntitiesMetadata entities) {
+    private static ParameterConverter collectionConverter(ParameterMetaData parameter) {
         var genericParameter = (CollectionParameterMetaData) parameter;
         if (genericParameter.isEmbeddable()) {
             return COLLECTION;
@@ -156,7 +156,7 @@ enum ParameterConverter {
         return DEFAULT;
     }
 
-    private static ParameterConverter arrayConverter(ParameterMetaData parameter, EntitiesMetadata entities) {
+    private static ParameterConverter arrayConverter(ParameterMetaData parameter) {
         var arrayParameterMetaData = (ArrayParameterMetaData) parameter;
         if (arrayParameterMetaData.isEmbeddable()) {
             return ARRAY;
