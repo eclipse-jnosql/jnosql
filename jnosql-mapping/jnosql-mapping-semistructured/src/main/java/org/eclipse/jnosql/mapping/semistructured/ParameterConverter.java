@@ -27,8 +27,10 @@ import org.eclipse.jnosql.mapping.metadata.ParameterMetaData;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 enum ParameterConverter {
     DEFAULT {
@@ -87,8 +89,33 @@ enum ParameterConverter {
         @Override
         void convert(EntityConverter converter, Element element, ParameterMetaData metaData, ConstructorBuilder builder) {
             var mapParameterMetaData = (MapParameterMetaData) metaData;
-            Object value = mapParameterMetaData.value(element.value());
-            builder.add(value);
+            Map<?,?> valueMap = (Map<?, ?>) mapParameterMetaData.value(element.value());
+            if (mapParameterMetaData.isEmbeddable()) {
+                executeEmbeddableMap(converter, builder, mapParameterMetaData, valueMap);
+            } else {
+                builder.add(valueMap);
+            }
+        }
+
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        private static void executeEmbeddableMap(EntityConverter converter, ConstructorBuilder builder, MapParameterMetaData mapParameterMetaData, Map<?, ?> valueMap) {
+            Class<?> type = mapParameterMetaData.valueType();
+            Map<Object, Object> mapEntity = new HashMap<>();
+            for (Object key : valueMap.keySet()) {
+                var document = valueMap.get(key);
+                if (document instanceof Map map) {
+                    List<Element> embeddedColumns = new ArrayList<>();
+                    for (Map.Entry entry : (Set<Map.Entry>) map.entrySet()) {
+                        embeddedColumns.add(Element.of(entry.getKey().toString(), entry.getValue()));
+                    }
+                    Object entity = converter.toEntity(type, embeddedColumns);
+                    mapEntity.put(key.toString(), entity);
+                }  else {
+                    throw new IllegalStateException("The value of the map is not embeddable, Please use a converter or a Entity or " +
+                            "Embeddable type in this map, the value type is: " + mapParameterMetaData.valueType());
+                }
+            }
+            builder.add(mapEntity);
         }
 
     }, ARRAY {

@@ -177,7 +177,8 @@ enum FieldConverter {
                     Object entity = converter.toEntity(type, embeddedColumns);
                     mapEntity.put(key.toString(), entity);
                 }  else {
-                    throw new IllegalStateException("The value of the map is not embeddable, Please use a converter or a Entity or Embeddable type, the value type is: " + mapFieldMetadata.valueType());
+                    throw new IllegalStateException("The value of the map is not embeddable, Please use a converter or a Entity or " +
+                            "Embeddable type in this map, the value type is: " + mapFieldMetadata.valueType());
                 }
             }
             field.write(instance, mapEntity);
