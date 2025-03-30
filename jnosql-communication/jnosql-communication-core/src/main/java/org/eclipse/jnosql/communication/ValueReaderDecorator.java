@@ -19,7 +19,10 @@ package org.eclipse.jnosql.communication;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Decorators of all {@link ValueReader} supported by Jakarta NoSQL
@@ -29,6 +32,7 @@ import java.util.ServiceLoader;
 public final class ValueReaderDecorator implements ValueReader {
 
     private static final ValueReaderDecorator INSTANCE = new ValueReaderDecorator();
+    private final Map<Class<?>, ValueReader> cache = new ConcurrentHashMap<>();
 
     private final List<ValueReader> readers = new ArrayList<>();
 
@@ -52,10 +56,18 @@ public final class ValueReaderDecorator implements ValueReader {
         if (type.isInstance(value)) {
             return type.cast(value);
         }
-        ValueReader valueReader = readers.stream().filter(r -> r.test(type)).findFirst().orElseThrow(
-                () -> new UnsupportedOperationException("The type " + type + " is not supported yet"));
+        ValueReader valueReader = getReader(type)
+                .orElseThrow(() -> new UnsupportedOperationException("The type " + type + " is not supported yet"));
+
         return valueReader.read(type, value);
     }
+
+    private Optional<ValueReader> getReader(Class<?> type) {
+        return Optional.ofNullable(cache.computeIfAbsent(type, t ->
+                readers.stream().filter(r -> r.test(t)).findFirst().orElse(null)
+        ));
+    }
+
 
     @Override
     public String toString() {
