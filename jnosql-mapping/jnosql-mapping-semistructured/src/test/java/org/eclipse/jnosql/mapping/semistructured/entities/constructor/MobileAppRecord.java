@@ -21,6 +21,6 @@ import jakarta.nosql.Id;
 import java.util.Map;
 
 @Entity
-public record ComputerRecord (@Id String name, @Column Map<String, ProgramRecord> programs){
+public record MobileAppRecord(@Id String name, @Column Map<String, ProgramRecord> programs){
 
 }
