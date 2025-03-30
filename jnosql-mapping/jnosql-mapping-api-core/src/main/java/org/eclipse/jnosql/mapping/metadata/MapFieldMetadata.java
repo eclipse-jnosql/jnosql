@@ -25,8 +25,8 @@ package org.eclipse.jnosql.mapping.metadata;
  */
 public interface MapFieldMetadata extends FieldMetadata {
     /**
-     * Returns true if either the key or value has Entity or Embeddable annotations
-     * @return true if the key or value has Entity or Embeddable annotations
+     * Returns true if the value has Entity or Embeddable annotations
+     * @return true if the value has Entity or Embeddable annotations
      */
     boolean isEmbeddable();
 
