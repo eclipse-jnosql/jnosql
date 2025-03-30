@@ -12,7 +12,7 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.semistructured.entities;
+package org.eclipse.jnosql.mapping.semistructured.entities.constructor;
 
 import jakarta.nosql.Column;
 import jakarta.nosql.Entity;
