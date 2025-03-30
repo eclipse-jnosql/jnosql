@@ -97,18 +97,14 @@ enum ParameterConverter {
             }
         }
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings({"rawtypes"})
         private static void executeEmbeddableMap(EntityConverter converter, ConstructorBuilder builder, MapParameterMetaData mapParameterMetaData, Map<?, ?> valueMap) {
             Class<?> type = mapParameterMetaData.valueType();
             Map<Object, Object> mapEntity = new HashMap<>();
             for (Object key : valueMap.keySet()) {
                 var document = valueMap.get(key);
                 if (document instanceof Map map) {
-                    List<Element> embeddedColumns = new ArrayList<>();
-                    for (Map.Entry entry : (Set<Map.Entry>) map.entrySet()) {
-                        embeddedColumns.add(Element.of(entry.getKey().toString(), entry.getValue()));
-                    }
-                    Object entity = converter.toEntity(type, embeddedColumns);
+                    var entity = getEntity(converter, map, type);
                     mapEntity.put(key.toString(), entity);
                 }  else {
                     throw new IllegalStateException("The value of the map is not embeddable, Please use a converter or a Entity or " +
@@ -116,6 +112,15 @@ enum ParameterConverter {
                 }
             }
             builder.add(mapEntity);
+        }
+
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        private static Object getEntity(EntityConverter converter, Map map, Class<?> type) {
+            List<Element> embeddedColumns = new ArrayList<>();
+            for (Map.Entry entry : (Set<Map.Entry>) map.entrySet()) {
+                embeddedColumns.add(Element.of(entry.getKey().toString(), entry.getValue()));
+            }
+            return converter.toEntity(type, embeddedColumns);
         }
 
     }, ARRAY {

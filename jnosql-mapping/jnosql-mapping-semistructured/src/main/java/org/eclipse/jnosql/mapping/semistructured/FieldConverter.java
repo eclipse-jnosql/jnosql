@@ -163,18 +163,14 @@ enum FieldConverter {
             }
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
+        @SuppressWarnings({"rawtypes"})
         private static <Y, T> void executeEmbeddableMap(T instance, FieldMetadata field, MapFieldMetadata mapFieldMetadata, Map<?, ?> value, EntityConverter converter) {
             Map<Object, Object> mapEntity = new HashMap<>();
             Class<?> type = mapFieldMetadata.valueType();
             for (Object key : value.keySet()) {
                 var document = value.get(key);
                 if (document instanceof Map map) {
-                    List<Element> embeddedColumns = new ArrayList<>();
-                    for (Map.Entry entry : (Set<Map.Entry>) map.entrySet()) {
-                        embeddedColumns.add(Element.of(entry.getKey().toString(), entry.getValue()));
-                    }
-                    Object entity = converter.toEntity(type, embeddedColumns);
+                    var entity = getEntity(converter, map, type);
                     mapEntity.put(key.toString(), entity);
                 }  else {
                     throw new IllegalStateException("The value of the map is not embeddable, Please use a converter or a Entity or " +
@@ -183,6 +179,16 @@ enum FieldConverter {
             }
             field.write(instance, mapEntity);
         }
+
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        private static Object getEntity(EntityConverter converter, Map map, Class<?> type) {
+            List<Element> embeddedColumns = new ArrayList<>();
+            for (Map.Entry entry : (Set<Map.Entry>) map.entrySet()) {
+                embeddedColumns.add(Element.of(entry.getKey().toString(), entry.getValue()));
+            }
+            return converter.toEntity(type, embeddedColumns);
+        }
+
     }, DEFAULT {
         @Override
         public <X, Y, T> void convert(T instance, List<Element> elements, Element element,
