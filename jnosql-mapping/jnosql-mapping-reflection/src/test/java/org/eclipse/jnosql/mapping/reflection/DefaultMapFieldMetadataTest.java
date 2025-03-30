@@ -85,4 +85,9 @@ class DefaultMapFieldMetadataTest {
     void shouldNewConverter() {
         assertThat(fieldMetadata.newConverter()).isNotNull().isEmpty();
     }
+
+    @Test
+    void shouldIsEmbedded() {
+        assertThat(fieldMetadata.isEmbeddable()).isFalse();
+    }
 }

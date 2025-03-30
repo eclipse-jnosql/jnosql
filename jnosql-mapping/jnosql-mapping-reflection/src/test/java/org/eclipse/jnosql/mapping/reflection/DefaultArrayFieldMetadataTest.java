@@ -85,4 +85,14 @@ class DefaultArrayFieldMetadataTest {
     void shouldReturnElementType() {
         assertThat(fieldMetadata.elementType()).isEqualTo(String.class);
     }
+
+    @Test
+    void shouldIsEmbeddable() {
+        assertThat(fieldMetadata.isEmbeddable()).isFalse();
+    }
+
+    @Test
+    void shouldIsId() {
+        assertThat(fieldMetadata.isId()).isFalse();
+    }
 }

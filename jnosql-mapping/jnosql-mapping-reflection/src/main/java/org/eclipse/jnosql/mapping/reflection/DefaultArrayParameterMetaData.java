@@ -15,9 +15,12 @@
 package org.eclipse.jnosql.mapping.reflection;
 
 import jakarta.nosql.AttributeConverter;
+import jakarta.nosql.Embeddable;
+import jakarta.nosql.Entity;
 import org.eclipse.jnosql.mapping.metadata.ArrayParameterMetaData;
 import org.eclipse.jnosql.mapping.metadata.MappingType;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.Collection;
 
@@ -26,11 +29,19 @@ class DefaultArrayParameterMetaData extends DefaultParameterMetaData implements 
 
     private final Class<?> elementType;
 
+    private final boolean embeddableField;
+
     DefaultArrayParameterMetaData(String name, Class<?> type, boolean id,
                                   Class<? extends AttributeConverter<?, ?>> converter,
                                   MappingType mappingType, Class<?> elementType) {
         super(name, type, id, converter, mappingType);
         this.elementType = elementType;
+        this.embeddableField = hasFieldAnnotation(Embeddable.class) || hasFieldAnnotation(Entity.class);
+    }
+
+    @Override
+    public boolean isEmbeddable() {
+        return embeddableField;
     }
 
     @Override
@@ -46,6 +57,10 @@ class DefaultArrayParameterMetaData extends DefaultParameterMetaData implements 
             Array.set(array, index++, item);
         }
         return array;
+    }
+
+    private boolean hasFieldAnnotation(Class<? extends Annotation> annotation) {
+        return this.elementType.getAnnotation(annotation) != null;
     }
 
 

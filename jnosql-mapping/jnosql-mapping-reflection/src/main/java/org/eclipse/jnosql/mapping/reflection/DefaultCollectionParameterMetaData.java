@@ -14,33 +14,44 @@
  */
 package org.eclipse.jnosql.mapping.reflection;
 
+import jakarta.nosql.Embeddable;
+import jakarta.nosql.Entity;
 import org.eclipse.jnosql.communication.TypeSupplier;
 import jakarta.nosql.AttributeConverter;
 import org.eclipse.jnosql.mapping.metadata.CollectionSupplier;
 import org.eclipse.jnosql.mapping.metadata.CollectionParameterMetaData;
 import org.eclipse.jnosql.mapping.metadata.MappingType;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.ServiceLoader;
 
 class DefaultCollectionParameterMetaData extends DefaultParameterMetaData implements CollectionParameterMetaData {
 
+    private final Class<?> elementType;
 
-    private final TypeSupplier<?> typeSupplier;
+    private final boolean embeddableField;
 
     DefaultCollectionParameterMetaData(String name, Class<?> type, boolean id,
                                        Class<? extends AttributeConverter<?, ?>> converter,
                                        MappingType mappingType, TypeSupplier<?> typeSupplier) {
         super(name, type, id, converter, mappingType);
-        this.typeSupplier = typeSupplier;
+        this.elementType =  (Class<?>)  ((ParameterizedType) typeSupplier.get()).getActualTypeArguments()[0];
+        this.embeddableField = hasFieldAnnotation(Embeddable.class) || hasFieldAnnotation(Entity.class);
+    }
+
+    @Override
+    public boolean isEmbeddable() {
+        return embeddableField;
     }
 
     @Override
     public Class<?> elementType() {
-        return (Class<?>) ((ParameterizedType) typeSupplier.get()).getActualTypeArguments()[0];
+        return this.elementType;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public Collection<?> collectionInstance() {
         Class<?> type =  type();
@@ -52,6 +63,10 @@ class DefaultCollectionParameterMetaData extends DefaultParameterMetaData implem
                 .findFirst()
                 .orElseThrow(() -> new UnsupportedOperationException("This collection is not supported yet: " + type));
         return (Collection<?>) supplier.get();
+    }
+
+    private boolean hasFieldAnnotation(Class<? extends Annotation> annotation) {
+        return this.elementType.getAnnotation(annotation) != null;
     }
 
 }

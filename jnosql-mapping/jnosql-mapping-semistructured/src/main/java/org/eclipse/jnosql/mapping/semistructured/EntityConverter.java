@@ -14,17 +14,16 @@
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
+import jakarta.data.exceptions.MappingException;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.mapping.core.Converters;
-import jakarta.data.exceptions.MappingException;
 import org.eclipse.jnosql.mapping.metadata.ConstructorBuilder;
 import org.eclipse.jnosql.mapping.metadata.ConstructorMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
-import org.eclipse.jnosql.mapping.metadata.MappingType;
 import org.eclipse.jnosql.mapping.metadata.ParameterMetaData;
 
 import java.util.Collections;
@@ -201,7 +200,7 @@ public abstract class EntityConverter {
         final List<String> names = elements.stream().map(Element::name).sorted().toList();
         final Predicate<String> existField = k -> Collections.binarySearch(names, k) >= 0;
         final Predicate<String> isElementType = k -> {
-            MappingType type = fieldsGroupByName.get(k).mappingType();
+            var type = fieldsGroupByName.get(k).mappingType();
             return EMBEDDED.equals(type)|| EMBEDDED_GROUP.equals(type) || ENTITY.equals(type);
         };
         fieldsGroupByName.keySet().stream()

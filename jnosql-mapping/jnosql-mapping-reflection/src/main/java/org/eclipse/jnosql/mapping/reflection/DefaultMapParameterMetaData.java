@@ -15,11 +15,14 @@
 package org.eclipse.jnosql.mapping.reflection;
 
 import jakarta.nosql.AttributeConverter;
+import jakarta.nosql.Embeddable;
+import jakarta.nosql.Entity;
 import org.eclipse.jnosql.communication.TypeSupplier;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.mapping.metadata.MapParameterMetaData;
 import org.eclipse.jnosql.mapping.metadata.MappingType;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 
 class DefaultMapParameterMetaData extends DefaultParameterMetaData implements MapParameterMetaData {
@@ -27,6 +30,7 @@ class DefaultMapParameterMetaData extends DefaultParameterMetaData implements Ma
     private final TypeSupplier<?> typeSupplier;
     private final Class<?> keyType;
     private final Class<?> valueType;
+    private final boolean embeddableField;
 
     DefaultMapParameterMetaData(String name, Class<?> type, boolean id,
                                 Class<? extends AttributeConverter<?, ?>> converter,
@@ -35,6 +39,12 @@ class DefaultMapParameterMetaData extends DefaultParameterMetaData implements Ma
         this.typeSupplier = typeSupplier;
         this.keyType = (Class<?>) ((ParameterizedType) typeSupplier.get()).getActualTypeArguments()[0];
         this.valueType = (Class<?>) ((ParameterizedType) typeSupplier.get()).getActualTypeArguments()[1];
+        this.embeddableField = hasFieldAnnotation(Embeddable.class) || hasFieldAnnotation(Entity.class);
+    }
+
+    @Override
+    public boolean isEmbeddable() {
+        return embeddableField;
     }
 
     @Override
@@ -50,6 +60,10 @@ class DefaultMapParameterMetaData extends DefaultParameterMetaData implements Ma
     @Override
     public Object value(Value value) {
         return value.get(typeSupplier);
+    }
+
+    private boolean hasFieldAnnotation(Class<? extends Annotation> annotation) {
+        return this.valueType.getAnnotation(annotation) != null;
     }
 
 }

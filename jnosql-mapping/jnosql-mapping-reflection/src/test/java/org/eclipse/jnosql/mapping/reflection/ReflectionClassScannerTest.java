@@ -16,7 +16,6 @@ package org.eclipse.jnosql.mapping.reflection;
 
 import jakarta.data.repository.CrudRepository;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
-import org.eclipse.jnosql.mapping.reflection.RepositoryFilterTest.Persons;
 import org.eclipse.jnosql.mapping.reflection.entities.AnimalRepository;
 import org.eclipse.jnosql.mapping.reflection.entities.Contact;
 import org.eclipse.jnosql.mapping.reflection.entities.Job;
@@ -31,10 +30,11 @@ import org.junit.jupiter.api.Test;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
-class ClassGraphClassScannerTest {
+class ReflectionClassScannerTest {
 
-    private ClassGraphClassScanner classScanner = ClassGraphClassScanner.INSTANCE;
+    private ReflectionClassScanner classScanner = new ReflectionClassScanner();
 
     @Test
     void shouldReturnEntities() {
@@ -59,7 +59,7 @@ class ClassGraphClassScannerTest {
         Assertions.assertNotNull(reepositores);
 
         assertThat(reepositores).hasSize(4)
-                .contains(Persons.class,
+                .contains(RepositoryFilterTest.Persons.class,
                         AnimalRepository.class,
                         PersonRepository.class,
                         MovieRepository.class);
@@ -95,7 +95,7 @@ class ClassGraphClassScannerTest {
     void shouldReturnStandardRepositories() {
         Set<Class<?>> repositories = classScanner.repositoriesStandard();
         assertThat(repositories).hasSize(3)
-                .contains(Persons.class, PersonRepository.class, MovieRepository.class);
+                .contains(RepositoryFilterTest.Persons.class, PersonRepository.class, MovieRepository.class);
     }
 
     @Test
@@ -123,5 +123,4 @@ class ClassGraphClassScannerTest {
         Set<Class<?>> repositories = classScanner.repositories(NoSQLRepository.class);
         assertThat(repositories).hasSize(1);
     }
-
 }

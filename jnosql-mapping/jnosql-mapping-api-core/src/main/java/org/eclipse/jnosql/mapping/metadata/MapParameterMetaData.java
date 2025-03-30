@@ -28,6 +28,13 @@ import org.eclipse.jnosql.communication.Value;
  */
 public interface MapParameterMetaData extends ParameterMetaData {
 
+
+    /**
+     * Returns true if the {@link MapParameterMetaData#valueType()} has Entity or Embeddable annotations
+     * @return true if the value has Entity or Embeddable annotations
+     */
+    boolean isEmbeddable();
+
     /**
      * Returns the {@link Class} representing the type of keys in the map.
      *

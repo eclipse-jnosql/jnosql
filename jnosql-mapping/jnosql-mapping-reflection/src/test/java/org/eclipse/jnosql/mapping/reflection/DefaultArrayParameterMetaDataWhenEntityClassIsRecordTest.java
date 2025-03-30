@@ -19,6 +19,9 @@ import org.eclipse.jnosql.mapping.metadata.ClassConverter;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.reflection.entities.constructor.Game;
 import org.eclipse.jnosql.mapping.reflection.entities.constructor.Player;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultArrayParameterMetaDataWhenEntityClassIsRecordTest implements DefaultArrayParameterMetaDataTest {
 
@@ -35,6 +38,11 @@ class DefaultArrayParameterMetaDataWhenEntityClassIsRecordTest implements Defaul
     @Override
     public Class<?> expectedElementType() {
         return Game.class;
+    }
+
+    @Test
+    void shouldIsEmbeddable() {
+        assertThat(fieldMetadata().isEmbeddable()).isTrue();
     }
 
 }

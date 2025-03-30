@@ -61,4 +61,9 @@ class DefaultMapParameterMetaDataTest {
         Map<String, Object> value = Map.of("name", "name");
         assertThat(fieldMetadata.value(Value.of(value))).isInstanceOf(Map.class);
     }
+
+    @Test
+    void shouldIsEmbeddable() {
+        assertThat(fieldMetadata.isEmbeddable()).isFalse();
+    }
 }

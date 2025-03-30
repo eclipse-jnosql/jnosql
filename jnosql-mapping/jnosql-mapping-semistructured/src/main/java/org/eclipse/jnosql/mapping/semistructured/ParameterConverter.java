@@ -27,8 +27,10 @@ import org.eclipse.jnosql.mapping.metadata.ParameterMetaData;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 enum ParameterConverter {
     DEFAULT {
@@ -87,8 +89,38 @@ enum ParameterConverter {
         @Override
         void convert(EntityConverter converter, Element element, ParameterMetaData metaData, ConstructorBuilder builder) {
             var mapParameterMetaData = (MapParameterMetaData) metaData;
-            Object value = mapParameterMetaData.value(element.value());
-            builder.add(value);
+            Map<?,?> valueMap = (Map<?, ?>) mapParameterMetaData.value(element.value());
+            if (mapParameterMetaData.isEmbeddable()) {
+                executeEmbeddableMap(converter, builder, mapParameterMetaData, valueMap);
+            } else {
+                builder.add(valueMap);
+            }
+        }
+
+        @SuppressWarnings({"rawtypes"})
+        private static void executeEmbeddableMap(EntityConverter converter, ConstructorBuilder builder, MapParameterMetaData mapParameterMetaData, Map<?, ?> valueMap) {
+            Class<?> type = mapParameterMetaData.valueType();
+            Map<Object, Object> mapEntity = new HashMap<>();
+            for (Object key : valueMap.keySet()) {
+                var document = valueMap.get(key);
+                if (document instanceof Map map) {
+                    var entity = getEntity(converter, map, type);
+                    mapEntity.put(key.toString(), entity);
+                }  else {
+                    throw new IllegalStateException("Invalid map value type: expected a basic attribute, or a type annotated " +
+                            "with @Entity or @Embeddable from jakarta.nosql, but found: " + mapParameterMetaData.valueType());
+                }
+            }
+            builder.add(mapEntity);
+        }
+
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        private static Object getEntity(EntityConverter converter, Map map, Class<?> type) {
+            List<Element> embeddedColumns = new ArrayList<>();
+            for (Map.Entry entry : (Set<Map.Entry>) map.entrySet()) {
+                embeddedColumns.add(Element.of(entry.getKey().toString(), entry.getValue()));
+            }
+            return converter.toEntity(type, embeddedColumns);
         }
 
     }, ARRAY {
@@ -113,27 +145,25 @@ enum ParameterConverter {
 
     static ParameterConverter of(ParameterMetaData parameter, EntitiesMetadata entities) {
         return switch (parameter.mappingType()) {
-            case COLLECTION -> collectionConverter(parameter, entities);
-            case ARRAY -> arrayConverter(parameter, entities);
+            case COLLECTION -> collectionConverter(parameter);
+            case ARRAY -> arrayConverter(parameter);
             case MAP -> MAP;
             case ENTITY, EMBEDDED_GROUP, EMBEDDED -> ENTITY;
             default -> DEFAULT;
         };
     }
 
-    private static ParameterConverter collectionConverter(ParameterMetaData parameter, EntitiesMetadata entities) {
+    private static ParameterConverter collectionConverter(ParameterMetaData parameter) {
         var genericParameter = (CollectionParameterMetaData) parameter;
-        Class<?> type = genericParameter.elementType();
-        if (entities.findByClassName(type.getName()).isPresent()) {
+        if (genericParameter.isEmbeddable()) {
             return COLLECTION;
         }
         return DEFAULT;
     }
 
-    private static ParameterConverter arrayConverter(ParameterMetaData parameter, EntitiesMetadata entities) {
-        var genericParameter = (ArrayParameterMetaData) parameter;
-        Class<?> type = genericParameter.elementType();
-        if (entities.findByClassName(type.getName()).isPresent()) {
+    private static ParameterConverter arrayConverter(ParameterMetaData parameter) {
+        var arrayParameterMetaData = (ArrayParameterMetaData) parameter;
+        if (arrayParameterMetaData.isEmbeddable()) {
             return ARRAY;
         }
         return DEFAULT;

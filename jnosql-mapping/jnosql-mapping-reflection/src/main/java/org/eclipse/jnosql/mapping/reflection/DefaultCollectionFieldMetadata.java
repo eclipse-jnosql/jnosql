@@ -34,12 +34,16 @@ import java.util.ServiceLoader;
 final class DefaultCollectionFieldMetadata extends AbstractFieldMetadata implements CollectionFieldMetadata {
 
     private final TypeSupplier<?> typeSupplier;
+    private final boolean entityField;
+    private final boolean embeddableField;
 
     DefaultCollectionFieldMetadata(MappingType type, Field field, String name, TypeSupplier<?> typeSupplier,
                                    Class<? extends AttributeConverter<?, ?>> converter,
                                    FieldReader reader, FieldWriter writer, String udt) {
         super(type, field, name, converter, reader, writer, udt);
         this.typeSupplier = typeSupplier;
+        this.entityField = hasFieldAnnotation(Entity.class);
+        this.embeddableField = hasFieldAnnotation(Embeddable.class);
     }
 
     @Override
@@ -82,13 +86,14 @@ final class DefaultCollectionFieldMetadata extends AbstractFieldMetadata impleme
     }
 
     private boolean isEntityField() {
-        return hasFieldAnnotation(Entity.class);
+        return entityField;
     }
 
     private boolean isEmbeddableField() {
-        return hasFieldAnnotation(Embeddable.class);
+        return embeddableField;
     }
 
+    @SuppressWarnings("unchecked")
     private boolean hasFieldAnnotation(Class<?> annotation) {
         ParameterizedType collectionType = Reflections.findParameterizedType(this.field.getGenericType(), Collection.class)
                 .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Unable to find parameterized Collection implementation for {0}", this.field)));

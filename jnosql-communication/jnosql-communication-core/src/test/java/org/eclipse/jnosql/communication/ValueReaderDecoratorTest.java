@@ -34,6 +34,7 @@ class ValueReaderDecoratorTest {
     void shouldConvert() {
         Number convert = reader.read(Number.class, "10D");
         assertThat(convert).isEqualTo(10D);
+        assertThat(reader.read(Number.class, "20D")).isEqualTo(20D);
     }
 
     @Test

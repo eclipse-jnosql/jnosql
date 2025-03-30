@@ -28,6 +28,7 @@ import org.eclipse.jnosql.mapping.semistructured.entities.Address;
 import org.eclipse.jnosql.mapping.semistructured.entities.AppointmentBook;
 import org.eclipse.jnosql.mapping.semistructured.entities.Book;
 import org.eclipse.jnosql.mapping.semistructured.entities.Citizen;
+import org.eclipse.jnosql.mapping.semistructured.entities.MobileApp;
 import org.eclipse.jnosql.mapping.semistructured.entities.Contact;
 import org.eclipse.jnosql.mapping.semistructured.entities.ContactType;
 import org.eclipse.jnosql.mapping.semistructured.entities.Director;
@@ -41,6 +42,7 @@ import org.eclipse.jnosql.mapping.semistructured.entities.MainStepType;
 import org.eclipse.jnosql.mapping.semistructured.entities.Money;
 import org.eclipse.jnosql.mapping.semistructured.entities.Movie;
 import org.eclipse.jnosql.mapping.semistructured.entities.Person;
+import org.eclipse.jnosql.mapping.semistructured.entities.Program;
 import org.eclipse.jnosql.mapping.semistructured.entities.SocialMediaContact;
 import org.eclipse.jnosql.mapping.semistructured.entities.Transition;
 import org.eclipse.jnosql.mapping.semistructured.entities.Vendor;
@@ -964,6 +966,132 @@ class EntityConverterTest {
             softly.assertThat(communication.find("_id").orElseThrow().get()).isEqualTo("12");
             softly.assertThat(communication.find("studentId").orElseThrow().get()).isEqualTo("123");
             softly.assertThat(communication.find("fullName").orElseThrow().get()).isEqualTo("Ada");
+        });
+    }
+
+    @Test
+    void shouldConvertFromMap() {
+        var program = Program.of(
+                "Renamer",
+                Map.of("twitter", "x")
+        );
+        var computer = MobileApp.of("Computer",Map.of("Renamer", program));
+
+        var entity = converter.toCommunication(computer);
+
+        SoftAssertions.assertSoftly(softly->{
+           softly.assertThat(entity).isNotNull();
+            softly.assertThat(entity.name()).isEqualTo("MobileApp");
+            softly.assertThat(entity.size()).isEqualTo(2);
+            softly.assertThat(entity.find("_id").orElseThrow().get()).isEqualTo("Computer");
+            var programs = entity.find("programs").orElseThrow();
+            var elements = programs.get(new TypeReference<List<Element>>() {});
+            softly.assertThat(elements).hasSize(1);
+            Element element = elements.get(0);
+            softly.assertThat(element.name()).isEqualTo("Renamer");
+            var subDocument = element.get(new TypeReference<List<Element>>() {});
+            softly.assertThat(subDocument).isNotNull().hasSize(2);
+            softly.assertThat(subDocument.get(0).name()).isEqualTo("_id");
+            softly.assertThat(subDocument.get(1).name()).isEqualTo("socialMedia");
+        });
+    }
+
+    @Test
+    void shouldConvertToMap() {
+
+        var communication = CommunicationEntity.of("MobileApp");
+        communication.add("_id", "Computer");
+        communication.add("programs", List.of(
+                Element.of("Renamer", List.of(
+                        Element.of("_id", "Renamer"),
+                        Element.of("socialMedia", Map.of("twitter", "x"))
+                ))
+        ));
+
+        MobileApp entity = converter.toEntity(communication);
+
+        SoftAssertions.assertSoftly(softly->{
+           softly.assertThat(entity).isNotNull();
+            softly.assertThat(entity.getName()).isEqualTo("Computer");
+            softly.assertThat(entity.getPrograms()).isNotNull();
+            softly.assertThat(entity.getPrograms()).hasSize(1);
+            Program renamer = entity.getPrograms().get("Renamer");
+            softly.assertThat(renamer).isNotNull();
+            softly.assertThat(renamer.getName()).isEqualTo("Renamer");
+            softly.assertThat(renamer.getSocialMedia()).isNotNull();
+        });
+    }
+
+    @Test
+    void shouldConvertFromMaps() {
+        var program = Program.of(
+                "Renamer",
+                Map.of("twitter", "x")
+        );
+        var program2 = Program.of(
+                "Java",
+                Map.of("Instagram", "insta")
+        );
+        var computer = MobileApp.of("Computer",Map.of("Renamer", program, "Java", program2));
+
+        var entity = converter.toCommunication(computer);
+
+        SoftAssertions.assertSoftly(softly->{
+            softly.assertThat(entity).isNotNull();
+            softly.assertThat(entity.name()).isEqualTo("MobileApp");
+            softly.assertThat(entity.size()).isEqualTo(2);
+            softly.assertThat(entity.find("_id").orElseThrow().get()).isEqualTo("Computer");
+            var programs = entity.find("programs").orElseThrow();
+            var elements = programs.get(new TypeReference<List<Element>>() {});
+            softly.assertThat(elements).hasSize(2);
+            var element = elements.stream().filter(e -> e.name().equals("Renamer")).findFirst().orElseThrow();
+            softly.assertThat(element.name()).isEqualTo("Renamer");
+            var subDocument = element.get(new TypeReference<List<Element>>() {});
+            softly.assertThat(subDocument).isNotNull().hasSize(2);
+            softly.assertThat(subDocument.get(0).name()).isEqualTo("_id");
+            softly.assertThat(subDocument.get(1).name()).isEqualTo("socialMedia");
+
+            var element2 = elements.stream().filter(e -> e.name().equals("Java")).findFirst().orElseThrow();
+            softly.assertThat(element2.name()).isEqualTo("Java");
+            var subDocument2 = element2.get(new TypeReference<List<Element>>() {});
+            softly.assertThat(subDocument2).isNotNull().hasSize(2);
+            softly.assertThat(subDocument2.get(0).name()).isEqualTo("_id");
+            softly.assertThat(subDocument2.get(1).name()).isEqualTo("socialMedia");
+        });
+    }
+
+    @Test
+    void shouldConvertToMaps() {
+
+        var communication = CommunicationEntity.of("MobileApp");
+        communication.add("_id", "Computer");
+        communication.add("programs", List.of(
+                Element.of("Renamer", List.of(
+                        Element.of("_id", "Renamer"),
+                        Element.of("socialMedia", Map.of("twitter", "x"))
+                )),
+                Element.of("Java", List.of(
+                        Element.of("_id", "Java"),
+                        Element.of("socialMedia", Map.of("instagram", "insta"))
+                ))
+        ));
+
+        MobileApp entity = converter.toEntity(communication);
+
+        SoftAssertions.assertSoftly(softly->{
+            softly.assertThat(entity).isNotNull();
+            softly.assertThat(entity.getName()).isEqualTo("Computer");
+            softly.assertThat(entity.getPrograms()).isNotNull();
+            softly.assertThat(entity.getPrograms()).hasSize(2);
+            var renamer = entity.getPrograms().get("Renamer");
+            softly.assertThat(renamer).isNotNull();
+            softly.assertThat(renamer.getName()).isEqualTo("Renamer");
+            softly.assertThat(renamer.getSocialMedia()).isNotNull();
+
+            var java = entity.getPrograms().get("Java");
+            softly.assertThat(java).isNotNull();
+            softly.assertThat(java.getName()).isEqualTo("Java");
+            softly.assertThat(java.getSocialMedia()).isNotNull();
         });
     }
 

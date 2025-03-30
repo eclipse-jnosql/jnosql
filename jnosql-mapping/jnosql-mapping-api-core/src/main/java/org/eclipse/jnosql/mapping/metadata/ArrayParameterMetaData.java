@@ -28,6 +28,12 @@ import java.util.Collection;
 public interface ArrayParameterMetaData extends ParameterMetaData {
 
     /**
+     * Returns true if the array element type has either Entity or Embeddable annotations.
+     *
+     * @return true if the element type has Entity or Embeddable annotations
+     */
+    boolean isEmbeddable();
+    /**
      * Returns the {@link Class} representing the type of elements in the array.
      *
      * @return the element type of the array parameter

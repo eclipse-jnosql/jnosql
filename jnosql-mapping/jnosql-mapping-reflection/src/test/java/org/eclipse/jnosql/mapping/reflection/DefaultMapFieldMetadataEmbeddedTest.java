@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2024 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -15,74 +15,67 @@
 package org.eclipse.jnosql.mapping.reflection;
 
 import org.assertj.core.api.Assertions;
+import org.eclipse.jnosql.communication.Entry;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.mapping.metadata.ClassConverter;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
-import org.eclipse.jnosql.mapping.metadata.CollectionFieldMetadata;
-import org.eclipse.jnosql.mapping.reflection.entities.Person;
+import org.eclipse.jnosql.mapping.metadata.MapFieldMetadata;
+import org.eclipse.jnosql.mapping.reflection.entities.Actor;
+import org.eclipse.jnosql.mapping.reflection.entities.Computer;
+import org.eclipse.jnosql.mapping.reflection.entities.Program;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+class DefaultMapFieldMetadataEmbeddedTest {
 
-class DefaultCollectionFieldMetadataTest {
-
-    private CollectionFieldMetadata fieldMetadata;
+    private MapFieldMetadata fieldMetadata;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         ClassConverter converter = new ReflectionClassConverter();
-        EntityMetadata entityMetadata = converter.apply(Person.class);
-        FieldMetadata phones = entityMetadata.fieldMapping("phones").orElseThrow();
-        this.fieldMetadata = (CollectionFieldMetadata) phones;
+        EntityMetadata entityMetadata = converter.apply(Computer.class);
+        FieldMetadata programs = entityMetadata.fieldMapping("programs").orElseThrow();
+        this.fieldMetadata = (MapFieldMetadata) programs;
     }
+
     @Test
     void shouldToString() {
         assertThat(fieldMetadata.toString()).isNotEmpty().isNotNull();
     }
 
     @Test
-    void shouldGetElementType(){
-        assertThat(fieldMetadata.elementType()).isEqualTo(String.class);
+    void shouldGetValueType() {
+        assertThat(fieldMetadata.valueType()).isEqualTo(Program.class);
     }
 
     @Test
-    void shouldCollectionInstance(){
-        Collection<?> collection = this.fieldMetadata.collectionInstance();
-        assertThat(collection).isInstanceOf(List.class);
+    void shouldGetKeyType() {
+        assertThat(fieldMetadata.keyType()).isEqualTo(String.class);
     }
 
     @Test
-    void shouldEqualsHashCode(){
+    void shouldEqualsHashCode() {
         Assertions.assertThat(fieldMetadata).isEqualTo(fieldMetadata);
         Assertions.assertThat(fieldMetadata).hasSameHashCodeAs(fieldMetadata);
     }
 
     @Test
-    void shouldValue(){
-        List<String> phones = List.of("Ada", "Lovelace");
-        Object value = fieldMetadata.value(Value.of(phones));
-        assertThat(value).isNotNull().isInstanceOf(List.class);
+    void shouldIsEmbedded() {
+        assertThat(fieldMetadata.isEmbeddable()).isTrue();
     }
 
     @Test
-    void shouldConverter(){
+    void shouldConverter() {
         assertThat(fieldMetadata.converter()).isNotNull().isEmpty();
     }
 
     @Test
-    void shouldNewConverter(){
+    void shouldNewConverter() {
         assertThat(fieldMetadata.newConverter()).isNotNull().isEmpty();
-    }
-
-
-    @Test
-    void shouldIsEmbeddable() {
-        assertThat(fieldMetadata.isEmbeddable()).isFalse();
     }
 }

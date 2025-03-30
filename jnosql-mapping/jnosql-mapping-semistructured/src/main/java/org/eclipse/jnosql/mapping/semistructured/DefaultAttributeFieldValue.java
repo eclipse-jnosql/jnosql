@@ -14,28 +14,31 @@
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
-import org.eclipse.jnosql.communication.semistructured.Element;
 import jakarta.nosql.AttributeConverter;
+import org.eclipse.jnosql.communication.Value;
+import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.ArrayFieldMetadata;
-import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
-import org.eclipse.jnosql.mapping.metadata.MappingType;
-import org.eclipse.jnosql.mapping.metadata.FieldValue;
-import org.eclipse.jnosql.mapping.metadata.DefaultFieldValue;
 import org.eclipse.jnosql.mapping.metadata.CollectionFieldMetadata;
+import org.eclipse.jnosql.mapping.metadata.DefaultFieldValue;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldValue;
+import org.eclipse.jnosql.mapping.metadata.MapFieldMetadata;
+import org.eclipse.jnosql.mapping.metadata.MappingType;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Collections.singletonList;
 import static org.eclipse.jnosql.mapping.metadata.MappingType.ARRAY;
 import static org.eclipse.jnosql.mapping.metadata.MappingType.COLLECTION;
-
 import static org.eclipse.jnosql.mapping.metadata.MappingType.EMBEDDED;
 import static org.eclipse.jnosql.mapping.metadata.MappingType.EMBEDDED_GROUP;
 import static org.eclipse.jnosql.mapping.metadata.MappingType.ENTITY;
-import static java.util.Collections.singletonList;
+import static org.eclipse.jnosql.mapping.metadata.MappingType.MAP;
 
 final class DefaultAttributeFieldValue implements AttributeFieldValue {
 
@@ -75,6 +78,8 @@ final class DefaultAttributeFieldValue implements AttributeFieldValue {
             return singletonList(Element.of(name(), columnsToArray(converter)));
         } else if(ARRAY.equals(type())) {
             return singletonList(Element.of(name(), columnsToArray()));
+        } else if(isEmbeddableMap()) {
+            return convertMap(converter);
         }
         Optional<Class<AttributeConverter<Object, Object>>> optionalConverter = field().converter();
         if (optionalConverter.isPresent()) {
@@ -82,6 +87,17 @@ final class DefaultAttributeFieldValue implements AttributeFieldValue {
             return singletonList(Element.of(name(), attributeConverter.convertToDatabaseColumn((X) value())));
         }
         return singletonList(Element.of(name(), value()));
+    }
+
+    private List<Element> convertMap(EntityConverter converter) {
+        var map = (Map<?, ?>) value();
+        var elements = new ArrayList<>();
+        for (var key : map.keySet()) {
+            var item = map.get(key);
+            var element = Element.of(key.toString(), Value.of(converter.toCommunication(item).elements()));
+            elements.add(element);
+        }
+        return singletonList(Element.of(name(), elements));
     }
 
     private List<List<Element>> columns(EntityConverter converter) {
@@ -110,7 +126,11 @@ final class DefaultAttributeFieldValue implements AttributeFieldValue {
     }
 
     private boolean isEmbeddableCollection() {
-        return COLLECTION.equals(type()) && isEmbeddableElement();
+        return COLLECTION.equals(type()) && isEmbeddableElement() ;
+    }
+
+    private boolean isEmbeddableMap() {
+        return MAP.equals(type()) && ((MapFieldMetadata) field()).isEmbeddable();
     }
 
     private boolean isEmbeddableArray() {

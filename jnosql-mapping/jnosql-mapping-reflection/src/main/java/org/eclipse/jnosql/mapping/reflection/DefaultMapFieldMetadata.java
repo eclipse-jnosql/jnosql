@@ -15,11 +15,14 @@
 package org.eclipse.jnosql.mapping.reflection;
 
 import jakarta.nosql.AttributeConverter;
+import jakarta.nosql.Embeddable;
+import jakarta.nosql.Entity;
 import org.eclipse.jnosql.communication.TypeSupplier;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.mapping.metadata.MapFieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.MappingType;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.text.MessageFormat;
@@ -34,6 +37,8 @@ final class DefaultMapFieldMetadata extends AbstractFieldMetadata implements Map
     
     private final Class<?> valueType;
 
+    private final boolean embeddableField;
+
     DefaultMapFieldMetadata(MappingType type, Field field, String name, TypeSupplier<?> typeSupplier,
                             Class<? extends AttributeConverter<?, ?>> converter,
                             FieldReader reader, FieldWriter writer, String udt) {
@@ -43,6 +48,7 @@ final class DefaultMapFieldMetadata extends AbstractFieldMetadata implements Map
             .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Unable to find parameterized Map implementation for {0}", this.field)));
         this.keyType = (Class<?>) mapType.getActualTypeArguments()[0];
         this.valueType = (Class<?>) mapType.getActualTypeArguments()[1];
+        this.embeddableField = hasFieldAnnotation(Embeddable.class) || hasFieldAnnotation(Entity.class);
     }
 
     @Override
@@ -58,7 +64,7 @@ final class DefaultMapFieldMetadata extends AbstractFieldMetadata implements Map
 
     @Override
     public boolean isEmbeddable() {
-        return false;
+        return embeddableField;
     }
 
     @Override
@@ -87,5 +93,9 @@ final class DefaultMapFieldMetadata extends AbstractFieldMetadata implements Map
     @Override
     public int hashCode() {
         return Objects.hash(typeSupplier, keyType, valueType);
+    }
+
+    private boolean hasFieldAnnotation(Class<? extends Annotation> annotation) {
+        return this.valueType.getAnnotation(annotation) != null;
     }
 }
