@@ -1008,13 +1008,17 @@ class EntityConverterTest {
                 ))
         ));
 
-        Program entity = converter.toEntity(communication);
+        Computer entity = converter.toEntity(communication);
 
         SoftAssertions.assertSoftly(softly->{
            softly.assertThat(entity).isNotNull();
             softly.assertThat(entity.getName()).isEqualTo("Renamer");
-            softly.assertThat(entity.getSocialMedia()).isNotNull();
-            softly.assertThat(entity.getSocialMedia().get("twitter")).isEqualTo("x");
+            softly.assertThat(entity.getPrograms()).isNotNull();
+            softly.assertThat(entity.getPrograms()).hasSize(1);
+            Program renamer = entity.getPrograms().get("Renamer");
+            softly.assertThat(renamer).isNotNull();
+            softly.assertThat(renamer.getName()).isEqualTo("Renamer");
+            softly.assertThat(renamer.getSocialMedia()).isNotNull();
         });
     }
 
