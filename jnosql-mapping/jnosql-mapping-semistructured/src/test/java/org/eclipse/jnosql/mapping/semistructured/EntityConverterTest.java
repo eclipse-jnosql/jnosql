@@ -996,6 +996,28 @@ class EntityConverterTest {
         });
     }
 
+    @Test
+    void shouldConvertToMap() {
+
+        var communication = CommunicationEntity.of("Computer");
+        communication.add("_id", "Computer");
+        communication.add("programs", List.of(
+                Element.of("Renamer", List.of(
+                        Element.of("_id", "Renamer"),
+                        Element.of("socialMedia", Map.of("twitter", "x"))
+                ))
+        ));
+
+        Program entity = converter.toEntity(communication);
+
+        SoftAssertions.assertSoftly(softly->{
+           softly.assertThat(entity).isNotNull();
+            softly.assertThat(entity.getName()).isEqualTo("Renamer");
+            softly.assertThat(entity.getSocialMedia()).isNotNull();
+            softly.assertThat(entity.getSocialMedia().get("twitter")).isEqualTo("x");
+        });
+    }
+
 
     private Object getValue(Optional<Element> column) {
         return column.map(Element::value).map(Value::get).orElse(null);
