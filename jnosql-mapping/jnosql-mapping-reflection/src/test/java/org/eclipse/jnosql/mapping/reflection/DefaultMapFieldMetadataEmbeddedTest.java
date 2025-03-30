@@ -22,6 +22,8 @@ import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.MapFieldMetadata;
 import org.eclipse.jnosql.mapping.reflection.entities.Actor;
+import org.eclipse.jnosql.mapping.reflection.entities.Computer;
+import org.eclipse.jnosql.mapping.reflection.entities.Program;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,16 +31,16 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DefaultMapFieldMetadataTest {
+class DefaultMapFieldMetadataEmbeddedTest {
 
     private MapFieldMetadata fieldMetadata;
 
     @BeforeEach
     void setUp() {
         ClassConverter converter = new ReflectionClassConverter();
-        EntityMetadata entityMetadata = converter.apply(Actor.class);
-        FieldMetadata movieRating = entityMetadata.fieldMapping("movieRating").orElseThrow();
-        this.fieldMetadata = (MapFieldMetadata) movieRating;
+        EntityMetadata entityMetadata = converter.apply(Computer.class);
+        FieldMetadata programs = entityMetadata.fieldMapping("programs").orElseThrow();
+        this.fieldMetadata = (MapFieldMetadata) programs;
     }
 
     @Test
@@ -48,7 +50,7 @@ class DefaultMapFieldMetadataTest {
 
     @Test
     void shouldGetValueType() {
-        assertThat(fieldMetadata.valueType()).isEqualTo(Integer.class);
+        assertThat(fieldMetadata.valueType()).isEqualTo(Program.class);
     }
 
     @Test
@@ -63,17 +65,8 @@ class DefaultMapFieldMetadataTest {
     }
 
     @Test
-    void shouldValue() {
-        Map<String, Integer> phones = Map.of("Ada", 5);
-        Object value = fieldMetadata.value(Value.of(phones));
-        assertThat(value).isNotNull().isInstanceOf(Map.class);
-    }
-
-    @Test
-    void shouldValueEntry() {
-        Entry entry = new ReflectionEntry("Ada", Value.of(12));
-        Object value = fieldMetadata.value(Value.of(entry));
-        assertThat(value).isNotNull().isInstanceOf(Map.class);
+    void shouldIsEmbedded() {
+        assertThat(fieldMetadata.isEmbeddable()).isTrue();
     }
 
     @Test
@@ -84,10 +77,5 @@ class DefaultMapFieldMetadataTest {
     @Test
     void shouldNewConverter() {
         assertThat(fieldMetadata.newConverter()).isNotNull().isEmpty();
-    }
-
-    @Test
-    void shouldIsEmbedded() {
-        assertThat(fieldMetadata.isEmbeddable()).isFalse();
     }
 }
