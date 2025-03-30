@@ -34,12 +34,16 @@ final class DefaultArrayFieldMetadata extends AbstractFieldMetadata implements A
 
     private static final TypeReference<List<Object>> TYPE_SUPPLIER = new TypeReference<>() {};
     private final Class<?> elementType;
+    private final boolean entityField;
+    private final boolean embeddableField;
 
     DefaultArrayFieldMetadata(MappingType type, Field field, String name, Class<?> elementType,
                               Class<? extends AttributeConverter<?, ?>> converter,
                               FieldReader reader, FieldWriter writer, String udt) {
         super(type, field, name, converter, reader, writer, udt);
         this.elementType = elementType;
+        this.entityField = hasFieldAnnotation(Entity.class);
+        this.embeddableField = hasFieldAnnotation(Embeddable.class);
     }
 
     @Override
@@ -85,11 +89,11 @@ final class DefaultArrayFieldMetadata extends AbstractFieldMetadata implements A
     }
 
     private boolean isEntityField() {
-        return hasFieldAnnotation(Entity.class);
+        return entityField;
     }
 
     private boolean isEmbeddableField() {
-        return hasFieldAnnotation(Embeddable.class);
+        return embeddableField;
     }
 
     private boolean hasFieldAnnotation(Class<? extends Annotation> annotation) {
