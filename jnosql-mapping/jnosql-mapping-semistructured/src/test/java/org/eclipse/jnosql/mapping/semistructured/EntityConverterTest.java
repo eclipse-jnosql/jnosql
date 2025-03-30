@@ -984,9 +984,15 @@ class EntityConverterTest {
             softly.assertThat(entity.name()).isEqualTo("Computer");
             softly.assertThat(entity.size()).isEqualTo(2);
             softly.assertThat(entity.find("_id").orElseThrow().get()).isEqualTo("Computer");
-            Element programs = entity.find("programs").orElseThrow();
-            Object map = programs.get();
-
+            var programs = entity.find("programs").orElseThrow();
+            var elements = programs.get(new TypeReference<List<Element>>() {});
+            softly.assertThat(elements).hasSize(1);
+            Element element = elements.get(0);
+            softly.assertThat(element.name()).isEqualTo("Renamer");
+            var subDocument = element.get(new TypeReference<List<Element>>() {});
+            softly.assertThat(subDocument).isNotNull().hasSize(2);
+            softly.assertThat(subDocument.get(0).name()).isEqualTo("_id");
+            softly.assertThat(subDocument.get(1).name()).isEqualTo("socialMedia");
         });
     }
 
