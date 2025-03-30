@@ -40,7 +40,7 @@ class ClassGraphClassScannerTest {
     void shouldReturnEntities() {
         Set<Class<?>> entities = classScanner.entities();
         Assertions.assertNotNull(entities);
-        assertThat(entities).hasSize(32)
+        assertThat(entities).hasSize(33)
                 .contains(Person.class);
     }
 
@@ -48,7 +48,7 @@ class ClassGraphClassScannerTest {
     void shouldReturnEmbeddables() {
         Set<Class<?>> embeddables = classScanner.embeddables();
         Assertions.assertNotNull(embeddables);
-        assertThat(embeddables).hasSize(4)
+        assertThat(embeddables).hasSize(5)
                 .contains(Job.class, Contact.class);
     }
 
