@@ -123,17 +123,15 @@ enum ParameterConverter {
 
     private static ParameterConverter collectionConverter(ParameterMetaData parameter, EntitiesMetadata entities) {
         var genericParameter = (CollectionParameterMetaData) parameter;
-        Class<?> type = genericParameter.elementType();
-        if (entities.findByClassName(type.getName()).isPresent()) {
+        if (genericParameter.isEmbeddable()) {
             return COLLECTION;
         }
         return DEFAULT;
     }
 
     private static ParameterConverter arrayConverter(ParameterMetaData parameter, EntitiesMetadata entities) {
-        var genericParameter = (ArrayParameterMetaData) parameter;
-        Class<?> type = genericParameter.elementType();
-        if (entities.findByClassName(type.getName()).isPresent()) {
+        var arrayParameterMetaData = (ArrayParameterMetaData) parameter;
+        if (arrayParameterMetaData.isEmbeddable()) {
             return ARRAY;
         }
         return DEFAULT;
