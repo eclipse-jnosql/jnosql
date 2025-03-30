@@ -201,7 +201,7 @@ public abstract class EntityConverter {
         final List<String> names = elements.stream().map(Element::name).sorted().toList();
         final Predicate<String> existField = k -> Collections.binarySearch(names, k) >= 0;
         final Predicate<String> isElementType = k -> {
-            MappingType type = fieldsGroupByName.get(k).mappingType();
+            var type = fieldsGroupByName.get(k).mappingType();
             return EMBEDDED.equals(type)|| EMBEDDED_GROUP.equals(type) || ENTITY.equals(type);
         };
         fieldsGroupByName.keySet().stream()

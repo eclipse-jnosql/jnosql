@@ -1012,7 +1012,7 @@ class EntityConverterTest {
 
         SoftAssertions.assertSoftly(softly->{
            softly.assertThat(entity).isNotNull();
-            softly.assertThat(entity.getName()).isEqualTo("Renamer");
+            softly.assertThat(entity.getName()).isEqualTo("Computer");
             softly.assertThat(entity.getPrograms()).isNotNull();
             softly.assertThat(entity.getPrograms()).hasSize(1);
             Program renamer = entity.getPrograms().get("Renamer");
