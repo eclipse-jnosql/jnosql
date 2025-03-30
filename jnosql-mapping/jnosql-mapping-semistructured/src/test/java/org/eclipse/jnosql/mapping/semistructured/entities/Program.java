@@ -23,6 +23,7 @@ import java.util.Objects;
 
 @Embeddable
 public class Program {
+
     @Id
     private String name;
 
@@ -46,6 +47,7 @@ public class Program {
     @Deprecated
     Program() {
     }
+
 
 
     @Override
