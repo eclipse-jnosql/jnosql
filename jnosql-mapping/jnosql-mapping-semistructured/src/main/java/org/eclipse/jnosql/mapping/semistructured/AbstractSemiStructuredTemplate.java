@@ -288,7 +288,7 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         requireNonNull(query, "query is required");
         Stream<CommunicationEntity> entities = manager().select(query);
         Function<CommunicationEntity, T> function = e -> converter().toEntity(e);
-        return entities.map(function).peek(eventManager()::firePostEntity);
+        return entities.map(function);
     }
 
     @Override
