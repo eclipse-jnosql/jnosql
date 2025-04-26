@@ -8,6 +8,11 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 == [Unreleased]
 
+=== Fixed
+
+- Removed the unnecessary method calling (`firePostEntity`) in the `AbstractSemiStructuredTemplate.executeQuery(SelectQuery)` method execution.
+- Fixed the `EventPersistManager.firePostEntity(T)` Javadoc
+
 === Added
 
 - Include support to ArrayReader
