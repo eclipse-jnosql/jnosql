@@ -50,9 +50,9 @@ public class EventPersistManager {
     }
 
     /**
-     * Fires an event before an entity is persisted.
+     * Fires an event after an entity is persisted.
      *
-     * @param entity the entity to be persisted
+     * @param entity the persisted entity
      * @param <T>    the type of the entity
      */
     public <T> void firePostEntity(T entity) {
