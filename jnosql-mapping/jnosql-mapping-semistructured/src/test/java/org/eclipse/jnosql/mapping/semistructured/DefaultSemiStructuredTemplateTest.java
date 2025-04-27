@@ -58,8 +58,7 @@ import static org.eclipse.jnosql.communication.semistructured.DeleteQuery.delete
 import static org.eclipse.jnosql.communication.semistructured.SelectQuery.select;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -259,6 +258,8 @@ class DefaultSemiStructuredTemplateTest {
         SelectQuery query = select().from("person").build();
         template.select(query);
         verify(managerMock).select(query);
+        verify(eventPersistManager, never()).firePostEntity(any(Person.class));
+        verify(eventPersistManager, never()).firePreEntity(any(Person.class));
     }
 
     @Test
@@ -266,6 +267,8 @@ class DefaultSemiStructuredTemplateTest {
         SelectQuery query = select().from("person").build();
         template.count(query);
         verify(managerMock).count(query);
+        verify(eventPersistManager, never()).firePostEntity(any(Person.class));
+        verify(eventPersistManager, never()).firePreEntity(any(Person.class));
     }
 
     @Test
@@ -273,6 +276,8 @@ class DefaultSemiStructuredTemplateTest {
         SelectQuery query = select().from("person").build();
         template.exists(query);
         verify(managerMock).exists(query);
+        verify(eventPersistManager, never()).firePostEntity(any(Person.class));
+        verify(eventPersistManager, never()).firePreEntity(any(Person.class));
     }
 
     @Test
@@ -288,6 +293,8 @@ class DefaultSemiStructuredTemplateTest {
 
         Optional<Person> result = template.singleResult(query);
         assertTrue(result.isPresent());
+        verify(eventPersistManager, never()).firePostEntity(any(Person.class));
+        verify(eventPersistManager, never()).firePreEntity(any(Person.class));
     }
 
     @Test
@@ -300,6 +307,8 @@ class DefaultSemiStructuredTemplateTest {
 
         Optional<Person> result = template.singleResult(query);
         assertFalse(result.isPresent());
+        verify(eventPersistManager, never()).firePostEntity(any(Person.class));
+        verify(eventPersistManager, never()).firePreEntity(any(Person.class));
     }
 
     @Test
@@ -313,6 +322,8 @@ class DefaultSemiStructuredTemplateTest {
 
         Optional<Person> result = template.singleResult("from Person");
         assertTrue(result.isPresent());
+        verify(eventPersistManager, never()).firePostEntity(any(Person.class));
+        verify(eventPersistManager, never()).firePreEntity(any(Person.class));
     }
 
     @Test
