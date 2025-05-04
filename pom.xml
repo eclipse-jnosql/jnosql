@@ -92,7 +92,7 @@
         <mockito.verson>5.16.1</mockito.verson>
         <assertj.version>3.27.3</assertj.version>
         <awaitility.version>4.3.0</awaitility.version>
-        <datafaker.version>2.4.2</datafaker.version>
+        <datafaker.version>2.4.3</datafaker.version>
         <pi-test.version>1.16.1</pi-test.version>
         <pitest-junit5-plugin.version>1.2.2</pitest-junit5-plugin.version>
         <apache.pdm.plugin.version>3.24.0</apache.pdm.plugin.version>
