@@ -8,6 +8,8 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 == [Unreleased]
 
+== [1.1.7] - 2025-05-08
+
 === Fixed
 
 - Removed the unnecessary method calling (`firePostEntity`) in the `AbstractSemiStructuredTemplate.executeQuery(SelectQuery)` method execution.
