@@ -732,15 +732,8 @@ public class RepositoryProxyPageRequestTest {
             soft.assertThat(query.name()).isEqualTo("Person");
             soft.assertThat(query.skip()).isEqualTo(0);
             soft.assertThat(query.limit()).isEqualTo(0);
-            soft.assertThat(query.condition().isPresent()).isTrue();
             soft.assertThat(query.sorts()).hasSize(0);
-            CriteriaCondition condition = query.condition().orElseThrow();
-            soft.assertThat(condition.condition()).isEqualTo(AND);
-            List<CriteriaCondition> conditions = condition.element().get(new TypeReference<>() {
-            });
-            soft.assertThat(conditions).hasSize(2);
-            soft.assertThat(conditions.get(0)).isEqualTo(CriteriaCondition.eq(Element.of("name", "name")));
-            soft.assertThat(conditions.get(1)).isEqualTo(CriteriaCondition.eq(Element.of("age", 10)));
+            soft.assertThat(query.condition()).isEmpty();
 
         });
     }
