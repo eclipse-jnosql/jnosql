@@ -716,6 +716,34 @@ public class RepositoryProxyPageRequestTest {
     }
 
 
+    @Test
+    public void shouldFindByCursor() {
+        when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
+                .of(Person.builder().build()));
+
+        PageRequest pageRequest = PageRequest.ofSize(10);
+        Order<Person> order = Order.by(Sort.asc("name"));
+        personRepository.findAll(pageRequest, order);
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).selectCursor(captor.capture(), Mockito.eq(pageRequest));
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(query.name()).isEqualTo("Person");
+            soft.assertThat(query.skip()).isEqualTo(0);
+            soft.assertThat(query.limit()).isEqualTo(0);
+            soft.assertThat(query.condition().isPresent()).isTrue();
+            soft.assertThat(query.sorts()).hasSize(0);
+            CriteriaCondition condition = query.condition().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(AND);
+            List<CriteriaCondition> conditions = condition.element().get(new TypeReference<>() {
+            });
+            soft.assertThat(conditions).hasSize(2);
+            soft.assertThat(conditions.get(0)).isEqualTo(CriteriaCondition.eq(Element.of("name", "name")));
+            soft.assertThat(conditions.get(1)).isEqualTo(CriteriaCondition.eq(Element.of("age", 10)));
+
+        });
+    }
 
     private PageRequest getPageRequest() {
         return PageRequest.ofPage(2).size(6);
