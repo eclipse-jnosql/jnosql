@@ -728,6 +728,11 @@ public class RepositoryProxyPageRequestTest {
         @Find
         List<Person> parameter(@By("name") String name, @By("age") Integer age);
 
+        @Find
+        CursoredPage<Person> findAll(PageRequest pageRequest, Order<Person> order);
+
+        @Find
+        CursoredPage<Person> findAll(PageRequest pageRequest, Sort<Person> order);
         CursoredPage<Person> findByNameOrderByName(String name, PageRequest pageRequest);
 
         @Find
