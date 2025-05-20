@@ -719,7 +719,7 @@ public class RepositoryProxyPageRequestTest {
 
 
     @Test
-    public void shouldFindByCursor() {
+    public void shouldFindByCursorByOrder() {
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
                 .of(Person.builder().build()));
 
@@ -735,6 +735,29 @@ public class RepositoryProxyPageRequestTest {
             soft.assertThat(query.skip()).isEqualTo(0);
             soft.assertThat(query.limit()).isEqualTo(10);
             soft.assertThat(query.sorts()).hasSize(1);
+            soft.assertThat(query.sorts()).contains(Sort.asc("name"));
+            soft.assertThat(query.condition()).isEmpty();
+
+        });
+    }
+
+    @Test
+    public void shouldFindByCursorBySort() {
+        when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
+                .of(Person.builder().build()));
+
+        PageRequest pageRequest = PageRequest.ofSize(10);
+        personRepository.findAll(pageRequest, Sort.asc("name"));
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).selectCursor(captor.capture(), Mockito.eq(pageRequest));
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(query.name()).isEqualTo("Person");
+            soft.assertThat(query.skip()).isEqualTo(0);
+            soft.assertThat(query.limit()).isEqualTo(10);
+            soft.assertThat(query.sorts()).hasSize(1);
+            soft.assertThat(query.sorts()).contains(Sort.asc("name"));
             soft.assertThat(query.condition()).isEmpty();
 
         });
@@ -756,6 +779,9 @@ public class RepositoryProxyPageRequestTest {
 
         @Find
         CursoredPage<Person> findAll(PageRequest pageRequest, Sort<Person> order);
+
+        @Find
+        Page<Person> pageAll(PageRequest pageRequest, Sort<Person> order);
         CursoredPage<Person> findByNameOrderByName(String name, PageRequest pageRequest);
 
         @Find
