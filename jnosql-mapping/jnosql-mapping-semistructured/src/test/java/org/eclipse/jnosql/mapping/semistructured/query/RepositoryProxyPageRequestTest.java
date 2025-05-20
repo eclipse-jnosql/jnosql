@@ -763,6 +763,28 @@ public class RepositoryProxyPageRequestTest {
         });
     }
 
+    @Test
+    public void shouldPage() {
+        when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
+                .of(Person.builder().build()));
+
+        PageRequest pageRequest = PageRequest.ofSize(10);
+        personRepository.pageAll(pageRequest, Sort.asc("name"));
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(query.name()).isEqualTo("Person");
+            soft.assertThat(query.skip()).isEqualTo(0);
+            soft.assertThat(query.limit()).isEqualTo(10);
+            soft.assertThat(query.sorts()).hasSize(1);
+            soft.assertThat(query.sorts()).contains(Sort.asc("name"));
+            soft.assertThat(query.condition()).isEmpty();
+
+        });
+    }
+
     private PageRequest getPageRequest() {
         return PageRequest.ofPage(2).size(6);
     }
