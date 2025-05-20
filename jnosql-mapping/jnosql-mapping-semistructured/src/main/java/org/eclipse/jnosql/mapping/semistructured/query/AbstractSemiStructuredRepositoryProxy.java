@@ -92,10 +92,11 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         } else {
             var parameters = RepositoryReflectionUtils.INSTANCE.getBy(method, params);
             var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(parameters, getSorts(method, entityMetadata()), entityMetadata());
+            var updateQuery = updateQueryDynamically(params, query);
             var special = DynamicReturn.findSpecialParameters(params, sortParser());
             var pageRequest = special.pageRequest()
                     .orElseThrow(() -> new IllegalArgumentException("Pageable is required in the method signature as parameter at " + method));
-            return this.template().selectCursor(query, pageRequest);
+            return this.template().selectCursor(updateQuery, pageRequest);
         }
     }
 
