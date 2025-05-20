@@ -231,14 +231,16 @@ public class RepositoryProxyPageRequestTest {
         Person ada = Person.builder()
                 .age(20).name("Ada").build();
 
-        when(template.findAll(Person.class))
-                .thenReturn(Stream.of(ada));
+        var cursor = Mockito.mock(CursoredPage.class);
+        when(cursor.content()).thenReturn(List.of(ada));
+        when(template.selectCursor(any(SelectQuery.class), any(PageRequest.class)))
+                .thenReturn(cursor);
 
         PageRequest pageRequest = getPageRequest();
 
-        List<Person> persons = personRepository.findAll(pageRequest, Order.by()).content();
+        List<Person> persons = personRepository.findAll(pageRequest, Order.by(Sort.asc("asd"))).content();
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
-        verify(template).select(captor.capture());
+        verify(template).selectCursor(captor.capture(), any(PageRequest.class));
         SelectQuery query = captor.getValue();
         assertFalse(query.condition().isPresent());
         assertEquals("Person", query.name());
@@ -674,7 +676,7 @@ public class RepositoryProxyPageRequestTest {
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(query.name()).isEqualTo("Person");
             soft.assertThat(query.skip()).isEqualTo(0);
-            soft.assertThat(query.limit()).isEqualTo(0);
+            soft.assertThat(query.limit()).isEqualTo(10);
             soft.assertThat(query.condition().isPresent()).isTrue();
             soft.assertThat(query.sorts()).hasSize(0);
             CriteriaCondition condition = query.condition().orElseThrow();
@@ -731,8 +733,8 @@ public class RepositoryProxyPageRequestTest {
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(query.name()).isEqualTo("Person");
             soft.assertThat(query.skip()).isEqualTo(0);
-            soft.assertThat(query.limit()).isEqualTo(0);
-            soft.assertThat(query.sorts()).hasSize(0);
+            soft.assertThat(query.limit()).isEqualTo(10);
+            soft.assertThat(query.sorts()).hasSize(1);
             soft.assertThat(query.condition()).isEmpty();
 
         });
