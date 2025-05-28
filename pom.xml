@@ -64,7 +64,7 @@
         <jakarta.enterprise.cdi.version>4.1.0</jakarta.enterprise.cdi.version>
         <jakarta.json.bind.version>3.0.1</jakarta.json.bind.version>
         <jakarta.json.version>2.1.3</jakarta.json.version>
-        <jakarta.data.api.version>1.0.1</jakarta.data.api.version>
+        <jakarta.data.api.version>1.1.0-SNAPSHOT</jakarta.data.api.version>
         <jakarta.nosql.version>1.0.0</jakarta.nosql.version>
         <jakarta.validation.version>3.1.1</jakarta.validation.version>
         <maven-javadoc-plugin.vesion>3.11.1</maven-javadoc-plugin.vesion>
@@ -82,11 +82,11 @@
         <weld.se.core.version>6.0.3.Final</weld.se.core.version>
         <yasson.version>3.0.4</yasson.version>
         <microprofile.config.version>3.1</microprofile.config.version>
-        <smallrye.config.version>3.12.4</smallrye.config.version>
+        <smallrye.config.version>3.13.0</smallrye.config.version>
 
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
-        <checkstyle.version>10.23.1</checkstyle.version>
+        <checkstyle.version>10.24.0</checkstyle.version>
         <!-- testing libraries -->
         <junit.version>5.12.1</junit.version>
         <mockito.verson>5.18.0</mockito.verson>

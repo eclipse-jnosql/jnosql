@@ -42,7 +42,7 @@
     </modules>
 
     <properties>
-        <weld.jupiter.version>5.0.0.Final</weld.jupiter.version>
+        <weld.jupiter.version>5.0.1.Final</weld.jupiter.version>
     </properties>
 
     <dependencies>
