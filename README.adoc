@@ -641,7 +641,7 @@ templates.
 
 == Building from Source
 
-You don’t need to build from source to use the project, but should you be interested in doing so, you can build it using Maven and Java 11 or higher.
+You don’t need to build from source to use the project, but should you be interested in doing so, you can build it using Maven and Java 21 or higher.
 
 [source, Bash]
 ----
