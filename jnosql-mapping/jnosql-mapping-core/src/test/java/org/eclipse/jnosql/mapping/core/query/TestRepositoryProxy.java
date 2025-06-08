@@ -76,4 +76,9 @@ public class TestRepositoryProxy extends AbstractRepositoryProxy<TestEntity, UUI
     protected Object executeParameterBased(Object instance, Method method, Object[] params) {
         return "executeParameterBased";
     }
+
+    @Override
+    protected Object executeRestriction(Object instance, Method method, Object[] params) {
+        return "executeRestriction";
+    }
 }
