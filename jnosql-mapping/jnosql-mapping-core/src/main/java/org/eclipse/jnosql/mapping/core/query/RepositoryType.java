@@ -112,7 +112,12 @@ public enum RepositoryType {
     /**
      * This method is defined by the return type of {@link jakarta.data.page.CursoredPage}
      */
-    CURSOR_PAGINATION("");
+    CURSOR_PAGINATION(""),
+
+    /**
+     * This method is defined by the return type of {@link jakarta.data.restrict.Restriction}
+     */
+    RESTRICTION("");
 
     private static final Predicate<Class<?>> IS_REPOSITORY_METHOD = Predicate.<Class<?>>isEqual(CrudRepository.class)
             .or(Predicate.isEqual(BasicRepository.class))
