@@ -213,6 +213,11 @@ class RepositoryTypeTest {
         Assertions.assertEquals(RepositoryType.CURSOR_PAGINATION, RepositoryType.of(getMethod(DevRepository.class, "findByNameOrderByName"), CrudRepository.class));
     }
 
+    @Test
+    void shouldFindRestriction() throws NoSuchMethodException {
+        Assertions.assertEquals(RepositoryType.RESTRICTION, RepositoryType.of(getMethod(DevRepository.class, "restriction"), CrudRepository.class));
+    }
+
     private Method getMethod(Class<?> repository, String methodName) throws NoSuchMethodException {
         return Stream.of(repository.getDeclaredMethods())
                 .filter(m -> m.getName().equals(methodName))
@@ -272,7 +277,7 @@ class RepositoryTypeTest {
         List<String> find2(String name);
         CursoredPage<String> findByNameOrderByName(String name, PageRequest pageable);
 
-        List<String> find(Restriction<String> filter);
+        List<String> restriction(Restriction<String> filter);
     }
 
     interface Calculate {
