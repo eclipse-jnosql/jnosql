@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.query;
 
+import jakarta.data.restrict.Restriction;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -88,6 +89,13 @@ class AbstractRepositoryProxyTest {
         Method method = TestRepository.class.getMethod("customMethod");
 
         assertThrows(UnsupportedOperationException.class, () -> proxy.invoke(proxy, method, new Object[]{}));
+    }
+
+    @Test
+    void shouldExecuteRestriction() throws Throwable {
+        Method method = TestRepository.class.getMethod("restriction", Restriction.class);
+        Object result = proxy.invoke(proxy, method, new Object[]{});
+        assertEquals("executeRestriction", result);
     }
 
 }
