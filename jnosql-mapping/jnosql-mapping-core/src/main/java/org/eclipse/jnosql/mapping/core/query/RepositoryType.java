@@ -24,11 +24,13 @@ import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Save;
 import jakarta.data.repository.Update;
+import jakarta.data.restrict.Restriction;
 import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
@@ -164,6 +166,9 @@ public enum RepositoryType {
         if (!repositoryType.equals(declaringClass) && isCustomRepository(declaringClass)) {
             return CUSTOM_REPOSITORY;
         }
+        if(isRestrictionQueryParameter(method)) {
+            return RESTRICTION;
+        }
         if (method.getReturnType().equals(CursoredPage.class)) {
             return CURSOR_PAGINATION;
         }
@@ -185,6 +190,16 @@ public enum RepositoryType {
                 .findFirst()
                 .orElseThrow(() -> new UnsupportedOperationException("The method " + method
                         + " is not supported. At the class " + declaringClass));
+    }
+
+    private static boolean isRestrictionQueryParameter(Method method) {
+        Class<?>[] parameters = method.getParameterTypes();
+        for (Class<?> parameter : parameters) {
+            if (parameter.isNestmateOf(Restriction.class)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isCustomRepository(Class<?> type) {
