@@ -30,7 +30,6 @@ import org.eclipse.jnosql.mapping.NoSQLRepository;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
