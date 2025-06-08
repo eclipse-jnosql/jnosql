@@ -26,6 +26,7 @@ import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Save;
 import jakarta.data.repository.Update;
+import jakarta.data.restrict.Restriction;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
@@ -271,6 +272,7 @@ class RepositoryTypeTest {
         List<String> find2(String name);
         CursoredPage<String> findByNameOrderByName(String name, PageRequest pageable);
 
+        List<String> find(Restriction<String> filter);
     }
 
     interface Calculate {
