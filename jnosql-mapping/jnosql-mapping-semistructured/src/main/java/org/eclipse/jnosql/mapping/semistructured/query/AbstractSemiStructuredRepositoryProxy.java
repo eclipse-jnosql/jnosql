@@ -139,6 +139,12 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         return executeFindByQuery(method, params, type, updateQueryDynamically(params, query));
     }
 
+    @Override
+    protected Object executeRestriction(Object instance, Method method, Object[] params) {
+        return null;
+    }
+
+
     private static List<Sort<?>> getSorts(Method method, EntityMetadata metadata) {
         return Stream.of(method.getAnnotationsByType(OrderBy.class))
                 .map(order -> {
