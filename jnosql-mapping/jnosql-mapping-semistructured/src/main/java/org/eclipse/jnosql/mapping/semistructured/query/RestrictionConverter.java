@@ -14,17 +14,31 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
+import jakarta.data.restrict.BasicRestriction;
+import jakarta.data.restrict.CompositeRestriction;
 import jakarta.data.restrict.Restriction;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 
 import java.util.Optional;
+import java.util.logging.Logger;
 
 enum RestrictionConverter {
     INSTANCE;
 
-    Optional<CriteriaCondition> parser(Restriction<?> restriction, EntityMetadata entityMetadata) {
+    private static final Logger LOGGER = Logger.getLogger(RestrictionConverter.class.getName());
 
+    Optional<CriteriaCondition> parser(Restriction<?> restriction, EntityMetadata entityMetadata) {
+        LOGGER.fine(() -> "Converter is invoked for restriction " + restriction);
+        switch (restriction){
+            case BasicRestriction<?, ?> basicRestriction -> {
+
+            }
+            case CompositeRestriction<?> compositeRestriction -> {
+
+            }
+            default -> throw new UnsupportedOperationException("Unsupported restriction type: " + restriction.getClass().getName());
+        }
         return Optional.empty();
     }
 }
