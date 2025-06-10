@@ -125,4 +125,35 @@ class RestrictionConverterTest {
             soft.assertThat(element.get()).isEqualTo(BigDecimal.TEN);
         });
     }
+
+
+    @Test
+    void shouldExecuteGreaterThan(){
+        Restriction<Product> greaterThan = _Product.price.greaterThan(BigDecimal.TEN);
+        var optional = RestrictionConverter.INSTANCE.parser(greaterThan, entityMetadata, converters);
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+
+            soft.assertThat(condition.condition()).isEqualTo(Condition.GREATER_THAN);
+            soft.assertThat(element.name()).isEqualTo(_Product.PRICE);
+            soft.assertThat(element.get()).isEqualTo(BigDecimal.TEN);
+        });
+    }
+
+    @Test
+    void shouldExecuteNotGreaterEQuals(){
+        Restriction<Product> greaterThanNegate = _Product.price.greaterThan(BigDecimal.TEN).negate();
+        var optional = RestrictionConverter.INSTANCE.parser(greaterThanNegate, entityMetadata, converters);
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.LESSER_EQUALS_THAN);
+            soft.assertThat(element.name()).isEqualTo(_Product.PRICE);
+            soft.assertThat(element.get()).isEqualTo(BigDecimal.TEN);
+        });
+    }
 }
