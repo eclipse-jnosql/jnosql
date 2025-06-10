@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.data.constraint.Constraint;
 import jakarta.data.constraint.EqualTo;
+import jakarta.data.constraint.NotEqualTo;
 import jakarta.data.expression.Expression;
 import jakarta.data.metamodel.BasicAttribute;
 import jakarta.data.restrict.BasicRestriction;
@@ -71,6 +72,13 @@ enum RestrictionConverter {
                 var value = getValue(basicAttribute, converters, literal, converter.orElse(null),
                         fieldMetadata.orElse(null));
                 return CriteriaCondition.eq(name, value);
+            }
+            case NotEqualTo<?> notEqualTo -> {
+                Expression<?, ?> expression = notEqualTo.expression();
+                var literal = getLiteral(expression);
+                var value = getValue(basicAttribute, converters, literal, converter.orElse(null),
+                        fieldMetadata.orElse(null));
+                return CriteriaCondition.eq(name, value).negate();
             }
             default -> throw new UnsupportedOperationException("Unexpected value: " + constraint);
         }
