@@ -14,11 +14,20 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
+import jakarta.data.constraint.Constraint;
+import jakarta.data.constraint.EqualTo;
+import jakarta.data.expression.Expression;
+import jakarta.data.metamodel.BasicAttribute;
 import jakarta.data.restrict.BasicRestriction;
 import jakarta.data.restrict.CompositeRestriction;
 import jakarta.data.restrict.Restriction;
+import jakarta.data.spi.expression.literal.Literal;
+import jakarta.nosql.AttributeConverter;
+import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
+import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -28,17 +37,62 @@ enum RestrictionConverter {
 
     private static final Logger LOGGER = Logger.getLogger(RestrictionConverter.class.getName());
 
-    Optional<CriteriaCondition> parser(Restriction<?> restriction, EntityMetadata entityMetadata) {
+    Optional<CriteriaCondition> parser(Restriction<?> restriction, EntityMetadata entityMetadata, Converters converters) {
         LOGGER.fine(() -> "Converter is invoked for restriction " + restriction);
+
+        CriteriaCondition criteriaCondition = null;
         switch (restriction){
             case BasicRestriction<?, ?> basicRestriction -> {
-
+                if (basicRestriction.expression() instanceof BasicAttribute<?, ?> basicAttribute) {
+                    Constraint<?> constraint = basicRestriction.constraint();
+                    criteriaCondition = condition(basicAttribute, constraint, entityMetadata, converters);
+                } else {
+                    throw  new UnsupportedOperationException("The expression " + basicRestriction.expression() + " is not supported");
+                }
             }
             case CompositeRestriction<?> compositeRestriction -> {
 
             }
             default -> throw new UnsupportedOperationException("Unsupported restriction type: " + restriction.getClass().getName());
         }
-        return Optional.empty();
+        return Optional.ofNullable(criteriaCondition);
+    }
+
+    private CriteriaCondition condition(BasicAttribute<?, ?> basicAttribute, Constraint<?> constraint,
+                                        EntityMetadata entityMetadata, Converters converters) {
+        var name = basicAttribute.name();
+        var fieldMetadata = entityMetadata.fieldMapping(name);
+        var converter = fieldMetadata.stream().flatMap(f -> f.converter().stream()).findFirst();
+
+        switch (constraint) {
+            case EqualTo<?> equalTo -> {
+                Expression<?, ?> expression = equalTo.expression();
+                var literal = getLiteral(expression);
+                var value = getValue(basicAttribute, converters, literal, converter.orElse(null),
+                        fieldMetadata.orElse(null));
+                return CriteriaCondition.eq(name, value);
+            }
+            default -> throw new UnsupportedOperationException("Unexpected value: " + constraint);
+        }
+
+    }
+
+    private Literal<?> getLiteral(Expression<?, ?> expression) {
+        if(expression instanceof Literal<?> literal) {
+            return literal;
+        } else {
+            throw new UnsupportedOperationException("Currently only Literal values are supported for EqualTo constraints, but got: " + expression);
+        }
+    }
+    private static Object getValue(BasicAttribute<?, ?> basicAttribute, Converters converters,
+                                   Literal<?> literal,
+                                   Class<AttributeConverter<Object, Object>> converter,
+                                   FieldMetadata fieldMetadata) {
+        if (converter != null) {
+            var attributeConverter = converters.get(fieldMetadata);
+            return attributeConverter.convertToDatabaseColumn(literal.value());
+        } else {
+            return Value.of(literal.value()).get(basicAttribute.attributeType());
+        }
     }
 }
