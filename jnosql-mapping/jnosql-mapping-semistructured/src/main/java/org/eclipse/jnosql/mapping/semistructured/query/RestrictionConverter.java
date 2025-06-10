@@ -71,71 +71,40 @@ enum RestrictionConverter {
 
         switch (constraint) {
             case EqualTo<?> equalTo -> {
-                Expression<?, ?> expression = equalTo.expression();
-                var literal = getLiteral(expression);
-                var value = getValue(basicAttribute, converters, literal, converter.orElse(null),
-                        fieldMetadata.orElse(null));
+                var value = ValueConverter.of(equalTo::expression, basicAttribute, converters,
+                        converter.orElse(null), fieldMetadata.orElse(null));
                 return CriteriaCondition.eq(name, value);
             }
             case NotEqualTo<?> notEqualTo -> {
-                Expression<?, ?> expression = notEqualTo.expression();
-                var literal = getLiteral(expression);
-                var value = getValue(basicAttribute, converters, literal, converter.orElse(null),
-                        fieldMetadata.orElse(null));
+                var value = ValueConverter.of(notEqualTo::expression, basicAttribute, converters,
+                        converter.orElse(null), fieldMetadata.orElse(null));
                 return CriteriaCondition.eq(name, value).negate();
             }
             case LessThan<?> lessThan -> {
-                Expression<?, ?> expression = lessThan.bound();
-                var literal = getLiteral(expression);
-                var value = getValue(basicAttribute, converters, literal, converter.orElse(null),
-                        fieldMetadata.orElse(null));
+                var value = ValueConverter.of(lessThan::bound, basicAttribute, converters,
+                        converter.orElse(null), fieldMetadata.orElse(null));
                 return CriteriaCondition.lt(name, value);
             }
 
             case GreaterThan<?> greaterThan -> {
-                Expression<?, ?> expression = greaterThan.bound();
-                var literal = getLiteral(expression);
-                var value = getValue(basicAttribute, converters, literal, converter.orElse(null),
-                        fieldMetadata.orElse(null));
+                var value = ValueConverter.of(greaterThan::bound, basicAttribute, converters,
+                        converter.orElse(null), fieldMetadata.orElse(null));
                 return CriteriaCondition.gt(name, value);
             }
 
             case GreaterThanOrEqual<?> greaterThanOrEqual -> {
-                Expression<?, ?> expression = greaterThanOrEqual.bound();
-                var literal = getLiteral(expression);
-                var value = getValue(basicAttribute, converters, literal, converter.orElse(null),
-                        fieldMetadata.orElse(null));
+                var value = ValueConverter.of(greaterThanOrEqual::bound, basicAttribute, converters,
+                        converter.orElse(null), fieldMetadata.orElse(null));
                 return CriteriaCondition.gte(name, value);
             }
 
             case LessThanOrEqual<?> lesserThanOrEqual -> {
-                Expression<?, ?> expression = lesserThanOrEqual.bound();
-                var literal = getLiteral(expression);
-                var value = getValue(basicAttribute, converters, literal, converter.orElse(null),
-                        fieldMetadata.orElse(null));
+                var value = ValueConverter.of(lesserThanOrEqual::bound, basicAttribute, converters,
+                        converter.orElse(null), fieldMetadata.orElse(null));
                 return CriteriaCondition.lte(name, value);
             }
             default -> throw new UnsupportedOperationException("Unexpected value: " + constraint);
         }
 
-    }
-
-    private Literal<?> getLiteral(Expression<?, ?> expression) {
-        if(expression instanceof Literal<?> literal) {
-            return literal;
-        } else {
-            throw new UnsupportedOperationException("Currently only Literal values are supported for EqualTo constraints, but got: " + expression);
-        }
-    }
-    private static Object getValue(BasicAttribute<?, ?> basicAttribute, Converters converters,
-                                   Literal<?> literal,
-                                   Class<AttributeConverter<Object, Object>> converter,
-                                   FieldMetadata fieldMetadata) {
-        if (converter != null) {
-            var attributeConverter = converters.get(fieldMetadata);
-            return attributeConverter.convertToDatabaseColumn(literal.value());
-        } else {
-            return Value.of(literal.value()).get(basicAttribute.attributeType());
-        }
     }
 }
