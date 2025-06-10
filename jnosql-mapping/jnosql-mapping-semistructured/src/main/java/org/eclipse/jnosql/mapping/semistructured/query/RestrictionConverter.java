@@ -113,7 +113,7 @@ enum RestrictionConverter {
                 var literal = getLiteral(expression);
                 var value = getValue(basicAttribute, converters, literal, converter.orElse(null),
                         fieldMetadata.orElse(null));
-                return CriteriaCondition.gte(name, value);
+                return CriteriaCondition.lte(name, value);
             }
             default -> throw new UnsupportedOperationException("Unexpected value: " + constraint);
         }
