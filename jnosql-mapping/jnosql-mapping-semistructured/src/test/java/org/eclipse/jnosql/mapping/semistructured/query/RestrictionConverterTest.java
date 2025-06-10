@@ -187,6 +187,36 @@ class RestrictionConverterTest {
         });
     }
 
+    @Test
+    void shouldExecuteLesserThanEquals(){
+        Restriction<Product> greaterThanEqual = _Product.price.lessThanEqual(BigDecimal.TEN);
+        var optional = RestrictionConverter.INSTANCE.parser(greaterThanEqual, entityMetadata, converters);
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+
+            soft.assertThat(condition.condition()).isEqualTo(Condition.LESSER_EQUALS_THAN);
+            soft.assertThat(element.name()).isEqualTo(_Product.PRICE);
+            soft.assertThat(element.get()).isEqualTo(BigDecimal.TEN);
+        });
+    }
+
+    @Test
+    void shouldExecuteNegateLesserThanEquals(){
+        Restriction<Product> greaterThanEqualNegate = _Product.price.lessThanEqual(BigDecimal.TEN).negate();
+        var optional = RestrictionConverter.INSTANCE.parser(greaterThanEqualNegate, entityMetadata, converters);
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.GREATER_THAN);
+            soft.assertThat(element.name()).isEqualTo(_Product.PRICE);
+            soft.assertThat(element.get()).isEqualTo(BigDecimal.TEN);
+        });
+    }
+
 
 
 }
