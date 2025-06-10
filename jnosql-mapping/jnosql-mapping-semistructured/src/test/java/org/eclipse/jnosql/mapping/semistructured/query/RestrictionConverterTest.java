@@ -47,6 +47,9 @@ class RestrictionConverterTest {
     @Inject
     private EntitiesMetadata entities;
 
+    @Inject
+    private Converters converters;
+
     private EntityMetadata entityMetadata;
 
     @BeforeEach
@@ -59,7 +62,7 @@ class RestrictionConverterTest {
     void shouldExecuteEqualsCondition() {
         Restriction<Product> equalTo = _Product.name.equalTo("Macbook Pro");
 
-        Optional<CriteriaCondition> optional = RestrictionConverter.INSTANCE.parser(equalTo, entityMetadata);
+        Optional<CriteriaCondition> optional = RestrictionConverter.INSTANCE.parser(equalTo, entityMetadata, converters);
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(optional).isPresent();
