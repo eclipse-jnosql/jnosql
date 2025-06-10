@@ -34,6 +34,7 @@ import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 
@@ -94,4 +95,34 @@ class RestrictionConverterTest {
         });
     }
 
+    @Test
+    void shouldExecuteLessThan(){
+        Restriction<Product> lessThan = _Product.price.lessThan(BigDecimal.TEN);
+        var optional = RestrictionConverter.INSTANCE.parser(lessThan, entityMetadata, converters);
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+
+            soft.assertThat(condition.condition()).isEqualTo(Condition.LESSER_THAN);
+            soft.assertThat(element.name()).isEqualTo(_Product.PRICE);
+            soft.assertThat(element.get()).isEqualTo(BigDecimal.TEN);
+        });
+    }
+
+    @Test
+    void shouldExecuteNotLessEQuals(){
+        Restriction<Product> lessThanNegate = _Product.price.lessThan(BigDecimal.TEN).negate();
+        var optional = RestrictionConverter.INSTANCE.parser(lessThanNegate, entityMetadata, converters);
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+
+            soft.assertThat(condition.condition()).isEqualTo(Condition.GREATER_EQUALS_THAN);
+            soft.assertThat(element.name()).isEqualTo(_Product.PRICE);
+            soft.assertThat(element.get()).isEqualTo(BigDecimal.TEN);
+        });
+    }
 }
