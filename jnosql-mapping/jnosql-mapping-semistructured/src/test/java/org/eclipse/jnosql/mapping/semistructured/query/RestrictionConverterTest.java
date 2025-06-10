@@ -159,8 +159,8 @@ class RestrictionConverterTest {
 
     @Test
     void shouldExecuteGreaterThanEquals(){
-        Restriction<Product> greaterThan = _Product.price.greaterThanEqual(BigDecimal.TEN);
-        var optional = RestrictionConverter.INSTANCE.parser(greaterThan, entityMetadata, converters);
+        Restriction<Product> greaterThanEqual = _Product.price.greaterThanEqual(BigDecimal.TEN);
+        var optional = RestrictionConverter.INSTANCE.parser(greaterThanEqual, entityMetadata, converters);
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(optional).isPresent();
@@ -175,8 +175,8 @@ class RestrictionConverterTest {
 
     @Test
     void shouldExecuteNegateGreaterThanEquals(){
-        Restriction<Product> greaterThanNegate = _Product.price.greaterThanEqual(BigDecimal.TEN).negate();
-        var optional = RestrictionConverter.INSTANCE.parser(greaterThanNegate, entityMetadata, converters);
+        Restriction<Product> greaterThanEqualNegate = _Product.price.greaterThanEqual(BigDecimal.TEN).negate();
+        var optional = RestrictionConverter.INSTANCE.parser(greaterThanEqualNegate, entityMetadata, converters);
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
@@ -186,4 +186,7 @@ class RestrictionConverterTest {
             soft.assertThat(element.get()).isEqualTo(BigDecimal.TEN);
         });
     }
+
+
+
 }
