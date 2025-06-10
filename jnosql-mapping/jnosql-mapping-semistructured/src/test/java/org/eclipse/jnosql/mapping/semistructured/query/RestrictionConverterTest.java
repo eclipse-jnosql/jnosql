@@ -75,4 +75,23 @@ class RestrictionConverterTest {
         });
     }
 
+    @Test
+    void shouldExecuteNotEqualsCondition() {
+        Restriction<Product> equalTo = _Product.name.equalTo("Macbook Pro").negate();
+
+        Optional<CriteriaCondition> optional = RestrictionConverter.INSTANCE.parser(equalTo, entityMetadata, converters);
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+            var equalsCondition = element.get(CriteriaCondition.class);
+            var equalsElement = equalsCondition.element();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
+            soft.assertThat(equalsCondition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(equalsElement.name()).isEqualTo(_Product.NAME);
+            soft.assertThat(equalsElement.get()).isEqualTo("Macbook Pro");
+        });
+    }
+
 }
