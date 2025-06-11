@@ -338,5 +338,24 @@ class RestrictionConverterTest {
         });
     }
 
+    @Test
+    void shouldExecuteNegateIn() {
+
+        Restriction<Product> in = _Product.name.in("Macbook Pro", "Macbook Air").negate();
+        var optional = RestrictionConverter.INSTANCE.parser(in, entityMetadata, converters);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+            var equalsCondition = element.get(CriteriaCondition.class);
+            var equalsElement = equalsCondition.element();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
+            soft.assertThat(equalsCondition.condition()).isEqualTo(Condition.IN);
+            soft.assertThat(equalsElement.name()).isEqualTo(_Product.NAME);
+            soft.assertThat(equalsElement.get()).isEqualTo(List.of("Macbook Pro", "Macbook Air"));
+        });
+    }
+
 
 }
