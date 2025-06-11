@@ -21,18 +21,13 @@ import jakarta.data.constraint.GreaterThanOrEqual;
 import jakarta.data.constraint.LessThan;
 import jakarta.data.constraint.LessThanOrEqual;
 import jakarta.data.constraint.NotEqualTo;
-import jakarta.data.expression.Expression;
 import jakarta.data.metamodel.BasicAttribute;
 import jakarta.data.restrict.BasicRestriction;
 import jakarta.data.restrict.CompositeRestriction;
 import jakarta.data.restrict.Restriction;
-import jakarta.data.spi.expression.literal.Literal;
-import jakarta.nosql.AttributeConverter;
-import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
-import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
 import java.util.Optional;
 import java.util.logging.Logger;
