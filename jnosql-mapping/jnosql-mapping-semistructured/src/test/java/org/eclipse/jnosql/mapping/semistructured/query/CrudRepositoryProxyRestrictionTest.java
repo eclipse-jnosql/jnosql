@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.data.Order;
 import jakarta.data.Sort;
+import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import jakarta.data.repository.CrudRepository;
@@ -234,6 +235,34 @@ class CrudRepositoryProxyRestrictionTest {
         });
     }
 
+    @SuppressWarnings("rawtypes")
+    @Test
+    void shouldHaveCursor() {
+
+        CursoredPage mock = Mockito.mock(CursoredPage.class);
+        when(mock.content()).thenReturn(List.of(new Product()));
+
+        when(template.selectCursor(any(SelectQuery.class), any(PageRequest.class))).thenReturn(mock);
+
+        CursoredPage<Product> cursor = repository.cursor(_Product.name.equalTo("Mac"), PageRequest.ofSize(10));
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).selectCursor(captor.capture(), Mockito.any(PageRequest.class));
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            softly.assertThat(cursor.content()).isNotEmpty().isNotNull();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+            softly.assertThat(query.sorts()).hasSize(1);
+            softly.assertThat(query.sorts()).contains( _Product.price.asc());
+        });
+    }
+
+
     public interface ProductRepository extends CrudRepository<Product, String> {
         List<Product> restriction(Restriction<Product> restriction);
         Page<Product> restriction(Restriction<Product> restriction, PageRequest pageRequest);
@@ -241,7 +270,10 @@ class CrudRepositoryProxyRestrictionTest {
         List<Product> restriction(Restriction<Product> restriction, Sort<Product> order);
         List<Product> restriction(Restriction<Product> restriction, Order<Product> order);
 
-        @OrderBy(_Product.PRICE)
+
         List<Product> restrictionOrderByPriceAsc(Restriction<Product> restriction);
+
+        @OrderBy(_Product.PRICE)
+        CursoredPage<Product> cursor(Restriction<Product> restriction, PageRequest pageRequest);
     }
 }
