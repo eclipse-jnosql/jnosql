@@ -19,6 +19,7 @@ import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
@@ -369,12 +370,19 @@ class RestrictionConverterTest {
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
             var element = condition.element();
-            var conditions = element.get(CriteriaCondition.class);
-            var equalsElement = conditions.element();
+            List<CriteriaCondition> conditions = element.get(new TypeReference<>() {});
+            soft.assertThat(conditions).isNotEmpty().hasSize(2);
+            CriteriaCondition equalsElement = conditions.get(0);
             soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
-            soft.assertThat(conditions.condition()).isEqualTo(Condition.EQUALS);
-            soft.assertThat(equalsElement.name()).isEqualTo(_Product.NAME);
-            soft.assertThat(equalsElement.get()).isEqualTo(null);
+            soft.assertThat(equalsElement.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(equalsElement.element().name()).isEqualTo(_Product.NAME);
+            soft.assertThat(equalsElement.element().get()).isEqualTo("Macbook Pro");
+
+            CriteriaCondition greaterThan = conditions.get(1);
+            soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
+            soft.assertThat(greaterThan.condition()).isEqualTo(Condition.GREATER_THAN);
+            soft.assertThat(greaterThan.element().name()).isEqualTo(_Product.PRICE);
+            soft.assertThat(greaterThan.element().get()).isEqualTo(BigDecimal.TEN);
         });
     }
 
