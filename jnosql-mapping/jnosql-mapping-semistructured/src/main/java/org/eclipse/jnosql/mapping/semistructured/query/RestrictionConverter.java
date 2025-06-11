@@ -64,14 +64,19 @@ enum RestrictionConverter {
                 }
             }
             case CompositeRestriction<?> compositeRestriction -> {
-                var conditions = compositeRestriction.restrictions().stream().map(r -> parser(r, entityMetadata, converters))
+                var negated = compositeRestriction.isNegated();
+                var conditions = compositeRestriction.restrictions()
+                        .stream()
+                        .filter(r -> r instanceof BasicRestriction<?, ?>)
+                        .map(r -> negated? r.negate(): r)
+                        .map(r -> parser(r, entityMetadata,
+                        converters))
                         .filter(Optional::isPresent)
                         .map(Optional::get)
                         .toArray(CriteriaCondition[]::new);
-                var negated = compositeRestriction.isNegated();
                 criteriaCondition = switch (compositeRestriction.type()) {
-                    case ALL -> negated ? and(conditions).negate(): and(conditions);
-                    case ANY -> negated ? or(conditions).negate(): or(conditions);
+                    case ALL -> negated ? or(conditions): and(conditions);
+                    case ANY -> negated ? and(conditions): or(conditions);
                 };
             }
             default -> throw new UnsupportedOperationException("Unsupported restriction type: " + restriction.getClass().getName());
