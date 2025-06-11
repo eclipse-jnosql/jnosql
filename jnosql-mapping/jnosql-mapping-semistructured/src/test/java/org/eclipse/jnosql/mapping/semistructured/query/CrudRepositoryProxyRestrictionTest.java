@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
+import jakarta.data.Order;
 import jakarta.data.Sort;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
@@ -163,8 +164,34 @@ class CrudRepositoryProxyRestrictionTest {
         });
     }
 
+    @Test
+    void shouldRestrictSort() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.restriction(_Product.name.equalTo("Mac"), _Product.name.asc());
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+            softly.assertThat(query.sorts()).hasSize(1);
+            softly.assertThat(query.sorts()).contains( _Product.name.asc());
+        });
+    }
+
     public interface ProductRepository extends CrudRepository<Product, String> {
         List<Product> restriction(Restriction<Product> restriction);
         Page<Product> restriction(Restriction<Product> restriction, PageRequest pageRequest);
+
+        List<Product> restriction(Restriction<Product> restriction, Sort<Product> order);
+        List<Product> restriction(Restriction<Product> restriction, Order<Product> order);
     }
 }
