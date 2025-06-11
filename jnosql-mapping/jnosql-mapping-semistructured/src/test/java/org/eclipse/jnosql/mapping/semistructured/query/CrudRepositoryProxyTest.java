@@ -20,6 +20,7 @@ import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import jakarta.data.Sort;
+import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
@@ -38,6 +39,7 @@ import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.entities.Address;
 import org.eclipse.jnosql.mapping.semistructured.entities.Person;
+import org.eclipse.jnosql.mapping.semistructured.entities.Product;
 import org.eclipse.jnosql.mapping.semistructured.entities.Vendor;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -305,7 +307,6 @@ class CrudRepositoryProxyTest {
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         assertThat(persons).contains(ada);
-
     }
 
     @Test
@@ -896,4 +897,5 @@ class CrudRepositoryProxyTest {
 
         List<Address> findByZipCodeZipOrderByZipCodeZip(String zip);
     }
+
 }
