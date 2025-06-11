@@ -15,7 +15,9 @@
 package org.eclipse.jnosql.mapping.semistructured.entities;
 
 import jakarta.nosql.Column;
+import jakarta.nosql.Convert;
 import jakarta.nosql.Entity;
+import org.eclipse.jnosql.mapping.semistructured.query.RestrictionConverter;
 
 import java.math.BigDecimal;
 
@@ -31,7 +33,9 @@ public class Product {
     @Column
     private ProductType type;
 
-
+    @Column
+    @Convert(MoneyConverter.class)
+    private Money amount;
 
     public enum ProductType {
         ELECTRONICS, CLOTHING, FOOD, FURNITURE
