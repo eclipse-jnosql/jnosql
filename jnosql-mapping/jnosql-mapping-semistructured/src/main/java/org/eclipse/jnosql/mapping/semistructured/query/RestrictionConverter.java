@@ -42,8 +42,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.*;
 import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.and;
+import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.between;
+import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.eq;
+import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.gt;
+import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.gte;
+import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.in;
+import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.like;
+import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.lt;
+import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.lte;
+import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.or;
 
 enum RestrictionConverter {
     INSTANCE;
