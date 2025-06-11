@@ -39,6 +39,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -53,12 +54,16 @@ import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.
 import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.lte;
 import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.or;
 
-enum RestrictionConverter {
+public enum RestrictionConverter {
     INSTANCE;
 
     private static final Logger LOGGER = Logger.getLogger(RestrictionConverter.class.getName());
 
-    Optional<CriteriaCondition> parser(Restriction<?> restriction, EntityMetadata entityMetadata, Converters converters) {
+    public Optional<CriteriaCondition> parser(Restriction<?> restriction, EntityMetadata entityMetadata, Converters converters) {
+        Objects.requireNonNull(restriction, "restriction is required");
+        Objects.requireNonNull(entityMetadata, "entityMetadata is required");
+        Objects.requireNonNull(converters, "converters is required");
+
         LOGGER.fine(() -> "Converter is invoked for restriction " + restriction);
 
         CriteriaCondition criteriaCondition;
