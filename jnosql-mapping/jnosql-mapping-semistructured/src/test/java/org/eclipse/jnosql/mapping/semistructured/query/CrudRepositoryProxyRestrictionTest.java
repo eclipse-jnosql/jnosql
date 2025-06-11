@@ -19,6 +19,7 @@ import jakarta.data.Sort;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import jakarta.data.repository.CrudRepository;
+import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import jakarta.data.restrict.Restriction;
@@ -186,6 +187,52 @@ class CrudRepositoryProxyRestrictionTest {
             softly.assertThat(query.sorts()).contains( _Product.name.asc());
         });
     }
+    @Test
+    void shouldRestrictOrder() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.restriction(_Product.name.equalTo("Mac"), Order.by(_Product.name.asc(), _Product.price.asc()));
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+            softly.assertThat(query.sorts()).hasSize(2);
+            softly.assertThat(query.sorts()).contains(_Product.name.asc(), _Product.price.asc());
+        });
+    }
+
+
+    @Test
+    void shouldRestrictSortByAnnotation() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.restrictionOrderByPriceAsc(_Product.name.equalTo("Mac"));
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+            softly.assertThat(query.sorts()).hasSize(1);
+            softly.assertThat(query.sorts()).contains( _Product.price.asc());
+        });
+    }
 
     public interface ProductRepository extends CrudRepository<Product, String> {
         List<Product> restriction(Restriction<Product> restriction);
@@ -193,5 +240,8 @@ class CrudRepositoryProxyRestrictionTest {
 
         List<Product> restriction(Restriction<Product> restriction, Sort<Product> order);
         List<Product> restriction(Restriction<Product> restriction, Order<Product> order);
+
+        @OrderBy(_Product.PRICE)
+        List<Product> restrictionOrderByPriceAsc(Restriction<Product> restriction);
     }
 }
