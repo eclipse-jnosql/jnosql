@@ -61,8 +61,7 @@ enum RestrictionConverter {
                 }
             }
             case CompositeRestriction<?> compositeRestriction -> {
-                var restrictions = compositeRestriction.restrictions();
-                var conditions = restrictions.stream().map(r -> parser(r, entityMetadata, converters))
+                var conditions = compositeRestriction.restrictions().stream().map(r -> parser(r, entityMetadata, converters))
                         .filter(Optional::isPresent)
                         .map(Optional::get)
                         .toArray(CriteriaCondition[]::new);
