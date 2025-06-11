@@ -152,7 +152,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         Class<?> type = entityMetadata().type();
         Optional<CriteriaCondition> condition = RestrictionConverter.INSTANCE.parser(restriction, entityMetadata(), converters());
         var query = updateQueryDynamically(params,
-                new MappingQuery(Collections.emptyList(), 0, 0, condition.orElse(null), entity));
+                new MappingQuery(getSorts(method, entityMetadata()), 0, 0, condition.orElse(null), entity));
 
         return executeFindByQuery(method, params, type, query);
     }
