@@ -399,15 +399,15 @@ class RestrictionConverterTest {
             var element = condition.element();
             List<CriteriaCondition> conditions = element.get(new TypeReference<>() {});
             soft.assertThat(conditions).isNotEmpty().hasSize(2);
-            CriteriaCondition equalsElement = conditions.get(0);
-            soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
+            CriteriaCondition equalsElement = conditions.get(0).element().get(CriteriaCondition.class);
+            soft.assertThat(condition.condition()).isEqualTo(Condition.OR);
             soft.assertThat(equalsElement.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(equalsElement.element().name()).isEqualTo(_Product.NAME);
             soft.assertThat(equalsElement.element().get()).isEqualTo("Macbook Pro");
 
             CriteriaCondition greaterThan = conditions.get(1);
-            soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
-            soft.assertThat(greaterThan.condition()).isEqualTo(Condition.GREATER_THAN);
+            soft.assertThat(condition.condition()).isEqualTo(Condition.OR);
+            soft.assertThat(greaterThan.condition()).isEqualTo(Condition.LESSER_EQUALS_THAN);
             soft.assertThat(greaterThan.element().name()).isEqualTo(_Product.PRICE);
             soft.assertThat(greaterThan.element().get()).isEqualTo(BigDecimal.TEN);
         });
