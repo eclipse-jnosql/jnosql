@@ -18,16 +18,21 @@ import jakarta.data.Sort;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Query;
+import jakarta.data.restrict.Restriction;
+import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.QueryType;
 import org.eclipse.jnosql.mapping.core.repository.DynamicQueryMethodReturn;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -141,7 +146,26 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
 
     @Override
     protected Object executeRestriction(Object instance, Method method, Object[] params) {
-        return null;
+        LOGGER.finest("Executing restriction on method: " + method);
+        Restriction<?> restriction = restriction(params);
+        var entity = entityMetadata().name();
+        Class<?> type = entityMetadata().type();
+        Optional<CriteriaCondition> condition = RestrictionConverter.INSTANCE.parser(restriction, entityMetadata(), converters());
+        var query = updateQueryDynamically(params,
+                new MappingQuery(Collections.emptyList(), 0, 0, condition.orElse(null), entity));
+
+        return executeFindByQuery(method, params, type, query);
+    }
+
+    private Restriction<?> restriction(Object[] params) {
+        if (params.length == 0) {
+            throw new IllegalArgumentException("The method must have at least one parameter for restriction");
+        }
+        if (params[0] instanceof Restriction<?> restriction) {
+            return restriction;
+        } else {
+            throw new IllegalArgumentException("The first parameter must be a Restriction, but was: " + params[0].getClass().getName());
+        }
     }
 
 
