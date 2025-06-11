@@ -35,7 +35,7 @@ public interface _Product {
     TextAttribute<Product> name = TextAttribute.of(Product.class, NAME);
     NumericAttribute<Product, BigDecimal> price = NumericAttribute.of(Product.class, PRICE, java.math.BigDecimal.class);
     BasicAttribute<Product, Product.ProductType> type = BasicAttribute.of(Product.class, TYPE, Product.ProductType.class);
-    BasicAttribute<Product, Product.ProductType> amount = BasicAttribute.of(Product.class, TYPE, Money.class);
+    BasicAttribute<Product, Money> amount = BasicAttribute.of(Product.class, AMOUNT, Money.class);
 
 }
 //CHECKSTYLE:ON

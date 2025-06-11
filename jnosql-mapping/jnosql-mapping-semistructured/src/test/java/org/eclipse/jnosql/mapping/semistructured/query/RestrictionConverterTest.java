@@ -28,6 +28,7 @@ import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
+import org.eclipse.jnosql.mapping.semistructured.entities.Money;
 import org.eclipse.jnosql.mapping.semistructured.entities.Product;
 import org.eclipse.jnosql.mapping.semistructured.entities._Product;
 import org.jboss.weld.junit5.auto.AddExtensions;
@@ -465,6 +466,24 @@ class RestrictionConverterTest {
             soft.assertThat(greaterThan.condition()).isEqualTo(Condition.LESSER_EQUALS_THAN);
             soft.assertThat(greaterThan.element().name()).isEqualTo(_Product.PRICE);
             soft.assertThat(greaterThan.element().get()).isEqualTo(BigDecimal.TEN);
+        });
+    }
+
+    @Test
+    void shouldExecuteEqualsConditionWithConverter() {
+        Restriction<Product> equalTo = _Product.amount.equalTo(new Money("USD", BigDecimal.valueOf(100)));
+
+        Optional<CriteriaCondition> optional = RestrictionConverter.INSTANCE.parser(equalTo, entityMetadata, converters);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(element.name()).isEqualTo(_Product.AMOUNT);
+            soft.assertThat(element.get()).isInstanceOf(String.class);
+            soft.assertThat(element.get()).isEqualTo("USD 100");
         });
     }
 
