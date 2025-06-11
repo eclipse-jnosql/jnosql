@@ -66,7 +66,7 @@ class RestrictionConverterTest {
 
         Optional<CriteriaCondition> optional = RestrictionConverter.INSTANCE.parser(equalTo, entityMetadata, converters);
 
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
             var element = condition.element();
@@ -83,7 +83,7 @@ class RestrictionConverterTest {
 
         Optional<CriteriaCondition> optional = RestrictionConverter.INSTANCE.parser(equalTo, entityMetadata, converters);
 
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
             var element = condition.element();
@@ -97,11 +97,11 @@ class RestrictionConverterTest {
     }
 
     @Test
-    void shouldExecuteLessThan(){
+    void shouldExecuteLessThan() {
         Restriction<Product> lessThan = _Product.price.lessThan(BigDecimal.TEN);
         var optional = RestrictionConverter.INSTANCE.parser(lessThan, entityMetadata, converters);
 
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
             var element = condition.element();
@@ -113,10 +113,10 @@ class RestrictionConverterTest {
     }
 
     @Test
-    void shouldExecuteNotLessEQuals(){
+    void shouldExecuteNotLessEQuals() {
         Restriction<Product> lessThanNegate = _Product.price.lessThan(BigDecimal.TEN).negate();
         var optional = RestrictionConverter.INSTANCE.parser(lessThanNegate, entityMetadata, converters);
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
             var element = condition.element();
@@ -129,11 +129,11 @@ class RestrictionConverterTest {
 
 
     @Test
-    void shouldExecuteGreaterThan(){
+    void shouldExecuteGreaterThan() {
         Restriction<Product> greaterThan = _Product.price.greaterThan(BigDecimal.TEN);
         var optional = RestrictionConverter.INSTANCE.parser(greaterThan, entityMetadata, converters);
 
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
             var element = condition.element();
@@ -145,10 +145,10 @@ class RestrictionConverterTest {
     }
 
     @Test
-    void shouldExecuteNotGreaterEQuals(){
+    void shouldExecuteNotGreaterEQuals() {
         Restriction<Product> greaterThanNegate = _Product.price.greaterThan(BigDecimal.TEN).negate();
         var optional = RestrictionConverter.INSTANCE.parser(greaterThanNegate, entityMetadata, converters);
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
             var element = condition.element();
@@ -159,11 +159,11 @@ class RestrictionConverterTest {
     }
 
     @Test
-    void shouldExecuteGreaterThanEquals(){
+    void shouldExecuteGreaterThanEquals() {
         Restriction<Product> greaterThanEqual = _Product.price.greaterThanEqual(BigDecimal.TEN);
         var optional = RestrictionConverter.INSTANCE.parser(greaterThanEqual, entityMetadata, converters);
 
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
             var element = condition.element();
@@ -175,10 +175,10 @@ class RestrictionConverterTest {
     }
 
     @Test
-    void shouldExecuteNegateGreaterThanEquals(){
+    void shouldExecuteNegateGreaterThanEquals() {
         Restriction<Product> greaterThanEqualNegate = _Product.price.greaterThanEqual(BigDecimal.TEN).negate();
         var optional = RestrictionConverter.INSTANCE.parser(greaterThanEqualNegate, entityMetadata, converters);
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
             var element = condition.element();
@@ -189,11 +189,11 @@ class RestrictionConverterTest {
     }
 
     @Test
-    void shouldExecuteLesserThanEquals(){
+    void shouldExecuteLesserThanEquals() {
         Restriction<Product> greaterThanEqual = _Product.price.lessThanEqual(BigDecimal.TEN);
         var optional = RestrictionConverter.INSTANCE.parser(greaterThanEqual, entityMetadata, converters);
 
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
             var element = condition.element();
@@ -205,10 +205,10 @@ class RestrictionConverterTest {
     }
 
     @Test
-    void shouldExecuteNegateLesserThanEquals(){
+    void shouldExecuteNegateLesserThanEquals() {
         Restriction<Product> greaterThanEqualNegate = _Product.price.lessThanEqual(BigDecimal.TEN).negate();
         var optional = RestrictionConverter.INSTANCE.parser(greaterThanEqualNegate, entityMetadata, converters);
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
             var element = condition.element();
@@ -219,11 +219,11 @@ class RestrictionConverterTest {
     }
 
     @Test
-    void shouldExecuteBetween(){
+    void shouldExecuteBetween() {
         Restriction<Product> between = _Product.price.between(BigDecimal.ZERO, BigDecimal.TEN);
         var optional = RestrictionConverter.INSTANCE.parser(between, entityMetadata, converters);
 
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
             var element = condition.element();
@@ -235,11 +235,11 @@ class RestrictionConverterTest {
     }
 
     @Test
-    void shouldExecuteNegateBetween(){
+    void shouldExecuteNegateBetween() {
         Restriction<Product> between = _Product.price.between(BigDecimal.ZERO, BigDecimal.TEN).negate();
         var optional = RestrictionConverter.INSTANCE.parser(between, entityMetadata, converters);
 
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
             var element = condition.element();
@@ -254,11 +254,11 @@ class RestrictionConverterTest {
 
 
     @Test
-    void shouldExecuteLike(){
+    void shouldExecuteLike() {
         Restriction<Product> like = _Product.name.like("Macbook%");
         var optional = RestrictionConverter.INSTANCE.parser(like, entityMetadata, converters);
 
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
             var element = condition.element();
@@ -270,11 +270,11 @@ class RestrictionConverterTest {
     }
 
     @Test
-    void shouldExecuteNegateLike(){
+    void shouldExecuteNegateLike() {
         Restriction<Product> like = _Product.name.like("Macbook%").negate();
         var optional = RestrictionConverter.INSTANCE.parser(like, entityMetadata, converters);
 
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
             var condition = optional.orElseThrow();
             var element = condition.element();
@@ -284,6 +284,41 @@ class RestrictionConverterTest {
             soft.assertThat(equalsCondition.condition()).isEqualTo(Condition.LIKE);
             soft.assertThat(equalsElement.name()).isEqualTo(_Product.NAME);
             soft.assertThat(equalsElement.get()).isEqualTo("Macbook%");
+        });
+    }
+
+    @Test
+    void shouldExecuteNull() {
+        Restriction<Product> like = _Product.name.isNull();
+        var optional = RestrictionConverter.INSTANCE.parser(like, entityMetadata, converters);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(element.name()).isEqualTo(_Product.NAME);
+            soft.assertThat(element.get()).isEqualTo(null);
+        });
+    }
+
+    @Test
+    void shouldExecuteNegateNull() {
+
+        Restriction<Product> like = _Product.name.isNull().negate();
+        var optional = RestrictionConverter.INSTANCE.parser(like, entityMetadata, converters);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+            var equalsCondition = element.get(CriteriaCondition.class);
+            var equalsElement = equalsCondition.element();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
+            soft.assertThat(equalsCondition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(equalsElement.name()).isEqualTo(_Product.NAME);
+            soft.assertThat(equalsElement.get()).isEqualTo(null);
         });
     }
 
