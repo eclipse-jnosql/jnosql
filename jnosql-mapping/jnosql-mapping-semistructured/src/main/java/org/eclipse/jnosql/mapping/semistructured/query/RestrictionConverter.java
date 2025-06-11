@@ -42,6 +42,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.*;
+import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.and;
+
 enum RestrictionConverter {
     INSTANCE;
 
@@ -65,10 +68,11 @@ enum RestrictionConverter {
                         .filter(Optional::isPresent)
                         .map(Optional::get)
                         .toArray(CriteriaCondition[]::new);
-                switch (compositeRestriction.type()) {
-                    case ALL -> criteriaCondition = CriteriaCondition.and(conditions);
-                    case ANY -> criteriaCondition = CriteriaCondition.or(conditions);
-                }
+                var negated = compositeRestriction.isNegated();
+                criteriaCondition = switch (compositeRestriction.type()) {
+                    case ALL -> negated ? and(conditions).negate(): and(conditions);
+                    case ANY -> negated ? or(conditions).negate(): or(conditions);
+                };
             }
             default -> throw new UnsupportedOperationException("Unsupported restriction type: " + restriction.getClass().getName());
         }
@@ -85,35 +89,35 @@ enum RestrictionConverter {
             case EqualTo<?> equalTo -> {
                 var value = ValueConverter.of(equalTo::expression, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return CriteriaCondition.eq(name, value);
+                return eq(name, value);
             }
             case NotEqualTo<?> notEqualTo -> {
                 var value = ValueConverter.of(notEqualTo::expression, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return CriteriaCondition.eq(name, value).negate();
+                return eq(name, value).negate();
             }
             case LessThan<?> lessThan -> {
                 var value = ValueConverter.of(lessThan::bound, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return CriteriaCondition.lt(name, value);
+                return lt(name, value);
             }
 
             case GreaterThan<?> greaterThan -> {
                 var value = ValueConverter.of(greaterThan::bound, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return CriteriaCondition.gt(name, value);
+                return gt(name, value);
             }
 
             case GreaterThanOrEqual<?> greaterThanOrEqual -> {
                 var value = ValueConverter.of(greaterThanOrEqual::bound, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return CriteriaCondition.gte(name, value);
+                return gte(name, value);
             }
 
             case LessThanOrEqual<?> lesserThanOrEqual -> {
                 var value = ValueConverter.of(lesserThanOrEqual::bound, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return CriteriaCondition.lte(name, value);
+                return lte(name, value);
             }
 
             case Between<?> between -> {
@@ -121,7 +125,7 @@ enum RestrictionConverter {
                         converter.orElse(null), fieldMetadata.orElse(null));
                 var upperBound = ValueConverter.of(between::upperBound, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return CriteriaCondition.between(name, List.of(lowerBound, upperBound));
+                return between(name, List.of(lowerBound, upperBound));
             }
 
             case NotBetween<?> between -> {
@@ -129,39 +133,39 @@ enum RestrictionConverter {
                         converter.orElse(null), fieldMetadata.orElse(null));
                 var upperBound = ValueConverter.of(between::upperBound, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return CriteriaCondition.between(name, List.of(lowerBound, upperBound)).negate();
+                return between(name, List.of(lowerBound, upperBound)).negate();
             }
 
             case Like like -> {
                 var value = ValueConverter.of(like::pattern, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return CriteriaCondition.like(name, value);
+                return like(name, value);
             }
 
             case NotLike like -> {
                 var value = ValueConverter.of(like::pattern, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return CriteriaCondition.like(name, value).negate();
+                return like(name, value).negate();
             }
 
             case Null<?> isNull -> {
-                return CriteriaCondition.eq(name, Value.ofNull());
+                return eq(name, Value.ofNull());
             }
 
             case NotNull<?> isNull -> {
-                return CriteriaCondition.eq(name, Value.ofNull()).negate();
+                return eq(name, Value.ofNull()).negate();
             }
 
             case In<?> in -> {
                 var values = in.expressions().stream().map( expression -> ValueConverter.of(() -> expression, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null))).toList();
-                return CriteriaCondition.in(name, values);
+                return in(name, values);
             }
 
             case NotIn<?> in -> {
                 var values = in.expressions().stream().map( expression -> ValueConverter.of(() -> expression, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null))).toList();
-                return CriteriaCondition.in(name, values).negate();
+                return in(name, values).negate();
             }
 
             default -> throw new UnsupportedOperationException("Unexpected value: " + constraint);
