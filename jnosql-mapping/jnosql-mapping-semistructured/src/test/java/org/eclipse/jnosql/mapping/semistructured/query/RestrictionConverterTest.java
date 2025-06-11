@@ -255,8 +255,8 @@ class RestrictionConverterTest {
 
     @Test
     void shouldExecuteLike(){
-        Restriction<Product> between = _Product.name.like("Macbook%");
-        var optional = RestrictionConverter.INSTANCE.parser(between, entityMetadata, converters);
+        Restriction<Product> like = _Product.name.like("Macbook%");
+        var optional = RestrictionConverter.INSTANCE.parser(like, entityMetadata, converters);
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(optional).isPresent();
@@ -269,6 +269,23 @@ class RestrictionConverterTest {
         });
     }
 
+    @Test
+    void shouldExecuteNegateLike(){
+        Restriction<Product> like = _Product.name.like("Macbook%").negate();
+        var optional = RestrictionConverter.INSTANCE.parser(like, entityMetadata, converters);
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+            var equalsCondition = element.get(CriteriaCondition.class);
+            var equalsElement = equalsCondition.element();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
+            soft.assertThat(equalsCondition.condition()).isEqualTo(Condition.LIKE);
+            soft.assertThat(equalsElement.name()).isEqualTo(_Product.NAME);
+            soft.assertThat(equalsElement.get()).isEqualTo("Macbook%");
+        });
+    }
 
 
 }
