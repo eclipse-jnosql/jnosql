@@ -14,12 +14,14 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
+import jakarta.data.constraint.Between;
 import jakarta.data.constraint.Constraint;
 import jakarta.data.constraint.EqualTo;
 import jakarta.data.constraint.GreaterThan;
 import jakarta.data.constraint.GreaterThanOrEqual;
 import jakarta.data.constraint.LessThan;
 import jakarta.data.constraint.LessThanOrEqual;
+import jakarta.data.constraint.NotBetween;
 import jakarta.data.constraint.NotEqualTo;
 import jakarta.data.metamodel.BasicAttribute;
 import jakarta.data.restrict.BasicRestriction;
@@ -29,6 +31,7 @@ import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -98,6 +101,23 @@ enum RestrictionConverter {
                         converter.orElse(null), fieldMetadata.orElse(null));
                 return CriteriaCondition.lte(name, value);
             }
+
+            case Between<?> between -> {
+                var lowerBound = ValueConverter.of(between::lowerBound, basicAttribute, converters,
+                        converter.orElse(null), fieldMetadata.orElse(null));
+                var upperBound = ValueConverter.of(between::upperBound, basicAttribute, converters,
+                        converter.orElse(null), fieldMetadata.orElse(null));
+                return CriteriaCondition.between(name, List.of(lowerBound, upperBound));
+            }
+
+            case NotBetween<?> between -> {
+                var lowerBound = ValueConverter.of(between::lowerBound, basicAttribute, converters,
+                        converter.orElse(null), fieldMetadata.orElse(null));
+                var upperBound = ValueConverter.of(between::upperBound, basicAttribute, converters,
+                        converter.orElse(null), fieldMetadata.orElse(null));
+                return CriteriaCondition.between(name, List.of(lowerBound, upperBound)).negate();
+            }
+
             default -> throw new UnsupportedOperationException("Unexpected value: " + constraint);
         }
 
