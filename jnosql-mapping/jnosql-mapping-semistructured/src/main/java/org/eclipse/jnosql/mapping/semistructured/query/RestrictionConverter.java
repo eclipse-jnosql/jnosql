@@ -21,8 +21,10 @@ import jakarta.data.constraint.GreaterThan;
 import jakarta.data.constraint.GreaterThanOrEqual;
 import jakarta.data.constraint.LessThan;
 import jakarta.data.constraint.LessThanOrEqual;
+import jakarta.data.constraint.Like;
 import jakarta.data.constraint.NotBetween;
 import jakarta.data.constraint.NotEqualTo;
+import jakarta.data.constraint.NotLike;
 import jakarta.data.metamodel.BasicAttribute;
 import jakarta.data.restrict.BasicRestriction;
 import jakarta.data.restrict.CompositeRestriction;
@@ -117,6 +119,19 @@ enum RestrictionConverter {
                         converter.orElse(null), fieldMetadata.orElse(null));
                 return CriteriaCondition.between(name, List.of(lowerBound, upperBound)).negate();
             }
+
+            case Like like -> {
+                var value = ValueConverter.of(like::pattern, basicAttribute, converters,
+                        converter.orElse(null), fieldMetadata.orElse(null));
+                return CriteriaCondition.like(name, value);
+            }
+
+            case NotLike like -> {
+                var value = ValueConverter.of(like::pattern, basicAttribute, converters,
+                        converter.orElse(null), fieldMetadata.orElse(null));
+                return CriteriaCondition.like(name, value).negate();
+            }
+
 
             default -> throw new UnsupportedOperationException("Unexpected value: " + constraint);
         }
