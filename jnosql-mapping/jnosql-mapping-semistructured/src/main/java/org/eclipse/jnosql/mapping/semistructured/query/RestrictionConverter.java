@@ -19,11 +19,13 @@ import jakarta.data.constraint.Constraint;
 import jakarta.data.constraint.EqualTo;
 import jakarta.data.constraint.GreaterThan;
 import jakarta.data.constraint.GreaterThanOrEqual;
+import jakarta.data.constraint.In;
 import jakarta.data.constraint.LessThan;
 import jakarta.data.constraint.LessThanOrEqual;
 import jakarta.data.constraint.Like;
 import jakarta.data.constraint.NotBetween;
 import jakarta.data.constraint.NotEqualTo;
+import jakarta.data.constraint.NotIn;
 import jakarta.data.constraint.NotLike;
 import jakarta.data.constraint.NotNull;
 import jakarta.data.constraint.Null;
@@ -143,6 +145,17 @@ enum RestrictionConverter {
                 return CriteriaCondition.eq(name, Value.ofNull()).negate();
             }
 
+            case In<?> in -> {
+                var values = in.expressions().stream().map( expression -> ValueConverter.of(() -> expression, basicAttribute, converters,
+                        converter.orElse(null), fieldMetadata.orElse(null))).toList();
+                return CriteriaCondition.in(name, values);
+            }
+
+            case NotIn<?> in -> {
+                var values = in.expressions().stream().map( expression -> ValueConverter.of(() -> expression, basicAttribute, converters,
+                        converter.orElse(null), fieldMetadata.orElse(null))).toList();
+                return CriteriaCondition.in(name, values).negate();
+            }
 
             default -> throw new UnsupportedOperationException("Unexpected value: " + constraint);
         }
