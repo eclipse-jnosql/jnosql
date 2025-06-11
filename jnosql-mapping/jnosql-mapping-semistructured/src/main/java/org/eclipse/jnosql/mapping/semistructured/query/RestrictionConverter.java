@@ -25,10 +25,13 @@ import jakarta.data.constraint.Like;
 import jakarta.data.constraint.NotBetween;
 import jakarta.data.constraint.NotEqualTo;
 import jakarta.data.constraint.NotLike;
+import jakarta.data.constraint.NotNull;
+import jakarta.data.constraint.Null;
 import jakarta.data.metamodel.BasicAttribute;
 import jakarta.data.restrict.BasicRestriction;
 import jakarta.data.restrict.CompositeRestriction;
 import jakarta.data.restrict.Restriction;
+import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
@@ -130,6 +133,14 @@ enum RestrictionConverter {
                 var value = ValueConverter.of(like::pattern, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
                 return CriteriaCondition.like(name, value).negate();
+            }
+
+            case Null<?> isNull -> {
+                return CriteriaCondition.eq(name, Value.ofNull());
+            }
+
+            case NotNull<?> isNull -> {
+                return CriteriaCondition.eq(name, Value.ofNull()).negate();
             }
 
 
