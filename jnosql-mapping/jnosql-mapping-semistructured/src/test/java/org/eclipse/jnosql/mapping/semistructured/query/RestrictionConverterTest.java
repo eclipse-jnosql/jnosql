@@ -289,8 +289,8 @@ class RestrictionConverterTest {
 
     @Test
     void shouldExecuteNull() {
-        Restriction<Product> like = _Product.name.isNull();
-        var optional = RestrictionConverter.INSTANCE.parser(like, entityMetadata, converters);
+        Restriction<Product> nullRestriction = _Product.name.isNull();
+        var optional = RestrictionConverter.INSTANCE.parser(nullRestriction, entityMetadata, converters);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
@@ -306,8 +306,8 @@ class RestrictionConverterTest {
     @Test
     void shouldExecuteNegateNull() {
 
-        Restriction<Product> like = _Product.name.isNull().negate();
-        var optional = RestrictionConverter.INSTANCE.parser(like, entityMetadata, converters);
+        Restriction<Product> nullRestriction = _Product.name.isNull().negate();
+        var optional = RestrictionConverter.INSTANCE.parser(nullRestriction, entityMetadata, converters);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(optional).isPresent();
@@ -319,6 +319,22 @@ class RestrictionConverterTest {
             soft.assertThat(equalsCondition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(equalsElement.name()).isEqualTo(_Product.NAME);
             soft.assertThat(equalsElement.get()).isEqualTo(null);
+        });
+    }
+
+    @Test
+    void shouldExecuteIn() {
+        Restriction<Product> in = _Product.name.in("Macbook Pro", "Macbook Air");
+        var optional = RestrictionConverter.INSTANCE.parser(in, entityMetadata, converters);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+
+            soft.assertThat(condition.condition()).isEqualTo(Condition.IN);
+            soft.assertThat(element.name()).isEqualTo(_Product.NAME);
+            soft.assertThat(element.get()).isEqualTo(List.of("Macbook Pro", "Macbook Air"));
         });
     }
 
