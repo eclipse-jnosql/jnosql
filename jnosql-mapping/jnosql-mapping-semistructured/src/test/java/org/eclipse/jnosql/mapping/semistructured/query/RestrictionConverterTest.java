@@ -253,4 +253,22 @@ class RestrictionConverterTest {
     }
 
 
+    @Test
+    void shouldExecuteLike(){
+        Restriction<Product> between = _Product.name.like("Macbook%");
+        var optional = RestrictionConverter.INSTANCE.parser(between, entityMetadata, converters);
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+
+            soft.assertThat(condition.condition()).isEqualTo(Condition.LIKE);
+            soft.assertThat(element.name()).isEqualTo(_Product.NAME);
+            soft.assertThat(element.get()).isEqualTo("Macbook%");
+        });
+    }
+
+
+
 }
