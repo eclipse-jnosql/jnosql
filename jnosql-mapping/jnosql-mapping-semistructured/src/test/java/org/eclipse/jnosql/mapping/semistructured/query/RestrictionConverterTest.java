@@ -234,5 +234,23 @@ class RestrictionConverterTest {
         });
     }
 
+    @Test
+    void shouldExecuteNegateBetween(){
+        Restriction<Product> between = _Product.price.between(BigDecimal.ZERO, BigDecimal.TEN).negate();
+        var optional = RestrictionConverter.INSTANCE.parser(between, entityMetadata, converters);
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+            var equalsCondition = element.get(CriteriaCondition.class);
+            var equalsElement = equalsCondition.element();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
+            soft.assertThat(equalsCondition.condition()).isEqualTo(Condition.BETWEEN);
+            soft.assertThat(equalsElement.name()).isEqualTo(_Product.PRICE);
+            soft.assertThat(equalsElement.get()).isEqualTo(List.of(BigDecimal.ZERO, BigDecimal.TEN));
+        });
+    }
+
 
 }
