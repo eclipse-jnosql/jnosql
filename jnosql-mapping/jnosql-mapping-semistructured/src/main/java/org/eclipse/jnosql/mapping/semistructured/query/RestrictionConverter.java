@@ -54,11 +54,36 @@ import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.
 import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.lte;
 import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.or;
 
+
+/**
+ * Converts a {@link jakarta.data.restrict.Restriction} into its internal representation
+ * for query construction.
+ * <p>
+ * This utility is used internally by the query engine to transform domain-specific
+ * constraints into a format suitable for building executable queries.
+ * </p>
+ *
+ *
+ * @see jakarta.data.restrict.Restriction
+ */
 public enum RestrictionConverter {
     INSTANCE;
 
     private static final Logger LOGGER = Logger.getLogger(RestrictionConverter.class.getName());
 
+    /**
+     * Parses a {@link jakarta.data.restrict.Restriction} and attempts to convert it
+     * into a {@link CriteriaCondition} based on the provided entity metadata and value converters.
+     *
+     * <p>This method is used internally to bridge the constraint API and the query
+     * execution engine.</p>
+     *
+     * @param restriction     the user-defined query restriction
+     * @param entityMetadata  metadata about the entity being queried, used to resolve attributes
+     * @param converters      converters for translating Java types to query-native formats
+     * @return an {@code Optional<CriteriaCondition>} if conversion is possible; otherwise, an empty Optional
+     * @throws NullPointerException if any of the arguments are {@code null}
+     */
     public Optional<CriteriaCondition> parser(Restriction<?> restriction, EntityMetadata entityMetadata, Converters converters) {
         Objects.requireNonNull(restriction, "restriction is required");
         Objects.requireNonNull(entityMetadata, "entityMetadata is required");
