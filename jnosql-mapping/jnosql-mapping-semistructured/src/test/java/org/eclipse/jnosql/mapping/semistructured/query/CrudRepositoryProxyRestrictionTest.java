@@ -140,7 +140,31 @@ class CrudRepositoryProxyRestrictionTest {
         });
     }
 
+    @Test
+    void shouldRestrictPage() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        Page<Product> products = repository.restriction(_Product.name.equalTo("Mac"), PageRequest.ofSize(2));
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+            softly.assertThat(products.pageRequest()).isEqualTo(PageRequest.ofSize(2));
+            softly.assertThat(products.nextPageRequest()).isEqualTo(PageRequest.ofSize(2).page(2));
+        });
+    }
+
     public interface ProductRepository extends CrudRepository<Product, String> {
         List<Product> restriction(Restriction<Product> restriction);
+        Page<Product> restriction(Restriction<Product> restriction, PageRequest pageRequest);
     }
 }
