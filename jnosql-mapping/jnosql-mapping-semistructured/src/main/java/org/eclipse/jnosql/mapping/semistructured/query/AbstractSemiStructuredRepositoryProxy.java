@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.data.Sort;
+import jakarta.data.page.CursoredPage;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Query;
@@ -153,8 +154,11 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         Optional<CriteriaCondition> condition = RestrictionConverter.INSTANCE.parser(restriction, entityMetadata(), converters());
         var query = updateQueryDynamically(params,
                 new MappingQuery(getSorts(method, entityMetadata()), 0, 0, condition.orElse(null), entity));
-
-        return executeFindByQuery(method, params, type, query);
+        if (method.getReturnType().isAssignableFrom(CursoredPage.class)) {
+            return this.template().selectCursor(query, DynamicReturn.findPageRequest(params));
+        } else {
+            return executeFindByQuery(method, params, type, query);
+        }
     }
 
     private Restriction<?> restriction(Object[] params) {
