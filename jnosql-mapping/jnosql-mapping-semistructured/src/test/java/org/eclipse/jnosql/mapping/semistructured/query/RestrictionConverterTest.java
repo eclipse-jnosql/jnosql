@@ -35,6 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -217,6 +218,21 @@ class RestrictionConverterTest {
         });
     }
 
+    @Test
+    void shouldExecuteBetween(){
+        Restriction<Product> between = _Product.price.between(BigDecimal.ZERO, BigDecimal.TEN);
+        var optional = RestrictionConverter.INSTANCE.parser(between, entityMetadata, converters);
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+
+            soft.assertThat(condition.condition()).isEqualTo(Condition.BETWEEN);
+            soft.assertThat(element.name()).isEqualTo(_Product.PRICE);
+            soft.assertThat(element.get()).isEqualTo(List.of(BigDecimal.ZERO, BigDecimal.TEN));
+        });
+    }
 
 
 }
