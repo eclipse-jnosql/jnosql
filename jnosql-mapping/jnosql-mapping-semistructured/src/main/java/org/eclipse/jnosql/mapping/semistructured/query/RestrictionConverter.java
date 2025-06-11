@@ -61,14 +61,14 @@ enum RestrictionConverter {
     Optional<CriteriaCondition> parser(Restriction<?> restriction, EntityMetadata entityMetadata, Converters converters) {
         LOGGER.fine(() -> "Converter is invoked for restriction " + restriction);
 
-        CriteriaCondition criteriaCondition = null;
-        switch (restriction){
+        CriteriaCondition criteriaCondition;
+        switch (restriction) {
             case BasicRestriction<?, ?> basicRestriction -> {
                 if (basicRestriction.expression() instanceof BasicAttribute<?, ?> basicAttribute) {
                     Constraint<?> constraint = basicRestriction.constraint();
                     criteriaCondition = condition(basicAttribute, constraint, entityMetadata, converters);
                 } else {
-                    throw  new UnsupportedOperationException("The expression " + basicRestriction.expression() + " is not supported");
+                    throw new UnsupportedOperationException("The expression " + basicRestriction.expression() + " is not supported");
                 }
             }
             case CompositeRestriction<?> compositeRestriction -> {
@@ -76,18 +76,19 @@ enum RestrictionConverter {
                 var conditions = compositeRestriction.restrictions()
                         .stream()
                         .filter(r -> r instanceof BasicRestriction<?, ?>)
-                        .map(r -> negated? r.negate(): r)
+                        .map(r -> negated ? r.negate() : r)
                         .map(r -> parser(r, entityMetadata,
-                        converters))
+                                converters))
                         .filter(Optional::isPresent)
                         .map(Optional::get)
                         .toArray(CriteriaCondition[]::new);
                 criteriaCondition = switch (compositeRestriction.type()) {
-                    case ALL -> negated ? or(conditions): and(conditions);
-                    case ANY -> negated ? and(conditions): or(conditions);
+                    case ALL -> negated ? or(conditions) : and(conditions);
+                    case ANY -> negated ? and(conditions) : or(conditions);
                 };
             }
-            default -> throw new UnsupportedOperationException("Unsupported restriction type: " + restriction.getClass().getName());
+            default ->
+                    throw new UnsupportedOperationException("Unsupported restriction type: " + restriction.getClass().getName());
         }
         return Optional.ofNullable(criteriaCondition);
     }
@@ -170,13 +171,13 @@ enum RestrictionConverter {
             }
 
             case In<?> in -> {
-                var values = in.expressions().stream().map( expression -> ValueConverter.of(() -> expression, basicAttribute, converters,
+                var values = in.expressions().stream().map(expression -> ValueConverter.of(() -> expression, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null))).toList();
                 return in(name, values);
             }
 
             case NotIn<?> in -> {
-                var values = in.expressions().stream().map( expression -> ValueConverter.of(() -> expression, basicAttribute, converters,
+                var values = in.expressions().stream().map(expression -> ValueConverter.of(() -> expression, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null))).toList();
                 return in(name, values).negate();
             }
