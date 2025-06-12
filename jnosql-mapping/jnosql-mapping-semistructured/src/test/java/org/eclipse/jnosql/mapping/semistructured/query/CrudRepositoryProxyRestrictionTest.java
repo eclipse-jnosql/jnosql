@@ -270,7 +270,7 @@ class CrudRepositoryProxyRestrictionTest {
         List<Product> restriction(Restriction<Product> restriction, Sort<Product> order);
         List<Product> restriction(Restriction<Product> restriction, Order<Product> order);
 
-
+        @OrderBy(_Product.PRICE)
         List<Product> restrictionOrderByPriceAsc(Restriction<Product> restriction);
 
         @OrderBy(_Product.PRICE)
