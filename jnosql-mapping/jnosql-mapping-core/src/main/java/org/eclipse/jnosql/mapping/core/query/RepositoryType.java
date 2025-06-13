@@ -80,10 +80,6 @@ public enum RepositoryType {
      */
     CUSTOM_REPOSITORY(""),
     /**
-     * Method that has {@link jakarta.data.repository.OrderBy} annotation
-     */
-    ORDER_BY(""),
-    /**
      * Method that has {@link Query} annotation
      */
     QUERY("", Query.class),
