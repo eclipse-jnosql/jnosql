@@ -23,6 +23,7 @@ import jakarta.data.restrict.Restriction;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.QueryType;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.repository.DynamicQueryMethodReturn;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
@@ -30,6 +31,7 @@ import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -67,7 +69,20 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
                 .pageRequest(pageRequest)
                 .prepareConverter(textQuery -> {
                     var prepare = (org.eclipse.jnosql.mapping.semistructured.PreparedStatement) template().prepare(textQuery, entity);
-                    prepare.setSelectMapper(query -> updateQueryDynamically(params, query));
+                    List<Sort<?>> sortsFromAnnotation = getSorts(method, entityMetadata());
+                    if (!sortsFromAnnotation.isEmpty()) {
+                        prepare.setSelectMapper(query -> updateQueryDynamically(params, query));
+                    } else {
+                        prepare.setSelectMapper(query -> {
+                            var selectQuery = updateQueryDynamically(params, query);
+                            List<Sort<?>> sorts = new ArrayList<>(sortsFromAnnotation);
+                            sorts.addAll(selectQuery.sorts());
+                            return new MappingQuery(sorts, selectQuery.limit(), selectQuery.skip(),
+                                    selectQuery.condition().orElse(null)
+                                    , entity);
+                        });
+                    }
+
                     return prepare;
                 }).build();
         return methodReturn.execute();
