@@ -19,6 +19,7 @@ import jakarta.data.Limit;
 import jakarta.data.Sort;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import jakarta.data.restrict.Restriction;
 import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.query.method.DeleteMethodProvider;
 import org.eclipse.jnosql.communication.query.method.SelectMethodProvider;
@@ -26,6 +27,7 @@ import org.eclipse.jnosql.communication.semistructured.CommunicationObserverPars
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DeleteQueryParser;
 import org.eclipse.jnosql.communication.semistructured.Element;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.communication.semistructured.SelectQueryParser;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
@@ -196,11 +198,18 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
 
     protected org.eclipse.jnosql.communication.semistructured.SelectQuery updateQueryDynamically(Object[] args,
                                                                                                  org.eclipse.jnosql.communication.semistructured.SelectQuery query) {
-        var selectQuery = includeInheritance(query);
+        var selectInheritance = includeInheritance(query);
         var special = DynamicReturn.findSpecialParameters(args, sortParser());
 
         if (special.isEmpty()) {
-            return selectQuery;
+            return selectInheritance;
+        }
+
+        final SelectQuery selectQuery;
+        if(special.restriction().isPresent()){
+            selectQuery = includeRestrictCondition(special, selectInheritance);
+        } else{
+            selectQuery = selectInheritance;
         }
 
         Optional<Limit> limit = special.limit();
@@ -237,6 +246,25 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
             return new MappingQuery(sorts, size, skip,
                     selectQuery.condition().orElse(null), selectQuery.name());
         }).orElse(selectQuery);
+    }
+
+    private SelectQuery includeRestrictCondition(SpecialParameters special, SelectQuery selectQuery) {
+        Restriction<?> restriction = special.restriction().orElseThrow();
+
+        CriteriaCondition conditionConverted = RestrictionConverter.INSTANCE.parser(restriction,
+                entityMetadata(), converters()).orElse(null);
+        if (conditionConverted != null) {
+            var conditionOptional = selectQuery.condition();
+            if (conditionOptional.isPresent()) {
+                CriteriaCondition condition = conditionOptional.orElseThrow();
+                selectQuery = new MappingQuery(selectQuery.sorts(), selectQuery.limit(),
+                        selectQuery.skip(), condition.and(conditionConverted), selectQuery.name());
+            } else {
+                selectQuery = new MappingQuery(selectQuery.sorts(), selectQuery.limit(),
+                        selectQuery.skip(), conditionConverted, selectQuery.name());
+            }
+        }
+        return selectQuery;
     }
 
     protected Function<String, String> sortParser() {
