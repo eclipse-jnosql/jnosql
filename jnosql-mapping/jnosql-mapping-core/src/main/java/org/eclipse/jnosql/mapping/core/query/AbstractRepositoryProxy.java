@@ -180,8 +180,6 @@ public abstract class AbstractRepositoryProxy<T, K> implements InvocationHandler
             case DEFAULT_METHOD -> {
                 return unwrapInvocationTargetException(() -> InvocationHandler.invokeDefault(instance, method, params));
             }
-            case ORDER_BY ->
-                    throw new MappingException("Eclipse JNoSQL has not support for method that has OrderBy annotation");
             case QUERY -> {
                 return unwrapInvocationTargetException(() ->  executeQuery(instance, method, params));
             }
