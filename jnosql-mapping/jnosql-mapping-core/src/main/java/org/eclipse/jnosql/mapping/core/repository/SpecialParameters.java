@@ -93,7 +93,7 @@ public final class SpecialParameters {
      * @return true if only have {@link PageRequest}
      */
     public boolean hasOnlySort() {
-        return pageRequest == null && !sorts.isEmpty();
+        return pageRequest == null && !sorts.isEmpty() && restriction == null && limit == null;
     }
 
     /**
