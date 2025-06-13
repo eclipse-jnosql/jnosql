@@ -495,14 +495,14 @@ class RepositoryProxyTest {
 
     @Test
     void shouldGotOrderException() {
-        Assertions.assertThrows(MappingException.class, () ->
-                personRepository.findBy());
+        Assertions.assertThrows(UnsupportedOperationException.class, () ->
+                personRepository.invalid());
     }
 
     @Test
     void shouldGotOrderException2() {
-        Assertions.assertThrows(MappingException.class, () ->
-                personRepository.findByException());
+        Assertions.assertThrows(UnsupportedOperationException.class, () ->
+                personRepository.invalid2());
     }
 
 
@@ -1062,11 +1062,11 @@ class RepositoryProxyTest {
         boolean existsByName(String name);
 
         @OrderBy("name")
-        List<Person> findBy();
+        List<Person> invalid();
 
         @OrderBy("name")
         @OrderBy("age")
-        List<Person> findByException();
+        List<Person> invalid2();
 
         @OrderBy("id")
         @Find
