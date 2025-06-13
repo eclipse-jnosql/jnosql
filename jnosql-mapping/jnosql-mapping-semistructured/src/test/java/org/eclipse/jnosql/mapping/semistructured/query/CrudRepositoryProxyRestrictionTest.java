@@ -270,7 +270,7 @@ class CrudRepositoryProxyRestrictionTest {
         when(template.select(any(SelectQuery.class)))
                 .thenReturn(Stream.of(new Product()));
 
-        List<Product> products = repository.findAll("Mac", _Product.price.equalTo(BigDecimal.TEN));
+        List<Product> products = repository.findAll("Mac", _Product.price.greaterThan(BigDecimal.TEN));
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
@@ -281,7 +281,15 @@ class CrudRepositoryProxyRestrictionTest {
             CriteriaCondition condition = query.condition().orElseThrow();
             softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
             softly.assertThat(condition.condition()).isEqualTo(AND);
-            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+            List<CriteriaCondition> conditions = condition.element().get(new TypeReference<>() {
+            });
+            softly.assertThat(conditions).hasSize(2);
+            CriteriaCondition equals = conditions.get(0);
+            CriteriaCondition greaterThan = conditions.get(1);
+            softly.assertThat(equals.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+            softly.assertThat(greaterThan.element()).isEqualTo(Element.of(_Product.PRICE,BigDecimal.TEN));
+            softly.assertThat(equals.condition()).isEqualTo(EQUALS);
+            softly.assertThat(greaterThan.condition()).isEqualTo(GREATER_THAN);
             softly.assertThat(products).hasSize(1);
         });
     }
