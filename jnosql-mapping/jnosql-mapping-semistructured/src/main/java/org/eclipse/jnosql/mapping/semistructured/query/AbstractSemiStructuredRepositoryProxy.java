@@ -82,7 +82,6 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
                                     , entity);
                         });
                     }
-
                     return prepare;
                 }).build();
         return methodReturn.execute();
