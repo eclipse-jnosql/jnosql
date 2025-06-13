@@ -206,7 +206,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         }
 
         final SelectQuery selectQuery;
-        if(special.restriction().isPresent()){
+        if(special.isRestrictionValid(args)){
             selectQuery = includeRestrictCondition(special, selectInheritance);
         } else{
             selectQuery = selectInheritance;
