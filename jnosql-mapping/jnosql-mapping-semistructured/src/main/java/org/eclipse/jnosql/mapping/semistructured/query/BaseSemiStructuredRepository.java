@@ -229,7 +229,10 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         if (limit.isPresent()) {
             long skip = limit.map(l -> l.startAt() - 1).orElse(selectQuery.skip());
             long max = limit.map(Limit::maxResults).orElse((int) selectQuery.limit());
-            return new MappingQuery(selectQuery.sorts(), max,
+            final List<Sort<?>> sorts = new ArrayList<>();
+            sorts.addAll(selectQuery.sorts());
+            sorts.addAll(special.sorts());
+            return new MappingQuery(sorts, max,
                     skip,
                     selectQuery.condition().orElse(null),
                     selectQuery.name());
@@ -245,7 +248,15 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
             }
             return new MappingQuery(sorts, size, skip,
                     selectQuery.condition().orElse(null), selectQuery.name());
-        }).orElse(selectQuery);
+        }).orElseGet(() -> {
+            if (!special.sorts().isEmpty()) {
+                List<Sort<?>> sorts = new ArrayList<>(selectQuery.sorts());
+                sorts.addAll(special.sorts());
+                return new MappingQuery(sorts, selectQuery.limit(), selectQuery.skip(),
+                        selectQuery.condition().orElse(null), selectQuery.name());
+            }
+           return selectQuery;
+        });
     }
 
     private SelectQuery includeRestrictCondition(SpecialParameters special, SelectQuery selectQuery) {
