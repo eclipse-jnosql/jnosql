@@ -294,6 +294,17 @@ class CrudRepositoryProxyRestrictionTest {
         });
     }
 
+    @Test
+    void shouldShouldCombineRestrictionWithQuery() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+        when(template.prepare(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class));
+        List<Product> products = repository.query("Mac", _Product.price.greaterThan(BigDecimal.TEN));
+
+    }
+
 
     public interface ProductRepository extends CrudRepository<Product, String> {
         List<Product> restriction(Restriction<Product> restriction);
@@ -312,5 +323,7 @@ class CrudRepositoryProxyRestrictionTest {
         @Find
         List<Product> findAll(@By("name") String name, Restriction<Product> restriction);
 
+        @Query("where name = :name")
+        List<Product> query(@Param("name") String name, Restriction<Product> restriction);
     }
 }
