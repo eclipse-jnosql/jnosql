@@ -21,6 +21,7 @@ import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.OrderBy;
+import jakarta.data.restrict.Restrict;
 import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
@@ -167,7 +168,6 @@ class CustomRepositoryHandlerRestrictionTest {
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
-
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(query.name()).isEqualTo("Product");
             softly.assertThat(query.condition()).isPresent();
