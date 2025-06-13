@@ -19,7 +19,9 @@ import jakarta.data.Sort;
 import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import jakarta.data.repository.By;
 import jakarta.data.repository.CrudRepository;
+import jakarta.data.repository.Find;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
@@ -262,6 +264,28 @@ class CrudRepositoryProxyRestrictionTest {
         });
     }
 
+    @Test
+    void shouldShouldCombineRestrictionWithFind() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        List<Product> products = repository.findAll("Mac", _Product.name.equalTo("Mac"));
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+            softly.assertThat(products).hasSize(1);
+        });
+    }
+
 
     public interface ProductRepository extends CrudRepository<Product, String> {
         List<Product> restriction(Restriction<Product> restriction);
@@ -275,5 +299,10 @@ class CrudRepositoryProxyRestrictionTest {
 
         @OrderBy(_Product.PRICE)
         CursoredPage<Product> cursor(Restriction<Product> restriction, PageRequest pageRequest);
+
+
+        @Find
+        List<Product> findAll(@By("name") String name, Restriction<Product> restriction);
+
     }
 }
