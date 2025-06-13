@@ -19,6 +19,7 @@ import jakarta.data.Limit;
 import jakarta.data.Order;
 import jakarta.data.page.PageRequest;
 import jakarta.data.Sort;
+import jakarta.data.restrict.Restriction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,17 +34,20 @@ import java.util.function.Function;
  * to apply pagination and sorting to your queries dynamically.
  */
 public final class SpecialParameters {
-    static final SpecialParameters EMPTY = new SpecialParameters(null, null, Collections.emptyList());
+    static final SpecialParameters EMPTY = new SpecialParameters(null, null, Collections.emptyList(), null);
 
     private final PageRequest pageRequest;
 
     private final List<Sort<?>> sorts;
     private final Limit limit;
 
-    private SpecialParameters(PageRequest pageRequest, Limit limit, List<Sort<?>> sorts) {
+    private final Restriction<?> restriction;
+
+    private SpecialParameters(PageRequest pageRequest, Limit limit, List<Sort<?>> sorts, Restriction<?> restriction) {
         this.pageRequest = pageRequest;
         this.sorts = sorts;
         this.limit = limit;
+        this.restriction = restriction;
     }
 
     /**
@@ -101,28 +105,37 @@ public final class SpecialParameters {
         return Optional.ofNullable(limit);
     }
 
+    /**
+     * Returns the Restriction instance or {@link Optional#empty()}
+     *
+     * @return the Restriction instance or {@link Optional#empty()}
+     */
+    public Optional<Restriction<?>> restriction() {
+        return Optional.ofNullable(restriction);
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (o == null || getClass() != o.getClass()) return false;
         SpecialParameters that = (SpecialParameters) o;
-        return Objects.equals(pageRequest, that.pageRequest) && Objects.equals(sorts, that.sorts);
+        return Objects.equals(pageRequest, that.pageRequest)
+                && Objects.equals(sorts, that.sorts)
+                && Objects.equals(limit, that.limit)
+                && Objects.equals(restriction, that.restriction);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(pageRequest, sorts);
+        return Objects.hash(pageRequest, sorts, limit, restriction);
     }
 
     @Override
     public String toString() {
         return "SpecialParameters{" +
-                "PageRequest=" + pageRequest +
+                "pageRequest=" + pageRequest +
                 ", sorts=" + sorts +
+                ", limit=" + limit +
+                ", restriction=" + restriction +
                 '}';
     }
 
@@ -130,6 +143,7 @@ public final class SpecialParameters {
         List<Sort<?>> sorts = new ArrayList<>();
         PageRequest pageRequest = null;
         Limit limit = null;
+        Restriction<?> restriction = null;
         for (Object parameter : parameters) {
             if (parameter instanceof Sort<?> sort) {
                 sorts.add(mapper(sort, sortParser));
@@ -141,6 +155,8 @@ public final class SpecialParameters {
                 Arrays.stream(sortArray).map(s -> mapper(s, sortParser)).forEach(sorts::add);
             } else if (parameter instanceof PageRequest request) {
                pageRequest = request;
+            } else if (parameter instanceof Restriction<?> restrictionParameter) {
+                restriction = restrictionParameter;
             }else {
                 if (parameter instanceof Iterable<?> iterable) {
                     for (Object value : iterable) {
@@ -151,7 +167,7 @@ public final class SpecialParameters {
                 }
             }
         }
-        return new SpecialParameters(pageRequest, limit, sorts);
+        return new SpecialParameters(pageRequest, limit, sorts, restriction);
     }
 
     /**
