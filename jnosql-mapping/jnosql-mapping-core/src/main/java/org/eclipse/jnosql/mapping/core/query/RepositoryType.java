@@ -175,9 +175,7 @@ public enum RepositoryType {
         if (FIND_ALL.keyword.equals(methodName)) {
             return FIND_ALL;
         }
-        if (method.getAnnotationsByType(OrderBy.class).length > 0) {
-            return method.getAnnotation(Find.class) == null? ORDER_BY: PARAMETER_BASED;
-        }
+
         Predicate<RepositoryType> hasAnnotation = a -> method.getAnnotation(a.annotation) != null;
         if (OPERATION_ANNOTATIONS.stream().anyMatch(hasAnnotation)) {
             return OPERATION_ANNOTATIONS.stream()
