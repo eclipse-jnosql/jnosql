@@ -270,7 +270,7 @@ class CrudRepositoryProxyRestrictionTest {
         when(template.select(any(SelectQuery.class)))
                 .thenReturn(Stream.of(new Product()));
 
-        List<Product> products = repository.findAll("Mac", _Product.name.equalTo("Mac"));
+        List<Product> products = repository.findAll("Mac", _Product.price.equalTo(BigDecimal.TEN));
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
@@ -280,7 +280,7 @@ class CrudRepositoryProxyRestrictionTest {
             softly.assertThat(query.condition()).isPresent();
             CriteriaCondition condition = query.condition().orElseThrow();
             softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
-            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
+            softly.assertThat(condition.condition()).isEqualTo(AND);
             softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
             softly.assertThat(products).hasSize(1);
         });

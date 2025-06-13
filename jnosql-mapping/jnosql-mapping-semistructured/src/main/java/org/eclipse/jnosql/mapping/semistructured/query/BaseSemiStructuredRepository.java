@@ -196,46 +196,47 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
 
     protected org.eclipse.jnosql.communication.semistructured.SelectQuery updateQueryDynamically(Object[] args,
                                                                                                  org.eclipse.jnosql.communication.semistructured.SelectQuery query) {
-        var documentQuery = includeInheritance(query);
-        SpecialParameters special = DynamicReturn.findSpecialParameters(args, sortParser());
+        var selectQuery = includeInheritance(query);
+        var special = DynamicReturn.findSpecialParameters(args, sortParser());
 
         if (special.isEmpty()) {
-            return documentQuery;
+            return selectQuery;
         }
+
         Optional<Limit> limit = special.limit();
 
         if (special.hasOnlySort()) {
             List<Sort<?>> sorts = new ArrayList<>();
-            sorts.addAll(documentQuery.sorts());
+            sorts.addAll(selectQuery.sorts());
             sorts.addAll(special.sorts());
-            long skip = limit.map(l -> l.startAt() - 1).orElse(documentQuery.skip());
-            long max = limit.map(Limit::maxResults).orElse((int) documentQuery.limit());
+            long skip = limit.map(l -> l.startAt() - 1).orElse(selectQuery.skip());
+            long max = limit.map(Limit::maxResults).orElse((int) selectQuery.limit());
             return new MappingQuery(sorts, max,
                     skip,
-                    documentQuery.condition().orElse(null),
-                    documentQuery.name());
+                    selectQuery.condition().orElse(null),
+                    selectQuery.name());
         }
 
         if (limit.isPresent()) {
-            long skip = limit.map(l -> l.startAt() - 1).orElse(documentQuery.skip());
-            long max = limit.map(Limit::maxResults).orElse((int) documentQuery.limit());
-            return new MappingQuery(documentQuery.sorts(), max,
+            long skip = limit.map(l -> l.startAt() - 1).orElse(selectQuery.skip());
+            long max = limit.map(Limit::maxResults).orElse((int) selectQuery.limit());
+            return new MappingQuery(selectQuery.sorts(), max,
                     skip,
-                    documentQuery.condition().orElse(null),
-                    documentQuery.name());
+                    selectQuery.condition().orElse(null),
+                    selectQuery.name());
         }
 
         return special.pageRequest().<org.eclipse.jnosql.communication.semistructured.SelectQuery>map(p -> {
             long size = p.size();
             long skip = NoSQLPage.skip(p);
-            List<Sort<?>> sorts = documentQuery.sorts();
+            List<Sort<?>> sorts = selectQuery.sorts();
             if (!special.sorts().isEmpty()) {
-                sorts = new ArrayList<>(documentQuery.sorts());
+                sorts = new ArrayList<>(selectQuery.sorts());
                 sorts.addAll(special.sorts());
             }
             return new MappingQuery(sorts, size, skip,
-                    documentQuery.condition().orElse(null), documentQuery.name());
-        }).orElse(documentQuery);
+                    selectQuery.condition().orElse(null), selectQuery.name());
+        }).orElse(selectQuery);
     }
 
     protected Function<String, String> sortParser() {
