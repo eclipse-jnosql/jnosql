@@ -14,7 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.core.query;
 
-import jakarta.data.exceptions.MappingException;
 import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.mapping.core.repository.ThrowingSupplier;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
