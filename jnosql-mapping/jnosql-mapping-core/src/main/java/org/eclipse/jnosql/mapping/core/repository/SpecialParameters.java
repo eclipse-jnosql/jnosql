@@ -116,7 +116,9 @@ public final class SpecialParameters {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         SpecialParameters that = (SpecialParameters) o;
         return Objects.equals(pageRequest, that.pageRequest)
                 && Objects.equals(sorts, that.sorts)
