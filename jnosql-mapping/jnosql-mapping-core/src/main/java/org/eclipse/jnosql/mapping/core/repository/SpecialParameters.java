@@ -75,7 +75,7 @@ public final class SpecialParameters {
      * @return when there is no sort and PageRequest
      */
     public boolean isEmpty() {
-        return this.sorts.isEmpty() && pageRequest == null && limit == null;
+        return this.sorts.isEmpty() && pageRequest == null && limit == null && restriction == null;
     }
 
     /**
@@ -205,6 +205,7 @@ public final class SpecialParameters {
                 || Limit.class.isAssignableFrom(parameter)
                 || Order.class.isAssignableFrom(parameter)
                 || PageRequest.class.isAssignableFrom(parameter)
+                || Restriction.class.isAssignableFrom(parameter)
                 || parameter.isArray() && Sort.class.isAssignableFrom(parameter.getComponentType());
     }
 

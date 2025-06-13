@@ -18,6 +18,7 @@ import jakarta.data.Limit;
 import jakarta.data.Order;
 import jakarta.data.page.PageRequest;
 import jakarta.data.Sort;
+import jakarta.data.restrict.Restriction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -168,8 +169,24 @@ class SpecialParametersTest {
                         Sort.desc("AGE"));
     }
 
+    @Test
+    void shouldReturnRestriction() {
+        Restriction<String> restriction = new Restriction<String>() {
+            @Override
+            public Restriction<String> negate() {
+                return null;
+            }
+        };
+        SpecialParameters parameters = SpecialParameters.of(new Object[]{10, "Otavio", restriction}, SORT_MAPPER);
+        assertFalse(parameters.isEmpty());
+        Optional<Restriction<?>> restrictionOptional = parameters.restriction();
+        assertTrue(restrictionOptional.isPresent());
+        Restriction<?> restriction1 = restrictionOptional.orElseThrow();
+        assertEquals(restriction, restriction1);
+    }
+
     @ParameterizedTest
-    @ValueSource(classes = {Sort.class, Limit.class, PageRequest.class, Order.class})
+    @ValueSource(classes = {Sort.class, Limit.class, PageRequest.class, Order.class, Restriction.class})
     void shouldReturnTrueSpecialParameter(Class<?> type){
         org.assertj.core.api.Assertions.assertThat(SpecialParameters.isSpecialParameter(type)).isTrue();
     }
