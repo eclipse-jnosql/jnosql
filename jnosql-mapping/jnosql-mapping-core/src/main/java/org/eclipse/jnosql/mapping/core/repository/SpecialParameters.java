@@ -114,6 +114,17 @@ public final class SpecialParameters {
         return Optional.ofNullable(restriction);
     }
 
+    /**
+     * Returns true if the SpecialParameters is valid, which means it has a restriction and the first parameter is
+     * not an instance of {@link Restriction}.
+     */
+    public boolean isRestrictionValid(Object[] params) {
+        if ( params.length == 0) {
+            return false;
+        }
+        return restriction != null && !Restriction.class.isAssignableFrom(params[0].getClass());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
