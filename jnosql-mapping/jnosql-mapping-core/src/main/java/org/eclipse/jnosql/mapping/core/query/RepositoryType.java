@@ -166,10 +166,6 @@ public enum RepositoryType {
         if (method.getReturnType().equals(CursoredPage.class)) {
             return CURSOR_PAGINATION;
         }
-        String methodName = method.getName();
-        if (FIND_ALL.keyword.equals(methodName)) {
-            return FIND_ALL;
-        }
 
         Predicate<RepositoryType> hasAnnotation = a -> method.getAnnotation(a.annotation) != null;
         if (OPERATION_ANNOTATIONS.stream().anyMatch(hasAnnotation)) {
@@ -177,6 +173,12 @@ public enum RepositoryType {
                     .filter(hasAnnotation)
                     .findFirst().orElseThrow();
         }
+
+        String methodName = method.getName();
+        if (FIND_ALL.keyword.equals(methodName)) {
+            return FIND_ALL;
+        }
+
         return KEY_WORLD_METHODS.stream()
                 .filter(k -> methodName.startsWith(k.keyword))
                 .findFirst()
