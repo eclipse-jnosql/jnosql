@@ -193,12 +193,10 @@ public enum RepositoryType {
 
     private static boolean isRestrictionQueryParameter(Method method) {
         Class<?>[] parameters = method.getParameterTypes();
-        for (Class<?> parameter : parameters) {
-            if (parameter.isNestmateOf(Restriction.class)) {
-                return true;
-            }
+        if (parameters.length == 0) {
+            return false;
         }
-        return false;
+        return parameters[0].isNestmateOf(Restriction.class);
     }
 
     private static boolean isCustomRepository(Class<?> type) {
