@@ -19,6 +19,7 @@ import jakarta.data.Order;
 import jakarta.data.page.PageRequest;
 import jakarta.data.Sort;
 import jakarta.data.restrict.Restriction;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -171,12 +172,7 @@ class SpecialParametersTest {
 
     @Test
     void shouldReturnRestriction() {
-        Restriction<String> restriction = new Restriction<String>() {
-            @Override
-            public Restriction<String> negate() {
-                return null;
-            }
-        };
+        Restriction<String> restriction = () -> null;
         SpecialParameters parameters = SpecialParameters.of(new Object[]{10, "Otavio", restriction}, SORT_MAPPER);
         assertFalse(parameters.isEmpty());
         Optional<Restriction<?>> restrictionOptional = parameters.restriction();
@@ -184,6 +180,42 @@ class SpecialParametersTest {
         Restriction<?> restriction1 = restrictionOptional.orElseThrow();
         assertEquals(restriction, restriction1);
     }
+
+    @Test
+    void shouldReturnValidRestriction() {
+        Restriction<String> restriction = () -> null;
+        SpecialParameters parameters = SpecialParameters.of(new Object[]{10, "Otavio", restriction}, SORT_MAPPER);
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(parameters.isEmpty()).isFalse();
+            soft.assertThat(parameters.restriction()).isPresent();
+            soft.assertThat(parameters.restriction().orElseThrow()).isEqualTo(restriction);
+            soft.assertThat(parameters.isRestrictionValid(new Object[]{10, "Otavio", restriction})).isTrue();
+            soft.assertThat(parameters.isRestrictionValid(new Object[]{restriction})).isFalse();
+        });
+    }
+
+    @Test
+    void shouldCheckToString() {
+        Restriction<String> restriction = () -> null;
+        SpecialParameters parameters = SpecialParameters.of(new Object[]{10, "Otavio", restriction}, SORT_MAPPER);
+        Assertions.assertNotNull(parameters.toString());
+    }
+
+    @Test
+    void shouldCheckEquals() {
+        Restriction<String> restriction = () -> null;
+        SpecialParameters parameters = SpecialParameters.of(new Object[]{10, "Otavio", restriction}, SORT_MAPPER);
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(parameters).isEqualTo(SpecialParameters.of(new Object[]{10, "Otavio", restriction}, SORT_MAPPER));
+            soft.assertThat(parameters).isNotEqualTo(null);
+            soft.assertThat(parameters).isNotEqualTo(new Object());
+            soft.assertThat(parameters).isNotEqualTo(SpecialParameters.of(new Object[]{10, "Otavio"}, SORT_MAPPER));
+            soft.assertThat(parameters).isNotEqualTo(SpecialParameters.of(new Object[]{10, "Otavio", Sort.asc("name")}, SORT_MAPPER));
+            soft.assertThat(parameters.hashCode()).isEqualTo(SpecialParameters.of(new Object[]{10, "Otavio", restriction}, SORT_MAPPER).hashCode());
+        });
+    }
+
+
 
     @ParameterizedTest
     @ValueSource(classes = {Sort.class, Limit.class, PageRequest.class, Order.class, Restriction.class})
