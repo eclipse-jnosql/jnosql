@@ -84,6 +84,6 @@ public class TestRepositoryProxy extends AbstractRepositoryProxy<TestEntity, UUI
 
     @Override
     protected Object executeDeleteRestriction(Object instance, Method method, Object[] params) {
-        return "executeRestriction";
+        return "executeDeleteRestriction";
     }
 }
