@@ -21,6 +21,7 @@ import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import jakarta.data.repository.By;
 import jakarta.data.repository.CrudRepository;
+import jakarta.data.repository.Delete;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Param;
@@ -305,6 +306,26 @@ class CrudRepositoryProxyRestrictionTest {
 
     }
 
+    @Test
+    void shouldDelete() {
+
+        repository.delete(_Product.price.greaterThan(BigDecimal.TEN));
+
+        ArgumentCaptor<DeleteQuery> captor = ArgumentCaptor.forClass(DeleteQuery.class);
+        verify(template).delete(captor.capture());
+
+        SoftAssertions.assertSoftly(softly -> {
+            DeleteQuery value = captor.getValue();
+            softly.assertThat(value.name()).isEqualTo("Product");
+            softly.assertThat(value.condition()).isPresent();
+            CriteriaCondition condition = value.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(GREATER_THAN);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.PRICE, BigDecimal.TEN));
+        });
+
+    }
+
 
     public interface ProductRepository extends CrudRepository<Product, String> {
         List<Product> restriction(Restriction<Product> restriction);
@@ -325,5 +346,8 @@ class CrudRepositoryProxyRestrictionTest {
 
         @Query("where name = :name")
         List<Product> query(@Param("name") String name, Restriction<Product> restriction);
+
+        @Delete
+        void delete(Restriction<Product> restriction);
     }
 }
