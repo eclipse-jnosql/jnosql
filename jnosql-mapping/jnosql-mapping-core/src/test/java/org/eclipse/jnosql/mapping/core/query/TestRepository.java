@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.core.query;
 
 import jakarta.data.page.CursoredPage;
+import jakarta.data.repository.Delete;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.Query;
 import jakarta.data.restrict.Restriction;
@@ -40,4 +41,7 @@ public interface TestRepository {
     List<TestEntity> find();
 
     List<TestEntity> restriction(Restriction<TestEntity> restriction);
+
+    @Delete
+    List<TestEntity> delete(Restriction<TestEntity> restriction);
 }
