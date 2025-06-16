@@ -160,9 +160,6 @@ public enum RepositoryType {
         if (!repositoryType.equals(declaringClass) && isCustomRepository(declaringClass)) {
             return CUSTOM_REPOSITORY;
         }
-        if(isRestrictionQueryParameter(method)) {
-            return RESTRICTION;
-        }
         if (method.getReturnType().equals(CursoredPage.class)) {
             return CURSOR_PAGINATION;
         }
@@ -177,6 +174,10 @@ public enum RepositoryType {
         String methodName = method.getName();
         if (FIND_ALL.keyword.equals(methodName)) {
             return FIND_ALL;
+        }
+
+        if(isRestrictionQueryParameter(method)) {
+            return RESTRICTION;
         }
 
         return KEY_WORLD_METHODS.stream()
