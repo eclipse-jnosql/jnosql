@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.query;
 
+import jakarta.data.restrict.Restriction;
 import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.mapping.core.repository.ThrowingSupplier;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
@@ -149,6 +150,17 @@ public abstract class AbstractRepositoryProxy<T, K> implements InvocationHandler
      */
     protected abstract Object executeRestriction(Object instance, Method method, Object[] params);
 
+    /**
+     * Executes a delete operation based on the method and parameters, specifically for methods that
+     * involve a {@link jakarta.data.restrict.Restriction} as a parameter.
+     *
+     * @param instance The instance on which the method was invoked.
+     * @param method   The method being invoked, representing the delete operation.
+     * @param params   The parameters of the method, including the restriction.
+     * @return The result of the delete operation.
+     */
+    protected abstract Object executeDeleteRestriction(Object instance, Method method, Object[] params);
+
     @Override
     public Object invoke(Object instance, Method method, Object[] params) throws Throwable {
 
@@ -196,6 +208,9 @@ public abstract class AbstractRepositoryProxy<T, K> implements InvocationHandler
                 return unwrapInvocationTargetException(() -> INSERT.invoke(new AnnotationOperation.Operation(method, params, repository())));
             }
             case DELETE -> {
+                if(params.length > 0 && params[0] instanceof Restriction<?>) {
+                    return unwrapInvocationTargetException(() -> executeDeleteRestriction(instance, method, params));
+                }
                 return unwrapInvocationTargetException(() -> DELETE.invoke(new AnnotationOperation.Operation(method, params, repository())));
             }
             case UPDATE -> {
