@@ -178,14 +178,6 @@ public enum RepositoryType {
                         + " is not supported. At the class " + declaringClass));
     }
 
-    private static boolean isRestrictionQueryParameter(Method method) {
-        Class<?>[] parameters = method.getParameterTypes();
-        if (parameters.length == 0) {
-            return false;
-        }
-        return parameters[0].isNestmateOf(Restriction.class);
-    }
-
     private static boolean isCustomRepository(Class<?> type) {
         try {
             return CDI.current().select(type).isResolvable();
