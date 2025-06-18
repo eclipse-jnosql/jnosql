@@ -139,16 +139,6 @@ public abstract class AbstractRepositoryProxy<T, K> implements InvocationHandler
      */
     protected abstract Object executeParameterBased(Object instance, Method method, Object[] params);
 
-    /**
-     * Executes Jakarta Data Repository  query that contains {@link jakarta.data.restrict.Restriction}
-     * at the method parameter.
-     *
-     * @param instance The instance on which the method was invoked.
-     * @param method   The method being invoked, representing the custom parameter-based operation.
-     * @param params   The parameters of the method, providing input for the parameter-based operation.
-     * @return The result of the custom parameter-based operation.
-     */
-    protected abstract Object executeRestriction(Object instance, Method method, Object[] params);
 
     /**
      * Executes a delete operation based on the method and parameters, specifically for methods that
@@ -218,9 +208,6 @@ public abstract class AbstractRepositoryProxy<T, K> implements InvocationHandler
             }
             case CURSOR_PAGINATION -> {
                 return unwrapInvocationTargetException(() ->   executeCursorPagination(instance, method, params));
-            }
-            case RESTRICTION -> {
-                return unwrapInvocationTargetException(() ->   executeRestriction(instance, method, params));
             }
             default -> {
                 return Void.class;
