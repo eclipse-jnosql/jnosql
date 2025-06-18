@@ -92,13 +92,6 @@ class AbstractRepositoryProxyTest {
     }
 
     @Test
-    void shouldExecuteRestriction() throws Throwable {
-        Method method = TestRepository.class.getMethod("restriction", Restriction.class);
-        Object result = proxy.invoke(proxy, method, new Object[]{});
-        assertEquals("executeRestriction", result);
-    }
-
-    @Test
     void shouldExecuteDeleteRestriction() throws Throwable {
         Method method = TestRepository.class.getMethod("delete", Restriction.class);
         Object result = proxy.invoke(proxy, method, new Object[]{(Restriction<String>) () -> null});

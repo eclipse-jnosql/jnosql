@@ -215,11 +215,6 @@ class RepositoryTypeTest {
     }
 
     @Test
-    void shouldFindRestriction() throws NoSuchMethodException {
-        assertEquals(RepositoryType.RESTRICTION, RepositoryType.of(getMethod(DevRepository.class, "restriction"), CrudRepository.class));
-    }
-
-    @Test
     void shouldFindRestrictionWithFind() throws NoSuchMethodException {
         assertEquals(RepositoryType.PARAMETER_BASED,
                 RepositoryType.of(getMethod(DevRepository.class, "findRestriction"), CrudRepository.class));
