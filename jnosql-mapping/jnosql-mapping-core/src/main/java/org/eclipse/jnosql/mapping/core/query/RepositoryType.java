@@ -23,7 +23,6 @@ import jakarta.data.repository.Insert;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Save;
 import jakarta.data.repository.Update;
-import jakarta.data.restrict.Restriction;
 import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
 
