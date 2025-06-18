@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-record MappingDeleteQuery(String entity, CriteriaCondition criteriaCondition) implements DeleteQuery {
+public record MappingDeleteQuery(String entity, CriteriaCondition criteriaCondition) implements DeleteQuery {
 
 
     @Override
