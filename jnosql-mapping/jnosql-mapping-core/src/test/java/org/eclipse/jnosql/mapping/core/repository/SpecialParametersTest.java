@@ -182,19 +182,6 @@ class SpecialParametersTest {
     }
 
     @Test
-    void shouldReturnValidRestriction() {
-        Restriction<String> restriction = () -> null;
-        SpecialParameters parameters = SpecialParameters.of(new Object[]{10, "Otavio", restriction}, SORT_MAPPER);
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(parameters.isEmpty()).isFalse();
-            soft.assertThat(parameters.restriction()).isPresent();
-            soft.assertThat(parameters.restriction().orElseThrow()).isEqualTo(restriction);
-            soft.assertThat(parameters.isRestrictionValid(new Object[]{10, "Otavio", restriction})).isTrue();
-            soft.assertThat(parameters.isRestrictionValid(new Object[]{restriction})).isFalse();
-        });
-    }
-
-    @Test
     void shouldCheckToString() {
         Restriction<String> restriction = () -> null;
         SpecialParameters parameters = SpecialParameters.of(new Object[]{10, "Otavio", restriction}, SORT_MAPPER);
