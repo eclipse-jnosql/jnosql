@@ -173,6 +173,17 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         }
     }
 
+    @Override
+    protected Object executeDeleteRestriction(Object instance, Method method, Object[] params) {
+        LOGGER.finest("Executing delete restriction on method: " + method);
+        Restriction<?> restriction = restriction(params);
+        var entity = entityMetadata().name();
+        Class<?> type = entityMetadata().type();
+        Optional<CriteriaCondition> condition = RestrictionConverter.INSTANCE.parser(restriction, entityMetadata(), converters());
+
+        return null;
+    }
+
     private Restriction<?> restriction(Object[] params) {
         if (params.length == 0) {
             throw new IllegalArgumentException("The method must have at least one parameter for restriction");
