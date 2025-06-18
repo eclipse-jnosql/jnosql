@@ -20,6 +20,7 @@ import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import jakarta.data.repository.CrudRepository;
+import jakarta.data.repository.Find;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.restrict.Restrict;
 import jakarta.data.restrict.Restriction;
@@ -244,6 +245,7 @@ class CustomRepositoryHandlerRestrictionTest {
         List<Product> restrictionOrderByPriceAsc(Restriction<Product> restriction);
 
         @OrderBy(_Product.PRICE)
+        @Find
         CursoredPage<Product> cursor(Restriction<Product> restriction, PageRequest pageRequest);
     }
 }
