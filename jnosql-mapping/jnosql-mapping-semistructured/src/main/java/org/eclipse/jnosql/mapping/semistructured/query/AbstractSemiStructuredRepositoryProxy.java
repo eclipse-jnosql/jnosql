@@ -27,6 +27,7 @@ import org.eclipse.jnosql.mapping.core.repository.DynamicQueryMethodReturn;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.semistructured.MappingDeleteQuery;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 
 import java.lang.reflect.Method;
@@ -180,8 +181,9 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         var entity = entityMetadata().name();
         Class<?> type = entityMetadata().type();
         Optional<CriteriaCondition> condition = RestrictionConverter.INSTANCE.parser(restriction, entityMetadata(), converters());
-
-        return null;
+        var deleteQuery = new MappingDeleteQuery(entity, condition.orElse(null));
+        this.template().delete(deleteQuery);
+        return Void.class;
     }
 
     private Restriction<?> restriction(Object[] params) {
