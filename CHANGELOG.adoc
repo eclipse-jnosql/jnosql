@@ -12,6 +12,11 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 - Define Java 21 as the minimum version to run JNoSQL
 
+=== Added
+
+- Include support to Restriction interface
+
+
 == [1.1.8] - 2025-05-21
 
 === Removed
