@@ -69,4 +69,9 @@ public abstract class AbstractKeyValueRepositoryProxy<T, K> extends AbstractRepo
     protected Object executeCursorPagination(Object instance, Method method, Object[] params) {
         throw new UnsupportedOperationException("Key Value repository does not support Cursor Pagination");
     }
+
+    @Override
+    protected Object executeDeleteRestriction(Object instance, Method method, Object[] params) {
+        throw  new UnsupportedOperationException("Key Value repository does not support query method");
+    }
 }
