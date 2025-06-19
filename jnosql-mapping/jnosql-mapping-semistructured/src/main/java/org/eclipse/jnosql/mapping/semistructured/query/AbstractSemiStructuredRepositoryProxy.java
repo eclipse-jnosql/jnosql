@@ -162,7 +162,6 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         LOGGER.finest("Executing delete restriction on method: " + method);
         Restriction<?> restriction = restriction(params);
         var entity = entityMetadata().name();
-        Class<?> type = entityMetadata().type();
         Optional<CriteriaCondition> condition = RestrictionConverter.INSTANCE.parser(restriction, entityMetadata(), converters());
         var deleteQuery = new MappingDeleteQuery(entity, condition.orElse(null));
         this.template().delete(deleteQuery);
