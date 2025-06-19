@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.data.Sort;
-import jakarta.data.page.CursoredPage;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Query;

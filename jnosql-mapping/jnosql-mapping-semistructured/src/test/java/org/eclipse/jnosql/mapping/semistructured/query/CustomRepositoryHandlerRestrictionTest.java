@@ -233,16 +233,19 @@ class CustomRepositoryHandlerRestrictionTest {
         });
     }
 
-
-
     public interface ProductRepository {
+        @Find
         List<Product> restriction(Restriction<Product> restriction);
+        @Find
         Page<Product> restriction(Restriction<Product> restriction, PageRequest pageRequest);
 
+        @Find
         List<Product> restriction(Restriction<Product> restriction, Sort<Product> order);
+        @Find
         List<Product> restriction(Restriction<Product> restriction, Order<Product> order);
 
         @OrderBy(_Product.PRICE)
+        @Find
         List<Product> restrictionOrderByPriceAsc(Restriction<Product> restriction);
 
         @OrderBy(_Product.PRICE)
