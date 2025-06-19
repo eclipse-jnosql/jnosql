@@ -20,7 +20,6 @@ import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 
 class KeyValueRepositoryProxy<T, K> extends AbstractKeyValueRepositoryProxy<T, K> {
