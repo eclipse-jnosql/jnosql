@@ -159,6 +159,7 @@ class CustomRepositoryHandlerRestrictionTest {
             softly.assertThat(query.sorts()).contains( _Product.name.asc());
         });
     }
+
     @Test
     void shouldRestrictOrder() {
 

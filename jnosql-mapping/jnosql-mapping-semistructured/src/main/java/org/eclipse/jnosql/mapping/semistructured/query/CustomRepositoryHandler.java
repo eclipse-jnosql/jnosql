@@ -157,8 +157,6 @@ public class CustomRepositoryHandler implements InvocationHandler {
             }
             case DELETE_BY -> {
                 return unwrapInvocationTargetException(() -> defaultRepository().executeDeleteByAll(instance, method, params));
-            } case RESTRICTION -> {
-                return unwrapInvocationTargetException(() -> repository(method).executeRestriction(instance, method, params));
             }
             default -> throw new UnsupportedOperationException("The custom repository does not support the method " + method);
         }

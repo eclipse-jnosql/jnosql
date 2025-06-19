@@ -159,22 +159,6 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
     }
 
     @Override
-    protected Object executeRestriction(Object instance, Method method, Object[] params) {
-        LOGGER.finest("Executing restriction on method: " + method);
-        Restriction<?> restriction = restriction(params);
-        var entity = entityMetadata().name();
-        Class<?> type = entityMetadata().type();
-        Optional<CriteriaCondition> condition = RestrictionConverter.INSTANCE.parser(restriction, entityMetadata(), converters());
-        var query = updateQueryDynamically(params,
-                new MappingQuery(getSorts(method, entityMetadata()), 0, 0, condition.orElse(null), entity));
-        if (CursoredPage.class.isAssignableFrom(method.getReturnType())) {
-            return this.template().selectCursor(query, DynamicReturn.findPageRequest(params));
-        } else {
-            return executeFindByQuery(method, params, type, query);
-        }
-    }
-
-    @Override
     protected Object executeDeleteRestriction(Object instance, Method method, Object[] params) {
         LOGGER.finest("Executing delete restriction on method: " + method);
         Restriction<?> restriction = restriction(params);
