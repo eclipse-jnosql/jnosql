@@ -14,6 +14,10 @@
  */
 package org.eclipse.jnosql.mapping.core;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * Indicates that a {@code record} type is intended to serve as a projection
  * for mapping selected attributes from an entity in a query result.
@@ -44,5 +48,7 @@ package org.eclipse.jnosql.mapping.core;
  *
  * @see jakarta.data.repository.Select
  */
-public interface Projection {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(java.lang.annotation.ElementType.TYPE)
+public @interface Projection {
 }
