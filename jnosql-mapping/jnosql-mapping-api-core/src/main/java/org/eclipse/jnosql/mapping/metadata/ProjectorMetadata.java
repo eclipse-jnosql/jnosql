@@ -14,6 +14,16 @@
  */
 package org.eclipse.jnosql.mapping.metadata;
 
+
+/**
+ * Represents the metamodel of a projection record used in Jakarta Data.
+ * <p>
+ * This interface provides metadata about a Java {@code record} annotated with {@link org.eclipse.jnosql.mapping.Projection},
+ * which is used to define the structure of the result returned by a projection query.
+ * It allows Jakarta Data providers and annotation processors to introspect the structure,
+ * including the mapping between record components and query results.
+ * </p>
+ */
 public interface ProjectorMetadata {
 
     /**
