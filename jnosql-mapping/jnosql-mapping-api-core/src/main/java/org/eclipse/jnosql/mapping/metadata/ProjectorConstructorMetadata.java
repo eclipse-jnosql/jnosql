@@ -28,9 +28,9 @@ import java.util.List;
 public interface ProjectorConstructorMetadata {
 
     /**
-     * Returns a list of ParameterMetaData objects representing the parameters of the constructor.
+     * Returns a list of ProjectorParameterMetadata objects representing the parameters of the constructor.
      *
      * @return the constructor parameters
      */
-    List<ParameterMetaData> parameters();
+    List<ProjectorParameterMetadata> parameters();
 }
