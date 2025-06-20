@@ -14,5 +14,35 @@
  */
 package org.eclipse.jnosql.mapping.core;
 
+/**
+ * Indicates that a {@code record} type is intended to serve as a projection
+ * for mapping selected attributes from an entity in a query result.
+ *
+ * <p>This annotation allows Jakarta Data providers to understand that the
+ * annotated record is designed for partial mapping of entity data, especially
+ * in queries using {@code @Query} or {@code @Find} annotations.</p>
+ *
+ * <p>All Jakarta Data providers <strong>must</strong> support the use of records
+ * annotated with {@code @Projection}.</p>
+ *
+ * <p>All Jakarta Data providers <strong>must</strong> support the use of records
+ * annotated with {@code @Projection}.</p>
+ * <p>Example usage:</p>
+ *
+ * <pre>{@code
+ * @Projection
+ * public record ProductSummary(String name, @Select("price") BigDecimal value) {}
+ *
+ * @Repository
+ * public interface ProductRepository {
+ *     @Find
+ *     @Select("name")
+ *     @Select("price")
+ *     List<ProductSummary> fetchSummaries();
+ * }
+ * }</pre>
+ *
+ * @see jakarta.data.repository.Select
+ */
 public interface Projection {
 }
