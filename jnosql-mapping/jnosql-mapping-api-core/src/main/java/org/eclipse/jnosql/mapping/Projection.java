@@ -12,7 +12,7 @@
  *
  *   Georg Leber
  */
-package org.eclipse.jnosql.mapping.core;
+package org.eclipse.jnosql.mapping;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
