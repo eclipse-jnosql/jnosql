@@ -19,13 +19,16 @@ import jakarta.data.Limit;
 import jakarta.data.Sort;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import jakarta.data.restrict.Restriction;
 import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.query.method.DeleteMethodProvider;
 import org.eclipse.jnosql.communication.query.method.SelectMethodProvider;
 import org.eclipse.jnosql.communication.semistructured.CommunicationObserverParser;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
+import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.DeleteQueryParser;
 import org.eclipse.jnosql.communication.semistructured.Element;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.communication.semistructured.SelectQueryParser;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
@@ -87,8 +90,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
      */
     protected abstract SemiStructuredTemplate template();
 
-
-    protected org.eclipse.jnosql.communication.semistructured.SelectQuery query(Method method, Object[] args) {
+    protected SelectQuery query(Method method, Object[] args) {
         var provider = SelectMethodProvider.INSTANCE;
         var selectQuery = provider.apply(method, entityMetadata().name());
         var queryParams = SELECT_PARSER.apply(selectQuery, parser());
@@ -102,7 +104,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         return args == null ? EMPTY_PARAM : args;
     }
 
-    protected org.eclipse.jnosql.communication.semistructured.DeleteQuery deleteQuery(Method method, Object[] args) {
+    protected DeleteQuery deleteQuery(Method method, Object[] args) {
         var deleteMethodFactory = DeleteMethodProvider.INSTANCE;
         var deleteQuery = deleteMethodFactory.apply(method, entityMetadata().name());
         var queryParams = DELETE_PARSER.apply(deleteQuery, parser());
@@ -138,7 +140,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
     }
 
     @SuppressWarnings("unchecked")
-    protected Object executeFindByQuery(Method method, Object[] args, Class<?> typeClass, org.eclipse.jnosql.communication.semistructured.SelectQuery query) {
+    protected Object executeFindByQuery(Method method, Object[] args, Class<?> typeClass, SelectQuery query) {
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(typeClass)
                 .methodSource(method)
@@ -152,7 +154,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         return dynamicReturn.execute();
     }
 
-    private org.eclipse.jnosql.communication.semistructured.SelectQuery includeInheritance(org.eclipse.jnosql.communication.semistructured.SelectQuery query){
+    private SelectQuery includeInheritance(SelectQuery query){
         EntityMetadata metadata = this.entityMetadata();
         if(metadata.inheritance().isPresent()){
             InheritanceMetadata inheritanceMetadata = metadata.inheritance().orElseThrow();
@@ -170,72 +172,112 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         return query;
     }
 
-    protected Long executeCountByQuery(org.eclipse.jnosql.communication.semistructured.SelectQuery query) {
+    protected Long executeCountByQuery(SelectQuery query) {
         return template().count(query);
     }
 
-    protected boolean executeExistsByQuery(org.eclipse.jnosql.communication.semistructured.SelectQuery query) {
+    protected boolean executeExistsByQuery(SelectQuery query) {
         return template().exists(query);
     }
 
-    protected Function<PageRequest, Page<T>> getPage(org.eclipse.jnosql.communication.semistructured.SelectQuery query) {
+    protected Function<PageRequest, Page<T>> getPage(SelectQuery query) {
         return p -> {
             Stream<T> entities = template().select(query);
             return NoSQLPage.of(entities.toList(), p);
         };
     }
 
-    protected Function<PageRequest, Optional<T>> getSingleResult(org.eclipse.jnosql.communication.semistructured.SelectQuery query) {
+    protected Function<PageRequest, Optional<T>> getSingleResult(SelectQuery query) {
         return p -> template().singleResult(query);
     }
 
-    protected Function<PageRequest, Stream<T>> streamPagination(org.eclipse.jnosql.communication.semistructured.SelectQuery query) {
+    protected Function<PageRequest, Stream<T>> streamPagination(SelectQuery query) {
         return p -> template().select(query);
     }
 
 
-    protected org.eclipse.jnosql.communication.semistructured.SelectQuery updateQueryDynamically(Object[] args,
-                                                                                                 org.eclipse.jnosql.communication.semistructured.SelectQuery query) {
-        var documentQuery = includeInheritance(query);
-        SpecialParameters special = DynamicReturn.findSpecialParameters(args, sortParser());
+    protected SelectQuery updateQueryDynamically(Object[] args, SelectQuery query) {
+
+        var selectInheritance = includeInheritance(query);
+        var special = DynamicReturn.findSpecialParameters(args, sortParser());
 
         if (special.isEmpty()) {
-            return documentQuery;
+            return selectInheritance;
         }
+
+        final SelectQuery selectQuery;
+        if (special.restriction().isPresent()) {
+            selectQuery = includeRestrictCondition(special, selectInheritance);
+        } else {
+            selectQuery = selectInheritance;
+        }
+
         Optional<Limit> limit = special.limit();
 
         if (special.hasOnlySort()) {
             List<Sort<?>> sorts = new ArrayList<>();
-            sorts.addAll(documentQuery.sorts());
+            sorts.addAll(selectQuery.sorts());
             sorts.addAll(special.sorts());
-            long skip = limit.map(l -> l.startAt() - 1).orElse(documentQuery.skip());
-            long max = limit.map(Limit::maxResults).orElse((int) documentQuery.limit());
+            long skip = limit.map(l -> l.startAt() - 1).orElse(selectQuery.skip());
+            long max = limit.map(Limit::maxResults).orElse((int) selectQuery.limit());
             return new MappingQuery(sorts, max,
                     skip,
-                    documentQuery.condition().orElse(null),
-                    documentQuery.name());
+                    selectQuery.condition().orElse(null),
+                    selectQuery.name());
         }
 
         if (limit.isPresent()) {
-            long skip = limit.map(l -> l.startAt() - 1).orElse(documentQuery.skip());
-            long max = limit.map(Limit::maxResults).orElse((int) documentQuery.limit());
-            return new MappingQuery(documentQuery.sorts(), max,
+            long skip = limit.map(l -> l.startAt() - 1).orElse(selectQuery.skip());
+            long max = limit.map(Limit::maxResults).orElse((int) selectQuery.limit());
+            final List<Sort<?>> sorts = new ArrayList<>();
+            sorts.addAll(selectQuery.sorts());
+            sorts.addAll(special.sorts());
+            return new MappingQuery(sorts, max,
                     skip,
-                    documentQuery.condition().orElse(null),
-                    documentQuery.name());
+                    selectQuery.condition().orElse(null),
+                    selectQuery.name());
         }
 
-        return special.pageRequest().<org.eclipse.jnosql.communication.semistructured.SelectQuery>map(p -> {
+        return special.pageRequest().<SelectQuery>map(p -> {
             long size = p.size();
             long skip = NoSQLPage.skip(p);
-            List<Sort<?>> sorts = documentQuery.sorts();
+            List<Sort<?>> sorts = selectQuery.sorts();
             if (!special.sorts().isEmpty()) {
-                sorts = new ArrayList<>(documentQuery.sorts());
+                sorts = new ArrayList<>(selectQuery.sorts());
                 sorts.addAll(special.sorts());
             }
             return new MappingQuery(sorts, size, skip,
-                    documentQuery.condition().orElse(null), documentQuery.name());
-        }).orElse(documentQuery);
+                    selectQuery.condition().orElse(null), selectQuery.name());
+        }).orElseGet(() -> {
+            if (!special.sorts().isEmpty()) {
+                List<Sort<?>> sorts = new ArrayList<>(selectQuery.sorts());
+                sorts.addAll(special.sorts());
+                return new MappingQuery(sorts, selectQuery.limit(), selectQuery.skip(),
+                        selectQuery.condition().orElse(null), selectQuery.name());
+            }
+           return selectQuery;
+        });
+    }
+
+    private SelectQuery includeRestrictCondition(SpecialParameters special, SelectQuery selectQuery) {
+        Restriction<?> restriction = special.restriction().orElseThrow();
+
+        CriteriaCondition conditionConverted = RestrictionConverter.INSTANCE.parser(restriction,
+                entityMetadata(), converters()).orElse(null);
+        SelectQuery updateQuery = selectQuery;
+        if (conditionConverted != null) {
+            var conditionOptional = selectQuery.condition();
+
+            if (conditionOptional.isPresent()) {
+                CriteriaCondition condition = conditionOptional.orElseThrow();
+                updateQuery = new MappingQuery(selectQuery.sorts(), selectQuery.limit(),
+                        selectQuery.skip(), condition.and(conditionConverted), selectQuery.name());
+            } else {
+                updateQuery = new MappingQuery(selectQuery.sorts(), selectQuery.limit(),
+                        selectQuery.skip(), conditionConverted, selectQuery.name());
+            }
+        }
+        return updateQuery;
     }
 
     protected Function<String, String> sortParser() {

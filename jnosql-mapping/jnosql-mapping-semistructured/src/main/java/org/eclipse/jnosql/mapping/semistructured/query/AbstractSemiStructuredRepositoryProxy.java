@@ -18,16 +18,22 @@ import jakarta.data.Sort;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Query;
+import jakarta.data.restrict.Restriction;
+import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.QueryType;
 import org.eclipse.jnosql.mapping.core.repository.DynamicQueryMethodReturn;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.semistructured.MappingDeleteQuery;
+import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -62,7 +68,19 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
                 .pageRequest(pageRequest)
                 .prepareConverter(textQuery -> {
                     var prepare = (org.eclipse.jnosql.mapping.semistructured.PreparedStatement) template().prepare(textQuery, entity);
-                    prepare.setSelectMapper(query -> updateQueryDynamically(params, query));
+                    List<Sort<?>> sortsFromAnnotation = getSorts(method, entityMetadata());
+                    if (sortsFromAnnotation.isEmpty()) {
+                        prepare.setSelectMapper(query -> updateQueryDynamically(params, query));
+                    } else {
+                        prepare.setSelectMapper(query -> {
+                            var selectQuery = updateQueryDynamically(params, query);
+                            List<Sort<?>> sorts = new ArrayList<>(selectQuery.sorts());
+                            sorts.addAll(sortsFromAnnotation);
+                            return new MappingQuery(sorts, selectQuery.limit(), selectQuery.skip(),
+                                    selectQuery.condition().orElse(null)
+                                    , entity);
+                        });
+                    }
                     return prepare;
                 }).build();
         return methodReturn.execute();
@@ -138,6 +156,29 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(parameters, getSorts(method, entityMetadata()), entityMetadata());
         return executeFindByQuery(method, params, type, updateQueryDynamically(params, query));
     }
+
+    @Override
+    protected Object executeDeleteRestriction(Object instance, Method method, Object[] params) {
+        LOGGER.finest("Executing delete restriction on method: " + method);
+        Restriction<?> restriction = restriction(params);
+        var entity = entityMetadata().name();
+        Optional<CriteriaCondition> condition = RestrictionConverter.INSTANCE.parser(restriction, entityMetadata(), converters());
+        var deleteQuery = new MappingDeleteQuery(entity, condition.orElse(null));
+        this.template().delete(deleteQuery);
+        return Void.class;
+    }
+
+    private Restriction<?> restriction(Object[] params) {
+        if (params.length == 0) {
+            throw new IllegalArgumentException("The method must have at least one parameter for restriction");
+        }
+        if (params[0] instanceof Restriction<?> restriction) {
+            return restriction;
+        } else {
+            throw new IllegalArgumentException("The first parameter must be a Restriction, but was: " + params[0].getClass().getName());
+        }
+    }
+
 
     private static List<Sort<?>> getSorts(Method method, EntityMetadata metadata) {
         return Stream.of(method.getAnnotationsByType(OrderBy.class))

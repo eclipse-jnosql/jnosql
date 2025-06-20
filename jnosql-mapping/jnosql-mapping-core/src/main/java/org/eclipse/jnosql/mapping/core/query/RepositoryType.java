@@ -20,7 +20,6 @@ import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Delete;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.Insert;
-import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Save;
 import jakarta.data.repository.Update;
@@ -79,10 +78,6 @@ public enum RepositoryType {
      * The method that belongs to the interface using a custom repository.
      */
     CUSTOM_REPOSITORY(""),
-    /**
-     * Method that has {@link jakarta.data.repository.OrderBy} annotation
-     */
-    ORDER_BY(""),
     /**
      * Method that has {@link Query} annotation
      */
@@ -162,19 +157,19 @@ public enum RepositoryType {
         if (method.getReturnType().equals(CursoredPage.class)) {
             return CURSOR_PAGINATION;
         }
-        String methodName = method.getName();
-        if (FIND_ALL.keyword.equals(methodName)) {
-            return FIND_ALL;
-        }
-        if (method.getAnnotationsByType(OrderBy.class).length > 0) {
-            return method.getAnnotation(Find.class) == null? ORDER_BY: PARAMETER_BASED;
-        }
+
         Predicate<RepositoryType> hasAnnotation = a -> method.getAnnotation(a.annotation) != null;
         if (OPERATION_ANNOTATIONS.stream().anyMatch(hasAnnotation)) {
             return OPERATION_ANNOTATIONS.stream()
                     .filter(hasAnnotation)
                     .findFirst().orElseThrow();
         }
+
+        String methodName = method.getName();
+        if (FIND_ALL.keyword.equals(methodName)) {
+            return FIND_ALL;
+        }
+
         return KEY_WORLD_METHODS.stream()
                 .filter(k -> methodName.startsWith(k.keyword))
                 .findFirst()

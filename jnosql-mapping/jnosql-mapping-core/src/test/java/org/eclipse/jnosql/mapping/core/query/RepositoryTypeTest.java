@@ -26,6 +26,7 @@ import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Save;
 import jakarta.data.repository.Update;
+import jakarta.data.restrict.Restriction;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RepositoryTypeTest {
 
@@ -71,54 +73,54 @@ class RepositoryTypeTest {
 
     @Test
     void shouldReturnObjectMethod() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.OBJECT_METHOD, RepositoryType.of(getMethod(Object.class, "equals"), CrudRepository.class));
-        Assertions.assertEquals(RepositoryType.OBJECT_METHOD, RepositoryType.of(getMethod(Object.class, "hashCode"), CrudRepository.class));
+        assertEquals(RepositoryType.OBJECT_METHOD, RepositoryType.of(getMethod(Object.class, "equals"), CrudRepository.class));
+        assertEquals(RepositoryType.OBJECT_METHOD, RepositoryType.of(getMethod(Object.class, "hashCode"), CrudRepository.class));
     }
 
 
     @Test
     void shouldReturnFindBy() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.FIND_BY, RepositoryType.of(getMethod(DevRepository.class, "findByName"), CrudRepository.class));
+        assertEquals(RepositoryType.FIND_BY, RepositoryType.of(getMethod(DevRepository.class, "findByName"), CrudRepository.class));
     }
 
     @Test
     void shouldReturnFindFirstBy() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.FIND_BY, RepositoryType.of(getMethod(DevRepository.class, "findFirst10ByAge"), CrudRepository.class));
+        assertEquals(RepositoryType.FIND_BY, RepositoryType.of(getMethod(DevRepository.class, "findFirst10ByAge"), CrudRepository.class));
     }
 
     @Test
     void shouldReturnSave() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.SAVE, RepositoryType.of(getMethod(DevRepository.class, "save"), DevRepository.class));
+        assertEquals(RepositoryType.SAVE, RepositoryType.of(getMethod(DevRepository.class, "save"), DevRepository.class));
     }
 
     @Test
     void shouldReturnInsert() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.INSERT, RepositoryType.of(getMethod(DevRepository.class, "insert"), DevRepository.class));
+        assertEquals(RepositoryType.INSERT, RepositoryType.of(getMethod(DevRepository.class, "insert"), DevRepository.class));
     }
 
     @Test
     void shouldReturnDelete() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.DELETE, RepositoryType.of(getMethod(DevRepository.class, "delete"), DevRepository.class));
+        assertEquals(RepositoryType.DELETE, RepositoryType.of(getMethod(DevRepository.class, "delete"), DevRepository.class));
     }
 
     @Test
     void shouldReturnUpdate() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.UPDATE, RepositoryType.of(getMethod(DevRepository.class, "update"), DevRepository.class));
+        assertEquals(RepositoryType.UPDATE, RepositoryType.of(getMethod(DevRepository.class, "update"), DevRepository.class));
     }
 
     @Test
     void shouldReturnDeleteBy() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.DELETE_BY, RepositoryType.of(getMethod(DevRepository.class, "deleteByName"), CrudRepository.class));
+        assertEquals(RepositoryType.DELETE_BY, RepositoryType.of(getMethod(DevRepository.class, "deleteByName"), CrudRepository.class));
     }
 
     @Test
     void shouldReturnFindAllBy() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.FIND_ALL, RepositoryType.of(getMethod(DevRepository.class, "findAll"), CrudRepository.class));
+        assertEquals(RepositoryType.FIND_ALL, RepositoryType.of(getMethod(DevRepository.class, "findAll"), CrudRepository.class));
     }
 
     @Test
     void shouldReturnJNoSQLQuery() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.QUERY, RepositoryType.of(getMethod(DevRepository.class, "query"), CrudRepository.class));
+        assertEquals(RepositoryType.QUERY, RepositoryType.of(getMethod(DevRepository.class, "query"), CrudRepository.class));
     }
 
     @Test
@@ -129,42 +131,42 @@ class RepositoryTypeTest {
 
     @Test
     void shouldReturnParameterBased() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.PARAMETER_BASED, RepositoryType.of(getMethod(DevRepository.class, "find"), CrudRepository.class));
+        assertEquals(RepositoryType.PARAMETER_BASED, RepositoryType.of(getMethod(DevRepository.class, "find"), CrudRepository.class));
     }
 
     @Test
     void shouldReturnParameterBased2() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.PARAMETER_BASED, RepositoryType.of(getMethod(DevRepository.class, "find2"), CrudRepository.class));
+        assertEquals(RepositoryType.PARAMETER_BASED, RepositoryType.of(getMethod(DevRepository.class, "find2"), CrudRepository.class));
     }
 
 
     @Test
     void shouldReturnCountBy() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.COUNT_BY, RepositoryType.of(getMethod(DevRepository.class, "countByName"), CrudRepository.class));
+        assertEquals(RepositoryType.COUNT_BY, RepositoryType.of(getMethod(DevRepository.class, "countByName"), CrudRepository.class));
     }
 
     @Test
     void shouldReturnCountAll() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.COUNT_ALL, RepositoryType.of(getMethod(DevRepository.class, "countAll"), CrudRepository.class));
+        assertEquals(RepositoryType.COUNT_ALL, RepositoryType.of(getMethod(DevRepository.class, "countAll"), CrudRepository.class));
     }
 
     @Test
     void shouldReturnExistsBy() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.EXISTS_BY, RepositoryType.of(getMethod(DevRepository.class, "existsByName"), CrudRepository.class));
+        assertEquals(RepositoryType.EXISTS_BY, RepositoryType.of(getMethod(DevRepository.class, "existsByName"), CrudRepository.class));
     }
 
     @Test
     void shouldReturnOrder() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.ORDER_BY, RepositoryType.of(getMethod(DevRepository.class,
-                "order"), CrudRepository.class));
 
-        Assertions.assertEquals(RepositoryType.ORDER_BY, RepositoryType.of(getMethod(DevRepository.class,
-                "order2"), CrudRepository.class));
+        Assertions.assertThrows(UnsupportedOperationException.class,
+                () -> RepositoryType.of(getMethod(DevRepository.class, "order"), CrudRepository.class));
+        Assertions.assertThrows(UnsupportedOperationException.class,
+                () -> RepositoryType.of(getMethod(DevRepository.class, "order2"), CrudRepository.class));
     }
 
     @Test
     void shouldDefaultMethod() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.DEFAULT_METHOD, RepositoryType.of(getMethod(DevRepository.class,
+        assertEquals(RepositoryType.DEFAULT_METHOD, RepositoryType.of(getMethod(DevRepository.class,
                 "duplicate"), CrudRepository.class));
     }
 
@@ -176,7 +178,7 @@ class RepositoryTypeTest {
             Mockito.when(instance.isResolvable()).thenReturn(true);
             cdi.when(CDI::current).thenReturn(current);
             Mockito.when(current.select(Calculate.class)).thenReturn(instance);
-            Assertions.assertEquals(RepositoryType.CUSTOM_REPOSITORY, RepositoryType.of(getMethod(Calculate.class,
+            assertEquals(RepositoryType.CUSTOM_REPOSITORY, RepositoryType.of(getMethod(Calculate.class,
                     "sum"), CrudRepository.class));
         }
     }
@@ -189,7 +191,7 @@ class RepositoryTypeTest {
             Mockito.when(instance.isResolvable()).thenReturn(true);
             cdi.when(CDI::current).thenReturn(current);
             Mockito.when(current.select(Calculate.class)).thenReturn(instance);
-            Assertions.assertEquals(RepositoryType.CUSTOM_REPOSITORY, RepositoryType.of(getMethod(Calculate.class,
+            assertEquals(RepositoryType.CUSTOM_REPOSITORY, RepositoryType.of(getMethod(Calculate.class,
                     "findBySum"), CrudRepository.class));
         }
     }
@@ -202,15 +204,28 @@ class RepositoryTypeTest {
             Mockito.when(instance.isResolvable()).thenReturn(true);
             cdi.when(CDI::current).thenReturn(current);
             Mockito.when(current.select(Calculate.class)).thenReturn(instance);
-            Assertions.assertEquals(RepositoryType.FIND_BY, RepositoryType.of(getMethod(Calculate.class,
+            assertEquals(RepositoryType.FIND_BY, RepositoryType.of(getMethod(Calculate.class,
                     "findBySum"), Calculate.class));
         }
     }
 
     @Test
     void shouldReturnFindByNameOrderByName() throws NoSuchMethodException {
-        Assertions.assertEquals(RepositoryType.CURSOR_PAGINATION, RepositoryType.of(getMethod(DevRepository.class, "findByNameOrderByName"), CrudRepository.class));
+        assertEquals(RepositoryType.CURSOR_PAGINATION, RepositoryType.of(getMethod(DevRepository.class, "findByNameOrderByName"), CrudRepository.class));
     }
+
+    @Test
+    void shouldFindRestrictionWithFind() throws NoSuchMethodException {
+        assertEquals(RepositoryType.PARAMETER_BASED,
+                RepositoryType.of(getMethod(DevRepository.class, "findRestriction"), CrudRepository.class));
+    }
+
+    @Test
+    void shouldFindRestrictionWithQuery() throws NoSuchMethodException {
+        assertEquals(RepositoryType.QUERY,
+                RepositoryType.of(getMethod(DevRepository.class, "queryRestriction"), CrudRepository.class));
+    }
+
 
     private Method getMethod(Class<?> repository, String methodName) throws NoSuchMethodException {
         return Stream.of(repository.getDeclaredMethods())
@@ -271,6 +286,15 @@ class RepositoryTypeTest {
         List<String> find2(String name);
         CursoredPage<String> findByNameOrderByName(String name, PageRequest pageable);
 
+        List<String> restriction(Restriction<String> filter);
+
+        @Find
+        @OrderBy("name")
+        List<String> findRestriction(String name, Restriction<String> filter);
+
+        @Query("WHERE name = ?1")
+        @OrderBy("name")
+        List<String> queryRestriction(String name, Restriction<String> filter);
     }
 
     interface Calculate {
