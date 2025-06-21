@@ -59,6 +59,10 @@ public enum Condition {
      */
     CONTAINS,
     /**
+     * Represents a text contains another text at the start condition.
+     */
+    STARTS_WITH,
+    /**
      * Represents a text contains another text at the end condition.
      */
     ENDS_WITH,

@@ -467,11 +467,23 @@ public final class CriteriaCondition {
     }
 
     /**
+     * Creates a {@link CriteriaCondition} with a {@link Condition#STARTS_WITH}, indicating that a select will scan a
+     * semistructured NoSQL database with the same name and the value starts with the one provided in this element.
+     *
+     * @param element an element instance
+     * @return a {@link CriteriaCondition} with {@link Condition#STARTS_WITH}
+     * @throws NullPointerException when the element is null
+     */
+    public static CriteriaCondition startsWith(Element element) {
+        return new CriteriaCondition(element, Condition.STARTS_WITH);
+    }
+
+    /**
      * Creates a {@link CriteriaCondition} with a {@link Condition#ENDS_WITH}, indicating that a select will scan a
      * semistructured NoSQL database with the same name and the value ends with the one provided in this element.
      *
      * @param element an element instance
-     * @return a {@link CriteriaCondition} with {@link Condition#CONTAINS}
+     * @return a {@link CriteriaCondition} with {@link Condition#ENDS_WITH}
      * @throws NullPointerException when the element is null
      */
     public static CriteriaCondition endsWith(Element element) {

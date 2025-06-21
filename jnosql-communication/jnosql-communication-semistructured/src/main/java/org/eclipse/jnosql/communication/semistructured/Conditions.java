@@ -61,6 +61,9 @@ public final class Conditions {
             case CONTAINS -> CriteriaCondition.contains(Element.of(getName(condition, observer, entity),
                     Values.get(condition.value(),
                             parameters)));
+            case STARTS_WITH -> CriteriaCondition.startsWith(Element.of(getName(condition, observer, entity),
+                    Values.get(condition.value(),
+                            parameters)));
             case ENDS_WITH -> CriteriaCondition.endsWith(Element.of(getName(condition, observer, entity),
                     Values.get(condition.value(),
                             parameters)));
