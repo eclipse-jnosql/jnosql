@@ -32,6 +32,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +42,7 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 class DefaultEntitiesMetadata implements EntitiesMetadata {
 
+    private static final Logger LOGGER = Logger.getLogger(DefaultEntitiesMetadata.class.getName());
     private final Map<String, EntityMetadata> mappings;
 
     private final  Map<Class<?>, EntityMetadata> classes;
@@ -48,6 +50,8 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
     private final  Map<String, EntityMetadata> findBySimpleName;
 
     private final  Map<String, EntityMetadata> findByClassName;
+
+    private final Map<Class<?>, ProjectionMetadata> projections;
 
 
     private final ClassConverter converter;
@@ -61,16 +65,20 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
         this.findBySimpleName = new ConcurrentHashMap<>();
         this.findByClassName = new ConcurrentHashMap<>();
         this.converter = new ReflectionClassConverter();
+        this.projections = new ConcurrentHashMap<>();
     }
 
     @PostConstruct
     public void init() {
+        LOGGER.fine(() -> "Init DefaultEntitiesMetadata");
         classes.putAll(extension.classes());
         extension.mappings().forEach((k, v) -> mappings.put(k.toUpperCase(Locale.US), v));
         mappings.values().forEach(r -> {
             findBySimpleName.put(r.simpleName(), r);
             findByClassName.put(r.className(), r);
         });
+        projections.putAll(extension.projections());
+        LOGGER.fine(() -> "DefaultEntitiesMetadata initialized with " + mappings.size() + " entities.");
     }
 
     EntityMetadata load(Class<?> type) {
@@ -120,15 +128,19 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
     @Override
     public Optional<ProjectionMetadata> projection(Class<?> projection) {
         Objects.requireNonNull(projection, "projection is required");
-        return Optional.empty();
+        return Optional.ofNullable(projections.get(projection));
     }
 
 
     @Override
     public String toString() {
-        return "DefaultEntitiesMetadata{" + "mappings-size=" + mappings.size() +
+        return "DefaultEntitiesMetadata{" +
+                "mappings=" + mappings +
                 ", classes=" + classes +
-                ", classConverter=" + converter +
+                ", findBySimpleName=" + findBySimpleName +
+                ", findByClassName=" + findByClassName +
+                ", projections=" + projections +
+                ", converter=" + converter +
                 ", extension=" + extension +
                 '}';
     }
