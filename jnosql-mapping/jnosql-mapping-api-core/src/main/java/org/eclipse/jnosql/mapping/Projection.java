@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -49,6 +50,6 @@ import java.lang.annotation.Target;
  * @see jakarta.data.repository.Select
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(java.lang.annotation.ElementType.TYPE)
+@Target(ElementType.RECORD_COMPONENT)
 public @interface Projection {
 }
