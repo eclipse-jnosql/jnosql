@@ -62,6 +62,7 @@ public class ReflectionEntityMetadataExtension implements Extension {
         LOGGER.fine("Starting the scanning process for Entity and Embeddable annotations: ");
         ClassConverter converter = ClassConverter.load();
         ClassScanner scanner = ClassScanner.load();
+
         scanner.entities()
                 .forEach(entity -> {
                     EntityMetadata entityMetadata = converter.apply(entity);

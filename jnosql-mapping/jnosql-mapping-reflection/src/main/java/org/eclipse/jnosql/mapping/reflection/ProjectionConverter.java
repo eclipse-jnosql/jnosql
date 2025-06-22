@@ -39,6 +39,9 @@ class ProjectionConverter implements Function<Class<?>, ProjectionMetadata> {
         }
         LOGGER.fine(() -> "Converting " + type.getName() + " to ProjectionMetadata");
 
+        var className = type.getName();
+
+
         return null;
     }
 }
