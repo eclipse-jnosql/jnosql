@@ -16,6 +16,7 @@ import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionParameterMetadata;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,17 +44,16 @@ class ProjectionConverter implements Function<Class<?>, ProjectionMetadata> {
         LOGGER.fine(() -> "Converting " + type.getName() + " to ProjectionMetadata");
 
         var className = type.getName();
-        var constructor = type.getDeclaredConstructors()[0];
-        var projectionConstructor = new ReflectionProjectionConstructorMetadata(parameters(constructor));
+        var projectionConstructor = new ReflectionProjectionConstructorMetadata(parameters(type.getRecordComponents()));
         return new ReflectionProjectionMetadata(className, type, projectionConstructor);
     }
 
-    private List<ProjectionParameterMetadata> parameters(Constructor<?> constructor){
+    private List<ProjectionParameterMetadata> parameters(RecordComponent[] components){
         List<ProjectionParameterMetadata> parameters = new ArrayList<>();
-        for (var parameter : constructor.getParameters()) {
-            String name = Optional.ofNullable(parameter.getAnnotation(Select.class)).map(Select::value)
-                    .orElse(parameter.getName());
-            var type = parameter.getType();
+        for (var component : components) {
+            var name = Optional.ofNullable(component.getAnnotation(Select.class)).map(Select::value)
+                    .orElse(component.getName());
+            var type = component.getType();
             parameters.add(new ReflectionProjectionParameterMetadata(name, type));
         }
         return parameters;

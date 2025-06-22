@@ -21,5 +21,5 @@ import java.math.BigDecimal;
 
 
 @Projection
-public record ComputerView(String name, @Select("native")BigDecimal value) {
+public record ComputerView(String name, @Select("native") BigDecimal value) {
 }

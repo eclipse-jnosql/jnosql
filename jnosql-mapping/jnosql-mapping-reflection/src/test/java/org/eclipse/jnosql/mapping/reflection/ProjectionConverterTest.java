@@ -48,9 +48,9 @@ class ProjectionConverterTest {
             softly.assertThat(constructor).isNotNull();
             softly.assertThat(constructor.parameters()).hasSize(2);
             softly.assertThat(constructor.parameters().get(0).name()).isEqualTo("name");
+            softly.assertThat(constructor.parameters().get(0).type()).isEqualTo(String.class);
             softly.assertThat(constructor.parameters().get(1).name()).isEqualTo("native");
             softly.assertThat(constructor.parameters().get(1).type()).isEqualTo(BigDecimal.class);
-            softly.assertThat(constructor.parameters().get(0).type()).isEqualTo(String.class);
         });
     }
 
