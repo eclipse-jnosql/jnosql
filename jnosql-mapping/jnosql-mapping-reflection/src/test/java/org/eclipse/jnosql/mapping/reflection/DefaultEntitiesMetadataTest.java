@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @EnableAutoWeld
 @AddPackages(value = Convert.class)
-@AddPackages(value = ReflectionGroupEntityMetadata.class)
+@AddPackages(value = FieldReader.class)
 class DefaultEntitiesMetadataTest {
 
     @Inject

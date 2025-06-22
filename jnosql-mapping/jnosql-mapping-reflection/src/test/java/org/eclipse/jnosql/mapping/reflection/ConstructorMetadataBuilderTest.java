@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EnableAutoWeld
 @AddPackages(value = Convert.class)
-@AddPackages(value = ReflectionGroupEntityMetadata.class)
+@AddPackages(value = FieldReader.class)
 class ConstructorMetadataBuilderTest {
 
     @Inject

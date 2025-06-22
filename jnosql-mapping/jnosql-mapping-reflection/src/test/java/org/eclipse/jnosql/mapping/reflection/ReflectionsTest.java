@@ -49,7 +49,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @EnableAutoWeld
 @AddPackages(value = Convert.class)
-@AddPackages(value = ReflectionGroupEntityMetadata.class)
+@AddPackages(value = FieldReader.class)
 class ReflectionsTest {
 
     @Inject
