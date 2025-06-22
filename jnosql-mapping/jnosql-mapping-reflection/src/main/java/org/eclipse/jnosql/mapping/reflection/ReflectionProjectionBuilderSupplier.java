@@ -16,12 +16,12 @@ package org.eclipse.jnosql.mapping.reflection;
 
 import org.eclipse.jnosql.mapping.metadata.ProjectionBuilder;
 import org.eclipse.jnosql.mapping.metadata.ProjectionBuilderSupplier;
-import org.eclipse.jnosql.mapping.metadata.ProjectionParameterMetadata;
+import org.eclipse.jnosql.mapping.metadata.ProjectionConstructorMetadata;
 
 public class ReflectionProjectionBuilderSupplier implements ProjectionBuilderSupplier {
 
     @Override
-    public ProjectionBuilder apply(ProjectionParameterMetadata projectionParameterMetadata) {
-        return null;
+    public ProjectionBuilder apply(ProjectionConstructorMetadata projectionConstructorMetadata) {
+        return new ReflectionProjectionBuilder(projectionConstructorMetadata);
     }
 }
