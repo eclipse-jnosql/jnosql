@@ -50,6 +50,6 @@ import java.lang.annotation.Target;
  * @see jakarta.data.repository.Select
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.RECORD_COMPONENT)
+@Target(ElementType.TYPE)
 public @interface Projection {
 }
