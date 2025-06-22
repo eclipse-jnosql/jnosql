@@ -53,7 +53,6 @@ enum ClassGraphClassScanner implements ClassScanner {
 
     private final Set<Class<?>> projections;
 
-
     ClassGraphClassScanner() {
         entities = new HashSet<>();
         embeddables = new HashSet<>();
@@ -79,7 +78,6 @@ enum ClassGraphClassScanner implements ClassScanner {
 
     }
 
-
     @Override
     public Set<Class<?>> entities() {
         return unmodifiableSet(entities);
@@ -89,7 +87,6 @@ enum ClassGraphClassScanner implements ClassScanner {
     public Set<Class<?>> repositories() {
         return unmodifiableSet(repositories);
     }
-
 
    @Override
     public Set<Class<?>> embeddables() {
@@ -103,7 +100,6 @@ enum ClassGraphClassScanner implements ClassScanner {
                 .filter(c -> Arrays.asList(c.getInterfaces()).contains(filter))
                 .collect(toUnmodifiableSet());
     }
-
 
     @Override
     public Set<Class<?>> repositoriesStandard() {
@@ -126,7 +122,6 @@ enum ClassGraphClassScanner implements ClassScanner {
     public Set<Class<?>> projections() {
         return projections;
     }
-
 
     @SuppressWarnings("rawtypes")
     private static List<Class<DataRepository>> loadRepositories(ScanResult scan) {
