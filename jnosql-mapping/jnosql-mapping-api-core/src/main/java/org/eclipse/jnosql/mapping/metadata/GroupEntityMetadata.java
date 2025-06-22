@@ -42,9 +42,9 @@ public interface GroupEntityMetadata {
 
 
     /**
-     * Returns a mapping of Java classes to their corresponding {@link ProjectorMetadata}.
+     * Returns a mapping of Java classes to their corresponding {@link ProjectionMetadata}.
      *
      * @return A map containing Java classes and their corresponding projector metadata.
      */
-    Map<Class<?>, ProjectorMetadata> projectors();
+    Map<Class<?>, ProjectionMetadata> projections();
 }

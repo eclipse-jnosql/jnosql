@@ -80,7 +80,7 @@ public interface ClassScanner {
      *
      * @return A set of classes with the {@link org.eclipse.jnosql.mapping.Projection} annotation.
      */
-    Set<Class<?>> projectors();
+    Set<Class<?>> projections();
 
 
     /**

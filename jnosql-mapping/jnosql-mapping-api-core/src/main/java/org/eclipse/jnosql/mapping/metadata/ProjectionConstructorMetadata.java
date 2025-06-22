@@ -25,12 +25,12 @@ import java.util.List;
  * which may be used to bind query results to record components.
  * </p>
  */
-public interface ProjectorConstructorMetadata {
+public interface ProjectionConstructorMetadata {
 
     /**
      * Returns a list of ProjectorParameterMetadata objects representing the parameters of the constructor.
      *
      * @return the constructor parameters
      */
-    List<ProjectorParameterMetadata> parameters();
+    List<ProjectionParameterMetadata> parameters();
 }

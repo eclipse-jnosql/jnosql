@@ -24,7 +24,7 @@ package org.eclipse.jnosql.mapping.metadata;
  * </p>
  *
  */
-public interface ProjectorParameterMetadata {
+public interface ProjectionParameterMetadata {
 
     /**
      * Return the type of the field

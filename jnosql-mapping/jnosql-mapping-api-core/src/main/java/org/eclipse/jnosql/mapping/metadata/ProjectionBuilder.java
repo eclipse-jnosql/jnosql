@@ -28,16 +28,16 @@ import java.util.ServiceLoader;
  * such as a tuple or column-value map retrieved from a query.
  * </p>
  *
- * @see ProjectorMetadata
+ * @see ProjectionMetadata
  */
-public interface ProjectorBuilder {
+public interface ProjectionBuilder {
 
     /**
      * Returns the constructor parameters.
      *
      * @return the constructor parameters
      */
-    List<ProjectorParameterMetadata> parameters();
+    List<ProjectionParameterMetadata> parameters();
 
     /**
      * Adds a value for the next constructor parameter.
@@ -59,14 +59,14 @@ public interface ProjectorBuilder {
     <T> T build();
 
     /**
-     *  Creates a new instance of the {@link ProjectorBuilder} interface using the provided
-     *  * {@link ProjectorParameterMetadata}.
+     *  Creates a new instance of the {@link ProjectionBuilder} interface using the provided
+     *  * {@link ProjectionParameterMetadata}.
      * @param constructor the constructor
      * @return the ProjectorBuilder instance
      */
-    static ProjectorBuilder of(ProjectorParameterMetadata constructor){
+    static ProjectionBuilder of(ProjectionParameterMetadata constructor){
         Objects.requireNonNull(constructor, "constructor is required");
-        var supplier = ServiceLoader.load(ProjectorBuilderSupplier.class).findFirst()
+        var supplier = ServiceLoader.load(ProjectionBuilderSupplier.class).findFirst()
                 .orElseThrow(() -> new NoSQLException("There is not implementation for the ProjectorBuilderSupplier"));
         return supplier.apply(constructor);
     }

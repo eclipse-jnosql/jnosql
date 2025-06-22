@@ -18,11 +18,11 @@ import java.util.function.Function;
 
 
 /**
- * A supplier of {@link ProjectorBuilder} instances used for constructing projection records.
+ * A supplier of {@link ProjectionBuilder} instances used for constructing projection records.
  *
- * @see ProjectorBuilder
+ * @see ProjectionBuilder
  * @see org.eclipse.jnosql.mapping.Projection
- * @see ProjectorMetadata
+ * @see ProjectionMetadata
  */
-public interface ProjectorBuilderSupplier extends Function<ProjectorParameterMetadata, ProjectorBuilder> {
+public interface ProjectionBuilderSupplier extends Function<ProjectionParameterMetadata, ProjectionBuilder> {
 }
