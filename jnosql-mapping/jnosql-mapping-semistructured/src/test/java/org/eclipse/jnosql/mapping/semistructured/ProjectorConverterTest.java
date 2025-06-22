@@ -75,5 +75,18 @@ class ProjectorConverterTest {
         });
     }
 
+    @Test
+    void shouldDontBreakWhenEmbeddedIsNull(){
+        var projection = entitiesMetadata.projection(CitizenGeographySummary.class).orElseThrow();
+        Citizen citizen = Citizen.of("1", "Ada Lovelace");
+
+        CitizenGeographySummary summary = converter.map(citizen, projection);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(summary).isNotNull();
+            softly.assertThat(summary.name()).isNull();
+            softly.assertThat(summary.city()).isNull();
+        });
+    }
 
 }
