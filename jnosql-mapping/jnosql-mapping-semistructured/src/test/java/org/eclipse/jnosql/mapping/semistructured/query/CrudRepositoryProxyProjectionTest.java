@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.Select;
@@ -162,6 +163,51 @@ class CrudRepositoryProxyProjectionTest {
 
     }
 
+    @Test
+    void shouldReturnPage() {
+
+        var mac = new Product();
+        mac.setName("Mac");
+        mac.setPrice(BigDecimal.valueOf(1000));
+        mac.setType(Product.ProductType.ELECTRONICS);
+
+        when(template.select(any(SelectQuery.class))).thenReturn(Stream.of(mac));
+        ;
+        var name = repository.page(PageRequest.ofSize(10));
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(name).isNotNull();
+            softly.assertThat(name.content()).containsExactly("Mac");
+        });
+
+    }
+
+    @Test
+    void shouldReturnCursor() {
+
+        Product mac = new Product();
+        mac.setName("Mac");
+        mac.setPrice(BigDecimal.valueOf(1000));
+        mac.setType(Product.ProductType.ELECTRONICS);
+
+        List<Product> content = List.of(mac);
+        List<PageRequest.Cursor> cursors= List.of(PageRequest.Cursor.forKey(1, 2, 3));
+        PageRequest pageRequest= PageRequest.ofSize(10);
+        boolean nextPageRequest= false;
+        boolean previousPageRequest= false;
+
+        CursoredPage<Product> cursor = new CursoredPageRecord<>(content, cursors, 1L, pageRequest, nextPageRequest, previousPageRequest);
+        when(template.<Product>selectCursor(any(SelectQuery.class), any())).thenReturn(cursor);
+
+        var name = repository.cursor(PageRequest.ofSize(10).afterCursor(PageRequest.Cursor.forKey("1", "2")));
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(name).isNotNull();
+            softly.assertThat(name.content()).containsExactly("Mac");
+        });
+
+    }
+
 
     public interface ProductRepository extends CrudRepository<Product, String> {
         @Find
@@ -178,10 +224,10 @@ class CrudRepositoryProxyProjectionTest {
 
         @Find
         @Select(_Product.NAME)
-        Page<String> page(Restriction<Product> restriction, PageRequest pageRequest);
+        Page<String> page(PageRequest pageRequest);
 
         @Find
         @Select(_Product.NAME)
-        CursoredPage<String> cursor(Restriction<Product> restriction, PageRequest pageRequest);
+        CursoredPage<String> cursor(PageRequest pageRequest);
     }
 }

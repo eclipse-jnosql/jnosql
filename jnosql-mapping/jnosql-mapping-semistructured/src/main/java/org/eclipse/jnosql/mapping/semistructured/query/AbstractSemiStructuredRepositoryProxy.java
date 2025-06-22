@@ -15,9 +15,12 @@
 package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.data.Sort;
+import jakarta.data.page.CursoredPage;
+import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Query;
+import jakarta.data.repository.Select;
 import jakarta.data.restrict.Restriction;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
@@ -26,6 +29,7 @@ import org.eclipse.jnosql.mapping.core.repository.DynamicQueryMethodReturn;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.semistructured.MappingDeleteQuery;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 
@@ -34,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -114,7 +119,17 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
             var special = DynamicReturn.findSpecialParameters(params, sortParser());
             var pageRequest = special.pageRequest()
                     .orElseThrow(() -> new IllegalArgumentException("Pageable is required in the method signature as parameter at " + method));
-            return this.template().selectCursor(updateQuery, pageRequest);
+            var cursoredPage = this.template().selectCursor(updateQuery, pageRequest);
+            if (method.getAnnotation(Select.class) != null) {
+                var mappedResult = cursoredPage.content().stream().map(mapper(method)).toList();
+                var cursorPage = (CursoredPageRecord<?>) cursoredPage;
+                return new CursoredPageRecord<>(mappedResult, cursorPage.cursors(),
+                        cursorPage.totalPages(),
+                        cursorPage.pageRequest(),
+                        cursorPage.nextPageRequest(),
+                        cursorPage.previousPageRequest());
+            }
+            return cursoredPage;
         }
     }
 
@@ -178,7 +193,6 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
             throw new IllegalArgumentException("The first parameter must be a Restriction, but was: " + params[0].getClass().getName());
         }
     }
-
 
     private static List<Sort<?>> getSorts(Method method, EntityMetadata metadata) {
         return Stream.of(method.getAnnotationsByType(OrderBy.class))

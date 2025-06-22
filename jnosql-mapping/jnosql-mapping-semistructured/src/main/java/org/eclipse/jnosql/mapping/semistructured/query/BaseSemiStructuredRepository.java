@@ -157,12 +157,13 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                 .pagination(DynamicReturn.findPageRequest(args))
                 .streamPagination(streamPagination(query))
                 .singleResultPagination(getSingleResult(query))
-                .page(getPage(query))
+                .page(getPage(query, method))
                 .build();
         return dynamicReturn.execute();
     }
 
-    private Function<Object, Object> mapper(Method method) {
+    @SuppressWarnings("unchecked")
+    protected  <E> Function<Object, E> mapper(Method method) {
         return value -> {
             Select annotation = method.getAnnotation(Select.class);
             if(annotation != null) {
@@ -170,10 +171,10 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                 Optional<FieldMetadata> fieldMetadata = entityMetadata().fieldMapping(fieldReturn);
                 if(fieldMetadata.isPresent()) {
                     var field = fieldMetadata.orElseThrow();
-                    return field.read(value);
+                    return (E) field.read(value);
                 }
             }
-            return value;
+            return (E) value;
         };
     }
 
@@ -203,9 +204,9 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         return template().exists(query);
     }
 
-    protected Function<PageRequest, Page<T>> getPage(SelectQuery query) {
+    protected Function<PageRequest, Page<T>> getPage(SelectQuery query, Method selectMethod) {
         return p -> {
-            Stream<T> entities = template().select(query);
+            Stream<T> entities = template().select(query).map(mapper(selectMethod));
             return NoSQLPage.of(entities.toList(), p);
         };
     }
