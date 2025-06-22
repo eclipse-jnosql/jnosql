@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.data.Sort;
-import jakarta.data.page.CursoredPage;
 import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.OrderBy;
@@ -29,7 +28,6 @@ import org.eclipse.jnosql.mapping.core.repository.DynamicQueryMethodReturn;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
-import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.semistructured.MappingDeleteQuery;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 
@@ -38,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
