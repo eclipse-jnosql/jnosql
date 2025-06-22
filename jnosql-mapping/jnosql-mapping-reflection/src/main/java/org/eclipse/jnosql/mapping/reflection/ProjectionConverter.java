@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
-class ProjectionConverter implements Function<Class<?>, ProjectionMetadata> {
+public class ProjectionConverter implements Function<Class<?>, ProjectionMetadata> {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectionConverter.class.getName());
 

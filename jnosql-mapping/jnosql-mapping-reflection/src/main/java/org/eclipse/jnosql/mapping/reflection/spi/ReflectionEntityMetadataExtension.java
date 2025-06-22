@@ -28,9 +28,11 @@ import org.eclipse.jnosql.mapping.metadata.ClassScanner;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.GroupEntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
+import org.eclipse.jnosql.mapping.reflection.ProjectionConverter;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 
@@ -45,6 +47,8 @@ public class ReflectionEntityMetadataExtension implements Extension {
 
     private static final Map<Class<?>, EntityMetadata> ENTITY_METADATA_BY_CLASS = new ConcurrentHashMap<>();
     private static final Map<String, EntityMetadata> ENTITY_METADATA_BY_ENTITY_NAME = new ConcurrentHashMap<>();
+
+    private static final Map<Class<?>, ProjectionMetadata> PROJECTOR_METADATA_BY_CLASS = new ConcurrentHashMap<>();
 
     public void afterBeanDiscovery(@Observes AfterBeanDiscovery event, BeanManager bm) {
 
@@ -62,6 +66,7 @@ public class ReflectionEntityMetadataExtension implements Extension {
         LOGGER.fine("Starting the scanning process for Entity and Embeddable annotations: ");
         ClassConverter converter = ClassConverter.load();
         ClassScanner scanner = ClassScanner.load();
+        Function<Class<?>, ProjectionMetadata> projectionConverter = new ProjectionConverter();
 
         scanner.entities()
                 .forEach(entity -> {
@@ -77,6 +82,11 @@ public class ReflectionEntityMetadataExtension implements Extension {
                     EntityMetadata entityMetadata = converter.apply(embeddable);
                     ENTITY_METADATA_BY_CLASS.put(embeddable, entityMetadata);
                 });
+
+        scanner.projections().forEach(projection -> {
+            var projectionMetadata = projectionConverter.apply(projection);
+            PROJECTOR_METADATA_BY_CLASS.put(projection, projectionMetadata);
+        });
 
         LOGGER.fine(() ->"Finishing the scanning with: %d Entity and Embeddable scanned classes and %s Named entities"
                 .formatted(ENTITY_METADATA_BY_CLASS.size(), ENTITY_METADATA_BY_ENTITY_NAME.size()));
@@ -96,7 +106,7 @@ public class ReflectionEntityMetadataExtension implements Extension {
 
         @Override
         public Map<Class<?>, ProjectionMetadata> projections() {
-            return Map.of();
+            return PROJECTOR_METADATA_BY_CLASS;
         }
 
     }
