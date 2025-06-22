@@ -19,6 +19,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 
 import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  * A converter that transforms an entity into a projection based on the provided metadata. This class is designed to be
@@ -27,6 +28,7 @@ import java.util.Objects;
 @ApplicationScoped
 public class ProjectorConverter {
 
+    private static final Logger LOGGER = Logger.getLogger(ProjectorConverter.class.getName());
 
     /**
      * Converts the given entity to a projection based on the provided metadata.
@@ -41,6 +43,8 @@ public class ProjectorConverter {
     public <T, P> P map(T entity, ProjectionMetadata metadata) {
         Objects.requireNonNull(entity, "entity is required");
         Objects.requireNonNull(metadata, "metadata is required");
+        LOGGER.fine(() -> "Converting entity " + entity + " to " + metadata);
+        return null;
     }
 
 }
