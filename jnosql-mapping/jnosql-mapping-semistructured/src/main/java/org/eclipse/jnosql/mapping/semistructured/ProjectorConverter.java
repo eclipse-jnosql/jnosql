@@ -26,9 +26,12 @@ import org.eclipse.jnosql.mapping.metadata.ProjectionConstructorMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionParameterMetadata;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A converter that transforms an entity into a projection based on the provided metadata. This class is designed to be
@@ -72,19 +75,45 @@ public class ProjectorConverter {
 
         for (var parameter : constructor.parameters()) {
             String name = parameter.name();
-            Optional<FieldMetadata> fieldMetadata = entityMetadata.fieldMapping(name);
-            if (fieldMetadata.isEmpty()) {
+            Optional<Object> value = value(entityMetadata, name, entity);
+            if (value.isEmpty()) {
                 LOGGER.warning(() -> "Field metadata not found for parameter: " + name);
                 builder.addEmptyParameter();
             } else {
-                var field = fieldMetadata.orElseThrow();
-                var read = field.read(entity);
+                var parameterValue = value.orElseThrow();
                 Class<?> parameterType = parameter.type();
-                var converted = Value.of(read).get(parameterType);
+                var converted = Value.of(parameterValue).get(parameterType);
                 builder.add(converted);
             }
         }
         return builder.build();
+    }
+
+    private <T> Optional<Object> value(EntityMetadata entityMetadata, String name, T entity) {
+        String[] names = name.split("\\.");
+        if (names.length == 1) {
+            Optional<FieldMetadata> metadata = entityMetadata.fieldMapping(names[0]);
+            return metadata.map(f -> f.read(entity));
+        } else {
+            String first = names[0];
+
+            Optional<FieldMetadata> fieldMetadata = entityMetadata.fieldMapping(first);
+            if (fieldMetadata.isEmpty()) {
+                return Optional.empty();
+            }
+            var field = fieldMetadata.orElseThrow();
+            Object read = field.read(entity);
+            if (read == null) {
+                return Optional.empty();
+            }
+            var embeddedField = entitiesMetadata.get(read.getClass());
+            if (embeddedField == null) {
+                throw new IllegalArgumentException("Entity metadata not found for " + read.getClass());
+            }
+            var embeddedName = Stream.of(names).skip(1).collect(Collectors.joining("."));
+            return value(embeddedField, embeddedName, read);
+
+        }
     }
 
 }

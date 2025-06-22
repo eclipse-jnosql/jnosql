@@ -22,6 +22,9 @@ import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.entities.Book;
 import org.eclipse.jnosql.mapping.semistructured.entities.BookView;
+import org.eclipse.jnosql.mapping.semistructured.entities.Citizen;
+import org.eclipse.jnosql.mapping.semistructured.entities.CitizenGeographySummary;
+import org.eclipse.jnosql.mapping.semistructured.entities.City;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -57,7 +60,20 @@ class ProjectorConverterTest {
         });
     }
 
+    @Test
+    void shouldConvertWhenThereIsEmbeddedProjection() {
+        var projection = entitiesMetadata.projection(CitizenGeographySummary.class).orElseThrow();
+        City city = City.of("1", "London");
+        Citizen citizen = Citizen.of("1", "Ada Lovelace", city);
 
+        CitizenGeographySummary summary = converter.map(citizen, projection);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(summary).isNotNull();
+            softly.assertThat(summary.name()).isEqualTo(city.getName());
+            softly.assertThat(summary.city()).isEqualTo(city);
+        });
+    }
 
 
 }
