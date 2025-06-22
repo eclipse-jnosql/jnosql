@@ -60,11 +60,11 @@ public interface ProjectionBuilder {
 
     /**
      *  Creates a new instance of the {@link ProjectionBuilder} interface using the provided
-     *  * {@link ProjectionParameterMetadata}.
+     *  * {@link ProjectionConstructorMetadata}.
      * @param constructor the constructor
      * @return the ProjectorBuilder instance
      */
-    static ProjectionBuilder of(ProjectionParameterMetadata constructor){
+    static ProjectionBuilder of(ProjectionConstructorMetadata constructor){
         Objects.requireNonNull(constructor, "constructor is required");
         var supplier = ServiceLoader.load(ProjectionBuilderSupplier.class).findFirst()
                 .orElseThrow(() -> new NoSQLException("There is not implementation for the ProjectorBuilderSupplier"));
