@@ -16,8 +16,12 @@ package org.eclipse.jnosql.mapping.reflection;
 
 import jakarta.inject.Inject;
 import jakarta.nosql.Convert;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
+import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
+import org.eclipse.jnosql.mapping.reflection.entities.BookDTO;
+import org.eclipse.jnosql.mapping.reflection.entities.ComputerView;
 import org.eclipse.jnosql.mapping.reflection.entities.Movie;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.eclipse.jnosql.mapping.reflection.entities.Vendor;
@@ -36,6 +40,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -143,5 +148,18 @@ class DefaultEntitiesMetadataTest {
         EntityMetadata mapping = mappings.findByName("Movie");
         assertThat(mapping).isNotNull();
         Assertions.assertEquals(Movie.class, mapping.type());
+    }
+
+    @Test
+    void shouldGetProjection() {
+        assertThat(this.mappings.projection(BookDTO.class)).isEmpty();
+        Optional<ProjectionMetadata> projection = this.mappings.projection(ComputerView.class);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(projection).isPresent();
+            ProjectionMetadata projectionMetadata = projection.orElseThrow();
+            softly.assertThat(projectionMetadata.type()).isEqualTo(ComputerView.class);
+            softly.assertThat(projectionMetadata.className()).isEqualTo(ComputerView.class.getName());
+        });
     }
 }
