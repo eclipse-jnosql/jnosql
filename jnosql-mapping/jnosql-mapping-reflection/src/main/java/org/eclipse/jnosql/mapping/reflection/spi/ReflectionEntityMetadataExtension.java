@@ -47,7 +47,6 @@ public class ReflectionEntityMetadataExtension implements Extension {
 
     private static final Map<Class<?>, EntityMetadata> ENTITY_METADATA_BY_CLASS = new ConcurrentHashMap<>();
     private static final Map<String, EntityMetadata> ENTITY_METADATA_BY_ENTITY_NAME = new ConcurrentHashMap<>();
-
     private static final Map<Class<?>, ProjectionMetadata> PROJECTOR_METADATA_BY_CLASS = new ConcurrentHashMap<>();
 
     public void afterBeanDiscovery(@Observes AfterBeanDiscovery event, BeanManager bm) {
