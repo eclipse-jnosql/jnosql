@@ -14,8 +14,39 @@
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
-import static org.junit.jupiter.api.Assertions.*;
+import jakarta.inject.Inject;
+import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
+import org.eclipse.jnosql.mapping.reflection.Reflections;
+import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.semistructured.entities.BookView;
+import org.jboss.weld.junit5.auto.AddExtensions;
+import org.jboss.weld.junit5.auto.AddPackages;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+
+
+@EnableAutoWeld
+@AddPackages(value = {Converters.class, EntityConverter.class})
+@AddPackages(MockProducer.class)
+@AddPackages(Reflections.class)
+@AddExtensions({ReflectionEntityMetadataExtension.class})
 class ProjectorConverterTest {
+
+    @Inject
+    private ProjectorConverter converter;
+
+    @Inject
+    private EntitiesMetadata entitiesMetadata;
+
+    @Test
+    void shouldConvertEntityToProjection() {
+        var projection = entitiesMetadata.projection(BookView.class).orElseThrow();
+    }
+
+
 
 }
