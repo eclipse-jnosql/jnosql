@@ -31,7 +31,6 @@ import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static java.util.Optional.ofNullable;
@@ -79,11 +78,8 @@ public class ReflectionEntityMetadataExtension implements Extension {
                     ENTITY_METADATA_BY_CLASS.put(embeddable, entityMetadata);
                 });
 
-        ofNullable(LOGGER)
-                .filter(l -> l.isLoggable(Level.FINEST))
-                .ifPresent(l -> l.fine("Finishing the scanning with: %d Entity and Embeddable scanned classes and %s Named entities"
-                        .formatted(ENTITY_METADATA_BY_CLASS.size(), ENTITY_METADATA_BY_ENTITY_NAME.size())));
-
+        LOGGER.fine(() ->"Finishing the scanning with: %d Entity and Embeddable scanned classes and %s Named entities"
+                .formatted(ENTITY_METADATA_BY_CLASS.size(), ENTITY_METADATA_BY_ENTITY_NAME.size()));
     }
 
     public static class CDIGroupEntityMetadata implements GroupEntityMetadata {
