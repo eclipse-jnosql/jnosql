@@ -22,6 +22,8 @@ import org.eclipse.jnosql.mapping.metadata.ConstructorMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.reflection.entities.constructor.BookUser;
 import org.eclipse.jnosql.mapping.reflection.entities.constructor.Counter;
+import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @EnableAutoWeld
 @AddPackages(value = Convert.class)
 @AddPackages(value = FieldReader.class)
+@AddExtensions(ReflectionEntityMetadataExtension.class)
 class DefaultConstructorBuilderTest {
 
     private ConstructorMetadata constructor;

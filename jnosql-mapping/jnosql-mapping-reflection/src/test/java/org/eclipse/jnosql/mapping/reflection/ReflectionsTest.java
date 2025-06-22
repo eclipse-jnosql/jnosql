@@ -32,6 +32,8 @@ import org.eclipse.jnosql.mapping.reflection.entities.inheritance.Project;
 import org.eclipse.jnosql.mapping.reflection.entities.inheritance.SmallProject;
 import org.eclipse.jnosql.mapping.reflection.entities.inheritance.SmsNotification;
 import org.eclipse.jnosql.mapping.reflection.entities.inheritance.SocialMediaNotification;
+import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Test;
@@ -50,6 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @EnableAutoWeld
 @AddPackages(value = Convert.class)
 @AddPackages(value = FieldReader.class)
+@AddExtensions(ReflectionEntityMetadataExtension.class)
 class ReflectionsTest {
 
     @Inject
