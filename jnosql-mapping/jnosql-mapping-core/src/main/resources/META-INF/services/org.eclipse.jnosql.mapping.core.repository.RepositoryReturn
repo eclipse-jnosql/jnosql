@@ -1,5 +1,4 @@
 org.eclipse.jnosql.mapping.core.repository.returns.InstanceRepositoryReturn
-org.eclipse.jnosql.mapping.core.repository.returns.InstanceBasicReturn
 org.eclipse.jnosql.mapping.core.repository.returns.ListRepositoryReturn
 org.eclipse.jnosql.mapping.core.repository.returns.OptionalRepositoryReturn
 org.eclipse.jnosql.mapping.core.repository.returns.PageRepositoryReturn
