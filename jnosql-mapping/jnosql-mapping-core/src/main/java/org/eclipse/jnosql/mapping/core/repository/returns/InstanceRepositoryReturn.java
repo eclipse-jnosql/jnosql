@@ -32,7 +32,8 @@ public class InstanceRepositoryReturn implements RepositoryReturn {
                 && !Map.class.isAssignableFrom(returnType)
                 && !Stream.class.isAssignableFrom(returnType)
                 && !Optional.class.isAssignableFrom(returnType)
-                && !Page.class.isAssignableFrom(returnType);
+                && !Page.class.isAssignableFrom(returnType)
+                && !returnType.isArray();
     }
 
     @Override
