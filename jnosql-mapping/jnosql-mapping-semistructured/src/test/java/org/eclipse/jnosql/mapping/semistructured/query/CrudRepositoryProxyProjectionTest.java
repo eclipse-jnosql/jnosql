@@ -143,6 +143,25 @@ class CrudRepositoryProxyProjectionTest {
 
     }
 
+    @Test
+    void shouldReturnOptionalName() {
+
+        var mac = new Product();
+        mac.setName("Mac");
+        mac.setPrice(BigDecimal.valueOf(1000));
+        mac.setType(Product.ProductType.ELECTRONICS);
+
+        when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional.of(mac));
+
+        var name = repository.optionalName();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(name).isPresent();
+            softly.assertThat(name).get().isEqualTo("Mac");
+        });
+
+    }
+
 
     public interface ProductRepository extends CrudRepository<Product, String> {
         @Find
