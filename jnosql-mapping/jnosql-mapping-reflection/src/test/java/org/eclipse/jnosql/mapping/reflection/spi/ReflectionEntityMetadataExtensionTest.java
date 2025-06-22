@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.reflection.spi;
 
 import jakarta.enterprise.inject.spi.CDI;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.GroupEntityMetadata;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -67,6 +68,18 @@ class ReflectionEntityMetadataExtensionTest {
                     .as("should return non-empty mapping's map from the GroupEntityMetadata.mappings() method")
                     .isNotEmpty();
 
+        });
+    }
+
+    @Test
+    void shouldInjectGroupEntityMetadata(){
+        var groupEntityMetadata = CDI.current().select(GroupEntityMetadata.class).get();
+
+        SoftAssertions.assertSoftly(softly -> {
+           softly.assertThat(groupEntityMetadata).isNotNull();
+            softly.assertThat(groupEntityMetadata.classes()).isNotNull().isNotEmpty();
+            softly.assertThat(groupEntityMetadata.mappings()).isNotNull().isNotEmpty();
+            softly.assertThat(groupEntityMetadata.projections()).isNotNull().isNotEmpty();
         });
     }
 }
