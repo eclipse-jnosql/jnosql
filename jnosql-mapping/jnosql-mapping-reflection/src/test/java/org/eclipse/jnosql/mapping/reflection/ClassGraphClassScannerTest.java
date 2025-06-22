@@ -130,7 +130,8 @@ class ClassGraphClassScannerTest {
     void shouldReturnProjections() {
         Set<Class<?>> projections = classScanner.projections();
         assertThat(projections).hasSize(1)
-                .contains(ComputerView.class);
+                .contains(ComputerView.class)
+                .doesNotContain(BookDTO.class, BookDTO.class);
     }
 
     @Test
