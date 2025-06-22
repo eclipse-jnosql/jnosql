@@ -16,5 +16,13 @@ package org.eclipse.jnosql.mapping.metadata;
 
 import java.util.function.Function;
 
+
+/**
+ * A supplier of {@link ProjectorBuilder} instances used for constructing projection records.
+ *
+ * @see ProjectorBuilder
+ * @see org.eclipse.jnosql.mapping.Projection
+ * @see ProjectorMetadata
+ */
 public interface ProjectorBuilderSupplier extends Function<ProjectorParameterMetadata, ProjectorBuilder> {
 }
