@@ -27,6 +27,7 @@ import org.eclipse.jnosql.mapping.metadata.ClassConverter;
 import org.eclipse.jnosql.mapping.metadata.ClassScanner;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.GroupEntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -96,5 +97,11 @@ public class ReflectionEntityMetadataExtension implements Extension {
         public Map<Class<?>, EntityMetadata> classes() {
             return ENTITY_METADATA_BY_CLASS;
         }
+
+        @Override
+        public Map<Class<?>, ProjectionMetadata> projections() {
+            return Map.of();
+        }
+
     }
 }

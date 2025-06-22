@@ -23,6 +23,7 @@ import jakarta.data.repository.Repository;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Embeddable;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
+import org.eclipse.jnosql.mapping.Projection;
 import org.eclipse.jnosql.mapping.metadata.ClassScanner;
 
 import java.util.Arrays;
@@ -50,12 +51,15 @@ enum ClassGraphClassScanner implements ClassScanner {
     private final Set<Class<?>> embeddables;
     private final Set<Class<?>> customRepositories;
 
+    private final Set<Class<?>> projections;
+
 
     ClassGraphClassScanner() {
         entities = new HashSet<>();
         embeddables = new HashSet<>();
         repositories = new HashSet<>();
         customRepositories = new HashSet<>();
+        projections = new HashSet<>();
 
         Logger logger = Logger.getLogger(ClassGraphClassScanner.class.getName());
         logger.fine("Starting scan class to find entities, embeddable and repositories.");
@@ -66,10 +70,12 @@ enum ClassGraphClassScanner implements ClassScanner {
             this.embeddables.addAll(loadEmbeddable(result));
             this.repositories.addAll(loadRepositories(result));
             this.customRepositories.addAll(loadCustomRepositories(result));
+            this.projections.addAll(loadProjection(result));
             notSupportedRepositories.forEach(this.repositories::remove);
         }
-        logger.fine(String.format("Finished the class scan with entities %d, embeddables %d and repositories: %d"
-                , entities.size(), embeddables.size(), repositories.size()));
+
+        logger.fine(String.format("Finished the class scan with entities %d, embeddables %d and repositories: %d and projections: %d",
+                entities.size(), embeddables.size(), repositories.size(), projections.size()));
 
     }
 
@@ -116,6 +122,11 @@ enum ClassGraphClassScanner implements ClassScanner {
         return customRepositories;
     }
 
+    @Override
+    public Set<Class<?>> projections() {
+        return Set.of();
+    }
+
 
     @SuppressWarnings("rawtypes")
     private static List<Class<DataRepository>> loadRepositories(ScanResult scan) {
@@ -133,6 +144,14 @@ enum ClassGraphClassScanner implements ClassScanner {
                 .filter(c -> !c.implementsInterface(DataRepository.class))
                 .loadClasses().stream().toList();
     }
+
+    private static List<Class<?>> loadProjection(ScanResult scan) {
+        return scan.getClassesWithAnnotation(Projection.class)
+                .getInterfaces()
+                .filter(c -> !c.implementsInterface(DataRepository.class))
+                .loadClasses().stream().toList();
+    }
+
 
     @SuppressWarnings("rawtypes")
     private static List<Class<DataRepository>> loadNotSupportedRepositories(ScanResult scan) {

@@ -24,6 +24,7 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.GroupEntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
+import org.eclipse.jnosql.mapping.metadata.ProjectorMetadata;
 
 import java.util.Locale;
 import java.util.Map;
@@ -114,6 +115,12 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
     public Optional<EntityMetadata> findByClassName(String name) {
         Objects.requireNonNull(name, "name is required");
         return Optional.ofNullable(findByClassName.get(name));
+    }
+
+    @Override
+    public Optional<ProjectorMetadata> projector(Class<?> projector) {
+        Objects.requireNonNull(projector, "projector is required");
+        return Optional.empty();
     }
 
     @Override
