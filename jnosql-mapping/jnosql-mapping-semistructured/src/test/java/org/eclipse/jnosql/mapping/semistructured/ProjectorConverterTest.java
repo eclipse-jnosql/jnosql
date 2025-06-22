@@ -15,11 +15,12 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.inject.Inject;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
-import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.semistructured.entities.Book;
 import org.eclipse.jnosql.mapping.semistructured.entities.BookView;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
@@ -45,7 +46,17 @@ class ProjectorConverterTest {
     @Test
     void shouldConvertEntityToProjection() {
         var projection = entitiesMetadata.projection(BookView.class).orElseThrow();
+        Book book = Book.builder().withId(1L).withName("Effective Java").withAge(20).build();
+
+        BookView bookView = converter.map(book, projection);
+
+        SoftAssertions.assertSoftly(softly -> {
+           softly.assertThat(bookView).isNotNull();
+              softly.assertThat(bookView.name()).isEqualTo("Effective Java");
+              softly.assertThat(bookView.edition()).isEqualTo(20);
+        });
     }
+
 
 
 

@@ -16,9 +16,18 @@ package org.eclipse.jnosql.mapping.semistructured;
 
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import org.eclipse.jnosql.communication.Value;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
+import org.eclipse.jnosql.mapping.metadata.ProjectionBuilder;
+import org.eclipse.jnosql.mapping.metadata.ProjectionConstructorMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
+import org.eclipse.jnosql.mapping.metadata.ProjectionParameterMetadata;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -30,13 +39,22 @@ public class ProjectorConverter {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectorConverter.class.getName());
 
+    private final EntitiesMetadata entitiesMetadata;
+
+
+    @Inject
+    public ProjectorConverter(EntitiesMetadata entitiesMetadata) {
+        this.entitiesMetadata = entitiesMetadata;
+    }
+
+
     /**
      * Converts the given entity to a projection based on the provided metadata.
      *
-     * @param entity the entity to be converted, must not be null
+     * @param entity   the entity to be converted, must not be null
      * @param metadata the metadata defining the projection, must not be null
-     * @param <T> the type of the entity
-     * @param <P> the type of the projection
+     * @param <T>      the type of the entity
+     * @param <P>      the type of the projection
      * @return a projection of type P based on the entity and metadata
      * @throws NullPointerException if either entity or metadata is null
      */
@@ -44,7 +62,29 @@ public class ProjectorConverter {
         Objects.requireNonNull(entity, "entity is required");
         Objects.requireNonNull(metadata, "metadata is required");
         LOGGER.fine(() -> "Converting entity " + entity + " to " + metadata);
-        return null;
+        var entityMetadata = entitiesMetadata.get(entity.getClass());
+        if (entityMetadata == null) {
+            throw new IllegalArgumentException("Entity metadata not found for " + entity.getClass());
+        }
+
+        var constructor = metadata.constructor();
+        var builder = ProjectionBuilder.of(constructor);
+
+        for (var parameter : constructor.parameters()) {
+            String name = parameter.name();
+            Optional<FieldMetadata> fieldMetadata = entityMetadata.fieldMapping(name);
+            if (fieldMetadata.isEmpty()) {
+                LOGGER.warning(() -> "Field metadata not found for parameter: " + name);
+                builder.addEmptyParameter();
+            } else {
+                var field = fieldMetadata.orElseThrow();
+                var read = field.read(entity);
+                Class<?> parameterType = parameter.type();
+                var converted = Value.of(read).get(parameterType);
+                builder.add(converted);
+            }
+        }
+        return builder.build();
     }
 
 }
