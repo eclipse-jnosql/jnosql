@@ -12,6 +12,7 @@
 package org.eclipse.jnosql.mapping.reflection;
 
 import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.mapping.metadata.ProjectionConstructorMetadata;
 import org.eclipse.jnosql.mapping.reflection.entities.ComputerView;
 import org.junit.jupiter.api.Test;
 
@@ -49,6 +50,23 @@ class ProjectionConverterTest {
             softly.assertThat(constructor.parameters().get(1).name()).isEqualTo("native");
             softly.assertThat(constructor.parameters().get(1).type()).isEqualTo(BigDecimal.class);
         });
+    }
+
+    @Test
+    void shouldSelectConstructor() {
+
+        Class<?> type = ComputerView.class;
+        var metadata = converter.apply(type);
+        var constructor = metadata.constructor();
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(constructor).isNotNull();
+            softly.assertThat(constructor).isInstanceOf(ProjectionConstructorMetadata.class);
+            softly.assertThat(constructor).isInstanceOf(ReflectionProjectionConstructorMetadata.class);
+
+            var projectionConstructor = (ReflectionProjectionConstructorMetadata) constructor;
+            softly.assertThat(projectionConstructor.constructor()).isNotNull();
+        });
+
     }
 
 }

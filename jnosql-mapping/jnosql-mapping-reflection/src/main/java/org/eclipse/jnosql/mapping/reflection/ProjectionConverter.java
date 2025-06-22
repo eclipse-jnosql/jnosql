@@ -44,7 +44,8 @@ class ProjectionConverter implements Function<Class<?>, ProjectionMetadata> {
         LOGGER.fine(() -> "Converting " + type.getName() + " to ProjectionMetadata");
 
         var className = type.getName();
-        var projectionConstructor = new ReflectionProjectionConstructorMetadata(parameters(type.getRecordComponents()));
+        var constructor = type.getDeclaredConstructors()[0];
+        var projectionConstructor = new ReflectionProjectionConstructorMetadata(parameters(type.getRecordComponents()), constructor);
         return new ReflectionProjectionMetadata(className, type, projectionConstructor);
     }
 
