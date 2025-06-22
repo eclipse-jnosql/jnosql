@@ -22,11 +22,8 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionBuilder;
-import org.eclipse.jnosql.mapping.metadata.ProjectionConstructorMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
-import org.eclipse.jnosql.mapping.metadata.ProjectionParameterMetadata;
 
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
