@@ -24,5 +24,5 @@ import java.util.function.Function;
  * @see org.eclipse.jnosql.mapping.Projection
  * @see ProjectionMetadata
  */
-public interface ProjectionBuilderSupplier extends Function<ProjectionParameterMetadata, ProjectionBuilder> {
+public interface ProjectionBuilderSupplier extends Function<ProjectionConstructorMetadata, ProjectionBuilder> {
 }
