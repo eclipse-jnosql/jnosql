@@ -19,6 +19,7 @@ import jakarta.data.Limit;
 import jakarta.data.Sort;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import jakarta.data.repository.Select;
 import jakarta.data.restrict.Restriction;
 import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.query.method.DeleteMethodProvider;
@@ -37,6 +38,7 @@ import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.SpecialParameters;
 import org.eclipse.jnosql.mapping.core.util.ParamsBinder;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
@@ -144,8 +146,35 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(typeClass)
                 .methodSource(method)
-                .result(() -> template().select(query))
-                .singleResult(() -> template().singleResult(query))
+                .result(() -> {
+                    Stream<Object> select = template().select(query);
+                    Select annotation = method.getAnnotation(Select.class);
+                    if(annotation != null) {
+                        String fieldReturn = annotation.value();
+                        Optional<FieldMetadata> fieldMetadata = entityMetadata().fieldMapping(fieldReturn);
+                        if(fieldMetadata.isPresent()) {
+                            var field = fieldMetadata.orElseThrow();
+                            return select.map(field::read);
+                        }
+                    }
+                    return select;
+                })
+                .singleResult(() -> {
+                    Optional<Object> object = template().singleResult(query);
+                    if (object.isEmpty()) {
+                        return object;
+                    }
+                    Select annotation = method.getAnnotation(Select.class);
+                    if(annotation != null) {
+                        String fieldReturn = annotation.value();
+                        Optional<FieldMetadata> fieldMetadata = entityMetadata().fieldMapping(fieldReturn);
+                        if(fieldMetadata.isPresent()) {
+                            var field = fieldMetadata.orElseThrow();
+                            return object.map(field::read);
+                        }
+                    }
+                    return object;
+                })
                 .pagination(DynamicReturn.findPageRequest(args))
                 .streamPagination(streamPagination(query))
                 .singleResultPagination(getSingleResult(query))

@@ -14,25 +14,16 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
-import jakarta.data.Order;
-import jakarta.data.Sort;
 import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
-import jakarta.data.repository.By;
 import jakarta.data.repository.CrudRepository;
-import jakarta.data.repository.Delete;
 import jakarta.data.repository.Find;
-import jakarta.data.repository.OrderBy;
-import jakarta.data.repository.Param;
-import jakarta.data.repository.Query;
 import jakarta.data.repository.Select;
 import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
-import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
-import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -52,14 +43,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.awt.print.Pageable;
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.eclipse.jnosql.communication.Condition.AND;
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
-import static org.eclipse.jnosql.communication.Condition.GREATER_THAN;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -98,7 +89,7 @@ class CrudRepositoryProxyProjectionTest {
 
 
     @Test
-    void shouldRestrict() {
+    void shouldReturnNamesOnly() {
 
         var mac = new Product();
         mac.setName("Mac");
@@ -118,7 +109,7 @@ class CrudRepositoryProxyProjectionTest {
         when(template.select(any(SelectQuery.class)))
                 .thenReturn(Stream.of(mac, sofa, tshirt));
 
-        var productNames = repository.restriction(_Product.name.equalTo("Mac"));
+        var productNames = repository.names(_Product.name.equalTo("Mac"));
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
@@ -134,6 +125,21 @@ class CrudRepositoryProxyProjectionTest {
             softly.assertThat(productNames).contains("Mac", "Sofa", "T-Shirt");
         });
 
+    }
+
+    @Test
+    void shouldReturnName() {
+
+        var mac = new Product();
+        mac.setName("Mac");
+        mac.setPrice(BigDecimal.valueOf(1000));
+        mac.setType(Product.ProductType.ELECTRONICS);
+
+        when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional.of(mac));
+
+        var name = repository.name();
+
+        SoftAssertions.assertSoftly(softly -> softly.assertThat(name).isEqualTo("Mac"));
 
     }
 
@@ -141,6 +147,22 @@ class CrudRepositoryProxyProjectionTest {
     public interface ProductRepository extends CrudRepository<Product, String> {
         @Find
         @Select(_Product.NAME)
-        List<String> restriction(Restriction<Product> restriction);
+        List<String> names(Restriction<Product> restriction);
+
+        @Find
+        @Select(_Product.NAME)
+        String name();
+
+        @Find
+        @Select(_Product.NAME)
+        Optional<String> optionalName();
+
+        @Find
+        @Select(_Product.NAME)
+        Page<String> page(Restriction<Product> restriction, PageRequest pageRequest);
+
+        @Find
+        @Select(_Product.NAME)
+        CursoredPage<String> cursor(Restriction<Product> restriction, PageRequest pageRequest);
     }
 }
