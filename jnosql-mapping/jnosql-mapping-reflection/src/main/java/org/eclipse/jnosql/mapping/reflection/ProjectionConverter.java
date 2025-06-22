@@ -8,16 +8,19 @@
  *
  *   You may elect to redistribute this code under either of these licenses.
  *
- *   Contributors:
- *
- *   Otavio Santana
- *   Maximillian Arruda
  */
 package org.eclipse.jnosql.mapping.reflection;
 
+import jakarta.data.repository.Select;
 import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
+import org.eclipse.jnosql.mapping.metadata.ProjectionParameterMetadata;
 
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -41,9 +44,18 @@ class ProjectionConverter implements Function<Class<?>, ProjectionMetadata> {
 
         var className = type.getName();
         var constructor = type.getDeclaredConstructors()[0];
+        var projectionConstructor = new ReflectionProjectionConstructorMetadata(parameters(constructor));
+        return new ReflectionProjectionMetadata(className, type, projectionConstructor);
+    }
 
-
-
-        return null;
+    private List<ProjectionParameterMetadata> parameters(Constructor<?> constructor){
+        List<ProjectionParameterMetadata> parameters = new ArrayList<>();
+        for (var parameter : constructor.getParameters()) {
+            String name = Optional.ofNullable(parameter.getAnnotation(Select.class)).map(Select::value)
+                    .orElse(parameter.getName());
+            var type = parameter.getType();
+            parameters.add(new ReflectionProjectionParameterMetadata(name, type));
+        }
+        return parameters;
     }
 }
