@@ -14,5 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.metadata;
 
-public interface ProjectorBuilderSupplier {
+import java.util.function.Function;
+
+public interface ProjectorBuilderSupplier extends Function<ProjectorParameterMetadata, ProjectorBuilder> {
 }
