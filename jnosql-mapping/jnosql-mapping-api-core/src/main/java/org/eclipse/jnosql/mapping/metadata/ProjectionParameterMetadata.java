@@ -27,13 +27,6 @@ package org.eclipse.jnosql.mapping.metadata;
 public interface ProjectionParameterMetadata {
 
     /**
-     * Return the type of the field
-     *
-     * @return the {@link MappingType}
-     */
-    MappingType mappingType();
-
-    /**
      * Returns the name of the field that can be either the field name
      * or {@link jakarta.data.repository.Select#value()}
      *
