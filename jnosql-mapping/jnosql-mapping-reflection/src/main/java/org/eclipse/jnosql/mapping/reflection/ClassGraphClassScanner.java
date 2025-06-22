@@ -124,7 +124,7 @@ enum ClassGraphClassScanner implements ClassScanner {
 
     @Override
     public Set<Class<?>> projections() {
-        return Set.of();
+        return projections;
     }
 
 
@@ -147,8 +147,7 @@ enum ClassGraphClassScanner implements ClassScanner {
 
     private static List<Class<?>> loadProjection(ScanResult scan) {
         return scan.getClassesWithAnnotation(Projection.class)
-                .getInterfaces()
-                .filter(c -> !c.implementsInterface(DataRepository.class))
+                .getRecords()
                 .loadClasses().stream().toList();
     }
 

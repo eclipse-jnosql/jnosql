@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-import static java.util.Optional.ofNullable;
 
 /**
  * This class is a CDI extension to load all class that has {@link Entity} annotation.
