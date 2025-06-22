@@ -12,13 +12,10 @@
 package org.eclipse.jnosql.mapping.reflection;
 
 import org.assertj.core.api.SoftAssertions;
-import org.eclipse.jnosql.mapping.metadata.ProjectionConstructorMetadata;
 import org.eclipse.jnosql.mapping.reflection.entities.ComputerView;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ProjectionConverterTest {
 
