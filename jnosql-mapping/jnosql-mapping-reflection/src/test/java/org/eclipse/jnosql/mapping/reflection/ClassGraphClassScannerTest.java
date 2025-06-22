@@ -124,4 +124,17 @@ class ClassGraphClassScannerTest {
         assertThat(repositories).hasSize(1);
     }
 
+    @Test
+    void shouldReturnProjections() {
+        Set<Class<?>> projections = classScanner.projections();
+        assertThat(projections).hasSize(1)
+                .contains(org.eclipse.jnosql.mapping.reflection.entities.Projection.class);
+    }
+
+    void shouldIgnoreProjectionClassesThatAreNotRecords() {
+        Set<Class<?>> projections = classScanner.projections();
+        assertThat(projections).hasSize(1)
+                .contains(org.eclipse.jnosql.mapping.reflection.entities.Projection.class);
+    }
+
 }
