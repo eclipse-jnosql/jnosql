@@ -27,12 +27,6 @@ class ProjectionConverter implements Function<Class<?>, ProjectionMetadata> {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectionConverter.class.getName());
 
-    private final Reflections reflections;
-
-    ProjectionConverter() {
-        this.reflections = new Reflections();
-    }
-
     @Override
     public ProjectionMetadata apply(Class<?> type) {
         Objects.requireNonNull(type, "type is required");
