@@ -17,5 +17,5 @@ package org.eclipse.jnosql.mapping.reflection;
 
 import org.eclipse.jnosql.mapping.metadata.ProjectionParameterMetadata;
 
-record ReflectionProjectionParameterMetadata(   String name, Class<?> type) implements ProjectionParameterMetadata {
+record ReflectionProjectionParameterMetadata(String name, Class<?> type) implements ProjectionParameterMetadata {
 }
