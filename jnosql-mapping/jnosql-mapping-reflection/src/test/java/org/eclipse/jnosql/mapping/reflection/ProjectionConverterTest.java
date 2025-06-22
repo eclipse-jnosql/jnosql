@@ -37,6 +37,16 @@ class ProjectionConverterTest {
     }
 
     @Test
+    void shouldThrowWhenTypeIsNotRecord() {
+        Class<?> type = String.class;
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThatThrownBy(() -> converter.apply(type))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("The type java.lang.String is not record");
+        });
+    }
+
+    @Test
     void shouldShowParameters() {
         Class<?> type = ComputerView.class;
         var metadata = converter.apply(type);
