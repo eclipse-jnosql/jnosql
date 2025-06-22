@@ -14,7 +14,11 @@
  */
 package org.eclipse.jnosql.mapping.metadata;
 
+import jakarta.nosql.NoSQLException;
+
 import java.util.List;
+import java.util.Objects;
+import java.util.ServiceLoader;
 
 /**
  * Strategy interface for building projection instances from query results.
@@ -53,4 +57,17 @@ public interface ProjectorBuilder {
      * @return the built projector
      */
     <T> T build();
+
+    /**
+     *  Creates a new instance of the {@link ProjectorBuilder} interface using the provided
+     *  * {@link ProjectorParameterMetadata}.
+     * @param constructor the constructor
+     * @return the ProjectorBuilder instance
+     */
+    static ProjectorBuilder of(ProjectorParameterMetadata constructor){
+        Objects.requireNonNull(constructor, "constructor is required");
+        var supplier = ServiceLoader.load(ProjectorBuilderSupplier.class).findFirst()
+                .orElseThrow(() -> new NoSQLException("There is not implementation for the ProjectorBuilderSupplier"));
+        return supplier.apply(constructor);
+    }
 }
