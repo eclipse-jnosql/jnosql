@@ -17,13 +17,23 @@ package org.eclipse.jnosql.mapping.core.repository.returns;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
 
+import java.time.temporal.Temporal;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
 
-public class InstanceRepositoryReturn implements RepositoryReturn {
+public class InstanceBasicReturn implements RepositoryReturn {
+
+    private static final Predicate<Class<?>> IS_BASIC_TYPE = type -> type.isPrimitive()
+            || type.isEnum()
+            || Number.class.isAssignableFrom(type)
+            || type.equals(java.util.Date.class)
+            || type.equals(java.sql.Date.class)
+            || Temporal.class.isAssignableFrom(type);
 
     @Override
     public boolean isCompatible(Class<?> entity, Class<?> returnType) {
-        return entity.equals(returnType);
+        return !entity.equals(returnType) && IS_BASIC_TYPE.test(returnType);
     }
 
     @Override
