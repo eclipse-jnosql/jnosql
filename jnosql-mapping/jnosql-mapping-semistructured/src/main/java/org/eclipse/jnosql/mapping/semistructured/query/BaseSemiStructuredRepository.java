@@ -148,32 +148,11 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                 .methodSource(method)
                 .result(() -> {
                     Stream<Object> select = template().select(query);
-                    Select annotation = method.getAnnotation(Select.class);
-                    if(annotation != null) {
-                        String fieldReturn = annotation.value();
-                        Optional<FieldMetadata> fieldMetadata = entityMetadata().fieldMapping(fieldReturn);
-                        if(fieldMetadata.isPresent()) {
-                            var field = fieldMetadata.orElseThrow();
-                            return select.map(field::read);
-                        }
-                    }
-                    return select;
+                    return select.map(mapper(method));
                 })
                 .singleResult(() -> {
                     Optional<Object> object = template().singleResult(query);
-                    if (object.isEmpty()) {
-                        return object;
-                    }
-                    Select annotation = method.getAnnotation(Select.class);
-                    if(annotation != null) {
-                        String fieldReturn = annotation.value();
-                        Optional<FieldMetadata> fieldMetadata = entityMetadata().fieldMapping(fieldReturn);
-                        if(fieldMetadata.isPresent()) {
-                            var field = fieldMetadata.orElseThrow();
-                            return object.map(field::read);
-                        }
-                    }
-                    return object;
+                   return object.map(mapper(method));
                 })
                 .pagination(DynamicReturn.findPageRequest(args))
                 .streamPagination(streamPagination(query))
@@ -181,6 +160,21 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                 .page(getPage(query))
                 .build();
         return dynamicReturn.execute();
+    }
+
+    private Function<Object, Object> mapper(Method method) {
+        return value -> {
+            Select annotation = method.getAnnotation(Select.class);
+            if(annotation != null) {
+                String fieldReturn = annotation.value();
+                Optional<FieldMetadata> fieldMetadata = entityMetadata().fieldMapping(fieldReturn);
+                if(fieldMetadata.isPresent()) {
+                    var field = fieldMetadata.orElseThrow();
+                    return field.read(value);
+                }
+            }
+            return value;
+        };
     }
 
     private SelectQuery includeInheritance(SelectQuery query){
