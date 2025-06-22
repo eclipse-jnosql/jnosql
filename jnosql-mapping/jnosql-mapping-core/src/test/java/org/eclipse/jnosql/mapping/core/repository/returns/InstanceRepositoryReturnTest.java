@@ -16,19 +16,28 @@ package org.eclipse.jnosql.mapping.core.repository.returns;
 
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,11 +48,16 @@ class InstanceRepositoryReturnTest {
     @Mock
     private Page<Person> page;
 
-    @Test
-    void shouldReturnIsCompatible() {
-        Assertions.assertTrue(repositoryReturn.isCompatible(Person.class, Person.class));
-        Assertions.assertFalse(repositoryReturn.isCompatible(Object.class, Person.class));
-        Assertions.assertFalse(repositoryReturn.isCompatible(Person.class, Object.class));
+    @ParameterizedTest
+    @ValueSource(classes = {Person.class, Object.class, String.class, Integer.class, Date.class})
+    void shouldReturnIsCompatible(Class<?> returnType) {
+        assertThat(repositoryReturn.isCompatible(Person.class, returnType)).isTrue();
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = {List.class, Set.class, Map.class, Iterable.class, Queue.class})
+    void shouldReturnIsNotCompatible(Class<?> returnType) {
+        assertThat(repositoryReturn.isCompatible(Person.class, returnType)).isFalse();
     }
 
     @Test
