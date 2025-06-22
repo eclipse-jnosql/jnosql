@@ -76,6 +76,14 @@ public interface ClassScanner {
     Set<Class<?>> customRepositories();
 
     /**
+     * Returns a set of classes that are annotated with the {@link org.eclipse.jnosql.mapping.Projection} annotation.
+     *
+     * @return A set of classes with the {@link org.eclipse.jnosql.mapping.Projection} annotation.
+     */
+    Set<Class<?>> projectors();
+
+
+    /**
      * Loads and returns an instance of the {@link ClassScanner} implementation using the ServiceLoader mechanism.
      *
      * @return An instance of the loaded {@link ClassScanner} implementation.
