@@ -36,6 +36,38 @@ public class Product {
     @Convert(MoneyConverter.class)
     private Money amount;
 
+    public String name() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public BigDecimal price() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public ProductType type() {
+        return type;
+    }
+
+    public void setType(ProductType type) {
+        this.type = type;
+    }
+
+    public Money amount() {
+        return amount;
+    }
+
+    public void setAmount(Money amount) {
+        this.amount = amount;
+    }
+
     public enum ProductType {
         ELECTRONICS, CLOTHING, FOOD, FURNITURE
     }
