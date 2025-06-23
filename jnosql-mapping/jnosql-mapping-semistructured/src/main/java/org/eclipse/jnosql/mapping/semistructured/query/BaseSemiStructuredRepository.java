@@ -165,13 +165,14 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
     @SuppressWarnings("unchecked")
     protected  <E> Function<Object, E> mapper(Method method) {
         return value -> {
-            Select annotation = method.getAnnotation(Select.class);
-            if(annotation != null) {
-                String fieldReturn = annotation.value();
+            Select[] annotations = method.getAnnotationsByType(Select.class);
+            if(annotations.length == 1) {
+                String fieldReturn = annotations[0].value();
                 Optional<FieldMetadata> fieldMetadata = entityMetadata().fieldMapping(fieldReturn);
                 if(fieldMetadata.isPresent()) {
                     var field = fieldMetadata.orElseThrow();
-                    return (E) field.read(value);
+                    var convertedField = (E) field.read(value);
+                    return convertedField == null ? (E) value : convertedField;
                 }
             }
             return (E) value;

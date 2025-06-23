@@ -239,7 +239,22 @@ class CrudRepositoryProxyProjectionTest {
         var productNames = repository.query();
 
         SoftAssertions.assertSoftly(softly -> softly.assertThat(productNames).contains("Mac", "Sofa", "T-Shirt"));
+    }
 
+    @Test
+    void shouldKeepTheSameResult() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of("Mac", "Sofa", "T-Shirt"));
+
+        PreparedStatement prepare = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
+        when(prepare.result()).thenReturn(Stream.of("Mac", "Sofa", "T-Shirt"));
+
+        when(template.prepare(Mockito.anyString(), Mockito.anyString())).thenReturn(prepare);
+
+        var productNames = repository.query();
+
+        SoftAssertions.assertSoftly(softly -> softly.assertThat(productNames).contains("Mac", "Sofa", "T-Shirt"));
     }
 
 
