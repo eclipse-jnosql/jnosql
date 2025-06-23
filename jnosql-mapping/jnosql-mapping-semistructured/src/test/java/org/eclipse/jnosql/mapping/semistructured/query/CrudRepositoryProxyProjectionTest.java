@@ -273,8 +273,8 @@ class CrudRepositoryProxyProjectionTest {
                 .thenReturn(Stream.of(Citizen.of("1", "John Doe", City.of("1", "New York")),
                         Citizen.of("2", "Ada Doe", City.of("2", "London"))));
 
-        String cities = citizenRepository.cities();
-        SoftAssertions.assertSoftly(softly -> softly.assertThat(cities).isEqualTo("New York", "London"));
+        var cities = citizenRepository.cities();
+        SoftAssertions.assertSoftly(softly -> softly.assertThat(cities).contains("New York", "London"));
     }
 
 
@@ -307,6 +307,6 @@ class CrudRepositoryProxyProjectionTest {
     public interface CitizenRepository extends CrudRepository<Citizen, String> {
         @Find
         @Select("city.name")
-        String cities();
+        List<String> cities();
     }
 }

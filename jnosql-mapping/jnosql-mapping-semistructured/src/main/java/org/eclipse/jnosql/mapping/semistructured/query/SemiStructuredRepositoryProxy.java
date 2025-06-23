@@ -43,6 +43,8 @@ public class SemiStructuredRepositoryProxy<T, K> extends AbstractSemiStructuredR
 
     private final Class<?> repositoryType;
 
+    private final EntitiesMetadata entitiesMetadata;
+
     /**
      * Creates a new instance of ColumnRepositoryProxy.
      *
@@ -63,16 +65,19 @@ public class SemiStructuredRepositoryProxy<T, K> extends AbstractSemiStructuredR
         this.repository = new SemiStructuredRepository<>(template, entityMetadata);
         this.converters = converters;
         this.repositoryType =  repositoryType;
+        this.entitiesMetadata = entities;
     }
 
     SemiStructuredRepositoryProxy(SemiStructuredTemplate template,
                                   EntityMetadata metadata, Class<?> typeClass,
-                                  Converters converters) {
+                                  Converters converters,
+                                  EntitiesMetadata entities) {
         this.template = template;
         this.entityMetadata = metadata;
         this.repository = new SemiStructuredRepository<>(template, entityMetadata);
         this.converters = converters;
         this.repositoryType =  typeClass;
+        this.entitiesMetadata = entities;
     }
 
     @Override
@@ -83,6 +88,11 @@ public class SemiStructuredRepositoryProxy<T, K> extends AbstractSemiStructuredR
     @Override
     protected EntityMetadata entityMetadata() {
         return entityMetadata;
+    }
+
+    @Override
+    protected EntitiesMetadata entitiesMetadata() {
+        return entitiesMetadata;
     }
 
     @Override

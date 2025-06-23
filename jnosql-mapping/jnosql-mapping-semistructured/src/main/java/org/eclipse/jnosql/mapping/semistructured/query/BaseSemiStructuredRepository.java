@@ -37,6 +37,7 @@ import org.eclipse.jnosql.mapping.core.query.AbstractRepositoryProxy;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.SpecialParameters;
 import org.eclipse.jnosql.mapping.core.util.ParamsBinder;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
@@ -49,6 +50,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -84,6 +86,8 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
      */
     @Override
     protected abstract EntityMetadata entityMetadata();
+
+    protected abstract EntitiesMetadata entitiesMetadata();
 
     /**
      * Retrieves the SemistructuredTemplate instance for executing column queries.
@@ -168,12 +172,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
             Select[] annotations = method.getAnnotationsByType(Select.class);
             if(annotations.length == 1) {
                 String fieldReturn = annotations[0].value();
-                Optional<FieldMetadata> fieldMetadata = entityMetadata().fieldMapping(fieldReturn);
-                if(fieldMetadata.isPresent()) {
-                    var field = fieldMetadata.orElseThrow();
-                    var convertedField = (E) field.read(value);
-                    return convertedField == null ? (E) value : convertedField;
-                }
+                return (E) value(entityMetadata(), fieldReturn, value);
             }
             return (E) value;
         };
@@ -309,5 +308,22 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         return property -> parser().fireSortProperty(entityMetadata().name(), property);
     }
 
+    private Object value(EntityMetadata entityMetadata, String returnName, Object value) {
+        var names = returnName.split("\\.");
+        Optional<FieldMetadata> fieldMetadata = entityMetadata.fieldMapping(names[0]);
+        if(fieldMetadata.isPresent()) {
+            var field = fieldMetadata.orElseThrow();
+            var convertedField =  field.read(value);
+            if(convertedField != null && names.length > 1) {
+                var subField = Stream.of(names).skip(1).collect(Collectors.joining("."));
+                var subEntityMetadata = entitiesMetadata().findByClassName(convertedField.getClass().getName())
+                        .orElseThrow(() -> new IllegalArgumentException("Entity metadata not found for " + convertedField.getClass()));
+                return value(subEntityMetadata, subField, convertedField);
+
+            }
+            return convertedField == null ? value : convertedField;
+        }
+        return value;
+    }
 
 }

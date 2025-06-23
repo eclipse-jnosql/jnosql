@@ -212,7 +212,7 @@ public class CustomRepositoryHandler implements InvocationHandler {
     private SemiStructuredRepositoryProxy<?, ?> repository(Method method) {
         RepositoryMetadata result = repositoryMetadata(method);
         Class<?> entityType = result.typeClass();
-        return result.metadata().map(entityMetadata -> new SemiStructuredRepositoryProxy<>(template, entityMetadata, entityType, converters))
+        return result.metadata().map(entityMetadata -> new SemiStructuredRepositoryProxy<>(template, entityMetadata, entityType, converters, entitiesMetadata))
                 .orElseThrow(() -> new UnsupportedOperationException("The repository does not support the method " + method));
     }
 
@@ -250,7 +250,7 @@ public class CustomRepositoryHandler implements InvocationHandler {
 
         Class<?> typeClass = getTypeClassFromParameter(params[0]);
         Optional<EntityMetadata> entity = entitiesMetadata.findByClassName(typeClass.getName());
-        return entity.map(entityMetadata -> new SemiStructuredRepositoryProxy<>(template, entityMetadata, typeClass, converters))
+        return entity.map(entityMetadata -> new SemiStructuredRepositoryProxy<>(template, entityMetadata, typeClass, converters, entitiesMetadata))
                 .orElseThrow(() -> new UnsupportedOperationException("The repository does not support the method: " + method));
     }
 
