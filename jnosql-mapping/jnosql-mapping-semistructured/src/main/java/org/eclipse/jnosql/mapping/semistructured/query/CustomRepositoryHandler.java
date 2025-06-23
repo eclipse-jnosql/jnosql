@@ -127,7 +127,7 @@ public class CustomRepositoryHandler implements InvocationHandler {
             }
             case QUERY -> {
                 var repositoryMetadata = repositoryMetadata(method);
-                if (repositoryMetadata.metadata().isEmpty()) {
+                if (repositoryMetadata.metadata().isEmpty() && this.defaultRepository == null) {
                     var query = method.getAnnotation(Query.class);
                     var queryType = QueryType.parse(query.value());
                     var returnType = method.getReturnType();
@@ -144,10 +144,12 @@ public class CustomRepositoryHandler implements InvocationHandler {
                     if(isLong(method)) {
                         return entities.count();
                     }
-
                     return Void.class;
+                } else if(repositoryMetadata.metadata().isPresent()) {
+                    return unwrapInvocationTargetException(() -> repository(method).executeQuery(instance, method, params));
+                } else {
+                    return unwrapInvocationTargetException(() -> this.defaultRepository.executeQuery(instance, method, params));
                 }
-                return unwrapInvocationTargetException(() -> repository(method).executeQuery(instance, method, params));
 
             }
             case COUNT_BY, COUNT_ALL -> {
