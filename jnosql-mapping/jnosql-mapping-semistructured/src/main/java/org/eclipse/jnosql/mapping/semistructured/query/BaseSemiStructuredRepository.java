@@ -155,8 +155,8 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                    return object.map(mapper(method));
                 })
                 .pagination(DynamicReturn.findPageRequest(args))
-                .streamPagination(streamPagination(query))
-                .singleResultPagination(getSingleResult(query))
+                .streamPagination(streamPagination(query, method))
+                .singleResultPagination(getSingleResult(query, method))
                 .page(getPage(query, method))
                 .build();
         return dynamicReturn.execute();
@@ -204,19 +204,19 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         return template().exists(query);
     }
 
-    protected Function<PageRequest, Page<T>> getPage(SelectQuery query, Method selectMethod) {
+    protected Function<PageRequest, Page<T>> getPage(SelectQuery query, Method method) {
         return p -> {
-            Stream<T> entities = template().select(query).map(mapper(selectMethod));
+            Stream<T> entities = template().select(query).map(mapper(method));
             return NoSQLPage.of(entities.toList(), p);
         };
     }
 
-    protected Function<PageRequest, Optional<T>> getSingleResult(SelectQuery query) {
-        return p -> template().singleResult(query);
+    protected Function<PageRequest, Optional<T>> getSingleResult(SelectQuery query, Method method) {
+        return p -> template().singleResult(query).map(mapper(method));
     }
 
-    protected Function<PageRequest, Stream<T>> streamPagination(SelectQuery query) {
-        return p -> template().select(query);
+    protected Function<PageRequest, Stream<T>> streamPagination(SelectQuery query, Method method) {
+        return p -> template().select(query).map(mapper(method));
     }
 
 
