@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
+import jakarta.data.repository.Find;
 import jakarta.data.repository.Query;
 import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.communication.semistructured.QueryType;
@@ -217,7 +218,12 @@ public class CustomRepositoryHandler implements InvocationHandler {
     }
 
     private RepositoryMetadata repositoryMetadata(Method method) {
-        Class<?> typeClass = method.getReturnType();
+        Class<?> typeClass =  Optional.ofNullable(method.getAnnotation(Find.class)).map(Find::value).orElse(null);
+        if (typeClass != null) {
+            Optional<EntityMetadata> metadata = entitiesMetadata.findByClassName(typeClass.getName());
+            return new RepositoryMetadata(typeClass, metadata);
+        }
+        typeClass = method.getReturnType();
         if (typeClass.isArray()) {
             typeClass = typeClass.getComponentType();
         } else if (Iterable.class.isAssignableFrom(typeClass) || Stream.class.isAssignableFrom(typeClass) || Optional.class.isAssignableFrom(typeClass)) {
