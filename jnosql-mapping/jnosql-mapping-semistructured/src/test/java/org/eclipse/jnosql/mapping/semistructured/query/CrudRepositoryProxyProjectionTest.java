@@ -20,6 +20,7 @@ import jakarta.data.page.PageRequest;
 import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Find;
+import jakarta.data.repository.Query;
 import jakarta.data.repository.Select;
 import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
@@ -27,6 +28,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.PreparedStatement;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -208,6 +210,38 @@ class CrudRepositoryProxyProjectionTest {
 
     }
 
+    @Test
+    void shouldNameFromQuery() {
+
+        var mac = new Product();
+        mac.setName("Mac");
+        mac.setPrice(BigDecimal.valueOf(1000));
+        mac.setType(Product.ProductType.ELECTRONICS);
+
+        var sofa = new Product();
+        sofa.setName("Sofa");
+        sofa.setPrice(BigDecimal.valueOf(100));
+        sofa.setType(Product.ProductType.FURNITURE);
+
+        var tshirt = new Product();
+        tshirt.setName("T-Shirt");
+        tshirt.setPrice(BigDecimal.valueOf(20));
+        tshirt.setType(Product.ProductType.CLOTHING);
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(mac, sofa, tshirt));
+
+        PreparedStatement prepare = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
+        when(prepare.result()).thenReturn(Stream.of(mac, sofa, tshirt));
+
+        when(template.prepare(Mockito.anyString(), Mockito.anyString())).thenReturn(prepare);
+
+        var productNames = repository.query();
+
+        SoftAssertions.assertSoftly(softly -> softly.assertThat(productNames).contains("Mac", "Sofa", "T-Shirt"));
+
+    }
+
 
     public interface ProductRepository extends CrudRepository<Product, String> {
         @Find
@@ -229,5 +263,9 @@ class CrudRepositoryProxyProjectionTest {
         @Find
         @Select(_Product.NAME)
         CursoredPage<String> cursor(PageRequest pageRequest);
+
+        @Query("FROM Product p WHERE p.type = 'ELECTRONICS'")
+        @Select(_Product.NAME)
+        List<String> query();
     }
 }
