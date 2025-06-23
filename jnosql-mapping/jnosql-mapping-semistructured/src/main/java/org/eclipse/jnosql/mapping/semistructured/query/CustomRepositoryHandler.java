@@ -220,7 +220,7 @@ public class CustomRepositoryHandler implements InvocationHandler {
     }
 
     private RepositoryMetadata repositoryMetadata(Method method) {
-        Class<?> typeClass =  Optional.ofNullable(method.getAnnotation(Find.class)).map(Find::value).orElse(null);
+        Class<?> typeClass =  Optional.ofNullable(method.getAnnotation(Find.class)).map(Find::value).filter(v -> !void.class.equals(v)).orElse(null);
         if (typeClass != null) {
             Optional<EntityMetadata> metadata = entitiesMetadata.findByClassName(typeClass.getName());
             return new RepositoryMetadata(typeClass, metadata);
