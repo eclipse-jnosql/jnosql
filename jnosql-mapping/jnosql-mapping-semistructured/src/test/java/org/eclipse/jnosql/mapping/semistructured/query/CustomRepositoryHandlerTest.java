@@ -504,4 +504,21 @@ class CustomRepositoryHandlerTest {
                 .thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
         Assertions.assertThat(people.updateReturnInt("Ada")).isEqualTo(1L);
     }
+
+    @Test
+    void shouldUseDefaultRepositoryEntityForFromLessCountQuery() {
+        var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
+        Mockito.when(template.prepare(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(preparedStatement);
+        Mockito.when(preparedStatement.isCount()).thenReturn(true);
+        Mockito.when(preparedStatement.count()).thenReturn(2L);
+
+        Assertions.assertThat(people.countAdults(18)).isEqualTo(2L);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(template).prepare(captor.capture(), Mockito.eq("Person"));
+        Mockito.verify(template, Mockito.never()).prepare(Mockito.anyString());
+        Mockito.verify(preparedStatement).bind("?1", 18);
+        Assertions.assertThat(captor.getValue()).isEqualTo("SELECT COUNT(THIS) WHERE age > ?1");
+    }
 }
