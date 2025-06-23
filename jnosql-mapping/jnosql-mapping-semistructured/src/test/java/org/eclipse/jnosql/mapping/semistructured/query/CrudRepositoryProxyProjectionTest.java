@@ -36,6 +36,8 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
+import org.eclipse.jnosql.mapping.semistructured.entities.Citizen;
+import org.eclipse.jnosql.mapping.semistructured.entities.City;
 import org.eclipse.jnosql.mapping.semistructured.entities.Product;
 import org.eclipse.jnosql.mapping.semistructured.entities._Product;
 import org.jboss.weld.junit5.auto.AddExtensions;
@@ -46,7 +48,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.awt.print.Pageable;
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.util.List;
@@ -73,7 +74,9 @@ class CrudRepositoryProxyProjectionTest {
     @Inject
     private Converters converters;
 
-    private ProductRepository repository;
+    private ProductRepository productRepository;
+
+    private CitizenRepository citizenRepository;
 
 
     @BeforeEach
@@ -83,11 +86,17 @@ class CrudRepositoryProxyProjectionTest {
         var productHandler = new SemiStructuredRepositoryProxy<>(template,
                 entities, ProductRepository.class, converters);
 
+        var cityHandler = new SemiStructuredRepositoryProxy<>(template,
+                entities, CitizenRepository.class, converters);
 
 
-        repository = (ProductRepository) Proxy.newProxyInstance(ProductRepository.class.getClassLoader(),
+        productRepository = (ProductRepository) Proxy.newProxyInstance(ProductRepository.class.getClassLoader(),
                 new Class[]{ProductRepository.class},
                 productHandler);
+
+        citizenRepository = (CitizenRepository) Proxy.newProxyInstance(ProductRepository.class.getClassLoader(),
+                new Class[]{CitizenRepository.class},
+                cityHandler);
     }
 
 
@@ -112,7 +121,7 @@ class CrudRepositoryProxyProjectionTest {
         when(template.select(any(SelectQuery.class)))
                 .thenReturn(Stream.of(mac, sofa, tshirt));
 
-        var productNames = repository.names(_Product.name.equalTo("Mac"));
+        var productNames = productRepository.names(_Product.name.equalTo("Mac"));
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
@@ -140,7 +149,7 @@ class CrudRepositoryProxyProjectionTest {
 
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional.of(mac));
 
-        var name = repository.name();
+        var name = productRepository.name();
 
         SoftAssertions.assertSoftly(softly -> softly.assertThat(name).isEqualTo("Mac"));
 
@@ -156,7 +165,7 @@ class CrudRepositoryProxyProjectionTest {
 
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional.of(mac));
 
-        var name = repository.optionalName();
+        var name = productRepository.optionalName();
 
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(name).isPresent();
@@ -175,7 +184,7 @@ class CrudRepositoryProxyProjectionTest {
 
         when(template.select(any(SelectQuery.class))).thenReturn(Stream.of(mac));
         ;
-        var name = repository.page(PageRequest.ofSize(10));
+        var name = productRepository.page(PageRequest.ofSize(10));
 
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(name).isNotNull();
@@ -201,7 +210,7 @@ class CrudRepositoryProxyProjectionTest {
         CursoredPage<Product> cursor = new CursoredPageRecord<>(content, cursors, 1L, pageRequest, nextPageRequest, previousPageRequest);
         when(template.<Product>selectCursor(any(SelectQuery.class), any())).thenReturn(cursor);
 
-        var name = repository.cursor(PageRequest.ofSize(10).afterCursor(PageRequest.Cursor.forKey("1", "2")));
+        var name = productRepository.cursor(PageRequest.ofSize(10).afterCursor(PageRequest.Cursor.forKey("1", "2")));
 
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(name).isNotNull();
@@ -236,7 +245,7 @@ class CrudRepositoryProxyProjectionTest {
 
         when(template.prepare(Mockito.anyString(), Mockito.anyString())).thenReturn(prepare);
 
-        var productNames = repository.query();
+        var productNames = productRepository.query();
 
         SoftAssertions.assertSoftly(softly -> softly.assertThat(productNames).contains("Mac", "Sofa", "T-Shirt"));
     }
@@ -252,9 +261,20 @@ class CrudRepositoryProxyProjectionTest {
 
         when(template.prepare(Mockito.anyString(), Mockito.anyString())).thenReturn(prepare);
 
-        var productNames = repository.query();
+        var productNames = productRepository.query();
 
         SoftAssertions.assertSoftly(softly -> softly.assertThat(productNames).contains("Mac", "Sofa", "T-Shirt"));
+    }
+
+    @Test
+    void shouldReturnCities() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(Citizen.of("1", "John Doe", City.of("1", "New York")),
+                        Citizen.of("2", "Ada Doe", City.of("2", "London"))));
+
+        String cities = citizenRepository.cities();
+        SoftAssertions.assertSoftly(softly -> softly.assertThat(cities).isEqualTo("New York", "London"));
     }
 
 
@@ -282,5 +302,11 @@ class CrudRepositoryProxyProjectionTest {
         @Query("FROM Product p WHERE p.type = 'ELECTRONICS'")
         @Select(_Product.NAME)
         List<String> query();
+    }
+
+    public interface CitizenRepository extends CrudRepository<Citizen, String> {
+        @Find
+        @Select("city.name")
+        String cities();
     }
 }
