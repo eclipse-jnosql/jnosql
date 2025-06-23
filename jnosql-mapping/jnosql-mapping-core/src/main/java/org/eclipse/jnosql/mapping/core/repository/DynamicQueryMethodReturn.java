@@ -34,14 +34,18 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
     private final Function<String, PreparedStatement> prepareConverter;
     private final PageRequest pageRequest;
 
+    private final Function<Object, T> queryMapper;
+
     private DynamicQueryMethodReturn(Method method, Object[] args, Class<?> typeClass,
                                      Function<String, PreparedStatement> prepareConverter,
-                                     PageRequest pageRequest) {
+                                     PageRequest pageRequest,
+                                     Function<Object, T> queryMapper) {
         this.method = method;
         this.args = args;
         this.typeClass = typeClass;
         this.prepareConverter = prepareConverter;
         this.pageRequest = pageRequest;
+        this.queryMapper = queryMapper;
     }
 
     Method method() {
@@ -64,6 +68,10 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         return pageRequest;
     }
 
+    Function<Object, T> queryMapper() {
+        return queryMapper;
+    }
+
     boolean hasPagination() {
         return pageRequest != null;
     }
@@ -84,6 +92,8 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         private Class<?> typeClass;
         private Function<String, PreparedStatement> prepareConverter;
         private PageRequest pageRequest;
+        @SuppressWarnings("unchecked")
+        private Function<Object, T> queryMapper = (Function<Object, T>) Function.identity();
 
         private DynamicQueryMethodReturnBuilder() {
         }
@@ -115,11 +125,16 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
             return this;
         }
 
+        public DynamicQueryMethodReturnBuilder<T> mapper(Function<Object, T> queryMapper) {
+            this.queryMapper = queryMapper;
+            return this;
+        }
+
         public DynamicQueryMethodReturn<T> build() {
             Objects.requireNonNull(method, "method is required");
             Objects.requireNonNull(typeClass, "typeClass is required");
             Objects.requireNonNull(prepareConverter, "prepareConverter is required");
-            return new DynamicQueryMethodReturn<>(method, args, typeClass, prepareConverter, pageRequest);
+            return new DynamicQueryMethodReturn<>(method, args, typeClass, prepareConverter, pageRequest, queryMapper);
         }
     }
 
