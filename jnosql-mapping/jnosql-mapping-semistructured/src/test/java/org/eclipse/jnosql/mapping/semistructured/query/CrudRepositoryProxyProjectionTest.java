@@ -281,7 +281,7 @@ class CrudRepositoryProxyProjectionTest {
 
 
     @Test
-    void shouldReturnProjection() {
+    void shouldReturnProjections() {
 
         var mac = new Product();
         mac.setName("Mac");
@@ -324,6 +324,60 @@ class CrudRepositoryProxyProjectionTest {
 
     }
 
+    @Test
+    void shouldReturnProjection() {
+
+        var mac = new Product();
+        mac.setName("Mac");
+        mac.setPrice(BigDecimal.valueOf(1000));
+        mac.setAmount(new Money("USD", BigDecimal.valueOf(1000)));
+        mac.setType(Product.ProductType.ELECTRONICS);
+
+
+        when(template.singleResult(any(SelectQuery.class)))
+                .thenReturn(Optional.of(mac));
+
+        var summary = productRepository.price();
+
+        SoftAssertions.assertSoftly(
+                softly -> softly.assertThat(summary).isEqualTo(new ProductPriceSummary("Mac", new Money("USD", BigDecimal.valueOf(1000)))));
+    }
+
+    @Test
+    void shouldReturnProjectionsByQuery() {
+
+        var mac = new Product();
+        mac.setName("Mac");
+        mac.setPrice(BigDecimal.valueOf(1000));
+        mac.setAmount(new Money("USD", BigDecimal.valueOf(1000)));
+        mac.setType(Product.ProductType.ELECTRONICS);
+
+        var sofa = new Product();
+        sofa.setName("Sofa");
+        sofa.setPrice(BigDecimal.valueOf(100));
+        sofa.setAmount(new Money("USD", BigDecimal.valueOf(100)));
+        sofa.setType(Product.ProductType.FURNITURE);
+
+        var tshirt = new Product();
+        tshirt.setName("T-Shirt");
+        tshirt.setPrice(BigDecimal.valueOf(20));
+        tshirt.setAmount(new Money("USD", BigDecimal.valueOf(20)));
+        tshirt.setType(Product.ProductType.CLOTHING);
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(mac, sofa, tshirt));
+
+        var summaries = productRepository.findProductPrice(_Product.name.equalTo("Mac"));
+
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(summaries).contains(new ProductPriceSummary("Mac", new Money("USD", BigDecimal.valueOf(1000))),
+                    new ProductPriceSummary("Sofa", new Money("USD", BigDecimal.valueOf(100))),
+                    new ProductPriceSummary("T-Shirt", new Money("USD", BigDecimal.valueOf(20))));;
+        });
+
+    }
+
 
     public interface ProductRepository extends CrudRepository<Product, String> {
         @Find
@@ -352,6 +406,13 @@ class CrudRepositoryProxyProjectionTest {
 
         @Find
         List<ProductPriceSummary> findProductPrice(Restriction<Product> restriction);
+
+        @Find
+        ProductPriceSummary price();
+
+        @Query("FROM Product p WHERE p.type = 'ELECTRONICS'")
+        @Select(_Product.NAME)
+        List<ProductPriceSummary> query2();
     }
 
     public interface CitizenRepository extends CrudRepository<Citizen, String> {
