@@ -19,6 +19,7 @@ import jakarta.data.Limit;
 import jakarta.data.Sort;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import jakarta.data.repository.Select;
 import jakarta.data.restrict.Restriction;
 import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.query.method.DeleteMethodProvider;
@@ -36,17 +37,23 @@ import org.eclipse.jnosql.mapping.core.query.AbstractRepositoryProxy;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.SpecialParameters;
 import org.eclipse.jnosql.mapping.core.util.ParamsBinder;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
+import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
+import org.eclipse.jnosql.mapping.semistructured.ProjectorConverter;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -67,6 +74,8 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
 
     private ParamsBinder paramsBinder;
 
+    private ProjectorConverter projectorConverter;
+
 
     /**
      * Retrieves the Converters instance responsible for converting data types.
@@ -82,6 +91,24 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
      */
     @Override
     protected abstract EntityMetadata entityMetadata();
+
+    /**
+     * Retrieves the EntitiesMetadata instance containing metadata for all entities.
+     * @return The EntitiesMetadata instance.
+     */
+    protected abstract EntitiesMetadata entitiesMetadata();
+
+    /**
+     * Retrieves the ProjectorConverter instance for converting entities to projections.
+     *
+     * @return The ProjectorConverter instance.
+     */
+    protected ProjectorConverter projectorConverter() {
+        if (Objects.isNull(projectorConverter)) {
+            this.projectorConverter = new ProjectorConverter(entitiesMetadata());
+        }
+        return projectorConverter;
+    }
 
     /**
      * Retrieves the SemistructuredTemplate instance for executing column queries.
@@ -144,14 +171,48 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(typeClass)
                 .methodSource(method)
-                .result(() -> template().select(query))
-                .singleResult(() -> template().singleResult(query))
+                .result(() -> {
+                    Stream<Object> select = template().select(query);
+                    return select.map(mapper(method));
+                })
+                .singleResult(() -> {
+                    Optional<Object> object = template().singleResult(query);
+                   return object.map(mapper(method));
+                })
                 .pagination(DynamicReturn.findPageRequest(args))
-                .streamPagination(streamPagination(query))
-                .singleResultPagination(getSingleResult(query))
-                .page(getPage(query))
+                .streamPagination(streamPagination(query, method))
+                .singleResultPagination(getSingleResult(query, method))
+                .page(getPage(query, method))
                 .build();
         return dynamicReturn.execute();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected  <E> Function<Object, E> mapper(Method method) {
+        return value -> {
+            var returnType = returnType(method);
+            Optional<ProjectionMetadata> projection = this.entitiesMetadata().projection(returnType);
+            if (projection.isPresent()) {
+                ProjectionMetadata projectionMetadata = projection.orElseThrow();
+                return projectorConverter().map(value, projectionMetadata);
+            }
+            Select[] annotations = method.getAnnotationsByType(Select.class);
+            if(annotations.length == 1) {
+                String fieldReturn = annotations[0].value();
+                return (E) value(entityMetadata(), fieldReturn, value);
+            }
+            return (E) value;
+        };
+    }
+
+    private Class<?> returnType(Method method) {
+        Class<?> typeClass = method.getReturnType();
+        if (typeClass.isArray()) {
+            return typeClass.getComponentType();
+        } else if (Iterable.class.isAssignableFrom(typeClass) || Stream.class.isAssignableFrom(typeClass) || Optional.class.isAssignableFrom(typeClass)) {
+            return (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
+        }
+        return typeClass;
     }
 
     private SelectQuery includeInheritance(SelectQuery query){
@@ -180,19 +241,19 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         return template().exists(query);
     }
 
-    protected Function<PageRequest, Page<T>> getPage(SelectQuery query) {
+    protected Function<PageRequest, Page<T>> getPage(SelectQuery query, Method method) {
         return p -> {
-            Stream<T> entities = template().select(query);
+            Stream<T> entities = template().select(query).map(mapper(method));
             return NoSQLPage.of(entities.toList(), p);
         };
     }
 
-    protected Function<PageRequest, Optional<T>> getSingleResult(SelectQuery query) {
-        return p -> template().singleResult(query);
+    protected Function<PageRequest, Optional<T>> getSingleResult(SelectQuery query, Method method) {
+        return p -> template().singleResult(query).map(mapper(method));
     }
 
-    protected Function<PageRequest, Stream<T>> streamPagination(SelectQuery query) {
-        return p -> template().select(query);
+    protected Function<PageRequest, Stream<T>> streamPagination(SelectQuery query, Method method) {
+        return p -> template().select(query).map(mapper(method));
     }
 
 
@@ -284,5 +345,22 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         return property -> parser().fireSortProperty(entityMetadata().name(), property);
     }
 
+    private Object value(EntityMetadata entityMetadata, String returnName, Object value) {
+        var names = returnName.split("\\.");
+        Optional<FieldMetadata> fieldMetadata = entityMetadata.fieldMapping(names[0]);
+        if(fieldMetadata.isPresent()) {
+            var field = fieldMetadata.orElseThrow();
+            var convertedField =  field.read(value);
+            if(convertedField != null && names.length > 1) {
+                var subField = Stream.of(names).skip(1).collect(Collectors.joining("."));
+                var subEntityMetadata = entitiesMetadata().findByClassName(convertedField.getClass().getName())
+                        .orElseThrow(() -> new IllegalArgumentException("Entity metadata not found for " + convertedField.getClass()));
+                return value(subEntityMetadata, subField, convertedField);
+
+            }
+            return convertedField == null ? value : convertedField;
+        }
+        return value;
+    }
 
 }

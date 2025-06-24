@@ -24,6 +24,8 @@ import org.eclipse.jnosql.mapping.reflection.entities.constructor.BookUser;
 import org.eclipse.jnosql.mapping.reflection.entities.constructor.Computer;
 import org.eclipse.jnosql.mapping.reflection.entities.constructor.PetOwner;
 import org.eclipse.jnosql.mapping.reflection.entities.constructor.Smartphone;
+import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Assertions;
@@ -37,7 +39,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EnableAutoWeld
 @AddPackages(value = Convert.class)
-@AddPackages(value = ReflectionGroupEntityMetadata.class)
+@AddPackages(value = FieldReader.class)
+@AddExtensions(ReflectionEntityMetadataExtension.class)
 class ConstructorMetadataBuilderTest {
 
     @Inject

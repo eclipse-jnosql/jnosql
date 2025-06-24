@@ -384,15 +384,15 @@ class CustomRepositoryHandlerTest {
     @Test
     void shouldExecuteQueryWithVoid(){
 
-        var preparedStatement = Mockito.mock(PreparedStatement.class);
-        Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
+        var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
+        Mockito.when(template.prepare(Mockito.anyString(), Mockito.anyString())).thenReturn(preparedStatement);
         Mockito.when(template.query(Mockito.anyString()))
                 .thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
 
         people.deleteByName("Ada");
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(template).prepare(captor.capture());
+        Mockito.verify(template).prepare(captor.capture(), Mockito.anyString());
         Mockito.verifyNoMoreInteractions(template);
         var query = captor.getValue();
 

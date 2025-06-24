@@ -14,16 +14,26 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
+import jakarta.data.page.Page;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class InstanceRepositoryReturn implements RepositoryReturn {
 
     @Override
     public boolean isCompatible(Class<?> entity, Class<?> returnType) {
-        return entity.equals(returnType);
+        return  !Collection.class.isAssignableFrom(returnType)
+                && !Iterable.class.equals(returnType)
+                && !Map.class.isAssignableFrom(returnType)
+                && !Stream.class.isAssignableFrom(returnType)
+                && !Optional.class.isAssignableFrom(returnType)
+                && !Page.class.isAssignableFrom(returnType)
+                && !returnType.isArray();
     }
 
     @Override

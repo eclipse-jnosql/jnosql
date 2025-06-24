@@ -27,13 +27,14 @@ import org.eclipse.jnosql.mapping.metadata.ClassConverter;
 import org.eclipse.jnosql.mapping.metadata.ClassScanner;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.GroupEntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
+import org.eclipse.jnosql.mapping.reflection.ProjectionConverter;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
-import static java.util.Optional.ofNullable;
 
 /**
  * This class is a CDI extension to load all class that has {@link Entity} annotation.
@@ -46,6 +47,7 @@ public class ReflectionEntityMetadataExtension implements Extension {
 
     private static final Map<Class<?>, EntityMetadata> ENTITY_METADATA_BY_CLASS = new ConcurrentHashMap<>();
     private static final Map<String, EntityMetadata> ENTITY_METADATA_BY_ENTITY_NAME = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, ProjectionMetadata> PROJECTOR_METADATA_BY_CLASS = new ConcurrentHashMap<>();
 
     public void afterBeanDiscovery(@Observes AfterBeanDiscovery event, BeanManager bm) {
 
@@ -63,6 +65,8 @@ public class ReflectionEntityMetadataExtension implements Extension {
         LOGGER.fine("Starting the scanning process for Entity and Embeddable annotations: ");
         ClassConverter converter = ClassConverter.load();
         ClassScanner scanner = ClassScanner.load();
+        Function<Class<?>, ProjectionMetadata> projectionConverter = new ProjectionConverter();
+
         scanner.entities()
                 .forEach(entity -> {
                     EntityMetadata entityMetadata = converter.apply(entity);
@@ -78,11 +82,13 @@ public class ReflectionEntityMetadataExtension implements Extension {
                     ENTITY_METADATA_BY_CLASS.put(embeddable, entityMetadata);
                 });
 
-        ofNullable(LOGGER)
-                .filter(l -> l.isLoggable(Level.FINEST))
-                .ifPresent(l -> l.fine("Finishing the scanning with: %d Entity and Embeddable scanned classes and %s Named entities"
-                        .formatted(ENTITY_METADATA_BY_CLASS.size(), ENTITY_METADATA_BY_ENTITY_NAME.size())));
+        scanner.projections().forEach(projection -> {
+            var projectionMetadata = projectionConverter.apply(projection);
+            PROJECTOR_METADATA_BY_CLASS.put(projection, projectionMetadata);
+        });
 
+        LOGGER.fine(() ->"Finishing the scanning with: %d Entity and Embeddable scanned classes and %s Named entities"
+                .formatted(ENTITY_METADATA_BY_CLASS.size(), ENTITY_METADATA_BY_ENTITY_NAME.size()));
     }
 
     public static class CDIGroupEntityMetadata implements GroupEntityMetadata {
@@ -96,5 +102,11 @@ public class ReflectionEntityMetadataExtension implements Extension {
         public Map<Class<?>, EntityMetadata> classes() {
             return ENTITY_METADATA_BY_CLASS;
         }
+
+        @Override
+        public Map<Class<?>, ProjectionMetadata> projections() {
+            return PROJECTOR_METADATA_BY_CLASS;
+        }
+
     }
 }

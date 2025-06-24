@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.reflection;
 import jakarta.data.repository.CrudRepository;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.reflection.entities.AnimalRepository;
+import org.eclipse.jnosql.mapping.reflection.entities.ComputerView;
 import org.eclipse.jnosql.mapping.reflection.entities.Contact;
 import org.eclipse.jnosql.mapping.reflection.entities.Job;
 import org.eclipse.jnosql.mapping.reflection.entities.Library;
@@ -122,5 +123,12 @@ class ReflectionClassScannerTest {
     void shouldFindRepository() {
         Set<Class<?>> repositories = classScanner.repositories(NoSQLRepository.class);
         assertThat(repositories).hasSize(1);
+    }
+
+    @Test
+    void shouldFindProjections() {
+        Set<Class<?>> projections = classScanner.projections();
+        assertThat(projections).hasSize(1)
+                .contains(ComputerView.class);
     }
 }

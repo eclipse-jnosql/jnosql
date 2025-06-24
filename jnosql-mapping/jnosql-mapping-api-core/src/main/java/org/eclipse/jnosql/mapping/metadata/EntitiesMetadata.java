@@ -71,4 +71,13 @@ public interface EntitiesMetadata {
      */
     Optional<EntityMetadata> findByClassName(String name);
 
+    /**
+     * Returns the {@link ProjectionMetadata} for the given projector class.
+     *
+     * @param projection the projector class
+     * @return the {@link ProjectionMetadata} for the projector class
+     * @throws NullPointerException when projector is null
+     */
+    Optional<ProjectionMetadata> projection(Class<?> projection);
+
 }
