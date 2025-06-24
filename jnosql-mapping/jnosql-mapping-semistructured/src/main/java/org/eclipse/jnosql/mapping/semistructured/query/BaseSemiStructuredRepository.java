@@ -194,6 +194,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
             Optional<ProjectionMetadata> projection = this.entitiesMetadata().projection(returnType);
             if (projection.isPresent()) {
                 ProjectionMetadata projectionMetadata = projection.orElseThrow();
+                return projectorConverter().map(value, projectionMetadata);
             }
             Select[] annotations = method.getAnnotationsByType(Select.class);
             if(annotations.length == 1) {
