@@ -41,10 +41,13 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
+import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
+import org.eclipse.jnosql.mapping.semistructured.ProjectorConverter;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -71,6 +74,8 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
 
     private ParamsBinder paramsBinder;
 
+    private ProjectorConverter projectorConverter;
+
 
     /**
      * Retrieves the Converters instance responsible for converting data types.
@@ -87,7 +92,23 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
     @Override
     protected abstract EntityMetadata entityMetadata();
 
+    /**
+     * Retrieves the EntitiesMetadata instance containing metadata for all entities.
+     * @return The EntitiesMetadata instance.
+     */
     protected abstract EntitiesMetadata entitiesMetadata();
+
+    /**
+     * Retrieves the ProjectorConverter instance for converting entities to projections.
+     *
+     * @return The ProjectorConverter instance.
+     */
+    protected ProjectorConverter projectorConverter() {
+        if (Objects.isNull(projectorConverter)) {
+            this.projectorConverter = new ProjectorConverter(entitiesMetadata());
+        }
+        return projectorConverter;
+    }
 
     /**
      * Retrieves the SemistructuredTemplate instance for executing column queries.
@@ -169,6 +190,11 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
     @SuppressWarnings("unchecked")
     protected  <E> Function<Object, E> mapper(Method method) {
         return value -> {
+            var returnType = returnType(method);
+            Optional<ProjectionMetadata> projection = this.entitiesMetadata().projection(returnType);
+            if (projection.isPresent()) {
+                ProjectionMetadata projectionMetadata = projection.orElseThrow();
+            }
             Select[] annotations = method.getAnnotationsByType(Select.class);
             if(annotations.length == 1) {
                 String fieldReturn = annotations[0].value();
@@ -176,6 +202,16 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
             }
             return (E) value;
         };
+    }
+
+    private Class<?> returnType(Method method) {
+        Class<?> typeClass = method.getReturnType();
+        if (typeClass.isArray()) {
+            return typeClass.getComponentType();
+        } else if (Iterable.class.isAssignableFrom(typeClass) || Stream.class.isAssignableFrom(typeClass) || Optional.class.isAssignableFrom(typeClass)) {
+            return (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
+        }
+        return typeClass;
     }
 
     private SelectQuery includeInheritance(SelectQuery query){
