@@ -37,7 +37,9 @@ import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.entities.Citizen;
 import org.eclipse.jnosql.mapping.semistructured.entities.City;
+import org.eclipse.jnosql.mapping.semistructured.entities.Money;
 import org.eclipse.jnosql.mapping.semistructured.entities.Product;
+import org.eclipse.jnosql.mapping.semistructured.entities.ProductPriceSummary;
 import org.eclipse.jnosql.mapping.semistructured.entities._Product;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
@@ -283,6 +285,103 @@ class CustomCrudRepositoryProxyProjectionTest {
         SoftAssertions.assertSoftly(softly -> softly.assertThat(cities).contains("New York", "London"));
     }
 
+    @Test
+    void shouldReturnProjections() {
+
+        var mac = new Product();
+        mac.setName("Mac");
+        mac.setPrice(BigDecimal.valueOf(1000));
+        mac.setAmount(new Money("USD", BigDecimal.valueOf(1000)));
+        mac.setType(Product.ProductType.ELECTRONICS);
+
+        var sofa = new Product();
+        sofa.setName("Sofa");
+        sofa.setPrice(BigDecimal.valueOf(100));
+        sofa.setAmount(new Money("USD", BigDecimal.valueOf(100)));
+        sofa.setType(Product.ProductType.FURNITURE);
+
+        var tshirt = new Product();
+        tshirt.setName("T-Shirt");
+        tshirt.setPrice(BigDecimal.valueOf(20));
+        tshirt.setAmount(new Money("USD", BigDecimal.valueOf(20)));
+        tshirt.setType(Product.ProductType.CLOTHING);
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(mac, sofa, tshirt));
+
+        var summaries = productRepository.findProductPrice(_Product.name.equalTo("Mac"));
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+
+            softly.assertThat(summaries).contains(new ProductPriceSummary("Mac", new Money("USD", BigDecimal.valueOf(1000))),
+                    new ProductPriceSummary("Sofa", new Money("USD", BigDecimal.valueOf(100))),
+                    new ProductPriceSummary("T-Shirt", new Money("USD", BigDecimal.valueOf(20))));;
+        });
+
+    }
+
+    @Test
+    void shouldReturnProjection() {
+
+        var mac = new Product();
+        mac.setName("Mac");
+        mac.setPrice(BigDecimal.valueOf(1000));
+        mac.setAmount(new Money("USD", BigDecimal.valueOf(1000)));
+        mac.setType(Product.ProductType.ELECTRONICS);
+
+
+        when(template.singleResult(any(SelectQuery.class)))
+                .thenReturn(Optional.of(mac));
+
+        var summary = productRepository.price();
+
+        SoftAssertions.assertSoftly(
+                softly -> softly.assertThat(summary).isEqualTo(new ProductPriceSummary("Mac", new Money("USD", BigDecimal.valueOf(1000)))));
+    }
+
+    @Test
+    void shouldReturnProjectionsByQuery() {
+
+        var mac = new Product();
+        mac.setName("Mac");
+        mac.setPrice(BigDecimal.valueOf(1000));
+        mac.setAmount(new Money("USD", BigDecimal.valueOf(1000)));
+        mac.setType(Product.ProductType.ELECTRONICS);
+
+        var sofa = new Product();
+        sofa.setName("Sofa");
+        sofa.setPrice(BigDecimal.valueOf(100));
+        sofa.setAmount(new Money("USD", BigDecimal.valueOf(100)));
+        sofa.setType(Product.ProductType.FURNITURE);
+
+        var tshirt = new Product();
+        tshirt.setName("T-Shirt");
+        tshirt.setPrice(BigDecimal.valueOf(20));
+        tshirt.setAmount(new Money("USD", BigDecimal.valueOf(20)));
+        tshirt.setType(Product.ProductType.CLOTHING);
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(mac, sofa, tshirt));
+
+        var summaries = productRepository.findProductPrice(_Product.name.equalTo("Mac"));
+
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(summaries).contains(new ProductPriceSummary("Mac", new Money("USD", BigDecimal.valueOf(1000))),
+                    new ProductPriceSummary("Sofa", new Money("USD", BigDecimal.valueOf(100))),
+                    new ProductPriceSummary("T-Shirt", new Money("USD", BigDecimal.valueOf(20))));;
+        });
+
+    }
 
     public interface ProductRepository {
         @Find(Product.class)
@@ -308,6 +407,15 @@ class CustomCrudRepositoryProxyProjectionTest {
         @Query("FROM Product p WHERE p.type = 'ELECTRONICS'")
         @Select(_Product.NAME)
         List<String> query();
+        @Find(Product.class)
+        List<ProductPriceSummary> findProductPrice(Restriction<Product> restriction);
+
+        @Find(Product.class)
+        ProductPriceSummary price();
+
+        @Query("FROM Product p WHERE p.type = 'ELECTRONICS'")
+        @Select(_Product.NAME)
+        List<ProductPriceSummary> query2();
     }
 
     public interface CitizenRepository {
