@@ -684,6 +684,25 @@ This migration guide explains how to upgrade from Eclipse JNoSQL version 1.0.0-b
 
 link:MIGRATION.adoc[Migration Guide]
 
+== Compatibility and Innovation Strategy
+
+Eclipse JNoSQL balances stability and innovation through a dual-branch strategy, designed to meet the needs of developers working with different versions of Jakarta EE.
+
+The `1.1.x` branch ensures ongoing compatibility with Jakarta EE 11, enabling developers to build reliable applications on a stable API foundation. This branch will continue to receive maintenance and bug fixes, aligning with Jakarta EE 11 specifications.
+
+- Explore the `1.1.x` branch here: https://github.com/eclipse-jnosql/jnosql/tree/1.1.x
+
+We will continue maintaining the `1.1.x` branch until the final versions of Jakarta Data 1.1, Jakarta NoSQL 1.1, and Jakarta Query 1.0 are released. It ensures that developers, working with these evolving specifications, can utilize a compatible and stable codebase throughout the transition period.
+
+Meanwhile, the `main` branch is dedicated to innovation. It targets the upcoming JNoSQL 1.2.0 release series and may introduce breaking changes or experimental APIs. Initial versions will be published as `beta` to validate new features and gather community feedback before stabilizing the next major release.
+
+This approach allows the community to:
+
+- Maintain production-grade compatibility with Jakarta EE 11 and current Jakarta specifications.
+- Experiment with next-generation features in a safe, isolated context.
+
+By keeping these paths separate, Eclipse JNoSQL ensures a smoother transition for users and broader experimentation for contributors.
+
 == Learn More
 
 If you want to know more about both the communication and mapping layer, there are two complementary files for it each specific topic:
