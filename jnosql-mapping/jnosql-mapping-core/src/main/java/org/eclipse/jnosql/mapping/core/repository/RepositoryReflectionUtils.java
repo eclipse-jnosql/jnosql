@@ -16,7 +16,10 @@ package org.eclipse.jnosql.mapping.core.repository;
 
 
 
+import jakarta.data.constraint.AtLeast;
+import jakarta.data.constraint.Constraint;
 import jakarta.data.repository.By;
+import jakarta.data.repository.Is;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import org.eclipse.jnosql.communication.Condition;
@@ -64,34 +67,60 @@ public enum RepositoryReflectionUtils {
     }
 
     /**
-     * Represents a parameter value with its condition.
-     * It will get the {@link Param} value and combine it with {@link jakarta.data.repository.Is}
-     * by default if does not have {@link jakarta.data.repository.Is} it will use {@link Condition#EQUALS}.
-     */
-    public record ParamValue(Condition condition, Object value){}
-
-    /**
      * Converts values at arg at a {@link Map}
      *
      * @param method the method that has the {@link By} info
      * @param args   the arguments from the method
      * @return the {@link Map} from method and its arguments
      */
-    public Map<String, Object> getBy(Method method, Object[] args) {
-        Map<String, Object> params = new HashMap<>();
+    public Map<String, ParamValue> getBy(Method method, Object[] args) {
+        Map<String, ParamValue> params = new HashMap<>();
 
         Parameter[] parameters = method.getParameters();
         for (int index = 0; index < parameters.length; index++) {
             Parameter parameter = parameters[index];
             boolean isNotSpecialParameter = SpecialParameters.isNotSpecialParameter(parameter.getType());
             By by = parameter.getAnnotation(By.class);
+            Is is = parameter.getAnnotation(Is.class);
             if (Objects.nonNull(by)) {
-                params.put(by.value(), args[index]);
+                params.put(by.value(), condition(is, args[index]));
             } else if(parameter.isNamePresent() && isNotSpecialParameter) {
-                params.put(parameter.getName(), args[index]);
+                params.put(parameter.getName(),  condition(is,args[index]));
             }
         }
         return params;
+    }
+
+    /**
+     * Represents a parameter value with its condition.
+     * It will get the {@link Param} value and combine it with {@link jakarta.data.repository.Is}
+     * by default value is {@link Condition#EQUALS}
+     */
+    public record ParamValue(Condition condition, Object value, boolean negate){}
+
+    public ParamValue condition(Is is, Object value) {
+        if (Objects.isNull(is)) {
+            return new ParamValue(Condition.EQUALS, value, false);
+        }
+        Class<? extends Constraint> constraint = is.value();
+        return switch (constraint.getName()) {
+            case "jakarta.data.constraint.AtLeast" -> new ParamValue(Condition.GREATER_EQUALS_THAN, value, false);
+            case "jakarta.data.constraint.AtMost" -> new ParamValue(Condition.LESSER_EQUALS_THAN, value, false);
+            case "jakarta.data.constraint.GreaterThan" -> new ParamValue(Condition.GREATER_THAN, value, false);
+            case "jakarta.data.constraint.LesserThan" -> new ParamValue(Condition.LESSER_THAN, value, false);
+            case "jakarta.data.constraint.Between" -> new ParamValue(Condition.BETWEEN, value, false);
+            case "jakarta.data.constraint.EqualTo" -> new ParamValue(Condition.EQUALS, value, false);
+            case "jakarta.data.constraint.Like" -> new ParamValue(Condition.LIKE, value, false);
+            case "jakarta.data.constraint.In" -> new ParamValue(Condition.IN, value, false);
+            // Negate conditions
+            case "jakarta.data.constraint.NotBetween" -> new ParamValue(Condition.BETWEEN, value, true);
+            case "jakarta.data.constraint.NotEquals" -> new ParamValue(Condition.EQUALS, value, true);
+            case "jakarta.data.constraint.NotIn" -> new ParamValue(Condition.IN, value, true);
+            case "jakarta.data.constraint.NotLike" -> new ParamValue(Condition.LIKE, value, true);
+            default -> throw new UnsupportedOperationException("The FindBy annotation does not support this constraint: " + constraint.getName()
+            +" at the Is annotation, please use one of the following: "
+                    + "AtLeast, AtMost, GreaterThan, LesserThan, Between, EqualTo, Like, In, NotBetween, NotEquals, NotIn or NotLike");
+        };
     }
 
 
