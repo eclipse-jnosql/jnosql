@@ -91,13 +91,6 @@ public enum RepositoryReflectionUtils {
         return params;
     }
 
-    /**
-     * Represents a parameter value with its condition.
-     * It will get the {@link Param} value and combine it with {@link jakarta.data.repository.Is}
-     * by default value is {@link Condition#EQUALS}
-     */
-    public record ParamValue(Condition condition, Object value, boolean negate){}
-
     public ParamValue condition(Is is, Object value) {
         if (Objects.isNull(is)) {
             return new ParamValue(Condition.EQUALS, value, false);
