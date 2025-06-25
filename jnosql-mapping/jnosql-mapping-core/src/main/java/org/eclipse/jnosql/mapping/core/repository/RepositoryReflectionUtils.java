@@ -19,7 +19,9 @@ package org.eclipse.jnosql.mapping.core.repository;
 import jakarta.data.repository.By;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
+import org.eclipse.jnosql.communication.Condition;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
@@ -60,6 +62,13 @@ public enum RepositoryReflectionUtils {
         }
         return params;
     }
+
+    /**
+     * Represents a parameter value with its condition.
+     * It will get the {@link Param} value and combine it with {@link jakarta.data.repository.Is}
+     * by default if does not have {@link jakarta.data.repository.Is} it will use {@link Condition#EQUALS}.
+     */
+    public record ParamValue(Condition condition, Object value){}
 
     /**
      * Converts values at arg at a {@link Map}
