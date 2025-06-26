@@ -18,6 +18,7 @@ import jakarta.data.repository.By;
 import jakarta.data.repository.BasicRepository;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
+import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.mapping.core.entities.Person;
 import org.junit.jupiter.api.Test;
 
@@ -69,10 +70,10 @@ class RepositoryReflectionUtilsTest {
         Method method = Arrays.stream(PersonRepository.class.getDeclaredMethods()).filter(m -> m.getName().equals("query"))
                 .findFirst().orElseThrow();
         final Sort<Object> SPECIAL_PARAM = Sort.asc("");
-        Map<String, Object> params = RepositoryReflectionUtils.INSTANCE.getBy(method, new Object[]{"Ada", SPECIAL_PARAM});
+        Map<String, ParamValue> params = RepositoryReflectionUtils.INSTANCE.getBy(method, new Object[]{"Ada", SPECIAL_PARAM});
         assertThat(params)
                 .hasSize(1)
-                .containsEntry("name", "Ada");
+                .containsEntry("name", new ParamValue(Condition.EQUALS, "Ada", false));
     }
 
     @Test

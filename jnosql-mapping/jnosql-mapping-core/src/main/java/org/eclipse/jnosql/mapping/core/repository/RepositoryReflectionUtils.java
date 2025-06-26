@@ -96,6 +96,10 @@ public enum RepositoryReflectionUtils {
             return new ParamValue(Condition.EQUALS, value, false);
         }
         Class<? extends Constraint> constraint = is.value();
+        return getParamValue(value, constraint);
+    }
+
+    static ParamValue getParamValue(Object value, Class<? extends Constraint> constraint) {
         return switch (constraint.getName()) {
             case "jakarta.data.constraint.AtLeast" -> new ParamValue(Condition.GREATER_EQUALS_THAN, value, false);
             case "jakarta.data.constraint.AtMost" -> new ParamValue(Condition.LESSER_EQUALS_THAN, value, false);
@@ -110,9 +114,10 @@ public enum RepositoryReflectionUtils {
             case "jakarta.data.constraint.NotEquals" -> new ParamValue(Condition.EQUALS, value, true);
             case "jakarta.data.constraint.NotIn" -> new ParamValue(Condition.IN, value, true);
             case "jakarta.data.constraint.NotLike" -> new ParamValue(Condition.LIKE, value, true);
-            default -> throw new UnsupportedOperationException("The FindBy annotation does not support this constraint: " + constraint.getName()
-            +" at the Is annotation, please use one of the following: "
-                    + "AtLeast, AtMost, GreaterThan, LesserThan, Between, EqualTo, Like, In, NotBetween, NotEquals, NotIn or NotLike");
+            default ->
+                    throw new UnsupportedOperationException("The FindBy annotation does not support this constraint: " + constraint.getName()
+                            + " at the Is annotation, please use one of the following: "
+                            + "AtLeast, AtMost, GreaterThan, LesserThan, Between, EqualTo, Like, In, NotBetween, NotEquals, NotIn or NotLike");
         };
     }
 
