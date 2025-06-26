@@ -14,10 +14,24 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+import jakarta.data.constraint.AtLeast;
+import jakarta.data.constraint.AtMost;
+import jakarta.data.constraint.Between;
+import jakarta.data.constraint.Constraint;
+import jakarta.data.constraint.EqualTo;
+import jakarta.data.constraint.GreaterThan;
+import jakarta.data.constraint.In;
+import jakarta.data.constraint.LessThan;
+import jakarta.data.constraint.Like;
+import jakarta.data.constraint.NotBetween;
+import jakarta.data.constraint.NotEqualTo;
+import jakarta.data.constraint.NotIn;
+import jakarta.data.constraint.NotLike;
 import jakarta.data.repository.By;
 import jakarta.data.repository.BasicRepository;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.mapping.core.entities.Person;
 import org.junit.jupiter.api.Test;
@@ -32,6 +46,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import jakarta.data.Sort;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class RepositoryReflectionUtilsTest {
 
@@ -125,6 +141,30 @@ class RepositoryReflectionUtilsTest {
                 .containsEntry("?2", "Ada")
                 .containsEntry("age", 10)
                 .containsEntry("name", "Ada");
+    }
+
+
+    @ParameterizedTest(name = "Testing positive {index} - {0}")
+    @ValueSource(classes = {AtLeast.class, AtMost.class, GreaterThan.class, LessThan.class, Between.class,
+            EqualTo.class, Like.class, In.class})
+    void shouldGetParamValueByPositive(Class<? extends Constraint<?>> constraint) {
+        ParamValue paramValue = RepositoryReflectionUtils.getParamValue("name", constraint);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(paramValue.value()).isEqualTo("name");
+            softly.assertThat(paramValue.negate()).isFalse();
+        });
+    }
+
+    @ParameterizedTest(name = "Negative positive {index} - {0}")
+    @ValueSource(classes = {NotBetween.class, NotEqualTo.class, NotIn.class, NotLike.class})
+    void shouldGetParamValueByNegative(Class<? extends Constraint<?>> constraint) {
+        ParamValue paramValue = RepositoryReflectionUtils.getParamValue("name", constraint);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(paramValue.value()).isEqualTo("name");
+            softly.assertThat(paramValue.negate()).isTrue();
+        });
     }
 
     interface PersonRepository extends BasicRepository<Person, String> {

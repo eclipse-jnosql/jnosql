@@ -104,14 +104,14 @@ public enum RepositoryReflectionUtils {
             case "jakarta.data.constraint.AtLeast" -> new ParamValue(Condition.GREATER_EQUALS_THAN, value, false);
             case "jakarta.data.constraint.AtMost" -> new ParamValue(Condition.LESSER_EQUALS_THAN, value, false);
             case "jakarta.data.constraint.GreaterThan" -> new ParamValue(Condition.GREATER_THAN, value, false);
-            case "jakarta.data.constraint.LesserThan" -> new ParamValue(Condition.LESSER_THAN, value, false);
+            case "jakarta.data.constraint.LessThan" -> new ParamValue(Condition.LESSER_THAN, value, false);
             case "jakarta.data.constraint.Between" -> new ParamValue(Condition.BETWEEN, value, false);
             case "jakarta.data.constraint.EqualTo" -> new ParamValue(Condition.EQUALS, value, false);
             case "jakarta.data.constraint.Like" -> new ParamValue(Condition.LIKE, value, false);
             case "jakarta.data.constraint.In" -> new ParamValue(Condition.IN, value, false);
             // Negate conditions
             case "jakarta.data.constraint.NotBetween" -> new ParamValue(Condition.BETWEEN, value, true);
-            case "jakarta.data.constraint.NotEquals" -> new ParamValue(Condition.EQUALS, value, true);
+            case "jakarta.data.constraint.NotEqualTo" -> new ParamValue(Condition.EQUALS, value, true);
             case "jakarta.data.constraint.NotIn" -> new ParamValue(Condition.IN, value, true);
             case "jakarta.data.constraint.NotLike" -> new ParamValue(Condition.LIKE, value, true);
             default ->
