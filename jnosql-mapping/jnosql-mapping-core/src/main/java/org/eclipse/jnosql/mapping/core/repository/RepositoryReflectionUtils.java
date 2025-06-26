@@ -15,8 +15,6 @@
 package org.eclipse.jnosql.mapping.core.repository;
 
 
-
-import jakarta.data.constraint.AtLeast;
 import jakarta.data.constraint.Constraint;
 import jakarta.data.repository.By;
 import jakarta.data.repository.Is;
@@ -24,7 +22,6 @@ import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import org.eclipse.jnosql.communication.Condition;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
