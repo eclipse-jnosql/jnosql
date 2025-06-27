@@ -47,7 +47,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import jakarta.data.Sort;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.ValueSources;
 
 class RepositoryReflectionUtilsTest {
 
@@ -165,6 +168,36 @@ class RepositoryReflectionUtilsTest {
             softly.assertThat(paramValue.value()).isEqualTo("name");
             softly.assertThat(paramValue.negate()).isTrue();
         });
+    }
+
+
+    @ParameterizedTest(name = "Testing condition {index} - {0}")
+    @MethodSource("conditions")
+    void shouldReturnParam(Class<? extends Constraint<?>> constraint, boolean isNegate, Condition condition) {
+        ParamValue paramValue = RepositoryReflectionUtils.getParamValue("name", constraint);
+
+        SoftAssertions.assertSoftly(softly -> {
+           softly.assertThat(paramValue.condition()).isEqualTo(condition);
+              softly.assertThat(paramValue.negate()).isEqualTo(isNegate);
+              softly.assertThat(paramValue.value()).isEqualTo("name");
+        });
+    }
+
+    public static Stream<Arguments> conditions() {
+        return Stream.of(
+                Arguments.of(AtLeast.class, false, Condition.GREATER_EQUALS_THAN),
+                Arguments.of(AtMost.class, false, Condition.LESSER_EQUALS_THAN),
+                Arguments.of(GreaterThan.class, false, Condition.GREATER_THAN),
+                Arguments.of(LessThan.class, false, Condition.LESSER_THAN),
+                Arguments.of(Between.class, false, Condition.BETWEEN),
+                Arguments.of(EqualTo.class, false, Condition.EQUALS),
+                Arguments.of(Like.class, false, Condition.LIKE),
+                Arguments.of(In.class, false, Condition.IN),
+                Arguments.of(NotBetween.class, true, Condition.BETWEEN),
+                Arguments.of(NotEqualTo.class, true, Condition.EQUALS),
+                Arguments.of(NotIn.class, true, Condition.IN),
+                Arguments.of(NotLike.class, true, Condition.LIKE)
+        );
     }
 
     interface PersonRepository extends BasicRepository<Person, String> {
