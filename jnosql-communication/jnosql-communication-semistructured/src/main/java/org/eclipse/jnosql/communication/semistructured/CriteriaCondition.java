@@ -169,7 +169,16 @@ public final class CriteriaCondition {
         return new CriteriaCondition(condition.element(), condition.condition(), true);
     }
 
-    static CriteriaCondition of(Element element, Condition condition) {
+
+    /**
+     * Creates a new {@link CriteriaCondition} with the specified element and condition.
+     *
+     * @param element   the element representing the data to match
+     * @param condition the condition to apply
+     * @return a new {@link CriteriaCondition}
+     * @throws NullPointerException when the element or condition is null
+     */
+    public static CriteriaCondition of(Element element, Condition condition) {
         return new CriteriaCondition(Objects.requireNonNull(element, "Column is required"), condition);
     }
 
