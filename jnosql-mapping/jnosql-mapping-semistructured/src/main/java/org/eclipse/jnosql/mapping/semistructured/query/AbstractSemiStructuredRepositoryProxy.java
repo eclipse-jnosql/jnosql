@@ -199,7 +199,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         }
     }
 
-    private static List<Sort<?>> getSorts(Method method, EntityMetadata metadata) {
+    protected static List<Sort<?>> getSorts(Method method, EntityMetadata metadata) {
         return Stream.of(method.getAnnotationsByType(OrderBy.class))
                 .map(order -> {
                     String column = metadata.columnField(order.value());
