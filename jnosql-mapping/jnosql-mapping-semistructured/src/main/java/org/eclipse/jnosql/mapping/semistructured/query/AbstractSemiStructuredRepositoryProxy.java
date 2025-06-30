@@ -26,6 +26,7 @@ import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.QueryType;
 import org.eclipse.jnosql.mapping.core.repository.DynamicQueryMethodReturn;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
+import org.eclipse.jnosql.mapping.core.repository.ParamValue;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.semistructured.MappingDeleteQuery;
@@ -165,7 +166,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
     @Override
     protected Object executeParameterBased(Object instance, Method method, Object[] params) {
         Class<?> type = entityMetadata().type();
-        Map<String, Object> parameters = RepositoryReflectionUtils.INSTANCE.getBy(method, params);
+        Map<String, ParamValue> parameters = RepositoryReflectionUtils.INSTANCE.getBy(method, params);
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(parameters, getSorts(method, entityMetadata()), entityMetadata());
         return executeFindByQuery(method, params, type, updateQueryDynamically(params, query));
     }

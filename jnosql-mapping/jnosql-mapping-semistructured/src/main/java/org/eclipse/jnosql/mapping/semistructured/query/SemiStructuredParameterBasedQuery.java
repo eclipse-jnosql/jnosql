@@ -18,7 +18,9 @@ import jakarta.data.Sort;
 import jakarta.data.page.PageRequest;
 import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
+import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
+import org.eclipse.jnosql.mapping.core.repository.ParamValue;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
@@ -49,12 +51,12 @@ public enum SemiStructuredParameterBasedQuery {
      * @param entityMetadata  Metadata describing the structure of the entity.
      * @return                 A ColumnQuery instance tailored for the specified entity.
      */
-    public org.eclipse.jnosql.communication.semistructured.SelectQuery toQuery(Map<String, Object> params,
+    public org.eclipse.jnosql.communication.semistructured.SelectQuery toQuery(Map<String, ParamValue> params,
                                                                                List<Sort<?>> sorts,
                                                                                EntityMetadata entityMetadata) {
         var convert = CDI.current().select(Converters.class).get();
         List<CriteriaCondition> conditions = new ArrayList<>();
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
+        for (Map.Entry<String, ParamValue> entry : params.entrySet()) {
             conditions.add(condition(convert, entityMetadata, entry));
         }
 
@@ -103,15 +105,18 @@ public enum SemiStructuredParameterBasedQuery {
         return CriteriaCondition.and(conditions.toArray(TO_ARRAY));
     }
 
-    private CriteriaCondition condition(Converters convert, EntityMetadata entityMetadata, Map.Entry<String, Object> entry) {
+    private CriteriaCondition condition(Converters convert, EntityMetadata entityMetadata, Map.Entry<String, ParamValue> entry) {
         var name = entityMetadata.fieldMapping(entry.getKey())
                 .map(FieldMetadata::name)
                 .orElse(entry.getKey());
-        var value = getValue(entry.getValue(), entityMetadata, entry.getKey(), convert);
-        return CriteriaCondition.eq(name, value);
+        var paramValue = entry.getValue();
+        var condition = paramValue.condition();
+        var value = getValue(paramValue, entityMetadata, entry.getKey(), convert);
+        var element = Element.of(name, value);
+        return CriteriaCondition.of(element, condition);
     }
 
-    private CriteriaCondition condition( EntityMetadata entityMetadata, Map.Entry<String, Object> entry) {
+    private CriteriaCondition condition(EntityMetadata entityMetadata, Map.Entry<String, Object> entry) {
         var name = entityMetadata.fieldMapping(entry.getKey())
                 .map(FieldMetadata::name)
                 .orElse(entry.getKey());
