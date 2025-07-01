@@ -22,6 +22,7 @@ import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
+import org.eclipse.jnosql.mapping.core.repository.ParamValue;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.entities.Person;
@@ -60,7 +61,7 @@ class SemiStructuredParameterBasedQueryTest {
 
     @Test
     void shouldCreateQuerySingleParameter() {
-        Map<String, Object> params = Map.of("name", "Ada");
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(Condition.EQUALS, "Ada", false));
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
 
         SoftAssertions.assertSoftly(soft -> {
@@ -75,7 +76,8 @@ class SemiStructuredParameterBasedQueryTest {
 
     @Test
     void shouldCreateQueryMultipleParams() {
-        Map<String, Object> params = Map.of("name", "Ada", "age", 10);
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(Condition.EQUALS, "Ada", false),
+                "age", new ParamValue(Condition.EQUALS, 10, false));
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
 
         SoftAssertions.assertSoftly(soft -> {
@@ -95,7 +97,7 @@ class SemiStructuredParameterBasedQueryTest {
 
     @Test
     void shouldCreateQueryEmptyParams() {
-        Map<String, Object> params = Collections.emptyMap();
+        Map<String, ParamValue> params = Collections.emptyMap();
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
 
         SoftAssertions.assertSoftly(soft -> {
@@ -109,7 +111,7 @@ class SemiStructuredParameterBasedQueryTest {
 
     @Test
     void shouldAddSort() {
-        Map<String, Object> params = Collections.emptyMap();
+        Map<String, ParamValue> params = Collections.emptyMap();
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, List.of(Sort.asc("name")), metadata);
 
         SoftAssertions.assertSoftly(soft -> {
