@@ -113,7 +113,7 @@ public enum SemiStructuredParameterBasedQuery {
         var fieldName = resolveFieldName(entityMetadata, entry.getKey());
         var paramValue = entry.getValue();
         var condition = paramValue.condition();
-        Object value = extractConditionValue(paramValue.value(), condition, entityMetadata, entry.getKey(), convert);
+        var value = extractConditionValue(paramValue.value(), condition, entityMetadata, entry.getKey(), convert);
         return CriteriaCondition.of(Element.of(fieldName, value), condition);
     }
 
