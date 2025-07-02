@@ -36,6 +36,8 @@ import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.Collections;
 import java.util.List;
@@ -90,6 +92,24 @@ class SemiStructuredParameterBasedQueryTest {
             var condition = query.condition().orElseThrow();
             soft.assertThat(condition.condition()).isEqualTo(Condition.GREATER_THAN);
             soft.assertThat(condition.element()).isEqualTo(Element.of("name","Ada"));
+        });
+    }
+
+    @ParameterizedTest(name = "Executing parameter query: {index} - {0}")
+    @EnumSource(value = Condition.class, names = {"IN", "BETWEEN", "OR", "AND", "NOT"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldUpdateParameterBasedOnQuery(Condition condition) {
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(condition,"Ada", false));
+        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.limit()).isEqualTo(0L);
+            soft.assertThat(query.skip()).isEqualTo(0L);
+            soft.assertThat(query.name()).isEqualTo("Person");
+            soft.assertThat(query.sorts()).isEmpty();
+            soft.assertThat(query.condition()).isNotEmpty();
+            var criteriaCondition = query.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(condition);
+            soft.assertThat(criteriaCondition.element()).isEqualTo(Element.of("name", "Ada"));
         });
     }
 
