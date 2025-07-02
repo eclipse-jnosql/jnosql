@@ -15,6 +15,8 @@
 package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.data.constraint.GreaterThan;
+import jakarta.data.constraint.In;
+import jakarta.data.constraint.LessThan;
 import jakarta.data.repository.By;
 import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Find;
@@ -48,6 +50,8 @@ import java.util.stream.Stream;
 
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
 import static org.eclipse.jnosql.communication.Condition.GREATER_THAN;
+import static org.eclipse.jnosql.communication.Condition.IN;
+import static org.eclipse.jnosql.communication.Condition.LESSER_THAN;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -127,6 +131,48 @@ class CrudRepositoryProxyIsTest {
         });
     }
 
+    @Test
+    void shouldLesser() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.lesserThan(BigDecimal.TEN);
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(LESSER_THAN);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.PRICE, BigDecimal.TEN));
+        });
+    }
+
+    @Test
+    void shouldIn() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.in(List.of("Mac", "Iphone"));
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(IN);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, List.of("Mac", "Iphone")));
+        });
+    }
+
 
     public interface ProductRepository extends CrudRepository<Product, String> {
         @Find
@@ -134,6 +180,12 @@ class CrudRepositoryProxyIsTest {
 
         @Find
         List<Product> greaterThan(@By(_Product.PRICE) @Is(GreaterThan.class) BigDecimal price);
+
+        @Find
+        List<Product> lesserThan(@By(_Product.PRICE) @Is(LessThan.class) BigDecimal price);
+
+        @Find
+        List<Product> in(@By(_Product.NAME) @Is(In.class) List<String> names);
     }
 
 }
