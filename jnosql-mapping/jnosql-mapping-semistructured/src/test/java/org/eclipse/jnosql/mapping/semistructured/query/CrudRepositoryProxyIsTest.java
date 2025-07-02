@@ -17,12 +17,14 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 import jakarta.data.constraint.GreaterThan;
 import jakarta.data.constraint.In;
 import jakarta.data.constraint.LessThan;
+import jakarta.data.constraint.NotIn;
 import jakarta.data.repository.By;
 import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.Is;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
@@ -52,6 +54,7 @@ import static org.eclipse.jnosql.communication.Condition.EQUALS;
 import static org.eclipse.jnosql.communication.Condition.GREATER_THAN;
 import static org.eclipse.jnosql.communication.Condition.IN;
 import static org.eclipse.jnosql.communication.Condition.LESSER_THAN;
+import static org.eclipse.jnosql.communication.Condition.NOT;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -96,6 +99,28 @@ class CrudRepositoryProxyIsTest {
                 .thenReturn(Stream.of(new Product()));
 
         repository.equals("Mac");
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+        });
+    }
+
+
+    @Test
+    void shouldDefaultMethod() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.defaultMethod("Mac");
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
@@ -173,8 +198,35 @@ class CrudRepositoryProxyIsTest {
         });
     }
 
+    @Test
+    void shouldNotIn() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.notIn(List.of("Mac", "Iphone"));
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(NOT);
+            var criteriaCondition = condition.element().get(CriteriaCondition.class);
+            softly.assertThat(criteriaCondition.condition()).isEqualTo(IN);
+            softly.assertThat(criteriaCondition.element()).isEqualTo(Element.of(_Product.NAME, List.of("Mac", "Iphone")));
+        });
+    }
+
+
 
     public interface ProductRepository extends CrudRepository<Product, String> {
+        @Find
+        List<Product> defaultMethod(@By(_Product.NAME) String name);
+
         @Find
         List<Product> equals(@By(_Product.NAME) @Is String name);
 
@@ -186,6 +238,9 @@ class CrudRepositoryProxyIsTest {
 
         @Find
         List<Product> in(@By(_Product.NAME) @Is(In.class) List<String> names);
+
+        @Find
+        List<Product> notIn(@By(_Product.NAME) @Is(NotIn.class) List<String> names);
     }
 
 }
