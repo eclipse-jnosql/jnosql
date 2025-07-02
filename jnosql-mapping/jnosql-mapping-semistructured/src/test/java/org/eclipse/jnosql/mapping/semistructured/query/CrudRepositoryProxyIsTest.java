@@ -14,27 +14,14 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
-import jakarta.data.Order;
-import jakarta.data.Sort;
 import jakarta.data.constraint.GreaterThan;
-import jakarta.data.page.CursoredPage;
-import jakarta.data.page.Page;
-import jakarta.data.page.PageRequest;
 import jakarta.data.repository.By;
 import jakarta.data.repository.CrudRepository;
-import jakarta.data.repository.Delete;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.Is;
-import jakarta.data.repository.OrderBy;
-import jakarta.data.repository.Param;
-import jakarta.data.repository.Query;
-import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
-import org.eclipse.jnosql.communication.Condition;
-import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
-import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -59,7 +46,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.eclipse.jnosql.communication.Condition.AND;
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
 import static org.eclipse.jnosql.communication.Condition.GREATER_THAN;
 import static org.mockito.Mockito.any;
