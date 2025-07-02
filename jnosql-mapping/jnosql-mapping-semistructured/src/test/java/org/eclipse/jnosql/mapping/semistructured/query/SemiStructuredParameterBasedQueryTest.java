@@ -97,7 +97,7 @@ class SemiStructuredParameterBasedQueryTest {
 
     @ParameterizedTest(name = "Executing parameter query: {index} - {0}")
     @EnumSource(value = Condition.class, names = {"IN", "BETWEEN", "OR", "AND", "NOT"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldUpdateParameterBasedOnQuery(Condition condition) {
+    void shouldUpdateParameterBasedOnSimpleQuery(Condition condition) {
         Map<String, ParamValue> params = Map.of("name", new ParamValue(condition,"Ada", false));
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
 
@@ -110,6 +110,42 @@ class SemiStructuredParameterBasedQueryTest {
             var criteriaCondition = query.condition().orElseThrow();
             soft.assertThat(criteriaCondition.condition()).isEqualTo(condition);
             soft.assertThat(criteriaCondition.element()).isEqualTo(Element.of("name", "Ada"));
+        });
+    }
+
+    @ParameterizedTest(name = "Executing parameter query: {index} - {0}")
+    @EnumSource(value = Condition.class, names = {"IN", "BETWEEN"}, mode = EnumSource.Mode.INCLUDE)
+    void shouldUpdateParameterBasedOnQueryThatNeedsIterable(Condition condition) {
+        Map<String, ParamValue> params = Map.of("age", new ParamValue(condition, List.of(10, 20), false));
+        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.limit()).isEqualTo(0L);
+            soft.assertThat(query.skip()).isEqualTo(0L);
+            soft.assertThat(query.name()).isEqualTo("Person");
+            soft.assertThat(query.sorts()).isEmpty();
+            soft.assertThat(query.condition()).isNotEmpty();
+            var criteriaCondition = query.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(condition);
+            soft.assertThat(criteriaCondition.element()).isEqualTo(Element.of("age", List.of(10, 20)));
+        });
+    }
+
+    @ParameterizedTest(name = "Executing parameter query: {index} - {0}")
+    @EnumSource(value = Condition.class, names = {"IN", "BETWEEN"}, mode = EnumSource.Mode.INCLUDE)
+    void shouldUpdateParameterBasedOnQueryThatNeedsArray(Condition condition) {
+        Map<String, ParamValue> params = Map.of("age", new ParamValue(condition, new int[]{10, 20}, false));
+        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.limit()).isEqualTo(0L);
+            soft.assertThat(query.skip()).isEqualTo(0L);
+            soft.assertThat(query.name()).isEqualTo("Person");
+            soft.assertThat(query.sorts()).isEmpty();
+            soft.assertThat(query.condition()).isNotEmpty();
+            var criteriaCondition = query.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(condition);
+            soft.assertThat(criteriaCondition.element()).isEqualTo(Element.of("age", List.of(10, 20)));
         });
     }
 
