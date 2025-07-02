@@ -131,7 +131,7 @@ public enum SemiStructuredParameterBasedQuery {
             if (!isCollectionParameter) {
                 throw new IllegalArgumentException("The value for condition " + condition + " must be a Iterable or array, but received: " + rawValue);
             }
-            return extractMultipleValues(rawValue, metadata, fieldKey, convert);
+            return extractMultipleValues(rawValue, metadata, fieldKey, convert, condition);
         }
         if(isCollectionParameter) {
             throw new IllegalArgumentException("The value for condition " + condition + " must be a single value, but received: " + rawValue);
@@ -140,7 +140,7 @@ public enum SemiStructuredParameterBasedQuery {
     }
 
     private List<Object> extractMultipleValues(Object rawValue, EntityMetadata metadata, String fieldKey,
-                                               Converters convert) {
+                                               Converters convert, Condition condition) {
         List<Object> values = new ArrayList<>();
         if (rawValue instanceof Iterable<?> iterable) {
             iterable.forEach(v -> values.add(getValue(v, metadata, fieldKey, convert)));
@@ -149,6 +149,9 @@ public enum SemiStructuredParameterBasedQuery {
                 Object element = Array.get(rawValue, i);
                 values.add(getValue(element, metadata, fieldKey, convert));
             }
+        }
+        if (Condition.BETWEEN.equals(condition) && values.size() != 2) {
+            throw new IllegalArgumentException("The value for condition " + condition + " must have exactly two elements, but received: " + values);
         }
         return values;
     }

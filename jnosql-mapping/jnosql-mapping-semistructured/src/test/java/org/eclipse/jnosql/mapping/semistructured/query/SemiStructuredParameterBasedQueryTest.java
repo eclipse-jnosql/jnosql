@@ -156,6 +156,13 @@ class SemiStructuredParameterBasedQueryTest {
         });
     }
 
+    @Test
+    void shouldNotAllowBetweenWithSingleValue() {
+        Map<String, ParamValue> params = Map.of("age", new ParamValue(Condition.BETWEEN, List.of(10), false));
+        Assertions.assertThatThrownBy(() -> SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
     @ParameterizedTest(name = "Executing parameter query: {index} - {0}")
     @EnumSource(value = Condition.class, names = {"IN", "BETWEEN"}, mode = EnumSource.Mode.INCLUDE)
     void shouldUpdateParameterBasedOnQueryThatNeedsArray(Condition condition) {
