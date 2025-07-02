@@ -130,6 +130,14 @@ class SemiStructuredParameterBasedQueryTest {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
+    @ParameterizedTest(name = "Executing invalid iterable to parameter query: {index} - {0}")
+    @EnumSource(value = Condition.class, names = {"IN", "BETWEEN"}, mode = EnumSource.Mode.INCLUDE)
+    void shouldNotAllowNotArrayAndIterable(Condition condition) {
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(condition,"Ada", false));
+        Assertions.assertThatThrownBy(() -> SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
     @ParameterizedTest(name = "Executing parameter query: {index} - {0}")
     @EnumSource(value = Condition.class, names = {"IN", "BETWEEN"}, mode = EnumSource.Mode.INCLUDE)
     void shouldUpdateParameterBasedOnQueryThatNeedsIterable(Condition condition) {
