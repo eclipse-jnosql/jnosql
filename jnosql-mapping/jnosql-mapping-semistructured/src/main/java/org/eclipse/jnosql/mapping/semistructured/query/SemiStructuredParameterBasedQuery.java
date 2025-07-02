@@ -125,10 +125,15 @@ public enum SemiStructuredParameterBasedQuery {
 
     private Object extractConditionValue(Object rawValue, Condition condition, EntityMetadata metadata,
                                          String fieldKey, Converters convert) {
+        boolean isCollectionParameter = rawValue instanceof Iterable<?> || rawValue != null && rawValue.getClass().isArray();
+
         if (Condition.BETWEEN.equals(condition) || Condition.IN.equals(condition)) {
+            if (!isCollectionParameter) {
+                throw new IllegalArgumentException("The value for condition " + condition + " must be a Iterable or array, but received: " + rawValue);
+            }
             return extractMultipleValues(rawValue, metadata, fieldKey, convert);
         }
-        if(rawValue instanceof Iterable<?> || rawValue != null && rawValue.getClass().isArray()) {
+        if(isCollectionParameter) {
             throw new IllegalArgumentException("The value for condition " + condition + " must be a single value, but received: " + rawValue);
         }
         return getValue(rawValue, metadata, fieldKey, convert);
