@@ -21,6 +21,7 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 - Include support to Restriction interface
 - Include support to record projector
+- Include Is annotation support to the Repository
 
 
 == [1.1.8] - 2025-05-21
