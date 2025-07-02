@@ -87,7 +87,8 @@ class SemiStructuredParameterBasedQueryTest {
             soft.assertThat(query.condition()).isNotEmpty();
             var condition = query.condition().orElseThrow();
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
-            soft.assertThat(query.condition()).get().isEqualTo(CriteriaCondition.eq(Element.of("name", "Ada")));
+            var criteriaCondition = condition.element().get(CriteriaCondition.class);
+            soft.assertThat(criteriaCondition).isEqualTo(CriteriaCondition.eq(Element.of("name", "Ada")));
         });
     }
 
