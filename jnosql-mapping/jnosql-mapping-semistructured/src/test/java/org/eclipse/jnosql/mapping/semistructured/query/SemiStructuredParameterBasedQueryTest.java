@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 import jakarta.data.Sort;
 import jakarta.data.page.PageRequest;
 import jakarta.inject.Inject;
+import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
@@ -111,6 +112,22 @@ class SemiStructuredParameterBasedQueryTest {
             soft.assertThat(criteriaCondition.condition()).isEqualTo(condition);
             soft.assertThat(criteriaCondition.element()).isEqualTo(Element.of("name", "Ada"));
         });
+    }
+
+    @ParameterizedTest(name = "Executing invalid iterable to parameter query: {index} - {0}")
+    @EnumSource(value = Condition.class, names = {"IN", "BETWEEN", "OR", "AND", "NOT"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldNotAllowIterableOnSimpleQuery(Condition condition) {
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(condition,List.of("Ada"), false));
+        Assertions.assertThatThrownBy(() -> SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest(name = "Executing invalid array to parameter query: {index} - {0}")
+    @EnumSource(value = Condition.class, names = {"IN", "BETWEEN", "OR", "AND", "NOT"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldNotAllowArrayOnSimpleQuery(Condition condition) {
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(condition, new String[] {"Ada"}, false));
+        Assertions.assertThatThrownBy(() -> SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @ParameterizedTest(name = "Executing parameter query: {index} - {0}")

@@ -29,6 +29,7 @@ import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.IntFunction;
@@ -126,6 +127,9 @@ public enum SemiStructuredParameterBasedQuery {
                                          String fieldKey, Converters convert) {
         if (Condition.BETWEEN.equals(condition) || Condition.IN.equals(condition)) {
             return extractMultipleValues(rawValue, metadata, fieldKey, convert);
+        }
+        if(rawValue instanceof Iterable<?> || rawValue != null && rawValue.getClass().isArray()) {
+            throw new IllegalArgumentException("The value for condition " + condition + " must be a single value, but received: " + rawValue);
         }
         return getValue(rawValue, metadata, fieldKey, convert);
     }
