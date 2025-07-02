@@ -75,6 +75,23 @@ class SemiStructuredParameterBasedQueryTest {
     }
 
     @Test
+    void shouldCreateQuerySingleParameterWithNot() {
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(Condition.EQUALS, "Ada", true));
+        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.limit()).isEqualTo(0L);
+            soft.assertThat(query.skip()).isEqualTo(0L);
+            soft.assertThat(query.name()).isEqualTo("Person");
+            soft.assertThat(query.sorts()).isEmpty();
+            soft.assertThat(query.condition()).isNotEmpty();
+            var condition = query.condition().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
+            soft.assertThat(query.condition()).get().isEqualTo(CriteriaCondition.eq(Element.of("name", "Ada")));
+        });
+    }
+
+    @Test
     void shouldCreateQueryMultipleParams() {
         Map<String, ParamValue> params = Map.of("name", new ParamValue(Condition.EQUALS, "Ada", false),
                 "age", new ParamValue(Condition.EQUALS, 10, false));
