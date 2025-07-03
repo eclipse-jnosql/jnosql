@@ -40,6 +40,7 @@ import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -146,6 +147,27 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         return StreamSupport.stream(entities.spliterator(), false)
                 .map(e -> insert(e, ttl))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public <T> void delete(T entity) {
+        Objects.requireNonNull(entity, "entity is required");
+        EntityMetadata metadata = entities().get(entity.getClass());
+        FieldMetadata idField = metadata.id()
+                .orElseThrow(() -> IdNotFoundException.newInstance(metadata.type()));
+
+        var idValue = idField.read(entity);
+        LOGGER.fine("Deleting entity: " + entity.getClass() + " with id: " + idValue);
+        DeleteQuery query = DeleteQuery.delete().from(metadata.name())
+                .where(idField.name()).eq(idValue).build();
+        manager().delete(query);
+    }
+
+    @Override
+    public <T> void delete(Iterable<? extends T> iterable) {
+        Objects.requireNonNull(iterable, "iterable is required");
+        StreamSupport.stream(iterable.spliterator(), false)
+                .forEach(this::delete);
     }
 
     @Override
