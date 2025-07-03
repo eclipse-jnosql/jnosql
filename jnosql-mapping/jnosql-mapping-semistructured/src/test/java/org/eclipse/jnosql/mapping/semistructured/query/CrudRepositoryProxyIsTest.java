@@ -14,24 +14,18 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
-import jakarta.data.Order;
-import jakarta.data.Sort;
-import jakarta.data.page.CursoredPage;
-import jakarta.data.page.Page;
-import jakarta.data.page.PageRequest;
+import jakarta.data.constraint.GreaterThan;
+import jakarta.data.constraint.In;
+import jakarta.data.constraint.LessThan;
+import jakarta.data.constraint.NotIn;
 import jakarta.data.repository.By;
 import jakarta.data.repository.CrudRepository;
-import jakarta.data.repository.Delete;
 import jakarta.data.repository.Find;
-import jakarta.data.repository.OrderBy;
-import jakarta.data.repository.Param;
-import jakarta.data.repository.Query;
-import jakarta.data.restrict.Restriction;
+import jakarta.data.repository.Is;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
-import org.eclipse.jnosql.communication.TypeReference;
+import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
-import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -56,9 +50,11 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.eclipse.jnosql.communication.Condition.AND;
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
 import static org.eclipse.jnosql.communication.Condition.GREATER_THAN;
+import static org.eclipse.jnosql.communication.Condition.IN;
+import static org.eclipse.jnosql.communication.Condition.LESSER_THAN;
+import static org.eclipse.jnosql.communication.Condition.NOT;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -68,7 +64,7 @@ import static org.mockito.Mockito.when;
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class})
-class CrudRepositoryProxyRestrictionTest {
+class CrudRepositoryProxyIsTest {
 
     private SemiStructuredTemplate template;
 
@@ -97,12 +93,34 @@ class CrudRepositoryProxyRestrictionTest {
 
 
     @Test
-    void shouldRestrict() {
+    void shouldEquals() {
 
         when(template.select(any(SelectQuery.class)))
                 .thenReturn(Stream.of(new Product()));
 
-        var products = repository.restriction(_Product.name.equalTo("Mac"));
+        repository.equals("Mac");
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+        });
+    }
+
+
+    @Test
+    void shouldDefaultMethod() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.defaultMethod("Mac");
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
@@ -118,12 +136,12 @@ class CrudRepositoryProxyRestrictionTest {
     }
 
     @Test
-    void shouldRestrictPage() {
+    void shouldAtLeast() {
 
         when(template.select(any(SelectQuery.class)))
                 .thenReturn(Stream.of(new Product()));
 
-        Page<Product> products = repository.restriction(_Product.name.equalTo("Mac"), PageRequest.ofSize(2));
+        repository.greaterThan(BigDecimal.TEN);
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
@@ -132,199 +150,97 @@ class CrudRepositoryProxyRestrictionTest {
             softly.assertThat(query.name()).isEqualTo("Product");
             softly.assertThat(query.condition()).isPresent();
             CriteriaCondition condition = query.condition().orElseThrow();
-            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
-            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
-            softly.assertThat(products.pageRequest()).isEqualTo(PageRequest.ofSize(2));
-            softly.assertThat(products.nextPageRequest()).isEqualTo(PageRequest.ofSize(2).page(2));
-        });
-    }
-
-    @Test
-    void shouldRestrictSort() {
-
-        when(template.select(any(SelectQuery.class)))
-                .thenReturn(Stream.of(new Product()));
-
-        repository.restriction(_Product.name.equalTo("Mac"), _Product.name.asc());
-        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
-        verify(template).select(captor.capture());
-        SelectQuery query = captor.getValue();
-
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(query.name()).isEqualTo("Product");
-            softly.assertThat(query.condition()).isPresent();
-            CriteriaCondition condition = query.condition().orElseThrow();
-            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
-            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
-            softly.assertThat(query.sorts()).hasSize(1);
-            softly.assertThat(query.sorts()).contains( _Product.name.asc());
-        });
-    }
-    @Test
-    void shouldRestrictOrder() {
-
-        when(template.select(any(SelectQuery.class)))
-                .thenReturn(Stream.of(new Product()));
-
-        repository.restriction(_Product.name.equalTo("Mac"), Order.by(_Product.name.asc(), _Product.price.asc()));
-        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
-        verify(template).select(captor.capture());
-        SelectQuery query = captor.getValue();
-
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(query.name()).isEqualTo("Product");
-            softly.assertThat(query.condition()).isPresent();
-            CriteriaCondition condition = query.condition().orElseThrow();
-            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
-            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
-            softly.assertThat(query.sorts()).hasSize(2);
-            softly.assertThat(query.sorts()).contains(_Product.name.asc(), _Product.price.asc());
-        });
-    }
-
-
-    @Test
-    void shouldRestrictSortByAnnotation() {
-
-        when(template.select(any(SelectQuery.class)))
-                .thenReturn(Stream.of(new Product()));
-
-        repository.restrictionOrderByPriceAsc(_Product.name.equalTo("Mac"));
-        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
-        verify(template).select(captor.capture());
-        SelectQuery query = captor.getValue();
-
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(query.name()).isEqualTo("Product");
-            softly.assertThat(query.condition()).isPresent();
-            CriteriaCondition condition = query.condition().orElseThrow();
-            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
-            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
-            softly.assertThat(query.sorts()).hasSize(1);
-            softly.assertThat(query.sorts()).contains( _Product.price.asc());
-        });
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Test
-    void shouldHaveCursor() {
-
-        CursoredPage mock = Mockito.mock(CursoredPage.class);
-        when(mock.content()).thenReturn(List.of(new Product()));
-
-        when(template.selectCursor(any(SelectQuery.class), any(PageRequest.class))).thenReturn(mock);
-
-        CursoredPage<Product> cursor = repository.cursor(_Product.name.equalTo("Mac"), PageRequest.ofSize(10));
-        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
-        verify(template).selectCursor(captor.capture(), Mockito.any(PageRequest.class));
-        SelectQuery query = captor.getValue();
-
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(query.name()).isEqualTo("Product");
-            softly.assertThat(query.condition()).isPresent();
-            softly.assertThat(cursor.content()).isNotEmpty().isNotNull();
-            CriteriaCondition condition = query.condition().orElseThrow();
-            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
-            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
-            softly.assertThat(query.sorts()).hasSize(1);
-            softly.assertThat(query.sorts()).contains( _Product.price.asc());
-        });
-    }
-
-    @Test
-    void shouldShouldCombineRestrictionWithFind() {
-
-        when(template.select(any(SelectQuery.class)))
-                .thenReturn(Stream.of(new Product()));
-
-        List<Product> products = repository.findAll("Mac", _Product.price.greaterThan(BigDecimal.TEN));
-        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
-        verify(template).select(captor.capture());
-        SelectQuery query = captor.getValue();
-
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(query.name()).isEqualTo("Product");
-            softly.assertThat(query.condition()).isPresent();
-            CriteriaCondition condition = query.condition().orElseThrow();
-            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
-            softly.assertThat(condition.condition()).isEqualTo(AND);
-            List<CriteriaCondition> conditions = condition.element().get(new TypeReference<>() {
-            });
-            softly.assertThat(conditions).hasSize(2);
-            CriteriaCondition equals = conditions.get(0);
-            CriteriaCondition greaterThan = conditions.get(1);
-            softly.assertThat(equals.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
-            softly.assertThat(greaterThan.element()).isEqualTo(Element.of(_Product.PRICE,BigDecimal.TEN));
-            softly.assertThat(equals.condition()).isEqualTo(EQUALS);
-            softly.assertThat(greaterThan.condition()).isEqualTo(GREATER_THAN);
-            softly.assertThat(products).hasSize(1);
-        });
-    }
-
-    @Test
-    void shouldShouldCombineRestrictionWithQuery() {
-
-        when(template.select(any(SelectQuery.class)))
-                .thenReturn(Stream.of(new Product()));
-        when(template.prepare(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class));
-        List<Product> products = repository.query("Mac", _Product.price.greaterThan(BigDecimal.TEN));
-
-    }
-
-    @Test
-    void shouldDelete() {
-
-        repository.delete(_Product.price.greaterThan(BigDecimal.TEN));
-
-        ArgumentCaptor<DeleteQuery> captor = ArgumentCaptor.forClass(DeleteQuery.class);
-        verify(template).delete(captor.capture());
-
-        SoftAssertions.assertSoftly(softly -> {
-            DeleteQuery value = captor.getValue();
-            softly.assertThat(value.name()).isEqualTo("Product");
-            softly.assertThat(value.condition()).isPresent();
-            CriteriaCondition condition = value.condition().orElseThrow();
             softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
             softly.assertThat(condition.condition()).isEqualTo(GREATER_THAN);
             softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.PRICE, BigDecimal.TEN));
         });
-
     }
+
+    @Test
+    void shouldLesser() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.lesserThan(BigDecimal.TEN);
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(LESSER_THAN);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.PRICE, BigDecimal.TEN));
+        });
+    }
+
+    @Test
+    void shouldIn() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.in(List.of("Mac", "Iphone"));
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(IN);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, List.of("Mac", "Iphone")));
+        });
+    }
+
+    @Test
+    void shouldNotIn() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.notIn(List.of("Mac", "Iphone"));
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(NOT);
+            var criteriaCondition = condition.element().get(CriteriaCondition.class);
+            softly.assertThat(criteriaCondition.condition()).isEqualTo(IN);
+            softly.assertThat(criteriaCondition.element()).isEqualTo(Element.of(_Product.NAME, List.of("Mac", "Iphone")));
+        });
+    }
+
 
 
     public interface ProductRepository extends CrudRepository<Product, String> {
         @Find
-        List<Product> restriction(Restriction<Product> restriction);
-        @Find
-        Page<Product> restriction(Restriction<Product> restriction, PageRequest pageRequest);
+        List<Product> defaultMethod(@By(_Product.NAME) String name);
 
         @Find
-        List<Product> restriction(Restriction<Product> restriction, Sort<Product> order);
-        @Find
-        List<Product> restriction(Restriction<Product> restriction, Order<Product> order);
-
-        @OrderBy(_Product.PRICE)
-        @Find
-        List<Product> restrictionOrderByPriceAsc(Restriction<Product> restriction);
-
-        @OrderBy(_Product.PRICE)
-        @Find
-        CursoredPage<Product> cursor(Restriction<Product> restriction, PageRequest pageRequest);
-
+        List<Product> equals(@By(_Product.NAME) @Is String name);
 
         @Find
-        List<Product> findAll(@By("name") String name, Restriction<Product> restriction);
+        List<Product> greaterThan(@By(_Product.PRICE) @Is(GreaterThan.class) BigDecimal price);
 
-        @Query("where name = :name")
-        List<Product> query(@Param("name") String name, Restriction<Product> restriction);
+        @Find
+        List<Product> lesserThan(@By(_Product.PRICE) @Is(LessThan.class) BigDecimal price);
 
-        @Delete
-        void delete(Restriction<Product> restriction);
+        @Find
+        List<Product> in(@By(_Product.NAME) @Is(In.class) List<String> names);
+
+        @Find
+        List<Product> notIn(@By(_Product.NAME) @Is(NotIn.class) List<String> names);
     }
+
 }

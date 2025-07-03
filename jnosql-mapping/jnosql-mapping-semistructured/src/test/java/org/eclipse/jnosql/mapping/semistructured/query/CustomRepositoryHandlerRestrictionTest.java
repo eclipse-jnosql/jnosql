@@ -19,19 +19,14 @@ import jakarta.data.Sort;
 import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
-import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.OrderBy;
-import jakarta.data.restrict.Restrict;
 import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
-import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
-import org.eclipse.jnosql.mapping.PreparedStatement;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -39,9 +34,7 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
-import org.eclipse.jnosql.mapping.semistructured.entities.Person;
 import org.eclipse.jnosql.mapping.semistructured.entities.Product;
-import org.eclipse.jnosql.mapping.semistructured.entities.Task;
 import org.eclipse.jnosql.mapping.semistructured.entities._Product;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
@@ -53,8 +46,6 @@ import org.mockito.Mockito;
 
 import java.lang.reflect.Proxy;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.eclipse.jnosql.communication.Condition.EQUALS;

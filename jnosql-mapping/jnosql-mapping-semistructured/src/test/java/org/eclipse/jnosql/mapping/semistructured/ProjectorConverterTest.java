@@ -30,8 +30,6 @@ import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
-
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})

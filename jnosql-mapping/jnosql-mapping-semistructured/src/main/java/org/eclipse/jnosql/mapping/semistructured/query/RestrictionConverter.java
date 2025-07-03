@@ -14,14 +14,14 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
+import jakarta.data.constraint.AtLeast;
+import jakarta.data.constraint.AtMost;
 import jakarta.data.constraint.Between;
 import jakarta.data.constraint.Constraint;
 import jakarta.data.constraint.EqualTo;
 import jakarta.data.constraint.GreaterThan;
-import jakarta.data.constraint.GreaterThanOrEqual;
 import jakarta.data.constraint.In;
 import jakarta.data.constraint.LessThan;
-import jakarta.data.constraint.LessThanOrEqual;
 import jakarta.data.constraint.Like;
 import jakarta.data.constraint.NotBetween;
 import jakarta.data.constraint.NotEqualTo;
@@ -152,13 +152,13 @@ public enum RestrictionConverter {
                 return gt(name, value);
             }
 
-            case GreaterThanOrEqual<?> greaterThanOrEqual -> {
+            case AtLeast<?> greaterThanOrEqual -> {
                 var value = ValueConverter.of(greaterThanOrEqual::bound, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
                 return gte(name, value);
             }
 
-            case LessThanOrEqual<?> lesserThanOrEqual -> {
+            case AtMost<?> lesserThanOrEqual -> {
                 var value = ValueConverter.of(lesserThanOrEqual::bound, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
                 return lte(name, value);
