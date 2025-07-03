@@ -61,7 +61,6 @@ import java.util.stream.Stream;
  * This class provides common functionality for executing CRUD operations using column queries.
  *
  * @param <T> The type of entities managed by the repository.
- *
  */
 public abstract class BaseSemiStructuredRepository<T, K> extends AbstractRepositoryProxy<T, K> {
 
@@ -94,6 +93,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
 
     /**
      * Retrieves the EntitiesMetadata instance containing metadata for all entities.
+     *
      * @return The EntitiesMetadata instance.
      */
     protected abstract EntitiesMetadata entitiesMetadata();
@@ -177,7 +177,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                 })
                 .singleResult(() -> {
                     Optional<Object> object = template().singleResult(query);
-                   return object.map(mapper(method));
+                    return object.map(mapper(method));
                 })
                 .pagination(DynamicReturn.findPageRequest(args))
                 .streamPagination(streamPagination(query, method))
@@ -188,7 +188,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
     }
 
     @SuppressWarnings("unchecked")
-    protected  <E> Function<Object, E> mapper(Method method) {
+    protected <E> Function<Object, E> mapper(Method method) {
         return value -> {
             var returnType = returnType(method);
             Optional<ProjectionMetadata> projection = this.entitiesMetadata().projection(returnType);
@@ -197,9 +197,12 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                 return projectorConverter().map(value, projectionMetadata);
             }
             Select[] annotations = method.getAnnotationsByType(Select.class);
-            if(annotations.length == 1) {
+            if (annotations.length == 1) {
                 String fieldReturn = annotations[0].value();
-                return (E) value(entityMetadata(), fieldReturn, value);
+                Optional<EntityMetadata> valueEntityMetadata = entitiesMetadata().findByClassName(value.getClass().getName());
+                return (E) valueEntityMetadata
+                        .map(entityMetadata -> value(entityMetadata, fieldReturn, value))
+                        .orElse(value);
             }
             return (E) value;
         };
@@ -215,14 +218,14 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         return typeClass;
     }
 
-    private SelectQuery includeInheritance(SelectQuery query){
+    private SelectQuery includeInheritance(SelectQuery query) {
         EntityMetadata metadata = this.entityMetadata();
-        if(metadata.inheritance().isPresent()){
+        if (metadata.inheritance().isPresent()) {
             InheritanceMetadata inheritanceMetadata = metadata.inheritance().orElseThrow();
-            if(!inheritanceMetadata.parent().equals(metadata.type())){
+            if (!inheritanceMetadata.parent().equals(metadata.type())) {
                 CriteriaCondition condition = CriteriaCondition.eq(Element.of(inheritanceMetadata.discriminatorColumn(),
                         inheritanceMetadata.discriminatorValue()));
-                if(query.condition().isPresent()){
+                if (query.condition().isPresent()) {
                     CriteriaCondition columnCondition = query.condition().orElseThrow();
                     condition = condition.and(columnCondition);
                 }
@@ -316,7 +319,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                 return new MappingQuery(sorts, selectQuery.limit(), selectQuery.skip(),
                         selectQuery.condition().orElse(null), selectQuery.name());
             }
-           return selectQuery;
+            return selectQuery;
         });
     }
 
@@ -348,10 +351,10 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
     private Object value(EntityMetadata entityMetadata, String returnName, Object value) {
         var names = returnName.split("\\.");
         Optional<FieldMetadata> fieldMetadata = entityMetadata.fieldMapping(names[0]);
-        if(fieldMetadata.isPresent()) {
+        if (fieldMetadata.isPresent()) {
             var field = fieldMetadata.orElseThrow();
-            var convertedField =  field.read(value);
-            if(convertedField != null && names.length > 1) {
+            var convertedField = field.read(value);
+            if (convertedField != null && names.length > 1) {
                 var subField = Stream.of(names).skip(1).collect(Collectors.joining("."));
                 var subEntityMetadata = entitiesMetadata().findByClassName(convertedField.getClass().getName())
                         .orElseThrow(() -> new IllegalArgumentException("Entity metadata not found for " + convertedField.getClass()));

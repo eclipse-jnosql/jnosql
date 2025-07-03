@@ -141,11 +141,11 @@ public class CustomRepositoryHandler implements InvocationHandler {
                         return prepare.count();
                     }
                     Stream<?> entities = prepare.result();
-                    if(isLong(method)) {
+                    if (isLong(method)) {
                         return entities.count();
                     }
                     return Void.class;
-                } else if(repositoryMetadata.metadata().isPresent()) {
+                } else if (repositoryMetadata.metadata().isPresent()) {
                     return unwrapInvocationTargetException(() -> repository(method).executeQuery(instance, method, params));
                 } else {
                     return unwrapInvocationTargetException(() -> this.defaultRepository.executeQuery(instance, method, params));
@@ -161,7 +161,8 @@ public class CustomRepositoryHandler implements InvocationHandler {
             case DELETE_BY -> {
                 return unwrapInvocationTargetException(() -> defaultRepository().executeDeleteByAll(instance, method, params));
             }
-            default -> throw new UnsupportedOperationException("The custom repository does not support the method " + method);
+            default ->
+                    throw new UnsupportedOperationException("The custom repository does not support the method " + method);
         }
     }
 
@@ -220,9 +221,9 @@ public class CustomRepositoryHandler implements InvocationHandler {
     }
 
     private RepositoryMetadata repositoryMetadata(Method method) {
-        Class<?> typeClass =  Optional.ofNullable(method.getAnnotation(Find.class)).map(Find::value).filter(v -> !void.class.equals(v)).orElse(null);
+        Class<?> typeClass = Optional.ofNullable(method.getAnnotation(Find.class)).map(Find::value).filter(v -> !void.class.equals(v)).orElse(null);
         if (typeClass != null) {
-            Optional<EntityMetadata> metadata = entitiesMetadata.findByClassName(typeClass.getName());
+            Optional<EntityMetadata> metadata = getEntityMetadataBy(typeClass);
             return new RepositoryMetadata(typeClass, metadata);
         }
         typeClass = method.getReturnType();
@@ -231,8 +232,12 @@ public class CustomRepositoryHandler implements InvocationHandler {
         } else if (Iterable.class.isAssignableFrom(typeClass) || Stream.class.isAssignableFrom(typeClass) || Optional.class.isAssignableFrom(typeClass)) {
             typeClass = (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
         }
-        Optional<EntityMetadata> metadata = entitiesMetadata.findByClassName(typeClass.getName());
+        Optional<EntityMetadata> metadata = getEntityMetadataBy(typeClass);
         return new RepositoryMetadata(typeClass, metadata);
+    }
+
+    private Optional<EntityMetadata> getEntityMetadataBy(Class<?> typeClass) {
+        return entitiesMetadata.findByClassName(typeClass.getName());
     }
 
     private record RepositoryMetadata(Class<?> typeClass, Optional<EntityMetadata> metadata) {
@@ -246,8 +251,9 @@ public class CustomRepositoryHandler implements InvocationHandler {
             var entity = ((Iterable<?>) params[0]).iterator().next();
             typeClass = entity.getClass();
         }
-        Optional<EntityMetadata> entity = entitiesMetadata.findByClassName(typeClass.getName());
-        return entity.map(entityMetadata -> new SemiStructuredRepositoryProxy.SemiStructuredRepository<>(template, entityMetadata))
+
+        return getEntityMetadataBy(typeClass)
+                .map(entityMetadata -> new SemiStructuredRepositoryProxy.SemiStructuredRepository<>(template, entityMetadata))
                 .orElseThrow(() -> new UnsupportedOperationException("The repository does not support the method: " + method));
     }
 
@@ -255,10 +261,9 @@ public class CustomRepositoryHandler implements InvocationHandler {
         if (params.length == 0) {
             throw new IllegalArgumentException("Method must have at least one parameter");
         }
-
         Class<?> typeClass = getTypeClassFromParameter(params[0]);
-        Optional<EntityMetadata> entity = entitiesMetadata.findByClassName(typeClass.getName());
-        return entity.map(entityMetadata -> new SemiStructuredRepositoryProxy<>(template, entityMetadata, typeClass, converters, entitiesMetadata))
+        return getEntityMetadataBy(typeClass)
+                .map(entityMetadata -> new SemiStructuredRepositoryProxy<>(template, entityMetadata, typeClass, converters, entitiesMetadata))
                 .orElseThrow(() -> new UnsupportedOperationException("The repository does not support the method: " + method));
     }
 

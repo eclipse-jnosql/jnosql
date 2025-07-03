@@ -8,9 +8,14 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 == [Unreleased]
 
+=== Fixed
+
+- Fixed the AbstractSemiStructuredTemplate class to apply the inheritance strategy properly on find and delete methods
+
 === Changed
 
 - Define Java 21 as the minimum version to run JNoSQL
+- Adjustments at CustomRepositoryHandler to handle inheritance correctly
 
 === Added
 
