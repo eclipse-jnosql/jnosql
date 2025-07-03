@@ -169,7 +169,7 @@ class CustomRepositoryHandlerTest {
     @Test
     void shouldDeleteListEntity() {
         var persons = List.of(Person.builder().id(12L).age(26).name("Ada").build());
-         people.delete(persons);
+        people.delete(persons);
 
         Mockito.verify(template).delete(Person.class, 12L);
         Mockito.verifyNoMoreInteractions(template);
@@ -223,15 +223,14 @@ class CustomRepositoryHandlerTest {
     }
 
 
-
     @Test
-    void shouldExecuteObjectMethods(){
+    void shouldExecuteObjectMethods() {
         Assertions.assertThat(people.toString()).isNotNull();
         Assertions.assertThat(people.hashCode()).isNotEqualTo(0);
     }
 
     @Test
-    void shouldExecuteDefaultMethod(){
+    void shouldExecuteDefaultMethod() {
         Assertions.assertThat(people.defaultMethod()).isEqualTo("default");
     }
 
@@ -362,7 +361,7 @@ class CustomRepositoryHandlerTest {
 
 
     @Test
-    void shouldExecuteQuery(){
+    void shouldExecuteQuery() {
 
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
         Mockito.when(template.prepare(Mockito.anyString(), Mockito.anyString()))
@@ -382,7 +381,7 @@ class CustomRepositoryHandlerTest {
     }
 
     @Test
-    void shouldExecuteQueryWithVoid(){
+    void shouldExecuteQueryWithVoid() {
 
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
         Mockito.when(template.prepare(Mockito.anyString(), Mockito.anyString())).thenReturn(preparedStatement);
@@ -479,7 +478,7 @@ class CustomRepositoryHandlerTest {
         Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
         Mockito.when(template.query(Mockito.anyString()))
                 .thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
-        Assertions.assertThatThrownBy(() ->people.deleteByNameReturnInt())
+        Assertions.assertThatThrownBy(() -> people.deleteByNameReturnInt())
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
@@ -489,7 +488,7 @@ class CustomRepositoryHandlerTest {
         Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
         Mockito.when(template.query(Mockito.anyString()))
                 .thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
-        Assertions.assertThatThrownBy(() ->people.updateReturnInt())
+        Assertions.assertThatThrownBy(() -> people.updateReturnInt())
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 }

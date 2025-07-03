@@ -15,6 +15,7 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 === Changed
 
 - Define Java 21 as the minimum version to run JNoSQL
+- Adjustments at CustomRepositoryHandler to handle inheritance correctly
 
 === Added
 
