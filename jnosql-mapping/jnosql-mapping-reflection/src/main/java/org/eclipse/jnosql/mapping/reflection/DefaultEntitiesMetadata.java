@@ -65,6 +65,9 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
     @PostConstruct
     public void init() {
         classes.putAll(extension.classes());
+        classes.values().forEach(r -> {
+            findByClassName.put(r.className(), r);
+        });
         extension.mappings().forEach((k, v) -> mappings.put(k.toUpperCase(Locale.US), v));
         mappings.values().forEach(r -> {
             findBySimpleName.put(r.simpleName(), r);
