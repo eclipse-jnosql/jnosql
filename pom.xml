@@ -634,6 +634,18 @@
             </build>
         </profile>
     </profiles>
+    <distributionManagement>
+        <repository>
+            <id>noop</id>
+            <name>Disabled</name>
+            <url>file:///dev/null</url>
+        </repository>
+        <snapshotRepository>
+            <id>noop</id>
+            <name>Disabled Snapshots</name>
+            <url>file:///dev/null</url>
+        </snapshotRepository>
+    </distributionManagement>
     <repositories>
         <repository>
             <id>jakarta.sonatype.org-snapshot</id>
