@@ -191,10 +191,8 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
                 .orElseThrow(() -> IdNotFoundException.newInstance(type));
 
         Object value = ConverterUtil.getValue(id, entityMetadata, idField.fieldName(), converters());
-        SelectQuery query = SelectQuery.select().from(entityMetadata.name())
-                .where(idField.name()).eq(value).build();
-
-        return singleResult(query);
+        return this.select(type)
+                .where(idField.name()).eq(value).singleResult();
     }
 
     @Override
@@ -207,9 +205,9 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
                 .orElseThrow(() -> IdNotFoundException.newInstance(type));
         Object value = ConverterUtil.getValue(id, entityMetadata, idField.fieldName(), converters());
 
-        DeleteQuery query = DeleteQuery.delete().from(entityMetadata.name())
-                .where(idField.name()).eq(value).build();
-        manager().delete(query);
+        this.delete(type)
+                .where(idField.name()).eq(value)
+                .execute();
     }
 
 
