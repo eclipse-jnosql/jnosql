@@ -14,9 +14,11 @@
  */
 package org.eclipse.jnosql.mapping.metadata;
 
+import org.mockito.Mockito;
+
 public class MockConstructorBuilderSupplier implements ConstructorBuilderSupplier{
     @Override
     public ConstructorBuilder apply(ConstructorMetadata constructorMetadata) {
-        return null;
+        return Mockito.mock(ConstructorBuilder.class);
     }
 }
