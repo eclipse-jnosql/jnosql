@@ -37,9 +37,7 @@ public final class ValueReaderDecorator implements ValueReader {
     private final List<ValueReader> readers = new ArrayList<>();
 
     {
-        ServiceLoader.load(ValueReader.class).stream()
-                .map(ServiceLoader.Provider::get)
-                .forEach(readers::add);
+        readers.addAll(ServiceProviderLoader.loadAll(ValueReader.class));
     }
 
     public static ValueReaderDecorator getInstance() {

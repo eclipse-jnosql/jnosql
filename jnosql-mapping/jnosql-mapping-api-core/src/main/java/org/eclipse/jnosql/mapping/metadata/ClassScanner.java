@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.metadata;
 
 
 import jakarta.data.repository.DataRepository;
+import org.eclipse.jnosql.communication.ServiceProviderLoader;
 
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -27,7 +28,8 @@ import java.util.Set;
  * The scanner facilitates the discovery of entities and repositories in the Eclipse JNoSQL context.
  */
 public interface ClassScanner {
-
+    ClassScanner INSTANCE = ServiceProviderLoader.loadSingleton(ClassScanner.class,
+            new MetadataException("No implementation of ClassScanner found via ServiceLoader"));
     /**
      * Returns a set of classes that are annotated with the {@link jakarta.nosql.Entity} annotation.
      *
@@ -90,9 +92,7 @@ public interface ClassScanner {
      * @throws IllegalStateException If no suitable implementation is found.
      */
     static ClassScanner load() {
-        ServiceLoader<ClassScanner> serviceLoader = ServiceLoader.load(ClassScanner.class);
-        return serviceLoader.findFirst().orElseThrow(() ->
-                new MetadataException("No implementation of ClassScanner found via ServiceLoader"));
+        return INSTANCE;
     }
 
 }

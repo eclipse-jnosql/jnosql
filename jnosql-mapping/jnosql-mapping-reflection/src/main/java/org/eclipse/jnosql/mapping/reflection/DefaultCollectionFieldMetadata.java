@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.reflection;
 
 import jakarta.nosql.Entity;
+import org.eclipse.jnosql.communication.ServiceProviderLoader;
 import org.eclipse.jnosql.communication.TypeSupplier;
 import org.eclipse.jnosql.communication.Value;
 import jakarta.nosql.AttributeConverter;
@@ -28,11 +29,14 @@ import java.lang.reflect.ParameterizedType;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.ServiceLoader;
 
 final class DefaultCollectionFieldMetadata extends AbstractFieldMetadata implements CollectionFieldMetadata {
 
+    @SuppressWarnings("unchecked")
+    private static final List<CollectionSupplier<?>> COLLECTION_SUPPLIERS = (List<CollectionSupplier<?>>) ServiceProviderLoader.loadAll(CollectionSupplier.class);
     private final TypeSupplier<?> typeSupplier;
     private final boolean entityField;
     private final boolean embeddableField;
@@ -112,9 +116,8 @@ final class DefaultCollectionFieldMetadata extends AbstractFieldMetadata impleme
     @Override
     public Collection<?> collectionInstance() {
         Class<?> type = type();
-        final CollectionSupplier supplier =  ServiceLoader.load(CollectionSupplier.class)
+        final CollectionSupplier supplier =  COLLECTION_SUPPLIERS
                 .stream()
-                .map(ServiceLoader.Provider::get)
                 .map(CollectionSupplier.class::cast)
                 .filter(c -> c.test(type))
                 .findFirst()

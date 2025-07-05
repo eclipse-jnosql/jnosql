@@ -48,7 +48,7 @@ public final class ServiceProviderLoader {
      * @param <T>     the service type
      * @return an eagerly loaded unmodifiable list of service providers
      */
-    public static <T> List<T> loadAll(Class<T> service) {
+    public static <T> List<? extends T> loadAll(Class<T> service) {
         return ServiceLoader.load(service)
                 .stream()
                 .map(ServiceLoader.Provider::get)

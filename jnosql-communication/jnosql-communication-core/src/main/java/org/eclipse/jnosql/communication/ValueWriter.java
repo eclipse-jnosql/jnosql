@@ -39,16 +39,4 @@ public interface ValueWriter<T, S> extends Predicate<Class<?>> {
      */
     S write(T object);
 
-    /**
-     * Returns the {@link Stream} of all {@link ValueWriter} available
-     *
-     * @param <T> current type
-     * @param <S> the converted type
-     * @return the stream of writers
-     */
-    static <T, S> Stream<ValueWriter<T, S>> getWriters() {
-        return ServiceLoader.load(ValueWriter.class)
-                .stream()
-                .map(ServiceLoader.Provider::get);
-    }
 }
