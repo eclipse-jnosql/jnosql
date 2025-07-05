@@ -32,6 +32,12 @@ import java.util.ServiceLoader;
  */
 public interface ProjectionBuilder {
 
+    ProjectionBuilderSupplier INSTANCE = ServiceLoader
+            .load(ProjectionBuilderSupplier.class)
+            .findFirst()
+            .orElseThrow(() -> new NoSQLException(
+                    "No implementation of ProjectionBuilderSupplier found via ServiceLoader"));
+
     /**
      * Returns the constructor parameters.
      *
@@ -66,17 +72,6 @@ public interface ProjectionBuilder {
      */
     static ProjectionBuilder of(ProjectionConstructorMetadata constructor){
         Objects.requireNonNull(constructor, "constructor is required");
-        return LazyLoader.INSTANCE.apply(constructor);
-    }
-
-    /**
-     * Lazy-loading singleton for the {@link ProjectionBuilderSupplier}, using ServiceLoader only once.
-     */
-    final class LazyLoader {
-        static final ProjectionBuilderSupplier INSTANCE = ServiceLoader
-                .load(ProjectionBuilderSupplier.class)
-                .findFirst()
-                .orElseThrow(() -> new NoSQLException(
-                        "No implementation of ProjectionBuilderSupplier found via ServiceLoader"));
+        return INSTANCE.apply(constructor);
     }
 }
