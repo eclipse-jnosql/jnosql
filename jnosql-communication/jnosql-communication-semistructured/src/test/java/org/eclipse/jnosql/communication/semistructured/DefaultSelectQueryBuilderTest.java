@@ -10,9 +10,9 @@
  */
 package org.eclipse.jnosql.communication.semistructured;
 
-import org.eclipse.jnosql.communication.Condition;
-import jakarta.data.Sort;
 import jakarta.data.Direction;
+import jakarta.data.Sort;
+import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,6 @@ import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;

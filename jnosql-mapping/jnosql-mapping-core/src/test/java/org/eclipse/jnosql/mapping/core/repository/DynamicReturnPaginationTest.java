@@ -14,9 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
-import jakarta.data.repository.CrudRepository;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import jakarta.data.repository.CrudRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -11,9 +11,9 @@
  */
 package org.eclipse.jnosql.communication.query.method;
 
-import org.antlr.v4.runtime.tree.ParseTree;
-import jakarta.data.Sort;
 import jakarta.data.Direction;
+import jakarta.data.Sort;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.eclipse.jnosql.communication.query.SelectQuery;
 import org.eclipse.jnosql.query.grammar.method.MethodParser;
 

@@ -16,9 +16,7 @@
  */
 package org.eclipse.jnosql.communication;
 
-import java.util.ServiceLoader;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 /**
  * This interface represents the writer on the {@link Value} instance.

@@ -11,10 +11,10 @@
 package org.eclipse.jnosql.communication.semistructured;
 
 
-import org.eclipse.jnosql.communication.semistructured.DeleteQuery.EntityDelete;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery.DeleteFrom;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery.DeleteNotCondition;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery.DeleteWhere;
+import org.eclipse.jnosql.communication.semistructured.DeleteQuery.EntityDelete;
 
 import java.util.List;
 

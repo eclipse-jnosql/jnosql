@@ -14,6 +14,7 @@ package org.eclipse.jnosql.communication.semistructured;
 import jakarta.json.JsonObject;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
+
 import java.util.List;
 import java.util.Map;
 

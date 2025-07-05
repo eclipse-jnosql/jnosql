@@ -17,7 +17,6 @@ package org.eclipse.jnosql.mapping.metadata;
 
 import org.eclipse.jnosql.communication.ServiceProviderLoader;
 
-import java.util.ServiceLoader;
 import java.util.function.Function;
 
 /**

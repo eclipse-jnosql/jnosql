@@ -19,7 +19,6 @@ package org.eclipse.jnosql.communication;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ServiceLoader;
 
 /**
  * Decorators of all {@link TypeReferenceReader}

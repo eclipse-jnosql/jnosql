@@ -16,8 +16,8 @@ package org.eclipse.jnosql.mapping.reflection;
 
 
 import jakarta.nosql.Column;
-import org.assertj.core.api.Assertions;
 import jakarta.nosql.Embeddable;
+import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.mapping.metadata.ClassConverter;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
@@ -32,7 +32,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.eclipse.jnosql.mapping.metadata.MappingType.*;
+import static org.eclipse.jnosql.mapping.metadata.MappingType.COLLECTION;
+import static org.eclipse.jnosql.mapping.metadata.MappingType.DEFAULT;
+import static org.eclipse.jnosql.mapping.metadata.MappingType.EMBEDDED;
+import static org.eclipse.jnosql.mapping.metadata.MappingType.MAP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 

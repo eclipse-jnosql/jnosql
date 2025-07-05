@@ -18,7 +18,6 @@ package org.eclipse.jnosql.mapping.metadata;
 import jakarta.data.repository.DataRepository;
 import org.eclipse.jnosql.communication.ServiceProviderLoader;
 
-import java.util.ServiceLoader;
 import java.util.Set;
 
 /**

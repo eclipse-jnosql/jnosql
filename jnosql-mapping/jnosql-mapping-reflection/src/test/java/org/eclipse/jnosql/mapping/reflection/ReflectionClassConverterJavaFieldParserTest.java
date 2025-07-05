@@ -16,7 +16,6 @@ package org.eclipse.jnosql.mapping.reflection;
 
 import org.eclipse.jnosql.mapping.metadata.ClassConverter;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
-
 import org.eclipse.jnosql.mapping.reflection.entities.Address;
 import org.eclipse.jnosql.mapping.reflection.entities.AppointmentBook;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;

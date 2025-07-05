@@ -17,12 +17,10 @@ package org.eclipse.jnosql.mapping.reflection;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.nosql.Column;
-
+import jakarta.nosql.DiscriminatorColumn;
 import jakarta.nosql.DiscriminatorValue;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Id;
-
-import jakarta.nosql.DiscriminatorColumn;
 import jakarta.nosql.Inheritance;
 import jakarta.nosql.MappedSuperclass;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;

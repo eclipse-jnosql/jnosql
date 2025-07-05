@@ -14,9 +14,8 @@
  */
 package org.eclipse.jnosql.mapping.core;
 
-import jakarta.nosql.AttributeConverter;
-
 import jakarta.enterprise.inject.Vetoed;
+import jakarta.nosql.AttributeConverter;
 
 @Vetoed
 public class VetedConverter implements AttributeConverter<String, String> {
