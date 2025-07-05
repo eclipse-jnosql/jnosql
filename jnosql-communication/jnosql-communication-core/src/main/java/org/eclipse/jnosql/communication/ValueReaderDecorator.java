@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -36,7 +37,9 @@ public final class ValueReaderDecorator implements ValueReader {
     private final List<ValueReader> readers = new ArrayList<>();
 
     {
-        readers.addAll(ServiceProviderLoader.loadAll(ValueReader.class));
+        readers.addAll(ServiceLoader.load(ValueReader.class).stream()
+                .map(ServiceLoader.Provider::get)
+                .toList());
     }
 
     public static ValueReaderDecorator getInstance() {

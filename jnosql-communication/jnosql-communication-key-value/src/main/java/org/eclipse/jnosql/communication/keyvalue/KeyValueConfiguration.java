@@ -13,7 +13,6 @@ package org.eclipse.jnosql.communication.keyvalue;
 
 
 import org.eclipse.jnosql.communication.CommunicationException;
-import org.eclipse.jnosql.communication.ServiceProviderLoader;
 import org.eclipse.jnosql.communication.Settings;
 
 import java.util.List;
@@ -30,7 +29,9 @@ import java.util.function.Function;
  */
 public interface KeyValueConfiguration extends Function<Settings, BucketManagerFactory> {
 
-    List<KeyValueConfiguration> CONFIGURATIONS = ServiceProviderLoader.loadAll(KeyValueConfiguration.class);
+    List<KeyValueConfiguration> CONFIGURATIONS = ServiceLoader.load(KeyValueConfiguration.class).stream()
+            .map(ServiceLoader.Provider::get)
+            .toList();
     /**
      * creates and returns a  {@link KeyValueConfiguration}  instance from {@link ServiceLoader}
      *

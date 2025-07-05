@@ -17,7 +17,6 @@ package org.eclipse.jnosql.mapping.reflection;
 import jakarta.nosql.AttributeConverter;
 import jakarta.nosql.Embeddable;
 import jakarta.nosql.Entity;
-import org.eclipse.jnosql.communication.ServiceProviderLoader;
 import org.eclipse.jnosql.communication.TypeSupplier;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.mapping.metadata.CollectionFieldMetadata;
@@ -31,11 +30,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.ServiceLoader;
 
 final class DefaultCollectionFieldMetadata extends AbstractFieldMetadata implements CollectionFieldMetadata {
 
     @SuppressWarnings("rawtypes")
-    private static final List<CollectionSupplier> COLLECTION_SUPPLIERS = ServiceProviderLoader.loadAll(CollectionSupplier.class);
+    private static final List<CollectionSupplier> COLLECTION_SUPPLIERS = ServiceLoader.load(CollectionSupplier.class) .stream()
+            .map(ServiceLoader.Provider::get)
+            .toList();
     private final TypeSupplier<?> typeSupplier;
     private final boolean entityField;
     private final boolean embeddableField;

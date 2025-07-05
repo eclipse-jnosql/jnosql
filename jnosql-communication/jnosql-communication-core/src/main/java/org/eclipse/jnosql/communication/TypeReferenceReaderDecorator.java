@@ -19,6 +19,7 @@ package org.eclipse.jnosql.communication;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 /**
  * Decorators of all {@link TypeReferenceReader}
@@ -32,7 +33,9 @@ public final class TypeReferenceReaderDecorator implements TypeReferenceReader {
     private final List<TypeReferenceReader> readers = new ArrayList<>();
 
     {
-        readers.addAll(ServiceProviderLoader.loadAll(TypeReferenceReader.class));
+        readers.addAll(ServiceLoader.load(TypeReferenceReader.class).stream()
+                .map(ServiceLoader.Provider::get)
+                .toList());
     }
 
     public static TypeReferenceReaderDecorator getInstance() {

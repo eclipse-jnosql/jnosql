@@ -12,7 +12,6 @@ package org.eclipse.jnosql.communication.semistructured;
 
 
 import org.eclipse.jnosql.communication.CommunicationException;
-import org.eclipse.jnosql.communication.ServiceProviderLoader;
 import org.eclipse.jnosql.communication.Settings;
 
 import java.util.List;

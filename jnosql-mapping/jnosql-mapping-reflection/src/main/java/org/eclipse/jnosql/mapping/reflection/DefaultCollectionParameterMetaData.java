@@ -17,7 +17,6 @@ package org.eclipse.jnosql.mapping.reflection;
 import jakarta.nosql.AttributeConverter;
 import jakarta.nosql.Embeddable;
 import jakarta.nosql.Entity;
-import org.eclipse.jnosql.communication.ServiceProviderLoader;
 import org.eclipse.jnosql.communication.TypeSupplier;
 import org.eclipse.jnosql.mapping.metadata.CollectionParameterMetaData;
 import org.eclipse.jnosql.mapping.metadata.CollectionSupplier;
@@ -27,11 +26,14 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.List;
+import java.util.ServiceLoader;
 
 class DefaultCollectionParameterMetaData extends DefaultParameterMetaData implements CollectionParameterMetaData {
 
     @SuppressWarnings("rawtypes")
-    private static final List<CollectionSupplier> COLLECTION_SUPPLIERS = ServiceProviderLoader.loadAll(CollectionSupplier.class);
+    private static final List<CollectionSupplier> COLLECTION_SUPPLIERS = ServiceLoader.load(CollectionSupplier.class).stream()
+            .map(ServiceLoader.Provider::get)
+            .toList();
 
     private final Class<?> elementType;
 
