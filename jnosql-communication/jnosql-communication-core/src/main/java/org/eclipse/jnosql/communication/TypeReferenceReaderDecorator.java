@@ -33,9 +33,7 @@ public final class TypeReferenceReaderDecorator implements TypeReferenceReader {
     private final List<TypeReferenceReader> readers = new ArrayList<>();
 
     {
-        ServiceLoader.load(TypeReferenceReader.class).stream()
-                .map(ServiceLoader.Provider::get)
-                .forEach(readers::add);
+        readers.addAll(ServiceProviderLoader.loadAll(TypeReferenceReader.class));
     }
 
     public static TypeReferenceReaderDecorator getInstance() {

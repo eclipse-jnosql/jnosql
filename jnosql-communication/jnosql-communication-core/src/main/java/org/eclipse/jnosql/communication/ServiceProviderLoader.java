@@ -18,7 +18,6 @@ package org.eclipse.jnosql.communication;
 
 import java.util.List;
 import java.util.ServiceLoader;
-import java.util.function.Supplier;
 
 /**
  * Utility for lazily loading service provider implementations using ServiceLoader.
@@ -29,58 +28,30 @@ public final class ServiceProviderLoader {
     }
 
     /**
-     * Loads a single provider of the given type using {@link ServiceLoader}, lazily.
+     * Loads and returns a single provider of the given type using {@link ServiceLoader}, eagerly.
      *
-     * @param service  the service class
-     * @param onError  the exception supplier to throw if no implementation is found
-     * @param <T>      the service type
-     * @return the loaded provider
+     * @param service the service class
+     * @param onError the exception to throw if no implementation is found
+     * @param <T>     the service type
+     * @return the eagerly loaded service provider
      */
-    public static <T> Supplier<T> lazySingleton(Class<T> service, Supplier<RuntimeException> onError) {
-        return new Supplier<>() {
-            private volatile T instance;
-
-            @Override
-            public T get() {
-                if (instance == null) {
-                    synchronized (this) {
-                        if (instance == null) {
-                            instance = ServiceLoader.load(service)
-                                    .findFirst()
-                                    .orElseThrow(onError);
-                        }
-                    }
-                }
-                return instance;
-            }
-        };
+    public static <T> T loadSingleton(Class<T> service, RuntimeException onError) {
+        return ServiceLoader.load(service)
+                .findFirst()
+                .orElseThrow(() -> onError);
     }
 
     /**
-     * Loads all providers of the given type using {@link ServiceLoader}, lazily.
+     * Loads and returns all providers of the given type using {@link ServiceLoader}, eagerly.
      *
      * @param service the service class
      * @param <T>     the service type
-     * @return a supplier of all loaded providers
+     * @return an eagerly loaded unmodifiable list of service providers
      */
-    public static <T> Supplier<List<T>> lazyList(Class<T> service) {
-        return new Supplier<>() {
-            private volatile List<T> providers;
-
-            @Override
-            public List<T> get() {
-                if (providers == null) {
-                    synchronized (this) {
-                        if (providers == null) {
-                            providers = ServiceLoader.load(service)
-                                    .stream()
-                                    .map(ServiceLoader.Provider::get)
-                                    .toList();
-                        }
-                    }
-                }
-                return providers;
-            }
-        };
+    public static <T> List<T> loadAll(Class<T> service) {
+        return ServiceLoader.load(service)
+                .stream()
+                .map(ServiceLoader.Provider::get)
+                .toList();
     }
 }

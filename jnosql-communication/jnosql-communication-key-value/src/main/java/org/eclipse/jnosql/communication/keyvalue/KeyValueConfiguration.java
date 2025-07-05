@@ -13,8 +13,10 @@ package org.eclipse.jnosql.communication.keyvalue;
 
 
 import org.eclipse.jnosql.communication.CommunicationException;
+import org.eclipse.jnosql.communication.ServiceProviderLoader;
 import org.eclipse.jnosql.communication.Settings;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.function.Function;
@@ -28,17 +30,19 @@ import java.util.function.Function;
  */
 public interface KeyValueConfiguration extends Function<Settings, BucketManagerFactory> {
 
+    List<KeyValueConfiguration> CONFIGURATIONS = ServiceProviderLoader.loadAll(KeyValueConfiguration.class);
     /**
      * creates and returns a  {@link KeyValueConfiguration}  instance from {@link ServiceLoader}
      *
      * @param <T> the configuration type
      * @return {@link KeyValueConfiguration} instance
      */
+    @SuppressWarnings("unchecked")
     static <T extends KeyValueConfiguration> T getConfiguration() {
-       return (T) ServiceLoader.load(KeyValueConfiguration.class)
+       return (T) CONFIGURATIONS
                 .stream()
-                .map(ServiceLoader.Provider::get)
-               .findFirst().orElseThrow(() -> new CommunicationException("No KeyValueConfiguration implementation found!"));
+               .findFirst()
+               .orElseThrow(() -> new CommunicationException("No KeyValueConfiguration implementation found!"));
     }
 
     /**
@@ -49,12 +53,13 @@ public interface KeyValueConfiguration extends Function<Settings, BucketManagerF
      * @param type the particular provider
      * @return {@link KeyValueConfiguration} instance
      */
+    @SuppressWarnings("unchecked")
     static <T extends KeyValueConfiguration> T getConfiguration(Class<T> type) {
         Objects.requireNonNull(type, "service is required");
-        return (T) ServiceLoader.load(KeyValueConfiguration.class)
+        return (T) CONFIGURATIONS
                 .stream()
-                .map(ServiceLoader.Provider::get)
                 .filter(type::isInstance)
-                .findFirst().orElseThrow(() -> new CommunicationException("No KeyValueConfiguration implementation found!"));
+                .findFirst()
+                .orElseThrow(() -> new CommunicationException("No KeyValueConfiguration implementation found!"));
     }
 }
