@@ -66,8 +66,17 @@ public interface ProjectionBuilder {
      */
     static ProjectionBuilder of(ProjectionConstructorMetadata constructor){
         Objects.requireNonNull(constructor, "constructor is required");
-        var supplier = ServiceLoader.load(ProjectionBuilderSupplier.class).findFirst()
-                .orElseThrow(() -> new NoSQLException("There is not implementation for the ProjectorBuilderSupplier"));
-        return supplier.apply(constructor);
+        return LazyLoader.INSTANCE.apply(constructor);
+    }
+
+    /**
+     * Lazy-loading singleton for the {@link ProjectionBuilderSupplier}, using ServiceLoader only once.
+     */
+    final class LazyLoader {
+        static final ProjectionBuilderSupplier INSTANCE = ServiceLoader
+                .load(ProjectionBuilderSupplier.class)
+                .findFirst()
+                .orElseThrow(() -> new NoSQLException(
+                        "No implementation of ProjectionBuilderSupplier found via ServiceLoader"));
     }
 }
