@@ -34,8 +34,8 @@ import java.util.Objects;
 
 final class DefaultCollectionFieldMetadata extends AbstractFieldMetadata implements CollectionFieldMetadata {
 
-    @SuppressWarnings("unchecked")
-    private static final List<CollectionSupplier<?>> COLLECTION_SUPPLIERS = (List<CollectionSupplier<?>>) ServiceProviderLoader.loadAll(CollectionSupplier.class);
+    @SuppressWarnings("rawtypes")
+    private static final List<CollectionSupplier> COLLECTION_SUPPLIERS = ServiceProviderLoader.loadAll(CollectionSupplier.class);
     private final TypeSupplier<?> typeSupplier;
     private final boolean entityField;
     private final boolean embeddableField;

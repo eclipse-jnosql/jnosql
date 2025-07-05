@@ -40,7 +40,9 @@ import java.util.function.Function;
  */
 public interface DatabaseConfiguration extends Function<Settings, DatabaseManagerFactory> {
 
-    List<DatabaseConfiguration> CONFIGURATIONS = ServiceProviderLoader.loadAll(DatabaseConfiguration.class);
+    List<DatabaseConfiguration> CONFIGURATIONS = ServiceLoader.load(DatabaseConfiguration.class).stream()
+            .map(ServiceLoader.Provider::get)
+            .toList();
     /**
      * Creates and returns a {@link DatabaseConfiguration} instance using Java's {@link ServiceLoader} mechanism.
      *
