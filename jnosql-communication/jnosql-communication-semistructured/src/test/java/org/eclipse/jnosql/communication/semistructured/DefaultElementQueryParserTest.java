@@ -10,8 +10,8 @@
  */
 package org.eclipse.jnosql.communication.semistructured;
 
-import org.eclipse.jnosql.communication.Condition;
 import jakarta.data.exceptions.NonUniqueResultException;
+import org.eclipse.jnosql.communication.Condition;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

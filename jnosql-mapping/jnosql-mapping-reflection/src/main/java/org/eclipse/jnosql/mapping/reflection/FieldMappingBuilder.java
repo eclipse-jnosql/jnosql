@@ -14,8 +14,8 @@
  */
 package org.eclipse.jnosql.mapping.reflection;
 
-import org.eclipse.jnosql.communication.TypeSupplier;
 import jakarta.nosql.AttributeConverter;
+import org.eclipse.jnosql.communication.TypeSupplier;
 import org.eclipse.jnosql.mapping.metadata.ArrayFieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.CollectionFieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.MapFieldMetadata;

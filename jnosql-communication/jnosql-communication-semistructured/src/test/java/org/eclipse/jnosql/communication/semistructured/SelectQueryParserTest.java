@@ -10,12 +10,12 @@
  */
 package org.eclipse.jnosql.communication.semistructured;
 
+import jakarta.data.Direction;
+import jakarta.data.Sort;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.QueryException;
-import jakarta.data.Sort;
-import jakarta.data.Direction;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;

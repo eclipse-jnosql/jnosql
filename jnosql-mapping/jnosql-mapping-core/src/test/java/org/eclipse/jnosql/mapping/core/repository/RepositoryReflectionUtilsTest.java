@@ -14,8 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
-import jakarta.data.repository.By;
+import jakarta.data.Sort;
 import jakarta.data.repository.BasicRepository;
+import jakarta.data.repository.By;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import org.eclipse.jnosql.mapping.core.entities.Person;
@@ -28,9 +29,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-
-import jakarta.data.Sort;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RepositoryReflectionUtilsTest {
 

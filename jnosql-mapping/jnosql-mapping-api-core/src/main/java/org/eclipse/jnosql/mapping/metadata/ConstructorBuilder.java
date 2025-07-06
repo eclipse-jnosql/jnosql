@@ -31,6 +31,10 @@ import java.util.ServiceLoader;
  */
 public interface ConstructorBuilder {
 
+    ConstructorBuilderSupplier CONSTRUCTOR_BUILDER_SUPPLIER = ServiceLoader.load(ConstructorBuilderSupplier.class)
+            .findFirst()
+            .orElseThrow(() ->
+            new NoSQLException("There is not implementation for the ConstructorBuilderSupplier"));
     /**
      * Returns the constructor parameters.
      *
@@ -65,8 +69,6 @@ public interface ConstructorBuilder {
      */
     static ConstructorBuilder of(ConstructorMetadata constructor){
         Objects.requireNonNull(constructor, "constructor is required");
-        var supplier = ServiceLoader.load(ConstructorBuilderSupplier.class).findFirst()
-                .orElseThrow(() -> new NoSQLException("There is not implementation for the ConstructorBuilderSupplier"));
-        return supplier.apply(constructor);
+        return CONSTRUCTOR_BUILDER_SUPPLIER.apply(constructor);
     }
 }

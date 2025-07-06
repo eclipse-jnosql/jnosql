@@ -15,11 +15,10 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 
-import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 
 /**
  * The default implementation to {@link EntityConverter}

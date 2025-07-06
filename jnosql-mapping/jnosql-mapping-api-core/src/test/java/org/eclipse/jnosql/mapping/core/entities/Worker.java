@@ -16,9 +16,8 @@ package org.eclipse.jnosql.mapping.core.entities;
 
 
 import jakarta.nosql.Column;
-
-import jakarta.nosql.Entity;
 import jakarta.nosql.Convert;
+import jakarta.nosql.Entity;
 
 @Entity
 public class Worker {

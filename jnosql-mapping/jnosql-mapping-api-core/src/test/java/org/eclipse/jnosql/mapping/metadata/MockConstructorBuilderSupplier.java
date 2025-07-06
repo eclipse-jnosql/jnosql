@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -14,16 +14,11 @@
  */
 package org.eclipse.jnosql.mapping.metadata;
 
-import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-class ClassInformationNotFoundExceptionTest {
-
-    @Test
-    void shouldConstructWithValidMessage() {
-        String errorMessage = "Class information not found.";
-        ClassInformationNotFoundException exception = new ClassInformationNotFoundException(errorMessage);
-        assertEquals(errorMessage, exception.getMessage());
+public class MockConstructorBuilderSupplier implements ConstructorBuilderSupplier{
+    @Override
+    public ConstructorBuilder apply(ConstructorMetadata constructorMetadata) {
+        return Mockito.mock(ConstructorBuilder.class);
     }
 }

@@ -10,8 +10,8 @@
  */
 package org.eclipse.jnosql.communication.semistructured;
 
-import org.eclipse.jnosql.communication.Condition;
 import jakarta.data.Sort;
+import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,10 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.eq;
 import static org.eclipse.jnosql.communication.semistructured.SelectQuery.builder;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DefaultElementQueryBuilderTest {
 

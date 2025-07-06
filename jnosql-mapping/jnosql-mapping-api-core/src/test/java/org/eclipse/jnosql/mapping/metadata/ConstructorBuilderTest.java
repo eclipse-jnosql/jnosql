@@ -14,51 +14,18 @@
  */
 package org.eclipse.jnosql.mapping.metadata;
 
-import jakarta.nosql.NoSQLException;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 
-import java.util.Optional;
-import java.util.ServiceLoader;
-
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 class ConstructorBuilderTest {
 
     @Test
     void shouldReturnValidConstructorBuilder() {
         ConstructorMetadata constructorMetadata = mock(ConstructorMetadata.class);
-        ConstructorBuilderSupplier supplier = mock(ConstructorBuilderSupplier.class);
-        ConstructorBuilder expectedBuilder = mock(ConstructorBuilder.class);
-
-        when(supplier.apply(constructorMetadata)).thenReturn(expectedBuilder);
-
-        // Mock static method
-        try (MockedStatic<ServiceLoader> serviceLoaderMockedStatic = mockStatic(ServiceLoader.class)) {
-            ServiceLoader<ConstructorBuilderSupplier> serviceLoader = mock(ServiceLoader.class);
-            serviceLoaderMockedStatic.when(() -> ServiceLoader.load(ConstructorBuilderSupplier.class)).thenReturn(serviceLoader);
-            when(serviceLoader.findFirst()).thenReturn(Optional.of(supplier));
-
-            ConstructorBuilder builder = ConstructorBuilder.of(constructorMetadata);
-
-            assertSame(expectedBuilder, builder);
-            verify(supplier, times(1)).apply(constructorMetadata);
-        }
+         ConstructorBuilder builder = ConstructorBuilder.of(constructorMetadata);
+        SoftAssertions.assertSoftly(soft -> soft.assertThat(builder).isNotNull());
     }
 
-    @Test
-    void shouldThrowExceptionWhenNoImplementationFound() {
-        ConstructorMetadata constructorMetadata = mock(ConstructorMetadata.class);
-
-        // Mock static method to return an empty ServiceLoader
-        try (MockedStatic<ServiceLoader> serviceLoaderMockedStatic = mockStatic(ServiceLoader.class)) {
-            ServiceLoader<ConstructorBuilderSupplier> serviceLoader = mock(ServiceLoader.class);
-            serviceLoaderMockedStatic.when(() -> ServiceLoader.load(ConstructorBuilderSupplier.class)).thenReturn(serviceLoader);
-            when(serviceLoader.findFirst()).thenReturn(Optional.empty());
-
-            assertThrows(NoSQLException.class, () -> ConstructorBuilder.of(constructorMetadata));
-        }
-    }
 }

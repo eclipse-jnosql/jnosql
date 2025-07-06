@@ -16,8 +16,6 @@ package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.data.Direction;
 import jakarta.data.Sort;
-import org.eclipse.jnosql.communication.semistructured.SelectQuery;
-import org.eclipse.jnosql.mapping.core.Converters;
 import jakarta.nosql.QueryMapper.MapperFrom;
 import jakarta.nosql.QueryMapper.MapperLimit;
 import jakarta.nosql.QueryMapper.MapperNameCondition;
@@ -26,6 +24,8 @@ import jakarta.nosql.QueryMapper.MapperNotCondition;
 import jakarta.nosql.QueryMapper.MapperOrder;
 import jakarta.nosql.QueryMapper.MapperSkip;
 import jakarta.nosql.QueryMapper.MapperWhere;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 
 import java.util.ArrayList;

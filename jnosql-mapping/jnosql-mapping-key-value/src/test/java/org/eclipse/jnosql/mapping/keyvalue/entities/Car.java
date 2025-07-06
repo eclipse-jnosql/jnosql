@@ -14,9 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.keyvalue.entities;
 
+import jakarta.nosql.Convert;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Id;
-import jakarta.nosql.Convert;
 
 @Entity
 public class Car {

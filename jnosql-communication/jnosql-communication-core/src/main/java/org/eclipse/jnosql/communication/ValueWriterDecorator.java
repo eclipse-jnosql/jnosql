@@ -20,6 +20,7 @@ package org.eclipse.jnosql.communication;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 /**
  * Decorators of all {@link ValueWriter} supported by Diana
@@ -35,7 +36,7 @@ public final class ValueWriterDecorator<T, S> implements ValueWriter<T, S> {
     private final List<ValueWriter> writers = new ArrayList<>();
 
     {
-        ValueWriter.getWriters().forEach(writers::add);
+        ServiceLoader.load(ValueWriter.class).forEach(writers::add);
     }
 
     private ValueWriterDecorator() {

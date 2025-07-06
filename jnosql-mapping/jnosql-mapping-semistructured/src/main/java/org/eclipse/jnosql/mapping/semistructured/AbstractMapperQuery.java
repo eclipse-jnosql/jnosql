@@ -17,8 +17,8 @@ package org.eclipse.jnosql.mapping.semistructured;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.core.util.ConverterUtil;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 
 import java.util.List;
 import java.util.stream.StreamSupport;

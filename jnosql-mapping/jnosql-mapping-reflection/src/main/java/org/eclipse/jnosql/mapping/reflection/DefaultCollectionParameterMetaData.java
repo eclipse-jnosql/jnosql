@@ -14,20 +14,26 @@
  */
 package org.eclipse.jnosql.mapping.reflection;
 
+import jakarta.nosql.AttributeConverter;
 import jakarta.nosql.Embeddable;
 import jakarta.nosql.Entity;
 import org.eclipse.jnosql.communication.TypeSupplier;
-import jakarta.nosql.AttributeConverter;
-import org.eclipse.jnosql.mapping.metadata.CollectionSupplier;
 import org.eclipse.jnosql.mapping.metadata.CollectionParameterMetaData;
+import org.eclipse.jnosql.mapping.metadata.CollectionSupplier;
 import org.eclipse.jnosql.mapping.metadata.MappingType;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
+import java.util.List;
 import java.util.ServiceLoader;
 
 class DefaultCollectionParameterMetaData extends DefaultParameterMetaData implements CollectionParameterMetaData {
+
+    @SuppressWarnings("rawtypes")
+    private static final List<CollectionSupplier> COLLECTION_SUPPLIERS = ServiceLoader.load(CollectionSupplier.class).stream()
+            .map(ServiceLoader.Provider::get)
+            .toList();
 
     private final Class<?> elementType;
 
@@ -55,9 +61,8 @@ class DefaultCollectionParameterMetaData extends DefaultParameterMetaData implem
     @Override
     public Collection<?> collectionInstance() {
         Class<?> type =  type();
-        final CollectionSupplier supplier = ServiceLoader.load(CollectionSupplier.class)
+        final CollectionSupplier supplier = COLLECTION_SUPPLIERS
                 .stream()
-                .map(ServiceLoader.Provider::get)
                 .map(CollectionSupplier.class::cast)
                 .filter(c -> c.test(type))
                 .findFirst()

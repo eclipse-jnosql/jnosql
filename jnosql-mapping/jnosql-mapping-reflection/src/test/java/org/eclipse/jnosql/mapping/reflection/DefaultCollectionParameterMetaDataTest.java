@@ -15,9 +15,9 @@
 package org.eclipse.jnosql.mapping.reflection;
 
 import org.eclipse.jnosql.mapping.metadata.ClassConverter;
+import org.eclipse.jnosql.mapping.metadata.CollectionParameterMetaData;
 import org.eclipse.jnosql.mapping.metadata.ConstructorMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
-import org.eclipse.jnosql.mapping.metadata.CollectionParameterMetaData;
 import org.eclipse.jnosql.mapping.reflection.entities.Book;
 import org.eclipse.jnosql.mapping.reflection.entities.constructor.BookUser;
 import org.junit.jupiter.api.BeforeEach;

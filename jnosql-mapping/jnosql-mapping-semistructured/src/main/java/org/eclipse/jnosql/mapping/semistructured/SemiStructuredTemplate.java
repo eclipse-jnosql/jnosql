@@ -13,10 +13,10 @@ package org.eclipse.jnosql.mapping.semistructured;
 import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
-import org.eclipse.jnosql.mapping.PreparedStatement;
 import jakarta.nosql.Template;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.PreparedStatement;
 
 import java.util.Optional;
 import java.util.stream.Stream;

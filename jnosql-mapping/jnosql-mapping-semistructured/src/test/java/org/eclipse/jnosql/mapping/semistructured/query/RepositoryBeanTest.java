@@ -14,8 +14,8 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
-import jakarta.enterprise.context.spi.CreationalContext;
 import jakarta.data.repository.DataRepository;
+import jakarta.enterprise.context.spi.CreationalContext;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -28,7 +28,11 @@ import java.lang.reflect.Proxy;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 class RepositoryBeanTest {
 

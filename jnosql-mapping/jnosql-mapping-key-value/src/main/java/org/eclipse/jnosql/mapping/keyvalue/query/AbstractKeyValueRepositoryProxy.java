@@ -14,8 +14,8 @@
  */
 package org.eclipse.jnosql.mapping.keyvalue.query;
 
-import org.eclipse.jnosql.mapping.keyvalue.KeyValueTemplate;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepositoryProxy;
+import org.eclipse.jnosql.mapping.keyvalue.KeyValueTemplate;
 
 import java.lang.reflect.Method;
 

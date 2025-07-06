@@ -19,7 +19,9 @@ import org.eclipse.jnosql.mapping.PreparedStatement;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -32,6 +34,10 @@ enum DynamicReturnConverter {
     INSTANCE;
 
     private final RepositoryReturn defaultReturn = new DefaultRepositoryReturn();
+
+    private final List<RepositoryReturn> repositoryReturns = ServiceLoader.load(RepositoryReturn.class) .stream()
+            .map(ServiceLoader.Provider::get)
+            .toList();
 
     /**
      * Converts the entity from the Method return type.
@@ -46,11 +52,9 @@ enum DynamicReturnConverter {
         Class<?> typeClass = dynamic.typeClass();
         Class<?> returnType = method.getReturnType();
 
-        RepositoryReturn repositoryReturn = ServiceLoader.load(RepositoryReturn.class)
+        RepositoryReturn repositoryReturn = repositoryReturns
                 .stream()
-                .map(ServiceLoader.Provider::get)
-                .filter(RepositoryReturn.class::isInstance)
-                .map(RepositoryReturn.class::cast)
+                .filter(Objects::nonNull)
                 .filter(r -> r.isCompatible(typeClass, returnType))
                 .findFirst().orElse(defaultReturn);
 

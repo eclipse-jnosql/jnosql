@@ -18,7 +18,6 @@ package org.eclipse.jnosql.mapping.core.entities;
 import jakarta.nosql.Column;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Id;
-
 import jakarta.nosql.MappedSuperclass;
 
 import java.util.List;

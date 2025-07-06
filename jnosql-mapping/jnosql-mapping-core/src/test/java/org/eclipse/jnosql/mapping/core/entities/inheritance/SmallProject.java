@@ -16,8 +16,8 @@
 package org.eclipse.jnosql.mapping.core.entities.inheritance;
 
 import jakarta.nosql.Column;
-import jakarta.nosql.Entity;
 import jakarta.nosql.DiscriminatorValue;
+import jakarta.nosql.Entity;
 
 @Entity
 @DiscriminatorValue("Small")
