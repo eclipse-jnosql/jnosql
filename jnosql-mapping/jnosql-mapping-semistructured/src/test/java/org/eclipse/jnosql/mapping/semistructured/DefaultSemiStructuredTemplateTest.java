@@ -22,7 +22,9 @@ import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.Configurations;
+import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
@@ -595,8 +597,6 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldFindByIdUsingInheritance() {
-        LargeProject largeProject = new LargeProject();
-        largeProject.setBudget(BigDecimal.TEN);
 
         this.template.find(LargeProject.class, 1L);
         var captor = ArgumentCaptor.forClass(SelectQuery.class);
@@ -605,8 +605,13 @@ class DefaultSemiStructuredTemplateTest {
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query.name()).isEqualTo("Project");
             soft.assertThat(query.condition()).isPresent();
-            soft.assertThat(query.condition().get())
-                    .isEqualTo(CriteriaCondition.eq(Element.of("_id", "1")));
+            CriteriaCondition criteriaCondition = query.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.AND);
+            List<CriteriaCondition> conditions = criteriaCondition.element().get(new TypeReference<List<CriteriaCondition>>() {
+            });
+            soft.assertThat(conditions).hasSize(2);
+            soft.assertThat(conditions.get(0).element()).isEqualTo(Element.of("size", "Large"));
+            soft.assertThat(conditions.get(1).element()).isEqualTo(Element.of("_id", 1L));
         });
     }
 
