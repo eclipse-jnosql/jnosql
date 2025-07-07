@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
+import jakarta.data.Order;
 import jakarta.data.Sort;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
@@ -421,6 +422,30 @@ class CrudRepositoryProxyTest {
         ArgumentCaptor<Class<?>> captor = ArgumentCaptor.forClass(Class.class);
         verify(template).findAll(captor.capture());
         assertEquals(captor.getValue(), Person.class);
+    }
+
+    @Test
+    void shouldFindAll2() {
+        Person ada = Person.builder()
+                .age(20).name("Ada").build();
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(ada));
+
+        var people = personRepository.findAll(PageRequest.ofSize(10),
+                Order.by(Sort.asc("name"))).content();
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query).isNotNull();
+            softly.assertThat(query.name()).isEqualTo("Person");
+            softly.assertThat(query.condition()).isEmpty();
+            softly.assertThat(query.limit()).isEqualTo(10);
+            softly.assertThat(query.sorts()).hasSize(1);
+            softly.assertThat(query.sorts().get(0).property()).isEqualTo("name");
+        });
 
     }
 
