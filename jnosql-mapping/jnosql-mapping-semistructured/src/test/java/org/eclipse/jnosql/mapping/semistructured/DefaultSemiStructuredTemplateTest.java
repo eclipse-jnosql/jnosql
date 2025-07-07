@@ -611,7 +611,7 @@ class DefaultSemiStructuredTemplateTest {
             });
             soft.assertThat(conditions).hasSize(2);
             soft.assertThat(conditions.get(0).element()).isEqualTo(Element.of("size", "Large"));
-            soft.assertThat(conditions.get(1).element()).isEqualTo(Element.of("_id", 1L));
+            soft.assertThat(conditions.get(1).element()).isEqualTo(Element.of("_id", "1"));
         });
     }
 
