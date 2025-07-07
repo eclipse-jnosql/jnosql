@@ -37,6 +37,7 @@ import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.entities.Job;
 import org.eclipse.jnosql.mapping.semistructured.entities.Person;
+import org.eclipse.jnosql.mapping.semistructured.entities.inheritance.LargeProject;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -46,6 +47,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
@@ -593,8 +595,26 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldFindByIdUsingInheritance() {
+        LargeProject largeProject = new LargeProject();
+        largeProject.setBudget(BigDecimal.TEN);
+
+        this.template.find(LargeProject.class, 1L);
+        var captor = ArgumentCaptor.forClass(SelectQuery.class);
+        Mockito.verify(managerMock).select(captor.capture());
+        var query = captor.getValue();
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.name()).isEqualTo("Project");
+            soft.assertThat(query.condition()).isPresent();
+            soft.assertThat(query.condition().get())
+                    .isEqualTo(CriteriaCondition.eq(Element.of("_id", "1")));
+        });
+    }
+
+    @Test
+    void shouldDeleteByIdUsingInheritance() {
 
     }
+
 
 
     private List<CommunicationEntity> content() {
