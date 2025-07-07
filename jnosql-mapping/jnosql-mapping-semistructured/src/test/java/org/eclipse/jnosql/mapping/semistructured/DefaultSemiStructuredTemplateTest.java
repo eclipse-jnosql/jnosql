@@ -591,6 +591,11 @@ class DefaultSemiStructuredTemplateTest {
         });
     }
 
+    @Test
+    void shouldFindByIdUsingInheritance() {
+
+    }
+
 
     private List<CommunicationEntity> content() {
         CommunicationEntity columnEntity = CommunicationEntity.of("Person");
