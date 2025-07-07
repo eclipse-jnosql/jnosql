@@ -617,7 +617,21 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldDeleteByIdUsingInheritance() {
-
+        this.template.delete(LargeProject.class, 1L);
+        var captor = ArgumentCaptor.forClass(DeleteQuery.class);
+        Mockito.verify(managerMock).delete(captor.capture());
+        var query = captor.getValue();
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.name()).isEqualTo("Project");
+            soft.assertThat(query.condition()).isPresent();
+            CriteriaCondition criteriaCondition = query.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.AND);
+            List<CriteriaCondition> conditions = criteriaCondition.element().get(new TypeReference<List<CriteriaCondition>>() {
+            });
+            soft.assertThat(conditions).hasSize(2);
+            soft.assertThat(conditions.get(0).element()).isEqualTo(Element.of("size", "Large"));
+            soft.assertThat(conditions.get(1).element()).isEqualTo(Element.of("_id", "1"));
+        });
     }
 
 
