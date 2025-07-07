@@ -28,10 +28,16 @@ import java.lang.reflect.ParameterizedType;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.ServiceLoader;
 
 final class DefaultCollectionFieldMetadata extends AbstractFieldMetadata implements CollectionFieldMetadata {
+
+    @SuppressWarnings("rawtypes")
+    private static final List<CollectionSupplier> COLLECTION_SUPPLIERS = ServiceLoader.load(CollectionSupplier.class) .stream()
+            .map(ServiceLoader.Provider::get)
+            .toList();
 
     private final TypeSupplier<?> typeSupplier;
     private final boolean entityField;
@@ -112,10 +118,8 @@ final class DefaultCollectionFieldMetadata extends AbstractFieldMetadata impleme
     @Override
     public Collection<?> collectionInstance() {
         Class<?> type = type();
-        final CollectionSupplier supplier =  ServiceLoader.load(CollectionSupplier.class)
+        final CollectionSupplier supplier =  COLLECTION_SUPPLIERS
                 .stream()
-                .map(ServiceLoader.Provider::get)
-                .map(CollectionSupplier.class::cast)
                 .filter(c -> c.test(type))
                 .findFirst()
                 .orElseThrow(() -> new UnsupportedOperationException("This collection is not supported yet: " + type));

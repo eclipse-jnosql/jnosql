@@ -36,6 +36,11 @@ import java.util.function.Function;
  */
 public interface ClassConverter extends Function<Class<?>, EntityMetadata> {
 
+
+    ClassConverter INSTANCE = ServiceLoader.load(ClassConverter.class)
+            .findFirst()
+            .orElseThrow(() -> new MetadataException("No implementation of ClassConverter found via ServiceLoader"));
+
     /**
      * Loads and returns an instance of the {@link ClassScanner} implementation using the ServiceLoader mechanism.
      *
@@ -43,8 +48,6 @@ public interface ClassConverter extends Function<Class<?>, EntityMetadata> {
      * @throws IllegalStateException If no suitable implementation is found.
      */
     static ClassConverter load() {
-        ServiceLoader<ClassConverter> serviceLoader = ServiceLoader.load(ClassConverter.class);
-        return serviceLoader.findFirst().orElseThrow(() ->
-                new MetadataException("No implementation of ClassConverter found via ServiceLoader"));
+        return INSTANCE;
     }
 }
