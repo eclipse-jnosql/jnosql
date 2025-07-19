@@ -95,10 +95,7 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
 
     @Override
     public void exitEq(MethodParser.EqContext ctx) {
-        boolean hasNot = Objects.nonNull(ctx.not());
-        boolean ignoreCase = Objects.nonNull(ctx.ignoreCase());
-        String variable = getVariable(ctx.variable());
-        appendCondition(hasNot, ignoreCase, variable, EQUALS);
+        exitOperationWithASingleVariable(EQUALS, ctx.not(), ctx.variable(), ctx.ignoreCase());
     }
 
     @Override
@@ -115,75 +112,47 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
 
     @Override
     public void exitGt(MethodParser.GtContext ctx) {
-        boolean hasNot = Objects.nonNull(ctx.not());
-        boolean ignoreCase = Objects.nonNull(ctx.ignoreCase());
-        String variable = getVariable(ctx.variable());
-        appendCondition(hasNot, ignoreCase, variable, GREATER_THAN);
+        exitOperationWithASingleVariable(GREATER_THAN, ctx.not(), ctx.variable(), ctx.ignoreCase());
     }
 
     @Override
     public void exitGte(MethodParser.GteContext ctx) {
-        boolean hasNot = Objects.nonNull(ctx.not());
-        boolean ignoreCase = Objects.nonNull(ctx.ignoreCase());
-        String variable = getVariable(ctx.variable());
-        appendCondition(hasNot, ignoreCase, variable, GREATER_EQUALS_THAN);
+        exitOperationWithASingleVariable(GREATER_EQUALS_THAN, ctx.not(), ctx.variable(), ctx.ignoreCase());
     }
 
     @Override
     public void exitLt(MethodParser.LtContext ctx) {
-        boolean hasNot = Objects.nonNull(ctx.not());
-        boolean ignoreCase = Objects.nonNull(ctx.ignoreCase());
-        String variable = getVariable(ctx.variable());
-        appendCondition(hasNot, ignoreCase, variable, LESSER_THAN);
+        exitOperationWithASingleVariable(LESSER_THAN, ctx.not(), ctx.variable(), ctx.ignoreCase());
     }
 
     @Override
     public void exitLte(MethodParser.LteContext ctx) {
-        boolean hasNot = Objects.nonNull(ctx.not());
-        boolean ignoreCase = Objects.nonNull(ctx.ignoreCase());
-        String variable = getVariable(ctx.variable());
-        appendCondition(hasNot, ignoreCase, variable, LESSER_EQUALS_THAN);
+        exitOperationWithASingleVariable(LESSER_EQUALS_THAN, ctx.not(), ctx.variable(), ctx.ignoreCase());
     }
 
     @Override
     public void exitLike(MethodParser.LikeContext ctx) {
-        boolean hasNot = Objects.nonNull(ctx.not());
-        boolean ignoreCase = Objects.nonNull(ctx.ignoreCase());
-        String variable = getVariable(ctx.variable());
-        appendCondition(hasNot, ignoreCase, variable, LIKE);
+        exitOperationWithASingleVariable(LIKE, ctx.not(), ctx.variable(), ctx.ignoreCase());
     }
 
     @Override
     public void exitContains(MethodParser.ContainsContext ctx) {
-        boolean hasNot = Objects.nonNull(ctx.not());
-        boolean ignoreCase = Objects.nonNull(ctx.ignoreCase());
-        String variable = getVariable(ctx.variable());
-        appendCondition(hasNot, ignoreCase, variable, CONTAINS);
+        exitOperationWithASingleVariable(CONTAINS, ctx.not(), ctx.variable(), ctx.ignoreCase());
     }
 
     @Override
     public void exitEndsWith(MethodParser.EndsWithContext ctx) {
-        boolean hasNot = Objects.nonNull(ctx.not());
-        boolean ignoreCase = Objects.nonNull(ctx.ignoreCase());
-        String variable = getVariable(ctx.variable());
-        appendCondition(hasNot, ignoreCase, variable, ENDS_WITH);
+        exitOperationWithASingleVariable(ENDS_WITH, ctx.not(), ctx.variable(), ctx.ignoreCase());
     }
 
     @Override
     public void exitStartsWith(MethodParser.StartsWithContext ctx) {
-        boolean hasNot = Objects.nonNull(ctx.not());
-        boolean ignoreCase = Objects.nonNull(ctx.ignoreCase());
-        String variable = getVariable(ctx.variable());
-        appendCondition(hasNot, ignoreCase, variable, STARTS_WITH);
+        exitOperationWithASingleVariable(STARTS_WITH, ctx.not(), ctx.variable(), ctx.ignoreCase());
     }
 
     @Override
     public void exitIn(MethodParser.InContext ctx) {
-        boolean hasNot = Objects.nonNull(ctx.not());
-        boolean ignoreCase = Objects.nonNull(ctx.ignoreCase());
-        String variable = getVariable(ctx.variable());
-        Condition operator = IN;
-        appendCondition(hasNot, ignoreCase, variable, operator);
+        exitOperationWithASingleVariable(IN, ctx.not(), ctx.variable(), ctx.ignoreCase());
     }
 
     @Override
@@ -213,9 +182,12 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
         this.and = false;
     }
 
-    private void appendCondition(boolean hasNot, String variable, Condition operator) {
-        ParamQueryValue queryValue = new MethodParamQueryValue(variable);
-        checkCondition(new MethodCondition(variable, operator, queryValue), hasNot);
+    private void exitOperationWithASingleVariable(Condition operator, MethodParser.NotContext notContext,
+            MethodParser.VariableContext variableContext, MethodParser.IgnoreCaseContext ignoreCaseContext) {
+        boolean hasNot = Objects.nonNull(notContext);
+        boolean isIgnoreCase = Objects.nonNull(ignoreCaseContext);
+        String variable = getVariable(variableContext);
+        appendCondition(hasNot, isIgnoreCase, variable, operator);
     }
 
     private void appendCondition(boolean hasNot, boolean ignoreCase, String variable, Condition operator) {
@@ -239,7 +211,6 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
         } else {
             appendCondition(OR, newCondition);
         }
-
     }
 
     private String getVariable(MethodParser.VariableContext ctx) {
