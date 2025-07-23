@@ -180,13 +180,7 @@ class CustomRepositoryHandlerTest {
     void shouldDeleteAll() {
         people.deleteAll();
 
-        ArgumentCaptor<DeleteQuery> captor = ArgumentCaptor.forClass(DeleteQuery.class);
-        Mockito.verify(template).delete(captor.capture());
-
-        SoftAssertions.assertSoftly(soft-> {
-            soft.assertThat(captor.getValue().name()).isEqualTo("Person");
-            soft.assertThat(captor.getValue().condition()).isEmpty();
-        });
+        Mockito.verify(template).deleteAll(Mockito.any());
         Mockito.verifyNoMoreInteractions(template);
     }
 
