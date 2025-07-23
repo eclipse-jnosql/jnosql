@@ -17,9 +17,7 @@ package org.eclipse.jnosql.mapping.core.query;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import static java.util.stream.StreamSupport.stream;
 
