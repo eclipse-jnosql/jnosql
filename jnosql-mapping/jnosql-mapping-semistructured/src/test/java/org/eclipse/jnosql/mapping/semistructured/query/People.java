@@ -66,6 +66,9 @@ public interface People {
     void delete(List<Person> people);
 
     @Delete
+    void deleteAll();
+
+    @Delete
     void delete(Person person);
 
     @Delete

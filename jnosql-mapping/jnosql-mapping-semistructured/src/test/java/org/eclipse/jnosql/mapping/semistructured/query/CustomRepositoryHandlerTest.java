@@ -21,6 +21,7 @@ import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.PreparedStatement;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -172,6 +173,14 @@ class CustomRepositoryHandlerTest {
         people.delete(persons);
 
         Mockito.verify(template).delete(Person.class, 12L);
+        Mockito.verifyNoMoreInteractions(template);
+    }
+
+    @Test
+    void shouldDeleteAll() {
+        people.deleteAll();
+
+        Mockito.verify(template).deleteAll(Mockito.any());
         Mockito.verifyNoMoreInteractions(template);
     }
 
