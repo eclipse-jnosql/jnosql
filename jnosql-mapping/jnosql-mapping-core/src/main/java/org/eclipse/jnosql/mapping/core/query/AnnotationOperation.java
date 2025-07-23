@@ -123,7 +123,10 @@ public enum AnnotationOperation {
     DELETE {
         @Override
         public Object invoke(Operation operation) {
-            checkParameterNumber(operation);
+            if(operation.params == null || operation.params.length == 0){
+                operation.repository.deleteAll();
+                return Void.TYPE;
+            }
             Object param = operation.params[0];
             ReturnType returnType = new ReturnType(operation.method);
             if (param instanceof Iterable entities) {
