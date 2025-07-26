@@ -103,4 +103,6 @@ public interface People {
 
     @Query("update Person where name = :name")
     long updateReturnInt();
+    @Delete
+    void deleteAll();
 }

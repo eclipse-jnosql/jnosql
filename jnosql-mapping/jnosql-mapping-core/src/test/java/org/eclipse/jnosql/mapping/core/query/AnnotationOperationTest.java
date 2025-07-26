@@ -257,6 +257,15 @@ class AnnotationOperationTest {
     }
 
     @Test
+    void shouldDeleteAllWhenThereIsNoParameter() throws Throwable {
+        Method method = PersonRepository.class.getDeclaredMethod("deleteAll");
+        Object invoked = DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{}, repository));
+        Mockito.verify(repository).deleteAll();
+        Assertions.assertThat(invoked).isEqualTo(Void.TYPE);
+    }
+
+
+    @Test
     void shouldDeleteSingleParameterVoid() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("sameVoid", Person.class);
         Person person = Person.builder().build();
@@ -484,5 +493,7 @@ class AnnotationOperationTest {
         int iterableInt(List<Person> people);
 
         long iterableLong(List<Person> people);
+
+        void deleteAll();
     }
 }

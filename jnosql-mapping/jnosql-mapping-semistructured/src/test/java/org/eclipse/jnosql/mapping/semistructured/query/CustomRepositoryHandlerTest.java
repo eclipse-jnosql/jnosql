@@ -185,6 +185,16 @@ class CustomRepositoryHandlerTest {
         Mockito.verifyNoMoreInteractions(template);
     }
 
+
+    @Test
+    void shouldDeleteAll() {
+        people.deleteAll();
+
+        Mockito.verify(template).deleteAll(Mockito.any());
+        Mockito.verifyNoMoreInteractions(template);
+    }
+
+
     @Test
     void shouldSaveEntity() {
         Person person = Person.builder().age(26).name("Ada").build();

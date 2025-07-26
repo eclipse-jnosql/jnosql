@@ -235,7 +235,11 @@ public class CustomRepositoryHandler implements InvocationHandler {
     }
 
     private AbstractRepository<?, ?> repository(Object[] params, Method method) {
-        Class<?> typeClass = params[0].getClass();
+        var typeClass = params == null || params.length == 0? null: params[0].getClass();
+        if( typeClass == null) {
+            return defaultRepository.repository();
+        }
+
         if (typeClass.isArray()) {
             typeClass = typeClass.getComponentType();
         } else if (IS_GENERIC_SUPPORTED_TYPE.test(typeClass)) {

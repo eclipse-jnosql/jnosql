@@ -123,7 +123,10 @@ public enum AnnotationOperation {
     DELETE {
         @Override
         public Object invoke(Operation operation) {
-            checkParameterNumber(operation);
+            if(operation.params == null || operation.params.length == 0){
+                operation.repository.deleteAll();
+                return Void.TYPE;
+            }
             Object param = operation.params[0];
             ReturnType returnType = new ReturnType(operation.method);
             if (param instanceof Iterable entities) {
@@ -217,34 +220,6 @@ public enum AnnotationOperation {
     public abstract Object invoke(Operation operation);
 
     public record Operation(Method method, Object[] params, AbstractRepository repository) {
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            Operation operation = (Operation) o;
-            return Objects.equals(method, operation.method)
-                    && Arrays.equals(params, operation.params)
-                    && Objects.equals(repository, operation.repository);
-        }
-
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(method, repository) + 31 * Arrays.hashCode(params);
-        }
-
-        @Override
-        public String toString() {
-            return "Operation{" +
-                    "method=" + method +
-                    ", params=" + Arrays.toString(params) +
-                    ", repository=" + repository +
-                    '}';
-        }
     }
 
 
