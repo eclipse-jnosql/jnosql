@@ -78,7 +78,7 @@
         <weld.se.core.version>6.0.3.Final</weld.se.core.version>
         <yasson.version>3.0.4</yasson.version>
         <microprofile.config.version>3.1</microprofile.config.version>
-        <smallrye.config.version>3.13.0</smallrye.config.version>
+        <smallrye.config.version>3.13.4</smallrye.config.version>
 
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
@@ -88,7 +88,7 @@
         <mockito.verson>5.18.0</mockito.verson>
         <assertj.version>3.27.3</assertj.version>
         <awaitility.version>4.3.0</awaitility.version>
-        <datafaker.version>2.4.3</datafaker.version>
+        <datafaker.version>2.4.4</datafaker.version>
         <pi-test.version>1.16.1</pi-test.version>
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
         <apache.pdm.plugin.version>3.24.0</apache.pdm.plugin.version>
