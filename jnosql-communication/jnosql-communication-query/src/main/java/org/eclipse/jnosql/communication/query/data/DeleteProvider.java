@@ -11,8 +11,24 @@
  */
 package org.eclipse.jnosql.communication.query.data;
 
-public enum DeleteProvider {
+import org.eclipse.jnosql.communication.query.DeleteQuery;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+
+public enum DeleteProvider implements Function<String, DeleteQuery> {
     INSTANCE;
 
+    private final Map<String, DeleteQuery> cache = new ConcurrentHashMap<>();
 
+    @Override
+    public DeleteQuery apply(String query) {
+        Objects.requireNonNull(query, " query is required");
+        return cache.computeIfAbsent(query, k -> {
+            var deleteParser = new DeleteParser();
+            return deleteParser.apply(query);
+        });
+    }
 }
