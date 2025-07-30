@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.eclipse.jnosql</groupId>
     <artifactId>jnosql-parent</artifactId>
-    <version>1.1.9-SNAPSHOT</version>
+    <version>1.1.9</version>
     <packaging>pom</packaging>
     <name>Eclipse JNoSQL</name>
     <description>The Eclipse JNoSQL is a framework to help developers create enterprise-grade applications using Java
