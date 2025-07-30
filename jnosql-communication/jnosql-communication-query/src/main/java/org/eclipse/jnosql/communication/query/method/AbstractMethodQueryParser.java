@@ -51,7 +51,7 @@ import static org.eclipse.jnosql.communication.Condition.LIKE;
 import static org.eclipse.jnosql.communication.Condition.NOT;
 import static org.eclipse.jnosql.communication.Condition.OR;
 
-abstract class AbstractMethodQueryProvider extends MethodBaseListener {
+abstract class AbstractMethodQueryParser extends MethodBaseListener {
 
     private static final String SUB_ENTITY_FLAG = "_";
     protected Where where;

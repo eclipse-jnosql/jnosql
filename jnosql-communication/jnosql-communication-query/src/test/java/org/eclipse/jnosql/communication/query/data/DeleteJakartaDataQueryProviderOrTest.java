@@ -22,11 +22,11 @@ import org.junit.jupiter.params.provider.ValueSource;
 class DeleteJakartaDataQueryProviderOrTest {
 
 
-    private DeleteProvider deleteProvider;
+    private DeleteParser deleteParser;
 
     @BeforeEach
     void setUp() {
-        deleteProvider = new DeleteProvider();
+        deleteParser = new DeleteParser();
     }
 
 
@@ -34,7 +34,7 @@ class DeleteJakartaDataQueryProviderOrTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "DELETE FROM entity WHERE age = 10 OR salary = 10.15")
     void shouldORTwoConditions(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -58,7 +58,7 @@ class DeleteJakartaDataQueryProviderOrTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "DELETE FROM entity WHERE age = 10 OR salary = 10.15 OR name =?1")
     void shouldORThreeConditions(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -85,7 +85,7 @@ class DeleteJakartaDataQueryProviderOrTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "DELETE FROM entity WHERE age = 10 OR salary = 10.15 AND name =?1")
     void shouldORMixConditions(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();

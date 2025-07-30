@@ -12,10 +12,11 @@ package org.eclipse.jnosql.communication.semistructured;
 
 
 import org.eclipse.jnosql.communication.Params;
+import org.eclipse.jnosql.communication.query.data.SelectParser;
 
 
 /**
- * The result of {@link org.eclipse.jnosql.communication.query.data.SelectProvider} that has {@link SelectQuery} and {@link Params}.
+ * The result of {@link SelectParser} that has {@link SelectQuery} and {@link Params}.
  * @param query  the {@link SelectQuery}
  * @param params the {@link Params}
  */
