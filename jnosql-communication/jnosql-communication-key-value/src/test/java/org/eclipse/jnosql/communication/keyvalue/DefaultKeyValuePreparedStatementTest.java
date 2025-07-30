@@ -75,4 +75,15 @@ class DefaultKeyValuePreparedStatementTest {
         Optional<Value> result = statement.singleResult();
         SoftAssertions.assertSoftly(softly -> softly.assertThat(result).isEmpty());
     }
+
+    @Test
+    void shouldDelete() {
+        BucketManager bucketManager = Mockito.mock(BucketManager.class);
+        KeyValuePreparedStatement statement = DefaultKeyValuePreparedStatement.del(List.of(Value.of("key1")),
+                bucketManager, Params.newParams(), "from where id = 12");
+
+        Optional<Value> result = statement.singleResult();
+        SoftAssertions.assertSoftly(softly -> softly.assertThat(result).isEmpty());
+        Mockito.verify(bucketManager, Mockito.times(1)).delete(List.of("key1"));
+    }
 }
