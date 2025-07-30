@@ -23,6 +23,7 @@ import org.eclipse.jnosql.communication.Value;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -85,5 +86,27 @@ class DefaultKeyValuePreparedStatementTest {
         Optional<Value> result = statement.singleResult();
         SoftAssertions.assertSoftly(softly -> softly.assertThat(result).isEmpty());
         Mockito.verify(bucketManager, Mockito.times(1)).delete(List.of("key1"));
+    }
+
+    @Test
+    void shouldPut() {
+        BucketManager bucketManager = Mockito.mock(BucketManager.class);
+        KeyValuePreparedStatement statement = DefaultKeyValuePreparedStatement.put(Value.of("key1"), Value.of("value1"),
+                bucketManager, Params.newParams(), null, "from where id = 12");
+
+        Stream<Value> result = statement.result();
+        SoftAssertions.assertSoftly(softly -> softly.assertThat(result).isEmpty());
+        Mockito.verify(bucketManager, Mockito.times(1)).put(KeyValueEntity.of("key1", "value1"));
+    }
+
+    @Test
+    void shouldPutWithTTL() {
+        BucketManager bucketManager = Mockito.mock(BucketManager.class);
+        KeyValuePreparedStatement statement = DefaultKeyValuePreparedStatement.put(Value.of("key1"), Value.of("value1"),
+                bucketManager, Params.newParams(), Duration.ZERO, "from where id = 12");
+
+        Stream<Value> result = statement.result();
+        SoftAssertions.assertSoftly(softly -> softly.assertThat(result).isEmpty());
+        Mockito.verify(bucketManager, Mockito.times(1)).put(KeyValueEntity.of("key1", "value1"), Duration.ZERO);
     }
 }
