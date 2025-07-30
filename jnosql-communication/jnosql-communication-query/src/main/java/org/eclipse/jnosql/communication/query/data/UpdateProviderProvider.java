@@ -11,7 +11,6 @@
  */
 package org.eclipse.jnosql.communication.query.data;
 
-import org.eclipse.jnosql.communication.query.SelectQuery;
 import org.eclipse.jnosql.communication.query.UpdateQuery;
 
 import java.util.Map;
