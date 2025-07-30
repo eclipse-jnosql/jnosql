@@ -13,6 +13,7 @@ package org.eclipse.jnosql.communication.query.data;
 
 import org.eclipse.jnosql.communication.query.SelectQuery;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,5 +42,9 @@ public enum SelectProvider implements BiFunction<String, String, SelectQuery> {
             var selectParser = new SelectParser();
             return selectParser.apply(query, entity);
         });
+    }
+
+    Map<String, SelectQuery> getCache() {
+        return Collections.unmodifiableMap(cache);
     }
 }
