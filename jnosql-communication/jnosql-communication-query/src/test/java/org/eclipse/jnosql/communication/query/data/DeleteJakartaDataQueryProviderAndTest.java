@@ -15,8 +15,6 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
-import org.eclipse.jnosql.communication.query.data.DefaultQueryValue;
-import org.eclipse.jnosql.communication.query.data.DeleteProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -24,11 +22,11 @@ import org.junit.jupiter.params.provider.ValueSource;
 class DeleteJakartaDataQueryProviderAndTest {
 
 
-    private DeleteProvider deleteProvider;
+    private DeleteParser deleteParser;
 
     @BeforeEach
     void setUp() {
-        deleteProvider = new DeleteProvider();
+        deleteParser = new DeleteParser();
     }
 
 
@@ -36,7 +34,7 @@ class DeleteJakartaDataQueryProviderAndTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE age = 10 AND salary = 10.15"})
     void shouldAndTwoConditions(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -60,7 +58,7 @@ class DeleteJakartaDataQueryProviderAndTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE age = 10 AND salary = 10.15 AND name =?1"})
     void shouldAndThreeConditions(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -87,7 +85,7 @@ class DeleteJakartaDataQueryProviderAndTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE age = 10 AND salary = 10.15 OR name =?1"})
     void shouldORMixConditions(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();

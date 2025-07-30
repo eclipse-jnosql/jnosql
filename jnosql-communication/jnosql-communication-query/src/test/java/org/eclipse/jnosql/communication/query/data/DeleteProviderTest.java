@@ -11,24 +11,20 @@
  */
 package org.eclipse.jnosql.communication.query.data;
 
-import org.eclipse.jnosql.communication.query.DeleteQuery;
+import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
+class DeleteProviderTest {
 
-public enum DeleteProvider implements Function<String, DeleteQuery> {
-    INSTANCE;
+    @Test
+    void shouldDeleteQuery() {
+        DeleteProvider provider = DeleteProvider.INSTANCE;
 
-    private final Map<String, DeleteQuery> cache = new ConcurrentHashMap<>();
+        String query = "DELETE FROM users WHERE id = 1";
+        var deleteQuery = provider.apply(query);
 
-    @Override
-    public DeleteQuery apply(String query) {
-        Objects.requireNonNull(query, " query is required");
-        return cache.computeIfAbsent(query, k -> {
-            var deleteParser = new DeleteParser();
-            return deleteParser.apply(query);
+        SoftAssertions.assertSoftly(soft-> {
+            soft.assertThat(deleteQuery.entity()).isEqualTo("users");
         });
     }
 }

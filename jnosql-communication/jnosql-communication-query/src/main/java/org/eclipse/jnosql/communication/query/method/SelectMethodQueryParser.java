@@ -23,7 +23,7 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public final class SelectMethodQueryProvider extends AbstractMethodQueryProvider implements BiFunction<String, String, SelectQuery> {
+public final class SelectMethodQueryParser extends AbstractMethodQueryParser implements BiFunction<String, String, SelectQuery> {
 
     private final List<Sort<?>> sorts = new ArrayList<>();
 

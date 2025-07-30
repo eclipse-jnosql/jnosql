@@ -17,8 +17,6 @@ import org.eclipse.jnosql.communication.query.BooleanQueryValue;
 import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
-import org.eclipse.jnosql.communication.query.data.DefaultQueryValue;
-import org.eclipse.jnosql.communication.query.data.DeleteProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -26,17 +24,17 @@ import org.junit.jupiter.params.provider.ValueSource;
 class DeleteJakartaDataQueryProviderNotConditionTest {
 
 
-    private DeleteProvider deleteProvider;
+    private DeleteParser deleteParser;
 
     @BeforeEach
     void setUp() {
-        deleteProvider = new DeleteProvider();
+        deleteParser = new DeleteParser();
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE NOT age = 10"})
     void shouldEq(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -57,7 +55,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE NOT salary = 10.15"})
     void shouldEqDouble(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -78,7 +76,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE NOT name = \"Otavio\""})
     void shouldEqString(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -99,7 +97,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE NOT name = 'Otavio'"})
     void shouldEqStringSingleQuote(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -120,7 +118,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE NOT name = :name"})
     void shouldEQQueryWithCondition(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -141,7 +139,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE NOT name = ?1"})
     void shouldEQQueryWithConditionPosition(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -162,7 +160,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE NOT active = TRUE"})
     void shouldUseSpecialExpressionTrue(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -183,7 +181,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE NOT active = FALSE"})
     void shouldUseSpecialExpressionFalse(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -204,7 +202,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE NOT age < 10"})
     void shouldUseSpecialExpressionLesser(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -225,7 +223,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE NOT age > 10"})
     void shouldUseSpecialExpressionGreater(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -246,7 +244,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "DELETE FROM entity WHERE NOT age <= 10")
     void shouldUseSpecialExpressionLesserThanEquals(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -267,7 +265,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "DELETE FROM entity WHERE NOT age >= 10")
     void shouldUseSpecialExpressionGreaterThanEquals(String query){
-        var deleteQuery= deleteProvider.apply(query);
+        var deleteQuery= deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();

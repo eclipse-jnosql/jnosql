@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public final class DeleteByMethodQueryProvider extends AbstractMethodQueryProvider implements BiFunction<String, String, DeleteQuery> {
+public final class DeleteByMethodQueryParser extends AbstractMethodQueryParser implements BiFunction<String, String, DeleteQuery> {
 
 
     @Override
