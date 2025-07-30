@@ -12,6 +12,7 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 === Fixed
 
+- Remove the unnecessary classes from ServiceLoader creations.
 - Fixed the AbstractSemiStructuredTemplate class to apply the inheritance strategy properly on find and delete methods
 - Allow query with @Delete annotation without parameters
 
