@@ -24,7 +24,7 @@ import java.util.function.Function;
  *
  * @see UpdateParser
  */
-public enum UpdateProviderProvider implements Function<String, UpdateQuery> {
+public enum UpdateProvider implements Function<String, UpdateQuery> {
 
     INSTANCE;
 
