@@ -18,6 +18,13 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
+/**
+ * A provider for creating and caching {@link SelectQuery} instances based on a query string and an entity name. This
+ * implementation uses a concurrent map to cache the queries for performance optimization. The queries are parsed using
+ * the {@link SelectParser}.
+ *
+ * @see SelectParser
+ */
 public enum SelectProvider implements BiFunction<String, String, SelectQuery> {
 
     INSTANCE;
