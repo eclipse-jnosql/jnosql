@@ -30,7 +30,7 @@ import java.util.function.Function;
  * parsed structure into a programmatically usable {@link UpdateQuery} that can be executed against
  * a NoSQL database.</p>
  */
-public final class UpdateProvider extends AbstractWhere implements Function<String, UpdateQuery> {
+public final class UpdateParser extends AbstractWhere implements Function<String, UpdateQuery> {
 
     private final List<UpdateItem> items = new ArrayList<>();
 

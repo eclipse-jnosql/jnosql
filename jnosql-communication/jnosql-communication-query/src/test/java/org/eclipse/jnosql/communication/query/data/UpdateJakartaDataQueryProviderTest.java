@@ -22,17 +22,17 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class UpdateJakartaDataQueryProviderTest {
 
-    private UpdateProvider updateProvider;
+    private UpdateParser updateParser;
 
     @BeforeEach
     void setUp() {
-        updateProvider = new UpdateProvider();
+        updateParser = new UpdateParser();
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "UPDATE entity SET name = 'Ada'")
     void shouldReturnParserQuery(String query) {
-        var updateQuery = updateProvider.apply(query);
+        var updateQuery = updateParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(updateQuery.where()).isEmpty();
@@ -45,7 +45,7 @@ class UpdateJakartaDataQueryProviderTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "UPDATE entity SET name = 'Ada', age = 10, salary = 10.15")
     void shouldReturnParserQueryAge(String query) {
-        var updateQuery = updateProvider.apply(query);
+        var updateQuery = updateParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(updateQuery.where()).isEmpty();
@@ -61,7 +61,7 @@ class UpdateJakartaDataQueryProviderTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "UPDATE entity SET name = :param")
     void shouldReturnParserParam(String query) {
-        var updateQuery = updateProvider.apply(query);
+        var updateQuery = updateParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(updateQuery.where()).isEmpty();
@@ -74,7 +74,7 @@ class UpdateJakartaDataQueryProviderTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "UPDATE entity SET name = ?1")
     void shouldReturnParserParamIndex(String query) {
-        var updateQuery = updateProvider.apply(query);
+        var updateQuery = updateParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(updateQuery.where()).isEmpty();
@@ -88,7 +88,7 @@ class UpdateJakartaDataQueryProviderTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "UPDATE entity SET name = 'Ada' WHERE age = 10")
     void shouldEq(String query){
-        var updateQuery = updateProvider.apply(query);
+        var updateQuery = updateParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(updateQuery.entity()).isEqualTo("entity");
@@ -107,7 +107,7 @@ class UpdateJakartaDataQueryProviderTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "UPDATE entity SET name = 'Ada' WHERE salary = 10.15")
     void shouldEqDouble(String query){
-        var updateQuery = updateProvider.apply(query);
+        var updateQuery = updateParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(updateQuery.entity()).isEqualTo("entity");
@@ -126,7 +126,7 @@ class UpdateJakartaDataQueryProviderTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"UPDATE entity SET name = 'Ada' WHERE name = \"Otavio\""})
     void shouldEqString(String query){
-        var updateQuery = updateProvider.apply(query);
+        var updateQuery = updateParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(updateQuery.entity()).isEqualTo("entity");
@@ -145,7 +145,7 @@ class UpdateJakartaDataQueryProviderTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"UPDATE entity SET name = 'Ada' WHERE name = 'Otavio'"})
     void shouldEqStringSingleQuote(String query){
-        var updateQuery = updateProvider.apply(query);
+        var updateQuery = updateParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(updateQuery.entity()).isEqualTo("entity");
@@ -164,49 +164,49 @@ class UpdateJakartaDataQueryProviderTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"UPDATE Box SET length = length + ?1"})
     void shouldReturnErrorAtPlusOperationInUpdate(String query) {
-        Assertions.assertThatThrownBy(() ->updateProvider.apply(query))
+        Assertions.assertThatThrownBy(() -> updateParser.apply(query))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"UPDATE Box SET length = length - ?1"})
     void shouldReturnErrorAtMinusOperationInUpdate(String query) {
-        Assertions.assertThatThrownBy(() ->updateProvider.apply(query))
+        Assertions.assertThatThrownBy(() -> updateParser.apply(query))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"UPDATE Box SET length = length * ?1"})
     void shouldReturnErrorAtMultiplyOperationInUpdate(String query) {
-        Assertions.assertThatThrownBy(() ->updateProvider.apply(query))
+        Assertions.assertThatThrownBy(() -> updateParser.apply(query))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"UPDATE Box SET length = length / ?1"})
     void shouldReturnErrorAtDivOperationInUpdate(String query) {
-        Assertions.assertThatThrownBy(() ->updateProvider.apply(query))
+        Assertions.assertThatThrownBy(() -> updateParser.apply(query))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"UPDATE Box SET length = length || ?1"})
     void shouldReturnErrorAtConcatOperationInUpdate(String query) {
-        Assertions.assertThatThrownBy(() ->updateProvider.apply(query))
+        Assertions.assertThatThrownBy(() -> updateParser.apply(query))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"UPDATE Box SET length = (length)"})
     void shouldReturnErrorWhenHaveParenthesis(String query) {
-        Assertions.assertThatThrownBy(() ->updateProvider.apply(query))
+        Assertions.assertThatThrownBy(() -> updateParser.apply(query))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"UPDATE Coordinate SET x = :newX, y = y / :yDivisor WHERE id = :id"})
     void shouldReturnErrorWhenHaveOperation(String query) {
-        Assertions.assertThatThrownBy(() ->updateProvider.apply(query))
+        Assertions.assertThatThrownBy(() -> updateParser.apply(query))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 

@@ -30,17 +30,17 @@ import java.time.DayOfWeek;
 class SelectJakartaDataQueryProviderInTest {
 
 
-    private SelectProvider selectProvider;
+    private SelectParser selectParser;
 
     @BeforeEach
     void setUp() {
-        selectProvider = new SelectProvider();
+        selectParser = new SelectParser();
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age IN (10, 12.12, 'otavio', ?1, :param)", "FROM entity WHERE age IN (10, 12.12, 'otavio', ?1, :param)"})
     void shouldIn(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -64,7 +64,7 @@ class SelectJakartaDataQueryProviderInTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE days IN (java.time.DayOfWeek.MONDAY, java.time.DayOfWeek.SUNDAY)", "FROM entity WHERE days IN (java.time.DayOfWeek.MONDAY, java.time.DayOfWeek.SUNDAY)"})
     void shouldInEnumLiteral(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -87,7 +87,7 @@ class SelectJakartaDataQueryProviderInTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age NOT IN (10, 20)", "FROM entity WHERE age NOT IN (10, 20)"})
     void shouldNegateBetween(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -112,7 +112,7 @@ class SelectJakartaDataQueryProviderInTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE name = 'Otavio' AND age IN (10, 20)", "FROM entity WHERE name = 'Otavio' AND age IN (10, 20)"})
     void shouldCombineAnd(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -143,7 +143,7 @@ class SelectJakartaDataQueryProviderInTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age IN (10, 20) AND name = 'Otavio'", "FROM entity WHERE age IN (10, 20) AND name = 'Otavio'"})
     void shouldCombineAnd2(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -172,7 +172,7 @@ class SelectJakartaDataQueryProviderInTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE  name = 'Otavio' OR name IN (10, 20)", "FROM entity WHERE  name = 'Otavio' OR name IN (10, 20)"})
     void shouldCombineOr(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -200,7 +200,7 @@ class SelectJakartaDataQueryProviderInTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age IN (10, 20) OR name = 'Otavio'", "FROM entity WHERE age IN (10, 20) OR name = 'Otavio'"})
     void shouldCombineOr2(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();

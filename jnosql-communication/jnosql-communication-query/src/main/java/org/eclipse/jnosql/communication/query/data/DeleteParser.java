@@ -26,7 +26,7 @@ import java.util.function.Function;
  * a configured {@link DeleteQuery} that encapsulates the entity to be deleted and any applicable conditions
  * specified in the WHERE clause.</p>
  */
-public final class DeleteProvider extends AbstractWhere implements Function<String, DeleteQuery> {
+public final class DeleteParser extends AbstractWhere implements Function<String, DeleteQuery> {
 
     @Override
     public DeleteQuery apply(String query) {

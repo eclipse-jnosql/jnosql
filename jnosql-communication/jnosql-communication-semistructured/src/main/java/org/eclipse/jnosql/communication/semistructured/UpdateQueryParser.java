@@ -14,7 +14,7 @@ package org.eclipse.jnosql.communication.semistructured;
 import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.query.UpdateItem;
-import org.eclipse.jnosql.communication.query.data.UpdateProvider;
+import org.eclipse.jnosql.communication.query.data.UpdateParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,7 @@ public final class UpdateQueryParser implements BiFunction<org.eclipse.jnosql.co
     }
 
     private UpdateQuery getQuery(String query, Params params, CommunicationObserverParser observer) {
-        var converter = new UpdateProvider();
+        var converter = new UpdateParser();
         var updateQuery = converter.apply(query);
         return getQuery(params, observer, updateQuery);
     }
@@ -82,7 +82,7 @@ public final class UpdateQueryParser implements BiFunction<org.eclipse.jnosql.co
 
     private UpdateQuery getQuery(String query, CommunicationObserverParser observer) {
 
-        var converter = new UpdateProvider();
+        var converter = new UpdateParser();
         var updateQuery = converter.apply(query);
 
         var entity = observer.fireEntity(updateQuery.entity());

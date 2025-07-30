@@ -15,7 +15,7 @@ import jakarta.data.Direction;
 import jakarta.data.Sort;
 import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.QueryException;
-import org.eclipse.jnosql.communication.query.data.SelectProvider;
+import org.eclipse.jnosql.communication.query.data.SelectParser;
 
 import java.util.List;
 import java.util.Objects;
@@ -38,7 +38,7 @@ public final class SelectQueryParser implements BiFunction<org.eclipse.jnosql.co
     CommunicationPreparedStatement prepare(String query, String entity, DatabaseManager manager, CommunicationObserverParser observer) {
 
         Params params = Params.newParams();
-        var converter = new SelectProvider();
+        var converter = new SelectParser();
         var selectQuery = converter.apply(query, entity);
 
         var prepareQuery = query(params, selectQuery, observer);
@@ -59,7 +59,7 @@ public final class SelectQueryParser implements BiFunction<org.eclipse.jnosql.co
 
     private SelectQuery query(String query, String entity, CommunicationObserverParser observer) {
 
-        var converter = new SelectProvider();
+        var converter = new SelectParser();
         var selectQuery = converter.apply(query, entity);
         var entityName = observer.fireEntity(selectQuery.entity());
         var limit = selectQuery.limit();

@@ -27,7 +27,7 @@ import java.util.function.BiFunction;
  * and entity information. It parses the query to extract relevant conditions, sorting, and aggregation instructions,
  * and then constructs a {@link SelectQuery} object that can be used to fetch results according to these specifications.
  */
-public final class SelectProvider extends AbstractWhere implements BiFunction<String, String, SelectQuery> {
+public final class SelectParser extends AbstractWhere implements BiFunction<String, String, SelectQuery> {
 
     private final List<Sort<?>> sorts = new ArrayList<>();
 

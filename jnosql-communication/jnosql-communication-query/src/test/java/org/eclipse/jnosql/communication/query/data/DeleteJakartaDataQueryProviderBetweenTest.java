@@ -26,17 +26,17 @@ import org.junit.jupiter.params.provider.ValueSource;
 class DeleteJakartaDataQueryProviderBetweenTest {
 
 
-    private DeleteProvider deleteProvider;
+    private DeleteParser deleteParser;
 
     @BeforeEach
     void setUp() {
-        deleteProvider = new DeleteProvider();
+        deleteParser = new DeleteParser();
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE age BETWEEN 10 AND 20"})
     void shouldBetween(String query){
-        var selectQuery = deleteProvider.apply(query);
+        var selectQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -58,7 +58,7 @@ class DeleteJakartaDataQueryProviderBetweenTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE age NOT BETWEEN 10 AND 20"})
     void shouldNegateBetween(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -82,7 +82,7 @@ class DeleteJakartaDataQueryProviderBetweenTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE name = 'Otavio' AND age BETWEEN 10 AND 20"})
     void shouldCombineAnd(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -112,7 +112,7 @@ class DeleteJakartaDataQueryProviderBetweenTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE age BETWEEN 10 AND 20 AND name = 'Otavio'"})
     void shouldCombineAnd2(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -140,7 +140,7 @@ class DeleteJakartaDataQueryProviderBetweenTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE  name = 'Otavio' OR name BETWEEN 10 AND 20"})
     void shouldCombineOr(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -167,7 +167,7 @@ class DeleteJakartaDataQueryProviderBetweenTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE age BETWEEN 10 AND 20 OR name = 'Otavio'"})
     void shouldCombineOr2(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
