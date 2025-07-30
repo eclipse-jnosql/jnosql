@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SelectMethodQueryProviderTest {
 
-    private final SelectMethodQueryProvider queryProvider = new SelectMethodQueryProvider();
+    private final SelectMethodQueryParser queryProvider = new SelectMethodQueryParser();
 
 
     @ParameterizedTest(name = "Should parser the query {0}")

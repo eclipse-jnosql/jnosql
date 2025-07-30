@@ -13,7 +13,6 @@ package org.eclipse.jnosql.communication.query.method;
 
 
 import org.eclipse.jnosql.communication.query.DeleteQuery;
-import org.eclipse.jnosql.communication.query.SelectQuery;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -39,7 +38,7 @@ public enum DeleteMethodProvider implements BiFunction<Method, String, DeleteQue
         Objects.requireNonNull(entity, "entity is required");
         String key = method.getName() + "::" + entity;
         return cache.computeIfAbsent(key, k -> {
-            DeleteByMethodQueryProvider provider = new DeleteByMethodQueryProvider();
+            DeleteByMethodQueryParser provider = new DeleteByMethodQueryParser();
             return provider.apply(method.getName(), entity);
         });
     }

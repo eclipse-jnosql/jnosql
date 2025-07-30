@@ -34,7 +34,7 @@ public enum SelectMethodProvider implements BiFunction<Method, String, SelectQue
         String key = method.getName() + "::" + entity;
 
         return cache.computeIfAbsent(key, k -> {
-            SelectMethodQueryProvider provider = new SelectMethodQueryProvider();
+            SelectMethodQueryParser provider = new SelectMethodQueryParser();
             return provider.apply(method.getName(), entity);
         });
     }
