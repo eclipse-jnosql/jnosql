@@ -24,6 +24,7 @@
     </parent>
 
     <artifactId>jnosql-mapping-document</artifactId>
+    <name>JNoSQL Mapping Document</name>
     <packaging>jar</packaging>
 
     <dependencies>

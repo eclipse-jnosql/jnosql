@@ -24,6 +24,7 @@
     </parent>
 
     <artifactId>jnosql-mapping-key-value</artifactId>
+    <name>JNoSQL Mapping Key-Value</name>
     <packaging>jar</packaging>
 
     <dependencies>

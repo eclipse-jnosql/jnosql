@@ -25,6 +25,7 @@
     </parent>
 
     <artifactId>jnosql-mapping-reflection</artifactId>
+    <name>JNoSQL Mapping Reflection</name>
     <packaging>jar</packaging>
 
     <properties>
