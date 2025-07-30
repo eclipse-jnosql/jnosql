@@ -13,9 +13,12 @@ package org.eclipse.jnosql.communication.query.method;
 
 
 import org.eclipse.jnosql.communication.query.DeleteQuery;
+import org.eclipse.jnosql.communication.query.SelectQuery;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
 /**
@@ -28,11 +31,16 @@ import java.util.function.BiFunction;
 public enum DeleteMethodProvider implements BiFunction<Method, String, DeleteQuery> {
     INSTANCE;
 
+    private final Map<String, DeleteQuery> cache = new ConcurrentHashMap<>();
+
     @Override
     public DeleteQuery apply(Method method, String entity) {
         Objects.requireNonNull(method, "method is required");
         Objects.requireNonNull(entity, "entity is required");
-        DeleteByMethodQueryProvider supplier = new DeleteByMethodQueryProvider();
-        return supplier.apply(method.getName(), entity);
+        String key = method.getName() + "::" + entity;
+        return cache.computeIfAbsent(key, k -> {
+            DeleteByMethodQueryProvider provider = new DeleteByMethodQueryProvider();
+            return provider.apply(method.getName(), entity);
+        });
     }
 }
