@@ -21,6 +21,7 @@
     </parent>
 
     <artifactId>jnosql-communication-semistructured</artifactId>
+    <name>JNoSQL Communication Semistructured</name>
     <packaging>jar</packaging>
 
     <dependencies>

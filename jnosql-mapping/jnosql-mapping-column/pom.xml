@@ -23,6 +23,7 @@
     </parent>
     
     <artifactId>jnosql-mapping-column</artifactId>
+    <name>JNoSQL Mapping Column</name>
     <packaging>jar</packaging>
 
     <dependencies>

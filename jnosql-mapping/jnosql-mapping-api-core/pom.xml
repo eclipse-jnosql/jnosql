@@ -25,6 +25,7 @@
     </parent>
 
     <artifactId>jnosql-mapping-api-core</artifactId>
+    <name>JNoSQL Mapping API Core</name>
     <packaging>jar</packaging>
 
 

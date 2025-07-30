@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>jnosql-communication-core</artifactId>
+    <name>JNoSQL Communication Core</name>
     <packaging>jar</packaging>
 
     <dependencies>

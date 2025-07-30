@@ -23,6 +23,7 @@
     </parent>
     
     <artifactId>jnosql-mapping-semistructured</artifactId>
+    <name>JNoSQL Mapping Semistructured</name>
     <packaging>jar</packaging>
 
     <dependencies>
