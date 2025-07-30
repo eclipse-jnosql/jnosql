@@ -5,9 +5,9 @@ name: Java 21 CI with Maven
 
 on:
   push:
-    branches: [ main ]
+    branches: [ 1.1.x ]
   pull_request:
-    branches: [ main ]
+    branches: [ 1.1.x ]
 
 jobs:
   build:
