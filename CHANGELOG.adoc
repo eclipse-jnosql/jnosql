@@ -8,6 +8,8 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 == [Unreleased]
 
+== [1.1.9] - 2025-07-30
+
 === Fixed
 
 - Fixed the AbstractSemiStructuredTemplate class to apply the inheritance strategy properly on find and delete methods
