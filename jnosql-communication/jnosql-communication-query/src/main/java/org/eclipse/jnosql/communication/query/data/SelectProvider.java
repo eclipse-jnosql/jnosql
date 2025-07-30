@@ -13,7 +13,6 @@ package org.eclipse.jnosql.communication.query.data;
 
 import org.eclipse.jnosql.communication.query.SelectQuery;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
