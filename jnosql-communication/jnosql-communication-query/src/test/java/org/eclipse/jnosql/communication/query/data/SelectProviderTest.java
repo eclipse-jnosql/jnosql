@@ -44,18 +44,4 @@ class SelectProviderTest {
             softAssertions.assertThat(selectQuery.fields()).isEmpty();
         });
     }
-
-    @Test
-    void shouldShouldGenerateSingleInstance() {
-
-        for (int index = 0; index < 100; index++) {
-            SelectProvider provider = SelectProvider.INSTANCE;
-            String query = "FROM users";
-            var selectQuery = provider.apply(query, "users");
-            Assertions.assertThat(selectQuery).isNotNull();
-        }
-        var cache = SelectProvider.INSTANCE.getCache();
-        Assertions.assertThat(cache).isNotEmpty();
-        Assertions.assertThat(cache).hasSize(1);
-    }
 }

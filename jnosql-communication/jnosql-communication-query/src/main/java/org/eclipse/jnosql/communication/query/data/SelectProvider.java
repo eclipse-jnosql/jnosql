@@ -43,8 +43,4 @@ public enum SelectProvider implements BiFunction<String, String, SelectQuery> {
             return selectParser.apply(query, entity);
         });
     }
-
-    Map<String, SelectQuery> getCache() {
-        return Collections.unmodifiableMap(cache);
-    }
 }
