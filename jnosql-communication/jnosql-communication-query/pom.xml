@@ -21,6 +21,7 @@
     </parent>
 
     <artifactId>jnosql-communication-query</artifactId>
+    <name>JNoSQL Communication Query</name>
 
     <properties>
         <antlr4.visitor>false</antlr4.visitor>

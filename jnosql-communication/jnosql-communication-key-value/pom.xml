@@ -27,6 +27,7 @@
     </parent>
 
     <artifactId>jnosql-communication-key-value</artifactId>
+    <name>JNoSQL Communication Key-Value</name>
     <packaging>jar</packaging>
 
     <dependencies>

@@ -28,6 +28,7 @@
 
     <groupId>org.eclipse.jnosql.communication</groupId>
     <artifactId>jnosql-communication</artifactId>
+    <name>JNoSQL Communication Parent</name>
     <packaging>pom</packaging>
 
     <modules>

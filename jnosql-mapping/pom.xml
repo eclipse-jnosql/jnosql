@@ -28,6 +28,7 @@
 
     <groupId>org.eclipse.jnosql.mapping</groupId>
     <artifactId>jnosql-mapping-parent</artifactId>
+    <name>JNoSQL Mapping Parent</name>
     <packaging>pom</packaging>
 
     <modules>
