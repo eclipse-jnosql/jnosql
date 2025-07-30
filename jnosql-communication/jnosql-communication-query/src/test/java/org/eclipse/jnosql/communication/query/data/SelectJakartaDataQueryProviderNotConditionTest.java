@@ -18,8 +18,6 @@ import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.SelectQuery;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
-import org.eclipse.jnosql.communication.query.data.DefaultQueryValue;
-import org.eclipse.jnosql.communication.query.data.SelectProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -27,17 +25,17 @@ import org.junit.jupiter.params.provider.ValueSource;
 class SelectJakartaDataQueryProviderNotConditionTest {
 
 
-    private SelectProvider selectProvider;
+    private SelectParser selectParser;
 
     @BeforeEach
     void setUp() {
-        selectProvider = new SelectProvider();
+        selectParser = new SelectParser();
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE NOT age = 10", "FROM entity WHERE NOT age = 10"})
     void shouldEq(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -59,7 +57,7 @@ class SelectJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE NOT salary = 10.15", "FROM entity WHERE NOT salary = 10.15"})
     void shouldEqDouble(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -81,7 +79,7 @@ class SelectJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE NOT name = \"Otavio\"", "FROM entity WHERE NOT name = \"Otavio\""})
     void shouldEqString(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -103,7 +101,7 @@ class SelectJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE NOT name = 'Otavio'", "FROM entity WHERE NOT name = 'Otavio'"})
     void shouldEqStringSingleQuote(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -125,7 +123,7 @@ class SelectJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE NOT name = :name", "FROM entity WHERE NOT name = :name"})
     void shouldEQQueryWithCondition(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -147,7 +145,7 @@ class SelectJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE NOT name = ?1", "FROM entity WHERE NOT name = ?1"})
     void shouldEQQueryWithConditionPosition(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -169,7 +167,7 @@ class SelectJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE NOT active = TRUE", "FROM entity WHERE NOT active = TRUE"})
     void shouldUseSpecialExpressionTrue(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -191,7 +189,7 @@ class SelectJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE NOT active = FALSE", "FROM entity WHERE NOT active = FALSE"})
     void shouldUseSpecialExpressionFalse(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -213,7 +211,7 @@ class SelectJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE NOT age < 10", "FROM entity WHERE NOT age < 10"})
     void shouldUseSpecialExpressionLesser(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -235,7 +233,7 @@ class SelectJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE NOT age > 10", "FROM entity WHERE NOT age > 10"})
     void shouldUseSpecialExpressionGreater(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -257,7 +255,7 @@ class SelectJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE NOT age <= 10", "FROM entity WHERE NOT age <= 10"})
     void shouldUseSpecialExpressionLesserThanEquals(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -279,7 +277,7 @@ class SelectJakartaDataQueryProviderNotConditionTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE NOT age >= 10", "FROM entity WHERE NOT age >= 10"})
     void shouldUseSpecialExpressionGreaterThanEquals(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();

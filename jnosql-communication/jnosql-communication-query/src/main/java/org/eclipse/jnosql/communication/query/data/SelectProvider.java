@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2025 Contributors to the Eclipse Foundation
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  and Apache License v2.0 which accompanies this distribution.
@@ -11,70 +11,35 @@
  */
 package org.eclipse.jnosql.communication.query.data;
 
-import jakarta.data.Sort;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.eclipse.jnosql.communication.query.SelectQuery;
-import org.eclipse.jnosql.query.grammar.data.JDQLParser;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
 /**
- * Implements the selection logic for a NoSQL query processing system by extending {@link AbstractWhere}.
- * This class is responsible for configuring and executing SELECT queries based on provided query strings
- * and entity information. It parses the query to extract relevant conditions, sorting, and aggregation instructions,
- * and then constructs a {@link SelectQuery} object that can be used to fetch results according to these specifications.
+ * A provider for creating and caching {@link SelectQuery} instances based on a query string and an entity name. This
+ * implementation uses a concurrent map to cache the queries for performance optimization. The queries are parsed using
+ * the {@link SelectParser}.
+ *
+ * @see SelectParser
  */
-public final class SelectProvider extends AbstractWhere implements BiFunction<String, String, SelectQuery> {
+public enum SelectProvider implements BiFunction<String, String, SelectQuery> {
 
-    private final List<Sort<?>> sorts = new ArrayList<>();
+    INSTANCE;
 
-    private final List<String> fields = new ArrayList<>();
+    private final Map<String, SelectQuery> cache = new ConcurrentHashMap<>();
 
-    private boolean count = false;
 
     @Override
     public SelectQuery apply(String query, String entity) {
         Objects.requireNonNull(query, " query is required");
-        this.entity = entity;
-        runQuery(query);
-        if(this.entity == null) {
-            throw new IllegalArgumentException("The entity is required in the query");
-        }
-        return new JDQLSelectQuery(fields, this.entity, sorts, where, count);
-    }
 
-    @Override
-    public void exitAggregate_expression(JDQLParser.Aggregate_expressionContext ctx) {
-        super.exitAggregate_expression(ctx);
-        this.count = true;
-    }
-
-    @Override
-    public void exitOrderby_clause(JDQLParser.Orderby_clauseContext ctx) {
-     ctx.orderby_item().stream().forEach(o -> {
-         String field = o.state_field_path_expression().getText();
-         boolean desc = o.getChild(1).getText().equals("DESC");
-         sorts.add(desc ? Sort.desc(field) : Sort.asc(field));
-     });
-    }
-
-    @Override
-    public void exitSelect_list(JDQLParser.Select_listContext ctx) {
-        var stateField = ctx.state_field_path_expression();
-        var aggregate = ctx.aggregate_expression();
-
-        if (stateField != null) {
-            stateField.stream().map(ParseTree::getText).forEach(fields::add);
-        } else if (aggregate != null) {
-           this.count = true;
-        }
-    }
-
-    @Override
-    JDQLParser.Select_statementContext getTree(JDQLParser parser) {
-        return parser.select_statement();
+        String key = query + "::" + (entity == null ? "<null>" : entity);
+        return cache.computeIfAbsent(key, k -> {
+            var selectParser = new SelectParser();
+            return selectParser.apply(query, entity);
+        });
     }
 }

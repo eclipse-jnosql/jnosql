@@ -20,7 +20,6 @@ import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.SelectQuery;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
-import org.eclipse.jnosql.communication.query.data.SelectProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -28,17 +27,17 @@ import org.junit.jupiter.params.provider.ValueSource;
 class SelectJakartaDataQueryProviderBetweenTest {
 
 
-    private SelectProvider selectProvider;
+    private SelectParser selectParser;
 
     @BeforeEach
     void setUp() {
-        selectProvider = new SelectProvider();
+        selectParser = new SelectParser();
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age BETWEEN 10 AND 20", "FROM entity WHERE age BETWEEN 10 AND 20"})
     void shouldBetween(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -61,7 +60,7 @@ class SelectJakartaDataQueryProviderBetweenTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age NOT BETWEEN 10 AND 20", "FROM entity WHERE age NOT BETWEEN 10 AND 20"})
     void shouldNegateBetween(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -86,7 +85,7 @@ class SelectJakartaDataQueryProviderBetweenTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE name = 'Otavio' AND age BETWEEN 10 AND 20", "FROM entity WHERE name = 'Otavio' AND age BETWEEN 10 AND 20"})
     void shouldCombineAnd(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -117,7 +116,7 @@ class SelectJakartaDataQueryProviderBetweenTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age BETWEEN 10 AND 20 AND name = 'Otavio'", "FROM entity WHERE age BETWEEN 10 AND 20 AND name = 'Otavio'"})
     void shouldCombineAnd2(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -146,7 +145,7 @@ class SelectJakartaDataQueryProviderBetweenTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE  name = 'Otavio' OR name BETWEEN 10 AND 20", "FROM entity WHERE  name = 'Otavio' OR name BETWEEN 10 AND 20"})
     void shouldCombineOr(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -174,7 +173,7 @@ class SelectJakartaDataQueryProviderBetweenTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age BETWEEN 10 AND 20 OR name = 'Otavio'", "FROM entity WHERE age BETWEEN 10 AND 20 OR name = 'Otavio'"})
     void shouldCombineOr2(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();

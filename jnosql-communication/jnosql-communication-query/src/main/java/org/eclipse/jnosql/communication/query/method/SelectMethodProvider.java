@@ -15,19 +15,26 @@ package org.eclipse.jnosql.communication.query.method;
 import org.eclipse.jnosql.communication.query.SelectQuery;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
 public enum SelectMethodProvider implements BiFunction<Method, String, SelectQuery> {
 
     INSTANCE;
 
+    private final Map<String, SelectQuery> cache = new ConcurrentHashMap<>();
 
     @Override
     public SelectQuery apply(Method method, String entity) {
         Objects.requireNonNull(method, "method is required");
         Objects.requireNonNull(entity, "entity is required");
-        SelectMethodQueryProvider supplier = new SelectMethodQueryProvider();
-        return supplier.apply(method.getName(), entity);
+        String key = method.getName() + "::" + entity;
+
+        return cache.computeIfAbsent(key, k -> {
+            SelectMethodQueryParser provider = new SelectMethodQueryParser();
+            return provider.apply(method.getName(), entity);
+        });
     }
 }

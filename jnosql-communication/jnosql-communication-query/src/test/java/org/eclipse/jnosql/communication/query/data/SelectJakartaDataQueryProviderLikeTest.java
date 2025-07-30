@@ -18,7 +18,6 @@ import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.SelectQuery;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
-import org.eclipse.jnosql.communication.query.data.SelectProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -26,17 +25,17 @@ import org.junit.jupiter.params.provider.ValueSource;
 class SelectJakartaDataQueryProviderLikeTest {
 
 
-    private SelectProvider selectProvider;
+    private SelectParser selectParser;
 
     @BeforeEach
     void setUp() {
-        selectProvider = new SelectProvider();
+        selectParser = new SelectParser();
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE  name LIKE 'A%'", "FROM entity WHERE name LIKE 'A%'"})
     void shouldLike(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -55,7 +54,7 @@ class SelectJakartaDataQueryProviderLikeTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE  name LIKE \"A%\"", "FROM entity WHERE name LIKE \"A%\""})
     void shouldLikeDoubleQuote(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -74,7 +73,7 @@ class SelectJakartaDataQueryProviderLikeTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE  name NOT LIKE 'A%'", "FROM entity WHERE name NOT LIKE 'A%'"})
     void shouldNegateLike(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -97,7 +96,7 @@ class SelectJakartaDataQueryProviderLikeTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE  age = 10 AND name LIKE 'test'", "FROM entity WHERE  age = 10 AND name LIKE 'test'"})
     void shouldCombineAnd(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -122,7 +121,7 @@ class SelectJakartaDataQueryProviderLikeTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE name LIKE 'test' AND age = 10", "FROM entity WHERE name LIKE 'test' AND age = 10"})
     void shouldCombineAnd2(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -148,7 +147,7 @@ class SelectJakartaDataQueryProviderLikeTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE  age = 10 OR name LIKE 'test'", "FROM entity WHERE  age = 10 OR name LIKE 'test'"})
     void shouldCombineOr(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -173,7 +172,7 @@ class SelectJakartaDataQueryProviderLikeTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE name LIKE 'test' OR age = 10", "FROM entity WHERE name LIKE 'test' OR age = 10"})
     void shouldCombineOr2(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();

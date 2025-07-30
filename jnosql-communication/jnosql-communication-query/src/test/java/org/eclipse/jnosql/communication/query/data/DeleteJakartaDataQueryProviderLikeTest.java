@@ -17,7 +17,6 @@ import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
-import org.eclipse.jnosql.communication.query.data.DeleteProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -25,17 +24,17 @@ import org.junit.jupiter.params.provider.ValueSource;
 class DeleteJakartaDataQueryProviderLikeTest {
 
 
-    private DeleteProvider deleteProvider;
+    private DeleteParser deleteParser;
 
     @BeforeEach
     void setUp() {
-        deleteProvider = new DeleteProvider();
+        deleteParser = new DeleteParser();
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "DELETE FROM entity WHERE  name LIKE 'A%'")
     void shouldLike(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -53,7 +52,7 @@ class DeleteJakartaDataQueryProviderLikeTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "DELETE FROM entity WHERE  name LIKE \"A%\"")
     void shouldLikeDoubleQuote(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -71,7 +70,7 @@ class DeleteJakartaDataQueryProviderLikeTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "DELETE FROM entity WHERE  name NOT LIKE 'A%'")
     void shouldNegateLike(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -93,7 +92,7 @@ class DeleteJakartaDataQueryProviderLikeTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "DELETE FROM entity WHERE  age = 10 AND name LIKE 'test'")
     void shouldCombineAnd(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -117,7 +116,7 @@ class DeleteJakartaDataQueryProviderLikeTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "DELETE FROM entity WHERE name LIKE 'test' AND age = 10")
     void shouldCombineAnd2(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -142,7 +141,7 @@ class DeleteJakartaDataQueryProviderLikeTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "DELETE FROM entity WHERE  age = 10 OR name LIKE 'test'")
     void shouldCombineOr(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -166,7 +165,7 @@ class DeleteJakartaDataQueryProviderLikeTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "DELETE FROM entity WHERE name LIKE 'test' OR age = 10")
     void shouldCombineOr2(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();

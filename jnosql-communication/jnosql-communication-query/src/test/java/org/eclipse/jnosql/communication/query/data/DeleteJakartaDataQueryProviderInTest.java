@@ -20,8 +20,6 @@ import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
-import org.eclipse.jnosql.communication.query.data.DefaultQueryValue;
-import org.eclipse.jnosql.communication.query.data.DeleteProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -31,17 +29,17 @@ import java.time.DayOfWeek;
 class DeleteJakartaDataQueryProviderInTest {
 
 
-    private DeleteProvider deleteProvider;
+    private DeleteParser deleteParser;
 
     @BeforeEach
     void setUp() {
-        deleteProvider = new DeleteProvider();
+        deleteParser = new DeleteParser();
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE age IN (10, 12.12, 'otavio', ?1, :param)"})
     void shouldIn(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -64,7 +62,7 @@ class DeleteJakartaDataQueryProviderInTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE days IN (java.time.DayOfWeek.MONDAY, java.time.DayOfWeek.SUNDAY)"})
     void shouldInEnumLiteral(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -86,7 +84,7 @@ class DeleteJakartaDataQueryProviderInTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE age NOT IN (10, 20)"})
     void shouldNegateBetween(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -110,7 +108,7 @@ class DeleteJakartaDataQueryProviderInTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE name = 'Otavio' AND age IN (10, 20)"})
     void shouldCombineAnd(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -140,7 +138,7 @@ class DeleteJakartaDataQueryProviderInTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "DELETE FROM entity WHERE age IN (10, 20) AND name = 'Otavio'")
     void shouldCombineAnd2(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -168,7 +166,7 @@ class DeleteJakartaDataQueryProviderInTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE  name = 'Otavio' OR name IN (10, 20)"})
     void shouldCombineOr(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();
@@ -195,7 +193,7 @@ class DeleteJakartaDataQueryProviderInTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "DELETE FROM entity WHERE age IN (10, 20) OR name = 'Otavio'")
     void shouldCombineOr2(String query){
-        var deleteQuery = deleteProvider.apply(query);
+        var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(deleteQuery.fields()).isEmpty();

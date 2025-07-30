@@ -59,8 +59,7 @@ public final class DeleteQueryParser implements BiFunction<org.eclipse.jnosql.co
     }
 
     private DeleteQuery getQuery(String query, Params params, CommunicationObserverParser observer) {
-        var converter = new DeleteProvider();
-        org.eclipse.jnosql.communication.query.DeleteQuery deleteQuery = converter.apply(query);
+        org.eclipse.jnosql.communication.query.DeleteQuery deleteQuery = DeleteProvider.INSTANCE.apply(query);
 
         return getQuery(params, observer, deleteQuery);
     }
@@ -78,8 +77,7 @@ public final class DeleteQueryParser implements BiFunction<org.eclipse.jnosql.co
 
     private DeleteQuery getQuery(String query, CommunicationObserverParser observer) {
 
-        var converter = new DeleteProvider();
-        org.eclipse.jnosql.communication.query.DeleteQuery deleteQuery = converter.apply(query);
+        org.eclipse.jnosql.communication.query.DeleteQuery deleteQuery = DeleteProvider.INSTANCE.apply(query);
 
         String columnFamily = observer.fireEntity(deleteQuery.entity());
         List<String> columns = deleteQuery.fields().stream()
