@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2022,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -49,7 +49,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
     // redeclare so that it can be accessed in this package
     @Override
     protected abstract AbstractRepository<T, K> repository();
-    
+
     @Override
     protected Object executeQuery(Object instance, Method method, Object[] params) {
         LOGGER.finest("Executing query on method: " + method);
