@@ -116,4 +116,15 @@ class ParamValueTest {
 
         });
     }
+
+    @Test
+    void shouldGet() {
+        ParamValue params = new ParamValue("name");
+        params.setValue("123");
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(params.get()).isEqualTo("123");
+            softly.assertThat(params.get(Integer.class)).isEqualTo(123);
+        });
+    }
 }
