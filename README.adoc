@@ -24,12 +24,12 @@ Eclipse JNoSQL is a Java framework that unifies NoSQL access across different da
 
 Use Eclipse JNoSQL to:
 
-Increase productivity with annotation-based object mapping
-Write expressive queries using a fluent or method-name DSL
-Reduce boilerplate through CDI-managed components and lifecycle events
-Switch NoSQL vendors with minimal code changes
-Align with modern practices like Domain-Driven Design (DDD)
-Rely on a standards-based solution compatible with Jakarta EE and MicroProfile servers
+* Increase productivity with annotation-based object mapping
+* Write expressive queries using a fluent or method-name DSL
+* Reduce boilerplate through CDI-managed components and lifecycle events
+* Switch NoSQL vendors with minimal code changes
+* Align with modern practices like Domain-Driven Design (DDD)
+* Rely on a standards-based solution compatible with Jakarta EE and MicroProfile servers
 
 == One Mapping API to Multiples NoSQL Databases
 
