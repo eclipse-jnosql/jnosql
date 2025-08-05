@@ -20,9 +20,8 @@ Eclipse JNoSQL is a compatible implementation of the https://jakarta.ee/specific
 
 == Why Eclipse JNoSQL?
 
-Eclipse JNoSQL is a Java framework that simplifies the integration of Java applications with NoSQL databases. It provides a unified API for various NoSQL database types, including Key-Value, Column Family, Document, and Graph databases. Eclipse JNoSQL is designed to enhance developer productivity by offering a rich set of features such as object mapping, query capabilities, and lifecycle events.
+Eclipse JNoSQL is a Java framework that unifies NoSQL access across different database types, including Key-Value, Column Family, Document, and Graph. Built on top of the Jakarta NoSQL and Jakarta Data specifications, it simplifies development through standard annotations, fluent APIs, and full compatibility with Jakarta EE and MicroProfile runtimes.
 
-Eclipse JNoSQL is built on the Jakarta NoSQL and Jakarta Data specifications, ensuring compatibility with the latest Jakarta EE standards. It leverages the power of Contexts and Dependency Injection (CDI) for seamless integration and provides a fluent API for querying and manipulating data.
 
 == One Mapping API to Multiples NoSQL Databases
 
