@@ -346,10 +346,4 @@ public class CustomRepositoryHandler implements InvocationHandler {
     private static boolean returnsInt(Method method) {
         return method.getReturnType().equals(int.class) || method.getReturnType().equals(Integer.class);
     }
-
-    private static boolean returnsBoolean(Method method) {
-        return method.getReturnType().equals(boolean.class) || method.getReturnType().equals(Boolean.class);
-    }
-
-
 }
