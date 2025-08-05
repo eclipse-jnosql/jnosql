@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2022,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -18,6 +18,7 @@ import jakarta.data.Sort;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Query;
+
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.QueryType;
 import org.eclipse.jnosql.mapping.core.repository.DynamicQueryMethodReturn;
@@ -31,6 +32,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
+
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -42,6 +45,10 @@ import static java.util.stream.Collectors.toList;
 public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSemiStructuredRepository<T, K> {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractSemiStructuredRepositoryProxy.class.getName());
+
+    // redeclare so that it can be accessed in this package
+    @Override
+    protected abstract AbstractRepository<T, K> repository();
 
     @Override
     protected Object executeQuery(Object instance, Method method, Object[] params) {
