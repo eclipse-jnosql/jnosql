@@ -17,6 +17,7 @@
  */
 package org.eclipse.jnosql.communication;
 
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -313,5 +314,71 @@ class DefaultSettingsTest {
 
         List<Object> hosts = settings.prefix(Arrays.asList("host", "server"));
         assertThat(hosts).hasSize(4).containsExactly("host", "host-99", "server", "server-99");
+    }
+
+    @Test
+    void shouldSizeBehavior() {
+        Settings settings = Settings.builder()
+                .put("host", "host")
+                .put("host.1", "host-1")
+                .put("server", "server")
+                .put("server.1", "server-1")
+                .build();
+    assertThat(settings.size()).isEqualTo(4);
+    }
+
+    @Test
+    void shouldEquals(){
+        Settings settings = Settings.builder()
+                .put("host", "host")
+                .put("host.1", "host-1")
+                .put("server", "server")
+                .put("server.1", "server-1")
+                .build();
+
+        Settings settings2 = Settings.builder()
+                .put("host", "host")
+                .put("host.1", "host-1")
+                .put("server", "server")
+                .put("server.1", "server-1")
+                .build();
+
+        Settings settings3 = Settings.builder()
+                .put("host", "host")
+                .put("server.1", "server-1")
+                .build();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(settings).isEqualTo(settings2);
+            softly.assertThat(settings).isEqualTo(settings);
+            softly.assertThat(settings).isNotEqualTo(null);
+            softly.assertThat(settings).isNotEqualTo("234");
+            softly.assertThat(settings).isNotEqualTo(settings3);
+        });
+
+    }
+
+    @Test
+    void shouldHashCode(){
+        Settings settings = Settings.builder()
+                .put("host", "host")
+                .put("host.1", "host-1")
+                .put("server", "server")
+                .put("server.1", "server-1")
+                .build();
+
+        assertThat(settings.hashCode()).isEqualTo(settings.hashCode());
+    }
+
+    @Test
+    void shouldToString(){
+        var settings = Settings.builder()
+                .put("host", "host")
+                .put("host.1", "host-1")
+                .put("server", "server")
+                .put("server.1", "server-1")
+                .build();
+
+        assertThat(settings.toString()).isNotNull().isNotEmpty();
     }
 }
