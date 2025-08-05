@@ -12,10 +12,12 @@
 package org.eclipse.jnosql.communication.keyvalue;
 
 import org.eclipse.jnosql.communication.Settings;
+import org.mockito.Mockito;
 
 public class MockKeyValueConfiguration implements KeyValueConfiguration {
+
     @Override
     public BucketManagerFactory apply(Settings settings) {
-        return null;
+        return Mockito.mock(BucketManagerFactory.class);
     }
 }
