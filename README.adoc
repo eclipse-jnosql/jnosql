@@ -18,6 +18,10 @@ Eclipse JNoSQL is a compatible implementation of the https://jakarta.ee/specific
 * Explore the popularity of Apache TinkerPop in Graph API
 * Jakarta NoSQL and Data implementations
 
+== Why Eclipse JNoSQL?
+
+
+
 == One Mapping API to Multiples NoSQL Databases
 
 Eclipse JNoSQL provides one API for each NoSQL database type. However, it incorporates the same annotations from the https://jakarta.ee/specifications/persistence/[Jakarta Persistence] specification and inherits from the Java Persistence Java Persistence API (JPA) to map Java objects. Therefore, with just these annotations that look like JPA, there is support for more than twenty NoSQL databases.
