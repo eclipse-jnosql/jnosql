@@ -12,6 +12,7 @@
  */
 package org.eclipse.jnosql.communication;
 
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -93,5 +94,26 @@ class ParamValueTest {
 
         params.bind(paramName, paramValue);
         assertThat(paramName + "= " + paramValue).isEqualTo(value.toString());
+    }
+
+    @Test
+    void shouldCheckIsNull() {
+        Params params = Params.newParams();
+        Value value = params.add("name");
+        SoftAssertions.assertSoftly(softly -> softly.assertThat(value.isNull()).isFalse());
+    }
+
+    @Test
+    void shouldCheckIsEmpty() {
+        ParamValue params = new ParamValue("name");
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(params.isEmpty()).isTrue();
+            softly.assertThat(params.isEmpty()).isTrue();
+            params.setValue("Test");
+            softly.assertThat(params.isEmpty()).isFalse();
+            softly.assertThat(params.isEmpty()).isFalse();
+
+        });
     }
 }
