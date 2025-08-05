@@ -17,6 +17,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
@@ -125,6 +127,16 @@ class ParamValueTest {
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(params.get()).isEqualTo("123");
             softly.assertThat(params.get(Integer.class)).isEqualTo(123);
+        });
+    }
+
+    @Test
+    void shouldGetInstance() {
+        ParamValue params = new ParamValue("name");
+        params.setValue("123");
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(params.get(new TypeReference<List<String>>(){})).isEqualTo(List.of("123"));
         });
     }
 }
