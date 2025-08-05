@@ -77,6 +77,11 @@ class ValueReaderDecoratorTest {
         });
     }
 
+    @Test
+    void shouldTestToString() {
+        assertThat(reader.toString()).isNotNull().isNotEmpty();
+    }
+
     static class Bean {
         Bean() {
         }
