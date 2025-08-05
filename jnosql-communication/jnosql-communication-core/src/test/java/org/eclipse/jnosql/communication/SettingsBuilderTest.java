@@ -105,4 +105,30 @@ class SettingsBuilderTest {
                     .as("Can retrieve the settings value").isPresent().get().isEqualTo("value");
         });
     }
+
+    @Test
+    void shouldToString() {
+        Settings settings = Settings.builder().put("key", "value").build();
+        String expected = "DefaultSettings{configurations={key=value}}";
+        assertSoftly(softly -> softly.assertThat(settings.toString()).isEqualTo(expected));
+    }
+
+    @Test
+    void shouldEquals() {
+        Settings settings = Settings.builder().put("key", "value").build();
+        Settings other = Settings.builder().put("key", "value").build();
+        assertSoftly(softly -> {
+            softly.assertThat(settings).isEqualTo(other);
+            softly.assertThat(settings).isEqualTo(settings);
+            softly.assertThat(settings).isNotEqualTo(null);
+            softly.assertThat(settings).isNotEqualTo("String");
+        });
+    }
+
+    @Test
+    void shouldHashCode() {
+        Settings settings = Settings.builder().put("key", "value").build();
+        assertSoftly(softly -> softly.assertThat(settings.hashCode()).isEqualTo(settings.hashCode()));
+    }
 }
+
