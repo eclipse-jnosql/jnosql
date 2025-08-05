@@ -24,6 +24,7 @@ class StringUtilsTest {
     void shouldIsBlank() {
         Assertions.assertThat(StringUtils.isBlank(null)).isTrue();
         Assertions.assertThat(StringUtils.isBlank("")).isTrue();
+        Assertions.assertThat(StringUtils.isBlank("      ")).isTrue();
         Assertions.assertThat(StringUtils.isBlank("bob")).isFalse();
         Assertions.assertThat(StringUtils.isBlank("  bob  ")).isFalse();
     }
