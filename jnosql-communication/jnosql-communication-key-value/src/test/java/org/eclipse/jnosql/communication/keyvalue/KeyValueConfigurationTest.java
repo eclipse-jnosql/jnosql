@@ -11,8 +11,22 @@
  */
 package org.eclipse.jnosql.communication.keyvalue;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.eclipse.jnosql.communication.CommunicationException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 
 class KeyValueConfigurationTest {
 
+
+    @Test
+    void shouldErrorWhenConfiguration() {
+        Assertions.assertThrows(CommunicationException.class, () -> KeyValueConfiguration.getConfiguration());
+    }
+
+    @Test
+    void shouldCheckConfiguration2() {
+        Assertions.assertThrows(CommunicationException.class,
+                () -> KeyValueConfiguration.getConfiguration(MockKeyValueConfiguration.class));
+    }
 }
