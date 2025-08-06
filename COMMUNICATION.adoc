@@ -67,29 +67,6 @@ try (DocumentManager manager = factory.apply("database")) {
 }
 ----
 
-=== Column Communication sample
-
-[source,java]
-----
-Settings settings = Settings.builder().put("credential", "value").build();
-ColumnConfiguration configuration = new NoSQLColumnProvider();
-ColumnManagerFactory factory = configuration.apply(settings);
-try (ColumnManager manager = factory.apply("database")) {
-    ColumnEntity entity = ColumnEntity.of("entity");
-    entity.add("id", 10L);
-    entity.add("version", 0.001);
-    entity.add("name", "Diana");
-
-    manager.insert(entity);
-    ColumnQuery query = select().from("entity").where("version").gte(0.001).build();
-    Stream<ColumnEntity> entities = manager.select(query);
-
-    ColumnDeleteQuery delete = delete().from("entity").where("id").eq(10L).build();
-
-    manager.delete(delete);
-}
-----
-
 
 === Key-value Communication sample
 
