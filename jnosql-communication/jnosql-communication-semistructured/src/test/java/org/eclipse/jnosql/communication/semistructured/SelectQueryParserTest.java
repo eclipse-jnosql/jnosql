@@ -273,7 +273,7 @@ class SelectQueryParserTest {
         assertEquals(Condition.NOT, condition.condition());
         List<CriteriaCondition> conditions = element.get(new TypeReference<>() {
         });
-        CriteriaCondition criteriaCondition = conditions.get(0);
+        CriteriaCondition criteriaCondition = conditions.getFirst();
         assertEquals(Condition.LIKE, criteriaCondition.condition());
         assertEquals(Element.of("name", "Ada"), criteriaCondition.element());
     }
@@ -390,7 +390,7 @@ class SelectQueryParserTest {
 
             soft.assertThat(age.name()).isEqualTo("age");
             soft.assertThat(age.get()).isEqualTo(12);
-            soft.assertThat(conditions.get(0).condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(conditions.getFirst().condition()).isEqualTo(Condition.EQUALS);
 
             soft.assertThat(name.name()).isEqualTo("name");
             soft.assertThat(name.get()).isEqualTo("Otavio");
@@ -442,7 +442,7 @@ class SelectQueryParserTest {
 
             soft.assertThat(age.name()).isEqualTo("age");
             soft.assertThat(age.get()).isEqualTo(12);
-            soft.assertThat(conditions.get(0).condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(conditions.getFirst().condition()).isEqualTo(Condition.EQUALS);
 
             soft.assertThat(name.name()).isEqualTo("name");
             soft.assertThat(name.get()).isEqualTo("Otavio");

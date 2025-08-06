@@ -270,7 +270,7 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
             this.condition = new MethodCondition(SUB_ENTITY_FLAG + operator.name(), operator, ConditionQueryValue.of(conditions));
         } else {
             List<QueryCondition> conditions = ConditionQueryValue.class.cast(this.condition.value()).get();
-            QueryCondition lastCondition = conditions.get(conditions.size() - 1);
+            QueryCondition lastCondition = conditions.getLast();
 
             if (isAppendable(lastCondition) && Condition.EQUALS.equals(lastCondition.condition())) {
                 List<QueryCondition> lastConditions = new ArrayList<>(ConditionQueryValue.class.cast(lastCondition.value()).get());

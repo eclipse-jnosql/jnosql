@@ -48,7 +48,7 @@ public class ArrayRepositoryReturn extends AbstractRepositoryReturn {
             return (T[]) java.lang.reflect.Array.newInstance(Object.class, 0);
         }
         T[] array = (T[]) java.lang.reflect.Array.newInstance(
-                entities.get(0).getClass(), entities.size());
+                entities.getFirst().getClass(), entities.size());
         return entities.toArray(array);
     }
 }

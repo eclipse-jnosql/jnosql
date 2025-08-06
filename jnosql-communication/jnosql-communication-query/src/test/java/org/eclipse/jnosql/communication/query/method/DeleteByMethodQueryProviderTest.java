@@ -256,7 +256,7 @@ class DeleteByMethodQueryProviderTest {
         QueryCondition condition = where.get().condition();
         QueryValue<?> value = condition.value();
         assertEquals(Condition.NOT, condition.condition());
-        QueryCondition notCondition =  ConditionQueryValue.class.cast(value).get().get(0);
+        QueryCondition notCondition =  ConditionQueryValue.class.cast(value).get().getFirst();
         assertEquals(Condition.BETWEEN, notCondition.condition());
 
         QueryValue<?>[] values = MethodArrayValue.class.cast(notCondition.value()).get();
@@ -392,7 +392,7 @@ class DeleteByMethodQueryProviderTest {
 
         assertEquals("_NOT", condition.name());
         assertTrue(value instanceof ConditionQueryValue);
-        QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().get(0);
+        QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().getFirst();
         QueryValue<?> param = condition1.value();
         assertEquals(operator, condition1.condition());
         assertTrue(ParamQueryValue.class.cast(param).get().contains(variable));

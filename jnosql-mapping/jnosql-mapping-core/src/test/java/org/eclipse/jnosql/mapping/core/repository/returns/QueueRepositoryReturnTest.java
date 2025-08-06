@@ -82,7 +82,7 @@ class QueueRepositoryReturnTest {
         LinkedList<Person> person = (LinkedList<Person>) repositoryReturn.convert(dynamic);
         Assertions.assertNotNull(person);
         Assertions.assertFalse(person.isEmpty());
-        Assertions.assertEquals(ada, person.get(0));
+        Assertions.assertEquals(ada, person.getFirst());
     }
 
 

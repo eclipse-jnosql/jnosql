@@ -47,7 +47,7 @@ final class Conditions {
             case BETWEEN -> CriteriaCondition.between(Element.of(getName(condition, observer, entity),
                     Values.get(condition.value(),
                             parameters)));
-            case NOT -> getCondition(ConditionQueryValue.class.cast(condition.value()).get().get(0),
+            case NOT -> getCondition(ConditionQueryValue.class.cast(condition.value()).get().getFirst(),
                     parameters, observer,
                     entity).negate();
             case OR -> CriteriaCondition.or(ConditionQueryValue.class.cast(condition.value())

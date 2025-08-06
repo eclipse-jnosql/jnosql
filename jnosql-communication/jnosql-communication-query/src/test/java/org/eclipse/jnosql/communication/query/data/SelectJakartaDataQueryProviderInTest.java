@@ -101,9 +101,9 @@ class SelectJakartaDataQueryProviderInTest {
             var values = (ConditionQueryValue) condition.value();
             var conditions = values.get();
             soft.assertThat(conditions).hasSize(1);
-            soft.assertThat(conditions.get(0).name()).isEqualTo("age");
-            soft.assertThat(conditions.get(0).value()).isInstanceOf(ArrayQueryValue.class);
-            soft.assertThat(ArrayQueryValue.class.cast(conditions.get(0).value()).get()).hasSize(2)
+            soft.assertThat(conditions.getFirst().name()).isEqualTo("age");
+            soft.assertThat(conditions.getFirst().value()).isInstanceOf(ArrayQueryValue.class);
+            soft.assertThat(ArrayQueryValue.class.cast(conditions.getFirst().value()).get()).hasSize(2)
                     .contains(NumberQueryValue.of(10), NumberQueryValue.of(20));
 
         });
@@ -127,7 +127,7 @@ class SelectJakartaDataQueryProviderInTest {
             var conditions = values.get();
             soft.assertThat(conditions).hasSize(2);
 
-            QueryCondition equalsCondition = conditions.get(0);
+            QueryCondition equalsCondition = conditions.getFirst();
             soft.assertThat(equalsCondition.name()).isEqualTo("name");
             soft.assertThat(equalsCondition.value()).isEqualTo(StringQueryValue.of("Otavio"));
 
@@ -160,7 +160,7 @@ class SelectJakartaDataQueryProviderInTest {
             soft.assertThat(equalsCondition.name()).isEqualTo("name");
             soft.assertThat(equalsCondition.value()).isEqualTo(StringQueryValue.of("Otavio"));
 
-            QueryCondition betweenCondition = conditions.get(0);
+            QueryCondition betweenCondition = conditions.getFirst();
             soft.assertThat(betweenCondition.condition()).isEqualTo(Condition.IN);
             soft.assertThat(betweenCondition.value()).isInstanceOf(ArrayQueryValue.class);
             soft.assertThat(ArrayQueryValue.class.cast(betweenCondition.value()).get()).hasSize(2)
@@ -185,7 +185,7 @@ class SelectJakartaDataQueryProviderInTest {
 
             var values = (ConditionQueryValue) condition.value();
             var conditions = values.get();
-            QueryCondition equalsCondition = conditions.get(0);
+            QueryCondition equalsCondition = conditions.getFirst();
             soft.assertThat(equalsCondition.name()).isEqualTo("name");
             soft.assertThat(equalsCondition.value()).isEqualTo(StringQueryValue.of("Otavio"));
 
@@ -217,7 +217,7 @@ class SelectJakartaDataQueryProviderInTest {
             soft.assertThat(equalsCondition.name()).isEqualTo("name");
             soft.assertThat(equalsCondition.value()).isEqualTo(StringQueryValue.of("Otavio"));
 
-            QueryCondition betweenCondition = conditions.get(0);
+            QueryCondition betweenCondition = conditions.getFirst();
             soft.assertThat(betweenCondition.condition()).isEqualTo(Condition.IN);
             soft.assertThat(betweenCondition.value()).isInstanceOf(ArrayQueryValue.class);
             soft.assertThat(ArrayQueryValue.class.cast(betweenCondition.value()).get()).hasSize(2)

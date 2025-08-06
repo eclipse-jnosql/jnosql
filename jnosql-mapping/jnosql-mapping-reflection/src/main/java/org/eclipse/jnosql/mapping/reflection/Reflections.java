@@ -185,7 +185,7 @@ public class Reflections {
             return (Constructor<T>) publicConstructor.get();
         }
 
-        Constructor<?> constructor = constructors.get(0);
+        Constructor<?> constructor = constructors.getFirst();
         constructor.setAccessible(true);
         return (Constructor<T>) constructor;
     }

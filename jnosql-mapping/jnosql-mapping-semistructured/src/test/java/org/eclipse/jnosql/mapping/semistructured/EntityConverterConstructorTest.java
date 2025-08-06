@@ -415,7 +415,7 @@ class EntityConverterConstructorTest {
             var programs = entity.find("programs").orElseThrow();
             var elements = programs.get(new TypeReference<List<Element>>() {});
             softly.assertThat(elements).hasSize(1);
-            Element element = elements.get(0);
+            Element element = elements.getFirst();
             softly.assertThat(element.name()).isEqualTo("Renamer");
             var subDocument = element.get(new TypeReference<List<Element>>() {});
             softly.assertThat(subDocument).isNotNull().hasSize(2);

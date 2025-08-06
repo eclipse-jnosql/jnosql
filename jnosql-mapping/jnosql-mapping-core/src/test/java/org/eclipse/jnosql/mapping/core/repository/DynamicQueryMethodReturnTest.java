@@ -144,7 +144,7 @@ class DynamicQueryMethodReturnTest {
         Assertions.assertInstanceOf(List.class, execute);
         List<Person> persons = (List) execute;
         Assertions.assertFalse(persons.isEmpty());
-        Assertions.assertEquals(new Person("Ada"), persons.get(0));
+        Assertions.assertEquals(new Person("Ada"), persons.getFirst());
     }
 
 

@@ -50,10 +50,10 @@ class ElementsTest {
 
         List<Element> elements = Elements.of(singletonMap("contact", list));
         assertEquals(1, elements.size());
-        Element element = elements.get(0);
+        Element element = elements.getFirst();
         assertEquals("contact", element.name());
         List<List<Element>> result = (List<List<Element>>) element.get();
-        assertEquals(Element.of("mobile", "55 1234-4567"), result.get(0).get(0));
+        assertEquals(Element.of("mobile", "55 1234-4567"), result.getFirst().getFirst());
 
     }
 }

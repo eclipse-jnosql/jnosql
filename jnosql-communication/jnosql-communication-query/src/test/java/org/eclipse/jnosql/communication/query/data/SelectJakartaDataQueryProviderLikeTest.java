@@ -87,8 +87,8 @@ class SelectJakartaDataQueryProviderLikeTest {
             var values = (ConditionQueryValue) condition.value();
             var conditions = values.get();
             soft.assertThat(conditions).hasSize(1);
-            soft.assertThat(conditions.get(0).name()).isEqualTo("name");
-            soft.assertThat(conditions.get(0).value()).isEqualTo(StringQueryValue.of("A%"));
+            soft.assertThat(conditions.getFirst().name()).isEqualTo("name");
+            soft.assertThat(conditions.getFirst().value()).isEqualTo(StringQueryValue.of("A%"));
 
         });
     }

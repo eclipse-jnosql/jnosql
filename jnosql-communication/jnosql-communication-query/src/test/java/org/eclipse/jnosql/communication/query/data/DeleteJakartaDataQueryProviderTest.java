@@ -297,7 +297,7 @@ class DeleteJakartaDataQueryProviderTest {
             var condition = where.condition();
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             var notCondition = (ConditionQueryValue) condition.value();
-            var queryCondition = notCondition.get().get(0);
+            var queryCondition = notCondition.get().getFirst();
             soft.assertThat(queryCondition.name()).isEqualTo("hexadecimal");
             soft.assertThat(queryCondition.value()).isEqualTo(NullQueryValue.INSTANCE);
         });
@@ -333,7 +333,7 @@ class DeleteJakartaDataQueryProviderTest {
             var condition = where.condition();
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             var notCondition = (ConditionQueryValue) condition.value();
-            var queryCondition = notCondition.get().get(0);
+            var queryCondition = notCondition.get().getFirst();
             soft.assertThat(queryCondition.name()).isEqualTo("age");
             soft.assertThat(queryCondition.value()).isEqualTo(NumberQueryValue.of(10));
         });
@@ -353,9 +353,9 @@ class DeleteJakartaDataQueryProviderTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
 
             var conditions = (ConditionQueryValue) condition.value();
-            var negation = (ConditionQueryValue)conditions.get().get(0).value();
+            var negation = (ConditionQueryValue)conditions.get().getFirst().value();
 
-            var queryCondition = negation.get().get(0);
+            var queryCondition = negation.get().getFirst();
             soft.assertThat(queryCondition.name()).isEqualTo("hexadecimal");
             soft.assertThat(queryCondition.value()).isEqualTo(StringQueryValue.of(" ORDER BY isn''t a keyword when inside a literal"));
             var in = conditions.get().get(1);

@@ -444,7 +444,7 @@ class CrudRepositoryProxyTest {
             softly.assertThat(query.condition()).isEmpty();
             softly.assertThat(query.limit()).isEqualTo(10);
             softly.assertThat(query.sorts()).hasSize(1);
-            softly.assertThat(query.sorts().get(0).property()).isEqualTo("name");
+            softly.assertThat(query.sorts().getFirst().property()).isEqualTo("name");
         });
 
     }
@@ -723,7 +723,7 @@ class CrudRepositoryProxyTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        final Sort<?> sort = query.sorts().get(0);
+        final Sort<?> sort = query.sorts().getFirst();
         final Element document = condition.element();
         assertEquals("Person", query.name());
         assertEquals("salary.currency", document.name());

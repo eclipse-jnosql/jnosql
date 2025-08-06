@@ -188,7 +188,7 @@ class CommunicationEntityTest {
         assertEquals("id", result.get("_id"));
         List<List<Map<String, Object>>> contacts = (List<List<Map<String, Object>>>) result.get("contacts");
         assertEquals(1, contacts.size());
-        List<Map<String, Object>> maps = contacts.get(0);
+        List<Map<String, Object>> maps = contacts.getFirst();
         assertEquals(3, maps.size());
         assertThat(maps).contains(singletonMap("name", "Ada"), singletonMap("type", "type"),
                 singletonMap("information", "ada@lovelace.com"));

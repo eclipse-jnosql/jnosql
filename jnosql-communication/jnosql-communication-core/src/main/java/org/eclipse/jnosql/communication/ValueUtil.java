@@ -96,7 +96,7 @@ public final class ValueUtil {
             List<Object> items = new ArrayList<>();
             Iterable.class.cast(val).forEach(items::add);
             if (items.size() == 1) {
-                Object item = items.get(0);
+                Object item = items.getFirst();
                 // check if it is dynamic params
                 if (PARAM_CLASS_NAME.equals(item.getClass().getName())) {
                     Object params = Value.class.cast(item).get();

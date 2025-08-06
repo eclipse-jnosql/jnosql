@@ -35,7 +35,7 @@ enum CursorExecutor {
                     query.condition().orElse(null), false);
 
             var entities = template.select(select).toList();
-            var last = entities.isEmpty() ? null : entities.get(entities.size() - 1);
+            var last = entities.isEmpty() ? null : entities.getLast();
             if (last == null) {
                 return new CursoredPageRecord<>(entities, Collections.emptyList(), -1, pageRequest,
                         null, null);
@@ -58,7 +58,7 @@ enum CursorExecutor {
             var select = updateQuery(pageRequest.size(), query, condition);
 
             var entities = template.select(select).toList();
-            var last = entities.isEmpty() ? null : entities.get(entities.size() - 1);
+            var last = entities.isEmpty() ? null : entities.getLast();
             if (last == null) {
                 return new CursoredPageRecord<>(entities, Collections.emptyList(), -1, pageRequest,
                         null, null);
@@ -100,7 +100,7 @@ enum CursorExecutor {
             var select = updateQuery(pageRequest.size(), query, condition);
 
             var entities = template.select(select).toList();
-            var last = entities.isEmpty() ? null : entities.get(entities.size() - 1);
+            var last = entities.isEmpty() ? null : entities.getLast();
             if (last == null) {
                 return new CursoredPageRecord<>(entities, Collections.emptyList(), -1, pageRequest,
                         null, null);

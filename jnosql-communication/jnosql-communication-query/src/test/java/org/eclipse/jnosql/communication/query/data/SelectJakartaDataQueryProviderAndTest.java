@@ -114,8 +114,8 @@ class SelectJakartaDataQueryProviderAndTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.OR);
             soft.assertThat(conditions).hasSize(1);
 
-            soft.assertThat(conditions.get(0).name()).isEqualTo("name");
-            soft.assertThat(conditions.get(0).value()).isEqualTo(DefaultQueryValue.of("?1"));
+            soft.assertThat(conditions.getFirst().name()).isEqualTo("name");
+            soft.assertThat(conditions.getFirst().value()).isEqualTo(DefaultQueryValue.of("?1"));
 
         });
     }

@@ -234,7 +234,7 @@ class DefaultKeyValueTemplateTest {
                 .toList();
 
         assertFalse(userOptional.isEmpty());
-        assertEquals(user, userOptional.get(0));
+        assertEquals(user, userOptional.getFirst());
     }
 
     @Test

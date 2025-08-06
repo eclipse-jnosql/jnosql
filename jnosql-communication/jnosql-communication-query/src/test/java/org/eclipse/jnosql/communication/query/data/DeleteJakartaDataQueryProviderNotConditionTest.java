@@ -45,7 +45,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             soft.assertThat(condition.name()).isEqualTo("_NOT");
             var notCondition = (ConditionQueryValue) condition.value();
-            var queryCondition = notCondition.get().get(0);
+            var queryCondition = notCondition.get().getFirst();
             soft.assertThat(queryCondition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(queryCondition.name()).isEqualTo("age");
             soft.assertThat(queryCondition.value()).isEqualTo(NumberQueryValue.of(10));
@@ -66,7 +66,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             soft.assertThat(condition.name()).isEqualTo("_NOT");
             var notCondition = (ConditionQueryValue) condition.value();
-            var queryCondition = notCondition.get().get(0);
+            var queryCondition = notCondition.get().getFirst();
             soft.assertThat(queryCondition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(queryCondition.name()).isEqualTo("salary");
             soft.assertThat(queryCondition.value()).isEqualTo(NumberQueryValue.of(10.15));
@@ -87,7 +87,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             soft.assertThat(condition.name()).isEqualTo("_NOT");
             var notCondition = (ConditionQueryValue) condition.value();
-            var queryCondition = notCondition.get().get(0);
+            var queryCondition = notCondition.get().getFirst();
             soft.assertThat(queryCondition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(queryCondition.name()).isEqualTo("name");
             soft.assertThat(queryCondition.value()).isEqualTo(StringQueryValue.of("Otavio"));
@@ -108,7 +108,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             soft.assertThat(condition.name()).isEqualTo("_NOT");
             var notCondition = (ConditionQueryValue) condition.value();
-            var queryCondition = notCondition.get().get(0);
+            var queryCondition = notCondition.get().getFirst();
             soft.assertThat(queryCondition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(queryCondition.name()).isEqualTo("name");
             soft.assertThat(queryCondition.value()).isEqualTo(StringQueryValue.of("Otavio"));
@@ -129,7 +129,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             soft.assertThat(condition.name()).isEqualTo("_NOT");
             var notCondition = (ConditionQueryValue) condition.value();
-            var queryCondition = notCondition.get().get(0);
+            var queryCondition = notCondition.get().getFirst();
             soft.assertThat(queryCondition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(queryCondition.name()).isEqualTo("name");
             soft.assertThat(queryCondition.value()).isEqualTo(DefaultQueryValue.of("name"));
@@ -150,7 +150,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             soft.assertThat(condition.name()).isEqualTo("_NOT");
             var notCondition = (ConditionQueryValue) condition.value();
-            var queryCondition = notCondition.get().get(0);
+            var queryCondition = notCondition.get().getFirst();
             soft.assertThat(queryCondition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(queryCondition.name()).isEqualTo("name");
             soft.assertThat(queryCondition.value()).isEqualTo(DefaultQueryValue.of("?1"));
@@ -171,7 +171,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             soft.assertThat(condition.name()).isEqualTo("_NOT");
             var notCondition = (ConditionQueryValue) condition.value();
-            var queryCondition = notCondition.get().get(0);
+            var queryCondition = notCondition.get().getFirst();
             soft.assertThat(queryCondition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(queryCondition.name()).isEqualTo("active");
             soft.assertThat(queryCondition.value()).isEqualTo(BooleanQueryValue.TRUE);
@@ -192,7 +192,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             soft.assertThat(condition.name()).isEqualTo("_NOT");
             var notCondition = (ConditionQueryValue) condition.value();
-            var queryCondition = notCondition.get().get(0);
+            var queryCondition = notCondition.get().getFirst();
             soft.assertThat(queryCondition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(queryCondition.name()).isEqualTo("active");
             soft.assertThat(queryCondition.value()).isEqualTo(BooleanQueryValue.FALSE);
@@ -213,7 +213,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             soft.assertThat(condition.name()).isEqualTo("_NOT");
             var notCondition = (ConditionQueryValue) condition.value();
-            var queryCondition = notCondition.get().get(0);
+            var queryCondition = notCondition.get().getFirst();
             soft.assertThat(queryCondition.condition()).isEqualTo(Condition.LESSER_THAN);
             soft.assertThat(queryCondition.name()).isEqualTo("age");
             soft.assertThat(queryCondition.value()).isEqualTo(NumberQueryValue.of(10));
@@ -234,7 +234,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             soft.assertThat(condition.name()).isEqualTo("_NOT");
             var notCondition = (ConditionQueryValue) condition.value();
-            var queryCondition = notCondition.get().get(0);
+            var queryCondition = notCondition.get().getFirst();
             soft.assertThat(queryCondition.condition()).isEqualTo(Condition.GREATER_THAN);
             soft.assertThat(queryCondition.name()).isEqualTo("age");
             soft.assertThat(queryCondition.value()).isEqualTo(NumberQueryValue.of(10));
@@ -255,7 +255,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             soft.assertThat(condition.name()).isEqualTo("_NOT");
             var notCondition = (ConditionQueryValue) condition.value();
-            var queryCondition = notCondition.get().get(0);
+            var queryCondition = notCondition.get().getFirst();
             soft.assertThat(queryCondition.condition()).isEqualTo(Condition.LESSER_EQUALS_THAN);
             soft.assertThat(queryCondition.name()).isEqualTo("age");
             soft.assertThat(queryCondition.value()).isEqualTo(NumberQueryValue.of(10));
@@ -276,7 +276,7 @@ class DeleteJakartaDataQueryProviderNotConditionTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             soft.assertThat(condition.name()).isEqualTo("_NOT");
             var notCondition = (ConditionQueryValue) condition.value();
-            var queryCondition = notCondition.get().get(0);
+            var queryCondition = notCondition.get().getFirst();
             soft.assertThat(queryCondition.condition()).isEqualTo(Condition.GREATER_EQUALS_THAN);
             soft.assertThat(queryCondition.name()).isEqualTo("age");
             soft.assertThat(queryCondition.value()).isEqualTo(NumberQueryValue.of(10));

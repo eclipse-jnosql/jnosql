@@ -201,7 +201,7 @@ class DeleteQueryParserTest {
         assertEquals(Condition.NOT, condition.condition());
         List<CriteriaCondition> conditions = element.get(new TypeReference<>() {
         });
-        CriteriaCondition criteriaCondition = conditions.get(0);
+        CriteriaCondition criteriaCondition = conditions.getFirst();
         assertEquals(Condition.LIKE, criteriaCondition.condition());
         assertEquals(Element.of("name", "Ada"), criteriaCondition.element());
     }

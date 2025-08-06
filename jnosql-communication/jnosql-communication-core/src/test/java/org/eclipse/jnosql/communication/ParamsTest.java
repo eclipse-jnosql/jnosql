@@ -244,7 +244,7 @@ class ParamsTest {
                 Scenario scenario = newScenario();
                 Params params = scenario.params;
 
-                String existParamName = params.getParametersNames().get(0);
+                String existParamName = params.getParametersNames().getFirst();
 
                 Object newParamValue = UUID.randomUUID().toString();
                 params.bind(existParamName, newParamValue);
