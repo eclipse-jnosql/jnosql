@@ -18,7 +18,6 @@
 package org.eclipse.jnosql.communication.keyvalue;
 
 import org.assertj.core.api.Assertions;
-import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.Value;
 import org.junit.jupiter.api.DisplayName;

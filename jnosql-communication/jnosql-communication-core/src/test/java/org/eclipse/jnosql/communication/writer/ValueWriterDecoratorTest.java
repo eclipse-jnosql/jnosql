@@ -17,7 +17,6 @@
  */
 package org.eclipse.jnosql.communication.writer;
 
-import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.ValueWriter;
 import org.eclipse.jnosql.communication.ValueWriterDecorator;
 import org.junit.jupiter.api.DisplayName;
