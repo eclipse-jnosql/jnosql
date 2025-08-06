@@ -720,5 +720,4 @@ By keeping these paths separate, Eclipse JNoSQL ensures a smoother transition fo
 
 If you want to know more about both the communication and mapping layer, there are two complementary files for it each specific topic:
 
-* link:COMMUNICATION.adoc[Communication API]
 * link:MAPPING.adoc[Mapping API]
