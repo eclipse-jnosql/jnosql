@@ -4,8 +4,7 @@ With the strategy to divide and conquer on Eclipse JNoSQL, the communication API
 
 To cover the three of the four database types, this API includes three packages, one for each database.
 
-* `org.eclipse.jnosql.communication.column`
-* `org.eclipse.jnosql.communication.document`
+* `org.eclipse.jnosql.communication.semistructured`
 * `org.eclipse.jnosql.communication.keyvalue`
 
 NOTE: A package for the Graph database type is not included in this API because we leverage the Graph communication API provided by link:http://tinkerpop.apache.org/[Apache TinkerPop].
