@@ -2,12 +2,11 @@
 
 With the strategy to divide and conquer on Eclipse JNoSQL, the communication API was born. It has the goal to make the communication layer easy and extensible. The extensibility is more than important, that is entirely necessary once the API must support specific feature in each database. Nonetheless, the advantage of a common API in a change to another database provider has lesser than using the specific API.
 
-To cover the three of the four database types, this API includes three packages, one for each database.
+To cover four NoSQL database types, the communication API has three projects:
 
 * `org.eclipse.jnosql.communication.semistructured`
 * `org.eclipse.jnosql.communication.keyvalue`
 
-NOTE: A package for the Graph database type is not included in this API because we leverage the Graph communication API provided by link:http://tinkerpop.apache.org/[Apache TinkerPop].
 
 So, if a database is multi-model, i.e., has support for more than one database type, it will implement an API for each database it supports. Also, each API has the TCK to prove if the database is compatible with the API. Even from different NoSQL types, it tries to use the same nomenclature:
 
