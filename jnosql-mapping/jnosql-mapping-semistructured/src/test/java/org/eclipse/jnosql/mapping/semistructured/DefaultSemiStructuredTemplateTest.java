@@ -606,7 +606,7 @@ class DefaultSemiStructuredTemplateTest {
             soft.assertThat(query.condition()).isPresent();
             CriteriaCondition criteriaCondition = query.condition().orElseThrow();
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.AND);
-            List<CriteriaCondition> conditions = criteriaCondition.element().get(new TypeReference<List<CriteriaCondition>>() {
+            List<CriteriaCondition> conditions = criteriaCondition.element().get(new TypeReference<>() {
             });
             soft.assertThat(conditions).hasSize(2);
             soft.assertThat(conditions.get(0).element()).isEqualTo(Element.of("size", "Large"));
@@ -625,7 +625,7 @@ class DefaultSemiStructuredTemplateTest {
             soft.assertThat(query.condition()).isPresent();
             CriteriaCondition criteriaCondition = query.condition().orElseThrow();
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.AND);
-            List<CriteriaCondition> conditions = criteriaCondition.element().get(new TypeReference<List<CriteriaCondition>>() {
+            List<CriteriaCondition> conditions = criteriaCondition.element().get(new TypeReference<>() {
             });
             soft.assertThat(conditions).hasSize(2);
             soft.assertThat(conditions.get(0).element()).isEqualTo(Element.of("size", "Large"));
