@@ -7,6 +7,7 @@ To cover four NoSQL database types, the communication API has three projects:
 * `org.eclipse.jnosql.communication.semistructured`
 * `org.eclipse.jnosql.communication.keyvalue`
 
+When we talk about Column Family, Document, and Graph, those will be covered by the `org.eclipse.jnosql.communication.semistructured` project. The `org.eclipse.jnosql.communication.keyvalue` project will cover the Key-Value database type.
 
 So, if a database is multi-model, i.e., has support for more than one database type, it will implement an API for each database it supports. Also, each API has the TCK to prove if the database is compatible with the API. Even from different NoSQL types, it tries to use the same nomenclature:
 
@@ -1286,7 +1287,7 @@ The value is the last element in a condition, and it defines what'll go to be us
 
 There are six types:
 
-* Number is a mathematical object used to count, measure and also label, where if it is a decimal, will become **double**, otherwise, **long**. E.g.: `age = 20`, `salary = 12.12`
+* Number is a mathematical object used to count, measure, and also label, where if it is a decimal, will become **double**, otherwise, **long**. E.g.: `age = 20`, `salary = 12.12`
 * String: one or more characters among either two double quotes, `"`,  or single quotes, `'`. E.g.: `name = "Ada Lovelace"`, `name = 'Ada Lovelace'`
 * Convert: convert is a function where given the first value parameter as number or string, it will convert to the class type of the second one. E.g.: `birthday = convert("03-01-1988", java.time.LocalDate)`
 * Parameter: the parameter is a dynamic value, which means it does not define the query; it'll replace in the execution time. The parameter is at `@` followed by a name. E.g.: `age = @age`
