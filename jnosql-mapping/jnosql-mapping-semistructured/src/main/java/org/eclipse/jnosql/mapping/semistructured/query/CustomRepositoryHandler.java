@@ -175,7 +175,8 @@ public class CustomRepositoryHandler implements InvocationHandler {
     /**
      * Return an object based on the repository method return type.
      * Jakarta Data allows only void, int and long return types.
-     * The boolean return type is no longer supported, compared to JNoSQL 1.1.x to align with the Jakarta Data specification, see <a href="https://github.com/jakartaee/data/issues/923">https://github.com/jakartaee/data/issues/92</a>
+     * The boolean return type is no longer supported, compared to JNoSQL 1.1.x to align with the Jakarta Data specification,
+     * see <a href="https://github.com/jakartaee/data/issues/923">https://github.com/jakartaee/data/issues/92</a>
      *
      * @return {@code Void.class} if {@code void} return type.
      *         Number of entities if {@code int} or {@code long}.
