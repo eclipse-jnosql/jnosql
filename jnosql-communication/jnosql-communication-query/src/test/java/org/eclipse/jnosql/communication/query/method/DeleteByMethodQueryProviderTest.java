@@ -356,6 +356,14 @@ class DeleteByMethodQueryProviderTest {
         checkCondition(query, operator, variable);
     }
 
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"deleteByNameEndsWith"})
+    void shouldRunQuery35(String query) {
+        Condition operator = Condition.ENDS_WITH;
+        String variable = "name";
+        checkCondition(query, operator, variable);
+    }
+
 
 
     private void checkAppendCondition(String query, Condition operator, Condition operator2, String variable,
