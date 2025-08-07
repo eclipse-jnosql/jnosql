@@ -596,6 +596,14 @@ class SelectMethodQueryProviderTest {
         checkNotCondition(query, operator, variable);
     }
 
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"findByNameStarsWith"})
+    void shouldFindByStartWith(String query) {
+        Condition operator = Condition.STARTS_WITH;
+        String variable = "name";
+        checkNotCondition(query, operator, variable);
+    }
+
     private void checkOrderBy(String query, Direction direction, Direction direction2) {
         String entity = "entity";
         SelectQuery selectQuery = queryProvider.apply(query, entity);
