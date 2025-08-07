@@ -562,8 +562,9 @@ private GraphTemplate graphB;
 
 Eclipse JNoSQL as a https://jakarta.ee/specifications/data/1.0/jakarta-data-1.0[Jakarta Data] exploring more the NoSQL capabilities, provides a mapping API that allows you to map Java objects to NoSQL databases.
 
+=== Jakarta NoSQL
 
-
+Eclipse JNoSQL is a https://jakarta.ee/specifications/nosql/1.0/jakarta-nosql-1.0[Jakarta NoSQL] implementation that provides a standard way to access NoSQL databases in Java applications. It offers a set of annotations and APIs to interact with various NoSQL database types, including Key-Value, Column Family, Document, and Graph.
 
 === More Information
 
