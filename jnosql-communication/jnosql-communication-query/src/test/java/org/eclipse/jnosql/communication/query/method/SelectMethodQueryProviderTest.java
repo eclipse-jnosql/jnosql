@@ -604,6 +604,38 @@ class SelectMethodQueryProviderTest {
         checkNotCondition(query, operator, variable);
     }
 
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"findByNameEndsWith"})
+    void shouldFindByEndsWith(String query) {
+        Condition operator = Condition.ENDS_WITH;
+        String variable = "name";
+        checkNotCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"findByNameNotContains"})
+    void shouldFindByNotContains(String query) {
+        Condition operator = Condition.CONTAINS;
+        String variable = "name";
+        checkNotCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"findByNameNotStarsWith"})
+    void shouldFindByNotStartWith(String query) {
+        Condition operator = Condition.STARTS_WITH;
+        String variable = "name";
+        checkNotCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"findByNameNotEndsWith"})
+    void shouldFindByNotEndsWith(String query) {
+        Condition operator = Condition.ENDS_WITH;
+        String variable = "name";
+        checkNotCondition(query, operator, variable);
+    }
+
     private void checkOrderBy(String query, Direction direction, Direction direction2) {
         String entity = "entity";
         SelectQuery selectQuery = queryProvider.apply(query, entity);
