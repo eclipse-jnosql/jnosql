@@ -348,6 +348,22 @@ class DeleteByMethodQueryProviderTest {
         assertEquals(BooleanQueryValue.FALSE, condition.value());
     }
 
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"deleteBNameContains"})
+    void shouldRunQuery34(String query) {
+        String entity = "entity";
+        DeleteQuery deleteQuery = queryProvider.apply(query, entity);
+        assertNotNull(deleteQuery);
+        assertEquals(entity, deleteQuery.entity());
+        Optional<Where> where = deleteQuery.where();
+        assertTrue(where.isPresent());
+        QueryCondition condition = where.orElseThrow().condition();
+        assertEquals("active", condition.name());
+        assertEquals(Condition.EQUALS, condition.condition());
+        assertEquals(BooleanQueryValue.FALSE, condition.value());
+    }
+
+
 
     private void checkAppendCondition(String query, Condition operator, Condition operator2, String variable,
                                       String variable2, Condition operatorAppender) {
