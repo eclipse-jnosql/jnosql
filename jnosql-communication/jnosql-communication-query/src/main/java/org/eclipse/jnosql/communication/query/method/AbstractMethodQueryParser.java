@@ -91,10 +91,9 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
 
     @Override
     public void exitEq(MethodParser.EqContext ctx) {
-        Condition operator = EQUALS;
         boolean hasNot = Objects.nonNull(ctx.not());
         String variable = getVariable(ctx.variable());
-        appendCondition(hasNot, variable, operator);
+        appendCondition(hasNot, variable, EQUALS);
     }
 
     @Override
@@ -113,40 +112,35 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
     public void exitGt(MethodParser.GtContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.not());
         String variable = getVariable(ctx.variable());
-        Condition operator = GREATER_THAN;
-        appendCondition(hasNot, variable, operator);
+        appendCondition(hasNot, variable, GREATER_THAN);
     }
 
     @Override
     public void exitGte(MethodParser.GteContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.not());
         String variable = getVariable(ctx.variable());
-        Condition operator = GREATER_EQUALS_THAN;
-        appendCondition(hasNot, variable, operator);
+        appendCondition(hasNot, variable, GREATER_EQUALS_THAN);
     }
 
     @Override
     public void exitLt(MethodParser.LtContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.not());
         String variable = getVariable(ctx.variable());
-        Condition operator = LESSER_THAN;
-        appendCondition(hasNot, variable, operator);
+        appendCondition(hasNot, variable, LESSER_THAN);
     }
 
     @Override
     public void exitLte(MethodParser.LteContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.not());
         String variable = getVariable(ctx.variable());
-        Condition operator = LESSER_EQUALS_THAN;
-        appendCondition(hasNot, variable, operator);
+        appendCondition(hasNot, variable, LESSER_EQUALS_THAN);
     }
 
     @Override
     public void exitLike(MethodParser.LikeContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.not());
         String variable = getVariable(ctx.variable());
-        Condition operator = LIKE;
-        appendCondition(hasNot, variable, operator);
+        appendCondition(hasNot, variable, LIKE);
     }
 
     @Override
