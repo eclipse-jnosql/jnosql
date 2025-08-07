@@ -41,6 +41,8 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.joining;
 import static org.eclipse.jnosql.communication.Condition.AND;
 import static org.eclipse.jnosql.communication.Condition.BETWEEN;
+import static org.eclipse.jnosql.communication.Condition.CONTAINS;
+import static org.eclipse.jnosql.communication.Condition.ENDS_WITH;
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
 import static org.eclipse.jnosql.communication.Condition.GREATER_EQUALS_THAN;
 import static org.eclipse.jnosql.communication.Condition.GREATER_THAN;
@@ -50,6 +52,7 @@ import static org.eclipse.jnosql.communication.Condition.LESSER_THAN;
 import static org.eclipse.jnosql.communication.Condition.LIKE;
 import static org.eclipse.jnosql.communication.Condition.NOT;
 import static org.eclipse.jnosql.communication.Condition.OR;
+import static org.eclipse.jnosql.communication.Condition.STARTS_WITH;
 
 abstract class AbstractMethodQueryParser extends MethodBaseListener {
 
@@ -145,17 +148,23 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
 
     @Override
     public void exitContains(MethodParser.ContainsContext ctx) {
-        throw new UnsupportedOperationException("Contains is not supported in Eclipse JNoSQL method query");
+        boolean hasNot = Objects.nonNull(ctx.not());
+        String variable = getVariable(ctx.variable());
+        appendCondition(hasNot, variable, CONTAINS);
     }
 
     @Override
     public void exitEndsWith(MethodParser.EndsWithContext ctx) {
-        throw new UnsupportedOperationException("EndsWith is not supported in Eclipse JNoSQL method query");
+        boolean hasNot = Objects.nonNull(ctx.not());
+        String variable = getVariable(ctx.variable());
+        appendCondition(hasNot, variable, ENDS_WITH);
     }
 
     @Override
     public void exitStartsWith(MethodParser.StartsWithContext ctx) {
-        throw new UnsupportedOperationException("StartsWith is not supported in Eclipse JNoSQL method query");
+        boolean hasNot = Objects.nonNull(ctx.not());
+        String variable = getVariable(ctx.variable());
+        appendCondition(hasNot, variable, STARTS_WITH);
     }
 
 
