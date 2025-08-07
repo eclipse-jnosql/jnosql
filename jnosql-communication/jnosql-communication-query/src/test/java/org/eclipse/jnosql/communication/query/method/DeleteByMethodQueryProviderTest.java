@@ -377,7 +377,7 @@ class DeleteByMethodQueryProviderTest {
     void shouldRunQuery37(String query) {
         Condition operator = Condition.CONTAINS;
         String variable = "name";
-        checkCondition(query, operator, variable);
+        checkNotCondition(query, operator, variable);
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -385,7 +385,7 @@ class DeleteByMethodQueryProviderTest {
     void shouldRunQuery38(String query) {
         Condition operator = Condition.ENDS_WITH;
         String variable = "name";
-        checkCondition(query, operator, variable);
+        checkNotCondition(query, operator, variable);
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -393,7 +393,7 @@ class DeleteByMethodQueryProviderTest {
     void shouldRunQuery39(String query) {
         Condition operator = Condition.STARTS_WITH;
         String variable = "name";
-        checkCondition(query, operator, variable);
+        checkNotCondition(query, operator, variable);
     }
 
 
