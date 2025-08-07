@@ -372,6 +372,30 @@ class DeleteByMethodQueryProviderTest {
         checkCondition(query, operator, variable);
     }
 
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"deleteByNameNotContains"})
+    void shouldRunQuery37(String query) {
+        Condition operator = Condition.CONTAINS;
+        String variable = "name";
+        checkCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"deleteByNameNotEndsWith"})
+    void shouldRunQuery38(String query) {
+        Condition operator = Condition.ENDS_WITH;
+        String variable = "name";
+        checkCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"deleteByNameNotStartsWith"})
+    void shouldRunQuery39(String query) {
+        Condition operator = Condition.STARTS_WITH;
+        String variable = "name";
+        checkCondition(query, operator, variable);
+    }
+
 
     private void checkAppendCondition(String query, Condition operator, Condition operator2, String variable,
                                       String variable2, Condition operatorAppender) {
