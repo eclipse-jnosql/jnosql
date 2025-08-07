@@ -560,7 +560,7 @@ private GraphTemplate graphB;
 
 === Jakarta Data
 
-Eclipse JNoSQL as a Jakarta Data implementations supports the following list of predicate keywords on their repositories.
+Eclipse JNoSQL as a https://jakarta.ee/specifications/data/1.0/jakarta-data-1.0[Jakarta Data] implementations supports the following list of predicate keywords on their repositories.
 
 
 WARNING: Eclipse JNoSQL does not support `OrderBy` annotation.
