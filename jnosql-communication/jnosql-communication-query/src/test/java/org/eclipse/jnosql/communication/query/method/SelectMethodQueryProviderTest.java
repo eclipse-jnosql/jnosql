@@ -588,6 +588,14 @@ class SelectMethodQueryProviderTest {
         });
     }
 
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"findByNameContains"})
+    void shouldFindByContains(String query) {
+        Condition operator = Condition.CONTAINS;
+        String variable = "name";
+        checkNotCondition(query, operator, variable);
+    }
+
     private void checkOrderBy(String query, Direction direction, Direction direction2) {
         String entity = "entity";
         SelectQuery selectQuery = queryProvider.apply(query, entity);
