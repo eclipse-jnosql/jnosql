@@ -349,7 +349,7 @@ class DeleteByMethodQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteBNameContains"})
+    @ValueSource(strings = {"deleteByNameContains"})
     void shouldRunQuery34(String query) {
         String entity = "entity";
         DeleteQuery deleteQuery = queryProvider.apply(query, entity);
