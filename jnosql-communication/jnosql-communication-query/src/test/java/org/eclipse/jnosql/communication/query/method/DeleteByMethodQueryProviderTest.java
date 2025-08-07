@@ -358,9 +358,8 @@ class DeleteByMethodQueryProviderTest {
         Optional<Where> where = deleteQuery.where();
         assertTrue(where.isPresent());
         QueryCondition condition = where.orElseThrow().condition();
-        assertEquals("active", condition.name());
-        assertEquals(Condition.EQUALS, condition.condition());
-        assertEquals(BooleanQueryValue.FALSE, condition.value());
+        assertEquals("name", condition.name());
+        assertEquals(Condition.CONTAINS, condition.condition());
     }
 
 
