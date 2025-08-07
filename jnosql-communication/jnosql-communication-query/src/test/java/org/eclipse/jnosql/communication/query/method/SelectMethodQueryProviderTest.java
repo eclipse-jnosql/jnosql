@@ -555,21 +555,14 @@ class SelectMethodQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"findFirstByHexadecimalStartsWithAndIsControlOrderByIdAsc"})
-    void shouldReturnParserQuery38(String query) {
-        String entity = "entity";
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> queryProvider.apply(query, entity));
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"findByNameContains", "findByNameEndsWith", "findByNameStartsWith", "findByStreetNameIgnoreCaseLike", "findByHexadecimalIgnoreCase"})
+    @ValueSource(strings = {"findByStreetNameIgnoreCaseLike", "findByHexadecimalIgnoreCase"})
     void shouldReturnUnsupportedOperationExceptionQuery(String query) {
         String entity = "entity";
         Assertions.assertThrows(UnsupportedOperationException.class, () -> queryProvider.apply(query, entity));
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"findByNameNotContains", "findByNameNotEndsWith", "findByNameNotStartsWith", "findByStreetNameIgnoreCaseNotLike", "findByHexadecimalIgnoreCaseNot"})
+    @ValueSource(strings = {"findByStreetNameIgnoreCaseNotLike", "findByHexadecimalIgnoreCaseNot"})
     void shouldReturnUnsupportedOperationExceptionQueryWithNegation(String query) {
         String entity = "entity";
         Assertions.assertThrows(UnsupportedOperationException.class, () -> queryProvider.apply(query, entity));
@@ -593,15 +586,15 @@ class SelectMethodQueryProviderTest {
     void shouldFindByContains(String query) {
         Condition operator = Condition.CONTAINS;
         String variable = "name";
-        checkNotCondition(query, operator, variable);
+        checkCondition(query, operator, variable);
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"findByNameStarsWith"})
+    @ValueSource(strings = {"findByNameStartsWith"})
     void shouldFindByStartWith(String query) {
         Condition operator = Condition.STARTS_WITH;
         String variable = "name";
-        checkNotCondition(query, operator, variable);
+        checkCondition(query, operator, variable);
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -609,7 +602,7 @@ class SelectMethodQueryProviderTest {
     void shouldFindByEndsWith(String query) {
         Condition operator = Condition.ENDS_WITH;
         String variable = "name";
-        checkNotCondition(query, operator, variable);
+        checkCondition(query, operator, variable);
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -621,7 +614,7 @@ class SelectMethodQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"findByNameNotStarsWith"})
+    @ValueSource(strings = {"findByNameNotStartsWith"})
     void shouldFindByNotStartWith(String query) {
         Condition operator = Condition.STARTS_WITH;
         String variable = "name";
