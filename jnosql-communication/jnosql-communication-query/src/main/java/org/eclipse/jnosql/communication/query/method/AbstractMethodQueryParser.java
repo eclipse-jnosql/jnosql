@@ -150,6 +150,22 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
     }
 
     @Override
+    public void exitContains(MethodParser.ContainsContext ctx) {
+        throw new UnsupportedOperationException("Contains is not supported in Eclipse JNoSQL method query");
+    }
+
+    @Override
+    public void exitEndsWith(MethodParser.EndsWithContext ctx) {
+        throw new UnsupportedOperationException("EndsWith is not supported in Eclipse JNoSQL method query");
+    }
+
+    @Override
+    public void exitStartsWith(MethodParser.StartsWithContext ctx) {
+        throw new UnsupportedOperationException("StartsWith is not supported in Eclipse JNoSQL method query");
+    }
+
+
+    @Override
     public void exitIn(MethodParser.InContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.not());
         String variable = getVariable(ctx.variable());
@@ -183,20 +199,6 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
         this.and = false;
     }
 
-    @Override
-    public void exitContains(MethodParser.ContainsContext ctx) {
-        throw new UnsupportedOperationException("Contains is not supported in Eclipse JNoSQL method query");
-    }
-
-    @Override
-    public void exitEndsWith(MethodParser.EndsWithContext ctx) {
-        throw new UnsupportedOperationException("EndsWith is not supported in Eclipse JNoSQL method query");
-    }
-
-    @Override
-    public void exitStartsWith(MethodParser.StartsWithContext ctx) {
-        throw new UnsupportedOperationException("StartsWith is not supported in Eclipse JNoSQL method query");
-    }
 
     @Override
     public void exitIgnoreCase(MethodParser.IgnoreCaseContext ctx) {
