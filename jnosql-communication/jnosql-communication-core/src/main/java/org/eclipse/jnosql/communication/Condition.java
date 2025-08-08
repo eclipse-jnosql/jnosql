@@ -55,18 +55,6 @@ public enum Condition {
      */
     LIKE,
     /**
-     * Represents a text contains another text condition.
-     */
-    CONTAINS,
-    /**
-     * Represents a text contains another text at the start condition.
-     */
-    STARTS_WITH,
-    /**
-     * Represents a text contains another text at the end condition.
-     */
-    ENDS_WITH,
-    /**
      * Represents a logical conjunction condition.
      */
     AND,
@@ -79,13 +67,25 @@ public enum Condition {
      */
     NOT,
     /**
-     * Represents a condition with ignore case flag.
-     */
-    IGNORE_CASE,
-    /**
      * Represents a range check condition.
      */
-    BETWEEN;
+    BETWEEN,
+    /**
+     * Represents a condition that checks whether a value contains a specific substring.
+     */
+    CONTAINS,
+    /**
+     * Represents a condition that checks whether a value starts with a specific prefix.
+     */
+    STARTS_WITH,
+    /**
+     * Represents a condition that checks whether a value ends with a specific suffix.
+     */
+    ENDS_WITH
+    /**
+     * Represents a condition with ignore case flag.
+     */
+    IGNORE_CASE;
 
     /**
      * Return tne field as name to both document and column.

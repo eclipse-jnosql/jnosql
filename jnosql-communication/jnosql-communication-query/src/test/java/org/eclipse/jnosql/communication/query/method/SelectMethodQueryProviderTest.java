@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2022,2025 Contributors to the Eclipse Foundation
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  and Apache License v2.0 which accompanies this distribution.
@@ -555,21 +555,15 @@ class SelectMethodQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"findFirstByHexadecimalStartsWithAndIsControlOrderByIdAsc"})
-    void shouldReturnParserQuery38(String query) {
-        String entity = "entity";
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> queryProvider.apply(query, entity));
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"findByNameContains", "findByNameEndsWith", "findByNameStartsWith", "findByStreetNameIgnoreCaseLike", "findByHexadecimalIgnoreCase"})
+    @ValueSource(strings = {"findByStreetNameIgnoreCaseLike", "findByHexadecimalIgnoreCase"})
     void shouldReturnUnsupportedOperationExceptionQuery(String query) {
         String entity = "entity";
+        queryProvider.apply(query, entity);
         Assertions.assertThrows(UnsupportedOperationException.class, () -> queryProvider.apply(query, entity));
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"findByNameNotContains", "findByNameNotEndsWith", "findByNameNotStartsWith", "findByStreetNameIgnoreCaseNotLike", "findByHexadecimalIgnoreCaseNot"})
+    @ValueSource(strings = {"findByStreetNameIgnoreCaseNotLike", "findByHexadecimalIgnoreCaseNot"})
     void shouldReturnUnsupportedOperationExceptionQueryWithNegation(String query) {
         String entity = "entity";
         Assertions.assertThrows(UnsupportedOperationException.class, () -> queryProvider.apply(query, entity));
@@ -586,6 +580,54 @@ class SelectMethodQueryProviderTest {
             soft.assertThat(selectQuery).isNotNull();
             soft.assertThat(selectQuery.entity()).isEqualTo(entity);
         });
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"findByNameContains"})
+    void shouldFindByContains(String query) {
+        Condition operator = Condition.CONTAINS;
+        String variable = "name";
+        checkCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"findByNameStartsWith"})
+    void shouldFindByStartWith(String query) {
+        Condition operator = Condition.STARTS_WITH;
+        String variable = "name";
+        checkCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"findByNameEndsWith"})
+    void shouldFindByEndsWith(String query) {
+        Condition operator = Condition.ENDS_WITH;
+        String variable = "name";
+        checkCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"findByNameNotContains"})
+    void shouldFindByNotContains(String query) {
+        Condition operator = Condition.CONTAINS;
+        String variable = "name";
+        checkNotCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"findByNameNotStartsWith"})
+    void shouldFindByNotStartWith(String query) {
+        Condition operator = Condition.STARTS_WITH;
+        String variable = "name";
+        checkNotCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"findByNameNotEndsWith"})
+    void shouldFindByNotEndsWith(String query) {
+        Condition operator = Condition.ENDS_WITH;
+        String variable = "name";
+        checkNotCondition(query, operator, variable);
     }
 
     private void checkOrderBy(String query, Direction direction, Direction direction2) {

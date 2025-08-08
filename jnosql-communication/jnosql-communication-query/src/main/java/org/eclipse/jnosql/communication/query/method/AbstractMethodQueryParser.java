@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2022,2025 Contributors to the Eclipse Foundation
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  and Apache License v2.0 which accompanies this distribution.
@@ -41,6 +41,8 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.joining;
 import static org.eclipse.jnosql.communication.Condition.AND;
 import static org.eclipse.jnosql.communication.Condition.BETWEEN;
+import static org.eclipse.jnosql.communication.Condition.CONTAINS;
+import static org.eclipse.jnosql.communication.Condition.ENDS_WITH;
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
 import static org.eclipse.jnosql.communication.Condition.GREATER_EQUALS_THAN;
 import static org.eclipse.jnosql.communication.Condition.GREATER_THAN;
@@ -50,6 +52,7 @@ import static org.eclipse.jnosql.communication.Condition.LESSER_THAN;
 import static org.eclipse.jnosql.communication.Condition.LIKE;
 import static org.eclipse.jnosql.communication.Condition.NOT;
 import static org.eclipse.jnosql.communication.Condition.OR;
+import static org.eclipse.jnosql.communication.Condition.STARTS_WITH;
 
 abstract class AbstractMethodQueryParser extends MethodBaseListener {
 
@@ -91,10 +94,9 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
 
     @Override
     public void exitEq(MethodParser.EqContext ctx) {
-        Condition operator = EQUALS;
         boolean hasNot = Objects.nonNull(ctx.not());
         String variable = getVariable(ctx.variable());
-        appendCondition(hasNot, variable, operator);
+        appendCondition(hasNot, variable, EQUALS);
     }
 
     @Override
@@ -113,40 +115,56 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
     public void exitGt(MethodParser.GtContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.not());
         String variable = getVariable(ctx.variable());
-        Condition operator = GREATER_THAN;
-        appendCondition(hasNot, variable, operator);
+        appendCondition(hasNot, variable, GREATER_THAN);
     }
 
     @Override
     public void exitGte(MethodParser.GteContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.not());
         String variable = getVariable(ctx.variable());
-        Condition operator = GREATER_EQUALS_THAN;
-        appendCondition(hasNot, variable, operator);
+        appendCondition(hasNot, variable, GREATER_EQUALS_THAN);
     }
 
     @Override
     public void exitLt(MethodParser.LtContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.not());
         String variable = getVariable(ctx.variable());
-        Condition operator = LESSER_THAN;
-        appendCondition(hasNot, variable, operator);
+        appendCondition(hasNot, variable, LESSER_THAN);
     }
 
     @Override
     public void exitLte(MethodParser.LteContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.not());
         String variable = getVariable(ctx.variable());
-        Condition operator = LESSER_EQUALS_THAN;
-        appendCondition(hasNot, variable, operator);
+        appendCondition(hasNot, variable, LESSER_EQUALS_THAN);
     }
 
     @Override
     public void exitLike(MethodParser.LikeContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.not());
         String variable = getVariable(ctx.variable());
-        Condition operator = LIKE;
-        appendCondition(hasNot, variable, operator);
+        appendCondition(hasNot, variable, LIKE);
+    }
+
+    @Override
+    public void exitContains(MethodParser.ContainsContext ctx) {
+        boolean hasNot = Objects.nonNull(ctx.not());
+        String variable = getVariable(ctx.variable());
+        appendCondition(hasNot, variable, CONTAINS);
+    }
+
+    @Override
+    public void exitEndsWith(MethodParser.EndsWithContext ctx) {
+        boolean hasNot = Objects.nonNull(ctx.not());
+        String variable = getVariable(ctx.variable());
+        appendCondition(hasNot, variable, ENDS_WITH);
+    }
+
+    @Override
+    public void exitStartsWith(MethodParser.StartsWithContext ctx) {
+        boolean hasNot = Objects.nonNull(ctx.not());
+        String variable = getVariable(ctx.variable());
+        appendCondition(hasNot, variable, STARTS_WITH);
     }
 
     @Override
@@ -183,20 +201,6 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
         this.and = false;
     }
 
-    @Override
-    public void exitContains(MethodParser.ContainsContext ctx) {
-        throw new UnsupportedOperationException("Contains is not supported in Eclipse JNoSQL method query");
-    }
-
-    @Override
-    public void exitEndsWith(MethodParser.EndsWithContext ctx) {
-        throw new UnsupportedOperationException("EndsWith is not supported in Eclipse JNoSQL method query");
-    }
-
-    @Override
-    public void exitStartsWith(MethodParser.StartsWithContext ctx) {
-        throw new UnsupportedOperationException("StartsWith is not supported in Eclipse JNoSQL method query");
-    }
 
     @Override
     public void exitIgnoreCase(MethodParser.IgnoreCaseContext ctx) {
