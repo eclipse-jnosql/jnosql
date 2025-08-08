@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2024,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution.
@@ -25,7 +25,7 @@ import static java.util.Optional.ofNullable;
 /**
  * The default implementation of column query.
  */
-record DefaultSelectQuery(long limit, long skip, String name,
+public record DefaultSelectQuery(long limit, long skip, String name,
                           List<String> columns, List<Sort<?>> sorts, CriteriaCondition criteriaCondition, boolean count)
         implements SelectQuery {
 

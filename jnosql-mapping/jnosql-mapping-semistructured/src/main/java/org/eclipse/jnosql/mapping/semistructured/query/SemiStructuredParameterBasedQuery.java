@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2023,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -62,7 +62,7 @@ public enum SemiStructuredParameterBasedQuery {
 
         var condition = condition(conditions);
         var entity = entityMetadata.name();
-        return new MappingQuery(updateSorter, 0L, 0L, condition, entity);
+        return new MappingQuery(updateSorter, 0L, 0L, condition, entity, List.of());
     }
 
     /**
@@ -91,7 +91,7 @@ public enum SemiStructuredParameterBasedQuery {
             limit = pageRequest.size();
             skip = NoSQLPage.skip(pageRequest);
         }
-        return new MappingQuery(updateSorter, limit, skip, condition, entity);
+        return new MappingQuery(updateSorter, limit, skip, condition, entity, List.of());
     }
 
     private CriteriaCondition condition(List<CriteriaCondition> conditions) {

@@ -75,7 +75,7 @@ public class CustomRepositoryHandler implements InvocationHandler {
 
     private final Converters converters;
 
-    private final SemiStructuredRepositoryProxy<?, ?> defaultRepository;
+    private final AbstractSemiStructuredRepositoryProxy<?, ?> defaultRepository;
 
     protected CustomRepositoryHandler(EntitiesMetadata entitiesMetadata, SemiStructuredTemplate template,
                             Class<?> customRepositoryType,
@@ -212,7 +212,7 @@ public class CustomRepositoryHandler implements InvocationHandler {
         return new CustomRepositoryHandlerBuilder();
     }
 
-    private SemiStructuredRepositoryProxy<?, ?> findDefaultRepository() {
+    private AbstractSemiStructuredRepositoryProxy<?, ?> findDefaultRepository() {
         LOGGER.fine(() -> "Looking for the default repository from the custom repository methods: " + customRepositoryType);
         Method[] methods = customRepositoryType.getMethods();
         for (Method method : methods) {
@@ -235,21 +235,21 @@ public class CustomRepositoryHandler implements InvocationHandler {
         return null;
     }
 
-    private SemiStructuredRepositoryProxy<?, ?> defaultRepository() {
+    private AbstractSemiStructuredRepositoryProxy<?, ?> defaultRepository() {
         if (defaultRepository == null) {
             throw new UnsupportedOperationException("The custom repository does not contains methods to be used as default: " + customRepositoryType);
         }
         return defaultRepository;
     }
 
-    private SemiStructuredRepositoryProxy<?, ?> repository(Method method) {
+    private AbstractSemiStructuredRepositoryProxy<?, ?> repository(Method method) {
         RepositoryMetadata result = repositoryMetadata(method);
         Class<?> entityType = result.typeClass();
         return result.metadata().map(entityMetadata -> createRepositoryProxy(template, entityMetadata, entityType, converters, entitiesMetadata))
                 .orElseThrow(() -> new UnsupportedOperationException("The repository does not support the method " + method));
     }
 
-    protected SemiStructuredRepositoryProxy<Object, Object> createRepositoryProxy(
+    protected AbstractSemiStructuredRepositoryProxy<Object, Object> createRepositoryProxy(
             SemiStructuredTemplate template, EntityMetadata entityMetadata,  Class<?> entityType, Converters converters, EntitiesMetadata entities) {
         return new SemiStructuredRepositoryProxy<>(template, entityMetadata, entityType, converters, entities);
     }
@@ -307,7 +307,7 @@ public class CustomRepositoryHandler implements InvocationHandler {
                 .orElseThrow(() -> new UnsupportedOperationException("The repository does not support the method: " + method));
     }
 
-    private SemiStructuredRepositoryProxy<?, ?> repository(Method method, Parameter[] params) {
+    private AbstractSemiStructuredRepositoryProxy<?, ?> repository(Method method, Parameter[] params) {
         if (params.length == 0) {
             throw new IllegalArgumentException("Method must have at least one parameter");
         }

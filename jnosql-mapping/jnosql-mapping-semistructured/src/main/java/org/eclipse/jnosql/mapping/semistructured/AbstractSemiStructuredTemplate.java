@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2022,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -350,7 +350,7 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         requireNonNull(query, "query is required");
         requireNonNull(pageRequest, "pageRequest is required");
         var queryPage = new MappingQuery(query.sorts(), pageRequest.size(), NoSQLPage.skip(pageRequest),
-                query.condition().orElse(null), query.name());
+                query.condition().orElse(null), query.name(), query.columns());
         Stream<T> result = select(queryPage);
         return NoSQLPage.of(result.toList(), pageRequest);
     }
