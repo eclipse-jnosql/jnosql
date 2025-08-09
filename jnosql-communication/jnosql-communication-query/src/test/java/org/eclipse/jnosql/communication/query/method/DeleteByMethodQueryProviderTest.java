@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2022,2025 Contributors to the Eclipse Foundation
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  and Apache License v2.0 which accompanies this distribution.
@@ -256,7 +256,7 @@ class DeleteByMethodQueryProviderTest {
         QueryCondition condition = where.get().condition();
         QueryValue<?> value = condition.value();
         assertEquals(Condition.NOT, condition.condition());
-        QueryCondition notCondition =  ConditionQueryValue.class.cast(value).get().getFirst();
+        QueryCondition notCondition =  ConditionQueryValue.class.cast(value).get().get(0);
         assertEquals(Condition.BETWEEN, notCondition.condition());
 
         QueryValue<?>[] values = MethodArrayValue.class.cast(notCondition.value()).get();
@@ -440,7 +440,7 @@ class DeleteByMethodQueryProviderTest {
 
         assertEquals("_NOT", condition.name());
         assertTrue(value instanceof ConditionQueryValue);
-        QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().getFirst();
+        QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().get(0);
         QueryValue<?> param = condition1.value();
         assertEquals(operator, condition1.condition());
         assertTrue(ParamQueryValue.class.cast(param).get().contains(variable));
