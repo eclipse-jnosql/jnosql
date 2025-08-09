@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2022,2025 Contributors to the Eclipse Foundation
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  and Apache License v2.0 which accompanies this distribution.
@@ -346,6 +346,54 @@ class DeleteByMethodQueryProviderTest {
         assertEquals("active", condition.name());
         assertEquals(Condition.EQUALS, condition.condition());
         assertEquals(BooleanQueryValue.FALSE, condition.value());
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"deleteByNameContains"})
+    void shouldRunQuery34(String query) {
+        Condition operator = Condition.CONTAINS;
+        String variable = "name";
+        checkCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"deleteByNameEndsWith"})
+    void shouldRunQuery35(String query) {
+        Condition operator = Condition.ENDS_WITH;
+        String variable = "name";
+        checkCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"deleteByNameStartsWith"})
+    void shouldRunQuery36(String query) {
+        Condition operator = Condition.STARTS_WITH;
+        String variable = "name";
+        checkCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"deleteByNameNotContains"})
+    void shouldRunQuery37(String query) {
+        Condition operator = Condition.CONTAINS;
+        String variable = "name";
+        checkNotCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"deleteByNameNotEndsWith"})
+    void shouldRunQuery38(String query) {
+        Condition operator = Condition.ENDS_WITH;
+        String variable = "name";
+        checkNotCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"deleteByNameNotStartsWith"})
+    void shouldRunQuery39(String query) {
+        Condition operator = Condition.STARTS_WITH;
+        String variable = "name";
+        checkNotCondition(query, operator, variable);
     }
 
 

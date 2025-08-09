@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2023 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2023,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -69,7 +69,23 @@ public enum Condition {
     /**
      * Represents a range check condition.
      */
-    BETWEEN;
+    BETWEEN,
+    /**
+     * Represents a condition that checks whether a value contains a specific substring.
+     */
+    CONTAINS,
+    /**
+     * Represents a condition that checks whether a value starts with a specific prefix.
+     */
+    STARTS_WITH,
+    /**
+     * Represents a condition that checks whether a value ends with a specific suffix.
+     */
+    ENDS_WITH,
+    /**
+     * Represents a condition with ignore case flag.
+     */
+    IGNORE_CASE;
 
     /**
      * Return tne field as name to both document and column.
