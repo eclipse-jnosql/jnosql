@@ -191,4 +191,18 @@ class CriteriaConditionTest {
         var c = CriteriaCondition.gt(el("age", 18));
         assertThat(c.toString()).contains("GREATER_THAN");
     }
+
+
+    @Test
+    @DisplayName("Should generate in with multiple elements")
+    void shouldGenerateInWithSingleElement() {
+        CriteriaCondition age = CriteriaCondition.in("age", List.of(12));
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(age.condition()).isEqualTo(Condition.IN);
+            soft.assertThat(age.element().get(new TypeReference<List<Integer>>() {}))
+                    .containsExactly(12);
+        });
+
+    }
 }
