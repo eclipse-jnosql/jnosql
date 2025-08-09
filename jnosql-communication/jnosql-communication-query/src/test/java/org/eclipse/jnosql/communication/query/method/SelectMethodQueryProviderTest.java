@@ -41,9 +41,6 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.params.converter.ArgumentConversionException;
 
-import static org.eclipse.jnosql.communication.Condition.BETWEEN;
-import static org.eclipse.jnosql.communication.Condition.EQUALS;
-import static org.eclipse.jnosql.communication.Condition.IGNORE_CASE;
 import static org.eclipse.jnosql.communication.Condition.NOT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
