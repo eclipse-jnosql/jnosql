@@ -18,13 +18,20 @@ import org.eclipse.jnosql.communication.query.DeleteQuery;
 import org.eclipse.jnosql.communication.query.ParamQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryValue;
+import org.eclipse.jnosql.communication.query.SelectQuery;
 import org.eclipse.jnosql.communication.query.Where;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.converter.ConvertWith;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Optional;
 
+import static org.eclipse.jnosql.communication.query.method.SelectMethodQueryProviderTest.checkPrependedCondition;
+import static org.eclipse.jnosql.communication.query.method.SelectMethodQueryProviderTest.checkTerminalCondition;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -394,6 +401,56 @@ class DeleteByMethodQueryProviderTest {
         Condition operator = Condition.STARTS_WITH;
         String variable = "name";
         checkNotCondition(query, operator, variable);
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @CsvSource(useHeadersInDisplayName = true, delimiter = '|',
+            textBlock = """
+            query                                      | expectedProperty   | expectedConditions
+            deleteByStreetNameIgnoreCase                 | streetName         | IGNORE_CASE, EQUALS
+            deleteByAddress_StreetNameIgnoreCase         | address.streetName | IGNORE_CASE, EQUALS
+            deleteByHexadecimalIgnoreCase                | hexadecimal        | IGNORE_CASE, EQUALS
+            deleteByStreetNameIgnoreCaseNot              | streetName         | NOT, IGNORE_CASE, EQUALS
+            deleteByAddress_StreetNameIgnoreCaseNot      | address.streetName | NOT, IGNORE_CASE, EQUALS
+            deleteByHexadecimalIgnoreCaseNot             | hexadecimal        | NOT, IGNORE_CASE, EQUALS
+            deleteByStreetNameIgnoreCaseLike             | streetName         | IGNORE_CASE, LIKE
+            deleteByStreetNameIgnoreCaseNotLike          | streetName         | NOT, IGNORE_CASE, LIKE
+            deleteByStreetNameIgnoreCaseBetween          | streetName         | IGNORE_CASE, BETWEEN
+            deleteByStreetNameIgnoreCaseIn               | streetName         | IGNORE_CASE, IN
+            deleteByStreetNameIgnoreCaseGreaterThan      | streetName         | IGNORE_CASE, GREATER_THAN
+            deleteByStreetNameIgnoreCaseGreaterThanEqual | streetName         | IGNORE_CASE, GREATER_EQUALS_THAN
+            deleteByStreetNameIgnoreCaseLessThan         | streetName         | IGNORE_CASE, LESSER_THAN
+            deleteByStreetNameIgnoreCaseLessThanEqual    | streetName         | IGNORE_CASE, LESSER_EQUALS_THAN
+            deleteByStreetNameIgnoreCaseContains         | streetName         | IGNORE_CASE, CONTAINS
+            deleteByStreetNameIgnoreCaseEndsWith         | streetName         | IGNORE_CASE, ENDS_WITH
+            deleteByStreetNameIgnoreCaseStartsWith       | streetName         | IGNORE_CASE, STARTS_WITH
+                        """)
+    void shouldDeleteByStreetNameIgnoreCaseConditions(String query, String expectedProperty,
+                                                    @ConvertWith(SelectMethodQueryProviderTest.ConditionConverter.class) Condition[] conditions) {
+        checkConditions(query, expectedProperty, conditions);
+    }
+
+    private void checkConditions(String query, String variable, Condition... operators) {
+        String entity = "entity";
+        var selectQuery = queryProvider.apply(query, entity);
+        assertNotNull(selectQuery);
+        assertEquals(entity, selectQuery.entity());
+        assertTrue(selectQuery.fields().isEmpty());
+        Optional<Where> where = selectQuery.where();
+        assertTrue(where.isPresent());
+        QueryCondition condition = where.get().condition();
+
+        LinkedList<Condition> prependedOperators = new LinkedList<>(Arrays.asList(operators));
+        Condition lastOperator = prependedOperators.getLast();
+        prependedOperators.removeLast();
+
+        for (Condition operator : prependedOperators) {
+            condition = checkPrependedCondition(operator, condition);
+        }
+
+        condition = condition;
+
+        checkTerminalCondition(condition, lastOperator, variable);
     }
 
 

@@ -595,7 +595,7 @@ class SelectMethodQueryProviderTest {
      Converts from comma-separated values (space around commas is ignored) to an array of Condition instances,
      using Condition.valueOf
     */
-    private static class ConditionConverter implements ArgumentConverter {
+    static class ConditionConverter implements ArgumentConverter {
 
         @Override
         public Object convert(Object source, ParameterContext context) throws ArgumentConversionException {
@@ -761,7 +761,7 @@ class SelectMethodQueryProviderTest {
         checkTerminalCondition(condition, lastOperator, variable);
     }
 
-    private QueryCondition checkPrependedCondition(Condition operator, QueryCondition condition) throws IllegalStateException {
+    static QueryCondition checkPrependedCondition(Condition operator, QueryCondition condition) throws IllegalStateException {
         assertEquals(operator, condition.condition());
         String expectedConditionName = switch (operator) {
             case NOT -> "_NOT";
@@ -775,7 +775,7 @@ class SelectMethodQueryProviderTest {
         return condition;
     }
 
-    private void checkTerminalCondition(QueryCondition condition, Condition lastOperator, String variable) {
+    static void checkTerminalCondition(QueryCondition condition, Condition lastOperator, String variable) {
         QueryValue<?> value = condition.value();
         assertEquals(lastOperator, condition.condition());
 
