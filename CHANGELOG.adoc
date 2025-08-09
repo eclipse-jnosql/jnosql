@@ -22,6 +22,9 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 - Include support to Restriction interface
 - Include support to record projector
+- Include Contains restriction keyword
+- Include EndsWith restriction keyword
+- Include StartsWith restriction keyword
 
 == [1.1.9] - 2025-07-30
 

@@ -461,6 +461,56 @@ public final class CriteriaCondition {
         }
     }
 
+    /**
+     * Creates a {@link CriteriaCondition} with a {@link Condition#CONTAINS}, indicating that a select will scan a
+     * semistructured NoSQL database with the same name and the value contains the one provided in this element.
+     *
+     * @param element an element instance
+     * @return a {@link CriteriaCondition} with {@link Condition#CONTAINS}
+     * @throws NullPointerException when the element is null
+     */
+    public static CriteriaCondition contains(Element element) {
+        return new CriteriaCondition(element, Condition.CONTAINS);
+    }
+
+    /**
+     * Creates a {@link CriteriaCondition} with a {@link Condition#STARTS_WITH}, indicating that a select will scan a
+     * semistructured NoSQL database with the same name and the value starts with the one provided in this element.
+     *
+     * @param element an element instance
+     * @return a {@link CriteriaCondition} with {@link Condition#STARTS_WITH}
+     * @throws NullPointerException when the element is null
+     */
+    public static CriteriaCondition startsWith(Element element) {
+        return new CriteriaCondition(element, Condition.STARTS_WITH);
+    }
+
+    /**
+     * Creates a {@link CriteriaCondition} with a {@link Condition#ENDS_WITH}, indicating that a select will scan a
+     * semistructured NoSQL database with the same name and the value ends with the one provided in this element.
+     *
+     * @param element an element instance
+     * @return a {@link CriteriaCondition} with {@link Condition#ENDS_WITH}
+     * @throws NullPointerException when the element is null
+     */
+    public static CriteriaCondition endsWith(Element element) {
+        return new CriteriaCondition(element, Condition.ENDS_WITH);
+    }
+
+    /**
+     * Creates a {@link CriteriaCondition} with a {@link Condition#IGNORE_CASE}, indicating that a select will
+     * scan a semistructured NoSQL database with the same name and the value matches the underlying condition
+     * ignoring the case.
+     *
+     * @param condition an element instance
+     * @return a {@link CriteriaCondition} with {@link Condition#IGNORE_CASE}
+     * @throws NullPointerException when the element is null
+     */
+    public static CriteriaCondition ignoreCase(CriteriaCondition condition) {
+        Element element = Element.of(Condition.IGNORE_CASE.getNameField(), condition);
+        return of(element, Condition.IGNORE_CASE);
+    }
+
     private static void checkBetweenClause(Object value) {
         if (Iterable.class.isInstance(value)) {
 
