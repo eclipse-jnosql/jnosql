@@ -13,6 +13,10 @@ package org.eclipse.jnosql.communication.query.method;
 
 import jakarta.data.Direction;
 import jakarta.data.Sort;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.query.BooleanQueryValue;
@@ -25,11 +29,22 @@ import org.eclipse.jnosql.communication.query.StringQueryValue;
 import org.eclipse.jnosql.communication.query.Where;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.converter.ArgumentConverter;
+import org.junit.jupiter.params.converter.ConvertWith;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.params.converter.ArgumentConversionException;
+
+import static org.eclipse.jnosql.communication.Condition.BETWEEN;
+import static org.eclipse.jnosql.communication.Condition.EQUALS;
+import static org.eclipse.jnosql.communication.Condition.IGNORE_CASE;
+import static org.eclipse.jnosql.communication.Condition.NOT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -108,15 +123,13 @@ class SelectMethodQueryProviderTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"findByName", "countByName", "existsByName"})
     void shouldReturnParserQuery1(String query) {
-        String entity = "entity";
-        checkEqualsQuery(query, entity);
+        checkCondition(query, Condition.EQUALS, "name");
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"findByNameEquals", "countByNameEquals", "existsByNameEquals"})
     void shouldReturnParserQuery2(String query) {
-        String entity = "entity";
-        checkEqualsQuery(query, entity);
+        checkCondition(query, Condition.EQUALS, "name");
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -555,20 +568,48 @@ class SelectMethodQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"findByStreetNameIgnoreCaseLike", "findByHexadecimalIgnoreCase"})
-    void shouldReturnUnsupportedOperationExceptionQuery(String query) {
-        String entity = "entity";
-        queryProvider.apply(query, entity);
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> queryProvider.apply(query, entity));
+    @CsvSource(useHeadersInDisplayName = true, delimiter = '|',
+        textBlock = """
+            query                                      | expectedProperty   | expectedConditions
+            findByStreetNameIgnoreCase                 | streetName         | IGNORE_CASE, EQUALS
+            findByAddress_StreetNameIgnoreCase         | address.streetName | IGNORE_CASE, EQUALS
+            findByHexadecimalIgnoreCase                | hexadecimal        | IGNORE_CASE, EQUALS
+            findByStreetNameIgnoreCaseNot              | streetName         | NOT, IGNORE_CASE, EQUALS
+            findByAddress_StreetNameIgnoreCaseNot      | address.streetName | NOT, IGNORE_CASE, EQUALS
+            findByHexadecimalIgnoreCaseNot             | hexadecimal        | NOT, IGNORE_CASE, EQUALS
+            findByStreetNameIgnoreCaseLike             | streetName         | IGNORE_CASE, LIKE
+            findByStreetNameIgnoreCaseNotLike          | streetName         | NOT, IGNORE_CASE, LIKE
+            findByStreetNameIgnoreCaseBetween          | streetName         | IGNORE_CASE, BETWEEN
+            findByStreetNameIgnoreCaseIn               | streetName         | IGNORE_CASE, IN
+            findByStreetNameIgnoreCaseGreaterThan      | streetName         | IGNORE_CASE, GREATER_THAN
+            findByStreetNameIgnoreCaseGreaterThanEqual | streetName         | IGNORE_CASE, GREATER_EQUALS_THAN
+            findByStreetNameIgnoreCaseLessThan         | streetName         | IGNORE_CASE, LESSER_THAN
+            findByStreetNameIgnoreCaseLessThanEqual    | streetName         | IGNORE_CASE, LESSER_EQUALS_THAN
+            findByStreetNameIgnoreCaseContains         | streetName         | IGNORE_CASE, CONTAINS
+            findByStreetNameIgnoreCaseEndsWith         | streetName         | IGNORE_CASE, ENDS_WITH
+            findByStreetNameIgnoreCaseStartsWith       | streetName         | IGNORE_CASE, STARTS_WITH
+                        """)
+    void shouldFindByStreetNameIgnoreCaseConditions(String query, String expectedProperty,
+            @ConvertWith(ConditionConverter.class) Condition[] conditions) {
+        checkConditions(query, expectedProperty, conditions);
     }
 
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"findByStreetNameIgnoreCaseNotLike", "findByHexadecimalIgnoreCaseNot"})
-    void shouldReturnUnsupportedOperationExceptionQueryWithNegation(String query) {
-        String entity = "entity";
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> queryProvider.apply(query, entity));
-    }
+    /*
+     Converts from comma-separated values (space around commas is ignored) to an array of Condition instances,
+     using Condition.valueOf
+    */
+    private static class ConditionConverter implements ArgumentConverter {
 
+        @Override
+        public Object convert(Object source, ParameterContext context) throws ArgumentConversionException {
+            if (!(source instanceof String)) {
+                throw new ArgumentConversionException("Can only convert from String");
+            }
+            return Stream.of(String.class.cast(source).split("\\h*,\\h*"))
+                .map(Condition::valueOf)
+                .toArray(Condition[]::new);
+        }
+    }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"findByIdBetweenOrderByNumTypeOrdinalAsc"})
@@ -694,48 +735,14 @@ class SelectMethodQueryProviderTest {
 
 
     private void checkNotCondition(String query, Condition operator, String variable) {
-        String entity = "entity";
-        SelectQuery selectQuery = queryProvider.apply(query, entity);
-        assertNotNull(selectQuery);
-        assertEquals(entity, selectQuery.entity());
-        assertTrue(selectQuery.fields().isEmpty());
-        assertTrue(selectQuery.orderBy().isEmpty());
-        assertEquals(0, selectQuery.limit());
-        assertEquals(0, selectQuery.skip());
-        Optional<Where> where = selectQuery.where();
-        assertTrue(where.isPresent());
-        QueryCondition condition = where.get().condition();
-        QueryValue<?> value = condition.value();
-        assertEquals(Condition.NOT, condition.condition());
-
-
-        assertEquals("_NOT", condition.name());
-        assertTrue(value instanceof ConditionQueryValue);
-        QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().get(0);
-        QueryValue<?> param = condition1.value();
-        assertEquals(operator, condition1.condition());
-        assertTrue(ParamQueryValue.class.cast(param).get().contains(variable));
-    }
-
-    private void checkEqualsQuery(String query, String entity) {
-        SelectQuery selectQuery = queryProvider.apply(query, entity);
-        assertNotNull(selectQuery);
-        assertEquals(entity, selectQuery.entity());
-        assertTrue(selectQuery.fields().isEmpty());
-        assertTrue(selectQuery.orderBy().isEmpty());
-        assertEquals(0, selectQuery.limit());
-        assertEquals(0, selectQuery.skip());
-        Optional<Where> where = selectQuery.where();
-        assertTrue(where.isPresent());
-        QueryCondition condition = where.get().condition();
-        QueryValue<?> value = condition.value();
-        assertEquals(Condition.EQUALS, condition.condition());
-        assertEquals("name", condition.name());
-        assertTrue(value instanceof ParamQueryValue);
-        assertTrue(ParamQueryValue.class.cast(value).get().contains("name"));
+        checkConditions(query, variable, NOT, operator);
     }
 
     private void checkCondition(String query, Condition operator, String variable) {
+        checkConditions(query, variable, operator);
+    }
+
+    private void checkConditions(String query, String variable, Condition... operators) {
         String entity = "entity";
         SelectQuery selectQuery = queryProvider.apply(query, entity);
         assertNotNull(selectQuery);
@@ -747,8 +754,54 @@ class SelectMethodQueryProviderTest {
         Optional<Where> where = selectQuery.where();
         assertTrue(where.isPresent());
         QueryCondition condition = where.get().condition();
-        QueryValue<?> value = condition.value();
-        assertEquals(operator, condition.condition());
-        assertTrue(ParamQueryValue.class.cast(value).get().contains(variable));
+
+        LinkedList<Condition> prependedOperators = new LinkedList<>(Arrays.asList(operators));
+        Condition lastOperator = prependedOperators.getLast();
+        prependedOperators.removeLast();
+
+        for (Condition operator : prependedOperators) {
+            condition = checkPrependedCondition(operator, condition);
+        }
+
+        condition = condition;
+
+        checkTerminalCondition(condition, lastOperator, variable);
     }
+
+    private QueryCondition checkPrependedCondition(Condition operator, QueryCondition condition) throws IllegalStateException {
+        assertEquals(operator, condition.condition());
+        String expectedConditionName = switch (operator) {
+            case NOT -> "_NOT";
+            case IGNORE_CASE -> "_IGNORE_CASE";
+            default -> throw new IllegalStateException("Operator " + operator + " not covered by these checks, please fix the tests to cover it.");
+        };
+        assertEquals(expectedConditionName, condition.name());
+        QueryValue<?> value = condition.value();
+        assertTrue(value instanceof ConditionQueryValue);
+        condition = ConditionQueryValue.class.cast(value).get().get(0);
+        return condition;
+    }
+
+    private void checkTerminalCondition(QueryCondition condition, Condition lastOperator, String variable) {
+        QueryValue<?> value = condition.value();
+        assertEquals(lastOperator, condition.condition());
+
+        switch (condition.condition()) {
+            case EQUALS -> {
+                assertEquals(variable, condition.name());
+                assertTrue(ParamQueryValue.class.cast(value).get().contains(variable));
+            }
+            case BETWEEN -> {
+                QueryValue<?>[] values = MethodArrayValue.class.cast(value).get();
+                ParamQueryValue param1 = (ParamQueryValue) values[0];
+                ParamQueryValue param2 = (ParamQueryValue) values[1];
+                assertNotEquals(param2.get(), param1.get());
+            }
+            default -> {
+                assertTrue(ParamQueryValue.class.cast(value).get().contains(variable));
+            }
+        }
+    }
+
+
 }

@@ -81,7 +81,7 @@ public enum Condition {
     /**
      * Represents a condition that checks whether a value ends with a specific suffix.
      */
-    ENDS_WITH
+    ENDS_WITH,
     /**
      * Represents a condition with ignore case flag.
      */
