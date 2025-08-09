@@ -502,7 +502,7 @@ public final class CriteriaCondition {
      * scan a semistructured NoSQL database with the same name and the value matches the underlying condition
      * ignoring the case.
      *
-     * @param element an element instance
+     * @param condition an element instance
      * @return a {@link CriteriaCondition} with {@link Condition#IGNORE_CASE}
      * @throws NullPointerException when the element is null
      */
