@@ -156,6 +156,19 @@ public abstract class AbstractRepositoryProxy<T, K> implements InvocationHandler
 
         RepositoryType type = RepositoryType.of(method, repositoryType());
 
+        return invokeForMethodType(type, instance, method, params);
+    }
+
+    /**
+     * This method allows overriding and intercepting repository method invocation in children
+     * @param type Type of the method executed on the repository
+     * @param instance See {@link #invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])}
+     * @param method See {@link #invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])}
+     * @param params See {@link #invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])}
+     * @return See {@link #invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])}
+     * @throws Throwable See {@link #invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])}
+     */
+    protected Object invokeForMethodType(RepositoryType type, Object instance, Method method, Object[] params) throws Throwable {
         switch (type) {
             case DEFAULT -> {
                 return unwrapInvocationTargetException(() -> method.invoke(repository(), params));
@@ -182,7 +195,7 @@ public abstract class AbstractRepositoryProxy<T, K> implements InvocationHandler
                 return unwrapInvocationTargetException(() -> InvocationHandler.invokeDefault(instance, method, params));
             }
             case QUERY -> {
-                return unwrapInvocationTargetException(() ->  executeQuery(instance, method, params));
+                return unwrapInvocationTargetException(() -> executeQuery(instance, method, params));
             }
             case PARAMETER_BASED -> {
                 return unwrapInvocationTargetException(() -> executeParameterBased(instance, method, params));
@@ -229,4 +242,5 @@ public abstract class AbstractRepositoryProxy<T, K> implements InvocationHandler
             throw ex.getCause();
         }
     }
+
 }

@@ -22,9 +22,11 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 - Include support to Restriction interface
 - Include support to record projector
+- Support named query parameters in JDQL
 - Include Contains restriction keyword
 - Include EndsWith restriction keyword
 - Include StartsWith restriction keyword
+- Include IgnoreCase restriction keyword
 
 == [1.1.9] - 2025-07-30
 

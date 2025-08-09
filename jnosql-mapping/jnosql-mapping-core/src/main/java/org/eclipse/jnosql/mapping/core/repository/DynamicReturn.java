@@ -207,7 +207,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
     /**
      * @return check if there is pagination
      */
-    boolean hasPagination() {
+    public boolean hasPagination() {
         return pageRequest != null;
     }
 
