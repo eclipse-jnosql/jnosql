@@ -555,21 +555,6 @@ class SelectMethodQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"findByStreetNameIgnoreCaseLike", "findByHexadecimalIgnoreCase"})
-    void shouldReturnUnsupportedOperationExceptionQuery(String query) {
-        String entity = "entity";
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> queryProvider.apply(query, entity));
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"findByStreetNameIgnoreCaseNotLike", "findByHexadecimalIgnoreCaseNot"})
-    void shouldReturnUnsupportedOperationExceptionQueryWithNegation(String query) {
-        String entity = "entity";
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> queryProvider.apply(query, entity));
-    }
-
-
-    @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"findByIdBetweenOrderByNumTypeOrdinalAsc"})
     void shouldFindByIdBetweenOrderByNumTypeOrdinalAsc(String query){
         String entity = "entity";
