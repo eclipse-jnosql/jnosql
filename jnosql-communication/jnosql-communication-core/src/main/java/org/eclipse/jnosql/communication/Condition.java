@@ -84,7 +84,11 @@ public enum Condition {
     /**
      * Represents a condition that checks whether a value ends with a specific suffix.
      */
-    ENDS_WITH;
+    ENDS_WITH,
+    /**
+     * Represents a condition with ignore case flag.
+     */
+    IGNORE_CASE;
 
     /**
      * Return tne field as name to both document and column.
