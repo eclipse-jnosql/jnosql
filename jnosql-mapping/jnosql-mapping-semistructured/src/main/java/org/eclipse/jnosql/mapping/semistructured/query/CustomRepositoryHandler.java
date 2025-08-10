@@ -224,7 +224,7 @@ public class CustomRepositoryHandler implements InvocationHandler {
                     LOGGER.fine(() -> "The default repository found: " + method);
                     return repository(method);
                 }
-                case SAVE, INSERT, DELETE, UPDATE -> {
+                case SAVE, INSERT, UPDATE -> {
                     LOGGER.fine(() -> "The default repository found: " + method);
                     return repository(method, method.getParameters());
                 }
@@ -290,7 +290,6 @@ public class CustomRepositoryHandler implements InvocationHandler {
         if( typeClass == null) {
             return defaultRepository.repository();
         }
-
         if (typeClass.isArray()) {
             typeClass = typeClass.getComponentType();
         } else if (IS_GENERIC_SUPPORTED_TYPE.test(typeClass)) {
