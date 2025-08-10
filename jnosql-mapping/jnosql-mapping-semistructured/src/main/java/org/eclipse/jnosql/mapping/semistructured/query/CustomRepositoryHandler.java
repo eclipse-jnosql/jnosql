@@ -294,7 +294,6 @@ public class CustomRepositoryHandler implements InvocationHandler {
         if( typeClass == null) {
             return defaultRepository.repository();
         }
-
         if (typeClass.isArray()) {
             typeClass = typeClass.getComponentType();
         } else if (IS_GENERIC_SUPPORTED_TYPE.test(typeClass)) {

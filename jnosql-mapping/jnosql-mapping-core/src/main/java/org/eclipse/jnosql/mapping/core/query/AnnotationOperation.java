@@ -209,7 +209,7 @@ public enum AnnotationOperation {
     }
 
     private static void checkParameterNumber(Operation operation) {
-        if (operation.params.length != 1) {
+        if (operation.params == null || operation.params.length != 1) {
             throw new UnsupportedOperationException("The method operation requires one parameter, please check the method: "
                     + operation.method);
         }
