@@ -36,10 +36,16 @@ public enum DeleteMethodProvider implements BiFunction<Method, String, DeleteQue
     public DeleteQuery apply(Method method, String entity) {
         Objects.requireNonNull(method, "method is required");
         Objects.requireNonNull(entity, "entity is required");
-        String key = method.getName() + "::" + entity;
+        return apply(method.getName(), entity);
+    }
+
+    public DeleteQuery apply(String methodName, String entity) {
+        Objects.requireNonNull(methodName, "method is required");
+        Objects.requireNonNull(entity, "entity is required");
+        String key = methodName + "::" + entity;
         return cache.computeIfAbsent(key, k -> {
             DeleteByMethodQueryParser provider = new DeleteByMethodQueryParser();
-            return provider.apply(method.getName(), entity);
+            return provider.apply(methodName, entity);
         });
     }
 }
