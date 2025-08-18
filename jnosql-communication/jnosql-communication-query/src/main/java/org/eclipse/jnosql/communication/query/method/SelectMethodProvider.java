@@ -31,11 +31,17 @@ public enum SelectMethodProvider implements BiFunction<Method, String, SelectQue
     public SelectQuery apply(Method method, String entity) {
         Objects.requireNonNull(method, "method is required");
         Objects.requireNonNull(entity, "entity is required");
-        String key = method.getName() + "::" + entity;
+        return apply(method.getName(), entity);
+    }
+
+    public SelectQuery apply(String methodName, String entity) {
+        Objects.requireNonNull(methodName, "method is required");
+        Objects.requireNonNull(entity, "entity is required");
+        var key = methodName + "::" + entity;
 
         return cache.computeIfAbsent(key, k -> {
             SelectMethodQueryParser provider = new SelectMethodQueryParser();
-            return provider.apply(method.getName(), entity);
+            return provider.apply(methodName, entity);
         });
     }
 }
