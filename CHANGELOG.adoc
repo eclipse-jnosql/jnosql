@@ -10,7 +10,7 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 == [1.1.10] - 2025-08-19
 
-=== Changed
+=== Added
 
 - Include Cache on queries
 - Support named query parameters in JDQL
