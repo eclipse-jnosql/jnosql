@@ -22,6 +22,12 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 - Include support to Restriction interface
 - Include support to record projector
+
+== [1.1.10] - 2025-08-19
+
+=== Added
+
+- Include Cache on queries
 - Support named query parameters in JDQL
 - Include Contains restriction keyword
 - Include EndsWith restriction keyword
