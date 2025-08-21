@@ -32,14 +32,6 @@ public final class ValueUtil {
     private static final String PARAM_CLASS_NAME = "org.eclipse.jnosql.communication.ParamValue";
     @SuppressWarnings("rawtypes")
     private static final ValueWriter VALUE_WRITER = ValueWriterDecorator.getInstance();
-    @SuppressWarnings("rawtypes")
-    private static final Function CONVERT = o -> {
-        if (o instanceof Value) {
-            return convert((Value) o);
-        }
-        return getObject(o, VALUE_WRITER);
-    };
-
     private ValueUtil() {
     }
 
