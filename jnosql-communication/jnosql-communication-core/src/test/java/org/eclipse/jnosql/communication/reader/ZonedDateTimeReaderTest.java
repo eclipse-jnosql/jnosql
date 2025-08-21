@@ -51,6 +51,7 @@ class ZonedDateTimeReaderTest {
         final ZonedDateTime now = ZonedDateTime.now();
         final Date date = new Date();
         final Calendar calendar = Calendar.getInstance();
+        final ZonedDateTime zonedDateTime = ZonedDateTime.parse(now.toString());
 
         assertSoftly(softly -> {
             softly.assertThat(dateReader.read(ZonedDateTime.class, now)).as("ZonedDateTime conversion").isEqualTo(now);
@@ -63,6 +64,9 @@ class ZonedDateTimeReaderTest {
 
             softly.assertThat(dateReader.read(ZonedDateTime.class, date.getTime())).as("Number conversion")
                     .isEqualTo(date.toInstant().atZone(ZoneId.systemDefault()));
+
+            softly.assertThat(dateReader.read(ZonedDateTime.class, now)).as("String conversion")
+                    .isEqualTo(now);
 
             softly.assertThat(dateReader.read(ZonedDateTime.class, ZonedDateTime.parse(now.toString())))
                     .as("Default conversion").isEqualToIgnoringSeconds(date.toInstant().atZone(ZoneId.systemDefault()));
