@@ -111,7 +111,8 @@ class CommunicationEntityTest {
     void shouldFindTypeSupplier() {
         Element element = Element.of("name", "name");
         CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
-        List<String> names = entity.find("name", new TypeReference<List<String>>() {})
+        List<String> names = entity.find("name", new TypeReference<List<String>>() {
+                })
                 .orElse(Collections.emptyList());
         Assertions.assertNotNull(names);
         Assertions.assertFalse(names.isEmpty());
@@ -122,7 +123,8 @@ class CommunicationEntityTest {
     void shouldNotFindTypeSupplier() {
         Element element = Element.of("name", "name");
         CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
-        List<String> names = entity.find("not_find", new TypeReference<List<String>>() {})
+        List<String> names = entity.find("not_find", new TypeReference<List<String>>() {
+                })
                 .orElse(Collections.emptyList());
         Assertions.assertNotNull(names);
         Assertions.assertTrue(names.isEmpty());
@@ -419,13 +421,64 @@ class CommunicationEntityTest {
     }
 
     @Test
-    void shouldCreateNull(){
+    void shouldCreateNull() {
         CommunicationEntity entity = CommunicationEntity.of("entity");
         entity.addNull("name");
         Element name = entity.find("name").orElseThrow();
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(name.name()).isEqualTo("name");
             softly.assertThat(name.get()).isNull();
+        });
+    }
+
+    @Test
+    void shouldTestToString() {
+        CommunicationEntity entity = CommunicationEntity.of("entity");
+        entity.add(Element.of("name", 10));
+        org.assertj.core.api.Assertions.assertThat(entity.toString())
+                .isNotNull()
+                .isNotBlank().contains("name=10");
+    }
+
+
+    @Test
+    void shouldTestHashCode(){
+        var entity = CommunicationEntity.of("entity");
+        entity.add(Element.of("name", 10));
+        org.assertj.core.api.Assertions.assertThat(entity.hashCode())
+                .isNotNull()
+                .isNotZero();
+    }
+
+    @Test
+    void shouldElements() {
+        CommunicationEntity entity = CommunicationEntity.of("entity");
+        entity.add(Element.of("name", 10));
+
+        List<Element> elements = entity.elements();
+        SoftAssertions.assertSoftly(softly -> {
+           softly.assertThat(elements).hasSize(1);
+           softly.assertThat(elements.getFirst().name()).isEqualTo("name");
+        });
+    }
+
+    @Test
+    void shouldEquals() {
+        var entity = CommunicationEntity.of("entity");
+        entity.add(Element.of("name", 10));
+        var entity2 = CommunicationEntity.of("entity");
+        entity2.add(Element.of("name", 10));
+        var entity3 = CommunicationEntity.of("entity");
+        entity3.add(Element.of("name", 11));
+
+        SoftAssertions.assertSoftly(softly -> {
+           softly.assertThat(entity).isEqualTo(entity2);
+           softly.assertThat(entity).isNotEqualTo(entity3);
+           softly.assertThat(entity2).isEqualTo(entity);
+           softly.assertThat(entity3).isNotEqualTo(entity);
+           softly.assertThat(entity).isNotEqualTo(null);
+           softly.assertThat(entity).isNotEqualTo(new Object());
+           softly.assertThat(entity).isEqualTo(entity);
         });
     }
 
