@@ -452,6 +452,14 @@ class SelectQueryParserTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"select count(this) FROM entity WHERE age = ?1 AND name = ?2"})
+    void shouldGetIssueWhenCount(String query) {
+        CommunicationPreparedStatement prepare = parser.prepare(query, null, manager, observer);
+        Assertions.assertThatThrownBy(() -> prepare.count());
+
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"select count(this) FROM entity WHERE age = ?1 AND name = ?2"})
     void shouldReturnErrorWhenResultInsteadOfCount(String query) {
 
         CommunicationPreparedStatement prepare = parser.prepare(query, null, manager, observer);
