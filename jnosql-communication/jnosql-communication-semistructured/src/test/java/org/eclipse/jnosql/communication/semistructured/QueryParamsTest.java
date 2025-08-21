@@ -10,7 +10,48 @@
  */
 package org.eclipse.jnosql.communication.semistructured;
 
-import static org.junit.jupiter.api.Assertions.*;
+
+import org.eclipse.jnosql.communication.Params;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
 class QueryParamsTest {
+
+    @Test
+    void shouldCreateQueryParams() {
+        SelectQuery query = mock(SelectQuery.class);
+        Params params = mock(Params.class);
+
+        QueryParams queryParams = new QueryParams(query, params);
+
+        assertThat(queryParams.query()).isSameAs(query);
+        assertThat(queryParams.params()).isSameAs(params);
+    }
+
+    @Test
+    void shouldImplementEqualsAndHashCode() {
+        SelectQuery query = mock(SelectQuery.class);
+        Params params = mock(Params.class);
+
+        QueryParams first = new QueryParams(query, params);
+        QueryParams second = new QueryParams(query, params);
+
+        assertThat(first).isEqualTo(second);
+        assertThat(first).hasSameHashCodeAs(second);
+    }
+
+    @Test
+    void shouldHaveToStringRepresentation() {
+        SelectQuery query = mock(SelectQuery.class);
+        Params params = mock(Params.class);
+
+        QueryParams queryParams = new QueryParams(query, params);
+
+        assertThat(queryParams.toString())
+                .contains("query=")
+                .contains("params=");
+    }
 
 }
