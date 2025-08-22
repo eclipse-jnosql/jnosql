@@ -10,6 +10,7 @@
  */
 package org.eclipse.jnosql.communication.semistructured;
 
+import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.Params;
@@ -142,6 +143,37 @@ class ElementDeleteQueryParamsTest {
         });
 
     }
+
+    @Test
+    void shouldToString() {
+        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+        Assertions.assertThat(builder.toString()).isNotBlank().isNotNull();
+    }
+
+    @Test
+    void shouldToHashCode() {
+        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+        DeleteQuery.DeleteQueryBuilder builder2 = new DefaultDeleteQueryBuilder();
+        Assertions.assertThat(builder.hashCode()).isEqualTo(builder2.hashCode());
+    }
+
+    @Test
+    void shouldEquals() {
+        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+        DeleteQuery.DeleteQueryBuilder builder2 = new DefaultDeleteQueryBuilder();
+        DeleteQuery.DeleteQueryBuilder builder3 = new DefaultDeleteQueryBuilder().delete("field", "field2");
+
+        SoftAssertions.assertSoftly(soft-> {
+           soft.assertThat(builder).isEqualTo(builder2);
+           soft.assertThat(builder).isNotEqualTo(builder3);
+           soft.assertThat(builder2).isEqualTo(builder);
+            soft.assertThat(builder).isEqualTo(builder2);
+            soft.assertThat(builder).isEqualTo(builder);
+            soft.assertThat(builder).isNotEqualTo(null);
+            soft.assertThat(builder).isNotEqualTo("234");
+        });
+    }
+
 
     static Stream<Arguments> scenarios() {
         return Stream.of(
