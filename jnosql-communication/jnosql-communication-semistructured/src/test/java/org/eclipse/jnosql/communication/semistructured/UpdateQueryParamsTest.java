@@ -11,8 +11,46 @@
 
 package org.eclipse.jnosql.communication.semistructured;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.eclipse.jnosql.communication.Params;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 class UpdateQueryParamsTest {
 
+    @Test
+    void shouldCreateUpdateQueryParams() {
+        UpdateQuery updateQuery = mock(UpdateQuery.class);
+        Params params = mock(Params.class);
+
+        UpdateQueryParams updateQueryParams = new UpdateQueryParams(updateQuery, params);
+
+        assertThat(updateQueryParams.updateQuery()).isSameAs(updateQuery);
+        assertThat(updateQueryParams.params()).isSameAs(params);
+    }
+
+    @Test
+    void shouldImplementEqualsAndHashCode() {
+        UpdateQuery updateQuery = mock(UpdateQuery.class);
+        Params params = mock(Params.class);
+
+        UpdateQueryParams first = new UpdateQueryParams(updateQuery, params);
+        UpdateQueryParams second = new UpdateQueryParams(updateQuery, params);
+
+        assertThat(first).isEqualTo(second);
+        assertThat(first).hasSameHashCodeAs(second);
+    }
+
+    @Test
+    void shouldHaveToStringRepresentation() {
+        UpdateQuery updateQuery = mock(UpdateQuery.class);
+        Params params = mock(Params.class);
+
+        UpdateQueryParams updateQueryParams = new UpdateQueryParams(updateQuery, params);
+
+        assertThat(updateQueryParams.toString())
+                .contains("updateQuery=")
+                .contains("params=");
+    }
 }
