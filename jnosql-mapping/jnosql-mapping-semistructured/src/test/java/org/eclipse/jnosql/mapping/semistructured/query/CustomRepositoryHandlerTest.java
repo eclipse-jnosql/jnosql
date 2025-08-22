@@ -17,6 +17,8 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import jakarta.data.repository.Insert;
+import jakarta.data.repository.Repository;
 import jakarta.inject.Inject;
 
 import org.assertj.core.api.Assertions;
@@ -67,6 +69,10 @@ class CustomRepositoryHandlerTest {
 
     private Tasks tasks;
 
+    private UpdatePersonRepository updatePersonRepository;
+
+    private UpdateArrayPersonRepository updateArrayPersonRepository;
+
     @BeforeEach
     void setUp() {
         template = Mockito.mock(SemiStructuredTemplate.class);
@@ -85,8 +91,28 @@ class CustomRepositoryHandlerTest {
                 .customRepositoryType(Tasks.class)
                 .converters(converters).build();
 
+        var updateHandler = CustomRepositoryHandler.builder()
+                .entitiesMetadata(entitiesMetadata)
+                .template(template)
+                .customRepositoryType(UpdatePersonRepository.class)
+                .converters(converters).build();
+
+        var updateArrayHandler = CustomRepositoryHandler.builder()
+                .entitiesMetadata(entitiesMetadata)
+                .template(template)
+                .customRepositoryType(UpdateArrayPersonRepository.class)
+                .converters(converters).build();
+
         tasks = (Tasks) Proxy.newProxyInstance(Tasks.class.getClassLoader(), new Class[]{Tasks.class},
                 customRepositoryHandlerForTasks);
+
+        updatePersonRepository = (UpdatePersonRepository) Proxy.newProxyInstance(UpdatePersonRepository.class.getClassLoader(),
+                new Class[]{UpdatePersonRepository.class},
+                updateHandler);
+
+        updateArrayPersonRepository =
+                (UpdateArrayPersonRepository) Proxy.newProxyInstance(UpdateArrayPersonRepository.class.getClassLoader(),
+                new Class[]{UpdateArrayPersonRepository.class}, updateArrayHandler);
 
     }
 
@@ -507,14 +533,35 @@ class CustomRepositoryHandlerTest {
     @Test
     void shouldFindAll() {
 
-        List<Task> all = tasks.findAll();
+        tasks.findAll();
         Mockito.verify(template).select(Mockito.any(SelectQuery.class));
     }
 
     @Test
     void shouldDeleteByName() {
-
         tasks.deleteByName("name");
         Mockito.verify(template).delete(Mockito.any(DeleteQuery.class));
     }
+
+    @Test
+    void shouldInsert(){
+        updatePersonRepository.insert(Person.builder().age(26).name("Ada").build());
+        updateArrayPersonRepository.insert(new Person[]{Person.builder().age(26).name("Ada").build()});
+    }
+
+
+    @Repository
+    public interface UpdatePersonRepository {
+
+        @Insert
+        void insert(Person person);
+    }
+
+    @Repository
+    public interface UpdateArrayPersonRepository {
+
+        @Insert
+        void insert(Person[] person);
+    }
+
 }
