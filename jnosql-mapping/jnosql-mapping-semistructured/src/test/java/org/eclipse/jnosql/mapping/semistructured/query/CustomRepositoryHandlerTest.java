@@ -22,6 +22,7 @@ import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.PreparedStatement;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -508,7 +509,12 @@ class CustomRepositoryHandlerTest {
 
         List<Task> all = tasks.findAll();
         Mockito.verify(template).select(Mockito.any(SelectQuery.class));
+    }
 
+    @Test
+    void shouldDeleteByName() {
 
+        tasks.deleteByName("name");
+        Mockito.verify(template).delete(Mockito.any(DeleteQuery.class));
     }
 }

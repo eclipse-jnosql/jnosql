@@ -28,4 +28,6 @@ public interface Tasks {
 
     List<Task> findAll();
 
+    void deleteByName(String name);
+
 }
