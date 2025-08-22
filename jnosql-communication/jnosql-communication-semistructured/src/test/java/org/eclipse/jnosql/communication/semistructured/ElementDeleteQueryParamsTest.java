@@ -10,6 +10,8 @@
  */
 package org.eclipse.jnosql.communication.semistructured;
 
+import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.Params;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -105,6 +107,23 @@ class ElementDeleteQueryParamsTest {
         var thirdInstance = newInstance(secondQuery, secondParams);
 
         assertThat(fistInstance.hashCode()).isNotEqualTo(thirdInstance.hashCode());
+
+    }
+
+    @Test
+    void shouldDeleteUsingCondition() {
+        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+        DeleteQuery deleteQuery = builder.from("entity")
+                .where(CriteriaCondition.of(Element.of("field", "value"), Condition.EQUALS)).build();
+
+        SoftAssertions.assertSoftly(soft-> {
+            soft.assertThat(deleteQuery.columns()).isEmpty();
+            soft.assertThat(deleteQuery.name()).isEqualTo("entity");
+            soft.assertThat(deleteQuery.condition()).isNotEmpty();
+            var condition = deleteQuery.condition().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(condition.element()).isEqualTo(Element.of("field", "value"));
+        });
 
     }
 
