@@ -92,37 +92,45 @@ class QueryTypeTest {
 
     @ParameterizedTest
     @ValueSource(classes = {Void.class, void.class})
-    void shouldIsVoid(Class<?> type){
+    void shouldIsVoid(Class<?> type) {
         Assertions.assertThat(QueryType.SELECT.isVoid(type)).isTrue();
     }
 
     @ParameterizedTest
     @ValueSource(classes = {String.class, Integer.class})
-    void shouldNotIsVoid(Class<?> type){
+    void shouldNotIsVoid(Class<?> type) {
         Assertions.assertThat(QueryType.SELECT.isVoid(type)).isFalse();
     }
 
     @ParameterizedTest
     @ValueSource(classes = {Integer.class, int.class})
-    void shouldIsInt(Class<?> type){
+    void shouldIsInt(Class<?> type) {
         Assertions.assertThat(QueryType.SELECT.isInt(type)).isTrue();
     }
 
     @ParameterizedTest
     @ValueSource(classes = {String.class, List.class})
-    void shouldNotIsInt(Class<?> type){
+    void shouldNotIsInt(Class<?> type) {
         Assertions.assertThat(QueryType.SELECT.isInt(type)).isFalse();
     }
 
     @ParameterizedTest
     @ValueSource(classes = {Long.class, long.class})
-    void shouldIsLong(Class<?> type){
+    void shouldIsLong(Class<?> type) {
         Assertions.assertThat(QueryType.SELECT.isLong(type)).isTrue();
     }
 
     @ParameterizedTest
     @ValueSource(classes = {String.class, List.class})
-    void shouldNotIsLong(Class<?> type){
+    void shouldNotIsLong(Class<?> type) {
         Assertions.assertThat(QueryType.SELECT.isLong(type)).isFalse();
-}
+    }
+
+    @Test
+    void shouldCheckValueReturn() {
+        QueryType type = QueryType.UPDATE;
+        Assertions.assertThatThrownBy(() -> type.checkValidReturn(String.class, "UPDATE table SET name = 'newName' WHERE id = 1"))
+                .isInstanceOf(UnsupportedOperationException.class);
+
+    }
 }
