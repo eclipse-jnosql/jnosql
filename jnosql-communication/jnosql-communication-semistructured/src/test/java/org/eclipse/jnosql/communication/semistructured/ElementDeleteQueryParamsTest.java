@@ -124,6 +124,22 @@ class ElementDeleteQueryParamsTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(condition.element()).isEqualTo(Element.of("field", "value"));
         });
+    }
+
+    @Test
+    void shouldDeleteColumnsUsingCondition() {
+        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+        DeleteQuery deleteQuery = builder.from("entity").delete("field", "field2")
+                .where(CriteriaCondition.of(Element.of("field", "value"), Condition.EQUALS)).build();
+
+        SoftAssertions.assertSoftly(soft-> {
+            soft.assertThat(deleteQuery.columns()).isNotEmpty().hasSize(2).contains("field", "field2");
+            soft.assertThat(deleteQuery.name()).isEqualTo("entity");
+            soft.assertThat(deleteQuery.condition()).isNotEmpty();
+            var condition = deleteQuery.condition().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(condition.element()).isEqualTo(Element.of("field", "value"));
+        });
 
     }
 
