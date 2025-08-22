@@ -502,4 +502,13 @@ class CustomRepositoryHandlerTest {
                 .thenReturn(Optional.of(1L));
         Assertions.assertThat(people.updateReturnLong("Ada")).isEqualTo(1L);
     }
+
+    @Test
+    void shouldFindAll() {
+
+        List<Task> all = tasks.findAll();
+        Mockito.verify(template).select(Mockito.any(SelectQuery.class));
+
+
+    }
 }
