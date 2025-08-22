@@ -18,6 +18,7 @@ import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import jakarta.data.repository.Insert;
+import jakarta.data.repository.Query;
 import jakarta.data.repository.Repository;
 import jakarta.inject.Inject;
 
@@ -41,10 +42,14 @@ import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -547,6 +552,47 @@ class CustomRepositoryHandlerTest {
     void shouldInsert(){
         updatePersonRepository.insert(Person.builder().age(26).name("Ada").build());
         updateArrayPersonRepository.insert(new Person[]{Person.builder().age(26).name("Ada").build()});
+    }
+
+
+    @ParameterizedTest
+    @ValueSource(strings = {"returnLong", "returnLongWrapper"})
+    void shouldReturnLong(String methodName) {
+        Method method = Arrays.stream(CustomRepositoryHandlerTest.class.getDeclaredMethods())
+                .filter(m -> m.getName().equals(methodName))
+                .findFirst().orElseThrow();
+        Assertions.assertThat(CustomRepositoryHandler.returnsLong(method)).isTrue();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"returnInt", "returnIntWrapper"})
+    void shouldReturnInt(String methodName) {
+        Method method = Arrays.stream(CustomRepositoryHandlerTest.class.getDeclaredMethods())
+                .filter(m -> m.getName().equals("returnInt"))
+                .findFirst().orElseThrow();
+        Assertions.assertThat(CustomRepositoryHandler.returnsInt(method)).isTrue();
+    }
+
+    @Test
+    void shouldBreakQuery(){
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from Person where age = :age");
+
+    }
+    long returnLong() {
+        return 1L;
+    }
+
+    Long returnLongWrapper() {
+        return 1L;
+    }
+
+    int returnInt() {
+        return 1;
+    }
+
+    Integer returnIntWrapper() {
+        return 1;
     }
 
 
