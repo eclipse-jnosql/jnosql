@@ -203,9 +203,6 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         return Stream.of(method.getAnnotationsByType(OrderBy.class))
                 .map(order -> {
                     String column = metadata.columnField(order.value());
-                    if (column == null || column.isEmpty()) {
-                        throw new IllegalArgumentException("Invalid field in @OrderBy: " + order.value());
-                    }
                     return order.descending() ? Sort.desc(column) : Sort.asc(column);
                 })
                 .collect(toList());
