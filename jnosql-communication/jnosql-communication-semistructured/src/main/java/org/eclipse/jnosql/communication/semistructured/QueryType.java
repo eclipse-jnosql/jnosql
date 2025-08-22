@@ -113,15 +113,15 @@ public enum QueryType {
         }
     }
 
-    private boolean isVoid(Class<?> returnType) {
+    boolean isVoid(Class<?> returnType) {
         return returnType == Void.class || returnType == Void.TYPE;
     }
 
-    private boolean isInt(Class<?> returnType) {
+    boolean isInt(Class<?> returnType) {
         return returnType == Integer.class || returnType == int.class;
     }
 
-    private boolean isLong(Class<?> returnType) {
+    boolean isLong(Class<?> returnType) {
         return returnType == Long.class || returnType == long.class;
     }
 
