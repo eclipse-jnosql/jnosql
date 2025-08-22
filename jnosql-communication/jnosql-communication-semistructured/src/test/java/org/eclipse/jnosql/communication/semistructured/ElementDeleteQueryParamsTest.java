@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
 
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -174,6 +175,20 @@ class ElementDeleteQueryParamsTest {
         });
     }
 
+    @Test
+    void shouldGetIssueWhenNotEntity() {
+        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+        Assertions.assertThatThrownBy(builder::build).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void shouldExecute() {
+        DatabaseManager manager = Mockito.mock(DatabaseManager.class);
+        new DefaultDeleteQueryBuilder().delete("field", "field2")
+                .from("entity").delete(manager);
+
+        Mockito.verify(manager).delete(Mockito.any(DeleteQuery.class));
+    }
 
     static Stream<Arguments> scenarios() {
         return Stream.of(
