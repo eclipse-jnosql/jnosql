@@ -346,7 +346,7 @@ class DefaultSelectQueryBuilderTest {
             soft.assertThat(query.columns()).contains("name", "age");
             soft.assertThat(query.condition()).isEmpty();
             soft.assertThat(query.name()).isEqualTo("person");
-            soft.assertThat(query.isCount()).isTrue();
+            soft.assertThat(query.isCount()).isFalse();
             soft.assertThat(query.sorts()).contains(Sort.asc("name"), Sort.asc("age"));
         });
     }
