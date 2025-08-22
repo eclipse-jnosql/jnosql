@@ -346,6 +346,7 @@ class DefaultSelectQueryBuilderTest {
             soft.assertThat(query.columns()).contains("name", "age");
             soft.assertThat(query.condition()).isEmpty();
             soft.assertThat(query.name()).isEqualTo("person");
+            soft.assertThat(query.isCount()).isTrue();
             soft.assertThat(query.sorts()).contains(Sort.asc("name"), Sort.asc("age"));
         });
     }
@@ -383,6 +384,12 @@ class DefaultSelectQueryBuilderTest {
            soft.assertThat(builder).isNotEqualTo(new Object());
            soft.assertThat(builder).isEqualTo(builder);
         });
+    }
+
+    @Test
+    void shouldReturnErrorWhenEntityIsNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> select().from(null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new DefaultQueryBuilder().build());
     }
 
     private void checkQuery(ArgumentCaptor<SelectQuery> queryCaptor, String columnFamily) {
