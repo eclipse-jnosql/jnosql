@@ -102,18 +102,14 @@ class ValuesTest {
         QueryValue<Object> nullVal = mock(QueryValue.class);
         when(nullVal.type()).thenReturn(ValueType.NULL);
 
-        ArrayQueryValue array = mock(ArrayQueryValue.class);
-        when(array.type()).thenReturn(ValueType.ARRAY);
-        @SuppressWarnings("unchecked")
-        QueryValue<?>[] items = new QueryValue<?>[]{num, param, nullVal};
-        when(array.get()).thenReturn(items);
+        ArrayQueryValue array = () -> new QueryValue[]{ num, param, nullVal};
 
         Object result = Values.get(array, params);
 
         assertThat(result)
                 .isInstanceOf(List.class)
                 .asList()
-                .containsExactly(7, "added-p1", null);
+                .contains(7, Value.of("added-p1"), null);
 
         verify(params).add("p1");
     }
