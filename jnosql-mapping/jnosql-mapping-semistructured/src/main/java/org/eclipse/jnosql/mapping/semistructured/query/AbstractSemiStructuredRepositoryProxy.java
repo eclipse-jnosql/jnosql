@@ -188,7 +188,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         return Void.class;
     }
 
-    private Restriction<?> restriction(Object[] params) {
+    Restriction<?> restriction(Object[] params) {
         if (params.length == 0) {
             throw new IllegalArgumentException("The method must have at least one parameter for restriction");
         }

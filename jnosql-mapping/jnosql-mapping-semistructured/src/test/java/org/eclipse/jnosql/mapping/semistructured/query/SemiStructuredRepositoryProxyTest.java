@@ -25,6 +25,7 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.entities.Person;
+import org.eclipse.jnosql.mapping.semistructured.entities.PersonRepository;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -47,11 +48,36 @@ class SemiStructuredRepositoryProxyTest {
     @Inject
     private EntitiesMetadata entitiesMetadata;
 
+    @Inject
+    private Converters converters;
+
     @Test
     void shouldCreateSemiStructuredRepositoryProxy() {
         EntityMetadata entityMetadata = entitiesMetadata.get(Person.class);
 
         SemiStructuredRepositoryProxy.SemiStructuredRepository<Object, Object> repository = SemiStructuredRepositoryProxy.SemiStructuredRepository.of(template, entityMetadata);
         Assertions.assertThat(repository).isNotNull();
+    }
+
+    @Test
+    void shouldExecuteFindAll() {
+        SemiStructuredRepositoryProxy proxy = new SemiStructuredRepositoryProxy(template, entitiesMetadata,
+                PersonRepository.class,
+                converters);
+
+        proxy.executeFindAll(proxy, SemiStructuredRepositoryProxyTest.class.getMethods()[0], new Object[0]);
+    }
+
+    @Test
+    void shouldGetErrorOnFindRestriction() {
+        var proxy = new SemiStructuredRepositoryProxy(template, entitiesMetadata,
+                PersonRepository.class,
+                converters);
+
+        Assertions.assertThatThrownBy(() -> proxy.restriction(new Object[0])
+                ).isInstanceOf(IllegalArgumentException.class);
+
+        Assertions.assertThatThrownBy(() -> proxy.restriction(new Object[] {new Object(), new Object()})
+        ).isInstanceOf(IllegalArgumentException.class);
     }
 }
