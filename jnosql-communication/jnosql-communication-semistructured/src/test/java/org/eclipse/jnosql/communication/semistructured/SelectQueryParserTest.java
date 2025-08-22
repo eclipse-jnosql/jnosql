@@ -17,6 +17,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.TypeReference;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
@@ -541,6 +542,14 @@ class SelectQueryParserTest {
             softly.assertThat(select.orElseThrow().name()).isEqualTo("entity");
             softly.assertThat(select.orElseThrow().condition()).isNotEmpty();
         });
+    }
+
+    @Test
+    void shouldApply() {
+        SelectQueryParser queryParser = new SelectQueryParser();
+        org.eclipse.jnosql.communication.query.SelectQuery query = Mockito.mock(org.eclipse.jnosql.communication.query.SelectQuery.class);
+        CommunicationObserverParser observer = Mockito.mock(CommunicationObserverParser.class);
+        queryParser.apply(query, observer);
     }
 
     private void checkBaseQuery(SelectQuery selectQuery) {
