@@ -270,17 +270,6 @@ public class CustomRepositoryHandler implements InvocationHandler {
         return new RepositoryMetadata(typeClass, metadata);
     }
 
-    private static boolean queryContainsNamedParameters(Query query) {
-        final String ordinalParameterPattern = "\\?\\d+";
-        final String identifierFirstCharacterPattern = "(\\p{Alpha}|_|$)";
-        final String identifierAfterFirstCharacterpattern = "\\p{Alnum}|_|$";
-        String namedParameterPattern = ":" + identifierFirstCharacterPattern
-                + "(" + identifierAfterFirstCharacterpattern + ")*";
-        Pattern p = Pattern.compile("(" + ordinalParameterPattern + ")|(" + namedParameterPattern + ")");
-        Matcher m = p.matcher(query.value());
-        return m.find() && m.group().startsWith(":");
-    }
-
     private Optional<EntityMetadata> getEntityMetadataBy(Class<?> typeClass) {
         return entitiesMetadata.findByClassName(typeClass.getName());
     }
@@ -339,11 +328,22 @@ public class CustomRepositoryHandler implements InvocationHandler {
         throw new IllegalArgumentException("Cannot determine generic type from parameter");
     }
 
-    private static boolean returnsLong(Method method) {
+    static boolean returnsLong(Method method) {
         return method.getReturnType().equals(long.class) || method.getReturnType().equals(Long.class);
     }
 
-    private static boolean returnsInt(Method method) {
+    static boolean returnsInt(Method method) {
         return method.getReturnType().equals(int.class) || method.getReturnType().equals(Integer.class);
+    }
+
+    static boolean queryContainsNamedParameters(Query query) {
+        final String ordinalParameterPattern = "\\?\\d+";
+        final String identifierFirstCharacterPattern = "(\\p{Alpha}|_|$)";
+        final String identifierAfterFirstCharacterPattern = "\\p{Alnum}|_|$";
+        String namedParameterPattern = ":" + identifierFirstCharacterPattern
+                + "(" + identifierAfterFirstCharacterPattern + ")*";
+        Pattern p = Pattern.compile("(" + ordinalParameterPattern + ")|(" + namedParameterPattern + ")");
+        Matcher m = p.matcher(query.value());
+        return m.find() && m.group().startsWith(":");
     }
 }
