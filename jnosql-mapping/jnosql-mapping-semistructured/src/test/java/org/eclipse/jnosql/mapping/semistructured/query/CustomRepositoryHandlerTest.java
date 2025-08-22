@@ -55,6 +55,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
 @AddPackages(MockProducer.class)
@@ -574,10 +576,83 @@ class CustomRepositoryHandlerTest {
     }
 
     @Test
-    void shouldBreakQuery(){
+    void shouldReturnTrueForSimpleNamedParameter() {
         var query = Mockito.mock(Query.class);
         Mockito.when(query.value()).thenReturn("select * from Person where age = :age");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isTrue();
+    }
 
+    @Test
+    void shouldReturnFalseWhenOnlyOrdinalParametersPresent() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from Person where id = ?1 and age > ?2");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void shouldReturnTrueWhenNamedParameterAppearsBeforeOrdinal() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from Person where name = :name and id = ?1");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void shouldReturnFalseWhenOrdinalAppearsBeforeNamedEvenIfNamedExistsLater() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from Person where id = ?1 and name = :name");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void shouldSupportUnderscoreAndDollarInNamedParameter() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from T where a = :_x and b = :$y and c = :a1_$");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void shouldReturnFalseForInvalidNamedStartingWithDigit() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from T where a = :1abc");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void shouldReturnFalseWhenNoParametersPresent() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from Person");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void shouldReturnFalseForBareQuestionMarkWithoutDigits() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from T where a = ?");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void shouldReturnTrueForDottedIdentifierTreatingPrefixAsNamedParam() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from T where owner = :user.name");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void shouldReturnTrueWhenMultipleNamedParametersExist() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from T where a = :first and b = :second");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isTrue();
     }
     long returnLong() {
         return 1L;
