@@ -12,6 +12,7 @@ package org.eclipse.jnosql.communication.semistructured;
 
 import jakarta.data.Direction;
 import jakarta.data.Sort;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.junit.jupiter.api.Assertions;
@@ -324,6 +325,64 @@ class DefaultSelectQueryBuilderTest {
         Optional<CommunicationEntity> entities = select().from(columnFamily).getSingleResult(manager);
         Mockito.verify(manager).singleResult(queryCaptor.capture());
         checkQuery(queryCaptor, columnFamily);
+    }
+
+    @Test
+    void shouldSelectFields() {
+        var query = new DefaultQueryBuilder().select("name", "age").from("person").build();
+        SoftAssertions.assertSoftly(soft-> {
+            soft.assertThat(query.columns()).contains("name", "age");
+            soft.assertThat(query.condition()).isEmpty();
+            soft.assertThat(query.name()).isEqualTo("person");
+        });
+    }
+
+    @Test
+    void shouldSelectSorts() {
+        var query = new DefaultQueryBuilder().select("name", "age")
+                .from("person")
+                .sort(Sort.asc("name"), Sort.asc("age")).build();
+        SoftAssertions.assertSoftly(soft-> {
+            soft.assertThat(query.columns()).contains("name", "age");
+            soft.assertThat(query.condition()).isEmpty();
+            soft.assertThat(query.name()).isEqualTo("person");
+            soft.assertThat(query.sorts()).contains(Sort.asc("name"), Sort.asc("age"));
+        });
+    }
+
+    @Test
+    void shouldToString() {
+        var builder = new DefaultQueryBuilder().select("name", "age")
+                .from("person");
+        org.assertj.core.api.Assertions.assertThat(builder.toString()).isNotNull().isNotBlank();
+    }
+
+    @Test
+    void shouldHashCode() {
+        var builder = new DefaultQueryBuilder().select("name", "age")
+                .from("person");
+        org.assertj.core.api.Assertions.assertThat(builder.hashCode()).isNotZero();
+    }
+
+    @Test
+    void shouldEquals() {
+        var builder = new DefaultQueryBuilder().select("name", "age")
+                .from("person");
+        var builder2 = new DefaultQueryBuilder().select("name", "age")
+                .from("person");
+        var builder3 = new DefaultQueryBuilder().select("name", "age")
+                .from("animal");
+
+        SoftAssertions.assertSoftly(soft-> {
+           soft.assertThat(builder).isEqualTo(builder2);
+           soft.assertThat(builder).isNotEqualTo(builder3);
+           soft.assertThat(builder2).isEqualTo(builder);
+           soft.assertThat(builder).isEqualTo(builder2);
+           soft.assertThat(builder).isEqualTo(builder);
+           soft.assertThat(builder).isNotEqualTo(null);
+           soft.assertThat(builder).isNotEqualTo(new Object());
+           soft.assertThat(builder).isEqualTo(builder);
+        });
     }
 
     private void checkQuery(ArgumentCaptor<SelectQuery> queryCaptor, String columnFamily) {
