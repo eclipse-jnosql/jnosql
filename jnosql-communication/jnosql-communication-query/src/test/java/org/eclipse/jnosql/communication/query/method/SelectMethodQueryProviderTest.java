@@ -756,8 +756,6 @@ class SelectMethodQueryProviderTest {
             condition = checkPrependedCondition(operator, condition);
         }
 
-        condition = condition;
-
         checkTerminalCondition(condition, lastOperator, variable);
     }
 
