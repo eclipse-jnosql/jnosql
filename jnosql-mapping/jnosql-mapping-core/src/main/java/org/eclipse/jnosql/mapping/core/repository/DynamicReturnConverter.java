@@ -113,15 +113,34 @@ public enum DynamicReturnConverter {
         return convert(dynamicReturn);
     }
 
-    private static boolean queryContainsNamedParameters(String queryString) {
-        final String ordinalParameterPattern = "\\?\\d+";
-        final String identifierFirstCharacterPattern = "(\\p{Alpha}|_|$)";
-        final String identifierAfterFirstCharacterpattern = "\\p{Alnum}|_|$";
-        String namedParameterPattern = ":" + identifierFirstCharacterPattern
-                + "(" + identifierAfterFirstCharacterpattern + ")*";
-        Pattern p = Pattern.compile("(" + ordinalParameterPattern + ")|(" + namedParameterPattern + ")");
-        Matcher m = p.matcher(queryString);
-        return m.find() && m.group().startsWith(":");
+    private static boolean queryContainsNamedParameters(final String query) {
+
+        if (query == null || query.isEmpty()) {
+            return false;
+        }
+
+        final int length = query.length();
+        for (int index = 0; index < length; index++) {
+            final char current = query.charAt(index);
+
+            if (current == '?') {
+                final int nextIndex = index + 1;
+                if (nextIndex < length && Character.isDigit(query.charAt(nextIndex))) {
+                    return false;
+                }
+            } else if (current == ':') {
+                final int nextIndex = index + 1;
+                if (nextIndex < length && isIdentifierStart(query.charAt(nextIndex))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean isIdentifierStart(final char ch) {
+        return Character.isLetter(ch) || ch == '_' || ch == '$';
     }
 
     private static boolean isOrdinalParameter(Map.Entry<String, Object> parameter) {
