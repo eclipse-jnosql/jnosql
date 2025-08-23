@@ -20,7 +20,6 @@ import jakarta.data.page.Page;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.Query;
 import jakarta.enterprise.inject.spi.CDI;
-
 import org.eclipse.jnosql.communication.semistructured.QueryType;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
@@ -44,8 +43,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.eclipse.jnosql.mapping.core.query.AnnotationOperation.DELETE;
