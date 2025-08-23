@@ -26,6 +26,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.core.query.AnnotationOperation;
 import org.eclipse.jnosql.mapping.core.query.RepositoryType;
+import org.eclipse.jnosql.mapping.core.repository.DynamicReturnConverter;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
 import org.eclipse.jnosql.mapping.core.repository.ThrowingSupplier;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
@@ -337,13 +338,9 @@ public class CustomRepositoryHandler implements InvocationHandler {
     }
 
     static boolean queryContainsNamedParameters(Query query) {
-        final String ordinalParameterPattern = "\\?\\d+";
-        final String identifierFirstCharacterPattern = "(\\p{Alpha}|_|$)";
-        final String identifierAfterFirstCharacterPattern = "\\p{Alnum}|_|$";
-        String namedParameterPattern = ":" + identifierFirstCharacterPattern
-                + "(" + identifierAfterFirstCharacterPattern + ")*";
-        Pattern p = Pattern.compile("(" + ordinalParameterPattern + ")|(" + namedParameterPattern + ")");
-        Matcher m = p.matcher(query.value());
-        return m.find() && m.group().startsWith(":");
+        if (query == null) {
+            return false;
+        }
+        return DynamicReturnConverter.queryContainsNamedParameters(query.value());
     }
 }
