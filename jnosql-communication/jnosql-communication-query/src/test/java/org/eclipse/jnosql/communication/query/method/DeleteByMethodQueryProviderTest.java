@@ -448,8 +448,6 @@ class DeleteByMethodQueryProviderTest {
             condition = checkPrependedCondition(operator, condition);
         }
 
-        condition = condition;
-
         checkTerminalCondition(condition, lastOperator, variable);
     }
 
