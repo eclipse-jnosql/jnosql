@@ -446,7 +446,6 @@ class CommunicationEntityTest {
         var entity = CommunicationEntity.of("entity");
         entity.add(Element.of("name", 10));
         org.assertj.core.api.Assertions.assertThat(entity.hashCode())
-                .isNotNull()
                 .isNotZero();
     }
 
