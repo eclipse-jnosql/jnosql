@@ -11,6 +11,7 @@
  */
 package org.eclipse.jnosql.communication.query.method;
 
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.query.ArrayQueryValue;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.ValueType;
@@ -39,9 +40,23 @@ class MethodArrayValueTest {
     void shouldEquals(){
         var array = MethodArrayValue.of("name");
         var array2 = MethodArrayValue.of("name");
-        Assertions.assertNotEquals(array, array2);
-        Assertions.assertNotEquals(array, "array2");
-        Assertions.assertEquals(array, array);
+        var array3 = MethodArrayValue.of("name2");
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(array).isEqualTo(array);
+            soft.assertThat(array).isNotEqualTo(array2);
+            soft.assertThat(array).isNotEqualTo(array3);
+            soft.assertThat(array).isNotEqualTo(null);
+            soft.assertThat(array).isNotEqualTo("array2");
+        });
+    }
+
+    @Test
+    void shouldToString(){
+        ArrayQueryValue array = MethodArrayValue.of("name");
+        org.assertj.core.api.Assertions.assertThat(array.toString())
+                .isNotNull()
+                .isNotBlank()
+                .contains("name");
     }
 
     @Test
@@ -49,4 +64,14 @@ class MethodArrayValueTest {
         ArrayQueryValue array = MethodArrayValue.of("name");
         Assertions.assertEquals(array.hashCode(), array.hashCode());
     }
+
+    @Test
+    void shouldGet() {
+        ArrayQueryValue array = MethodArrayValue.of("name");
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(array.get()).isNotNull();
+            soft.assertThat(array.get()).hasSize(2);
+        });
+    }
+
 }
