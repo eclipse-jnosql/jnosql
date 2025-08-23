@@ -15,6 +15,8 @@ package org.eclipse.jnosql.communication.query.method;
 import org.eclipse.jnosql.communication.query.ArrayQueryValue;
 import org.eclipse.jnosql.communication.query.QueryValue;
 
+import java.util.Arrays;
+
 record MethodArrayValue(QueryValue<?>[] values) implements ArrayQueryValue {
 
     @Override
@@ -25,5 +27,26 @@ record MethodArrayValue(QueryValue<?>[] values) implements ArrayQueryValue {
     static ArrayQueryValue of(String name) {
         return new MethodArrayValue(new QueryValue[] {new MethodParamQueryValue(name),
                 new MethodParamQueryValue(name)});
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof MethodArrayValue that)) {
+            return false;
+        }
+        return Arrays.equals(this.values, that.values);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(this.values);
+    }
+
+    @Override
+    public String toString() {
+        return "{values=" + Arrays.toString(this.values) + '}';
     }
 }
