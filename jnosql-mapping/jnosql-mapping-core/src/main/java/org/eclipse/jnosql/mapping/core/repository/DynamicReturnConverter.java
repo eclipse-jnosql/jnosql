@@ -113,7 +113,7 @@ public enum DynamicReturnConverter {
         return convert(dynamicReturn);
     }
 
-    private static boolean queryContainsNamedParameters(final String query) {
+    static boolean queryContainsNamedParameters(final String query) {
 
         if (query == null || query.isEmpty()) {
             return false;
