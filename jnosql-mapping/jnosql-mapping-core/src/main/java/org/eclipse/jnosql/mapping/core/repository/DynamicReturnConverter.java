@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.core.repository;
 
 import jakarta.data.page.PageRequest;
-
 import org.eclipse.jnosql.mapping.PreparedStatement;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
 
@@ -25,8 +24,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
