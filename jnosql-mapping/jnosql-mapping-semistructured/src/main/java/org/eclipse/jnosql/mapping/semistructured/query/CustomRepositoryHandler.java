@@ -42,9 +42,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.eclipse.jnosql.mapping.core.query.AnnotationOperation.DELETE;
@@ -219,18 +218,26 @@ public class CustomRepositoryHandler implements InvocationHandler {
         LOGGER.fine(() -> "Looking for the default repository from the custom repository methods: " + customRepositoryType);
         Method[] methods = customRepositoryType.getMethods();
         for (Method method : methods) {
-            var type = RepositoryType.of(method, customRepositoryType);
-            switch (type) {
-                case PARAMETER_BASED, CURSOR_PAGINATION, FIND_ALL, FIND_BY -> {
-                    LOGGER.fine(() -> "The default repository found: " + method);
-                    return repository(method);
+            if (!method.isDefault()) {
+                RepositoryType type;
+                try {
+                    type = RepositoryType.of(method, customRepositoryType);
+                } catch (UnsupportedOperationException e) {
+                    LOGGER.log(Level.FINE, e, e::getMessage);
+                    continue;
                 }
-                case SAVE, INSERT, UPDATE -> {
-                    LOGGER.fine(() -> "The default repository found: " + method);
-                    return repository(method, method.getParameters());
-                }
-                default -> {
+                switch (type) {
+                    case PARAMETER_BASED, CURSOR_PAGINATION, FIND_ALL, FIND_BY -> {
+                        LOGGER.fine(() -> "The default repository found: " + method);
+                        return repository(method);
+                    }
+                    case SAVE, INSERT, UPDATE -> {
+                        LOGGER.fine(() -> "The default repository found: " + method);
+                        return repository(method, method.getParameters());
+                    }
+                    default -> {
 
+                    }
                 }
             }
 
