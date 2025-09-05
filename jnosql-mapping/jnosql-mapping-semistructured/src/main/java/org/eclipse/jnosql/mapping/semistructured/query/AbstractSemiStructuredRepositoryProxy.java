@@ -25,9 +25,11 @@ import jakarta.data.restrict.Restriction;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.QueryType;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.repository.DynamicQueryMethodReturn;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
+import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.semistructured.MappingDeleteQuery;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
@@ -39,8 +41,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-
-import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 
 import static java.util.stream.Collectors.toList;
 
@@ -119,7 +119,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
             return this.template().selectCursor(query, pageRequest);
         } else {
             var parameters = RepositoryReflectionUtils.INSTANCE.getBy(method, params);
-            var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(parameters, getSorts(method, entityMetadata()), entityMetadata());
+            var query = toQuery(parameters, method);
             var updateQuery = updateQueryDynamically(params, query);
             var special = DynamicReturn.findSpecialParameters(params, sortParser());
             var pageRequest = special.pageRequest()
@@ -149,7 +149,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
     @Override
     protected Object executeFindAll(Object instance, Method method, Object[] params) {
         Class<?> type = entityMetadata().type();
-        var query = org.eclipse.jnosql.communication.semistructured.SelectQuery.select().from(entityMetadata().name()).build();
+        var query = SelectQuery.select().from(entityMetadata().name()).build();
         return executeFindByQuery(method, params, type, updateQueryDynamically(params, query));
     }
 
@@ -173,8 +173,12 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
     protected Object executeParameterBased(Object instance, Method method, Object[] params) {
         Class<?> type = entityMetadata().type();
         Map<String, Object> parameters = RepositoryReflectionUtils.INSTANCE.getBy(method, params);
-        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(parameters, getSorts(method, entityMetadata()), entityMetadata());
+        var query = toQuery(parameters, method);
         return executeFindByQuery(method, params, type, updateQueryDynamically(params, query));
+    }
+
+    protected SelectQuery toQuery(Map<String, Object> parameters, Method method) {
+        return SemiStructuredParameterBasedQuery.INSTANCE.toQuery(parameters, getSorts(method, entityMetadata()), entityMetadata());
     }
 
     @Override
