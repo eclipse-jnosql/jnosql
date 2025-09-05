@@ -46,6 +46,7 @@ public enum SemiStructuredParameterBasedQuery {
      * Constructs a ColumnQuery based on the provided parameters, PageRequest information, and entity metadata.
      *
      * @param params          The map of parameters used for filtering columns.
+     * @param sorts           The list of sorting instructions to to sort the query results
      * @param entityMetadata  Metadata describing the structure of the entity.
      * @return                 A ColumnQuery instance tailored for the specified entity.
      */
