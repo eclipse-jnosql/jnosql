@@ -85,16 +85,19 @@ final class MethodSelectQuery  implements SelectQuery {
         }
         MethodSelectQuery that = (MethodSelectQuery) o;
         return Objects.equals(entity, that.entity) &&
-                Objects.equals(where, that.where);
+                Objects.equals(where, that.where) &&
+                Objects.equals(sorts, that.sorts)  &&
+                Objects.equals(limit, that.limit) &&
+                Objects.equals(count, that.count);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(entity, where);
+        return Objects.hash(entity, where, sorts, limit, count);
     }
 
     @Override
     public String toString() {
-        return entity + " where " + where + " orderBy " + sorts;
+        return entity + " where " + where + " orderBy " + sorts + " limit " + limit + " count " + count;
     }
 }
