@@ -65,7 +65,7 @@
         <jakarta.validation.version>3.1.1</jakarta.validation.version>
         <maven-javadoc-plugin.vesion>3.11.1</maven-javadoc-plugin.vesion>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-        <maven.checkstyle.plugin.version>3.5.0</maven.checkstyle.plugin.version>
+        <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
         <maven.compile.version>3.14.0</maven.compile.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
