@@ -85,7 +85,7 @@
         <checkstyle.version>11.0.1</checkstyle.version>
         <!-- testing libraries -->
         <junit.version>5.12.1</junit.version>
-        <mockito.verson>5.19.0</mockito.verson>
+        <mockito.verson>5.20.0</mockito.verson>
         <assertj.version>3.27.3</assertj.version>
         <awaitility.version>4.3.0</awaitility.version>
         <datafaker.version>2.4.4</datafaker.version>
