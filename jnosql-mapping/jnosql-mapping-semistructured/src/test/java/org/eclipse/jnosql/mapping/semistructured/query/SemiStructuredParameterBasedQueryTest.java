@@ -17,12 +17,16 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 import jakarta.data.Sort;
 import jakarta.data.page.PageRequest;
 import jakarta.inject.Inject;
+import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.mapping.core.Converters;
+
+import org.eclipse.jnosql.mapping.core.repository.ParamValue;
+
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -35,6 +39,8 @@ import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +66,7 @@ class SemiStructuredParameterBasedQueryTest {
 
     @Test
     void shouldCreateQuerySingleParameter() {
-        Map<String, Object> params = Map.of("name", "Ada");
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(Condition.EQUALS, "Ada", false));
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
 
         SoftAssertions.assertSoftly(soft -> {
@@ -69,13 +75,136 @@ class SemiStructuredParameterBasedQueryTest {
             soft.assertThat(query.name()).isEqualTo("Person");
             soft.assertThat(query.sorts()).isEmpty();
             soft.assertThat(query.condition()).isNotEmpty();
+            var condition = query.condition().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(query.condition()).get().isEqualTo(CriteriaCondition.eq(Element.of("name", "Ada")));
         });
     }
 
     @Test
+    void shouldCreateQueryGreaterThan() {
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(Condition.GREATER_THAN, "Ada", false));
+        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.limit()).isEqualTo(0L);
+            soft.assertThat(query.skip()).isEqualTo(0L);
+            soft.assertThat(query.name()).isEqualTo("Person");
+            soft.assertThat(query.sorts()).isEmpty();
+            soft.assertThat(query.condition()).isNotEmpty();
+            var condition = query.condition().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.GREATER_THAN);
+            soft.assertThat(condition.element()).isEqualTo(Element.of("name","Ada"));
+        });
+    }
+
+    @ParameterizedTest(name = "Executing parameter query: {index} - {0}")
+    @EnumSource(value = Condition.class, names = {"IN", "BETWEEN", "OR", "AND", "NOT"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldUpdateParameterBasedOnSimpleQuery(Condition condition) {
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(condition,"Ada", false));
+        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.limit()).isEqualTo(0L);
+            soft.assertThat(query.skip()).isEqualTo(0L);
+            soft.assertThat(query.name()).isEqualTo("Person");
+            soft.assertThat(query.sorts()).isEmpty();
+            soft.assertThat(query.condition()).isNotEmpty();
+            var criteriaCondition = query.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(condition);
+            soft.assertThat(criteriaCondition.element()).isEqualTo(Element.of("name", "Ada"));
+        });
+    }
+
+    @ParameterizedTest(name = "Executing invalid iterable to parameter query: {index} - {0}")
+    @EnumSource(value = Condition.class, names = {"IN", "BETWEEN", "OR", "AND", "NOT"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldNotAllowIterableOnSimpleQuery(Condition condition) {
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(condition,List.of("Ada"), false));
+        Assertions.assertThatThrownBy(() -> SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest(name = "Executing invalid array to parameter query: {index} - {0}")
+    @EnumSource(value = Condition.class, names = {"IN", "BETWEEN", "OR", "AND", "NOT"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldNotAllowArrayOnSimpleQuery(Condition condition) {
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(condition, new String[] {"Ada"}, false));
+        Assertions.assertThatThrownBy(() -> SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest(name = "Executing invalid iterable to parameter query: {index} - {0}")
+    @EnumSource(value = Condition.class, names = {"IN", "BETWEEN"}, mode = EnumSource.Mode.INCLUDE)
+    void shouldNotAllowNotArrayAndIterable(Condition condition) {
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(condition,"Ada", false));
+        Assertions.assertThatThrownBy(() -> SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest(name = "Executing parameter query: {index} - {0}")
+    @EnumSource(value = Condition.class, names = {"IN", "BETWEEN"}, mode = EnumSource.Mode.INCLUDE)
+    void shouldUpdateParameterBasedOnQueryThatNeedsIterable(Condition condition) {
+        Map<String, ParamValue> params = Map.of("age", new ParamValue(condition, List.of(10, 20), false));
+        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.limit()).isEqualTo(0L);
+            soft.assertThat(query.skip()).isEqualTo(0L);
+            soft.assertThat(query.name()).isEqualTo("Person");
+            soft.assertThat(query.sorts()).isEmpty();
+            soft.assertThat(query.condition()).isNotEmpty();
+            var criteriaCondition = query.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(condition);
+            soft.assertThat(criteriaCondition.element()).isEqualTo(Element.of("age", List.of(10, 20)));
+        });
+    }
+
+    @Test
+    void shouldNotAllowBetweenWithSingleValue() {
+        Map<String, ParamValue> params = Map.of("age", new ParamValue(Condition.BETWEEN, List.of(10), false));
+        Assertions.assertThatThrownBy(() -> SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest(name = "Executing parameter query: {index} - {0}")
+    @EnumSource(value = Condition.class, names = {"IN", "BETWEEN"}, mode = EnumSource.Mode.INCLUDE)
+    void shouldUpdateParameterBasedOnQueryThatNeedsArray(Condition condition) {
+        Map<String, ParamValue> params = Map.of("age", new ParamValue(condition, new int[]{10, 20}, false));
+        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.limit()).isEqualTo(0L);
+            soft.assertThat(query.skip()).isEqualTo(0L);
+            soft.assertThat(query.name()).isEqualTo("Person");
+            soft.assertThat(query.sorts()).isEmpty();
+            soft.assertThat(query.condition()).isNotEmpty();
+            var criteriaCondition = query.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(condition);
+            soft.assertThat(criteriaCondition.element()).isEqualTo(Element.of("age", List.of(10, 20)));
+        });
+    }
+
+    @Test
+    void shouldCreateQuerySingleParameterWithNot() {
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(Condition.EQUALS, "Ada", true));
+        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.limit()).isEqualTo(0L);
+            soft.assertThat(query.skip()).isEqualTo(0L);
+            soft.assertThat(query.name()).isEqualTo("Person");
+            soft.assertThat(query.sorts()).isEmpty();
+            soft.assertThat(query.condition()).isNotEmpty();
+            var condition = query.condition().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
+            var criteriaCondition = condition.element().get(CriteriaCondition.class);
+            soft.assertThat(criteriaCondition).isEqualTo(CriteriaCondition.eq(Element.of("name", "Ada")));
+        });
+    }
+
+    @Test
     void shouldCreateQueryMultipleParams() {
-        Map<String, Object> params = Map.of("name", "Ada", "age", 10);
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(Condition.EQUALS, "Ada", false),
+                "age", new ParamValue(Condition.EQUALS, 10, false));
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
 
         SoftAssertions.assertSoftly(soft -> {
@@ -95,7 +224,7 @@ class SemiStructuredParameterBasedQueryTest {
 
     @Test
     void shouldCreateQueryEmptyParams() {
-        Map<String, Object> params = Collections.emptyMap();
+        Map<String, ParamValue> params = Collections.emptyMap();
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);
 
         SoftAssertions.assertSoftly(soft -> {
@@ -109,7 +238,7 @@ class SemiStructuredParameterBasedQueryTest {
 
     @Test
     void shouldAddSort() {
-        Map<String, Object> params = Collections.emptyMap();
+        Map<String, ParamValue> params = Collections.emptyMap();
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, List.of(Sort.asc("name")), metadata);
 
         SoftAssertions.assertSoftly(soft -> {
