@@ -4,8 +4,6 @@ The mapping level, to put it differently, has the same goals as either the JPA o
 
 This level is in charge to perform integration among technologies such as Bean Validation. The Mapping API has annotations that make the Java developer’s life easier. As a communication project, it must be extensible and configurable to keep the diversity of NoSQL database.
 
-
-
 === The Mapping structure
 
 The mapping API has five parts:

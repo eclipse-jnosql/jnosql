@@ -66,7 +66,7 @@ public final class Elements {
         if (value instanceof Map) {
             List list = of(Map.class.cast(value));
             if(list.size() == 1) {
-                return list.get(0);
+                return list.getFirst();
             }
             return list;
         }

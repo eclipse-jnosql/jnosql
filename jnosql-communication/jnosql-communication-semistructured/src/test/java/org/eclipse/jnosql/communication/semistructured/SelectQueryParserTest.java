@@ -10,13 +10,14 @@
  */
 package org.eclipse.jnosql.communication.semistructured;
 
+import jakarta.data.Direction;
+import jakarta.data.Sort;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.QueryException;
-import jakarta.data.Sort;
-import jakarta.data.Direction;
 import org.eclipse.jnosql.communication.TypeReference;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
@@ -273,7 +274,7 @@ class SelectQueryParserTest {
         assertEquals(Condition.NOT, condition.condition());
         List<CriteriaCondition> conditions = element.get(new TypeReference<>() {
         });
-        CriteriaCondition criteriaCondition = conditions.get(0);
+        CriteriaCondition criteriaCondition = conditions.getFirst();
         assertEquals(Condition.LIKE, criteriaCondition.condition());
         assertEquals(Element.of("name", "Ada"), criteriaCondition.element());
     }
@@ -390,7 +391,7 @@ class SelectQueryParserTest {
 
             soft.assertThat(age.name()).isEqualTo("age");
             soft.assertThat(age.get()).isEqualTo(12);
-            soft.assertThat(conditions.get(0).condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(conditions.getFirst().condition()).isEqualTo(Condition.EQUALS);
 
             soft.assertThat(name.name()).isEqualTo("name");
             soft.assertThat(name.get()).isEqualTo("Otavio");
@@ -442,12 +443,20 @@ class SelectQueryParserTest {
 
             soft.assertThat(age.name()).isEqualTo("age");
             soft.assertThat(age.get()).isEqualTo(12);
-            soft.assertThat(conditions.get(0).condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(conditions.getFirst().condition()).isEqualTo(Condition.EQUALS);
 
             soft.assertThat(name.name()).isEqualTo("name");
             soft.assertThat(name.get()).isEqualTo("Otavio");
             soft.assertThat(conditions.get(1).condition()).isEqualTo(Condition.EQUALS);
         });
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"select count(this) FROM entity WHERE age = ?1 AND name = ?2"})
+    void shouldGetIssueWhenCount(String query) {
+        CommunicationPreparedStatement prepare = parser.prepare(query, null, manager, observer);
+        Assertions.assertThatThrownBy(() -> prepare.count());
+
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -533,6 +542,14 @@ class SelectQueryParserTest {
             softly.assertThat(select.orElseThrow().name()).isEqualTo("entity");
             softly.assertThat(select.orElseThrow().condition()).isNotEmpty();
         });
+    }
+
+    @Test
+    void shouldApply() {
+        SelectQueryParser queryParser = new SelectQueryParser();
+        org.eclipse.jnosql.communication.query.SelectQuery query = Mockito.mock(org.eclipse.jnosql.communication.query.SelectQuery.class);
+        CommunicationObserverParser observer = Mockito.mock(CommunicationObserverParser.class);
+        queryParser.apply(query, observer);
     }
 
     private void checkBaseQuery(SelectQuery selectQuery) {

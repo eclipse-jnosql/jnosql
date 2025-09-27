@@ -15,11 +15,10 @@
 package org.eclipse.jnosql.mapping.keyvalue;
 
 
-import org.eclipse.jnosql.communication.keyvalue.KeyValueEntity;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
+import org.eclipse.jnosql.communication.keyvalue.KeyValueEntity;
 import org.eclipse.jnosql.mapping.EntityPostPersist;
 import org.eclipse.jnosql.mapping.EntityPrePersist;
 

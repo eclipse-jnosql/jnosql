@@ -726,7 +726,7 @@ class RepositoryProxyTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        final Sort<?> sort = query.sorts().get(0);
+        final Sort<?> sort = query.sorts().getFirst();
         final Element document = condition.element();
         assertEquals("Person", query.name());
         assertEquals("salary.currency", document.name());

@@ -12,6 +12,10 @@ package org.eclipse.jnosql.communication.semistructured;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -84,5 +88,49 @@ class QueryTypeTest {
                 .isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> QueryType.UPDATE.checkValidReturn(String.class, "UPDATE table SET name = 'newName' WHERE id = 1"))
                 .isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = {Void.class, void.class})
+    void shouldIsVoid(Class<?> type) {
+        Assertions.assertThat(QueryType.SELECT.isVoid(type)).isTrue();
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = {String.class, Integer.class})
+    void shouldNotIsVoid(Class<?> type) {
+        Assertions.assertThat(QueryType.SELECT.isVoid(type)).isFalse();
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = {Integer.class, int.class})
+    void shouldIsInt(Class<?> type) {
+        Assertions.assertThat(QueryType.SELECT.isInt(type)).isTrue();
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = {String.class, List.class})
+    void shouldNotIsInt(Class<?> type) {
+        Assertions.assertThat(QueryType.SELECT.isInt(type)).isFalse();
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = {Long.class, long.class})
+    void shouldIsLong(Class<?> type) {
+        Assertions.assertThat(QueryType.SELECT.isLong(type)).isTrue();
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = {String.class, List.class})
+    void shouldNotIsLong(Class<?> type) {
+        Assertions.assertThat(QueryType.SELECT.isLong(type)).isFalse();
+    }
+
+    @Test
+    void shouldCheckValueReturn() {
+        QueryType type = QueryType.UPDATE;
+        Assertions.assertThatThrownBy(() -> type.checkValidReturn(String.class, "UPDATE table SET name = 'newName' WHERE id = 1"))
+                .isInstanceOf(UnsupportedOperationException.class);
+
     }
 }

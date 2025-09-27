@@ -15,8 +15,8 @@
 package org.eclipse.jnosql.mapping.semistructured.query;
 
 import org.eclipse.jnosql.communication.semistructured.CommunicationObserverParser;
-import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryObserverParser;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 
 import java.util.Objects;
 

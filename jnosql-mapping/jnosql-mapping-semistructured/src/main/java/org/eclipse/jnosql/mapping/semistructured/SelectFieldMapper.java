@@ -32,7 +32,7 @@ enum SelectFieldMapper {
         List<String> fields = observer.fields();
         EntityMetadata metadata = entitiesMetadata.findByName(observer.entity());
         if (fields.size() == 1) {
-            var field = fields.get(0);
+            var field = fields.getFirst();
             return entity -> field(entity, metadata, field);
         } else {
             return entity -> fields(entity, fields, metadata);

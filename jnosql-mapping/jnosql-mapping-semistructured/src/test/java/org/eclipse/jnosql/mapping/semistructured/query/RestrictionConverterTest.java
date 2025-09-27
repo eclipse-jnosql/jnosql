@@ -373,7 +373,7 @@ class RestrictionConverterTest {
             var element = condition.element();
             List<CriteriaCondition> conditions = element.get(new TypeReference<>() {});
             soft.assertThat(conditions).isNotEmpty().hasSize(2);
-            CriteriaCondition equalsElement = conditions.get(0);
+            CriteriaCondition equalsElement = conditions.getFirst();
             soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
             soft.assertThat(equalsElement.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(equalsElement.element().name()).isEqualTo(_Product.NAME);
@@ -400,7 +400,7 @@ class RestrictionConverterTest {
             var element = condition.element();
             List<CriteriaCondition> conditions = element.get(new TypeReference<>() {});
             soft.assertThat(conditions).isNotEmpty().hasSize(2);
-            CriteriaCondition equalsElement = conditions.get(0).element().get(CriteriaCondition.class);
+            CriteriaCondition equalsElement = conditions.getFirst().element().get(CriteriaCondition.class);
             soft.assertThat(condition.condition()).isEqualTo(Condition.OR);
             soft.assertThat(equalsElement.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(equalsElement.element().name()).isEqualTo(_Product.NAME);
@@ -428,7 +428,7 @@ class RestrictionConverterTest {
             var element = condition.element();
             List<CriteriaCondition> conditions = element.get(new TypeReference<>() {});
             soft.assertThat(conditions).isNotEmpty().hasSize(2);
-            CriteriaCondition equalsElement = conditions.get(0);
+            CriteriaCondition equalsElement = conditions.getFirst();
             soft.assertThat(condition.condition()).isEqualTo(Condition.OR);
             soft.assertThat(equalsElement.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(equalsElement.element().name()).isEqualTo(_Product.NAME);
@@ -455,7 +455,7 @@ class RestrictionConverterTest {
             var element = condition.element();
             List<CriteriaCondition> conditions = element.get(new TypeReference<>() {});
             soft.assertThat(conditions).isNotEmpty().hasSize(2);
-            CriteriaCondition equalsElement = conditions.get(0).element().get(CriteriaCondition.class);
+            CriteriaCondition equalsElement = conditions.getFirst().element().get(CriteriaCondition.class);
             soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
             soft.assertThat(equalsElement.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(equalsElement.element().name()).isEqualTo(_Product.NAME);

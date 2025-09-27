@@ -14,9 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
-import jakarta.data.repository.CrudRepository;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import jakarta.data.repository.CrudRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -186,7 +186,7 @@ class DynamicReturnPaginationTest {
         Assertions.assertTrue(execute instanceof List);
         List<Person> persons = (List) execute;
         Assertions.assertFalse(persons.isEmpty());
-        Assertions.assertEquals(new Person("Ada"), persons.get(0));
+        Assertions.assertEquals(new Person("Ada"), persons.getFirst());
 
         Mockito.verify(singlePagination, Mockito.never()).apply(pageRequest);
         Mockito.verify(streamPagination).apply(pageRequest);
@@ -349,7 +349,7 @@ class DynamicReturnPaginationTest {
         Assertions.assertTrue(execute instanceof SortedSet);
         SortedSet<Person> persons = (SortedSet) execute;
         Assertions.assertFalse(persons.isEmpty());
-        Assertions.assertEquals(new Person("Ada"), persons.iterator().next());
+        Assertions.assertEquals(new Person("Ada"), persons.getFirst());
         Mockito.verify(singlePagination, Mockito.never()).apply(pageRequest);
         Mockito.verify(streamPagination).apply(pageRequest);
     }
@@ -376,7 +376,7 @@ class DynamicReturnPaginationTest {
         Assertions.assertTrue(execute instanceof NavigableSet);
         NavigableSet<Person> persons = (NavigableSet) execute;
         Assertions.assertFalse(persons.isEmpty());
-        Assertions.assertEquals(new Person("Ada"), persons.iterator().next());
+        Assertions.assertEquals(new Person("Ada"), persons.getFirst());
         Mockito.verify(singlePagination, Mockito.never()).apply(pageRequest);
         Mockito.verify(streamPagination).apply(pageRequest);
     }
@@ -404,7 +404,7 @@ class DynamicReturnPaginationTest {
         Assertions.assertTrue(execute instanceof Deque);
         Deque<Person> persons = (Deque) execute;
         Assertions.assertFalse(persons.isEmpty());
-        Assertions.assertEquals(new Person("Ada"), persons.iterator().next());
+        Assertions.assertEquals(new Person("Ada"), persons.getFirst());
         Mockito.verify(singlePagination, Mockito.never()).apply(pageRequest);
         Mockito.verify(streamPagination).apply(pageRequest);
     }

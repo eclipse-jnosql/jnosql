@@ -26,4 +26,8 @@ public interface Tasks {
     @Query("from Task where active = true")
     List<Task> listActiveTasks();
 
+    List<Task> findAll();
+
+    void deleteByName(String name);
+
 }

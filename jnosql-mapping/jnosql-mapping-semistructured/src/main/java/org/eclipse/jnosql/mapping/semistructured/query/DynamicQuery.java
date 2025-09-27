@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2023,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -18,9 +18,9 @@ import jakarta.data.Limit;
 import jakarta.data.Sort;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
-import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.SpecialParameters;
+import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +57,7 @@ public class DynamicQuery implements Supplier<SelectQuery> {
             return new MappingQuery(sorts, max,
                     skip,
                     query.condition().orElse(null),
-                    query.name());
+                    query.name(), query.columns());
         }
 
         if (limit.isPresent()) {
@@ -71,7 +71,8 @@ public class DynamicQuery implements Supplier<SelectQuery> {
             return new MappingQuery(sorts, max,
                     skip,
                     query.condition().orElse(null),
-                    query.name());
+                    query.name(),
+                    query.columns());
         }
 
         return special.pageRequest().<SelectQuery>map(p -> {
@@ -83,7 +84,7 @@ public class DynamicQuery implements Supplier<SelectQuery> {
                 sorts.addAll(special.sorts());
             }
             return new MappingQuery(sorts, size, skip,
-                    query.condition().orElse(null), query.name());
+                    query.condition().orElse(null), query.name(), query.columns());
         }).orElse(query);
     }
 

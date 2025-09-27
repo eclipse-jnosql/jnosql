@@ -16,8 +16,8 @@ package org.eclipse.jnosql.mapping.core.repository;
 
 import jakarta.data.Limit;
 import jakarta.data.Order;
-import jakarta.data.page.PageRequest;
 import jakarta.data.Sort;
+import jakarta.data.page.PageRequest;
 import jakarta.data.restrict.Restriction;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Assertions;
@@ -34,7 +34,9 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SpecialParametersTest {
 

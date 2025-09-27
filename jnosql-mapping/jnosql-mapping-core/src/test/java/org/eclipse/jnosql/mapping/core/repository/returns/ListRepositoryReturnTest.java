@@ -63,7 +63,7 @@ class ListRepositoryReturnTest {
         List<Person> person = (List<Person>) repositoryReturn.convert(dynamic);
         Assertions.assertNotNull(person);
         assertFalse(person.isEmpty());
-        Assertions.assertEquals(ada, person.get(0));
+        Assertions.assertEquals(ada, person.getFirst());
     }
 
     @Test
@@ -82,7 +82,7 @@ class ListRepositoryReturnTest {
         List<Person> person = (List<Person>) repositoryReturn.convertPageRequest(dynamic);
         Assertions.assertNotNull(person);
         assertFalse(person.isEmpty());
-        assertEquals(ada, person.get(0));
+        assertEquals(ada, person.getFirst());
     }
 
 

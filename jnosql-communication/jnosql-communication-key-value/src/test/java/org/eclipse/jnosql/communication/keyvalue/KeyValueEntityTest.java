@@ -17,6 +17,7 @@
  */
 package org.eclipse.jnosql.communication.keyvalue;
 
+import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.Value;
 import org.junit.jupiter.api.DisplayName;
@@ -101,5 +102,35 @@ class KeyValueEntityTest {
         KeyValueEntity entity = KeyValueEntity.of("10", value);
 
         assertThatNullPointerException().isThrownBy(() -> entity.key((TypeReference<Object>) null)).withMessage("supplier is required");
+    }
+
+    @Test
+    void shouldToString() {
+        KeyValueEntity entity = KeyValueEntity.of(KEY, VALUE);
+        String expected = "KeyValueEntity{key=key, value=VALUE}";
+
+        assertThat(entity.toString()).isNotNull();
+    }
+
+    @Test
+    void shouldHashCodeAndEquals() {
+        KeyValueEntity entity1 = KeyValueEntity.of(KEY, VALUE);
+        KeyValueEntity entity2 = KeyValueEntity.of(KEY, VALUE);
+        KeyValueEntity entity3 = KeyValueEntity.of("anotherKey", "anotherValue");
+
+        assertThat(entity1).isEqualTo(entity1);
+        assertThat(entity1).isEqualTo(entity2);
+        assertThat(entity1).isNotEqualTo(entity3);
+        assertThat(entity1.hashCode()).isEqualTo(entity2.hashCode());
+        assertThat(entity1.hashCode()).isNotEqualTo(entity3.hashCode());
+    }
+
+    @Test
+    void shouldValue() {
+        KeyValueEntity entity1 = KeyValueEntity.of(Value.of(KEY), VALUE);
+        var value = entity1.value(String.class);
+
+        Assertions.assertThat(value).isEqualTo(VALUE);
+
     }
 }

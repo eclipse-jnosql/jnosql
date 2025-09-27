@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.core;
 
 import jakarta.enterprise.context.ApplicationScoped;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;

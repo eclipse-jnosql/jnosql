@@ -14,10 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.core;
 
-import jakarta.nosql.AttributeConverter;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.nosql.AttributeConverter;
 
 @ApplicationScoped
 public class MyConverter implements AttributeConverter<String, String> {

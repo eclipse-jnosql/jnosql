@@ -176,6 +176,24 @@ class DefaultDeleteQueryBuilderTest {
     }
 
     @Test
+    void shouldSelectWhereNameIn() {
+        String columnFamily = "columnFamily";
+        Number valueA = 10;
+        Number valueB = 20;
+        DeleteQuery query = delete().from(columnFamily).where("name").in(List.of(valueA, valueB)).build();
+        CriteriaCondition condition = query.condition().get();
+
+        Element element = condition.element();
+
+        assertTrue(query.columns().isEmpty());
+        assertEquals(columnFamily, query.name());
+        assertEquals(Condition.IN, condition.condition());
+        assertEquals("name", element.name());
+        assertThat(element.get(new TypeReference<List<Number>>() {
+        })).contains(10, 20);
+    }
+
+    @Test
     void shouldSelectWhereNameNot() {
         String columnFamily = "columnFamily";
         String name = "Ada Lovelace";

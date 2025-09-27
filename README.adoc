@@ -18,6 +18,19 @@ Eclipse JNoSQL is a compatible implementation of the https://jakarta.ee/specific
 * Explore the popularity of Apache TinkerPop in Graph API
 * Jakarta NoSQL and Data implementations
 
+== Why Eclipse JNoSQL?
+
+Eclipse JNoSQL is a Java framework that unifies NoSQL access across different database types, including Key-Value, Column Family, Document, and Graph. Built on top of the Jakarta NoSQL and Jakarta Data specifications, it simplifies development through standard annotations, fluent APIs, and full compatibility with Jakarta EE and MicroProfile runtimes.
+
+Use Eclipse JNoSQL to:
+
+* Increase productivity with annotation-based object mapping
+* Write expressive queries using a fluent or method-name DSL
+* Reduce boilerplate through CDI-managed components and lifecycle events
+* Switch NoSQL vendors with minimal code changes
+* Align with modern practices like Domain-Driven Design (DDD)
+* Rely on a standards-based solution compatible with Jakarta EE and MicroProfile servers
+
 == One Mapping API to Multiples NoSQL Databases
 
 Eclipse JNoSQL provides one API for each NoSQL database type. However, it incorporates the same annotations from the https://jakarta.ee/specifications/persistence/[Jakarta Persistence] specification and inherits from the Java Persistence Java Persistence API (JPA) to map Java objects. Therefore, with just these annotations that look like JPA, there is support for more than twenty NoSQL databases.
@@ -153,7 +166,7 @@ Eclipse JNoSQL offers a mapping implementation for Key-Value NoSQL types:
 <dependency>
     <groupId>org.eclipse.jnosql.mapping</groupId>
     <artifactId>jnosql-mapping-key-value</artifactId>
-    <version>1.1.8</version>
+    <version>1.1.10</version>
 </dependency>
 ----
 
@@ -276,7 +289,7 @@ Eclipse JNoSQL offers a mapping implementation for Column NoSQL types:
 <dependency>
     <groupId>org.eclipse.jnosql.mapping</groupId>
     <artifactId>jnosql-mapping-column</artifactId>
-    <version>1.1.8</version>
+    <version>1.1.10</version>
 </dependency>
 ----
 
@@ -374,7 +387,7 @@ Eclipse JNoSQL offers a mapping implementation for Document NoSQL types:
 <dependency>
     <groupId>org.eclipse.jnosql.mapping</groupId>
     <artifactId>jnosql-mapping-document</artifactId>
-    <version>1.1.8</version>
+    <version>1.1.10</version>
 </dependency>
 ----
 
@@ -473,7 +486,7 @@ To start using graph databases with Eclipse JNoSQL, add the required dependency:
 <dependency>
     <groupId>org.eclipse.jnosql.mapping</groupId>
     <artifactId>jnosql-mapping-graph</artifactId>
-    <version>1.1.8</version>
+    <version>1.1.10</version>
 </dependency>
 ----
 
@@ -547,79 +560,11 @@ private GraphTemplate graphB;
 
 === Jakarta Data
 
-Eclipse JNoSQL as a Jakarta Data implementations supports the following list of predicate keywords on their repositories.
+Eclipse JNoSQL as a https://jakarta.ee/specifications/data/1.0/jakarta-data-1.0[Jakarta Data] exploring more the NoSQL capabilities, provides a mapping API that allows you to map Java objects to NoSQL databases.
 
+=== Jakarta NoSQL
 
-|===
-|Keyword |Description | Method signature Sample
-
-|And
-|The ```and``` operator.
-|findByNameAndYear
-
-|Or
-|The ```or``` operator.
-|findByNameOrYear
-
-|Between
-|Find results where the property is between the given values
-|findByDateBetween
-
-|LessThan
-|Find results where the property is less than the given value
-|findByAgeLessThan
-
-|GreaterThan
-|Find results where the property is greater than the given value
-|findByAgeGreaterThan
-
-|LessThanEqual
-|Find results where the property is less than or equal to the given value
-|findByAgeLessThanEqual
-
-|GreaterThanEqual
-|Find results where the property is greater than or equal to the given value
-|findByAgeGreaterThanEqual
-
-|Like
-|Finds string values "like" the given expression
-|findByTitleLike
-
-|In
-|Find results where the property is one of the values that are contained within the given list
-|findByIdIn
-
-|True
-|Finds results where the property has a boolean value of true.
-|findBySalariedTrue
-
-|False
-|Finds results where the property has a boolean value of false.
-|findByCompletedFalse
-
-|Not
-|The logical NOT negates all the previous keywords, but True or False. It needs to include as a prefix "Not" to a keyword.
-|findByNameNot, findByAgeNotGreaterThan
-
-|OrderBy
-|Specify a static sorting order followed by the property path and direction of ascending.
-|findByNameOrderByAge
-
-|OrderBy____Desc
-|Specify a static sorting order followed by the property path and direction of descending.
-|findByNameOrderByAgeDesc
-
-|OrderBy____Asc
-|Specify a static sorting order followed by the property path and direction of ascending.
-|findByNameOrderByAgeAsc
-
-|OrderBy____(Asc\|Desc)*(Asc\|Desc)
-|Specify several static sorting orders
-|findByNameOrderByAgeAscNameDescYearAsc
-
-|===
-
-WARNING: Eclipse JNoSQL does not support `OrderBy` annotation.
+Eclipse JNoSQL is a https://jakarta.ee/specifications/nosql/1.0/jakarta-nosql-1.0[Jakarta NoSQL] implementation that provides a standard way to access NoSQL databases in Java applications. It offers a set of annotations and APIs to interact with various NoSQL database types, including Key-Value, Column Family, Document, and Graph.
 
 === More Information
 
@@ -707,5 +652,4 @@ By keeping these paths separate, Eclipse JNoSQL ensures a smoother transition fo
 
 If you want to know more about both the communication and mapping layer, there are two complementary files for it each specific topic:
 
-* link:COMMUNICATION.adoc[Communication API]
 * link:MAPPING.adoc[Mapping API]

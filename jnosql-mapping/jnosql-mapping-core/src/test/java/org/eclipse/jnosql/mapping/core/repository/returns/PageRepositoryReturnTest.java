@@ -73,7 +73,7 @@ class PageRepositoryReturnTest {
         List<Person> content = personPage.content();
 
         assertFalse(content.isEmpty());
-        assertEquals(ada, content.get(0));
+        assertEquals(ada, content.getFirst());
     }
 
 

@@ -16,7 +16,6 @@ package org.eclipse.jnosql.mapping.core.repository.returns;
 
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
-import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
 import org.junit.jupiter.api.Assertions;

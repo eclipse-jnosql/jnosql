@@ -18,6 +18,7 @@ import jakarta.data.Limit;
 import jakarta.data.Sort;
 import jakarta.data.page.PageRequest;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.core.NoSQLPage;
 import org.eclipse.jnosql.mapping.core.repository.SpecialParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,8 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 
 
 class DynamicQueryTest {
@@ -146,5 +149,125 @@ class DynamicQueryTest {
         assertEquals(0, columnQuery.skip());
         assertEquals(20, columnQuery.limit());
         assertEquals(1, columnQuery.sorts().size());
+    }
+
+    @Test
+    void shouldMergeSortsWhenHasOnlySortAndNoLimit() {
+        when(special.isEmpty()).thenReturn(false);
+        when(special.hasOnlySort()).thenReturn(true);
+        when(special.limit()).thenReturn(Optional.empty());
+        when(special.sorts()).thenReturn(List.of(Sort.asc("lastName")));
+        when(query.sorts()).thenReturn(List.of(Sort.asc("name")));
+        when(query.skip()).thenReturn(5L);
+        when(query.limit()).thenReturn(10L);
+        when(query.condition()).thenReturn(Optional.empty());
+        when(query.name()).thenReturn("sampleQuery");
+
+        SelectQuery result = new DynamicQuery(special, query).get();
+
+        assertSoftly(softly -> {
+            softly.assertThat(result.name()).isEqualTo("sampleQuery");
+            softly.assertThat(result.skip()).isEqualTo(5L);      // from original query
+            softly.assertThat(result.limit()).isEqualTo(10L);    // from original query
+            softly.assertThat(result.sorts()).hasSize(2);        // query.sorts + special.sorts
+        });
+    }
+
+    @Test
+    void shouldMergeSortsAndApplyLimitWhenHasOnlySort() {
+        when(special.isEmpty()).thenReturn(false);
+        when(special.hasOnlySort()).thenReturn(true);
+        when(special.limit()).thenReturn(Optional.of(Limit.range(3, 7)));
+        when(special.sorts()).thenReturn(List.of(Sort.asc("lastName")));
+        when(query.sorts()).thenReturn(List.of(Sort.desc("age")));
+        when(query.skip()).thenReturn(0L);
+        when(query.limit()).thenReturn(50L);
+        when(query.condition()).thenReturn(Optional.empty());
+        when(query.name()).thenReturn("sampleQuery");
+
+        SelectQuery result = new DynamicQuery(special, query).get();
+
+        assertSoftly(softly -> {
+            softly.assertThat(result.name()).isEqualTo("sampleQuery");
+            softly.assertThat(result.skip()).isEqualTo(2L);
+            softly.assertThat(result.limit()).isEqualTo(5L);
+            softly.assertThat(result.sorts()).hasSize(2);
+        });
+    }
+
+    @Test
+    void shouldAppendSpecialSortsWhenLimitPresent() {
+        when(special.isEmpty()).thenReturn(false);
+        when(special.hasOnlySort()).thenReturn(false);
+        when(special.limit()).thenReturn(Optional.of(Limit.of(10)));
+        when(special.sorts()).thenReturn(List.of(Sort.asc("city"))); // appended after query sorts
+        when(query.sorts()).thenReturn(List.of(Sort.asc("name")));
+        when(query.skip()).thenReturn(0L);
+        when(query.limit()).thenReturn(100L);
+        when(query.condition()).thenReturn(Optional.empty());
+        when(query.name()).thenReturn("sampleQuery");
+
+        SelectQuery result = new DynamicQuery(special, query).get();
+
+        assertSoftly(softly -> {
+            softly.assertThat(result.limit()).isEqualTo(10L);
+            softly.assertThat(result.skip()).isEqualTo(0L);
+            softly.assertThat(result.sorts()).hasSize(2); // query.sorts then special.sorts
+        });
+    }
+
+    @Test
+    void shouldUsePageRequestWhenPresentMergingSorts() {
+        when(special.isEmpty()).thenReturn(false);
+        when(special.hasOnlySort()).thenReturn(false);
+        when(special.limit()).thenReturn(Optional.empty());
+        when(special.sorts()).thenReturn(List.of(Sort.desc("updatedAt")));
+        PageRequest page = PageRequest.ofPage(2); // use real PageRequest to avoid static mocking
+        when(special.pageRequest()).thenReturn(Optional.of(page));
+
+        when(query.sorts()).thenReturn(List.of(Sort.asc("id")));
+        when(query.condition()).thenReturn(Optional.empty());
+        when(query.name()).thenReturn("sampleQuery");
+
+        SelectQuery result = new DynamicQuery(special, query).get();
+
+        long expectedSkip = NoSQLPage.skip(page); // use same util to compute expectation
+
+        assertSoftly(softly -> {
+            softly.assertThat(result.name()).isEqualTo("sampleQuery");
+            softly.assertThat(result.limit()).isEqualTo(page.size());
+            softly.assertThat(result.skip()).isEqualTo(expectedSkip);
+            softly.assertThat(result.sorts()).hasSize(2); // query.sorts + special.sorts
+        });
+    }
+
+    @Test
+    void shouldReturnOriginalQueryWhenNoLimitNorPageRequestAndNotOnlySort() {
+        when(special.isEmpty()).thenReturn(false);
+        when(special.hasOnlySort()).thenReturn(false);
+        when(special.limit()).thenReturn(Optional.empty());
+        when(special.pageRequest()).thenReturn(Optional.empty());
+        // sorts present but ignored because neither hasOnlySort nor limit/pageRequest
+        when(special.sorts()).thenReturn(List.of(Sort.asc("ignored")));
+        when(query.condition()).thenReturn(Optional.empty());
+
+        DynamicQuery dynamic = new DynamicQuery(special, query);
+        SelectQuery result = dynamic.get();
+
+        assertEquals(query, result); // falls back to original query
+    }
+
+    @Test
+    void shouldThrowOnNullArgsInFactory() {
+        assertThatThrownBy(() -> DynamicQuery.of(null, query))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("args is required");
+    }
+
+    @Test
+    void shouldThrowOnNullQueryInFactory() {
+        assertThatThrownBy(() -> DynamicQuery.of(new Object[]{}, null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("query is required");
     }
 }

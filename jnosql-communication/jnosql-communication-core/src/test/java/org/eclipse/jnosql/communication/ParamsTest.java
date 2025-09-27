@@ -17,7 +17,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -239,7 +244,7 @@ class ParamsTest {
                 Scenario scenario = newScenario();
                 Params params = scenario.params;
 
-                String existParamName = params.getParametersNames().get(0);
+                String existParamName = params.getParametersNames().getFirst();
 
                 Object newParamValue = UUID.randomUUID().toString();
                 params.bind(existParamName, newParamValue);

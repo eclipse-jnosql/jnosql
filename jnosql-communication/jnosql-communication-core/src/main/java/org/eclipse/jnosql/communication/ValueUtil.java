@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
@@ -32,14 +31,6 @@ public final class ValueUtil {
     private static final String PARAM_CLASS_NAME = "org.eclipse.jnosql.communication.ParamValue";
     @SuppressWarnings("rawtypes")
     private static final ValueWriter VALUE_WRITER = ValueWriterDecorator.getInstance();
-    @SuppressWarnings("rawtypes")
-    private static final Function CONVERT = o -> {
-        if (o instanceof Value) {
-            return convert((Value) o);
-        }
-        return getObject(o, VALUE_WRITER);
-    };
-
     private ValueUtil() {
     }
 
@@ -96,7 +87,7 @@ public final class ValueUtil {
             List<Object> items = new ArrayList<>();
             Iterable.class.cast(val).forEach(items::add);
             if (items.size() == 1) {
-                Object item = items.get(0);
+                Object item = items.getFirst();
                 // check if it is dynamic params
                 if (PARAM_CLASS_NAME.equals(item.getClass().getName())) {
                     Object params = Value.class.cast(item).get();

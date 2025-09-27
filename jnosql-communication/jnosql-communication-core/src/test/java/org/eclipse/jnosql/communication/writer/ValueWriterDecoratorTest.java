@@ -70,4 +70,9 @@ class ValueWriterDecoratorTest {
         assertThatThrownBy(() -> valueWriter.write(Collections.EMPTY_LIST)).isInstanceOf(UnsupportedOperationException.class)
                 .hasMessage("The type class java.util.Collections$EmptyList is not supported yet");
     }
+
+    @Test
+    void shouldTestToString() {
+        assertThat(valueWriter.toString()).isNotNull().isNotEmpty();
+    }
 }

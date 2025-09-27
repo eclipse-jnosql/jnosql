@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2022,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -16,8 +16,6 @@ package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.data.Direction;
 import jakarta.data.Sort;
-import org.eclipse.jnosql.communication.semistructured.SelectQuery;
-import org.eclipse.jnosql.mapping.core.Converters;
 import jakarta.nosql.QueryMapper.MapperFrom;
 import jakarta.nosql.QueryMapper.MapperLimit;
 import jakarta.nosql.QueryMapper.MapperNameCondition;
@@ -26,6 +24,8 @@ import jakarta.nosql.QueryMapper.MapperNotCondition;
 import jakarta.nosql.QueryMapper.MapperOrder;
 import jakarta.nosql.QueryMapper.MapperSkip;
 import jakarta.nosql.QueryMapper.MapperWhere;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 
 import java.util.ArrayList;
@@ -155,7 +155,7 @@ final class MapperSelect extends AbstractMapperQuery implements MapperFrom, Mapp
         return this;
     }
     private SelectQuery build() {
-        return new MappingQuery(sorts, limit, start, condition, entity);
+        return new MappingQuery(sorts, limit, start, condition, entity, List.of());
     }
 
     @Override

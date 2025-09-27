@@ -16,8 +16,6 @@ import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.SelectQuery;
-import org.eclipse.jnosql.communication.query.data.DefaultQueryValue;
-import org.eclipse.jnosql.communication.query.data.SelectProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -25,11 +23,11 @@ import org.junit.jupiter.params.provider.ValueSource;
 class SelectJakartaDataQueryProviderAndTest {
 
 
-    private SelectProvider selectProvider;
+    private SelectParser selectParser;
 
     @BeforeEach
     void setUp() {
-        selectProvider = new SelectProvider();
+        selectParser = new SelectParser();
     }
 
 
@@ -37,7 +35,7 @@ class SelectJakartaDataQueryProviderAndTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age = 10 AND salary = 10.15", "FROM entity WHERE age = 10 AND salary = 10.15"})
     void shouldAndTwoConditions(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -62,7 +60,7 @@ class SelectJakartaDataQueryProviderAndTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age = 10 AND salary = 10.15 AND name =?1", "FROM entity WHERE age = 10 AND salary = 10.15 AND name =?1"})
     void shouldAndThreeConditions(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -90,7 +88,7 @@ class SelectJakartaDataQueryProviderAndTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age = 10 AND salary = 10.15 OR name =?1", "FROM entity WHERE age = 10 AND salary = 10.15 OR name =?1"})
     void shouldORMixConditions(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -116,8 +114,8 @@ class SelectJakartaDataQueryProviderAndTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.OR);
             soft.assertThat(conditions).hasSize(1);
 
-            soft.assertThat(conditions.get(0).name()).isEqualTo("name");
-            soft.assertThat(conditions.get(0).value()).isEqualTo(DefaultQueryValue.of("?1"));
+            soft.assertThat(conditions.getFirst().name()).isEqualTo("name");
+            soft.assertThat(conditions.getFirst().value()).isEqualTo(DefaultQueryValue.of("?1"));
 
         });
     }

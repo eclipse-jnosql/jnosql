@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2022,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -19,7 +19,9 @@ import org.eclipse.jnosql.mapping.PreparedStatement;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -27,11 +29,15 @@ import java.util.stream.Stream;
 /**
  * The converter within the return method at Repository class.
  */
-enum DynamicReturnConverter {
+public enum DynamicReturnConverter {
 
     INSTANCE;
 
     private final RepositoryReturn defaultReturn = new DefaultRepositoryReturn();
+
+    private final List<RepositoryReturn> repositoryReturns = ServiceLoader.load(RepositoryReturn.class) .stream()
+            .map(ServiceLoader.Provider::get)
+            .toList();
 
     /**
      * Converts the entity from the Method return type.
@@ -46,11 +52,9 @@ enum DynamicReturnConverter {
         Class<?> typeClass = dynamic.typeClass();
         Class<?> returnType = method.getReturnType();
 
-        RepositoryReturn repositoryReturn = ServiceLoader.load(RepositoryReturn.class)
+        RepositoryReturn repositoryReturn = repositoryReturns
                 .stream()
-                .map(ServiceLoader.Provider::get)
-                .filter(RepositoryReturn.class::isInstance)
-                .map(RepositoryReturn.class::cast)
+                .filter(Objects::nonNull)
                 .filter(r -> r.isCompatible(typeClass, returnType))
                 .findFirst().orElse(defaultReturn);
 
@@ -73,11 +77,16 @@ enum DynamicReturnConverter {
         Function<String, PreparedStatement> prepareConverter = dynamicQueryMethod.prepareConverter();
         Class<?> typeClass = dynamicQueryMethod.typeClass();
 
-        String value = RepositoryReflectionUtils.INSTANCE.getQuery(method);
+        String queryString = RepositoryReflectionUtils.INSTANCE.getQuery(method);
 
         Map<String, Object> params = RepositoryReflectionUtils.INSTANCE.getParams(method, args);
-        PreparedStatement prepare = prepareConverter.apply(value);
-        params.forEach(prepare::bind);
+        boolean namedParameters = queryContainsNamedParameters(queryString);
+        PreparedStatement prepare = prepareConverter.apply(queryString);
+                    params.entrySet().stream()
+                        .filter(namedParameters ?
+                                        (parameter -> !isOrdinalParameter(parameter))
+                                        : parameter -> isOrdinalParameter(parameter))
+                        .forEach(param -> prepare.bind(param.getKey(), param.getValue()));
 
         if (prepare.isCount()) {
             return prepare.count();
@@ -100,4 +109,39 @@ enum DynamicReturnConverter {
 
         return convert(dynamicReturn);
     }
+
+    public static boolean queryContainsNamedParameters(final String query) {
+
+        if (query == null || query.isEmpty()) {
+            return false;
+        }
+
+        final int length = query.length();
+        for (int index = 0; index < length; index++) {
+            final char current = query.charAt(index);
+
+            if (current == '?') {
+                final int nextIndex = index + 1;
+                if (nextIndex < length && Character.isDigit(query.charAt(nextIndex))) {
+                    return false;
+                }
+            } else if (current == ':') {
+                final int nextIndex = index + 1;
+                if (nextIndex < length && isIdentifierStart(query.charAt(nextIndex))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean isIdentifierStart(final char ch) {
+        return Character.isLetter(ch) || ch == '_' || ch == '$';
+    }
+
+    private static boolean isOrdinalParameter(Map.Entry<String, Object> parameter) {
+        return parameter.getKey().startsWith("?");
+    }
+
 }

@@ -14,6 +14,7 @@ package org.eclipse.jnosql.communication.semistructured;
 import org.eclipse.jnosql.communication.CommunicationException;
 import org.eclipse.jnosql.communication.Settings;
 
+import java.util.List;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 
@@ -38,7 +39,9 @@ import java.util.function.Function;
  */
 public interface DatabaseConfiguration extends Function<Settings, DatabaseManagerFactory> {
 
-
+    List<DatabaseConfiguration> CONFIGURATIONS = ServiceLoader.load(DatabaseConfiguration.class).stream()
+            .map(ServiceLoader.Provider::get)
+            .toList();
     /**
      * Creates and returns a {@link DatabaseConfiguration} instance using Java's {@link ServiceLoader} mechanism.
      *
@@ -52,9 +55,8 @@ public interface DatabaseConfiguration extends Function<Settings, DatabaseManage
      */
     @SuppressWarnings("unchecked")
     static <R extends DatabaseManagerFactory, T extends DatabaseConfiguration> T getConfiguration() {
-        return (T) ServiceLoader.load(DatabaseConfiguration.class)
+        return (T) CONFIGURATIONS
                 .stream()
-                .map(ServiceLoader.Provider::get)
                 .findFirst().orElseThrow(() -> new CommunicationException("No DatabaseConfiguration implementation found!"));
     }
 
@@ -74,9 +76,8 @@ public interface DatabaseConfiguration extends Function<Settings, DatabaseManage
      */
     @SuppressWarnings("unchecked")
     static <R extends DatabaseManagerFactory, T extends DatabaseConfiguration> T getConfiguration(Class<T> type) {
-        return (T) ServiceLoader.load(DatabaseConfiguration.class)
+        return (T) CONFIGURATIONS
                 .stream()
-                .map(ServiceLoader.Provider::get)
                 .filter(type::isInstance)
                 .findFirst()
                 .orElseThrow(() -> new CommunicationException("No DatabaseConfiguration implementation found for type: " + type.getName()));

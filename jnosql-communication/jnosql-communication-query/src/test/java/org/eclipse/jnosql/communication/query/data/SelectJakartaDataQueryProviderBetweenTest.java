@@ -20,7 +20,6 @@ import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.SelectQuery;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
-import org.eclipse.jnosql.communication.query.data.SelectProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -28,17 +27,17 @@ import org.junit.jupiter.params.provider.ValueSource;
 class SelectJakartaDataQueryProviderBetweenTest {
 
 
-    private SelectProvider selectProvider;
+    private SelectParser selectParser;
 
     @BeforeEach
     void setUp() {
-        selectProvider = new SelectProvider();
+        selectParser = new SelectParser();
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age BETWEEN 10 AND 20", "FROM entity WHERE age BETWEEN 10 AND 20"})
     void shouldBetween(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -61,7 +60,7 @@ class SelectJakartaDataQueryProviderBetweenTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age NOT BETWEEN 10 AND 20", "FROM entity WHERE age NOT BETWEEN 10 AND 20"})
     void shouldNegateBetween(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -75,9 +74,9 @@ class SelectJakartaDataQueryProviderBetweenTest {
             var values = (ConditionQueryValue) condition.value();
             var conditions = values.get();
             soft.assertThat(conditions).hasSize(1);
-            soft.assertThat(conditions.get(0).name()).isEqualTo("age");
-            soft.assertThat(conditions.get(0).value()).isInstanceOf(ArrayQueryValue.class);
-            soft.assertThat(ArrayQueryValue.class.cast(conditions.get(0).value()).get()).hasSize(2)
+            soft.assertThat(conditions.getFirst().name()).isEqualTo("age");
+            soft.assertThat(conditions.getFirst().value()).isInstanceOf(ArrayQueryValue.class);
+            soft.assertThat(ArrayQueryValue.class.cast(conditions.getFirst().value()).get()).hasSize(2)
                     .contains(NumberQueryValue.of(10), NumberQueryValue.of(20));
 
         });
@@ -86,7 +85,7 @@ class SelectJakartaDataQueryProviderBetweenTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE name = 'Otavio' AND age BETWEEN 10 AND 20", "FROM entity WHERE name = 'Otavio' AND age BETWEEN 10 AND 20"})
     void shouldCombineAnd(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -101,7 +100,7 @@ class SelectJakartaDataQueryProviderBetweenTest {
             var conditions = values.get();
             soft.assertThat(conditions).hasSize(2);
 
-            QueryCondition equalsCondition = conditions.get(0);
+            QueryCondition equalsCondition = conditions.getFirst();
             soft.assertThat(equalsCondition.name()).isEqualTo("name");
             soft.assertThat(equalsCondition.value()).isEqualTo(StringQueryValue.of("Otavio"));
 
@@ -117,7 +116,7 @@ class SelectJakartaDataQueryProviderBetweenTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age BETWEEN 10 AND 20 AND name = 'Otavio'", "FROM entity WHERE age BETWEEN 10 AND 20 AND name = 'Otavio'"})
     void shouldCombineAnd2(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -134,7 +133,7 @@ class SelectJakartaDataQueryProviderBetweenTest {
             soft.assertThat(equalsCondition.name()).isEqualTo("name");
             soft.assertThat(equalsCondition.value()).isEqualTo(StringQueryValue.of("Otavio"));
 
-            QueryCondition betweenCondition = conditions.get(0);
+            QueryCondition betweenCondition = conditions.getFirst();
             soft.assertThat(betweenCondition.condition()).isEqualTo(Condition.BETWEEN);
             soft.assertThat(betweenCondition.value()).isInstanceOf(ArrayQueryValue.class);
             soft.assertThat(ArrayQueryValue.class.cast(betweenCondition.value()).get()).hasSize(2)
@@ -146,7 +145,7 @@ class SelectJakartaDataQueryProviderBetweenTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE  name = 'Otavio' OR name BETWEEN 10 AND 20", "FROM entity WHERE  name = 'Otavio' OR name BETWEEN 10 AND 20"})
     void shouldCombineOr(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -159,7 +158,7 @@ class SelectJakartaDataQueryProviderBetweenTest {
 
             var values = (ConditionQueryValue) condition.value();
             var conditions = values.get();
-            QueryCondition equalsCondition = conditions.get(0);
+            QueryCondition equalsCondition = conditions.getFirst();
             soft.assertThat(equalsCondition.name()).isEqualTo("name");
             soft.assertThat(equalsCondition.value()).isEqualTo(StringQueryValue.of("Otavio"));
 
@@ -174,7 +173,7 @@ class SelectJakartaDataQueryProviderBetweenTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age BETWEEN 10 AND 20 OR name = 'Otavio'", "FROM entity WHERE age BETWEEN 10 AND 20 OR name = 'Otavio'"})
     void shouldCombineOr2(String query){
-        SelectQuery selectQuery = selectProvider.apply(query, "entity");
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.fields()).isEmpty();
@@ -191,7 +190,7 @@ class SelectJakartaDataQueryProviderBetweenTest {
             soft.assertThat(equalsCondition.name()).isEqualTo("name");
             soft.assertThat(equalsCondition.value()).isEqualTo(StringQueryValue.of("Otavio"));
 
-            QueryCondition betweenCondition = conditions.get(0);
+            QueryCondition betweenCondition = conditions.getFirst();
             soft.assertThat(betweenCondition.condition()).isEqualTo(Condition.BETWEEN);
             soft.assertThat(betweenCondition.value()).isInstanceOf(ArrayQueryValue.class);
             soft.assertThat(ArrayQueryValue.class.cast(betweenCondition.value()).get()).hasSize(2)

@@ -12,6 +12,7 @@ package org.eclipse.jnosql.communication.semistructured;
 
 
 import jakarta.data.Sort;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery.SelectElements;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery.SelectFrom;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery.SelectLimit;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery.SelectNameCondition;
@@ -19,7 +20,6 @@ import org.eclipse.jnosql.communication.semistructured.SelectQuery.SelectNameOrd
 import org.eclipse.jnosql.communication.semistructured.SelectQuery.SelectNotCondition;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery.SelectOrder;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery.SelectQueryBuild;
-import org.eclipse.jnosql.communication.semistructured.SelectQuery.SelectElements;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery.SelectSkip;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery.SelectWhere;
 

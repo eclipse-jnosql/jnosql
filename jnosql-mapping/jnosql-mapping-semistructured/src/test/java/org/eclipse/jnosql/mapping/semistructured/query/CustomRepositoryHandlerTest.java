@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2024,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -17,10 +17,15 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import jakarta.data.repository.Insert;
+import jakarta.data.repository.Query;
+import jakarta.data.repository.Repository;
 import jakarta.inject.Inject;
+
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.PreparedStatement;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -37,14 +42,20 @@ import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -65,6 +76,10 @@ class CustomRepositoryHandlerTest {
 
     private Tasks tasks;
 
+    private UpdatePersonRepository updatePersonRepository;
+
+    private UpdateArrayPersonRepository updateArrayPersonRepository;
+
     @BeforeEach
     void setUp() {
         template = Mockito.mock(SemiStructuredTemplate.class);
@@ -83,8 +98,28 @@ class CustomRepositoryHandlerTest {
                 .customRepositoryType(Tasks.class)
                 .converters(converters).build();
 
+        var updateHandler = CustomRepositoryHandler.builder()
+                .entitiesMetadata(entitiesMetadata)
+                .template(template)
+                .customRepositoryType(UpdatePersonRepository.class)
+                .converters(converters).build();
+
+        var updateArrayHandler = CustomRepositoryHandler.builder()
+                .entitiesMetadata(entitiesMetadata)
+                .template(template)
+                .customRepositoryType(UpdateArrayPersonRepository.class)
+                .converters(converters).build();
+
         tasks = (Tasks) Proxy.newProxyInstance(Tasks.class.getClassLoader(), new Class[]{Tasks.class},
                 customRepositoryHandlerForTasks);
+
+        updatePersonRepository = (UpdatePersonRepository) Proxy.newProxyInstance(UpdatePersonRepository.class.getClassLoader(),
+                new Class[]{UpdatePersonRepository.class},
+                updateHandler);
+
+        updateArrayPersonRepository =
+                (UpdateArrayPersonRepository) Proxy.newProxyInstance(UpdateArrayPersonRepository.class.getClassLoader(),
+                new Class[]{UpdateArrayPersonRepository.class}, updateArrayHandler);
 
     }
 
@@ -172,6 +207,14 @@ class CustomRepositoryHandlerTest {
         people.delete(persons);
 
         Mockito.verify(template).delete(Person.class, 12L);
+        Mockito.verifyNoMoreInteractions(template);
+    }
+
+    @Test
+    void shouldDeleteAll() {
+        people.deleteAll();
+
+        Mockito.verify(template).deleteAll(Mockito.any());
         Mockito.verifyNoMoreInteractions(template);
     }
 
@@ -473,22 +516,173 @@ class CustomRepositoryHandlerTest {
     }
 
     @Test
-    void shouldReturnNotSupportedWhenQueryIsNotSelectAsDelete() {
+    void shouldReturnNumberOfDeletedEntitiesFromDeleteQuery() {
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
-        Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
-        Mockito.when(template.query(Mockito.anyString()))
-                .thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
-        Assertions.assertThatThrownBy(() -> people.deleteByNameReturnInt())
-                .isInstanceOf(UnsupportedOperationException.class);
+        Mockito.when(template.prepare(Mockito.anyString(), Mockito.any())).thenReturn(preparedStatement);
+        Mockito.when(preparedStatement.isCount())
+                .thenReturn(false);
+        Mockito.when(preparedStatement.singleResult())
+                .thenReturn(Optional.of(1L));
+        Assertions.assertThat(people.deleteByNameReturnLong("Ada")).isEqualTo(1L);
     }
 
     @Test
-    void shouldReturnNotSupportedWhenQueryIsNotSelectAsUpdate() {
+    void shouldReturnNumberOfUpdatedEntitiesFromUpdateQuery() {
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
-        Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
-        Mockito.when(template.query(Mockito.anyString()))
-                .thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
-        Assertions.assertThatThrownBy(() -> people.updateReturnInt())
-                .isInstanceOf(UnsupportedOperationException.class);
+        Mockito.when(template.prepare(Mockito.anyString(), Mockito.any())).thenReturn(preparedStatement);
+        Mockito.when(preparedStatement.isCount())
+                .thenReturn(false);
+        Mockito.when(preparedStatement.singleResult())
+                .thenReturn(Optional.of(1L));
+        Assertions.assertThat(people.updateReturnLong("Ada")).isEqualTo(1L);
     }
+
+    @Test
+    void shouldFindAll() {
+
+        tasks.findAll();
+        Mockito.verify(template).select(Mockito.any(SelectQuery.class));
+    }
+
+    @Test
+    void shouldDeleteByName() {
+        tasks.deleteByName("name");
+        Mockito.verify(template).delete(Mockito.any(DeleteQuery.class));
+    }
+
+    @Test
+    void shouldInsert(){
+        updatePersonRepository.insert(Person.builder().age(26).name("Ada").build());
+        updateArrayPersonRepository.insert(new Person[]{Person.builder().age(26).name("Ada").build()});
+    }
+
+
+    @ParameterizedTest
+    @ValueSource(strings = {"returnLong", "returnLongWrapper"})
+    void shouldReturnLong(String methodName) {
+        Method method = Arrays.stream(CustomRepositoryHandlerTest.class.getDeclaredMethods())
+                .filter(m -> m.getName().equals(methodName))
+                .findFirst().orElseThrow();
+        Assertions.assertThat(CustomRepositoryHandler.returnsLong(method)).isTrue();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"returnInt", "returnIntWrapper"})
+    void shouldReturnInt(String methodName) {
+        Method method = Arrays.stream(CustomRepositoryHandlerTest.class.getDeclaredMethods())
+                .filter(m -> m.getName().equals("returnInt"))
+                .findFirst().orElseThrow();
+        Assertions.assertThat(CustomRepositoryHandler.returnsInt(method)).isTrue();
+    }
+
+    @Test
+    void shouldReturnTrueForSimpleNamedParameter() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from Person where age = :age");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void shouldReturnFalseWhenOnlyOrdinalParametersPresent() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from Person where id = ?1 and age > ?2");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void shouldReturnTrueWhenNamedParameterAppearsBeforeOrdinal() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from Person where name = :name and id = ?1");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void shouldReturnFalseWhenOrdinalAppearsBeforeNamedEvenIfNamedExistsLater() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from Person where id = ?1 and name = :name");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void shouldSupportUnderscoreAndDollarInNamedParameter() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from T where a = :_x and b = :$y and c = :a1_$");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void shouldReturnFalseForInvalidNamedStartingWithDigit() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from T where a = :1abc");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void shouldReturnFalseWhenNoParametersPresent() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from Person");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void shouldReturnFalseForBareQuestionMarkWithoutDigits() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from T where a = ?");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void shouldReturnTrueForDottedIdentifierTreatingPrefixAsNamedParam() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from T where owner = :user.name");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void shouldReturnTrueWhenMultipleNamedParametersExist() {
+        var query = Mockito.mock(Query.class);
+        Mockito.when(query.value()).thenReturn("select * from T where a = :first and b = :second");
+        boolean result = CustomRepositoryHandler.queryContainsNamedParameters(query);
+        assertThat(result).isTrue();
+    }
+    long returnLong() {
+        return 1L;
+    }
+
+    Long returnLongWrapper() {
+        return 1L;
+    }
+
+    int returnInt() {
+        return 1;
+    }
+
+    Integer returnIntWrapper() {
+        return 1;
+    }
+
+
+    @Repository
+    public interface UpdatePersonRepository {
+
+        @Insert
+        void insert(Person person);
+    }
+
+    @Repository
+    public interface UpdateArrayPersonRepository {
+
+        @Insert
+        void insert(Person[] person);
+    }
+
 }

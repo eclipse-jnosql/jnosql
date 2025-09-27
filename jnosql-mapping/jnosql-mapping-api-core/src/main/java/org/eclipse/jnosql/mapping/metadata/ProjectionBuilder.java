@@ -32,6 +32,12 @@ import java.util.ServiceLoader;
  */
 public interface ProjectionBuilder {
 
+    ProjectionBuilderSupplier INSTANCE = ServiceLoader
+            .load(ProjectionBuilderSupplier.class)
+            .findFirst()
+            .orElseThrow(() -> new NoSQLException(
+                    "No implementation of ProjectionBuilderSupplier found via ServiceLoader"));
+
     /**
      * Returns the constructor parameters.
      *
@@ -66,8 +72,6 @@ public interface ProjectionBuilder {
      */
     static ProjectionBuilder of(ProjectionConstructorMetadata constructor){
         Objects.requireNonNull(constructor, "constructor is required");
-        var supplier = ServiceLoader.load(ProjectionBuilderSupplier.class).findFirst()
-                .orElseThrow(() -> new NoSQLException("There is not implementation for the ProjectorBuilderSupplier"));
-        return supplier.apply(constructor);
+        return INSTANCE.apply(constructor);
     }
 }

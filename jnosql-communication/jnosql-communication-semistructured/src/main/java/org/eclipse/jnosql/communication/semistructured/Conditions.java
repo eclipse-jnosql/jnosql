@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2024,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution.
@@ -17,12 +17,12 @@ import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.Where;
 
-final class Conditions {
+public final class Conditions {
 
     private Conditions() {
     }
 
-    static CriteriaCondition getCondition(Where where, Params params, CommunicationObserverParser observer, String entity) {
+    public static CriteriaCondition getCondition(Where where, Params params, CommunicationObserverParser observer, String entity) {
         QueryCondition condition = where.condition();
         return getCondition(condition, params, observer, entity);
     }
@@ -47,7 +47,7 @@ final class Conditions {
             case BETWEEN -> CriteriaCondition.between(Element.of(getName(condition, observer, entity),
                     Values.get(condition.value(),
                             parameters)));
-            case NOT -> getCondition(ConditionQueryValue.class.cast(condition.value()).get().get(0),
+            case NOT -> getCondition(ConditionQueryValue.class.cast(condition.value()).get().getFirst(),
                     parameters, observer,
                     entity).negate();
             case OR -> CriteriaCondition.or(ConditionQueryValue.class.cast(condition.value())

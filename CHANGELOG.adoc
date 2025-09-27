@@ -16,12 +16,32 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 - Define Java 21 as the minimum version to run JNoSQL
 - Adjustments at CustomRepositoryHandler to handle inheritance correctly
+- Include Cache on queries
 
 === Added
 
 - Include support to Restriction interface
 - Include support to record projector
 - Include Is annotation support to the Repository
+
+== [1.1.10] - 2025-08-19
+
+=== Added
+
+- Include Cache on queries
+- Support named query parameters in JDQL
+- Include Contains restriction keyword
+- Include EndsWith restriction keyword
+- Include StartsWith restriction keyword
+- Include IgnoreCase restriction keyword
+
+== [1.1.9] - 2025-07-30
+
+=== Fixed
+
+- Remove the unnecessary classes from ServiceLoader creations.
+- Fixed the AbstractSemiStructuredTemplate class to apply the inheritance strategy properly on find and delete methods
+- Allow query with @Delete annotation without parameters
 
 
 == [1.1.8] - 2025-05-21

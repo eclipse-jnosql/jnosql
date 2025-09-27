@@ -10,11 +10,15 @@
  */
 package org.eclipse.jnosql.communication.semistructured;
 
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.Params;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
 
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -106,6 +110,84 @@ class ElementDeleteQueryParamsTest {
 
         assertThat(fistInstance.hashCode()).isNotEqualTo(thirdInstance.hashCode());
 
+    }
+
+    @Test
+    void shouldDeleteUsingCondition() {
+        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+        DeleteQuery deleteQuery = builder.from("entity")
+                .where(CriteriaCondition.of(Element.of("field", "value"), Condition.EQUALS)).build();
+
+        SoftAssertions.assertSoftly(soft-> {
+            soft.assertThat(deleteQuery.columns()).isEmpty();
+            soft.assertThat(deleteQuery.name()).isEqualTo("entity");
+            soft.assertThat(deleteQuery.condition()).isNotEmpty();
+            var condition = deleteQuery.condition().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(condition.element()).isEqualTo(Element.of("field", "value"));
+        });
+    }
+
+    @Test
+    void shouldDeleteColumnsUsingCondition() {
+        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+        DeleteQuery deleteQuery = builder.from("entity").delete("field", "field2")
+                .where(CriteriaCondition.of(Element.of("field", "value"), Condition.EQUALS)).build();
+
+        SoftAssertions.assertSoftly(soft-> {
+            soft.assertThat(deleteQuery.columns()).isNotEmpty().hasSize(2).contains("field", "field2");
+            soft.assertThat(deleteQuery.name()).isEqualTo("entity");
+            soft.assertThat(deleteQuery.condition()).isNotEmpty();
+            var condition = deleteQuery.condition().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(condition.element()).isEqualTo(Element.of("field", "value"));
+        });
+
+    }
+
+    @Test
+    void shouldToString() {
+        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+        Assertions.assertThat(builder.toString()).isNotBlank().isNotNull();
+    }
+
+    @Test
+    void shouldToHashCode() {
+        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+        DeleteQuery.DeleteQueryBuilder builder2 = new DefaultDeleteQueryBuilder();
+        Assertions.assertThat(builder.hashCode()).isEqualTo(builder2.hashCode());
+    }
+
+    @Test
+    void shouldEquals() {
+        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+        DeleteQuery.DeleteQueryBuilder builder2 = new DefaultDeleteQueryBuilder();
+        DeleteQuery.DeleteQueryBuilder builder3 = new DefaultDeleteQueryBuilder().delete("field", "field2");
+
+        SoftAssertions.assertSoftly(soft-> {
+           soft.assertThat(builder).isEqualTo(builder2);
+           soft.assertThat(builder).isNotEqualTo(builder3);
+           soft.assertThat(builder2).isEqualTo(builder);
+            soft.assertThat(builder).isEqualTo(builder2);
+            soft.assertThat(builder).isEqualTo(builder);
+            soft.assertThat(builder).isNotEqualTo(null);
+            soft.assertThat(builder).isNotEqualTo("234");
+        });
+    }
+
+    @Test
+    void shouldGetIssueWhenNotEntity() {
+        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+        Assertions.assertThatThrownBy(builder::build).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void shouldExecute() {
+        DatabaseManager manager = Mockito.mock(DatabaseManager.class);
+        new DefaultDeleteQueryBuilder().delete("field", "field2")
+                .from("entity").delete(manager);
+
+        Mockito.verify(manager).delete(Mockito.any(DeleteQuery.class));
     }
 
     static Stream<Arguments> scenarios() {

@@ -14,9 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.metadata;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-
 import jakarta.nosql.Column;
 import jakarta.nosql.Embeddable;
 import org.eclipse.jnosql.mapping.core.entities.Actor;
@@ -32,6 +29,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class MappingTypeTest {

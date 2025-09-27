@@ -15,9 +15,9 @@
 package org.eclipse.jnosql.mapping.reflection.entities.constructor;
 
 import jakarta.nosql.Column;
+import jakarta.nosql.Convert;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Id;
-import jakarta.nosql.Convert;
 import org.eclipse.jnosql.mapping.reflection.entities.Money;
 import org.eclipse.jnosql.mapping.reflection.entities.MoneyConverter;
 

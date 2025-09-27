@@ -33,6 +33,8 @@ import static java.util.Collections.unmodifiableMap;
 final class DefaultSettings implements Settings {
 
     static final Settings EMPTY = new DefaultSettings(Collections.emptyMap());
+    private static final String KEY_IS_REQUIRED = "key is required";
+    private static final String SUPPLIER_IS_REQUIRED_MESSAGE = "supplier is required";
 
     private final Map<String, Object> configurations;
 
@@ -60,19 +62,19 @@ final class DefaultSettings implements Settings {
 
     @Override
     public Optional<Object> get(String key) {
-        Objects.requireNonNull(key, "key is required");
+        Objects.requireNonNull(key, KEY_IS_REQUIRED);
         return Optional.ofNullable(configurations.get(key));
     }
 
     @Override
     public Optional<Object> get(Supplier<String> supplier) {
-        Objects.requireNonNull(supplier, "supplier is required");
+        Objects.requireNonNull(supplier, SUPPLIER_IS_REQUIRED_MESSAGE);
         return get(supplier.get());
     }
 
     @Override
     public Optional<Object> getSupplier(Iterable<Supplier<String>> suppliers) {
-        Objects.requireNonNull(suppliers, "supplier is required");
+        Objects.requireNonNull(suppliers, SUPPLIER_IS_REQUIRED_MESSAGE);
         List<String> keys = StreamSupport.stream(suppliers.spliterator(), false)
                 .map(Supplier::get).toList();
         return get(keys);
@@ -105,7 +107,7 @@ final class DefaultSettings implements Settings {
 
     @Override
     public List<Object> prefix(Supplier<String> supplier) {
-        Objects.requireNonNull(supplier, "supplier is required");
+        Objects.requireNonNull(supplier, SUPPLIER_IS_REQUIRED_MESSAGE);
         return prefix(supplier.get());
     }
 
@@ -139,21 +141,21 @@ final class DefaultSettings implements Settings {
 
     @Override
     public <T> Optional<T> get(String key, Class<T> type) {
-        Objects.requireNonNull(key, "key is required");
+        Objects.requireNonNull(key, KEY_IS_REQUIRED);
         Objects.requireNonNull(type, "type is required");
         return get(key).map(Value::of).map(v -> v.get(type));
     }
 
     @Override
     public <T> Optional<T> get(Supplier<String> supplier, Class<T> type) {
-        Objects.requireNonNull(supplier, "supplier is required");
+        Objects.requireNonNull(supplier, SUPPLIER_IS_REQUIRED_MESSAGE);
         Objects.requireNonNull(type, "type is required");
         return get(supplier.get(), type);
     }
 
     @Override
     public <T> T getOrDefault(String key, T defaultValue) {
-        Objects.requireNonNull(key, "key is required");
+        Objects.requireNonNull(key, KEY_IS_REQUIRED);
         Objects.requireNonNull(defaultValue, "defaultValue is required");
         Class<T> type = (Class<T>) defaultValue.getClass();
         return get(key, type).orElse(defaultValue);
@@ -161,7 +163,7 @@ final class DefaultSettings implements Settings {
 
     @Override
     public <T> T getOrDefault(Supplier<String> supplier, T defaultValue) {
-        Objects.requireNonNull(supplier, "supplier is required");
+        Objects.requireNonNull(supplier, SUPPLIER_IS_REQUIRED_MESSAGE);
         Objects.requireNonNull(defaultValue, "defaultValue is required");
         return getOrDefault(supplier.get(), defaultValue);
     }

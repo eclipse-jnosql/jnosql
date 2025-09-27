@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2022,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -21,13 +21,16 @@ import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Select;
 import jakarta.data.restrict.Restriction;
+
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.QueryType;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.repository.DynamicQueryMethodReturn;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.ParamValue;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
+import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.semistructured.MappingDeleteQuery;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
@@ -51,6 +54,10 @@ import static java.util.stream.Collectors.toList;
 public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSemiStructuredRepository<T, K> {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractSemiStructuredRepositoryProxy.class.getName());
+
+    // redeclare so that it can be accessed in this package
+    @Override
+    protected abstract AbstractRepository<T, K> repository();
 
     @Override
     protected Object executeQuery(Object instance, Method method, Object[] params) {
@@ -82,7 +89,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
                             sorts.addAll(sortsFromAnnotation);
                             return new MappingQuery(sorts, selectQuery.limit(), selectQuery.skip(),
                                     selectQuery.condition().orElse(null)
-                                    , entity);
+                                    , entity, selectQuery.columns());
                         });
                     }
                     return prepare;
@@ -113,7 +120,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
             return this.template().selectCursor(query, pageRequest);
         } else {
             var parameters = RepositoryReflectionUtils.INSTANCE.getBy(method, params);
-            var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(parameters, getSorts(method, entityMetadata()), entityMetadata());
+            var query = toQuery(parameters, method);
             var updateQuery = updateQueryDynamically(params, query);
             var special = DynamicReturn.findSpecialParameters(params, sortParser());
             var pageRequest = special.pageRequest()
@@ -143,7 +150,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
     @Override
     protected Object executeFindAll(Object instance, Method method, Object[] params) {
         Class<?> type = entityMetadata().type();
-        var query = org.eclipse.jnosql.communication.semistructured.SelectQuery.select().from(entityMetadata().name()).build();
+        var query = SelectQuery.select().from(entityMetadata().name()).build();
         return executeFindByQuery(method, params, type, updateQueryDynamically(params, query));
     }
 
@@ -166,9 +173,13 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
     @Override
     protected Object executeParameterBased(Object instance, Method method, Object[] params) {
         Class<?> type = entityMetadata().type();
-        Map<String, ParamValue> parameters = RepositoryReflectionUtils.INSTANCE.getBy(method, params);
-        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(parameters, getSorts(method, entityMetadata()), entityMetadata());
+        Map<String, Object> parameters = RepositoryReflectionUtils.INSTANCE.getBy(method, params);
+        var query = toQuery(parameters, method);
         return executeFindByQuery(method, params, type, updateQueryDynamically(params, query));
+    }
+
+    protected SelectQuery toQuery(Map<String, Object> parameters, Method method) {
+        return SemiStructuredParameterBasedQuery.INSTANCE.toQuery(parameters, getSorts(method, entityMetadata()), entityMetadata());
     }
 
     @Override
@@ -182,7 +193,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         return Void.class;
     }
 
-    private Restriction<?> restriction(Object[] params) {
+    Restriction<?> restriction(Object[] params) {
         if (params.length == 0) {
             throw new IllegalArgumentException("The method must have at least one parameter for restriction");
         }
@@ -193,13 +204,10 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         }
     }
 
-    private static List<Sort<?>> getSorts(Method method, EntityMetadata metadata) {
+    protected static List<Sort<?>> getSorts(Method method, EntityMetadata metadata) {
         return Stream.of(method.getAnnotationsByType(OrderBy.class))
                 .map(order -> {
                     String column = metadata.columnField(order.value());
-                    if (column == null || column.isEmpty()) {
-                        throw new IllegalArgumentException("Invalid field in @OrderBy: " + order.value());
-                    }
                     return order.descending() ? Sort.desc(column) : Sort.asc(column);
                 })
                 .collect(toList());

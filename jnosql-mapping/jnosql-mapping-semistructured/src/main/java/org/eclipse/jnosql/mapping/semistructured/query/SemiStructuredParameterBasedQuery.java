@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2023,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -19,13 +19,17 @@ import jakarta.data.page.PageRequest;
 import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
+
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
 import org.eclipse.jnosql.mapping.core.repository.ParamValue;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
+
 import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.core.NoSQLPage;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
+import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -49,9 +53,10 @@ public enum SemiStructuredParameterBasedQuery {
     /**
      * Constructs a ColumnQuery based on the provided parameters, PageRequest information, and entity metadata.
      *
-     * @param params         The map of parameters used for filtering columns.
-     * @param entityMetadata Metadata describing the structure of the entity.
-     * @return A ColumnQuery instance tailored for the specified entity.
+     * @param params          The map of parameters used for filtering columns.
+     * @param sorts           The list of sorting instructions to to sort the query results
+     * @param entityMetadata  Metadata describing the structure of the entity.
+     * @return                 A ColumnQuery instance tailored for the specified entity.
      */
     public org.eclipse.jnosql.communication.semistructured.SelectQuery toQuery(Map<String, ParamValue> params,
                                                                                List<Sort<?>> sorts,
@@ -66,7 +71,7 @@ public enum SemiStructuredParameterBasedQuery {
 
         var condition = condition(conditions);
         var entity = entityMetadata.name();
-        return new MappingQuery(updateSorter, 0L, 0L, condition, entity);
+        return new MappingQuery(updateSorter, 0L, 0L, condition, entity, List.of());
     }
 
     /**
@@ -96,14 +101,14 @@ public enum SemiStructuredParameterBasedQuery {
             limit = pageRequest.size();
             skip = NoSQLPage.skip(pageRequest);
         }
-        return new MappingQuery(updateSorter, limit, skip, condition, entity);
+        return new MappingQuery(updateSorter, limit, skip, condition, entity, List.of());
     }
 
     private CriteriaCondition condition(List<CriteriaCondition> conditions) {
         if (conditions.isEmpty()) {
             return null;
         } else if (conditions.size() == 1) {
-            return conditions.get(0);
+            return conditions.getFirst();
         }
         return CriteriaCondition.and(conditions.toArray(TO_ARRAY));
     }

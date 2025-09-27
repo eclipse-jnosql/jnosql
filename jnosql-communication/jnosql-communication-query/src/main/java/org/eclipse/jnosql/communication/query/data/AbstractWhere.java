@@ -230,7 +230,7 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
             this.condition = new DefaultQueryCondition("_" + operator.name(), operator, ConditionQueryValue.of(conditions));
         } else {
             List<QueryCondition> conditions = ConditionQueryValue.class.cast(this.condition.value()).get();
-            QueryCondition lastCondition = conditions.get(conditions.size() - 1);
+            QueryCondition lastCondition = conditions.getLast();
 
             if (isAppendable(lastCondition) && operator.equals(lastCondition.condition())) {
                 List<QueryCondition> lastConditions = new ArrayList<>(ConditionQueryValue.class

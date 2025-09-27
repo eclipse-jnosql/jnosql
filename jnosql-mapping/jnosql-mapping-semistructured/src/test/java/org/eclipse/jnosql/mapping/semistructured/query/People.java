@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2024,2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -66,6 +66,9 @@ public interface People {
     void delete(List<Person> people);
 
     @Delete
+    void deleteAll();
+
+    @Delete
     void delete(Person person);
 
     @Delete
@@ -99,8 +102,8 @@ public interface People {
     }
 
     @Query("delete from Person where name = :name")
-    long deleteByNameReturnInt();
+    long deleteByNameReturnLong(@Param("name") String name);
 
     @Query("update Person where name = :name")
-    long updateReturnInt();
+    long updateReturnLong(@Param("name") String name);
 }

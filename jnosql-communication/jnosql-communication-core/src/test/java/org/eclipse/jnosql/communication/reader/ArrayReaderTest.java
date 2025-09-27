@@ -18,7 +18,6 @@
 package org.eclipse.jnosql.communication.reader;
 
 import org.assertj.core.api.SoftAssertions;
-import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.ValueReader;
 import org.junit.jupiter.api.Test;
 

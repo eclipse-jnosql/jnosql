@@ -15,19 +15,14 @@
 package org.eclipse.jnosql.mapping.reflection;
 
 import org.assertj.core.api.Assertions;
-import org.eclipse.jnosql.communication.Entry;
-import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.mapping.metadata.ClassConverter;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.MapFieldMetadata;
-import org.eclipse.jnosql.mapping.reflection.entities.Actor;
 import org.eclipse.jnosql.mapping.reflection.entities.Computer;
 import org.eclipse.jnosql.mapping.reflection.entities.Program;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

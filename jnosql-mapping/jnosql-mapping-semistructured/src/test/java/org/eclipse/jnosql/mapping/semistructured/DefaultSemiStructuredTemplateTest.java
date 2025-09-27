@@ -22,7 +22,13 @@ import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
+
 import org.eclipse.jnosql.communication.Configurations;
+
+import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.Configurations;
+import org.eclipse.jnosql.communication.TypeReference;
+
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
@@ -37,6 +43,8 @@ import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.entities.Job;
 import org.eclipse.jnosql.mapping.semistructured.entities.Person;
+import org.eclipse.jnosql.mapping.semistructured.entities.inheritance.LargeProject;
+
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -590,6 +598,46 @@ class DefaultSemiStructuredTemplateTest {
 
         });
     }
+
+    @Test
+    void shouldFindByIdUsingInheritance() {
+
+        this.template.find(LargeProject.class, 1L);
+        var captor = ArgumentCaptor.forClass(SelectQuery.class);
+        Mockito.verify(managerMock).select(captor.capture());
+        var query = captor.getValue();
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.name()).isEqualTo("Project");
+            soft.assertThat(query.condition()).isPresent();
+            CriteriaCondition criteriaCondition = query.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.AND);
+            List<CriteriaCondition> conditions = criteriaCondition.element().get(new TypeReference<>() {
+            });
+            soft.assertThat(conditions).hasSize(2);
+            soft.assertThat(conditions.get(0).element()).isEqualTo(Element.of("size", "Large"));
+            soft.assertThat(conditions.get(1).element()).isEqualTo(Element.of("_id", "1"));
+        });
+    }
+
+    @Test
+    void shouldDeleteByIdUsingInheritance() {
+        this.template.delete(LargeProject.class, 1L);
+        var captor = ArgumentCaptor.forClass(DeleteQuery.class);
+        Mockito.verify(managerMock).delete(captor.capture());
+        var query = captor.getValue();
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.name()).isEqualTo("Project");
+            soft.assertThat(query.condition()).isPresent();
+            CriteriaCondition criteriaCondition = query.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.AND);
+            List<CriteriaCondition> conditions = criteriaCondition.element().get(new TypeReference<>() {
+            });
+            soft.assertThat(conditions).hasSize(2);
+            soft.assertThat(conditions.get(0).element()).isEqualTo(Element.of("size", "Large"));
+            soft.assertThat(conditions.get(1).element()).isEqualTo(Element.of("_id", "1"));
+        });
+    }
+
 
 
     private List<CommunicationEntity> content() {

@@ -242,12 +242,12 @@ class UpdateQueryParserTest {
             var element = condition.element();
             List<CriteriaCondition> conditions = element.get(new TypeReference<>() {
             });
-            var criteriaCondition = conditions.get(0);
+            var criteriaCondition = conditions.getFirst();
 
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.LIKE);
-            soft.assertThat(conditions.get(0).element().name()).isEqualTo("name");
-            soft.assertThat(conditions.get(0).element().get()).isEqualTo("Ada");
+            soft.assertThat(conditions.getFirst().element().name()).isEqualTo("name");
+            soft.assertThat(conditions.getFirst().element().get()).isEqualTo("Ada");
             soft.assertThat(updateQuery.set()).isNotNull().hasSize(1)
                     .contains(Element.of("age", 10));
         });
@@ -391,7 +391,7 @@ class UpdateQueryParserTest {
             soft.assertThat(element.name()).isEqualTo("age");
             soft.assertThat(element.get()).isEqualTo(12);
             soft.assertThat(updateQuery.set()).hasSize(1);
-            var setItem = updateQuery.set().get(0);
+            var setItem = updateQuery.set().getFirst();
             soft.assertThat(setItem.name()).isEqualTo("name");
             soft.assertThat(setItem.value().get()).isEqualTo("Ada");
         });
