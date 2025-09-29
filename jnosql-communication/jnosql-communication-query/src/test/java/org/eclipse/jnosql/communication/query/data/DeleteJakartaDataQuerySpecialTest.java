@@ -15,6 +15,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.query.BooleanQueryValue;
 import org.eclipse.jnosql.communication.query.ConditionQueryValue;
+import org.eclipse.jnosql.communication.query.NullQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -70,7 +71,18 @@ class DeleteJakartaDataQuerySpecialTest {
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE license IS NULL"})
     void shouldCheckIsNull(String query){
+        var deleteQuery = deleteParser.apply(query);
 
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(deleteQuery.fields()).isEmpty();
+            soft.assertThat(deleteQuery.entity()).isEqualTo("entity");
+            soft.assertThat(deleteQuery.where()).isNotEmpty();
+            var where = deleteQuery.where().orElseThrow();
+            var condition = where.condition();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(condition.name()).isEqualTo("license");
+            soft.assertThat(condition.value()).isEqualTo(NullQueryValue.INSTANCE);
+        });
     }
 
 
