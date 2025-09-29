@@ -46,8 +46,6 @@ class DeleteJakartaDataQuerySpecialTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(condition.name()).isEqualTo("active");
             soft.assertThat(condition.value()).isEqualTo(BooleanQueryValue.FALSE);
-
-
         });
     }
 
