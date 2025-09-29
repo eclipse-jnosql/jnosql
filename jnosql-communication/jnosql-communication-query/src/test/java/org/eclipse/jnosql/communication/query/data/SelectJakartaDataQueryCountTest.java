@@ -32,7 +32,7 @@ class SelectJakartaDataQueryCountTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"select count(*) FROM entity WHERE active = true"})
+    @ValueSource(strings = {"select count(this) FROM entity WHERE active = true"})
     void shouldValidateTrue(String query){
         var selectQuery = selectParser.apply(query, null);
 
@@ -50,7 +50,7 @@ class SelectJakartaDataQueryCountTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"select count(*) FROM entity WHERE active = false"})
+    @ValueSource(strings = {"select count(this) FROM entity WHERE active = false"})
     void shouldValidateFalse(String query){
         var selectQuery = selectParser.apply(query, null);
 
@@ -68,7 +68,7 @@ class SelectJakartaDataQueryCountTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"select count(*) FROM entity WHERE license IS NULL"})
+    @ValueSource(strings = {"select count(this) FROM entity WHERE license IS NULL"})
     void shouldCheckIsNull(String query){
         var selectQuery = selectParser.apply(query, null);
 
@@ -87,7 +87,7 @@ class SelectJakartaDataQueryCountTest {
 
     @SuppressWarnings("unchecked")
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"select count(*) FROM entity WHERE license IS NOT NULL"})
+    @ValueSource(strings = {"select count(this) FROM entity WHERE license IS NOT NULL"})
     void shouldCheckIsNotNull(String query){
         var selectQuery = selectParser.apply(query, null);
 
