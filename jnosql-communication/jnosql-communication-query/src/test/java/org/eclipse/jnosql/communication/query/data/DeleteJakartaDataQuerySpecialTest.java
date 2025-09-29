@@ -45,8 +45,26 @@ class DeleteJakartaDataQuerySpecialTest {
             var condition = where.condition();
             soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(condition.name()).isEqualTo("active");
+            soft.assertThat(condition.value()).isEqualTo(BooleanQueryValue.TRUE);
+        });
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"DELETE FROM entity WHERE active = false"})
+    void shouldValidateFalse(String query){
+        var deleteQuery = deleteParser.apply(query);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(deleteQuery.fields()).isEmpty();
+            soft.assertThat(deleteQuery.entity()).isEqualTo("entity");
+            soft.assertThat(deleteQuery.where()).isNotEmpty();
+            var where = deleteQuery.where().orElseThrow();
+            var condition = where.condition();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(condition.name()).isEqualTo("active");
             soft.assertThat(condition.value()).isEqualTo(BooleanQueryValue.FALSE);
         });
     }
+
 
 }
