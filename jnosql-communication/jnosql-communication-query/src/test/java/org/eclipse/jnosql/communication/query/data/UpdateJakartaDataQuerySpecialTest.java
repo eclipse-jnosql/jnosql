@@ -63,4 +63,20 @@ class UpdateJakartaDataQuerySpecialTest {
         });
     }
 
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"UPDATE entity SET active = NULL"})
+    void shouldValidateNull(String query){
+        var selectQuery = updateParser.apply(query);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(selectQuery.entity()).isEqualTo("entity");
+            List<UpdateItem> items = selectQuery.set();
+            soft.assertThat(items).hasSize(1);
+
+            soft.assertThat(items).isNotNull().hasSize(1)
+                    .contains(JDQLUpdateItem.of("active", BooleanQueryValue.FALSE));
+        });
+    }
+
+
 }
