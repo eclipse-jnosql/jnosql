@@ -17,9 +17,13 @@ import org.eclipse.jnosql.communication.query.BooleanQueryValue;
 import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.NullQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
+import org.eclipse.jnosql.communication.query.QueryCondition;
+import org.eclipse.jnosql.communication.query.QueryValue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.List;
 
 class DeleteJakartaDataQuerySpecialTest {
 
@@ -84,6 +88,7 @@ class DeleteJakartaDataQuerySpecialTest {
         });
     }
 
+    @SuppressWarnings("unchecked")
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE license IS NOT NULL"})
     void shouldCheckIsNotNull(String query){
@@ -96,8 +101,12 @@ class DeleteJakartaDataQuerySpecialTest {
             var where = deleteQuery.where().orElseThrow();
             var condition = where.condition();
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
-            soft.assertThat(condition.name()).isEqualTo("license");
-            soft.assertThat(condition.value()).isEqualTo(NullQueryValue.INSTANCE);
+            QueryValue<?> negation = condition.value();
+            List<QueryCondition> value = (List<QueryCondition>) negation.get();
+            QueryCondition queryCondition = value.getFirst();
+            soft.assertThat(queryCondition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(queryCondition.name()).isEqualTo("license");
+            soft.assertThat(queryCondition.value()).isEqualTo(NullQueryValue.INSTANCE);
         });
     }
 
