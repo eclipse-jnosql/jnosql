@@ -67,7 +67,6 @@ class DeleteJakartaDataQuerySpecialTest {
         });
     }
 
-
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"DELETE FROM entity WHERE license IS NULL"})
     void shouldCheckIsNull(String query){
@@ -85,5 +84,21 @@ class DeleteJakartaDataQuerySpecialTest {
         });
     }
 
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"DELETE FROM entity WHERE license IS NOT NULL"})
+    void shouldCheckIsNotNull(String query){
+        var deleteQuery = deleteParser.apply(query);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(deleteQuery.fields()).isEmpty();
+            soft.assertThat(deleteQuery.entity()).isEqualTo("entity");
+            soft.assertThat(deleteQuery.where()).isNotEmpty();
+            var where = deleteQuery.where().orElseThrow();
+            var condition = where.condition();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
+            soft.assertThat(condition.name()).isEqualTo("license");
+            soft.assertThat(condition.value()).isEqualTo(NullQueryValue.INSTANCE);
+        });
+    }
 
 }
