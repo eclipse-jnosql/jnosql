@@ -13,6 +13,7 @@ package org.eclipse.jnosql.communication.query.data;
 
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.query.BooleanQueryValue;
 import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +44,9 @@ class DeleteJakartaDataQuerySpecialTest {
             var where = deleteQuery.where().orElseThrow();
             var condition = where.condition();
             soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(condition.name()).isEqualTo("active");
+            soft.assertThat(condition.value()).isEqualTo(BooleanQueryValue.FALSE);
+
 
         });
     }
