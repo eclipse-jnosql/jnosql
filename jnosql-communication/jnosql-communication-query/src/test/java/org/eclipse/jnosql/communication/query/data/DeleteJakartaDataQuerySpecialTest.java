@@ -32,8 +32,8 @@ class DeleteJakartaDataQuerySpecialTest {
 
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"DELETE FROM entity WHERE age = 10 AND salary = 10.15"})
-    void shouldAndTwoConditions(String query){
+    @ValueSource(strings = {"DELETE FROM entity WHERE active = true"})
+    void shouldValidateTrue(String query){
         var deleteQuery = deleteParser.apply(query);
 
         SoftAssertions.assertSoftly(soft -> {
@@ -42,16 +42,8 @@ class DeleteJakartaDataQuerySpecialTest {
             soft.assertThat(deleteQuery.where()).isNotEmpty();
             var where = deleteQuery.where().orElseThrow();
             var condition = where.condition();
-            soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
 
-            var values = (ConditionQueryValue) condition.value();
-            var conditions = values.get();
-            soft.assertThat(conditions).hasSize(2);
-            soft.assertThat(conditions.get(0).name()).isEqualTo("age");
-            soft.assertThat(conditions.get(0).value()).isEqualTo(NumberQueryValue.of(10));
-
-            soft.assertThat(conditions.get(1).name()).isEqualTo("salary");
-            soft.assertThat(conditions.get(1).value()).isEqualTo(NumberQueryValue.of(10.15));
         });
     }
 
