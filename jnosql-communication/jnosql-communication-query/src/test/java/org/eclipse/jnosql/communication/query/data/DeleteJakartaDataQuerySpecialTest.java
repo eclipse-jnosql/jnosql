@@ -67,4 +67,11 @@ class DeleteJakartaDataQuerySpecialTest {
     }
 
 
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"DELETE FROM entity WHERE license IS NULL"})
+    void shouldCheckIsNull(String query){
+
+    }
+
+
 }
