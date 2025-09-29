@@ -24,27 +24,23 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.util.List;
 
 class SelectJakartaDataQuerySpecialTest {
-
-
-    private DeleteParser deleteParser;
+    private SelectParser selectParser;
 
     @BeforeEach
     void setUp() {
-        deleteParser = new DeleteParser();
+        selectParser = new SelectParser();
     }
 
-
-
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"DELETE FROM entity WHERE active = true"})
+    @ValueSource(strings = {"FROM entity WHERE active = true"})
     void shouldValidateTrue(String query){
-        var deleteQuery = deleteParser.apply(query);
+        var selectQuery = selectParser.apply(query, null);
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(deleteQuery.fields()).isEmpty();
-            soft.assertThat(deleteQuery.entity()).isEqualTo("entity");
-            soft.assertThat(deleteQuery.where()).isNotEmpty();
-            var where = deleteQuery.where().orElseThrow();
+            soft.assertThat(selectQuery.fields()).isEmpty();
+            soft.assertThat(selectQuery.entity()).isEqualTo("entity");
+            soft.assertThat(selectQuery.where()).isNotEmpty();
+            var where = selectQuery.where().orElseThrow();
             var condition = where.condition();
             soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(condition.name()).isEqualTo("active");
@@ -53,15 +49,15 @@ class SelectJakartaDataQuerySpecialTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"DELETE FROM entity WHERE active = false"})
+    @ValueSource(strings = {"FROM entity WHERE active = false"})
     void shouldValidateFalse(String query){
-        var deleteQuery = deleteParser.apply(query);
+        var selectQuery = selectParser.apply(query, null);
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(deleteQuery.fields()).isEmpty();
-            soft.assertThat(deleteQuery.entity()).isEqualTo("entity");
-            soft.assertThat(deleteQuery.where()).isNotEmpty();
-            var where = deleteQuery.where().orElseThrow();
+            soft.assertThat(selectQuery.fields()).isEmpty();
+            soft.assertThat(selectQuery.entity()).isEqualTo("entity");
+            soft.assertThat(selectQuery.where()).isNotEmpty();
+            var where = selectQuery.where().orElseThrow();
             var condition = where.condition();
             soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(condition.name()).isEqualTo("active");
@@ -70,15 +66,15 @@ class SelectJakartaDataQuerySpecialTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"DELETE FROM entity WHERE license IS NULL"})
+    @ValueSource(strings = {"FROM entity WHERE license IS NULL"})
     void shouldCheckIsNull(String query){
-        var deleteQuery = deleteParser.apply(query);
+        var selectQuery = selectParser.apply(query, null);
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(deleteQuery.fields()).isEmpty();
-            soft.assertThat(deleteQuery.entity()).isEqualTo("entity");
-            soft.assertThat(deleteQuery.where()).isNotEmpty();
-            var where = deleteQuery.where().orElseThrow();
+            soft.assertThat(selectQuery.fields()).isEmpty();
+            soft.assertThat(selectQuery.entity()).isEqualTo("entity");
+            soft.assertThat(selectQuery.where()).isNotEmpty();
+            var where = selectQuery.where().orElseThrow();
             var condition = where.condition();
             soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(condition.name()).isEqualTo("license");
@@ -88,15 +84,15 @@ class SelectJakartaDataQuerySpecialTest {
 
     @SuppressWarnings("unchecked")
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"DELETE FROM entity WHERE license IS NOT NULL"})
+    @ValueSource(strings = {"FROM entity WHERE license IS NOT NULL"})
     void shouldCheckIsNotNull(String query){
-        var deleteQuery = deleteParser.apply(query);
+        var selectQuery = selectParser.apply(query, null);
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(deleteQuery.fields()).isEmpty();
-            soft.assertThat(deleteQuery.entity()).isEqualTo("entity");
-            soft.assertThat(deleteQuery.where()).isNotEmpty();
-            var where = deleteQuery.where().orElseThrow();
+            soft.assertThat(selectQuery.fields()).isEmpty();
+            soft.assertThat(selectQuery.entity()).isEqualTo("entity");
+            soft.assertThat(selectQuery.where()).isNotEmpty();
+            var where = selectQuery.where().orElseThrow();
             var condition = where.condition();
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             QueryValue<?> negation = condition.value();
