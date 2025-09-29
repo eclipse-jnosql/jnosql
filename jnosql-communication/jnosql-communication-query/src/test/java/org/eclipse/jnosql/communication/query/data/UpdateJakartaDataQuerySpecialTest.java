@@ -74,7 +74,7 @@ class UpdateJakartaDataQuerySpecialTest {
             soft.assertThat(items).hasSize(1);
 
             soft.assertThat(items).isNotNull().hasSize(1)
-                    .contains(JDQLUpdateItem.of("active", BooleanQueryValue.FALSE));
+                    .contains(JDQLUpdateItem.of("active", NullQueryValue.INSTANCE));
         });
     }
 
