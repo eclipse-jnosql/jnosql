@@ -14,7 +14,6 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.TypeReference;
-import org.eclipse.jnosql.communication.Value;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
@@ -346,7 +345,7 @@ class UpdateQueryParserTest {
         prepare.result();
         Mockito.verify(manager).update(captor.capture());
         var updateQuery = captor.getValue();
-        CriteriaCondition criteriaCondition = updateQuery.condition().get();
+        CriteriaCondition criteriaCondition = updateQuery.condition().orElseThrow();
         SoftAssertions.assertSoftly(soft -> {
             Element element = criteriaCondition.element();
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
@@ -365,7 +364,7 @@ class UpdateQueryParserTest {
         prepare.result();
         Mockito.verify(manager).update(captor.capture());
         var updateQuery = captor.getValue();
-        CriteriaCondition criteriaCondition = updateQuery.condition().get();
+        CriteriaCondition criteriaCondition = updateQuery.condition().orElseThrow();
         SoftAssertions.assertSoftly(soft -> {
             Element element = criteriaCondition.element();
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
@@ -385,7 +384,7 @@ class UpdateQueryParserTest {
         prepare.result();
         Mockito.verify(manager).update(captor.capture());
         var updateQuery = captor.getValue();
-        CriteriaCondition criteriaCondition = updateQuery.condition().get();
+        CriteriaCondition criteriaCondition = updateQuery.condition().orElseThrow();
         SoftAssertions.assertSoftly(soft -> {
             Element element = criteriaCondition.element();
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
