@@ -555,9 +555,10 @@ class SelectQueryParserTest {
         checkBaseQuery(selectQuery);
         assertTrue(selectQuery.condition().isPresent());
         CriteriaCondition condition = selectQuery.condition().get();
-
-        assertEquals(Condition.EQUALS, condition.condition());
-        assertEquals(Element.of("age", 10), condition.element());
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            softly.assertThat(Element.of("active", true)).isEqualTo( condition.element());
+        });
     }
 
     @Test
