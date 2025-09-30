@@ -14,6 +14,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.TypeReference;
+import org.eclipse.jnosql.communication.Value;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
@@ -396,6 +397,55 @@ class UpdateQueryParserTest {
             soft.assertThat(setItem.value().get()).isEqualTo("Ada");
         });
     }
+
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"UPDATE entity SET active = true"})
+    void shouldReturnQuerySpecialTrue(String query) {
+        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+        parser.query(query, manager, observer);
+        Mockito.verify(manager).update(captor.capture());
+        var updateQuery = captor.getValue();
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(updateQuery.condition()).isEmpty();
+            var items = updateQuery.set();
+            soft.assertThat(items).isNotNull().hasSize(1);
+            soft.assertThat(items).contains(Element.of("active", true));
+        });
+    }
+
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"UPDATE entity SET active = false"})
+    void shouldReturnQuerySpecialFalse(String query) {
+        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+        parser.query(query, manager, observer);
+        Mockito.verify(manager).update(captor.capture());
+        var updateQuery = captor.getValue();
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(updateQuery.condition()).isEmpty();
+            var items = updateQuery.set();
+            soft.assertThat(items).isNotNull().hasSize(1);
+            soft.assertThat(items).contains(Element.of("active", true));
+        });
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"UPDATE entity SET active = NULL"})
+    void shouldReturnQuerySpecialNull(String query) {
+        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+        parser.query(query, manager, observer);
+        Mockito.verify(manager).update(captor.capture());
+        var updateQuery = captor.getValue();
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(updateQuery.condition()).isEmpty();
+            var items = updateQuery.set();
+            soft.assertThat(items).isNotNull().hasSize(1);
+            soft.assertThat(items).contains(Element.of("active", true));
+        });
+
+    }
+
 
     private void checkBaseQuery(UpdateQuery updateQuery) {
         assertEquals("entity", updateQuery.name());
