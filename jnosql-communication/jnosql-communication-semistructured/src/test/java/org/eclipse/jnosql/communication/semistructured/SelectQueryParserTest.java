@@ -597,6 +597,23 @@ class SelectQueryParserTest {
         });
     }
 
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"FROM entity WHERE active IS NOT NULL"})
+    void shouldReturnQuerySpecialNotNull(String query) {
+        var captor = ArgumentCaptor.forClass(SelectQuery.class);
+        parser.query(query, null, manager, observer);
+        Mockito.verify(manager).select(captor.capture());
+        var selectQuery = captor.getValue();
+
+        checkBaseQuery(selectQuery);
+        assertTrue(selectQuery.condition().isPresent());
+        CriteriaCondition condition = selectQuery.condition().get();
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(condition.condition()).isEqualTo(Condition.NOT);
+            softly.assertThat(condition.element()).isEqualTo(Element.of("active", Value.ofNull()));
+        });
+    }
+
     @Test
     void shouldApply() {
         SelectQueryParser queryParser = new SelectQueryParser();
