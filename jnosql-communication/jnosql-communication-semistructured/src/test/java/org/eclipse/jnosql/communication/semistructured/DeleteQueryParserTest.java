@@ -312,7 +312,7 @@ class DeleteQueryParserTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"FROM entity WHERE active = true"})
+    @ValueSource(strings = {"DELETE FROM entity WHERE active = true"})
     void shouldReturnQuerySpecialTrue(String query) {
         var captor = ArgumentCaptor.forClass(DeleteQuery.class);
          parser.query(query, manager, observer);
@@ -330,7 +330,7 @@ class DeleteQueryParserTest {
 
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"FROM entity WHERE active = false"})
+    @ValueSource(strings = {"DELETE FROM entity WHERE active = false"})
     void shouldReturnQuerySpecialFalse(String query) {
         var captor = ArgumentCaptor.forClass(DeleteQuery.class);
         parser.query(query, manager, observer);
@@ -347,7 +347,7 @@ class DeleteQueryParserTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"FROM entity WHERE active IS NULL"})
+    @ValueSource(strings = {"DELETE FROM entity WHERE active IS NULL"})
     void shouldReturnQuerySpecialNull(String query) {
         var captor = ArgumentCaptor.forClass(DeleteQuery.class);
         parser.query(query, manager, observer);
@@ -364,7 +364,7 @@ class DeleteQueryParserTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"FROM entity WHERE active IS NOT NULL"})
+    @ValueSource(strings = {"DELETE FROM entity WHERE active IS NOT NULL"})
     void shouldReturnQuerySpecialNotNull(String query) {
         var captor = ArgumentCaptor.forClass(DeleteQuery.class);
         parser.query(query, manager, observer);
