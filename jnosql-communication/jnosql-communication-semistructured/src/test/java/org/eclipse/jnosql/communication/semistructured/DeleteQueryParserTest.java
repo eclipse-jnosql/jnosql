@@ -317,11 +317,11 @@ class DeleteQueryParserTest {
         var captor = ArgumentCaptor.forClass(DeleteQuery.class);
          parser.query(query, manager, observer);
         Mockito.verify(manager).delete(captor.capture());
-        var selectQuery = captor.getValue();
+        var deleteQuery = captor.getValue();
 
-        checkBaseQuery(selectQuery);
-        assertTrue(selectQuery.condition().isPresent());
-        CriteriaCondition condition = selectQuery.condition().get();
+        checkBaseQuery(deleteQuery);
+        assertTrue(deleteQuery.condition().isPresent());
+        CriteriaCondition condition = deleteQuery.condition().get();
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
             softly.assertThat(condition.element()).isEqualTo(Element.of("active", true));
@@ -335,11 +335,11 @@ class DeleteQueryParserTest {
         var captor = ArgumentCaptor.forClass(DeleteQuery.class);
         parser.query(query, manager, observer);
         Mockito.verify(manager).delete(captor.capture());
-        var selectQuery = captor.getValue();
+        var deleteQuery = captor.getValue();
 
-        checkBaseQuery(selectQuery);
-        assertTrue(selectQuery.condition().isPresent());
-        CriteriaCondition condition = selectQuery.condition().get();
+        checkBaseQuery(deleteQuery);
+        assertTrue(deleteQuery.condition().isPresent());
+        CriteriaCondition condition = deleteQuery.condition().get();
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
             softly.assertThat(condition.element()).isEqualTo(Element.of("active", false));
@@ -352,11 +352,11 @@ class DeleteQueryParserTest {
         var captor = ArgumentCaptor.forClass(DeleteQuery.class);
         parser.query(query, manager, observer);
         Mockito.verify(manager).delete(captor.capture());
-        var selectQuery = captor.getValue();
+        var deleteQuery = captor.getValue();
 
-        checkBaseQuery(selectQuery);
-        assertTrue(selectQuery.condition().isPresent());
-        CriteriaCondition condition = selectQuery.condition().get();
+        checkBaseQuery(deleteQuery);
+        assertTrue(deleteQuery.condition().isPresent());
+        CriteriaCondition condition = deleteQuery.condition().get();
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
             softly.assertThat(condition.element()).isEqualTo(Element.of("active", Value.ofNull()));
@@ -369,11 +369,11 @@ class DeleteQueryParserTest {
         var captor = ArgumentCaptor.forClass(DeleteQuery.class);
         parser.query(query, manager, observer);
         Mockito.verify(manager).delete(captor.capture());
-        var selectQuery = captor.getValue();
+        var deleteQuery = captor.getValue();
 
-        checkBaseQuery(selectQuery);
-        assertTrue(selectQuery.condition().isPresent());
-        CriteriaCondition condition = selectQuery.condition().get();
+        checkBaseQuery(deleteQuery);
+        assertTrue(deleteQuery.condition().isPresent());
+        CriteriaCondition condition = deleteQuery.condition().get();
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             CriteriaCondition subCondition = condition.element().get(CriteriaCondition.class);
