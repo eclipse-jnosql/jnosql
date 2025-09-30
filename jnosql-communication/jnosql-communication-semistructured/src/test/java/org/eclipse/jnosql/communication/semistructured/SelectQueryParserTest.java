@@ -557,7 +557,25 @@ class SelectQueryParserTest {
         CriteriaCondition condition = selectQuery.condition().get();
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-            softly.assertThat(Element.of("active", true)).isEqualTo( condition.element());
+            softly.assertThat(condition.element()).isEqualTo(Element.of("active", true));
+        });
+    }
+
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"FROM entity WHERE active = false"})
+    void shouldReturnQuerySpecialFalse(String query) {
+        var captor = ArgumentCaptor.forClass(SelectQuery.class);
+        parser.query(query, null, manager, observer);
+        Mockito.verify(manager).select(captor.capture());
+        var selectQuery = captor.getValue();
+
+        checkBaseQuery(selectQuery);
+        assertTrue(selectQuery.condition().isPresent());
+        CriteriaCondition condition = selectQuery.condition().get();
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of("active", false));
         });
     }
 
