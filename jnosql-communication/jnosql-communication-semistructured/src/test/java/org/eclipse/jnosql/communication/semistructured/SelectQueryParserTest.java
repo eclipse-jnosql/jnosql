@@ -17,6 +17,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.TypeReference;
+import org.eclipse.jnosql.communication.Value;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -576,6 +577,23 @@ class SelectQueryParserTest {
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
             softly.assertThat(condition.element()).isEqualTo(Element.of("active", false));
+        });
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"FROM entity WHERE active IS NULL"})
+    void shouldReturnQuerySpecialNull(String query) {
+        var captor = ArgumentCaptor.forClass(SelectQuery.class);
+        parser.query(query, null, manager, observer);
+        Mockito.verify(manager).select(captor.capture());
+        var selectQuery = captor.getValue();
+
+        checkBaseQuery(selectQuery);
+        assertTrue(selectQuery.condition().isPresent());
+        CriteriaCondition condition = selectQuery.condition().get();
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of("active", Value.ofNull()));
         });
     }
 
