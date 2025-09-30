@@ -544,6 +544,22 @@ class SelectQueryParserTest {
         });
     }
 
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"FROM entity WHERE active = true"})
+    void shouldReturnQuerySpecialTrue(String query) {
+        var captor = ArgumentCaptor.forClass(SelectQuery.class);
+        parser.query(query, null, manager, observer);
+        Mockito.verify(manager).select(captor.capture());
+        var selectQuery = captor.getValue();
+
+        checkBaseQuery(selectQuery);
+        assertTrue(selectQuery.condition().isPresent());
+        CriteriaCondition condition = selectQuery.condition().get();
+
+        assertEquals(Condition.EQUALS, condition.condition());
+        assertEquals(Element.of("age", 10), condition.element());
+    }
+
     @Test
     void shouldApply() {
         SelectQueryParser queryParser = new SelectQueryParser();
