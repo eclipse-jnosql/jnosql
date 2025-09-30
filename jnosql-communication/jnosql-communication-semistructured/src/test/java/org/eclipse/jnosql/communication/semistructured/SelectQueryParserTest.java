@@ -610,7 +610,9 @@ class SelectQueryParserTest {
         CriteriaCondition condition = selectQuery.condition().get();
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(condition.condition()).isEqualTo(Condition.NOT);
-            softly.assertThat(condition.element()).isEqualTo(Element.of("active", Value.ofNull()));
+            CriteriaCondition subCondition = condition.element().get(CriteriaCondition.class);
+            softly.assertThat(subCondition.condition()).isEqualTo(Condition.EQUALS);
+            softly.assertThat(subCondition.element()).isEqualTo(Element.of("active", Value.ofNull()));
         });
     }
 
