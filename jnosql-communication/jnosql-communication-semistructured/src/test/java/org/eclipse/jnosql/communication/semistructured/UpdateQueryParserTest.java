@@ -426,7 +426,7 @@ class UpdateQueryParserTest {
             soft.assertThat(updateQuery.condition()).isEmpty();
             var items = updateQuery.set();
             soft.assertThat(items).isNotNull().hasSize(1);
-            soft.assertThat(items).contains(Element.of("active", true));
+            soft.assertThat(items).contains(Element.of("active", false));
         });
     }
 
@@ -441,7 +441,7 @@ class UpdateQueryParserTest {
             soft.assertThat(updateQuery.condition()).isEmpty();
             var items = updateQuery.set();
             soft.assertThat(items).isNotNull().hasSize(1);
-            soft.assertThat(items).contains(Element.of("active", true));
+            soft.assertThat(items).contains(Element.of("active", null));
         });
 
     }
