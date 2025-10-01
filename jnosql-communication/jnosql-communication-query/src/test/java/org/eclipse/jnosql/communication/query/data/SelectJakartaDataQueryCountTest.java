@@ -100,7 +100,7 @@ class SelectJakartaDataQueryCountTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             QueryValue<?> negation = condition.value();
             List<QueryCondition> value = (List<QueryCondition>) negation.get();
-            QueryCondition queryCondition = value.getFirst();
+            QueryCondition queryCondition = value.get(0);
             soft.assertThat(queryCondition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(queryCondition.name()).isEqualTo("license");
             soft.assertThat(queryCondition.value()).isEqualTo(NullQueryValue.INSTANCE);
