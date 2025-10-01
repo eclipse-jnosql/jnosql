@@ -8,6 +8,10 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 == [Unreleased]
 
+=== Fixed
+
+- Include special characters on the like query to update and delete queries
+
 == [1.1.10] - 2025-08-19
 
 === Added

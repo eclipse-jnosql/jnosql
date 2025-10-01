@@ -12,6 +12,7 @@
 package org.eclipse.jnosql.communication.query.data;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.eclipse.jnosql.communication.query.NullQueryValue;
 import org.eclipse.jnosql.communication.query.UpdateItem;
 import org.eclipse.jnosql.communication.query.UpdateQuery;
 import org.eclipse.jnosql.query.grammar.data.JDQLParser;
@@ -49,15 +50,20 @@ public final class UpdateParser extends AbstractWhere implements Function<String
         super.exitUpdate_item(ctx);
         String name = ctx.state_field_path_expression().getText();
         var scalarContext = ctx.scalar_expression();
-        if(isArithmeticOperation(scalarContext)) {
+        if (isArithmeticOperation(scalarContext)) {
             throw new UnsupportedOperationException("Eclipse JNoSQL does not support arithmetic operations in the UPDATE clause: " + scalarContext.getText());
         }
-        if(hasParenthesis(scalarContext)) {
+        if (hasParenthesis(scalarContext)) {
             throw new UnsupportedOperationException("Eclipse JNoSQL does not support parenthesis in the UPDATE clause: " + scalarContext.getText());
         }
-        var primaryExpression = scalarContext.primary_expression();
-        var value = PrimaryFunction.INSTANCE.apply(primaryExpression);
-        items.add(JDQLUpdateItem.of(name, value));
+
+        if (scalarContext != null) {
+            var primaryExpression = scalarContext.primary_expression();
+            var value = PrimaryFunction.INSTANCE.apply(primaryExpression);
+            items.add(JDQLUpdateItem.of(name, value));
+        } else {
+            items.add(JDQLUpdateItem.of(name, NullQueryValue.INSTANCE));
+        }
 
     }
 
@@ -75,14 +81,17 @@ public final class UpdateParser extends AbstractWhere implements Function<String
     }
 
     private static boolean isArithmeticOperation(JDQLParser.Scalar_expressionContext scalarContext) {
-        return Objects.nonNull(scalarContext.MUL())
+        return Objects.nonNull(scalarContext)
+                && (Objects.nonNull(scalarContext.MUL())
                 || Objects.nonNull(scalarContext.DIV())
                 || Objects.nonNull(scalarContext.PLUS())
                 || Objects.nonNull(scalarContext.MINUS())
-                || Objects.nonNull(scalarContext.CONCAT());
+                || Objects.nonNull(scalarContext.CONCAT()));
     }
     private boolean hasParenthesis(JDQLParser.Scalar_expressionContext scalarContext) {
-        return Objects.nonNull(scalarContext.LPAREN()) || Objects.nonNull(scalarContext.RPAREN());
+        return Objects.nonNull(scalarContext)
+                && (Objects.nonNull(scalarContext.LPAREN())
+                || Objects.nonNull(scalarContext.RPAREN()));
     }
 
 }
