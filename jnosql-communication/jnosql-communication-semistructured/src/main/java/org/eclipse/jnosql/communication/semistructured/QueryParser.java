@@ -20,6 +20,8 @@ import java.util.stream.Stream;
  */
 public final class QueryParser {
 
+   static final QueryParser INSTANCE = new QueryParser();
+
     private final SelectQueryParser select = new SelectQueryParser();
     private final DeleteQueryParser delete = new DeleteQueryParser();
     private final UpdateQueryParser update = new UpdateQueryParser();

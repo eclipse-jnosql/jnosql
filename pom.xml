@@ -55,7 +55,7 @@
     </developers>
     <properties>
         <apache-rat-plugin.version>0.15</apache-rat-plugin.version>
-        <jacoco.maven.version>0.8.11</jacoco.maven.version>
+        <jacoco.maven.version>0.8.13</jacoco.maven.version>
         <jakarta.annotation.version>3.0.0</jakarta.annotation.version>
         <jakarta.enterprise.cdi.version>4.1.0</jakarta.enterprise.cdi.version>
         <jakarta.json.bind.version>3.0.1</jakarta.json.bind.version>
@@ -63,13 +63,13 @@
         <jakarta.data.api.version>1.1.0-SNAPSHOT</jakarta.data.api.version>
         <jakarta.nosql.version>1.0.2-SNAPSHOT</jakarta.nosql.version>
         <jakarta.validation.version>3.1.1</jakarta.validation.version>
-        <maven-javadoc-plugin.vesion>3.11.1</maven-javadoc-plugin.vesion>
+        <maven-javadoc-plugin.vesion>3.12.0</maven-javadoc-plugin.vesion>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-        <maven.checkstyle.plugin.version>3.5.0</maven.checkstyle.plugin.version>
-        <maven.compile.version>3.14.0</maven.compile.version>
+        <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
+        <maven.compile.version>3.14.1</maven.compile.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <maven.surefire.plugin.version>3.5.0</maven.surefire.plugin.version>
+        <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sonar.jacoco.reportPath>../target/jacoco.exec</sonar.jacoco.reportPath>
         <sonar.maven.version>5.0.0.4389</sonar.maven.version>
@@ -78,17 +78,17 @@
         <weld.se.core.version>6.0.3.Final</weld.se.core.version>
         <yasson.version>3.0.4</yasson.version>
         <microprofile.config.version>3.1</microprofile.config.version>
-        <smallrye.config.version>3.13.4</smallrye.config.version>
+        <smallrye.config.version>3.14.0</smallrye.config.version>
 
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <checkstyle.version>11.0.1</checkstyle.version>
         <!-- testing libraries -->
-        <junit.version>5.12.1</junit.version>
-        <mockito.verson>5.19.0</mockito.verson>
+        <junit.version>5.13.4</junit.version>
+        <mockito.verson>5.20.0</mockito.verson>
         <assertj.version>3.27.3</assertj.version>
         <awaitility.version>4.3.0</awaitility.version>
-        <datafaker.version>2.4.4</datafaker.version>
+        <datafaker.version>2.5.1</datafaker.version>
         <pi-test.version>1.16.1</pi-test.version>
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
         <apache.pdm.plugin.version>3.24.0</apache.pdm.plugin.version>

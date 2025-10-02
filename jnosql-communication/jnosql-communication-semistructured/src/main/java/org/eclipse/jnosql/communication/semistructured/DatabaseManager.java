@@ -250,8 +250,7 @@ public interface DatabaseManager extends AutoCloseable {
      */
     default Stream<CommunicationEntity> query(String query, String entity) {
         Objects.requireNonNull(query, "query is required");
-        QueryParser parser = new QueryParser();
-        return parser.query(query, entity, this, CommunicationObserverParser.EMPTY);
+        return QueryParser.INSTANCE.query(query, entity, this, CommunicationObserverParser.EMPTY);
     }
 
     /**
