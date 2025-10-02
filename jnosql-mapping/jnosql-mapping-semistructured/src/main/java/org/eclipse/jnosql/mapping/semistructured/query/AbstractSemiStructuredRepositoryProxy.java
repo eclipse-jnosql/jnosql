@@ -173,12 +173,12 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
     @Override
     protected Object executeParameterBased(Object instance, Method method, Object[] params) {
         Class<?> type = entityMetadata().type();
-        Map<String, Object> parameters = RepositoryReflectionUtils.INSTANCE.getBy(method, params);
+        var parameters = RepositoryReflectionUtils.INSTANCE.getBy(method, params);
         var query = toQuery(parameters, method);
         return executeFindByQuery(method, params, type, updateQueryDynamically(params, query));
     }
 
-    protected SelectQuery toQuery(Map<String, Object> parameters, Method method) {
+    protected SelectQuery toQuery(Map<String, ParamValue> parameters, Method method) {
         return SemiStructuredParameterBasedQuery.INSTANCE.toQuery(parameters, getSorts(method, entityMetadata()), entityMetadata());
     }
 
