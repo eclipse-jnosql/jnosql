@@ -15,10 +15,12 @@
 package org.eclipse.jnosql.mapping.core.repository;
 
 
-
+import jakarta.data.constraint.Constraint;
 import jakarta.data.repository.By;
+import jakarta.data.repository.Is;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
+import org.eclipse.jnosql.communication.Condition;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -68,21 +70,52 @@ public enum RepositoryReflectionUtils {
      * @param args   the arguments from the method
      * @return the {@link Map} from method and its arguments
      */
-    public Map<String, Object> getBy(Method method, Object[] args) {
-        Map<String, Object> params = new HashMap<>();
+    public Map<String, ParamValue> getBy(Method method, Object[] args) {
+        Map<String, ParamValue> params = new HashMap<>();
 
         Parameter[] parameters = method.getParameters();
         for (int index = 0; index < parameters.length; index++) {
             Parameter parameter = parameters[index];
             boolean isNotSpecialParameter = SpecialParameters.isNotSpecialParameter(parameter.getType());
             By by = parameter.getAnnotation(By.class);
+            Is is = parameter.getAnnotation(Is.class);
             if (Objects.nonNull(by)) {
-                params.put(by.value(), args[index]);
+                params.put(by.value(), condition(is, args[index]));
             } else if(parameter.isNamePresent() && isNotSpecialParameter) {
-                params.put(parameter.getName(), args[index]);
+                params.put(parameter.getName(),  condition(is,args[index]));
             }
         }
         return params;
+    }
+
+    public ParamValue condition(Is is, Object value) {
+        if (Objects.isNull(is)) {
+            return new ParamValue(Condition.EQUALS, value, false);
+        }
+        Class<? extends Constraint> constraint = is.value();
+        return getParamValue(value, constraint);
+    }
+
+    static ParamValue getParamValue(Object value, Class<? extends Constraint> constraint) {
+        return switch (constraint.getName()) {
+            case "jakarta.data.constraint.AtLeast" -> new ParamValue(Condition.GREATER_EQUALS_THAN, value, false);
+            case "jakarta.data.constraint.AtMost" -> new ParamValue(Condition.LESSER_EQUALS_THAN, value, false);
+            case "jakarta.data.constraint.GreaterThan" -> new ParamValue(Condition.GREATER_THAN, value, false);
+            case "jakarta.data.constraint.LessThan" -> new ParamValue(Condition.LESSER_THAN, value, false);
+            case "jakarta.data.constraint.Between" -> new ParamValue(Condition.BETWEEN, value, false);
+            case "jakarta.data.constraint.EqualTo" -> new ParamValue(Condition.EQUALS, value, false);
+            case "jakarta.data.constraint.Like" -> new ParamValue(Condition.LIKE, value, false);
+            case "jakarta.data.constraint.In" -> new ParamValue(Condition.IN, value, false);
+            // Negate conditions
+            case "jakarta.data.constraint.NotBetween" -> new ParamValue(Condition.BETWEEN, value, true);
+            case "jakarta.data.constraint.NotEqualTo" -> new ParamValue(Condition.EQUALS, value, true);
+            case "jakarta.data.constraint.NotIn" -> new ParamValue(Condition.IN, value, true);
+            case "jakarta.data.constraint.NotLike" -> new ParamValue(Condition.LIKE, value, true);
+            default ->
+                    throw new UnsupportedOperationException("The FindBy annotation does not support this constraint: " + constraint.getName()
+                            + " at the Is annotation, please use one of the following: "
+                            + "AtLeast, AtMost, GreaterThan, LesserThan, Between, EqualTo, Like, In, NotBetween, NotEquals, NotIn or NotLike");
+        };
     }
 
 

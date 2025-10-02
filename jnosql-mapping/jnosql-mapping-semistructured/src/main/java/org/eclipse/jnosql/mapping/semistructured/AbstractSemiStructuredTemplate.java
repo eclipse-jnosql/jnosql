@@ -147,6 +147,25 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
                 .collect(Collectors.toList());
     }
 
+    public <T> void delete(T entity) {
+        requireNonNull(entity, "entity is required");
+        EntityMetadata metadata = entities().get(entity.getClass());
+        FieldMetadata idField = metadata.id()
+                .orElseThrow(() -> IdNotFoundException.newInstance(metadata.type()));
+
+        var idValue = idField.read(entity);
+        LOGGER.fine("Deleting entity: " + entity.getClass() + " with id: " + idValue);
+        DeleteQuery query = DeleteQuery.delete().from(metadata.name())
+                .where(idField.name()).eq(idValue).build();
+        manager().delete(query);
+    }
+
+    public <T> void delete(Iterable<? extends T> iterable) {
+        requireNonNull(iterable, "iterable is required");
+        StreamSupport.stream(iterable.spliterator(), false)
+                .forEach(this::delete);
+    }
+
     @Override
     public void delete(DeleteQuery query) {
         requireNonNull(query, "query is required");
