@@ -25,6 +25,5 @@ import java.util.function.Supplier;
  *
  * @param <T> the supplier type
  */
-@FunctionalInterface
 public interface TypeSupplier<T> extends Supplier<Type> {
 }
