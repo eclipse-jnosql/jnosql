@@ -12,7 +12,7 @@ and then referenced by URL https://nexus.cicd.portit.io/repository/portit-webapp
     <rule ref="category/java/bestpractices.xml">
         <exclude name="GuardLogStatement" />
         <exclude name="AbstractClassWithoutAbstractMethod" />
-        <exclude name="JUnitTestsShouldIncludeAssert" />
+        <exclude name="UnitTestShouldIncludeAssert" />
         <exclude name="UseVarargs" />
         <exclude name="MethodReturnsInternalArray" />
     </rule>
