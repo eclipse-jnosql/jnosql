@@ -15,6 +15,8 @@ and then referenced by URL https://nexus.cicd.portit.io/repository/portit-webapp
         <exclude name="UnitTestShouldIncludeAssert" />
         <exclude name="UseVarargs" />
         <exclude name="MethodReturnsInternalArray" />
+        <exclude name="ImplicitFunctionalInterface" />
+        <exclude name="ExhaustiveSwitchHasDefault" />
     </rule>
     <rule ref="category/java/codestyle.xml">
         <exclude name="LongVariable" />
