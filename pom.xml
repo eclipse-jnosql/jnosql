@@ -84,7 +84,7 @@
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <checkstyle.version>11.1.0</checkstyle.version>
         <!-- testing libraries -->
-        <junit.version>6.0.0</junit.version>
+        <junit.version>5.14.0</junit.version>
         <mockito.verson>5.20.0</mockito.verson>
         <assertj.version>3.27.3</assertj.version>
         <awaitility.version>4.3.0</awaitility.version>
