@@ -40,11 +40,11 @@ abstract class AbstractMapperQuery {
 
     protected String name;
 
-    protected transient final EntityMetadata mapping;
+    protected final transient EntityMetadata mapping;
 
-    protected transient final Converters converters;
+    protected final transient Converters converters;
 
-    protected transient final SemiStructuredTemplate template;
+    protected final transient SemiStructuredTemplate template;
 
     protected long start;
 
