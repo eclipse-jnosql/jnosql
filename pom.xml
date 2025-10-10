@@ -91,7 +91,7 @@
         <datafaker.version>2.5.1</datafaker.version>
         <pi-test.version>1.21.0</pi-test.version>
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
-        <apache.pdm.plugin.version>3.27.0</apache.pdm.plugin.version>
+        <apache.pdm.plugin.version>3.28.0</apache.pdm.plugin.version>
         <pmd.url>https://raw.githubusercontent.com/eclipse/jnosql/refs/heads/main/pmd/pmd-rules.xml</pmd.url>
     </properties>
     <dependencyManagement>
