@@ -1,0 +1,171 @@
+/*
+ *  Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *   All rights reserved. This program and the accompanying materials
+ *   are made available under the terms of the Eclipse Public License v1.0
+ *   and Apache License v2.0 which accompanies this distribution.
+ *   The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
+ *   and the Apache License v2.0 is available at http://www.opensource.org/licenses/apache2.0.php.
+ *
+ *   You may elect to redistribute this code under either of these licenses.
+ *
+ *   Contributors:
+ *
+ *   Otavio Santana
+ */
+package org.eclipse.jnosql.mapping.keyvalue;
+
+
+import jakarta.nosql.MappingException;
+import jakarta.nosql.QueryMapper;
+import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.core.util.ConverterUtil;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import static java.util.Objects.requireNonNull;
+
+final class MapperSelect implements QueryMapper.MapperFrom, QueryMapper.MapperLimit,
+        QueryMapper.MapperSkip, QueryMapper.MapperOrder, QueryMapper.MapperNameCondition,
+        QueryMapper.MapperNotCondition, QueryMapper.MapperNameOrder, QueryMapper.MapperWhere {
+
+    private final transient EntityMetadata mapping;
+
+    private final transient Converters converters;
+
+    private final transient KeyValueTemplate template;
+
+    private final transient FieldMetadata id;
+    private String name;
+
+    private List<Object> keys = new ArrayList<>();
+
+
+    MapperSelect(EntityMetadata mapping, Converters converters, KeyValueTemplate template) {
+        this.mapping = mapping;
+        this.converters = converters;
+        this.template = template;
+        this.id = mapping.id().orElseThrow(() -> new MappingException("The entity " + mapping.name() + " does not have an attribute with id annotation"));
+    }
+
+    @Override
+    public QueryMapper.MapperNameCondition and(String name) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support and condition");
+    }
+
+    @Override
+    public QueryMapper.MapperNameCondition or(String name) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support or condition");
+    }
+
+    @Override
+    public QueryMapper.MapperNameCondition where(String name) {
+        requireNonNull(name, "name is required");
+        if (!id.name().equals(name)) {
+            throw new UnsupportedOperationException("Key-value Mapper query only support the id attribute: " + id.name() + " at the entity: " + mapping.name());
+        }
+        this.name = name;
+        return this;
+    }
+
+    @Override
+    public QueryMapper.MapperSkip skip(long start) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support skip");
+    }
+
+    @Override
+    public QueryMapper.MapperLimit limit(long limit) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support limit");
+    }
+
+    @Override
+    public QueryMapper.MapperOrder orderBy(String name) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support order by");
+    }
+
+    @Override
+    public QueryMapper.MapperNotCondition not() {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support not condition");
+    }
+
+    @Override
+    public QueryMapper.MapperWhere like(String value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support like condition");
+    }
+
+    @Override
+    public <T> QueryMapper.MapperWhere gt(T value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support gt condition");
+    }
+
+    @Override
+    public <T> QueryMapper.MapperWhere gte(T value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support gte condition");
+    }
+
+    @Override
+    public <T> QueryMapper.MapperWhere lt(T value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support lt condition");
+    }
+
+    @Override
+    public <T> QueryMapper.MapperWhere lte(T value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support lte condition");
+    }
+
+    @Override
+    public <T> QueryMapper.MapperWhere between(T valueA, T valueB) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support between condition");
+    }
+
+
+    @Override
+    public QueryMapper.MapperNameOrder asc() {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support asc order");
+    }
+
+    @Override
+    public QueryMapper.MapperNameOrder desc() {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support desc order");
+    }
+
+    @Override
+    public <T> QueryMapper.MapperWhere eq(T value) {
+        requireNonNull(value, "value is required");
+        this
+        return this;
+    }
+
+    @Override
+    public <T> QueryMapper.MapperWhere in(Iterable<T> values) {
+        inImpl(values);
+        return this;
+    }
+
+    @Override
+    public <T> List<T> result() {
+        SelectQuery query = build();
+        return this.template.<T>select(query)
+                .toList();
+    }
+
+    @Override
+    public <T> Stream<T> stream() {
+        SelectQuery query = build();
+        return this.template.select(query);
+    }
+
+    @Override
+    public <T> Optional<T> singleResult() {
+        SelectQuery query = build();
+        return this.template.singleResult(query);
+    }
+
+    protected Object getValue(Object value) {
+        return ConverterUtil.getValue(value, mapping, name, converters);
+    }
+}
