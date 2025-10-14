@@ -151,10 +151,13 @@ final class MapperSelect implements QueryMapper.MapperFrom, QueryMapper.MapperLi
     @SuppressWarnings("unchecked")
     @Override
     public <T> List<T> result() {
+        validatedCondition();
         List<T> entities = new ArrayList<>();
         this.template.get(keys, (Class<T>) mapping.type()).forEach(entities::add);
         return entities;
     }
+
+
 
     @Override
     public <T> Stream<T> stream() {
@@ -164,6 +167,7 @@ final class MapperSelect implements QueryMapper.MapperFrom, QueryMapper.MapperLi
     @SuppressWarnings("unchecked")
     @Override
     public <T> Optional<T> singleResult() {
+        validatedCondition();
         if (keys.size() == 1) {
             return this.template.get(keys.getFirst(), (Class<T>) this.mapping.type());
         } else {
@@ -175,6 +179,12 @@ final class MapperSelect implements QueryMapper.MapperFrom, QueryMapper.MapperLi
             } else {
                 throw new NonUniqueResultException("Expected one result but found: " + values.size());
             }
+        }
+    }
+
+    private void validatedCondition() {
+        if (keys.isEmpty()) {
+            throw new UnsupportedOperationException("On Key-value Mapper it requires to have at least one condition either eq or in");
         }
     }
 
