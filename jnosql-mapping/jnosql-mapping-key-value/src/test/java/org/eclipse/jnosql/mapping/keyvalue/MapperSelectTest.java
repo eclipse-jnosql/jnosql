@@ -19,6 +19,7 @@ import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.communication.keyvalue.KeyValueEntity;
 import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.keyvalue.entities.ErrorEntity;
 import org.eclipse.jnosql.mapping.keyvalue.spi.KeyValueExtension;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
@@ -76,8 +77,13 @@ class MapperSelectTest {
     @Test
     @DisplayName("Should return error when select mapper is null")
     void shouldReturnErrorWhenMapperIsNull() {
-
         Assertions.assertThrows(NullPointerException.class, () -> template.select(null));
+    }
+
+    @Test
+    @DisplayName("Should return error when entity has not id")
+    void shouldReturnErrorWhenEntityHasNotId() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> template.select(ErrorEntity.class));
     }
 
 
