@@ -19,6 +19,8 @@ import jakarta.nosql.QueryMapper;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.communication.keyvalue.KeyValueEntity;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -137,7 +139,10 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
     @Override
     public <T> QueryMapper.MapperFrom select(Class<T> type) {
         Objects.requireNonNull(type, "type is required");
-        throw new UnsupportedOperationException("Key value database type does not have support for mapping query");
+        var converter = this.getConverter();
+        var entities = converter.getEntities();
+        var mapping = entities.get(type);
+        return new MapperSelect(mapping, converter.getConverters(), this);
     }
 
     @Override
