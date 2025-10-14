@@ -96,5 +96,24 @@ class MapperSelectTest {
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).singleResult());
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).stream());
     }
+    
+    @Test
+    @DisplayName("Should return error when there is order")
+    void shouldReturnErrorWhenThereIsOrder(){
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).orderBy("name"));
+    }
+
+    @Test
+    @DisplayName("Should return error when there is skip")
+    void shouldReturnErrorWhenThereIsSkip(){
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).skip(10));
+    }
+
+    @Test
+    @DisplayName("Should return error when there is limit")
+    void shouldReturnErrorWhenThereIsLimit(){
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).limit(10));
+    }
+
 
 }
