@@ -21,6 +21,7 @@ import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.communication.keyvalue.KeyValueEntity;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.keyvalue.entities.ErrorEntity;
+import org.eclipse.jnosql.mapping.keyvalue.entities.Person;
 import org.eclipse.jnosql.mapping.keyvalue.spi.KeyValueExtension;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
@@ -88,5 +89,12 @@ class MapperSelectTest {
     }
 
 
+    @Test
+    @DisplayName("Should return error when the result is empty")
+    void shouldReturnWhenTheResultWithoutUsingOrder(){
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).result());
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).singleResult());
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).stream());
+    }
 
 }
