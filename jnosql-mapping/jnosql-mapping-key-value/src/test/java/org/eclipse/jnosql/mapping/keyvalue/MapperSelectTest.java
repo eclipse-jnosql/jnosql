@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.keyvalue;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import jakarta.nosql.MappingException;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.communication.keyvalue.KeyValueEntity;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -83,7 +84,7 @@ class MapperSelectTest {
     @Test
     @DisplayName("Should return error when entity has not id")
     void shouldReturnErrorWhenEntityHasNotId() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> template.select(ErrorEntity.class));
+        Assertions.assertThrows(MappingException.class, () -> template.select(ErrorEntity.class));
     }
 
 
