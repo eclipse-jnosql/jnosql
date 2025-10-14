@@ -136,6 +136,7 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
 
     @Override
     public <T> QueryMapper.MapperFrom select(Class<T> type) {
+        Objects.requireNonNull(type, "type is required");
         throw new UnsupportedOperationException("Key value database type does not have support for mapping query");
     }
 
