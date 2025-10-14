@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.keyvalue;
 
 
+import jakarta.data.exceptions.NonUniqueResultException;
 import jakarta.nosql.MappingException;
 import jakarta.nosql.QueryMapper;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -136,36 +137,45 @@ final class MapperSelect implements QueryMapper.MapperFrom, QueryMapper.MapperLi
     @Override
     public <T> QueryMapper.MapperWhere eq(T value) {
         requireNonNull(value, "value is required");
-        this
+        keys.add(ConverterUtil.getValue(value, mapping, name, converters));
         return this;
     }
 
     @Override
     public <T> QueryMapper.MapperWhere in(Iterable<T> values) {
-        inImpl(values);
+        requireNonNull(values, "value is required");
+        values.forEach(v -> keys.add(ConverterUtil.getValue(v, mapping, name, converters)));
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> List<T> result() {
-        SelectQuery query = build();
-        return this.template.<T>select(query)
-                .toList();
+        List<T> entities = new ArrayList<>();
+        this.template.get(keys, (Class<T>) mapping.type()).forEach(entities::add);
+        return entities;
     }
 
     @Override
     public <T> Stream<T> stream() {
-        SelectQuery query = build();
-        return this.template.select(query);
+        return this.<T>result().stream();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> Optional<T> singleResult() {
-        SelectQuery query = build();
-        return this.template.singleResult(query);
+        if (keys.size() == 1) {
+            return this.template.get(keys.getFirst(), (Class<T>) this.mapping.type());
+        } else {
+            List<T> values = result();
+            if(values.size() > 1) {
+                return Optional.of(values.getFirst());
+            } else if(values.isEmpty()) {
+                return Optional.empty();
+            } else {
+                throw new NonUniqueResultException("Expected one result but found: " + values.size());
+            }
+        }
     }
 
-    protected Object getValue(Object value) {
-        return ConverterUtil.getValue(value, mapping, name, converters);
-    }
 }
