@@ -96,7 +96,7 @@ class MapperSelectTest {
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).singleResult());
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).stream());
     }
-    
+
     @Test
     @DisplayName("Should return error when there is order")
     void shouldReturnErrorWhenThereIsOrder(){
@@ -115,5 +115,10 @@ class MapperSelectTest {
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).limit(10));
     }
 
+    @Test
+    @DisplayName("Should return error when attribute is not id")
+    void shouldReturnErrorWhenAttributeIsNotId() {
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("name"));
+    }
 
 }
