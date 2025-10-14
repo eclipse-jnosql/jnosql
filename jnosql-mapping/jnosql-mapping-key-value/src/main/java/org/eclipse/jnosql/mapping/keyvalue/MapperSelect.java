@@ -43,7 +43,7 @@ final class MapperSelect implements QueryMapper.MapperFrom, QueryMapper.MapperLi
     private final transient FieldMetadata id;
     private String name;
 
-    private List<Object> keys = new ArrayList<>();
+    private final List<Object> keys = new ArrayList<>();
 
 
     MapperSelect(EntityMetadata mapping, Converters converters, KeyValueTemplate template) {
