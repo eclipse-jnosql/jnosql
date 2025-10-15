@@ -14,5 +14,98 @@
  */
 package org.eclipse.jnosql.mapping.keyvalue;
 
-final class MapperDelete {
+import jakarta.nosql.MappingException;
+import jakarta.nosql.QueryMapper;
+import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
+
+import java.util.ArrayList;
+import java.util.List;
+
+final class MapperDelete implements QueryMapper.MapperDeleteFrom,
+        QueryMapper.MapperDeleteWhere, QueryMapper.MapperDeleteNameCondition, QueryMapper.MapperDeleteNotCondition {
+
+    private final transient EntityMetadata mapping;
+
+    private final transient Converters converters;
+
+    private final transient KeyValueTemplate template;
+
+    private final transient FieldMetadata id;
+    private String name;
+
+    private final List<Object> keys = new ArrayList<>();
+
+    MapperDelete(EntityMetadata mapping, Converters converters, KeyValueTemplate template) {
+        this.mapping = mapping;
+        this.converters = converters;
+        this.template = template;
+        this.id = mapping.id().orElseThrow(() -> new MappingException("The entity " + mapping.name() + " does not have an attribute with id annotation"));
+    }
+
+    @Override
+    public QueryMapper.MapperDeleteWhere like(String value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support like condition");
+    }
+
+    @Override
+    public <T> QueryMapper.MapperDeleteWhere gt(T value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support gt condition");
+    }
+
+    @Override
+    public <T> QueryMapper.MapperDeleteWhere gte(T value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support gte condition");
+    }
+
+    @Override
+    public <T> QueryMapper.MapperDeleteWhere lt(T value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support lt condition");
+    }
+
+    @Override
+    public <T> QueryMapper.MapperDeleteWhere lte(T value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support lte condition");
+    }
+
+    @Override
+    public <T> QueryMapper.MapperDeleteWhere between(T valueA, T valueB) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support between condition");
+    }
+
+    @Override
+    public QueryMapper.MapperDeleteNotCondition not() {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support not condition");
+    }
+
+    @Override
+    public QueryMapper.MapperDeleteNameCondition and(String name) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support and condition");
+    }
+
+    @Override
+    public QueryMapper.MapperDeleteNameCondition or(String name) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support or condition");
+    }
+
+    @Override
+    public QueryMapper.MapperDeleteNameCondition where(String name) {
+        return null;
+    }
+
+    @Override
+    public <T> QueryMapper.MapperDeleteWhere eq(T value) {
+        return null;
+    }
+
+    @Override
+    public <T> QueryMapper.MapperDeleteWhere in(Iterable<T> values) {
+        return null;
+    }
+
+    @Override
+    public void execute() {
+
+    }
 }
