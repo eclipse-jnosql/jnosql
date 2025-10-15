@@ -58,8 +58,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class MapperSelectTest {
-
-    private static final String KEY = "otaviojava";
     @Inject
     private KeyValueEntityConverter converter;
 
