@@ -17,11 +17,14 @@ package org.eclipse.jnosql.mapping.keyvalue;
 import jakarta.nosql.MappingException;
 import jakarta.nosql.QueryMapper;
 import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.core.util.ConverterUtil;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.Objects.requireNonNull;
 
 final class MapperDelete implements QueryMapper.MapperDeleteFrom,
         QueryMapper.MapperDeleteWhere, QueryMapper.MapperDeleteNameCondition, QueryMapper.MapperDeleteNotCondition {
@@ -91,21 +94,37 @@ final class MapperDelete implements QueryMapper.MapperDeleteFrom,
 
     @Override
     public QueryMapper.MapperDeleteNameCondition where(String name) {
-        return null;
+        requireNonNull(name, "name is required");
+        if (!id.fieldName().equals(name)) {
+            throw new UnsupportedOperationException("Key-value Mapper query only support the id attribute: " + id.name() + " at the entity: " + mapping.name());
+        }
+        this.name = name;
+        return this;
     }
 
     @Override
     public <T> QueryMapper.MapperDeleteWhere eq(T value) {
-        return null;
+        requireNonNull(value, "value is required");
+        keys.add(ConverterUtil.getValue(value, mapping, name, converters));
+        return this;
     }
 
     @Override
     public <T> QueryMapper.MapperDeleteWhere in(Iterable<T> values) {
-        return null;
+        requireNonNull(values, "value is required");
+        values.forEach(v -> keys.add(ConverterUtil.getValue(v, mapping, name, converters)));
+        return this;
     }
 
     @Override
     public void execute() {
+        validatedCondition();
+        template.delete(keys);
+    }
 
+    private void validatedCondition() {
+        if (keys.isEmpty()) {
+            throw new UnsupportedOperationException("On Key-value Mapper it requires to have at least one condition either eq or in");
+        }
     }
 }
