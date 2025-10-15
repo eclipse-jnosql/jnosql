@@ -171,8 +171,7 @@ class MapperSelectTest {
         var result = template.select(Person.class).where("id").eq(10L).stream();
 
         SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(result).hasSize(1);
-            soft.assertThat(result).contains(person);
+            soft.assertThat(result).hasSize(1).contains(person);
             Mockito.verify(manager).get(10L);
         });
     }
