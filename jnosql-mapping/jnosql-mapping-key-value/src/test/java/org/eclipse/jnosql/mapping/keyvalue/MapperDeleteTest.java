@@ -59,7 +59,6 @@ import static org.mockito.Mockito.when;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class MapperDeleteTest {
 
-    private static final String KEY = "otaviojava";
     @Inject
     private KeyValueEntityConverter converter;
 
@@ -68,10 +67,6 @@ class MapperDeleteTest {
 
     @Mock
     private BucketManager manager;
-
-    @Captor
-    private ArgumentCaptor<KeyValueEntity> captor;
-
     private KeyValueTemplate template;
 
 
