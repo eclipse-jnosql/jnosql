@@ -139,5 +139,11 @@ class MapperSelectTest {
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").eq(10).and("id"));
     }
 
+    @Test
+    @DisplayName("Should return error when there is or operator")
+    void shouldReturnErrorWhenThereIsOrOperator() {
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").eq(10).or("id"));
+    }
+
 
 }
