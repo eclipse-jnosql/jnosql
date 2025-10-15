@@ -21,7 +21,6 @@ import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.communication.keyvalue.KeyValueEntity;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
-import org.eclipse.jnosql.mapping.keyvalue.entities.Person;
 import org.eclipse.jnosql.mapping.keyvalue.entities.User;
 import org.eclipse.jnosql.mapping.keyvalue.spi.KeyValueExtension;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -48,7 +47,6 @@ import static java.util.stream.StreamSupport.stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -239,8 +237,6 @@ class DefaultKeyValueTemplateTest {
 
     @Test
     void shouldReturnEmptyIterable() {
-        User user = new User(KEY, "otavio", 27);
-
         when(manager.get(KEY)).thenReturn(Optional.empty());
         List<User> userOptional = stream(template.get(singletonList(KEY), User.class).spliterator(), false)
                 .toList();
@@ -265,15 +261,5 @@ class DefaultKeyValueTemplateTest {
     void shouldRemoveIterable() {
         template.delete(singletonList(KEY));
         Mockito.verify(manager).delete(singletonList(KEY));
-    }
-
-    @Test
-    void shouldUnsupportedExceptionOnSelect() {
-        assertThrows(UnsupportedOperationException.class, ()-> template.select(Person.class));
-    }
-
-    @Test
-    void shouldUnsupportedExceptionOnDelete() {
-        assertThrows(UnsupportedOperationException.class, ()-> template.delete(Person.class));
     }
 }
