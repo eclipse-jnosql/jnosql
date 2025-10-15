@@ -45,6 +45,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.mockito.Mockito.when;
 
@@ -227,6 +228,22 @@ class MapperSelectTest {
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(people).hasSize(2);
             soft.assertThat(people).contains(otavio, ada);
+            Mockito.verify(manager).get(10L);
+            Mockito.verify(manager).get(11L);
+        });
+    }
+
+    @Test
+    @DisplayName("Should return stream when in")
+    void shouldReturnStreamWhenIn() {
+        var otavio = Person.builder().withId(10L).withName("Otavio").build();
+        var ada = Person.builder().withId(11L).withName("Ada").build();
+        when(manager.get(10L)).thenReturn(java.util.Optional.of(Value.of(otavio)));
+        when(manager.get(11L)).thenReturn(java.util.Optional.of(Value.of(ada)));
+        Stream<Person> people = template.select(Person.class).where("id").in(List.of(10L, 11L)).stream();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(people).hasSize(2).contains(otavio, ada);
             Mockito.verify(manager).get(10L);
             Mockito.verify(manager).get(11L);
         });
