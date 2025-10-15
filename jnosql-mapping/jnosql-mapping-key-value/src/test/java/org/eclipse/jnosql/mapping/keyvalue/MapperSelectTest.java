@@ -17,6 +17,8 @@ package org.eclipse.jnosql.mapping.keyvalue;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.nosql.MappingException;
+import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.communication.keyvalue.KeyValueEntity;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -40,6 +42,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 
@@ -145,5 +149,18 @@ class MapperSelectTest {
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").eq(10).or("id"));
     }
 
+    @Test
+    @DisplayName("Should execute query equals List when there is a single element")
+    void shouldExecuteQueryEqualsList() {
+        var person = Person.builder().withId(10L).withName("Otavio").build();
+        when(manager.get(10L)).thenReturn(java.util.Optional.of(Value.of(person)));
+        var result = template.select(Person.class).where("id").eq(10L).result();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(result).hasSize(1);
+            soft.assertThat(result.getFirst()).isEqualTo(person);
+            Mockito.verify(manager).get(10L);
+        });
+    }
 
 }
