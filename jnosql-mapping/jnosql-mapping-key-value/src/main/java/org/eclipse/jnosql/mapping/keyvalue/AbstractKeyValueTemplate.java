@@ -147,7 +147,11 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
 
     @Override
     public <T> QueryMapper.MapperDeleteFrom delete(Class<T> type) {
-        throw new UnsupportedOperationException("Key value database type does not have support for mapping query");
+        Objects.requireNonNull(type, "type is required");
+        var converter = this.getConverter();
+        var entities = converter.getEntities();
+        var mapping = entities.get(type);
+        return new MapperDelete(mapping, converter.getConverters(), this);
     }
 
     protected <T> T persist(T entity, Consumer<KeyValueEntity> persistAction) {
