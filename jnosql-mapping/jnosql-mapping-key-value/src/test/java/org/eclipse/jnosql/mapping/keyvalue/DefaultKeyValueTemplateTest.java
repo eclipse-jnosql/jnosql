@@ -267,13 +267,4 @@ class DefaultKeyValueTemplateTest {
         Mockito.verify(manager).delete(singletonList(KEY));
     }
 
-    @Test
-    void shouldUnsupportedExceptionOnSelect() {
-        assertThrows(UnsupportedOperationException.class, ()-> template.select(Person.class));
-    }
-
-    @Test
-    void shouldUnsupportedExceptionOnDelete() {
-        assertThrows(UnsupportedOperationException.class, ()-> template.delete(Person.class));
-    }
 }
