@@ -130,5 +130,8 @@ class MapperSelectTest {
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").lt("Otavio"));
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").lte("Otavio"));
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").between(10, 20));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").not());
     }
+
+
 }
