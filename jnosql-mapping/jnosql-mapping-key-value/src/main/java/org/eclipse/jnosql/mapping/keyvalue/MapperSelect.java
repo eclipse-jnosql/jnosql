@@ -172,7 +172,7 @@ final class MapperSelect implements QueryMapper.MapperFrom, QueryMapper.MapperLi
             return this.template.get(keys.getFirst(), (Class<T>) this.mapping.type());
         } else {
             List<T> values = result();
-            if(values.size() > 1) {
+            if(values.size() == 1) {
                 return Optional.of(values.getFirst());
             } else if(values.isEmpty()) {
                 return Optional.empty();
