@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.keyvalue;
 
+import jakarta.data.exceptions.NonUniqueResultException;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.nosql.MappingException;
@@ -200,6 +201,18 @@ class MapperSelectTest {
             soft.assertThat(result).isEmpty();
             Mockito.verify(manager).get(10L);
         });
+    }
+
+    @Test
+    @DisplayName("Should return error when equals single result there are two")
+    void shouldReturnErrorWhenEqualsSingleResultThereAreTwo(){
+        var otavio = Person.builder().withId(10L).withName("Otavio").build();
+        var ada = Person.builder().withId(11L).withName("Ada").build();
+        when(manager.get(10L)).thenReturn(java.util.Optional.of(Value.of(otavio)));
+        when(manager.get(11L)).thenReturn(java.util.Optional.of(Value.of(ada)));
+
+      Assertions.assertThrows(NonUniqueResultException.class,
+              () -> template.select(Person.class).where("id").in(List.of(10L, 11L)).singleResult());
     }
 
 }
