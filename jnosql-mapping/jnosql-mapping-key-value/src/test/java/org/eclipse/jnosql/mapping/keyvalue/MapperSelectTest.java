@@ -121,4 +121,14 @@ class MapperSelectTest {
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("name"));
     }
 
+    @Test
+    @DisplayName("Should return error when the operator is not supported")
+    void shouldReturnErrorWhenTheOperatorIsNotSupported() {
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").like("Otavio"));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").gt("Otavio"));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").gte("Otavio"));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").lt("Otavio"));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").lte("Otavio"));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").between(10, 20));
+    }
 }
