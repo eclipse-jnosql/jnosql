@@ -176,4 +176,30 @@ class MapperSelectTest {
         });
     }
 
+    @Test
+    @DisplayName("Should execute query equals single result")
+    void shouldExecuteQueryEqualsOptionalSingleResult() {
+        var person = Person.builder().withId(10L).withName("Otavio").build();
+        when(manager.get(10L)).thenReturn(java.util.Optional.of(Value.of(person)));
+        var result = template.select(Person.class).where("id").eq(10L).singleResult();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(result).isNotEmpty();
+            soft.assertThat(result).contains(person);
+            Mockito.verify(manager).get(10L);
+        });
+    }
+
+    @Test
+    @DisplayName("Should execute query equals single result empty")
+    void shouldExecuteQueryEqualsOptionalSingleResultEmpty() {
+        when(manager.get(10L)).thenReturn(java.util.Optional.empty());
+        var result = template.select(Person.class).where("id").eq(10L).singleResult();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(result).isEmpty();
+            Mockito.verify(manager).get(10L);
+        });
+    }
+
 }
