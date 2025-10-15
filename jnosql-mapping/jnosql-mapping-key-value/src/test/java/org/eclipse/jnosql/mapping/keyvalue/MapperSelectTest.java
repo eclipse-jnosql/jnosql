@@ -67,9 +67,6 @@ class MapperSelectTest {
     @Mock
     private BucketManager manager;
 
-    @Captor
-    private ArgumentCaptor<KeyValueEntity> captor;
-
     private KeyValueTemplate template;
 
 
