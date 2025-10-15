@@ -169,11 +169,11 @@ final class MapperSelect implements QueryMapper.MapperFrom, QueryMapper.MapperLi
     public <T> Optional<T> singleResult() {
         validatedCondition();
         if (keys.size() == 1) {
-            return this.template.get(keys.getFirst(), (Class<T>) this.mapping.type());
+            return this.template.get(keys.get(0), (Class<T>) this.mapping.type());
         } else {
             List<T> values = result();
             if(values.size() == 1) {
-                return Optional.of(values.getFirst());
+                return Optional.of(values.get(0));
             } else if(values.isEmpty()) {
                 return Optional.empty();
             } else {
