@@ -136,7 +136,7 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
 
     @Override
     public <T> QueryMapper.MapperFrom select(Class<T> type) {
-        Objects.requireNonNull(type, "type is required");
+        requireNonNull(type, "type is required");
         var converter = this.getConverter();
         var entities = converter.getEntities();
         var mapping = entities.get(type);
@@ -145,7 +145,7 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
 
     @Override
     public <T> QueryMapper.MapperDeleteFrom delete(Class<T> type) {
-        Objects.requireNonNull(type, "type is required");
+        requireNonNull(type, "type is required");
         var converter = this.getConverter();
         var entities = converter.getEntities();
         var mapping = entities.get(type);
