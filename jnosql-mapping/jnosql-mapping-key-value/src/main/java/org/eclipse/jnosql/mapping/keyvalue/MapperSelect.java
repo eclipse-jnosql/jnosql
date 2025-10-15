@@ -64,16 +64,6 @@ final class MapperSelect implements QueryMapper.MapperFrom, QueryMapper.MapperLi
     }
 
     @Override
-    public QueryMapper.MapperNameCondition where(String name) {
-        requireNonNull(name, "name is required");
-        if (!id.fieldName().equals(name)) {
-            throw new UnsupportedOperationException("Key-value Mapper query only support the id attribute: " + id.name() + " at the entity: " + mapping.name());
-        }
-        this.name = name;
-        return this;
-    }
-
-    @Override
     public QueryMapper.MapperSkip skip(long start) {
         throw new UnsupportedOperationException("Key-value Mapper query does not support skip");
     }
@@ -145,6 +135,16 @@ final class MapperSelect implements QueryMapper.MapperFrom, QueryMapper.MapperLi
     public <T> QueryMapper.MapperWhere in(Iterable<T> values) {
         requireNonNull(values, "value is required");
         values.forEach(v -> keys.add(ConverterUtil.getValue(v, mapping, name, converters)));
+        return this;
+    }
+
+    @Override
+    public QueryMapper.MapperNameCondition where(String name) {
+        requireNonNull(name, "name is required");
+        if (!id.fieldName().equals(name)) {
+            throw new UnsupportedOperationException("Key-value Mapper query only support the id attribute: " + id.name() + " at the entity: " + mapping.name());
+        }
+        this.name = name;
         return this;
     }
 
