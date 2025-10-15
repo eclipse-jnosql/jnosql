@@ -66,7 +66,7 @@ final class MapperSelect implements QueryMapper.MapperFrom, QueryMapper.MapperLi
     @Override
     public QueryMapper.MapperNameCondition where(String name) {
         requireNonNull(name, "name is required");
-        if (!id.name().equals(name)) {
+        if (!id.fieldName().equals(name)) {
             throw new UnsupportedOperationException("Key-value Mapper query only support the id attribute: " + id.name() + " at the entity: " + mapping.name());
         }
         this.name = name;
