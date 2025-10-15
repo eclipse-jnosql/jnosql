@@ -135,9 +135,7 @@ class MapperDeleteTest {
         when(manager.get(10L)).thenReturn(java.util.Optional.of(Value.of(person)));
         template.delete(Person.class).where("id").eq(10L).execute();
 
-        SoftAssertions.assertSoftly(soft ->{
-            Mockito.verify(manager).delete(10L);
-        });
+        SoftAssertions.assertSoftly(soft -> Mockito.verify(manager).delete(List.of(10L)));
     }
 
     @Test
@@ -145,12 +143,9 @@ class MapperDeleteTest {
     void shouldExecuteQueryEqualsList() {
         var person = Person.builder().withId(10L).withName("Otavio").build();
         when(manager.get(10L)).thenReturn(java.util.Optional.of(Value.of(person)));
-        template.delete(Person.class).where("id").in(List.of(10, 12)).execute();
+        template.delete(Person.class).where("id").in(List.of(10L, 11L)).execute();
 
-        SoftAssertions.assertSoftly(soft ->{
-            Mockito.verify(manager).delete(10L);
-            Mockito.verify(manager).delete(11L);
-        });
+        SoftAssertions.assertSoftly(soft -> Mockito.verify(manager).delete(List.of(10L, 11L)));
     }
 
 
