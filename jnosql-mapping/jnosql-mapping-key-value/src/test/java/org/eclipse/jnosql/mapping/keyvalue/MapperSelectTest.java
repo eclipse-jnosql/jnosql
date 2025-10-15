@@ -150,7 +150,7 @@ class MapperSelectTest {
     }
 
     @Test
-    @DisplayName("Should execute query equals List when there is a single element")
+    @DisplayName("Should execute query equals List")
     void shouldExecuteQueryEqualsList() {
         var person = Person.builder().withId(10L).withName("Otavio").build();
         when(manager.get(10L)).thenReturn(java.util.Optional.of(Value.of(person)));
@@ -158,7 +158,21 @@ class MapperSelectTest {
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(result).hasSize(1);
-            soft.assertThat(result.getFirst()).isEqualTo(person);
+            soft.assertThat(result).contains(person);
+            Mockito.verify(manager).get(10L);
+        });
+    }
+
+    @Test
+    @DisplayName("Should execute query equals Stream")
+    void shouldExecuteQueryEqualsStream() {
+        var person = Person.builder().withId(10L).withName("Otavio").build();
+        when(manager.get(10L)).thenReturn(java.util.Optional.of(Value.of(person)));
+        var result = template.select(Person.class).where("id").eq(10L).stream();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(result).hasSize(1);
+            soft.assertThat(result).contains(person);
             Mockito.verify(manager).get(10L);
         });
     }
