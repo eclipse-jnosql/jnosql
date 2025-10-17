@@ -26,6 +26,11 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 - Include Is annotation support to the Repository
 - Add support to Mapper on Key-value databases
 
+=== Removed
+
+- Remove query method from Eclipse JNoSQL
+- Remove singleQuery from Eclipse JNoSQL
+
 == [1.1.10] - 2025-08-19
 
 === Added
