@@ -394,14 +394,5 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         return new MapperObserver(entities());
     }
 
-    private <T> Function<CommunicationEntity, T> mappers(MapperObserver observer) {
-        Function<T, T> fieldMapper = fieldMapper(observer);
-        Function<CommunicationEntity, T> entityMapper = c -> converter().toEntity(c);
-        return entityMapper.andThen(fieldMapper);
-    }
 
-    @SuppressWarnings("unchecked")
-    private <T> T fieldMapper(MapperObserver observer) {
-        return (T) SelectFieldMapper.INSTANCE.<T>map(observer, entities());
-    }
 }
