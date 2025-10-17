@@ -86,13 +86,13 @@ class SelectFieldMapperTest {
     void shouldSelectField() {
         CommunicationEntity entity = CommunicationEntity.of("Person", columns);
         Mockito.when(managerMock.select(Mockito.any(SelectQuery.class))).thenAnswer(a -> Stream.of(entity));
-        Stream<Person> people = template.query("from Person");
+        Stream<Person> people = template.prepare("from Person").result();
         SoftAssertions.assertSoftly(s -> {
             s.assertThat(people).isNotNull();
             s.assertThat(people).hasSize(1).allMatch(Person.class::isInstance);
         });
 
-        List<Person> result = template.<Person>query("from Person").toList();
+        List<Person> result = template.prepare("from Person").<Person>result().toList();
 
         SoftAssertions.assertSoftly(s -> {
             s.assertThat(result).isNotNull();
@@ -104,13 +104,13 @@ class SelectFieldMapperTest {
     void shouldSingleSelectField() {
         CommunicationEntity entity = CommunicationEntity.of("Person", columns);
         Mockito.when(managerMock.select(Mockito.any(SelectQuery.class))).thenAnswer(a -> Stream.of(entity));
-        Stream<Integer> ages = template.query("select age from Person");
+        Stream<Integer> ages = template.prepare("select age from Person").result();
         SoftAssertions.assertSoftly(s -> {
             s.assertThat(ages).isNotNull();
             s.assertThat(ages).hasSize(1).contains(10);
         });
 
-        List<Integer> result = template.<Integer>query("select age from Person").toList();
+        List<Integer> result = template.prepare("select age from Person").<Integer>result().toList();
         assertEquals(1, result.size());
     }
 
@@ -118,13 +118,13 @@ class SelectFieldMapperTest {
     void shouldMultipleSelectFields() {
         CommunicationEntity entity = CommunicationEntity.of("Person", columns);
         Mockito.when(managerMock.select(Mockito.any(SelectQuery.class))).thenAnswer(a -> Stream.of(entity));
-        Stream<Object[]> ages = template.query("select age, name from Person");
+        Stream<Object[]> ages = template.prepare("select age, name from Person").result();
         SoftAssertions.assertSoftly(s -> {
             s.assertThat(ages).isNotNull();
             s.assertThat(ages).hasSize(1).contains(new Object[]{10, "Name"});
         });
 
-        List<Object[]> result = template.<Object[]>query("select age, name from Person").toList();
+        List<Object[]> result = template.prepare("select age, name from Person").<Object[]>result().toList();
        SoftAssertions.assertSoftly(s -> {
             s.assertThat(result).isNotNull();
             s.assertThat(result).hasSize(1).contains(new Object[]{10, "Name"});
