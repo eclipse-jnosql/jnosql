@@ -409,7 +409,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldExecuteQuery() {
-        template.query("FROM Person");
+        template.prepare("FROM Person");
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
@@ -418,7 +418,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldExecuteQueryEntity() {
-        template.query("FROM Person", "Person");
+        template.prepare("FROM Person", "Person");
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
@@ -428,7 +428,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldConvertEntity() {
-        template.query("FROM Movie");
+        template.prepare("FROM Movie");
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
@@ -437,7 +437,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldConvertEntityName() {
-        template.query("SELECT name FROM download");
+        template.prepare("SELECT name FROM download");
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
@@ -446,7 +446,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldConvertEntityNameClassName() {
-        template.query("FROM " + Person.class.getSimpleName());
+        template.prepare("FROM " + Person.class.getSimpleName());
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
@@ -455,7 +455,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldConvertConvertFromAnnotationEntity() {
-        template.query("FROM Vendor");
+        template.prepare("FROM Vendor");
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
