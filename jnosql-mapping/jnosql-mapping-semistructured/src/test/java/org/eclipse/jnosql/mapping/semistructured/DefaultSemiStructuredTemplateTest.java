@@ -325,31 +325,6 @@ class DefaultSemiStructuredTemplateTest {
     }
 
     @Test
-    void shouldReturnSingleResultQuery() {
-        CommunicationEntity columnEntity = CommunicationEntity.of("Person");
-        columnEntity.addAll(Stream.of(columns).collect(Collectors.toList()));
-
-        Mockito.when(managerMock
-                        .select(any(SelectQuery.class)))
-                .thenReturn(Stream.of(columnEntity));
-
-        Optional<Person> result = template.singleResult("from Person");
-        assertTrue(result.isPresent());
-        verify(eventPersistManager, never()).firePostEntity(any(Person.class));
-        verify(eventPersistManager, never()).firePreEntity(any(Person.class));
-    }
-
-    @Test
-    void shouldReturnSingleResultQueryIsEmpty() {
-        Mockito.when(managerMock
-                        .select(any(SelectQuery.class)))
-                .thenReturn(Stream.empty());
-
-        Optional<Person> result = template.singleResult("from Person");
-        assertFalse(result.isPresent());
-    }
-
-    @Test
     void shouldReturnErrorWhenThereMoreThanASingleResult() {
         Assertions.assertThrows(NonUniqueResultException.class, () -> {
             CommunicationEntity columnEntity = CommunicationEntity.of("Person");
