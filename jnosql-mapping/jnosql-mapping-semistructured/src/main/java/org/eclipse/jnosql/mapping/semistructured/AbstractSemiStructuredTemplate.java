@@ -228,22 +228,6 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
                 .execute();
     }
 
-
-    @Override
-    public <T> Stream<T> query(String query) {
-        requireNonNull(query, "query is required");
-        var observer = observer();
-        return PARSER.query(query, null, manager(), observer).map(mappers(observer));
-    }
-
-    @Override
-    public <T> Stream<T> query(String query, String entity) {
-        requireNonNull(query, "query is required");
-        requireNonNull(entity, "entity is required");
-        var observer = observer();
-        return PARSER.query(query, null, manager(), observer).map(mappers(observer));
-    }
-
     @Override
     public org.eclipse.jnosql.mapping.PreparedStatement prepare(String query) {
         var observer = observer();
@@ -270,12 +254,13 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
 
     @Override
     public <T> Optional<T> singleResult(String query, String entityName) {
-        Stream<T> entities;
+        org.eclipse.jnosql.mapping.PreparedStatement preparedStatement;
         if(entityName == null){
-            entities = query(query);
+            preparedStatement = prepare(query);
         } else {
-            entities = query(query, entityName);
+            preparedStatement = prepare(query, entityName);
         }
+        Stream<T> entities = preparedStatement.result();
         final Iterator<T> iterator = entities.iterator();
 
         if (!iterator.hasNext()) {
