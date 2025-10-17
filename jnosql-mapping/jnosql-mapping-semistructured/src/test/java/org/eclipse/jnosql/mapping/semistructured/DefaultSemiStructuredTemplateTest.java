@@ -22,13 +22,9 @@ import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
-
-import org.eclipse.jnosql.communication.Configurations;
-
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.Configurations;
 import org.eclipse.jnosql.communication.TypeReference;
-
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
@@ -44,7 +40,6 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.eclipse.jnosql.mapping.semistructured.entities.Job;
 import org.eclipse.jnosql.mapping.semistructured.entities.Person;
 import org.eclipse.jnosql.mapping.semistructured.entities.inheritance.LargeProject;
-
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;

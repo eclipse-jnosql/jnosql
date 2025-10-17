@@ -11,7 +11,6 @@
 package org.eclipse.jnosql.communication.semistructured;
 
 import jakarta.data.exceptions.NonUniqueResultException;
-import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

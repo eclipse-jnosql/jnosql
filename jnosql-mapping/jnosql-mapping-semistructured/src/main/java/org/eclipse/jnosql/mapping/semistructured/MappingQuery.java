@@ -16,7 +16,6 @@ package org.eclipse.jnosql.mapping.semistructured;
 
 
 import jakarta.data.Sort;
-
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 

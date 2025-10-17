@@ -19,15 +19,13 @@ import jakarta.data.page.PageRequest;
 import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
-
 import org.eclipse.jnosql.communication.semistructured.Element;
+import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
 import org.eclipse.jnosql.mapping.core.repository.ParamValue;
-import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
-
-import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
+import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;

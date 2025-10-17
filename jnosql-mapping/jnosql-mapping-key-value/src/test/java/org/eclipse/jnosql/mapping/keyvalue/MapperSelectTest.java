@@ -21,7 +21,6 @@ import jakarta.nosql.MappingException;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
-import org.eclipse.jnosql.communication.keyvalue.KeyValueEntity;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.keyvalue.entities.ErrorEntity;
 import org.eclipse.jnosql.mapping.keyvalue.entities.Person;

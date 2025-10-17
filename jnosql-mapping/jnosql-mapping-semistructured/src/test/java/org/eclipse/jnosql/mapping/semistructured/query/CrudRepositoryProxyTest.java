@@ -16,7 +16,6 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 
 
 import jakarta.data.Order;
-
 import jakarta.data.Sort;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
