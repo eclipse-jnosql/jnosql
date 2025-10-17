@@ -369,7 +369,7 @@ class DefaultSemiStructuredTemplateTest {
     }
 
     @Test
-    void shouldDeleteEntity() {
+    void shouldDeleteTypeClass() {
         template.delete(Person.class, "10");
         ArgumentCaptor<DeleteQuery> queryCaptor = ArgumentCaptor.forClass(DeleteQuery.class);
         verify(managerMock).delete(queryCaptor.capture());
@@ -611,6 +611,36 @@ class DefaultSemiStructuredTemplateTest {
             soft.assertThat(conditions.get(0).element()).isEqualTo(Element.of("size", "Large"));
             soft.assertThat(conditions.get(1).element()).isEqualTo(Element.of("_id", "1"));
         });
+    }
+
+    @Test
+    void shouldDeleteEntity() {
+        Person person = Person.builder().id(10).build();
+        template.delete(person);
+        ArgumentCaptor<DeleteQuery> queryCaptor = ArgumentCaptor.forClass(DeleteQuery.class);
+        verify(managerMock).delete(queryCaptor.capture());
+
+        DeleteQuery query = queryCaptor.getValue();
+
+        CriteriaCondition condition = query.condition().get();
+
+        assertEquals("Person", query.name());
+        assertEquals(CriteriaCondition.eq(Element.of("_id", 10L)), condition);
+    }
+
+    @Test
+    void shouldDeleteEntityIterable() {
+        Person person = Person.builder().id(10).build();
+        template.delete(person);
+        ArgumentCaptor<DeleteQuery> queryCaptor = ArgumentCaptor.forClass(DeleteQuery.class);
+        verify(managerMock).delete(queryCaptor.capture());
+
+        DeleteQuery query = queryCaptor.getValue();
+
+        CriteriaCondition condition = query.condition().get();
+
+        assertEquals("Person", query.name());
+        assertEquals(CriteriaCondition.eq(Element.of("_id", 10L)), condition);
     }
 
 
