@@ -52,68 +52,6 @@ public interface SemiStructuredTemplate extends Template {
     <T> long count(Class<T> type);
 
     /**
-     * Executes a native query on the database and returns the result as a {@link Stream}.
-     *
-     * <p>
-     * The query syntax is specific to each provider and may vary between implementations and NoSQL providers.
-     * </p>
-     *
-     * @param query the native query
-     * @param <T>   the type of the entities in the result stream
-     * @return the result as a {@link Stream}
-     * @throws NullPointerException          if the query is null
-     * @throws UnsupportedOperationException if the provider does not support query by text
-     */
-    <T> Stream<T> query(String query);
-
-    /**
-     * Executes a native query on the database and returns the result as a {@link Stream}.
-     *
-     * <p>
-     * The query syntax is specific to each provider and may vary between implementations and NoSQL providers.
-     * </p>
-     *
-     * @param query  the native query
-     * @param entity the name of the entity (column family)
-     * @param <T>    the type of the entities in the result stream
-     * @return the result as a {@link Stream}
-     * @throws NullPointerException          if the query or entity is null
-     * @throws UnsupportedOperationException if the provider does not support query by text
-     */
-    <T> Stream<T> query(String query, String entity);
-
-    /**
-     * Executes a query on the database and returns the result as a single unique result wrapped in an {@link Optional}.
-     *
-     * <p>
-     * The query syntax is specific to each provider and may vary between implementations and NoSQL providers.
-     * </p>
-     *
-     * @param query the query
-     * @param <T>   the type of the entity in the result
-     * @return the result as an {@link Optional}
-     * @throws NullPointerException          if the query is null
-     * @throws UnsupportedOperationException if the provider does not support query by text
-     */
-    <T> Optional<T> singleResult(String query);
-
-    /**
-     * Executes a query on the database and returns the result as a single unique result wrapped in an {@link Optional}.
-     *
-     * <p>
-     * The query syntax is specific to each provider and may vary between implementations and NoSQL providers.
-     * </p>
-     *
-     * @param query  the query
-     * @param entity the name of the entity
-     * @param <T>    the type of the entity in the result
-     * @return the result as an {@link Optional}
-     * @throws NullPointerException          if the query or entity is null
-     * @throws UnsupportedOperationException if the provider does not support query by text
-     */
-    <T> Optional<T> singleResult(String query, String entity);
-
-    /**
      * Creates a {@link PreparedStatement} from the specified query.
      *
      * <p>

@@ -409,9 +409,10 @@ class CustomRepositoryHandlerTest {
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
         Mockito.when(template.prepare(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(preparedStatement);
-        Mockito.when(template.query(Mockito.anyString()))
-                .thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
+        Mockito.when(template.prepare(Mockito.anyString()))
+                .thenReturn(preparedStatement);
 
+        Mockito.when(preparedStatement.result()).thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
         var result = people.queryName("Ada");
 
         Assertions.assertThat(result).isNotNull().isInstanceOf(List.class);
@@ -428,9 +429,9 @@ class CustomRepositoryHandlerTest {
 
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
         Mockito.when(template.prepare(Mockito.anyString(), Mockito.anyString())).thenReturn(preparedStatement);
-        Mockito.when(template.query(Mockito.anyString()))
-                .thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
+        Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
 
+        Mockito.when(preparedStatement.result()).thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
         people.deleteByName("Ada");
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -447,9 +448,10 @@ class CustomRepositoryHandlerTest {
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
         Mockito.when(template.prepare(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(preparedStatement);
-        Mockito.when(template.query(Mockito.anyString()))
-                .thenReturn(Stream.of(Task.builder().description("refactor project A").build()));
+        Mockito.when(template.prepare(Mockito.anyString()))
+                .thenReturn(preparedStatement);
 
+        Mockito.when(preparedStatement.result()).thenReturn(Stream.of(Task.builder().description("refactor project A").build()));
         var result = tasks.listActiveTasks();
 
         Assertions.assertThat(result).isNotNull().isInstanceOf(List.class);
@@ -467,8 +469,9 @@ class CustomRepositoryHandlerTest {
 
         var preparedStatement = Mockito.mock(PreparedStatement.class);
         Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
-        Mockito.when(template.query(Mockito.anyString()))
-                .thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
+        Mockito.when(template.prepare(Mockito.anyString()))
+                .thenReturn(preparedStatement);
+        Mockito.when(preparedStatement.result()).thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
         people.countByIdIn(Set.of(1L, 2L));
 
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
@@ -493,9 +496,10 @@ class CustomRepositoryHandlerTest {
 
         var preparedStatement = Mockito.mock(PreparedStatement.class);
         Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
-        Mockito.when(template.query(Mockito.anyString()))
-                .thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
+        Mockito.when(template.prepare(Mockito.anyString()))
+                .thenReturn(preparedStatement);
 
+        Mockito.when(preparedStatement.result()).thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
         people.existsByIdIn(Set.of(1L, 2L));
 
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);

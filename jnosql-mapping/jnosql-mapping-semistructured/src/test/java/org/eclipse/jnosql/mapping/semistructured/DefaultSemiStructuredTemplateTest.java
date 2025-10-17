@@ -325,31 +325,6 @@ class DefaultSemiStructuredTemplateTest {
     }
 
     @Test
-    void shouldReturnSingleResultQuery() {
-        CommunicationEntity columnEntity = CommunicationEntity.of("Person");
-        columnEntity.addAll(Stream.of(columns).collect(Collectors.toList()));
-
-        Mockito.when(managerMock
-                        .select(any(SelectQuery.class)))
-                .thenReturn(Stream.of(columnEntity));
-
-        Optional<Person> result = template.singleResult("from Person");
-        assertTrue(result.isPresent());
-        verify(eventPersistManager, never()).firePostEntity(any(Person.class));
-        verify(eventPersistManager, never()).firePreEntity(any(Person.class));
-    }
-
-    @Test
-    void shouldReturnSingleResultQueryIsEmpty() {
-        Mockito.when(managerMock
-                        .select(any(SelectQuery.class)))
-                .thenReturn(Stream.empty());
-
-        Optional<Person> result = template.singleResult("from Person");
-        assertFalse(result.isPresent());
-    }
-
-    @Test
     void shouldReturnErrorWhenThereMoreThanASingleResult() {
         Assertions.assertThrows(NonUniqueResultException.class, () -> {
             CommunicationEntity columnEntity = CommunicationEntity.of("Person");
@@ -409,7 +384,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldExecuteQuery() {
-        template.query("FROM Person");
+        template.prepare("FROM Person").result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
@@ -418,7 +393,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldExecuteQueryEntity() {
-        template.query("FROM Person", "Person");
+        template.prepare("FROM Person", "Person").result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
@@ -428,7 +403,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldConvertEntity() {
-        template.query("FROM Movie");
+        template.prepare("FROM Movie").result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
@@ -437,7 +412,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldConvertEntityName() {
-        template.query("SELECT name FROM download");
+        template.prepare("SELECT name FROM download").result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
@@ -446,7 +421,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldConvertEntityNameClassName() {
-        template.query("FROM " + Person.class.getSimpleName());
+        template.prepare("FROM " + Person.class.getSimpleName()).result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
@@ -455,7 +430,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldConvertConvertFromAnnotationEntity() {
-        template.query("FROM Vendor");
+        template.prepare("FROM Vendor").result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();

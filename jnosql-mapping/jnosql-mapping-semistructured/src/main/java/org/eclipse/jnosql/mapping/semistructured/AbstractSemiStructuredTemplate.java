@@ -228,22 +228,6 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
                 .execute();
     }
 
-
-    @Override
-    public <T> Stream<T> query(String query) {
-        requireNonNull(query, "query is required");
-        var observer = observer();
-        return PARSER.query(query, null, manager(), observer).map(mappers(observer));
-    }
-
-    @Override
-    public <T> Stream<T> query(String query, String entity) {
-        requireNonNull(query, "query is required");
-        requireNonNull(entity, "entity is required");
-        var observer = observer();
-        return PARSER.query(query, null, manager(), observer).map(mappers(observer));
-    }
-
     @Override
     public org.eclipse.jnosql.mapping.PreparedStatement prepare(String query) {
         var observer = observer();
@@ -260,32 +244,6 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
     public <T> Stream<T> select(SelectQuery query) {
         requireNonNull(query, "query is required");
         return executeQuery(query);
-    }
-
-
-    @Override
-    public <T> Optional<T> singleResult(String query) {
-        return singleResult(query, null);
-    }
-
-    @Override
-    public <T> Optional<T> singleResult(String query, String entityName) {
-        Stream<T> entities;
-        if(entityName == null){
-            entities = query(query);
-        } else {
-            entities = query(query, entityName);
-        }
-        final Iterator<T> iterator = entities.iterator();
-
-        if (!iterator.hasNext()) {
-            return Optional.empty();
-        }
-        final T entity = iterator.next();
-        if (!iterator.hasNext()) {
-            return Optional.of(entity);
-        }
-        throw new NonUniqueResultException("No unique result found to the query: " + query);
     }
 
     @Override
@@ -409,14 +367,5 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         return new MapperObserver(entities());
     }
 
-    private <T> Function<CommunicationEntity, T> mappers(MapperObserver observer) {
-        Function<T, T> fieldMapper = fieldMapper(observer);
-        Function<CommunicationEntity, T> entityMapper = c -> converter().toEntity(c);
-        return entityMapper.andThen(fieldMapper);
-    }
 
-    @SuppressWarnings("unchecked")
-    private <T> T fieldMapper(MapperObserver observer) {
-        return (T) SelectFieldMapper.INSTANCE.<T>map(observer, entities());
-    }
 }
