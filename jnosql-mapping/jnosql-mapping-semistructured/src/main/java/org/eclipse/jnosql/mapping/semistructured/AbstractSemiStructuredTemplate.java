@@ -246,33 +246,6 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         return executeQuery(query);
     }
 
-
-    @Override
-    public <T> Optional<T> singleResult(String query) {
-        return singleResult(query, null);
-    }
-
-    @Override
-    public <T> Optional<T> singleResult(String query, String entityName) {
-        org.eclipse.jnosql.mapping.PreparedStatement preparedStatement;
-        if(entityName == null){
-            preparedStatement = prepare(query);
-        } else {
-            preparedStatement = prepare(query, entityName);
-        }
-        Stream<T> entities = preparedStatement.result();
-        final Iterator<T> iterator = entities.iterator();
-
-        if (!iterator.hasNext()) {
-            return Optional.empty();
-        }
-        final T entity = iterator.next();
-        if (!iterator.hasNext()) {
-            return Optional.of(entity);
-        }
-        throw new NonUniqueResultException("No unique result found to the query: " + query);
-    }
-
     @Override
     public long count(String entity) {
         return manager().count(entity);
