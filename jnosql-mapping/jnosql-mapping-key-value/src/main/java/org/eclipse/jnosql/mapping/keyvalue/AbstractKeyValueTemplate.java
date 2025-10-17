@@ -152,6 +152,7 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
         return new MapperDelete(mapping, converter.getConverters(), this);
     }
 
+    @SuppressWarnings("unchecked")
     protected <T> T persist(T entity, Consumer<KeyValueEntity> persistAction) {
         return Stream.of(entity)
                 .map(toUnary(getEventManager()::firePreEntity))
