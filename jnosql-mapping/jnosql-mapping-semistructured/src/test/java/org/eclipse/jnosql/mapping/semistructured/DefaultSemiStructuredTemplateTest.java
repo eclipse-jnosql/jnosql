@@ -631,7 +631,7 @@ class DefaultSemiStructuredTemplateTest {
     @Test
     void shouldDeleteEntityIterable() {
         Person person = Person.builder().id(10).build();
-        template.delete(person);
+        template.delete(List.of(person));
         ArgumentCaptor<DeleteQuery> queryCaptor = ArgumentCaptor.forClass(DeleteQuery.class);
         verify(managerMock).delete(queryCaptor.capture());
 
