@@ -409,7 +409,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldExecuteQuery() {
-        template.prepare("FROM Person");
+        template.prepare("FROM Person").result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
@@ -418,7 +418,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldExecuteQueryEntity() {
-        template.prepare("FROM Person", "Person");
+        template.prepare("FROM Person", "Person").result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
@@ -428,7 +428,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldConvertEntity() {
-        template.prepare("FROM Movie");
+        template.prepare("FROM Movie").result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
@@ -446,7 +446,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldConvertEntityNameClassName() {
-        template.prepare("FROM " + Person.class.getSimpleName());
+        template.prepare("FROM " + Person.class.getSimpleName()).result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
@@ -455,7 +455,7 @@ class DefaultSemiStructuredTemplateTest {
 
     @Test
     void shouldConvertConvertFromAnnotationEntity() {
-        template.prepare("FROM Vendor");
+        template.prepare("FROM Vendor").result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
