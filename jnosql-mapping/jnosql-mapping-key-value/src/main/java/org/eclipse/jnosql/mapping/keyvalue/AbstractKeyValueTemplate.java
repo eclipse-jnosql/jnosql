@@ -21,6 +21,9 @@ import jakarta.nosql.TypedQuery;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.communication.keyvalue.KeyValueEntity;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -134,6 +137,16 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
     @Override
     public <T, K> void delete(Class<T> type, K id) {
         this.delete(id);
+    }
+
+    @Override
+    public <T> void delete(T entity) {
+        Objects.requireNonNull(entity, "entity is required");
+        EntitiesMetadata entities = this.getConverter().getEntities();
+        EntityMetadata entityMetadata = entities.get(entity.getClass());
+        FieldMetadata idAttribute = entityMetadata.id().orElseThrow(() -> new IllegalArgumentException("The entity does not have an attribute with jakarta.nosql.Id annotation"));
+        Object key = idAttribute.read(entity);
+        getManager().delete(key);
     }
 
     @Override
