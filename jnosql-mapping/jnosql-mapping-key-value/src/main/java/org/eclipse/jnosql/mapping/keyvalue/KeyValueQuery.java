@@ -15,4 +15,5 @@
 package org.eclipse.jnosql.mapping.keyvalue;
 
 final class KeyValueQuery {
+
 }
