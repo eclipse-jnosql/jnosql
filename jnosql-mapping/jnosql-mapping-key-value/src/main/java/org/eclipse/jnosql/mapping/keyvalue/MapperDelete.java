@@ -53,6 +53,21 @@ final class MapperDelete implements QueryMapper.MapperDeleteFrom,
     }
 
     @Override
+    public QueryMapper.MapperDeleteWhere contains(String value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support contains condition");
+    }
+
+    @Override
+    public QueryMapper.MapperDeleteWhere startsWith(String value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support startsWith condition");
+    }
+
+    @Override
+    public QueryMapper.MapperDeleteWhere endsWith(String value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support endsWith condition");
+    }
+
+    @Override
     public <T> QueryMapper.MapperDeleteWhere gt(T value) {
         throw new UnsupportedOperationException("Key-value Mapper query does not support gt condition");
     }
