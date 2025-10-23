@@ -115,7 +115,7 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
 
 
     @Override
-    public <K> void delete(K key) {
+    public <K> void deleteByKey(K key) {
         requireNonNull(key, "key is required");
         getManager().delete(key);
     }
@@ -156,7 +156,8 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
 
     @Override
     public <T> void delete(Iterable<? extends T> entities) {
-
+        Objects.requireNonNull(entities, "entities is required");
+        entities.forEach(this::delete);
     }
 
     @Override
