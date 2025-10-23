@@ -18,6 +18,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import jakarta.nosql.Query;
+import jakarta.nosql.TypedQuery;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseType;
@@ -59,4 +61,5 @@ class DefaultKeyValueTemplate extends AbstractKeyValueTemplate {
     protected KeyValueEventPersistManager getEventManager() {
         return eventManager;
     }
+
 }
