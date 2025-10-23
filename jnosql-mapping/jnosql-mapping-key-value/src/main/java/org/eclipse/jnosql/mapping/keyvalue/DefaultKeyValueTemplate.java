@@ -61,5 +61,4 @@ class DefaultKeyValueTemplate extends AbstractKeyValueTemplate {
     protected KeyValueEventPersistManager getEventManager() {
         return eventManager;
     }
-
 }
