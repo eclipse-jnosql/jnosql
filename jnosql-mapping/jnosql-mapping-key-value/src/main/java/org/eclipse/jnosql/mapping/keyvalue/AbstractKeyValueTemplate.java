@@ -21,6 +21,9 @@ import jakarta.nosql.TypedQuery;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.communication.keyvalue.KeyValueEntity;
+import org.eclipse.jnosql.communication.query.SelectQuery;
+import org.eclipse.jnosql.communication.query.data.QueryType;
+import org.eclipse.jnosql.communication.query.data.SelectProvider;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
@@ -175,6 +178,12 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
 
     @Override
     public Query query(String query) {
+        Objects.requireNonNull(query, "query is required");
+        QueryType type = QueryType.parse(query);
+        if(QueryType.UPDATE.equals(type)) {
+            throw new UnsupportedOperationException("Update is not supported yet");
+        }
+        var selectQuery = SelectProvider.INSTANCE.apply(query, null);
         return null;
     }
 
