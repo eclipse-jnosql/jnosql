@@ -27,6 +27,7 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -259,6 +260,10 @@ class DefaultKeyValueTemplateTest {
         Mockito.verify(manager).delete(KEY);
     }
 
+    @Test
+    void shouldReturnErrorWhenEntityIsNull(){
+        Assertions.assertThrows(NullPointerException.class, () -> template.delete((User)null));
+    }
 
     @Test
     void shouldRemoveById() {
