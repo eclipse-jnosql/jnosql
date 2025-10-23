@@ -248,7 +248,7 @@ class DefaultKeyValueTemplateTest {
 
     @Test
     void shouldRemove() {
-        template.delete(KEY);
+        template.deleteByKey(KEY);
         Mockito.verify(manager).delete(KEY);
     }
 
