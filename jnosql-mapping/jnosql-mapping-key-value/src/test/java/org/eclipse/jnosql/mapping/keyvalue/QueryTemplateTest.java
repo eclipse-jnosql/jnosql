@@ -14,5 +14,48 @@
  */
 package org.eclipse.jnosql.mapping.keyvalue;
 
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+import org.eclipse.jnosql.communication.keyvalue.BucketManager;
+import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.keyvalue.spi.KeyValueExtension;
+import org.eclipse.jnosql.mapping.reflection.Reflections;
+import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.jboss.weld.junit5.auto.AddExtensions;
+import org.jboss.weld.junit5.auto.AddPackages;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.mockito.Mockito.when;
+
+@EnableAutoWeld
+@AddPackages(value = {Converters.class, KeyValueEntityConverter.class})
+@AddPackages(MockProducer.class)
+@AddPackages(Reflections.class)
+@AddExtensions({ReflectionEntityMetadataExtension.class, KeyValueExtension.class})
+@ExtendWith(MockitoExtension.class)
 public class QueryTemplateTest {
+
+    @Inject
+    private KeyValueEntityConverter converter;
+
+    @Inject
+    private KeyValueEventPersistManager eventManager;
+
+    @Mock
+    private BucketManager manager;
+
+    private KeyValueTemplate template;
+
+
+    @BeforeEach
+    void setUp() {
+        Instance<BucketManager> instance = Mockito.mock(Instance.class);
+        when(instance.get()).thenReturn(manager);
+        this.template = new DefaultKeyValueTemplate(converter, instance, eventManager);
+    }
 }
