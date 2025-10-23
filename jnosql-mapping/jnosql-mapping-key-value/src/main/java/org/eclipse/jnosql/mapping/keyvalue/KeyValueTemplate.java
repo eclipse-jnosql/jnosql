@@ -127,6 +127,6 @@ public interface KeyValueTemplate extends Template {
      * @param <K>  the key type
      * @throws NullPointerException when the key is null
      */
-    <K> void delete(Iterable<K> keys);
+    <K> void deleteByKeys(Iterable<K> keys);
 
 }
