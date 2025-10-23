@@ -24,11 +24,16 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import static org.mockito.Mockito.when;
 
@@ -38,6 +43,7 @@ import static org.mockito.Mockito.when;
 @AddPackages(Reflections.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class, KeyValueExtension.class})
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class QueryTemplateTest {
 
     @Inject
@@ -58,4 +64,11 @@ public class QueryTemplateTest {
         when(instance.get()).thenReturn(manager);
         this.template = new DefaultKeyValueTemplate(converter, instance, eventManager);
     }
+
+    @Test
+    @DisplayName("Should return error when query is null")
+    void shouldReturnErrorOnQueryThatIsNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> template.select(null));
+    }
+
 }
