@@ -14,6 +14,62 @@
  */
 package org.eclipse.jnosql.mapping.keyvalue;
 
-final class KeyValueQuery {
+import jakarta.nosql.MappingException;
+import jakarta.nosql.Query;
+import org.eclipse.jnosql.communication.query.data.QueryType;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+final class KeyValueQuery implements Query {
+
+    private final String query;
+
+    private final AbstractKeyValueTemplate template;
+
+    private final QueryType type;
+
+
+    private KeyValueQuery(String query, AbstractKeyValueTemplate template, QueryType type) {
+        this.query = query;
+        this.template = template;
+        this.type = type;
+    }
+
+    static KeyValueQuery of(String query, AbstractKeyValueTemplate template, QueryType type) {
+        return new KeyValueQuery(query, template, type);
+    }
+
+    @Override
+    public void executeUpdate() {
+        if(QueryType.SELECT.equals(type)) {
+            throw new UnsupportedOperationException("the executeUpdate does not support the SELECT query, the query is: " + query);
+        }
+    }
+
+    @Override
+    public <T> List<T> result() {
+        return List.of();
+    }
+
+    @Override
+    public <T> Stream<T> stream() {
+        return Stream.empty();
+    }
+
+    @Override
+    public <T> Optional<T> singleResult() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Query bind(String name, Object value) {
+        return null;
+    }
+
+    @Override
+    public Query bind(int position, Object value) {
+        return null;
+    }
 }
