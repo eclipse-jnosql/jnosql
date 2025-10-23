@@ -15,7 +15,9 @@
 package org.eclipse.jnosql.mapping.keyvalue;
 
 
+import jakarta.nosql.Query;
 import jakarta.nosql.QueryMapper;
+import jakarta.nosql.TypedQuery;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.communication.keyvalue.KeyValueEntity;
@@ -150,6 +152,21 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
         var entities = converter.getEntities();
         var mapping = entities.get(type);
         return new MapperDelete(mapping, converter.getConverters(), this);
+    }
+
+    @Override
+    public <T> void delete(Iterable<? extends T> entities) {
+
+    }
+
+    @Override
+    public Query query(String query) {
+        return null;
+    }
+
+    @Override
+    public <T> TypedQuery<T> typedQuery(String query, Class<T> type) {
+        return null;
     }
 
     @SuppressWarnings("unchecked")
