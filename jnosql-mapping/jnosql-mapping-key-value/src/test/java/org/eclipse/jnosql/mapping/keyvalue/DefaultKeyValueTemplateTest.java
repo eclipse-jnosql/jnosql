@@ -252,6 +252,13 @@ class DefaultKeyValueTemplateTest {
         Mockito.verify(manager).delete(KEY);
     }
 
+    @Test
+    void shouldRemoveUsingEntity() {
+        User user = new User(KEY, "otavio", 27);
+        template.delete(user);
+        Mockito.verify(manager).delete(KEY);
+    }
+
 
     @Test
     void shouldRemoveById() {
