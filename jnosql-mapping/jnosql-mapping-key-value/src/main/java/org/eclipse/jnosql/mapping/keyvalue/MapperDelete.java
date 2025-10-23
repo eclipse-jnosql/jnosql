@@ -119,7 +119,7 @@ final class MapperDelete implements QueryMapper.MapperDeleteFrom,
     @Override
     public void execute() {
         validatedCondition();
-        template.delete(keys);
+        template.deleteByKeys(keys);
     }
 
     private void validatedCondition() {
