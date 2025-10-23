@@ -16,8 +16,11 @@ package org.eclipse.jnosql.mapping.keyvalue;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import jakarta.nosql.Query;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.keyvalue.entities.User;
 import org.eclipse.jnosql.mapping.keyvalue.spi.KeyValueExtension;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
@@ -29,11 +32,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+
+import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 
@@ -68,7 +75,26 @@ public class QueryTemplateTest {
     @Test
     @DisplayName("Should return error when query is null")
     void shouldReturnErrorOnQueryThatIsNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> template.select(null));
+        Assertions.assertThrows(NullPointerException.class, () -> template.query(null));
+    }
+
+    @Test
+    @DisplayName("Should return error when update query")
+    void shouldReturnErrorOnUpdateQuery() {
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.query("UPDATE User set name = 'Otavio' where id = 123"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"SELECT * FROM User nickname ='Ada'", "FROM User nickname ='Ada'"})
+    void shouldFindByIdWithoutParameter(String text) {
+        var query = template.query(text);
+        Optional<User> user = query.singleResult();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(user).isPresent();
+            soft.assertThat(user.orElseThrow().getNickname()).isEqualTo("Ada");
+            Mockito.verify(manager).get("Ada");
+        });
     }
 
 }
