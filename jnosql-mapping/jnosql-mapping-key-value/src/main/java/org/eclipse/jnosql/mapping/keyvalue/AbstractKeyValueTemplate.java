@@ -119,7 +119,7 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
     }
 
     @Override
-    public <K> void delete(Iterable<K> keys) {
+    public <K> void deleteByKeys(Iterable<K> keys) {
         requireNonNull(keys, "keys is required");
         getManager().delete(keys);
     }
