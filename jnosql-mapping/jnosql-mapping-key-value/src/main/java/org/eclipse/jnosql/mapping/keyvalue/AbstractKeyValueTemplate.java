@@ -136,7 +136,7 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
 
     @Override
     public <T, K> void delete(Class<T> type, K id) {
-        this.delete(id);
+        this.deleteByKey(id);
     }
 
     @Override
