@@ -26,7 +26,6 @@ import org.eclipse.jnosql.communication.query.data.DeleteProvider;
 import org.eclipse.jnosql.communication.query.data.QueryType;
 import org.eclipse.jnosql.communication.query.data.SelectProvider;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
-import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
 import java.util.List;
