@@ -102,6 +102,16 @@ public class QueryTemplateTest {
     }
 
     @ParameterizedTest
+    @ValueSource(strings = {
+            "FROM User where nickname > 10",
+            "FROM User where nickname < 10",
+            "FROM User where nickname <= 10",
+            "FROM User where nickname like 'Otavio'"})
+    void shouldErrorWhenIdWhenNotCondition(String text){
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.query(text));
+    }
+
+    @ParameterizedTest
     @ValueSource(strings = {"SELECT * FROM User nickname ='Ada'", "FROM User nickname ='Ada'"})
     void shouldFindByIdWithoutParameter(String text) {
         var query = template.query(text);
