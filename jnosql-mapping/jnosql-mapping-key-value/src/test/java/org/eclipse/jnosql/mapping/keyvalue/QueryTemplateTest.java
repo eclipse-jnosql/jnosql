@@ -85,6 +85,12 @@ public class QueryTemplateTest {
     }
 
     @ParameterizedTest
+    @ValueSource(strings = {"SELECT * FROM User", "FROM User", ""})
+    void shouldGetErrorWhenTheQueryIsSelectFromWithoutWhere(String text) {
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.query(text));
+    }
+
+    @ParameterizedTest
     @ValueSource(strings = {"SELECT * FROM User nickname ='Ada'", "FROM User nickname ='Ada'"})
     void shouldFindByIdWithoutParameter(String text) {
         var query = template.query(text);
