@@ -95,7 +95,7 @@ final class KeyValueQuery implements Query {
                         "the query is: " + query);
             }
             String name = condition.name();
-            if(!idAttribute.name().equals(name)) {
+            if(!idAttribute.fieldName().equals(name)) {
                 throw new UnsupportedOperationException("The key-value Mapper query only support the id attribute: " + idAttribute.name() + " at the entity: " + entityName);
             }
         } else {

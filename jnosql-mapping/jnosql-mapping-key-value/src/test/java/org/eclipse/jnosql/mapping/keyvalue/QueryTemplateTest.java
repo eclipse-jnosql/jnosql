@@ -112,6 +112,13 @@ public class QueryTemplateTest {
     }
 
     @ParameterizedTest
+    @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
+    void shouldReturnErrorWhenSelectCallUpdate(String text) {
+        Query query = template.query(text);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> query.executeUpdate());
+    }
+
+    @ParameterizedTest
     @ValueSource(strings = {"SELECT * FROM User nickname ='Ada'", "FROM User nickname ='Ada'"})
     void shouldFindByIdWithoutParameter(String text) {
         var query = template.query(text);
