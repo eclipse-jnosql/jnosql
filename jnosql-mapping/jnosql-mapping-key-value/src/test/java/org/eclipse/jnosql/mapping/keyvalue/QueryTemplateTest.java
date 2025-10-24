@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.ValueSources;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -116,6 +117,22 @@ public class QueryTemplateTest {
     void shouldReturnErrorWhenSelectCallUpdate(String text) {
         Query query = template.query(text);
         Assertions.assertThrows(UnsupportedOperationException.class, () -> query.executeUpdate());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
+    void shouldSelectLiteralSingleValue(String text) {
+
+        Mockito.when(template.get("Otavio", User.class))
+                .thenReturn(Optional.of(new User("Otavio", "Otavio", 27)));
+
+        Query query = template.query(text);
+        Optional<User> user = query.singleResult();
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(user).isPresent();
+            soft.assertThat(user.orElseThrow().getNickname()).isEqualTo("Otavio");
+            Mockito.verify(manager).get("Otavio");
+        });
     }
 
     @ParameterizedTest
