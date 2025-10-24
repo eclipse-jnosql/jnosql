@@ -85,8 +85,9 @@ public class QueryTemplateTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"SELECT this FROM User", "FROM User", ""})
-    void shouldGetErrorWhenTheQueryIsSelectFromWithoutWhere(String text) {
+    @ValueSource(strings = {"SELECT name, age FROM User", "FROM User", "From User skip 10", "From User limit 10", "From User ORDER BY name",
+            "From User ORDER BY name DESC", "From User ORDER BY name ASC"})
+    void shouldErrorWhenSelectIsNotSupportKeyValue(String text) {
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.query(text));
     }
 

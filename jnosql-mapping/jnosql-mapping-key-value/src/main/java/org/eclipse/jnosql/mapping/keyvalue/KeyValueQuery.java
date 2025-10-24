@@ -80,6 +80,9 @@ final class KeyValueQuery implements Query {
         if(selectQuery.where().isEmpty()){
             throw new UnsupportedOperationException("the query must have a where condition on key-value databases");
         }
+        if(!selectQuery.orderBy().isEmpty()){
+            throw new UnsupportedOperationException("the orderBy method is not supported on key-value databases");
+        }
         return selectQuery;
     }
 
