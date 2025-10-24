@@ -14,9 +14,13 @@
  */
 package org.eclipse.jnosql.mapping.keyvalue;
 
-import jakarta.nosql.MappingException;
+
 import jakarta.nosql.Query;
+import org.eclipse.jnosql.communication.query.DeleteQuery;
+import org.eclipse.jnosql.communication.query.SelectQuery;
+import org.eclipse.jnosql.communication.query.data.DeleteProvider;
 import org.eclipse.jnosql.communication.query.data.QueryType;
+import org.eclipse.jnosql.communication.query.data.SelectProvider;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,15 +34,54 @@ final class KeyValueQuery implements Query {
 
     private final QueryType type;
 
+    private final SelectQuery selectQuery;
 
-    private KeyValueQuery(String query, AbstractKeyValueTemplate template, QueryType type) {
+    private final DeleteQuery deleteQuery;
+
+    private final Object value;
+
+    private final String param;
+
+
+    private KeyValueQuery(String query,
+                          AbstractKeyValueTemplate template,
+                          QueryType type,
+                          SelectQuery selectQuery,
+                          DeleteQuery deleteQuery,
+                          Object value,
+                          String param) {
         this.query = query;
         this.template = template;
         this.type = type;
+        this.selectQuery = selectQuery;
+        this.deleteQuery = deleteQuery;
+        this.value = value;
+        this.param = param;
     }
 
     static KeyValueQuery of(String query, AbstractKeyValueTemplate template, QueryType type) {
-        return new KeyValueQuery(query, template, type);
+        SelectQuery selectQuery = null;
+        DeleteQuery deleteQuery = null;
+        Object value = null;
+        String param = null;
+        if(QueryType.SELECT.equals(type)) {
+            selectQuery = selectQuery(query);
+        } else {
+            deleteQuery = DeleteProvider.INSTANCE.apply(query);
+        }
+        return new KeyValueQuery(query, template, type, selectQuery, deleteQuery, value, param);
+    }
+
+    private static SelectQuery selectQuery(String query) {
+        SelectQuery selectQuery;
+        selectQuery = SelectProvider.INSTANCE.apply(query, null);
+        if(selectQuery.isCount()){
+            throw new UnsupportedOperationException("the count method is not supported on key-value databases");
+        }
+        if(selectQuery.where().isEmpty()){
+            throw new UnsupportedOperationException("the query must have a where condition on key-value databases");
+        }
+        return selectQuery;
     }
 
     @Override
@@ -50,6 +93,7 @@ final class KeyValueQuery implements Query {
 
     @Override
     public <T> List<T> result() {
+
         return List.of();
     }
 
