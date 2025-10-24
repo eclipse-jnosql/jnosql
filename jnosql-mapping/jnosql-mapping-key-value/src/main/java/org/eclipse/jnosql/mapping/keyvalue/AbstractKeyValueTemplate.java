@@ -183,7 +183,7 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
         if(QueryType.UPDATE.equals(type)) {
             throw new UnsupportedOperationException("Update is not supported yet");
         }
-        var selectQuery = SelectProvider.INSTANCE.apply(query, null);
+
         return null;
     }
 
