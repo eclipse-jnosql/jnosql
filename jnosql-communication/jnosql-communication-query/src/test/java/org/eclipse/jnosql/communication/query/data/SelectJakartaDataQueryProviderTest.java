@@ -86,7 +86,7 @@ class SelectJakartaDataQueryProviderTest {
 
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"FROM entity ORDER BY name ASC", "ORDER BY name ASC"})
+    @ValueSource(strings = {"FROM entity ORDER BY name ASC", "ORDER BY name ASC", "ORDER BY name"})
     void shouldQueryOrder(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
