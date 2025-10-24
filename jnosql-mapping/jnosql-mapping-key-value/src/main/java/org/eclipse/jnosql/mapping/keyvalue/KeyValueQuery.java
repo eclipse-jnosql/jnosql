@@ -73,8 +73,7 @@ final class KeyValueQuery implements Query {
     }
 
     private static SelectQuery selectQuery(String query) {
-        SelectQuery selectQuery;
-        selectQuery = SelectProvider.INSTANCE.apply(query, null);
+        var selectQuery = SelectProvider.INSTANCE.apply(query, null);
         if(selectQuery.isCount()){
             throw new UnsupportedOperationException("the count method is not supported on key-value databases");
         }

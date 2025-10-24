@@ -85,7 +85,7 @@ public class QueryTemplateTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"SELECT * FROM User", "FROM User", ""})
+    @ValueSource(strings = {"SELECT this FROM User", "FROM User", ""})
     void shouldGetErrorWhenTheQueryIsSelectFromWithoutWhere(String text) {
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.query(text));
     }
