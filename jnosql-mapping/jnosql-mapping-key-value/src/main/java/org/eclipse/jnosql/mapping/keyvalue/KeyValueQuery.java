@@ -51,6 +51,8 @@ final class KeyValueQuery implements Query {
 
     private final FieldMetadata id;
 
+    private final QueryCondition condition;
+
 
     private KeyValueQuery(String query,
                           AbstractKeyValueTemplate template,
@@ -59,7 +61,8 @@ final class KeyValueQuery implements Query {
                           DeleteQuery deleteQuery,
                           Object value,
                           String param,
-                          FieldMetadata id) {
+                          FieldMetadata id,
+                          QueryCondition condition) {
         this.query = query;
         this.template = template;
         this.type = type;
@@ -68,6 +71,7 @@ final class KeyValueQuery implements Query {
         this.value = value;
         this.param = param;
         this.id = id;
+        this.condition = condition;
     }
 
     static KeyValueQuery of(String query, AbstractKeyValueTemplate template, QueryType type) {
@@ -77,6 +81,7 @@ final class KeyValueQuery implements Query {
         String param = null;
         EntitiesMetadata entities = template.getConverter().getEntities();
         FieldMetadata id = null;
+        QueryCondition condition = null;
 
         if(QueryType.SELECT.equals(type)) {
             selectQuery = selectQuery(query);
@@ -84,7 +89,7 @@ final class KeyValueQuery implements Query {
             var metadata = entities.findByName(entityName);
             var idAttribute = metadata.id().orElseThrow(() -> new MappingException("The entity does not have an attribute with jakarta.nosql.Id annotation"));
             Where where = selectQuery.where().orElseThrow();
-            var condition = where.condition();
+            condition = where.condition();
             if (!(Condition.EQUALS.equals(condition.condition())
                     || Condition.IN.equals(condition.condition()))) {
                 throw new UnsupportedOperationException("the condition must be equals or in on key-value databases, " +
@@ -97,7 +102,7 @@ final class KeyValueQuery implements Query {
         } else {
             deleteQuery = DeleteProvider.INSTANCE.apply(query);
         }
-        return new KeyValueQuery(query, template, type, selectQuery, deleteQuery, value, param, id);
+        return new KeyValueQuery(query, template, type, selectQuery, deleteQuery, value, param, id, condition);
     }
 
     private static SelectQuery selectQuery(String query) {
