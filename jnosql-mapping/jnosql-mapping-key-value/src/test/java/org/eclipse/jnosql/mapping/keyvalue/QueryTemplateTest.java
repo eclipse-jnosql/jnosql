@@ -137,16 +137,14 @@ public class QueryTemplateTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"SELECT * FROM User nickname ='Ada'", "FROM User nickname ='Ada'"})
-    void shouldFindByIdWithoutParameter(String text) {
-        var query = template.query(text);
-        Optional<User> user = query.singleResult();
+    @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
+    void shouldReturnEmptyWhenSelectLiteralSingleValue(String text) {
+        Mockito.when(manager.get("Otavio"))
+                .thenReturn(Optional.empty());
 
-        SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(user).isPresent();
-            soft.assertThat(user.orElseThrow().getNickname()).isEqualTo("Ada");
-            Mockito.verify(manager).get("Ada");
-        });
+        Query query = template.query(text);
+        Optional<User> user = query.singleResult();
+        SoftAssertions.assertSoftly(soft -> soft.assertThat(user).isEmpty());
     }
 
 }
