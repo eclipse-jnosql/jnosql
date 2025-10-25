@@ -42,7 +42,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.mockito.Mockito.when;
 
@@ -122,6 +124,17 @@ public class QueryTemplateTest {
 
     @ParameterizedTest
     @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
+    void shouldReturnEmptyWhenSelectLiteralSingleValue(String text) {
+        Mockito.when(manager.get("Otavio"))
+                .thenReturn(Optional.empty());
+
+        Query query = template.query(text);
+        Optional<User> user = query.singleResult();
+        SoftAssertions.assertSoftly(soft -> soft.assertThat(user).isEmpty());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
     void shouldSelectLiteralSingleValue(String text) {
 
         Mockito.when(manager.get("Otavio"))
@@ -138,13 +151,34 @@ public class QueryTemplateTest {
 
     @ParameterizedTest
     @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
-    void shouldReturnEmptyWhenSelectLiteralSingleValue(String text) {
+    void shouldSelectLiteralSingleValueList(String text) {
+
         Mockito.when(manager.get("Otavio"))
-                .thenReturn(Optional.empty());
+                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
 
         Query query = template.query(text);
-        Optional<User> user = query.singleResult();
-        SoftAssertions.assertSoftly(soft -> soft.assertThat(user).isEmpty());
+        List<User> users = query.result();
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(users).isNotEmpty();
+            soft.assertThat(users.getFirst().getNickname()).isEqualTo("Otavio");
+            Mockito.verify(manager).get("Otavio");
+        });
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
+    void shouldSelectLiteralSingleValueStream(String text) {
+
+        Mockito.when(manager.get("Otavio"))
+                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
+
+        Query query = template.query(text);
+        Stream<User> users = query.stream();
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(users).isNotEmpty().contains(new User("Otavio", "Otavio", 27));
+            Mockito.verify(manager).get("Otavio");
+        });
+    }
+
 
 }

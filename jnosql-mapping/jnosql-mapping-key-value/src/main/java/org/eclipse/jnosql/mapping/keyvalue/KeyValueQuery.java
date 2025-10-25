@@ -89,12 +89,20 @@ final class KeyValueQuery implements Query {
 
     @Override
     public <T> List<T> result() {
-
+        if(Condition.EQUALS.equals(condition.condition())){
+            Optional<T> optional = equals();
+            return optional.map(List::of).orElseGet(List::of);
+        }
         return List.of();
     }
 
+
     @Override
     public <T> Stream<T> stream() {
+        if(Condition.EQUALS.equals(condition.condition())){
+            Optional<T> optional = equals();
+            return optional.map(Stream::of).orElseGet(Stream::empty);
+        }
         return Stream.empty();
     }
 
@@ -102,13 +110,17 @@ final class KeyValueQuery implements Query {
     @Override
     public <T> Optional<T> singleResult() {
         if(Condition.EQUALS.equals(condition.condition())){
-            QueryValue<?> queryValue = condition.value();
-            Object keyValueConverted = ConverterUtil.getValue(queryValue.get(), template.getConverter().getConverters(), id);
-            return template.find((Class<T>)entityMetadata.type(), keyValueConverted);
+            return equals();
         } else {
 
         }
         return Optional.empty();
+    }
+
+    private <T> Optional<T> equals() {
+        QueryValue<?> queryValue = condition.value();
+        Object keyValueConverted = ConverterUtil.getValue(queryValue.get(), template.getConverter().getConverters(), id);
+        return template.find((Class<T>) entityMetadata.type(), keyValueConverted);
     }
 
     @Override
