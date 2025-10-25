@@ -20,12 +20,16 @@ import jakarta.nosql.Query;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.query.DeleteQuery;
 import org.eclipse.jnosql.communication.query.QueryCondition;
+import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.SelectQuery;
 import org.eclipse.jnosql.communication.query.Where;
 import org.eclipse.jnosql.communication.query.data.DeleteProvider;
 import org.eclipse.jnosql.communication.query.data.QueryType;
 import org.eclipse.jnosql.communication.query.data.SelectProvider;
+import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.core.util.ConverterUtil;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
 import java.util.List;
@@ -48,6 +52,7 @@ final class KeyValueQuery implements Query {
 
     private final String param;
 
+    private final EntityMetadata entityMetadata;
     private final FieldMetadata id;
 
     private final QueryCondition condition;
@@ -61,7 +66,8 @@ final class KeyValueQuery implements Query {
                           Object value,
                           String param,
                           FieldMetadata id,
-                          QueryCondition condition) {
+                          QueryCondition condition,
+                          EntityMetadata entityMetadata) {
         this.query = query;
         this.template = template;
         this.type = type;
@@ -71,6 +77,7 @@ final class KeyValueQuery implements Query {
         this.param = param;
         this.id = id;
         this.condition = condition;
+        this.entityMetadata = entityMetadata;
     }
 
     @Override
@@ -91,8 +98,16 @@ final class KeyValueQuery implements Query {
         return Stream.empty();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> Optional<T> singleResult() {
+        if(Condition.EQUALS.equals(condition.condition())){
+            QueryValue<?> queryValue = condition.value();
+            Object keyValueConverted = ConverterUtil.getValue(queryValue.get(), template.getConverter().getConverters(), id);
+            return template.find((Class<T>)entityMetadata.type(), keyValueConverted);
+        } else {
+
+        }
         return Optional.empty();
     }
 
@@ -115,12 +130,14 @@ final class KeyValueQuery implements Query {
         EntitiesMetadata entities = template.getConverter().getEntities();
         FieldMetadata id = null;
         QueryCondition condition = null;
+        EntityMetadata entityMetadata = null;
 
         if(QueryType.SELECT.equals(type)) {
             selectQuery = selectQuery(query);
             var entityName = selectQuery.entity();
-            var metadata = entities.findByName(entityName);
-            var idAttribute = metadata.id().orElseThrow(() -> new MappingException("The entity does not have an attribute with jakarta.nosql.Id annotation"));
+            entityMetadata = entities.findByName(entityName);
+            id = entityMetadata.id().orElseThrow(() -> new MappingException("The entity does not have an " +
+                    "attribute with jakarta.nosql.Id annotation"));
             Where where = selectQuery.where().orElseThrow();
             condition = where.condition();
             if (!(Condition.EQUALS.equals(condition.condition())
@@ -129,13 +146,13 @@ final class KeyValueQuery implements Query {
                         "the query is: " + query);
             }
             String name = condition.name();
-            if(!idAttribute.fieldName().equals(name)) {
-                throw new UnsupportedOperationException("The key-value Mapper query only support the id attribute: " + idAttribute.name() + " at the entity: " + entityName);
+            if(!id.fieldName().equals(name)) {
+                throw new UnsupportedOperationException("The key-value Mapper query only support the id attribute: " + id.name() + " at the entity: " + entityName);
             }
         } else {
             deleteQuery = DeleteProvider.INSTANCE.apply(query);
         }
-        return new KeyValueQuery(query, template, type, selectQuery, deleteQuery, value, param, id, condition);
+        return new KeyValueQuery(query, template, type, selectQuery, deleteQuery, value, param, id, condition, entityMetadata);
     }
 
     private static SelectQuery selectQuery(String query) {

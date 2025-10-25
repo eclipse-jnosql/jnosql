@@ -18,6 +18,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.nosql.Query;
 import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.keyvalue.entities.User;
@@ -123,8 +124,8 @@ public class QueryTemplateTest {
     @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
     void shouldSelectLiteralSingleValue(String text) {
 
-        Mockito.when(template.get("Otavio", User.class))
-                .thenReturn(Optional.of(new User("Otavio", "Otavio", 27)));
+        Mockito.when(manager.get("Otavio"))
+                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
 
         Query query = template.query(text);
         Optional<User> user = query.singleResult();
