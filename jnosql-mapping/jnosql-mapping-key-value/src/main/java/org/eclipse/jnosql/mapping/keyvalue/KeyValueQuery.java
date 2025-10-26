@@ -15,10 +15,13 @@
 package org.eclipse.jnosql.mapping.keyvalue;
 
 
+import jakarta.data.exceptions.NonUniqueResultException;
 import jakarta.nosql.MappingException;
 import jakarta.nosql.Query;
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.query.DeleteQuery;
+import org.eclipse.jnosql.communication.query.ParamQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.SelectQuery;
@@ -26,12 +29,12 @@ import org.eclipse.jnosql.communication.query.Where;
 import org.eclipse.jnosql.communication.query.data.DeleteProvider;
 import org.eclipse.jnosql.communication.query.data.QueryType;
 import org.eclipse.jnosql.communication.query.data.SelectProvider;
-import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.util.ConverterUtil;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -44,40 +47,28 @@ final class KeyValueQuery implements Query {
 
     private final QueryType type;
 
-    private final SelectQuery selectQuery;
-
-    private final DeleteQuery deleteQuery;
-
-    private final Object value;
-
-    private final String param;
-
     private final EntityMetadata entityMetadata;
     private final FieldMetadata id;
 
     private final QueryCondition condition;
 
+    private final KeyValueQueryParams params;
+
 
     private KeyValueQuery(String query,
                           AbstractKeyValueTemplate template,
                           QueryType type,
-                          SelectQuery selectQuery,
-                          DeleteQuery deleteQuery,
-                          Object value,
-                          String param,
                           FieldMetadata id,
                           QueryCondition condition,
-                          EntityMetadata entityMetadata) {
+                          EntityMetadata entityMetadata,
+                          KeyValueQueryParams params) {
         this.query = query;
         this.template = template;
         this.type = type;
-        this.selectQuery = selectQuery;
-        this.deleteQuery = deleteQuery;
-        this.value = value;
-        this.param = param;
         this.id = id;
         this.condition = condition;
         this.entityMetadata = entityMetadata;
+        this.params = params;
     }
 
     @Override
@@ -112,15 +103,28 @@ final class KeyValueQuery implements Query {
         if(Condition.EQUALS.equals(condition.condition())){
             return equals();
         } else {
-
+            List<T> entities = in();
+            if(entities.size() == 1) {
+                return Optional.of(entities.getFirst());
+            } else if(entities.isEmpty()) {
+                return Optional.empty();
+            }
+            throw new NonUniqueResultException("Expected one result but found: " + entities.size());
         }
-        return Optional.empty();
     }
 
     private <T> Optional<T> equals() {
-        QueryValue<?> queryValue = condition.value();
-        Object keyValueConverted = ConverterUtil.getValue(queryValue.get(), template.getConverter().getConverters(), id);
+        var keyValueConverted = params.values().getFirst();
         return template.find((Class<T>) entityMetadata.type(), keyValueConverted);
+    }
+
+    private <T> List<T> in() {
+        List<T> entities = new ArrayList<>();
+        params.values().forEach(keyValueConverted -> {
+            Optional<T> optional = template.find((Class<T>) entityMetadata.type(), keyValueConverted);
+            optional.ifPresent(entities::add);
+        });
+        return entities;
     }
 
     @Override
@@ -135,17 +139,14 @@ final class KeyValueQuery implements Query {
 
 
     static KeyValueQuery of(String query, AbstractKeyValueTemplate template, QueryType type) {
-        SelectQuery selectQuery = null;
-        DeleteQuery deleteQuery = null;
-        Object value = null;
-        String param = null;
         EntitiesMetadata entities = template.getConverter().getEntities();
         FieldMetadata id = null;
         QueryCondition condition = null;
         EntityMetadata entityMetadata = null;
+        KeyValueQueryParams params = null;
 
         if(QueryType.SELECT.equals(type)) {
-            selectQuery = selectQuery(query);
+            var selectQuery = selectQuery(query);
             var entityName = selectQuery.entity();
             entityMetadata = entities.findByName(entityName);
             id = entityMetadata.id().orElseThrow(() -> new MappingException("The entity does not have an " +
@@ -161,12 +162,36 @@ final class KeyValueQuery implements Query {
             if(!id.fieldName().equals(name)) {
                 throw new UnsupportedOperationException("The key-value Mapper query only support the id attribute: " + id.name() + " at the entity: " + entityName);
             }
+            params = params(condition, template, id);
         } else {
-            deleteQuery = DeleteProvider.INSTANCE.apply(query);
+            var deleteQuery = DeleteProvider.INSTANCE.apply(query);
         }
-        return new KeyValueQuery(query, template, type, selectQuery, deleteQuery, value, param, id, condition, entityMetadata);
+        return new KeyValueQuery(query, template, type, id, condition, entityMetadata, params);
     }
 
+    private static KeyValueQueryParams params(QueryCondition condition, AbstractKeyValueTemplate template, FieldMetadata id) {
+        List<Object> values = new ArrayList<>();
+        Params params = new Params();
+        if(Condition.IN.equals(condition.condition())) {
+            QueryValue<?> queryValue = condition.value();
+            for (QueryValue item : (QueryValue[]) queryValue.get()) {
+                if(item instanceof ParamQueryValue){
+
+                } else {
+                    Object keyValueConverted = ConverterUtil.getValue(item.get(), template.getConverter().getConverters(), id);
+                    values.add(keyValueConverted);
+                }
+            }
+
+        } else if(Condition.EQUALS.equals(condition.condition())) {
+            QueryValue<?> queryValue = condition.value();
+            Object keyValueConverted = ConverterUtil.getValue(queryValue.get(), template.getConverter().getConverters(), id);
+            values.add(keyValueConverted);
+        }
+
+
+        return new KeyValueQueryParams(values, params);
+    }
     private static SelectQuery selectQuery(String query) {
         var selectQuery = SelectProvider.INSTANCE.apply(query, null);
         if(selectQuery.isCount()){
@@ -180,4 +205,6 @@ final class KeyValueQuery implements Query {
         }
         return selectQuery;
     }
+
+    record KeyValueQueryParams(List<Object> values, Params params){}
 }
