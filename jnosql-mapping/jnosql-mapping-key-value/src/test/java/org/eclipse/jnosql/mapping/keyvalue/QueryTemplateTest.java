@@ -186,5 +186,21 @@ public class QueryTemplateTest {
     //in with list elements with List
 
 
+    @ParameterizedTest
+    @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio')"})
+    void shouldSelectLiteralSingleValueIn(String text) {
+
+        Mockito.when(manager.get("Otavio"))
+                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
+
+        Query query = template.query(text);
+        Optional<User> user = query.singleResult();
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(user).isPresent();
+            soft.assertThat(user.orElseThrow().getNickname()).isEqualTo("Otavio");
+            Mockito.verify(manager).get("Otavio");
+        });
+    }
+
 
 }
