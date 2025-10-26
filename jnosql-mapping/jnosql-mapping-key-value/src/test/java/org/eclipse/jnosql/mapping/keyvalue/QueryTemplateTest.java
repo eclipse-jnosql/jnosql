@@ -180,5 +180,11 @@ public class QueryTemplateTest {
         });
     }
 
+    //in with conditions with single element
+    //in with two elements with error on error
+    //in with list elements with Streams
+    //in with list elements with List
+
+
 
 }
