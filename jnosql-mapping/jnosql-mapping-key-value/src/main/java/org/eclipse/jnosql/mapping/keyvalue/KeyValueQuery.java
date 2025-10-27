@@ -20,6 +20,7 @@ import jakarta.nosql.MappingException;
 import jakarta.nosql.Query;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.Params;
+import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.query.DeleteQuery;
 import org.eclipse.jnosql.communication.query.ParamQueryValue;
@@ -74,6 +75,7 @@ final class KeyValueQuery implements Query {
 
     @Override
     public void executeUpdate() {
+        checkParamsLeft();
         if(QueryType.SELECT.equals(type)) {
             throw new UnsupportedOperationException("the executeUpdate does not support the SELECT query, the query is: " + query);
         }
@@ -81,6 +83,7 @@ final class KeyValueQuery implements Query {
 
     @Override
     public <T> List<T> result() {
+        checkParamsLeft();
         if(Condition.EQUALS.equals(condition.condition())){
             Optional<T> optional = equals();
             return optional.map(List::of).orElseGet(List::of);
@@ -91,6 +94,7 @@ final class KeyValueQuery implements Query {
 
     @Override
     public <T> Stream<T> stream() {
+        checkParamsLeft();
         if(Condition.EQUALS.equals(condition.condition())){
             Optional<T> optional = equals();
             return optional.stream();
@@ -102,6 +106,7 @@ final class KeyValueQuery implements Query {
     @SuppressWarnings("unchecked")
     @Override
     public <T> Optional<T> singleResult() {
+        checkParamsLeft();
         if(Condition.EQUALS.equals(condition.condition())){
             return equals();
         } else {
@@ -115,15 +120,21 @@ final class KeyValueQuery implements Query {
         }
     }
 
+    private void checkParamsLeft(){
+        if (!params.paramsLeft.isEmpty()) {
+            throw new QueryException("Check all the parameters before execute the query, params left: " + params.paramsLeft);
+        }
+    }
+
     private <T> Optional<T> equals() {
-        var keyValueConverted = params.values().getFirst();
+        var keyValueConverted = params.values().getFirst().get();
         return template.find((Class<T>) entityMetadata.type(), keyValueConverted);
     }
 
     private <T> List<T> in() {
         List<T> entities = new ArrayList<>();
         params.values().forEach(keyValueConverted -> {
-            Optional<T> optional = template.find((Class<T>) entityMetadata.type(), keyValueConverted);
+            Optional<T> optional = template.find((Class<T>) entityMetadata.type(), keyValueConverted.get());
             optional.ifPresent(entities::add);
         });
         return entities;
