@@ -38,6 +38,7 @@ import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -142,7 +143,12 @@ final class KeyValueQuery implements Query {
 
     @Override
     public Query bind(String name, Object value) {
-        return null;
+        Objects.requireNonNull(name, "name is required");
+        Objects.requireNonNull(value, "value is required");
+
+        params.paramsLeft.remove(name);
+        params.params.bind(name, value);
+        return this;
     }
 
     @Override

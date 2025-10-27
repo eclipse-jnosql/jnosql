@@ -276,4 +276,20 @@ public class QueryTemplateTest {
         Assertions.assertThrows(QueryException.class, () -> query.stream());
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = { "FROM User WHERE nickname = :nickname"})
+    void shouldBindParameterEqualsSingleResult(String text){
+        Mockito.when(manager.get("Otavio"))
+                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
+
+        Query query = template.query(text);
+        query.bind("nickname", "Otavio");
+        Optional<User> user = query.singleResult();
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(user).isPresent();
+            soft.assertThat(user.orElseThrow().getNickname()).isEqualTo("Otavio");
+            Mockito.verify(manager).get("Otavio");
+        });
+    }
+
 }
