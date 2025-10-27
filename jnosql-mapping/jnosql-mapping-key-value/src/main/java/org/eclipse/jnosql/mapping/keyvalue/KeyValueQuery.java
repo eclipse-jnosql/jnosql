@@ -84,7 +84,7 @@ final class KeyValueQuery implements Query {
             Optional<T> optional = equals();
             return optional.map(List::of).orElseGet(List::of);
         }
-        return List.of();
+        return in();
     }
 
 
@@ -92,9 +92,10 @@ final class KeyValueQuery implements Query {
     public <T> Stream<T> stream() {
         if(Condition.EQUALS.equals(condition.condition())){
             Optional<T> optional = equals();
-            return optional.map(Stream::of).orElseGet(Stream::empty);
+            return optional.stream();
         }
-        return Stream.empty();
+        List<T> entities = in();
+        return entities.stream();
     }
 
     @SuppressWarnings("unchecked")
@@ -169,6 +170,7 @@ final class KeyValueQuery implements Query {
         return new KeyValueQuery(query, template, type, id, condition, entityMetadata, params);
     }
 
+    @SuppressWarnings("rawtypes")
     private static KeyValueQueryParams params(QueryCondition condition, AbstractKeyValueTemplate template, FieldMetadata id) {
         List<Object> values = new ArrayList<>();
         Params params = new Params();
