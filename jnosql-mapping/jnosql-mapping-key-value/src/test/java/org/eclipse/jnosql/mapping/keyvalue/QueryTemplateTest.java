@@ -19,6 +19,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.nosql.Query;
 import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -260,9 +261,9 @@ public class QueryTemplateTest {
     void shouldErrorWhenParameterIsMissingOnEquals(String text){
         Query query = template.query(text);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> query.singleResult());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> query.result());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> query.stream());
+        Assertions.assertThrows(QueryException.class, () -> query.singleResult());
+        Assertions.assertThrows(QueryException.class, () -> query.result());
+        Assertions.assertThrows(QueryException.class, () -> query.stream());
     }
 
     @ParameterizedTest
@@ -270,9 +271,9 @@ public class QueryTemplateTest {
     void shouldErrorWhenParameterIsMissingOnIn(String text){
         Query query = template.query(text);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> query.singleResult());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> query.result());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> query.stream());
+        Assertions.assertThrows(QueryException.class, () -> query.singleResult());
+        Assertions.assertThrows(QueryException.class, () -> query.result());
+        Assertions.assertThrows(QueryException.class, () -> query.stream());
     }
 
 }
