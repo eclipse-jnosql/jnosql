@@ -121,26 +121,6 @@ final class KeyValueQuery implements Query {
         }
     }
 
-    private void checkParamsLeft(){
-        if (!params.paramsLeft.isEmpty()) {
-            throw new QueryException("Check all the parameters before execute the query, params left: " + params.paramsLeft);
-        }
-    }
-
-    private <T> Optional<T> equals() {
-        var keyValueConverted = params.values().getFirst().get();
-        return template.find((Class<T>) entityMetadata.type(), keyValueConverted);
-    }
-
-    private <T> List<T> in() {
-        List<T> entities = new ArrayList<>();
-        params.values().forEach(keyValueConverted -> {
-            Optional<T> optional = template.find((Class<T>) entityMetadata.type(), keyValueConverted.get());
-            optional.ifPresent(entities::add);
-        });
-        return entities;
-    }
-
     @Override
     public Query bind(String name, Object value) {
         Objects.requireNonNull(name, "name is required");
@@ -163,6 +143,28 @@ final class KeyValueQuery implements Query {
         params.paramsLeft.remove("?" + position);
         params.params.bind(name, value);
         return this;
+    }
+
+    private void checkParamsLeft(){
+        if (!params.paramsLeft.isEmpty()) {
+            throw new QueryException("Check all the parameters before execute the query, params left: " + params.paramsLeft);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> Optional<T> equals() {
+        var keyValueConverted = params.values().getFirst().get();
+        return template.find((Class<T>) entityMetadata.type(), keyValueConverted);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> List<T> in() {
+        List<T> entities = new ArrayList<>();
+        params.values().forEach(keyValueConverted -> {
+            Optional<T> optional = template.find((Class<T>) entityMetadata.type(), keyValueConverted.get());
+            optional.ifPresent(entities::add);
+        });
+        return entities;
     }
 
 
