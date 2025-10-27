@@ -91,7 +91,7 @@ public class QueryTemplateTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"SELECT name, age FROM User", "FROM User", "From User skip 10", "From User limit 10", "From User ORDER BY name",
-            "From User ORDER BY name DESC", "From User ORDER BY name ASC"})
+            "From User ORDER BY name DESC", "From User ORDER BY name ASC", "select count(this) FROM User"})
     void shouldErrorWhenSelectIsNotSupportKeyValue(String text) {
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.query(text));
     }
