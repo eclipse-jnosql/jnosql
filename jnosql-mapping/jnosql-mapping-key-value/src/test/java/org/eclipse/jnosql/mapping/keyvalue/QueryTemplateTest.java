@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.keyvalue;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.nosql.Query;
+import jakarta.persistence.NonUniqueResultException;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
@@ -204,10 +205,9 @@ public class QueryTemplateTest {
 
     @ParameterizedTest
     @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio')"})
-    void shouldSelectInWithEmpty(String text) {
+    void shouldSelectInWithSingleValueEmpty(String text) {
 
-        Mockito.when(manager.get("Otavio"))
-                .thenReturn(Optional.empty());
+        Mockito.when(manager.get("Otavio")).thenReturn(Optional.empty());
 
         Query query = template.query(text);
         Optional<User> user = query.singleResult();
@@ -215,6 +215,19 @@ public class QueryTemplateTest {
             soft.assertThat(user).isEmpty();
             Mockito.verify(manager).get("Otavio");
         });
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio', 'Maria')"})
+    void shouldSelectInWithEmpty(String text) {
+
+        Mockito.when(manager.get("Otavio"))
+                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
+        Mockito.when(manager.get("Maria"))
+                .thenReturn(Optional.of(Value.of(new User("Maria", "Maria", 59))));
+
+        Query query = template.query(text);
+        Assertions.assertThrows(NonUniqueResultException.class, () -> query.singleResult());
     }
 
 
