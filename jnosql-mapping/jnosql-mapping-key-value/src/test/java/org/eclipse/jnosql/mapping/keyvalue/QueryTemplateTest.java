@@ -255,5 +255,24 @@ public class QueryTemplateTest {
         SoftAssertions.assertSoftly(soft -> soft.assertThat(users).isNotEmpty().hasSize(2).map( User::getNickname).contains("Otavio", "Maria"));
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = { "FROM User WHERE nickname = :param"})
+    void shouldErrorWhenParameterIsMissingOnEquals(String text){
+        Query query = template.query(text);
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> query.singleResult());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> query.result());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> query.stream());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "FROM User WHERE nickname in (:param)"})
+    void shouldErrorWhenParameterIsMissingOnIn(String text){
+        Query query = template.query(text);
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> query.singleResult());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> query.result());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> query.stream());
+    }
 
 }
