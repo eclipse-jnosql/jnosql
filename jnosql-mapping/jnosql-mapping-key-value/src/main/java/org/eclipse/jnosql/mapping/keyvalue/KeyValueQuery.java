@@ -153,7 +153,16 @@ final class KeyValueQuery implements Query {
 
     @Override
     public Query bind(int position, Object value) {
-        return null;
+        Objects.requireNonNull(value, "value is required");
+
+        if(position < 1) {
+            throw new IllegalArgumentException("The index should be greater than zero");
+        }
+
+        var name = "?" + position;
+        params.paramsLeft.remove("?" + position);
+        params.params.bind(name, value);
+        return this;
     }
 
 
