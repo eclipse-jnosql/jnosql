@@ -308,4 +308,12 @@ public class QueryTemplateTest {
         });
     }
 
+
+    @ParameterizedTest
+    @ValueSource(strings = { "FROM User WHERE nickname = ?1"})
+    void shouldBindReturnWhenIndexIsNegative(String text){
+        Query query = template.query(text);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> query.bind(-1, "Otavio"));
+    }
+
 }
