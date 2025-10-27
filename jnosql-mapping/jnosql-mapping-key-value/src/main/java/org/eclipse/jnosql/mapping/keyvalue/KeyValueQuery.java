@@ -20,6 +20,7 @@ import jakarta.nosql.MappingException;
 import jakarta.nosql.Query;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.Params;
+import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.query.DeleteQuery;
 import org.eclipse.jnosql.communication.query.ParamQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
@@ -172,28 +173,32 @@ final class KeyValueQuery implements Query {
 
     @SuppressWarnings("rawtypes")
     private static KeyValueQueryParams params(QueryCondition condition, AbstractKeyValueTemplate template, FieldMetadata id) {
-        List<Object> values = new ArrayList<>();
-        Params params = new Params();
+        Params params = Params.newParams();
+        List<Value> values = new ArrayList<>();
+        List<String> paramsLeft = new ArrayList<>();
         if(Condition.IN.equals(condition.condition())) {
             QueryValue<?> queryValue = condition.value();
             for (QueryValue item : (QueryValue[]) queryValue.get()) {
-                if(item instanceof ParamQueryValue){
-
-                } else {
-                    Object keyValueConverted = ConverterUtil.getValue(item.get(), template.getConverter().getConverters(), id);
-                    values.add(keyValueConverted);
-                }
+                extractItem(template, id, item, values, params, paramsLeft);
             }
 
         } else if(Condition.EQUALS.equals(condition.condition())) {
-            QueryValue<?> queryValue = condition.value();
-            Object keyValueConverted = ConverterUtil.getValue(queryValue.get(), template.getConverter().getConverters(), id);
-            values.add(keyValueConverted);
+            extractItem(template, id, condition.value(), values, params, paramsLeft);
         }
-
-
-        return new KeyValueQueryParams(values, params);
+        return new KeyValueQueryParams(params, values, paramsLeft);
     }
+
+    private static void extractItem(AbstractKeyValueTemplate template, FieldMetadata id, QueryValue item, List<Value> values, Params params, List<String> paramsLeft) {
+        if(item instanceof ParamQueryValue paramQueryValue){
+            String paramName = paramQueryValue.get();
+            values.add(params.add(paramName));
+            paramsLeft.add(paramName);
+        } else {
+            Object keyValueConverted = ConverterUtil.getValue(item.get(), template.getConverter().getConverters(), id);
+            values.add(Value.of(keyValueConverted));
+        }
+    }
+
     private static SelectQuery selectQuery(String query) {
         var selectQuery = SelectProvider.INSTANCE.apply(query, null);
         if(selectQuery.isCount()){
@@ -208,5 +213,5 @@ final class KeyValueQuery implements Query {
         return selectQuery;
     }
 
-    record KeyValueQueryParams(List<Object> values, Params params){}
+    record KeyValueQueryParams(Params params, List<Value> values, List<String> paramsLeft){}
 }
