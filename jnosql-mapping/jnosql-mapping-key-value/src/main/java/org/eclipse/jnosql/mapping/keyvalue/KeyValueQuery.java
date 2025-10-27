@@ -22,7 +22,6 @@ import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.Value;
-import org.eclipse.jnosql.communication.query.DeleteQuery;
 import org.eclipse.jnosql.communication.query.ParamQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryValue;
@@ -55,7 +54,7 @@ final class KeyValueQuery implements Query {
 
     private final QueryCondition condition;
 
-    private final KeyValueQueryParams params;
+    private final KeyValueParameterState parameterState;
 
 
     private KeyValueQuery(String query,
@@ -64,14 +63,14 @@ final class KeyValueQuery implements Query {
                           FieldMetadata id,
                           QueryCondition condition,
                           EntityMetadata entityMetadata,
-                          KeyValueQueryParams params) {
+                          KeyValueParameterState parameterState) {
         this.query = query;
         this.template = template;
         this.type = type;
         this.id = id;
         this.condition = condition;
         this.entityMetadata = entityMetadata;
-        this.params = params;
+        this.parameterState = parameterState;
     }
 
     @Override
@@ -126,8 +125,7 @@ final class KeyValueQuery implements Query {
         Objects.requireNonNull(name, "name is required");
         Objects.requireNonNull(value, "value is required");
 
-        params.paramsLeft.remove(name);
-        params.params.bind(name, value);
+        updateBind(name, value);
         return this;
     }
 
@@ -140,40 +138,43 @@ final class KeyValueQuery implements Query {
         }
 
         var name = "?" + position;
-        params.paramsLeft.remove("?" + position);
-        params.params.bind(name, value);
+        updateBind("?" + position, value);
         return this;
     }
 
     private void checkParamsLeft(){
-        if (!params.paramsLeft.isEmpty()) {
-            throw new QueryException("Check all the parameters before execute the query, params left: " + params.paramsLeft);
+        if (!parameterState.paramsLeft.isEmpty()) {
+            throw new QueryException("Check all the parameters before execute the query, params left: " + parameterState.paramsLeft);
         }
     }
 
     @SuppressWarnings("unchecked")
     private <T> Optional<T> equals() {
-        var keyValueConverted = params.values().getFirst().get();
+        var keyValueConverted = parameterState.values().getFirst().get();
         return template.find((Class<T>) entityMetadata.type(), keyValueConverted);
     }
 
     @SuppressWarnings("unchecked")
     private <T> List<T> in() {
         List<T> entities = new ArrayList<>();
-        params.values().forEach(keyValueConverted -> {
+        parameterState.values().forEach(keyValueConverted -> {
             Optional<T> optional = template.find((Class<T>) entityMetadata.type(), keyValueConverted.get());
             optional.ifPresent(entities::add);
         });
         return entities;
     }
 
+    private void updateBind(String name, Object value) {
+        parameterState.paramsLeft.remove(name);
+        parameterState.params.bind(name, ConverterUtil.getValue(value, template.getConverter().getConverters(), id));
+    }
 
     static KeyValueQuery of(String query, AbstractKeyValueTemplate template, QueryType type) {
         EntitiesMetadata entities = template.getConverter().getEntities();
         FieldMetadata id = null;
         QueryCondition condition = null;
         EntityMetadata entityMetadata = null;
-        KeyValueQueryParams params = null;
+        KeyValueParameterState params = null;
 
         if(QueryType.SELECT.equals(type)) {
             var selectQuery = selectQuery(query);
@@ -200,7 +201,7 @@ final class KeyValueQuery implements Query {
     }
 
     @SuppressWarnings("rawtypes")
-    private static KeyValueQueryParams params(QueryCondition condition, AbstractKeyValueTemplate template, FieldMetadata id) {
+    private static KeyValueParameterState params(QueryCondition condition, AbstractKeyValueTemplate template, FieldMetadata id) {
         Params params = Params.newParams();
         List<Value> values = new ArrayList<>();
         List<String> paramsLeft = new ArrayList<>();
@@ -213,7 +214,7 @@ final class KeyValueQuery implements Query {
         } else if(Condition.EQUALS.equals(condition.condition())) {
             extractItem(template, id, condition.value(), values, params, paramsLeft);
         }
-        return new KeyValueQueryParams(params, values, paramsLeft);
+        return new KeyValueParameterState(params, values, paramsLeft);
     }
 
     private static void extractItem(AbstractKeyValueTemplate template, FieldMetadata id, QueryValue item, List<Value> values, Params params, List<String> paramsLeft) {
@@ -241,5 +242,5 @@ final class KeyValueQuery implements Query {
         return selectQuery;
     }
 
-    record KeyValueQueryParams(Params params, List<Value> values, List<String> paramsLeft){}
+    record KeyValueParameterState(Params params, List<Value> values, List<String> paramsLeft){}
 }
