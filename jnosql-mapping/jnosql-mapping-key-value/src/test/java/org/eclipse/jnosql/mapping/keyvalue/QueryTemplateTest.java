@@ -241,5 +241,19 @@ public class QueryTemplateTest {
         });
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio', 'Maria')"})
+    void shouldInStream(String text) {
+
+        Mockito.when(manager.get("Otavio"))
+                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
+        Mockito.when(manager.get("Maria"))
+                .thenReturn(Optional.of(Value.of(new User("Maria", "Maria", 59))));
+
+        Query query = template.query(text);
+        Stream<User> users = query.stream();
+        SoftAssertions.assertSoftly(soft -> soft.assertThat(users).isNotEmpty().hasSize(2).map( User::getNickname).contains("Otavio", "Maria"));
+    }
+
 
 }
