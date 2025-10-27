@@ -180,11 +180,6 @@ public class QueryTemplateTest {
         });
     }
 
-    //in with conditions with single element
-    //in with two elements with error on error
-    //in with list elements with Streams
-    //in with list elements with List
-
 
     @ParameterizedTest
     @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio')"})
@@ -227,6 +222,23 @@ public class QueryTemplateTest {
 
         Query query = template.query(text);
         Assertions.assertThrows(NonUniqueResultException.class, () -> query.singleResult());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio', 'Maria')"})
+    void shouldInList(String text) {
+
+        Mockito.when(manager.get("Otavio"))
+                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
+        Mockito.when(manager.get("Maria"))
+                .thenReturn(Optional.of(Value.of(new User("Maria", "Maria", 59))));
+
+        Query query = template.query(text);
+        List<User> users = query.result();
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(users).isNotEmpty().hasSize(2);
+            soft.assertThat(users).map( User::getNickname).contains("Otavio", "Maria");
+        });
     }
 
 
