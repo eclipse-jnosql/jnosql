@@ -316,4 +316,40 @@ public class QueryTemplateTest {
         Assertions.assertThrows(IllegalArgumentException.class, () -> query.bind(-1, "Otavio"));
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = { "FROM User WHERE nickname in (?1, :second, 'Maria')"})
+    void shouldBindStream(String text){
+        Mockito.when(manager.get("Otavio"))
+                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
+        Mockito.when(manager.get("Maria"))
+                .thenReturn(Optional.of(Value.of(new User("Maria", "Maria", 59))));
+        Mockito.when(manager.get("Ada"))
+                .thenReturn(Optional.of(Value.of(new User("Ada", "Ada", 30))));
+
+        Query query = template.query(text);
+        query.bind("second", "Otavio");
+        query.bind(1, "Ada");
+        Stream<User> users = query.stream();
+        SoftAssertions.assertSoftly(soft -> soft.assertThat(users).isNotEmpty().hasSize(3).map( User::getNickname).contains("Otavio", "Maria", "Ada"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "FROM User WHERE nickname in (?1, :second, 'Maria')"})
+    void shouldBindList(String text){
+
+        Mockito.when(manager.get("Otavio"))
+                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
+        Mockito.when(manager.get("Maria"))
+                .thenReturn(Optional.of(Value.of(new User("Maria", "Maria", 59))));
+        Mockito.when(manager.get("Ada"))
+                .thenReturn(Optional.of(Value.of(new User("Ada", "Ada", 30))));
+
+        Query query = template.query(text);
+        query.bind("second", "Otavio");
+        query.bind(1, "Ada");
+        List<User> users = query.result();
+        SoftAssertions.assertSoftly(soft -> soft.assertThat(users).isNotEmpty().hasSize(3).map( User::getNickname).contains("Otavio", "Maria"));
+    }
+
+
 }
