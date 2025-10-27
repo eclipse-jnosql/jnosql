@@ -221,7 +221,7 @@ public class QueryTemplateTest {
                 .thenReturn(Optional.of(Value.of(new User("Maria", "Maria", 59))));
 
         Query query = template.query(text);
-        Assertions.assertThrows(NonUniqueResultException.class, () -> query.singleResult());
+        Assertions.assertThrows(NonUniqueResultException.class, query::singleResult);
     }
 
     @ParameterizedTest
