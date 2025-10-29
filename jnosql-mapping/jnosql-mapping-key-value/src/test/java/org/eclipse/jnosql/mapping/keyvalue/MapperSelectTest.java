@@ -81,6 +81,12 @@ class MapperSelectTest {
     }
 
     @Test
+    @DisplayName("Should not supported typed query")
+    void shouldNotSupportedTypedQuery(){
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.typedQuery(null, null));
+    }
+
+    @Test
     @DisplayName("Should return error when entity has not id")
     void shouldReturnErrorWhenEntityHasNotId() {
         Assertions.assertThrows(MappingException.class, () -> template.select(ErrorEntity.class));
