@@ -170,34 +170,53 @@ final class KeyValueQuery implements Query {
     }
 
     static KeyValueQuery of(String query, AbstractKeyValueTemplate template, QueryType type) {
-        EntitiesMetadata entities = template.getConverter().getEntities();
-        FieldMetadata id = null;
-        QueryCondition condition = null;
-        EntityMetadata entityMetadata = null;
-        KeyValueParameterState params = null;
+        var entities = template.getConverter().getEntities();
 
-        if(QueryType.SELECT.equals(type)) {
-            var selectQuery = selectQuery(query);
-            var entityName = selectQuery.entity();
-            entityMetadata = entities.findByName(entityName);
-            id = entityMetadata.id().orElseThrow(() -> new MappingException("The entity does not have an " +
-                    "attribute with jakarta.nosql.Id annotation"));
-            Where where = selectQuery.where().orElseThrow();
-            condition = where.condition();
-            if (!(Condition.EQUALS.equals(condition.condition())
-                    || Condition.IN.equals(condition.condition()))) {
-                throw new UnsupportedOperationException("the condition must be equals or in on key-value databases, " +
-                        "the query is: " + query);
-            }
-            String name = condition.name();
-            if(!id.fieldName().equals(name)) {
-                throw new UnsupportedOperationException("The key-value Mapper query only support the id attribute: " + id.name() + " at the entity: " + entityName);
-            }
-            params = params(condition, template, id);
-        } else {
-            var deleteQuery = DeleteProvider.INSTANCE.apply(query);
-        }
+        var entityName = getEntityName(query, type);
+        var entityMetadata = entities.findByName(entityName);
+        var id = entityMetadata.id()
+                .orElseThrow(() -> new UnsupportedOperationException(
+                        "The entity does not have an attribute annotated with jakarta.nosql.Id"));
+
+        var condition = extractCondition(query, type)
+                .orElseThrow(() -> new UnsupportedOperationException("Missing WHERE clause in query: " + query));
+
+        validateCondition(condition, id, entityName, query);
+
+        var params = params(condition, template, id);
+
         return new KeyValueQuery(query, template, type, id, condition, entityMetadata, params);
+    }
+
+    private static String getEntityName(String query, QueryType type) {
+        return switch (type) {
+            case SELECT -> selectQuery(query).entity();
+            case DELETE -> DeleteProvider.INSTANCE.apply(query).entity();
+            default -> throw new UnsupportedOperationException(
+                    "Unsupported query type for key-value databases: " + type);
+        };
+    }
+    private static Optional<QueryCondition> extractCondition(String query, QueryType type) {
+        return switch (type) {
+            case SELECT -> selectQuery(query).where().map(Where::condition);
+            case DELETE -> DeleteProvider.INSTANCE.apply(query).where().map(Where::condition);
+            default -> Optional.empty();
+        };
+    }
+
+    private static void validateCondition(QueryCondition condition, FieldMetadata id,
+                                          String entityName, String query) {
+
+        if (!(Condition.EQUALS.equals(condition.condition()) || Condition.IN.equals(condition.condition()))) {
+            throw new UnsupportedOperationException(
+                    "Only EQUALS or IN conditions are supported for key-value databases: " + query);
+        }
+
+        if (!id.fieldName().equals(condition.name())) {
+            throw new UnsupportedOperationException(
+                    "Key-value queries only support the ID attribute: " + id.name() +
+                            " in entity: " + entityName);
+        }
     }
 
     @SuppressWarnings("rawtypes")
