@@ -84,16 +84,20 @@ abstract sealed class KeyValueQuery implements Query
     @Override
     public Query bind(int position, Object value) {
         Objects.requireNonNull(value, "value is required");
-        if (position < 1) throw new IllegalArgumentException("The index should be greater than zero");
+        if (position < 1) {
+            throw new IllegalArgumentException("The index should be greater than zero");
+        }
         String name = "?" + position;
         return bind(name, value);
     }
 
+    @SuppressWarnings("unchecked")
     protected <T> Optional<T> findEqual() {
         var keyValueConverted = parameterState.values().getFirst().get();
         return template.find((Class<T>) entityMetadata.type(), keyValueConverted);
     }
 
+    @SuppressWarnings("unchecked")
     protected <T> List<T> findIn() {
         List<T> entities = new ArrayList<>();
         parameterState.values().forEach(keyValueConverted -> {
@@ -126,9 +130,10 @@ abstract sealed class KeyValueQuery implements Query
                     .where()
                     .map(Where::condition);
 
-            default -> throw new UnsupportedOperationException("Unsupported query type for key-value databases: " + type);
+            default ->
+                    throw new UnsupportedOperationException("Unsupported query type for key-value databases: " + type);
         }
-        var condition =  conditionOptional.orElseThrow(() -> new MappingException("Missing WHERE clause in query: " + query));
+        var condition = conditionOptional.orElseThrow(() -> new MappingException("Missing WHERE clause in query: " + query));
         validateCondition(condition, id, entityName, query);
         var params = params(condition, template, id);
 
@@ -157,20 +162,22 @@ abstract sealed class KeyValueQuery implements Query
         Params params = Params.newParams();
         List<Value> values = new ArrayList<>();
         List<String> paramsLeft = new ArrayList<>();
-        if(Condition.IN.equals(condition.condition())) {
+        if (Condition.IN.equals(condition.condition())) {
             QueryValue<?> queryValue = condition.value();
             for (QueryValue item : (QueryValue[]) queryValue.get()) {
                 extractItem(template, id, item, values, params, paramsLeft);
             }
 
-        } else if(Condition.EQUALS.equals(condition.condition())) {
+        } else if (Condition.EQUALS.equals(condition.condition())) {
             extractItem(template, id, condition.value(), values, params, paramsLeft);
         }
         return new KeyValueQueryParameters(params, values, paramsLeft);
     }
 
-    private static void extractItem(AbstractKeyValueTemplate template, FieldMetadata id, QueryValue item, List<Value> values, Params params, List<String> paramsLeft) {
-        if(item instanceof ParamQueryValue paramQueryValue){
+    private static void extractItem(AbstractKeyValueTemplate template, FieldMetadata id, QueryValue<?> item,
+                                    List<Value> values, Params params, List<String> paramsLeft) {
+
+        if (item instanceof ParamQueryValue paramQueryValue) {
             String paramName = paramQueryValue.get();
             values.add(params.add(paramName));
             paramsLeft.add(paramName);
@@ -180,6 +187,7 @@ abstract sealed class KeyValueQuery implements Query
         }
     }
 
-    record KeyValueQueryParameters(Params params, List<Value> values, List<String> paramsLeft) {}
+    record KeyValueQueryParameters(Params params, List<Value> values, List<String> paramsLeft) {
+    }
 
 }
