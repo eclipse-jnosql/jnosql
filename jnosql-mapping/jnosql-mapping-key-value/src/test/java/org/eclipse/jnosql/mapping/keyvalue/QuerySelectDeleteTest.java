@@ -14,11 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.keyvalue;
 
-import jakarta.data.exceptions.NonUniqueResultException;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.nosql.Query;
-import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
@@ -42,9 +40,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.mockito.Mockito.when;
 

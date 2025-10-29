@@ -188,6 +188,12 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
 
     @Override
     public <T> TypedQuery<T> typedQuery(String query, Class<T> type) {
+        Objects.requireNonNull(query, "query is required");
+        Objects.requireNonNull(type, "type is required");
+        QueryType queryType = QueryType.parse(query);
+        if(QueryType.UPDATE.equals(queryType)) {
+            throw new UnsupportedOperationException("Update is not supported yet");
+        }
         return null;
     }
 
