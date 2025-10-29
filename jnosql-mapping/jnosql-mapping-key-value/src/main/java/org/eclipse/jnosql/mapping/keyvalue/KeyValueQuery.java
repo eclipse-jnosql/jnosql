@@ -126,7 +126,7 @@ final class KeyValueQuery implements Query {
 
     private void verifyIsNotDeleteType() {
         if(QueryType.DELETE.equals(type)) {
-            throw new MappingException("The delete query does not support the singleResult method, the query: " + query);
+            throw new UnsupportedOperationException("The delete query does not support the singleResult method, the query: " + query);
         }
     }
 

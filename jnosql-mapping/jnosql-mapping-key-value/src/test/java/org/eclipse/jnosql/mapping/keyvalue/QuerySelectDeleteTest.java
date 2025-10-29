@@ -95,19 +95,21 @@ public class QuerySelectDeleteTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "FROM User where nickname > 10",
-            "FROM User where nickname < 10",
-            "FROM User where nickname <= 10",
-            "FROM User where nickname like 'Otavio'"})
+            "DELETE FROM User where nickname > 10",
+            "DELETE FROM User where nickname < 10",
+            "DELETE FROM User where nickname <= 10",
+            "DELETE FROM User where nickname like 'Otavio'"})
     void shouldErrorWhenIdWhenNotCondition(String text){
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.query(text));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
-    void shouldReturnErrorWhenSelectCallUpdate(String text) {
+    @ValueSource(strings = { "DELETE FROM User WHERE nickname = 'Otavio'"})
+    void shouldReturnErrorWhenSelectCallResult(String text) {
         Query query = template.query(text);
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> query.executeUpdate());
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> query.singleResult());
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> query.result());
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> query.stream());
     }
 
     @ParameterizedTest
