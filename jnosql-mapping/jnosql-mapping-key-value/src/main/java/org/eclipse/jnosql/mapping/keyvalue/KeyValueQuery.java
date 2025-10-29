@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.keyvalue;
 
 
+import jakarta.data.exceptions.MappingException;
 import jakarta.data.exceptions.NonUniqueResultException;
 import jakarta.nosql.Query;
 import org.eclipse.jnosql.communication.Condition;
@@ -34,34 +35,27 @@ import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 
-final class KeyValueQuery implements Query {
+abstract sealed class KeyValueQuery implements Query
+        permits SelectKeyValueQuery, DeleteKeyValueQuery {
 
-    private final String query;
+    protected final String query;
+    protected final AbstractKeyValueTemplate template;
+    protected final QueryType type;
+    protected final EntityMetadata entityMetadata;
+    protected final FieldMetadata id;
+    protected final QueryCondition condition;
+    protected final KeyValueParameterState parameterState;
 
-    private final AbstractKeyValueTemplate template;
-
-    private final QueryType type;
-
-    private final EntityMetadata entityMetadata;
-    private final FieldMetadata id;
-
-    private final QueryCondition condition;
-
-    private final KeyValueParameterState parameterState;
-
-
-    private KeyValueQuery(String query,
-                          AbstractKeyValueTemplate template,
-                          QueryType type,
-                          FieldMetadata id,
-                          QueryCondition condition,
-                          EntityMetadata entityMetadata,
-                          KeyValueParameterState parameterState) {
+    protected KeyValueQuery(String query,
+                            AbstractKeyValueTemplate template,
+                            QueryType type,
+                            FieldMetadata id,
+                            QueryCondition condition,
+                            EntityMetadata entityMetadata,
+                            KeyValueParameterState parameterState) {
         this.query = query;
         this.template = template;
         this.type = type;
@@ -71,64 +65,10 @@ final class KeyValueQuery implements Query {
         this.parameterState = parameterState;
     }
 
-    @Override
-    public void executeUpdate() {
-        checkParamsLeft();
-        if(QueryType.SELECT.equals(type)) {
-            throw new UnsupportedOperationException("the executeUpdate does not support the SELECT query, the query is: " + query);
-        }
-        parameterState.values().forEach(value -> {
-            Object keyValueConverted = value.get();
-            template.deleteByKey(keyValueConverted);
-        });
-    }
-
-    @Override
-    public <T> List<T> result() {
-        checkParamsLeft();
-        verifyIsNotDeleteType();
-        if(Condition.EQUALS.equals(condition.condition())){
-            Optional<T> optional = equals();
-            return optional.map(List::of).orElseGet(List::of);
-        }
-        return in();
-    }
-
-
-    @Override
-    public <T> Stream<T> stream() {
-        checkParamsLeft();
-        verifyIsNotDeleteType();
-        if(Condition.EQUALS.equals(condition.condition())){
-            Optional<T> optional = equals();
-            return optional.stream();
-        }
-        List<T> entities = in();
-        return entities.stream();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> Optional<T> singleResult() {
-        checkParamsLeft();
-        verifyIsNotDeleteType();
-
-        if(Condition.EQUALS.equals(condition.condition())){
-            return equals();
-        } else {
-            List<T> entities = in();
-            if(entities.size() == 1) {
-                return Optional.of(entities.getFirst());
-            } else if(entities.isEmpty()) {
-                return Optional.empty();
-            }
-            throw new NonUniqueResultException("Expected one result but found: " + entities.size());
-        }
-    }
-
-    private void verifyIsNotDeleteType() {
-        if(QueryType.DELETE.equals(type)) {
-            throw new UnsupportedOperationException("The delete query does not support the singleResult method, the query: " + query);
+    protected void checkParamsLeft() {
+        if (!parameterState.paramsLeft.isEmpty()) {
+            throw new QueryException("Check all the parameters before execute the query, params left: "
+                    + parameterState.paramsLeft);
         }
     }
 
@@ -136,146 +76,80 @@ final class KeyValueQuery implements Query {
     public Query bind(String name, Object value) {
         Objects.requireNonNull(name, "name is required");
         Objects.requireNonNull(value, "value is required");
-
-        updateBind(name, value);
+        parameterState.paramsLeft.remove(name);
+        parameterState.params.bind(name,
+                ConverterUtil.getValue(value, template.getConverter().getConverters(), id));
         return this;
     }
 
     @Override
     public Query bind(int position, Object value) {
         Objects.requireNonNull(value, "value is required");
-
-        if(position < 1) {
-            throw new IllegalArgumentException("The index should be greater than zero");
-        }
-
-        var name = "?" + position;
-        updateBind("?" + position, value);
-        return this;
+        if (position < 1) throw new IllegalArgumentException("The index should be greater than zero");
+        String name = "?" + position;
+        return bind(name, value);
     }
 
-    private void checkParamsLeft(){
-        if (!parameterState.paramsLeft.isEmpty()) {
-            throw new QueryException("Check all the parameters before execute the query, params left: " + parameterState.paramsLeft);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> Optional<T> equals() {
+    protected <T> Optional<T> findEqual() {
         var keyValueConverted = parameterState.values().getFirst().get();
         return template.find((Class<T>) entityMetadata.type(), keyValueConverted);
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> List<T> in() {
+    protected <T> List<T> findIn() {
         List<T> entities = new ArrayList<>();
         parameterState.values().forEach(keyValueConverted -> {
-            Optional<T> optional = template.find((Class<T>) entityMetadata.type(), keyValueConverted.get());
+            Optional<T> optional = template.find((Class<T>) entityMetadata.type(),
+                    keyValueConverted.get());
             optional.ifPresent(entities::add);
         });
         return entities;
     }
 
-    private void updateBind(String name, Object value) {
-        parameterState.paramsLeft.remove(name);
-        parameterState.params.bind(name, ConverterUtil.getValue(value, template.getConverter().getConverters(), id));
-    }
-
     static KeyValueQuery of(String query, AbstractKeyValueTemplate template, QueryType type) {
-        var strategy = KeyValueQueryStrategies.forType(type);
         var entities = template.getConverter().getEntities();
-
-        var entityName = strategy.entityName(query);
+        var entityName = switch (type) {
+            case SELECT -> SelectProvider.INSTANCE.apply(query, null).entity();
+            case DELETE -> DeleteProvider.INSTANCE.apply(query).entity();
+            default -> throw new UnsupportedOperationException("Unsupported query type: " + type);
+        };
         var entityMetadata = entities.findByName(entityName);
         var id = entityMetadata.id()
-                .orElseThrow(() -> new UnsupportedOperationException(
-                        "Entity lacks a field annotated with jakarta.nosql.Id"));
+                .orElseThrow(() -> new MappingException("The entity has no jakarta.nosql.Id attribute"));
+        Optional<QueryCondition> conditionOptional;
+        switch (type) {
+            case SELECT -> conditionOptional = SelectProvider.INSTANCE
+                    .apply(query, null)
+                    .where()
+                    .map(Where::condition);
 
-        var condition = strategy.condition(query)
-                .orElseThrow(() -> new UnsupportedOperationException(
-                        "Missing WHERE clause in query: " + query));
+            case DELETE -> conditionOptional = DeleteProvider.INSTANCE
+                    .apply(query)
+                    .where()
+                    .map(Where::condition);
 
+            default -> throw new UnsupportedOperationException("Unsupported query type for key-value databases: " + type);
+        }
+        var condition =  conditionOptional.orElseThrow(() -> new MappingException("Missing WHERE clause in query: " + query));
         validateCondition(condition, id, entityName, query);
         var params = params(condition, template, id);
 
-        return new KeyValueQuery(query, template, type, id, condition, entityMetadata, params);
-    }
-
-    interface KeyValueQueryStrategy {
-        QueryType type();
-        String entityName(String query);
-        Optional<QueryCondition> condition(String query);
-    }
-
-    private static final class SelectKeyValueQueryStrategy implements KeyValueQueryStrategy {
-        @Override
-        public QueryType type() { return QueryType.SELECT; }
-
-        @Override
-        public String entityName(String query) {
-            var select = SelectProvider.INSTANCE.apply(query, null);
-            if (select.isCount()) {
-                throw new UnsupportedOperationException("COUNT not supported for key-value databases");
-            }
-            if (select.where().isEmpty()) {
-                throw new UnsupportedOperationException("A WHERE clause is required");
-            }
-            if (!select.orderBy().isEmpty()) {
-                throw new UnsupportedOperationException("ORDER BY not supported for key-value databases");
-            }
-            return select.entity();
-        }
-
-        @Override
-        public Optional<QueryCondition> condition(String query) {
-            return SelectProvider.INSTANCE.apply(query, null)
-                    .where()
-                    .map(Where::condition);
-        }
-    }
-
-    private  static final class DeleteKeyValueQueryStrategy implements KeyValueQueryStrategy {
-        @Override
-        public QueryType type() { return QueryType.DELETE; }
-
-        @Override
-        public String entityName(String query) {
-            return DeleteProvider.INSTANCE.apply(query).entity();
-        }
-
-        @Override
-        public Optional<QueryCondition> condition(String query) {
-            return DeleteProvider.INSTANCE.apply(query)
-                    .where()
-                    .map(Where::condition);
-        }
-    }
-
-    private static final class KeyValueQueryStrategies {
-        private static final Map<QueryType, KeyValueQueryStrategy> STRATEGIES = Map.of(
-                QueryType.SELECT, new SelectKeyValueQueryStrategy(),
-                QueryType.DELETE, new DeleteKeyValueQueryStrategy()
-        );
-
-        static KeyValueQueryStrategy forType(QueryType type) {
-            return Optional.ofNullable(STRATEGIES.get(type))
-                    .orElseThrow(() -> new UnsupportedOperationException(
-                            "Unsupported query type for key-value databases: " + type));
-        }
+        return switch (type) {
+            case SELECT -> new SelectKeyValueQuery(query, template, type, id, condition, entityMetadata, params);
+            case DELETE -> new DeleteKeyValueQuery(query, template, type, id, condition, entityMetadata, params);
+            default -> throw new UnsupportedOperationException("Unsupported query type: " + type);
+        };
     }
 
     private static void validateCondition(QueryCondition condition, FieldMetadata id,
                                           String entityName, String query) {
-
-        if (!(Condition.EQUALS.equals(condition.condition()) || Condition.IN.equals(condition.condition()))) {
+        if (!(Condition.EQUALS.equals(condition.condition())
+                || Condition.IN.equals(condition.condition()))) {
             throw new UnsupportedOperationException(
-                    "Only EQUALS or IN conditions are supported for key-value databases: " + query);
+                    "Only EQUALS or IN are supported for key-value queries: " + query);
         }
-
         if (!id.fieldName().equals(condition.name())) {
             throw new UnsupportedOperationException(
-                    "Key-value queries only support the ID attribute: " + id.name() +
-                            " in entity: " + entityName);
+                    "Only ID attribute supported: " + id.name() + " in entity: " + entityName);
         }
     }
 
@@ -307,5 +181,6 @@ final class KeyValueQuery implements Query {
         }
     }
 
-    record KeyValueParameterState(Params params, List<Value> values, List<String> paramsLeft){}
+    record KeyValueParameterState(Params params, List<Value> values, List<String> paramsLeft) {}
+
 }
