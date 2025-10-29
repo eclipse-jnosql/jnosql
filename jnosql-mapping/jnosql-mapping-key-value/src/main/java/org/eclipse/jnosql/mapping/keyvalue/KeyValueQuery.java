@@ -35,6 +35,7 @@ import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -182,38 +183,86 @@ final class KeyValueQuery implements Query {
     }
 
     static KeyValueQuery of(String query, AbstractKeyValueTemplate template, QueryType type) {
+        var strategy = KeyValueQueryStrategies.forType(type);
         var entities = template.getConverter().getEntities();
 
-        var entityName = getEntityName(query, type);
+        var entityName = strategy.entityName(query);
         var entityMetadata = entities.findByName(entityName);
         var id = entityMetadata.id()
                 .orElseThrow(() -> new UnsupportedOperationException(
-                        "The entity does not have an attribute annotated with jakarta.nosql.Id"));
+                        "Entity lacks a field annotated with jakarta.nosql.Id"));
 
-        var condition = extractCondition(query, type)
-                .orElseThrow(() -> new UnsupportedOperationException("Missing WHERE clause in query: " + query));
+        var condition = strategy.condition(query)
+                .orElseThrow(() -> new UnsupportedOperationException(
+                        "Missing WHERE clause in query: " + query));
 
         validateCondition(condition, id, entityName, query);
-
         var params = params(condition, template, id);
 
         return new KeyValueQuery(query, template, type, id, condition, entityMetadata, params);
     }
 
-    private static String getEntityName(String query, QueryType type) {
-        return switch (type) {
-            case SELECT -> selectQuery(query).entity();
-            case DELETE -> DeleteProvider.INSTANCE.apply(query).entity();
-            default -> throw new UnsupportedOperationException(
-                    "Unsupported query type for key-value databases: " + type);
-        };
+    interface KeyValueQueryStrategy {
+        QueryType type();
+        String entityName(String query);
+        Optional<QueryCondition> condition(String query);
     }
-    private static Optional<QueryCondition> extractCondition(String query, QueryType type) {
-        return switch (type) {
-            case SELECT -> selectQuery(query).where().map(Where::condition);
-            case DELETE -> DeleteProvider.INSTANCE.apply(query).where().map(Where::condition);
-            default -> Optional.empty();
-        };
+
+    private static final class SelectKeyValueQueryStrategy implements KeyValueQueryStrategy {
+        @Override
+        public QueryType type() { return QueryType.SELECT; }
+
+        @Override
+        public String entityName(String query) {
+            var select = SelectProvider.INSTANCE.apply(query, null);
+            if (select.isCount()) {
+                throw new UnsupportedOperationException("COUNT not supported for key-value databases");
+            }
+            if (select.where().isEmpty()) {
+                throw new UnsupportedOperationException("A WHERE clause is required");
+            }
+            if (!select.orderBy().isEmpty()) {
+                throw new UnsupportedOperationException("ORDER BY not supported for key-value databases");
+            }
+            return select.entity();
+        }
+
+        @Override
+        public Optional<QueryCondition> condition(String query) {
+            return SelectProvider.INSTANCE.apply(query, null)
+                    .where()
+                    .map(Where::condition);
+        }
+    }
+
+    private  static final class DeleteKeyValueQueryStrategy implements KeyValueQueryStrategy {
+        @Override
+        public QueryType type() { return QueryType.DELETE; }
+
+        @Override
+        public String entityName(String query) {
+            return DeleteProvider.INSTANCE.apply(query).entity();
+        }
+
+        @Override
+        public Optional<QueryCondition> condition(String query) {
+            return DeleteProvider.INSTANCE.apply(query)
+                    .where()
+                    .map(Where::condition);
+        }
+    }
+
+    private static final class KeyValueQueryStrategies {
+        private static final Map<QueryType, KeyValueQueryStrategy> STRATEGIES = Map.of(
+                QueryType.SELECT, new SelectKeyValueQueryStrategy(),
+                QueryType.DELETE, new DeleteKeyValueQueryStrategy()
+        );
+
+        static KeyValueQueryStrategy forType(QueryType type) {
+            return Optional.ofNullable(STRATEGIES.get(type))
+                    .orElseThrow(() -> new UnsupportedOperationException(
+                            "Unsupported query type for key-value databases: " + type));
+        }
     }
 
     private static void validateCondition(QueryCondition condition, FieldMetadata id,
@@ -257,20 +306,6 @@ final class KeyValueQuery implements Query {
             Object keyValueConverted = ConverterUtil.getValue(item.get(), template.getConverter().getConverters(), id);
             values.add(Value.of(keyValueConverted));
         }
-    }
-
-    private static SelectQuery selectQuery(String query) {
-        var selectQuery = SelectProvider.INSTANCE.apply(query, null);
-        if(selectQuery.isCount()){
-            throw new UnsupportedOperationException("the count method is not supported on key-value databases");
-        }
-        if(selectQuery.where().isEmpty()){
-            throw new UnsupportedOperationException("the query must have a where condition on key-value databases");
-        }
-        if(!selectQuery.orderBy().isEmpty()){
-            throw new UnsupportedOperationException("the orderBy method is not supported on key-value databases");
-        }
-        return selectQuery;
     }
 
     record KeyValueParameterState(Params params, List<Value> values, List<String> paramsLeft){}
