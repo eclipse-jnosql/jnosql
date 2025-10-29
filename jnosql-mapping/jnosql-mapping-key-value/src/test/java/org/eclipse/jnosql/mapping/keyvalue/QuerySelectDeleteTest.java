@@ -141,129 +141,65 @@ public class QuerySelectDeleteTest {
         Mockito.verify(manager).delete("Maria");
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio', 'Maria')"})
-    void shouldInList(String text) {
-
-        Mockito.when(manager.get("Otavio"))
-                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
-        Mockito.when(manager.get("Maria"))
-                .thenReturn(Optional.of(Value.of(new User("Maria", "Maria", 59))));
-
-        Query query = template.query(text);
-        List<User> users = query.result();
-        SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(users).isNotEmpty().hasSize(2);
-            soft.assertThat(users).map( User::getNickname).contains("Otavio", "Maria");
-        });
-    }
 
     @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio', 'Maria')"})
-    void shouldInStream(String text) {
-
-        Mockito.when(manager.get("Otavio"))
-                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
-        Mockito.when(manager.get("Maria"))
-                .thenReturn(Optional.of(Value.of(new User("Maria", "Maria", 59))));
-
-        Query query = template.query(text);
-        Stream<User> users = query.stream();
-        SoftAssertions.assertSoftly(soft -> soft.assertThat(users).isNotEmpty().hasSize(2).map( User::getNickname).contains("Otavio", "Maria"));
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname = :param"})
+    @ValueSource(strings = { "DELETE FROM User WHERE nickname = :param"})
     void shouldErrorWhenParameterIsMissingOnEquals(String text){
         Query query = template.query(text);
 
-        Assertions.assertThrows(QueryException.class, () -> query.singleResult());
-        Assertions.assertThrows(QueryException.class, () -> query.result());
-        Assertions.assertThrows(QueryException.class, () -> query.stream());
+        Assertions.assertThrows(QueryException.class, () -> query.executeUpdate());
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname in (:param)"})
+    @ValueSource(strings = { "DELETE FROM User WHERE nickname in (:param)"})
     void shouldErrorWhenParameterIsMissingOnIn(String text){
         Query query = template.query(text);
-
-        Assertions.assertThrows(QueryException.class, () -> query.singleResult());
-        Assertions.assertThrows(QueryException.class, () -> query.result());
-        Assertions.assertThrows(QueryException.class, () -> query.stream());
+        Assertions.assertThrows(QueryException.class, () -> query.executeUpdate());
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname = :nickname"})
+    @ValueSource(strings = { "DELETE FROM User WHERE nickname = :nickname"})
     void shouldBindParameterEqualsSingleResult(String text){
-        Mockito.when(manager.get("Otavio"))
-                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
+
 
         Query query = template.query(text);
         query.bind("nickname", "Otavio");
-        Optional<User> user = query.singleResult();
-        SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(user).isPresent();
-            soft.assertThat(user.orElseThrow().getNickname()).isEqualTo("Otavio");
-            Mockito.verify(manager).get("Otavio");
-        });
+        query.executeUpdate();
+        Mockito.verify(manager).delete("Otavio");
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname = ?1"})
+    @ValueSource(strings = { "DELETE FROM User WHERE nickname = ?1"})
     void shouldBindParameterIndexEqualsSingleResult(String text){
         Mockito.when(manager.get("Otavio"))
                 .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
 
         Query query = template.query(text);
         query.bind(1, "Otavio");
-        Optional<User> user = query.singleResult();
-        SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(user).isPresent();
-            soft.assertThat(user.orElseThrow().getNickname()).isEqualTo("Otavio");
-            Mockito.verify(manager).get("Otavio");
-        });
+        query.executeUpdate();
+        Mockito.verify(manager).delete("Otavio");
     }
 
 
     @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname = ?1"})
+    @ValueSource(strings = { "DELETE FROM User WHERE nickname = ?1"})
     void shouldBindReturnWhenIndexIsNegative(String text){
         Query query = template.query(text);
         Assertions.assertThrows(IllegalArgumentException.class, () -> query.bind(-1, "Otavio"));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname in (?1, :second, 'Maria')"})
-    void shouldBindStream(String text){
-        Mockito.when(manager.get("Otavio"))
-                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
-        Mockito.when(manager.get("Maria"))
-                .thenReturn(Optional.of(Value.of(new User("Maria", "Maria", 59))));
-        Mockito.when(manager.get("Ada"))
-                .thenReturn(Optional.of(Value.of(new User("Ada", "Ada", 30))));
+    @ValueSource(strings = { "DELETE FROM User WHERE nickname in (?1, :second, 'Maria')"})
+    void shouldBindMixOfDelete(String text){
 
         Query query = template.query(text);
         query.bind("second", "Otavio");
         query.bind(1, "Ada");
-        Stream<User> users = query.stream();
-        SoftAssertions.assertSoftly(soft -> soft.assertThat(users).isNotEmpty().hasSize(3).map( User::getNickname).contains("Otavio", "Maria", "Ada"));
+        query.executeUpdate();
+
+        Mockito.verify(manager).delete("Ada");
+        Mockito.verify(manager).delete("Otavio");
+        Mockito.verify(manager).delete("Maria");
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname in (?1, :second, 'Maria')"})
-    void shouldBindList(String text){
-
-        Mockito.when(manager.get("Otavio"))
-                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
-        Mockito.when(manager.get("Maria"))
-                .thenReturn(Optional.of(Value.of(new User("Maria", "Maria", 59))));
-        Mockito.when(manager.get("Ada"))
-                .thenReturn(Optional.of(Value.of(new User("Ada", "Ada", 30))));
-
-        Query query = template.query(text);
-        query.bind("second", "Otavio");
-        query.bind(1, "Ada");
-        List<User> users = query.result();
-        SoftAssertions.assertSoftly(soft -> soft.assertThat(users).isNotEmpty().hasSize(3).map( User::getNickname).contains("Otavio", "Maria"));
-    }
 }
