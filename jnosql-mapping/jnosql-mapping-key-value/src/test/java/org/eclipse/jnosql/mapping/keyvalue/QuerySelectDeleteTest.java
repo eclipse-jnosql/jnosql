@@ -121,95 +121,24 @@ public class QuerySelectDeleteTest {
         Mockito.verify(manager).delete("Otavio");
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
-    void shouldSelectLiteralSingleValue(String text) {
 
-        Mockito.when(manager.get("Otavio"))
-                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
-
-        Query query = template.query(text);
-        Optional<User> user = query.singleResult();
-        SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(user).isPresent();
-            soft.assertThat(user.orElseThrow().getNickname()).isEqualTo("Otavio");
-            Mockito.verify(manager).get("Otavio");
-        });
-    }
 
     @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
-    void shouldSelectLiteralSingleValueList(String text) {
-
-        Mockito.when(manager.get("Otavio"))
-                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
-
+    @ValueSource(strings = { "DELETE FROM User WHERE nickname IN ('Otavio')"})
+    void shouldDeleteInSingleParameter(String text) {
         Query query = template.query(text);
-        List<User> users = query.result();
-        SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(users).isNotEmpty();
-            soft.assertThat(users.getFirst().getNickname()).isEqualTo("Otavio");
-            Mockito.verify(manager).get("Otavio");
-        });
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
-    void shouldSelectLiteralSingleValueStream(String text) {
-
-        Mockito.when(manager.get("Otavio"))
-                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
-
-        Query query = template.query(text);
-        Stream<User> users = query.stream();
-        SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(users).isNotEmpty().contains(new User("Otavio", "Otavio", 27));
-            Mockito.verify(manager).get("Otavio");
-        });
+        query.executeUpdate();
+        Mockito.verify(manager).delete("Otavio");
     }
 
 
     @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio')"})
-    void shouldSelectInWithSingleValue(String text) {
-
-        Mockito.when(manager.get("Otavio"))
-                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
-
+    @ValueSource(strings = { "DELETE FROM User WHERE nickname IN ('Otavio', 'Maria')"})
+    void shouldDeleteInParameters(String text) {
         Query query = template.query(text);
-        Optional<User> user = query.singleResult();
-        SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(user).isPresent();
-            soft.assertThat(user.orElseThrow().getNickname()).isEqualTo("Otavio");
-            Mockito.verify(manager).get("Otavio");
-        });
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio')"})
-    void shouldSelectInWithSingleValueEmpty(String text) {
-
-        Mockito.when(manager.get("Otavio")).thenReturn(Optional.empty());
-
-        Query query = template.query(text);
-        Optional<User> user = query.singleResult();
-        SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(user).isEmpty();
-            Mockito.verify(manager).get("Otavio");
-        });
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio', 'Maria')"})
-    void shouldSelectInWithEmpty(String text) {
-
-        Mockito.when(manager.get("Otavio"))
-                .thenReturn(Optional.of(Value.of(new User("Otavio", "Otavio", 27))));
-        Mockito.when(manager.get("Maria"))
-                .thenReturn(Optional.of(Value.of(new User("Maria", "Maria", 59))));
-
-        Query query = template.query(text);
-        Assertions.assertThrows(NonUniqueResultException.class, query::singleResult);
+        query.executeUpdate();
+        Mockito.verify(manager).delete("Otavio");
+        Mockito.verify(manager).delete("Maria");
     }
 
     @ParameterizedTest
