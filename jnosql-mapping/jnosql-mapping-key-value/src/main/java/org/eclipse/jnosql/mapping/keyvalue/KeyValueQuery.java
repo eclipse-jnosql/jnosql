@@ -84,6 +84,7 @@ final class KeyValueQuery implements Query {
     @Override
     public <T> List<T> result() {
         checkParamsLeft();
+        verifyIsNotDeleteType();
         if(Condition.EQUALS.equals(condition.condition())){
             Optional<T> optional = equals();
             return optional.map(List::of).orElseGet(List::of);
@@ -95,6 +96,7 @@ final class KeyValueQuery implements Query {
     @Override
     public <T> Stream<T> stream() {
         checkParamsLeft();
+        verifyIsNotDeleteType();
         if(Condition.EQUALS.equals(condition.condition())){
             Optional<T> optional = equals();
             return optional.stream();
@@ -107,6 +109,8 @@ final class KeyValueQuery implements Query {
     @Override
     public <T> Optional<T> singleResult() {
         checkParamsLeft();
+        verifyIsNotDeleteType();
+
         if(Condition.EQUALS.equals(condition.condition())){
             return equals();
         } else {
@@ -117,6 +121,12 @@ final class KeyValueQuery implements Query {
                 return Optional.empty();
             }
             throw new NonUniqueResultException("Expected one result but found: " + entities.size());
+        }
+    }
+
+    private void verifyIsNotDeleteType() {
+        if(QueryType.DELETE.equals(type)) {
+            throw new MappingException("The delete query does not support the singleResult method, the query: " + query);
         }
     }
 
