@@ -33,7 +33,7 @@ final class SelectKeyValueQuery extends KeyValueQuery {
                         FieldMetadata id,
                         QueryCondition condition,
                         EntityMetadata entityMetadata,
-                        KeyValueParameterState parameterState) {
+                        KeyValueQueryParameters parameterState) {
         super(query, template, type, id, condition, entityMetadata, parameterState);
     }
 

@@ -16,7 +16,6 @@ package org.eclipse.jnosql.mapping.keyvalue;
 
 
 import jakarta.data.exceptions.MappingException;
-import jakarta.data.exceptions.NonUniqueResultException;
 import jakarta.nosql.Query;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.Params;
@@ -47,7 +46,7 @@ abstract sealed class KeyValueQuery implements Query
     protected final EntityMetadata entityMetadata;
     protected final FieldMetadata id;
     protected final QueryCondition condition;
-    protected final KeyValueParameterState parameterState;
+    protected final KeyValueQueryParameters parameterState;
 
     protected KeyValueQuery(String query,
                             AbstractKeyValueTemplate template,
@@ -55,7 +54,7 @@ abstract sealed class KeyValueQuery implements Query
                             FieldMetadata id,
                             QueryCondition condition,
                             EntityMetadata entityMetadata,
-                            KeyValueParameterState parameterState) {
+                            KeyValueQueryParameters parameterState) {
         this.query = query;
         this.template = template;
         this.type = type;
@@ -154,7 +153,7 @@ abstract sealed class KeyValueQuery implements Query
     }
 
     @SuppressWarnings("rawtypes")
-    private static KeyValueParameterState params(QueryCondition condition, AbstractKeyValueTemplate template, FieldMetadata id) {
+    private static KeyValueQueryParameters params(QueryCondition condition, AbstractKeyValueTemplate template, FieldMetadata id) {
         Params params = Params.newParams();
         List<Value> values = new ArrayList<>();
         List<String> paramsLeft = new ArrayList<>();
@@ -167,7 +166,7 @@ abstract sealed class KeyValueQuery implements Query
         } else if(Condition.EQUALS.equals(condition.condition())) {
             extractItem(template, id, condition.value(), values, params, paramsLeft);
         }
-        return new KeyValueParameterState(params, values, paramsLeft);
+        return new KeyValueQueryParameters(params, values, paramsLeft);
     }
 
     private static void extractItem(AbstractKeyValueTemplate template, FieldMetadata id, QueryValue item, List<Value> values, Params params, List<String> paramsLeft) {
@@ -181,6 +180,6 @@ abstract sealed class KeyValueQuery implements Query
         }
     }
 
-    record KeyValueParameterState(Params params, List<Value> values, List<String> paramsLeft) {}
+    record KeyValueQueryParameters(Params params, List<Value> values, List<String> paramsLeft) {}
 
 }
