@@ -350,6 +350,4 @@ public class QueryTemplateTest {
         List<User> users = query.result();
         SoftAssertions.assertSoftly(soft -> soft.assertThat(users).isNotEmpty().hasSize(3).map( User::getNickname).contains("Otavio", "Maria"));
     }
-
-
 }
