@@ -113,14 +113,12 @@ public class QuerySelectDeleteTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
-    void shouldReturnEmptyWhenSelectLiteralSingleValue(String text) {
-        Mockito.when(manager.get("Otavio"))
-                .thenReturn(Optional.empty());
+    @ValueSource(strings = { "DELETE FROM User WHERE nickname = 'Otavio'"})
+    void shouldExecuteDeleteLiteral(String text) {
 
         Query query = template.query(text);
-        Optional<User> user = query.singleResult();
-        SoftAssertions.assertSoftly(soft -> soft.assertThat(user).isEmpty());
+        query.executeUpdate();
+        Mockito.verify(manager).delete("Otavio");
     }
 
     @ParameterizedTest

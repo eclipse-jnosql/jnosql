@@ -79,6 +79,10 @@ final class KeyValueQuery implements Query {
         if(QueryType.SELECT.equals(type)) {
             throw new UnsupportedOperationException("the executeUpdate does not support the SELECT query, the query is: " + query);
         }
+        parameterState.values().forEach(value -> {
+            Object keyValueConverted = value.get();
+            template.deleteByKey(keyValueConverted);
+        });
     }
 
     @Override
