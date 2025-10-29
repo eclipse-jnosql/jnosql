@@ -16,7 +16,6 @@ package org.eclipse.jnosql.mapping.keyvalue;
 
 
 import jakarta.data.exceptions.NonUniqueResultException;
-import jakarta.nosql.MappingException;
 import jakarta.nosql.Query;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.Params;
@@ -31,7 +30,6 @@ import org.eclipse.jnosql.communication.query.data.DeleteProvider;
 import org.eclipse.jnosql.communication.query.data.QueryType;
 import org.eclipse.jnosql.communication.query.data.SelectProvider;
 import org.eclipse.jnosql.mapping.core.util.ConverterUtil;
-import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
