@@ -56,7 +56,8 @@ import static org.mockito.Mockito.when;
 @AddExtensions({ReflectionEntityMetadataExtension.class, KeyValueExtension.class})
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class QueryTemplateTest {
+@DisplayName("Test for the Query on KeyValue when the Core Query is Select type")
+public class QuerySelectTemplateTest {
 
     @Inject
     private KeyValueEntityConverter converter;
