@@ -133,7 +133,7 @@ abstract sealed class KeyValueQuery implements Query
             default ->
                     throw new UnsupportedOperationException("Unsupported query type for key-value databases: " + type);
         }
-        var condition = conditionOptional.orElseThrow(() -> new MappingException("Missing WHERE clause in query: " + query));
+        var condition = conditionOptional.orElseThrow(() -> new UnsupportedOperationException("Missing WHERE clause in query: " + query));
         validateCondition(condition, id, entityName, query);
         var params = params(condition, template, id);
 
