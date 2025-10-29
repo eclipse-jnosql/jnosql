@@ -27,7 +27,9 @@ import java.util.List;
 import static java.util.Objects.requireNonNull;
 
 final class MapperDelete implements QueryMapper.MapperDeleteFrom,
-        QueryMapper.MapperDeleteWhere, QueryMapper.MapperDeleteNameCondition, QueryMapper.MapperDeleteNotCondition {
+        QueryMapper.MapperDeleteWhere,
+        QueryMapper.MapperDeleteNameCondition,
+        QueryMapper.MapperDeleteNotCondition {
 
     private final transient EntityMetadata mapping;
 
