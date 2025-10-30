@@ -19,7 +19,10 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.nosql.Query;
 import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
+import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
@@ -149,6 +152,52 @@ public class QueryTest {
             soft.assertThat(selectQuery.isCount()).isTrue();
         });
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = "FROM Person WHERE name = :name ORDER BY name")
+    @DisplayName("Should execute a simple query using From with List")
+    void shouldBindByName(String textQuery){
+        Query query = this.template.query(textQuery);
+        query.bind("name", "Ada");
+        query.stream();
+
+        Mockito.verify(managerMock).select(captor.capture());
+        SelectQuery selectQuery = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            var condition = selectQuery.condition().orElseThrow();
+
+            soft.assertThat(selectQuery.name()).isEqualTo("Person");
+            soft.assertThat(selectQuery.sorts()).isNotEmpty();
+            soft.assertThat(selectQuery.isCount()).isFalse();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(condition.element().get()).isEqualTo("Ada");
+        });
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = "FROM Person WHERE name = ?1 ORDER BY name")
+    @DisplayName("Should execute a simple query using From with List")
+    void shouldBindByPosition(String textQuery){
+        Query query = this.template.query(textQuery);
+        query.bind(1, "Ada");
+        query.stream();
+
+        Mockito.verify(managerMock).select(captor.capture());
+        SelectQuery selectQuery = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            var condition = selectQuery.condition().orElseThrow();
+
+            soft.assertThat(selectQuery.name()).isEqualTo("Person");
+            soft.assertThat(selectQuery.sorts()).isNotEmpty();
+            soft.assertThat(selectQuery.isCount()).isFalse();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(condition.element().get()).isEqualTo("Ada");
+        });
+    }
+
+    void shouldBindByBoth(String textQuery){}
 
 
 }
