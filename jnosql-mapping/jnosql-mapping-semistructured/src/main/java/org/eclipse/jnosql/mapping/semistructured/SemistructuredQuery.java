@@ -64,7 +64,7 @@ final class SemistructuredQuery implements Query {
 
     @Override
     public Query bind(int position, Object value) {
-        this.preparedStatement.bind("?" + position, value);
+        this.preparedStatement.bind(position, value);
         return this;
     }
 }

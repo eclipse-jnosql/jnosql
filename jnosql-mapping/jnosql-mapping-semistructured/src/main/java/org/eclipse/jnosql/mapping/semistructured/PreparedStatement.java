@@ -57,6 +57,11 @@ public final class PreparedStatement implements org.eclipse.jnosql.mapping.Prepa
         return this;
     }
 
+    public org.eclipse.jnosql.mapping.PreparedStatement bind(int index, Object value) {
+        preparedStatement.bind(index, value);
+        return this;
+    }
+
     @Override
     public <T> Stream<T> result() {
         Function<T, T> fieldMapper = SelectFieldMapper.INSTANCE.map(observer, entitiesMetadata);
