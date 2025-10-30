@@ -43,6 +43,11 @@ final class SemistructuredQuery implements Query {
 
     @Override
     public <T> List<T> result() {
+        if(CommunicationPreparedStatement.PreparedStatementType.COUNT.equals(this.preparedStatement.type())) {
+            Stream<T> count = countStream();
+            return count.toList();
+        }
+
         Stream<T> entities = this.preparedStatement.result();
         return entities.toList();
     }
