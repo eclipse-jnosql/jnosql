@@ -106,6 +106,10 @@ public final class CommunicationPreparedStatement {
         return this;
     }
 
+    public PreparedStatementType getType() {
+        return type;
+    }
+
     /**
      * Returns the select query if present.
      *
@@ -200,7 +204,7 @@ public final class CommunicationPreparedStatement {
         throw new NonUniqueResultException("The select returns more than one entity, select: " + query);
     }
 
-    enum PreparedStatementType {
+    public enum PreparedStatementType {
         SELECT, DELETE, UPDATE, COUNT
     }
 
