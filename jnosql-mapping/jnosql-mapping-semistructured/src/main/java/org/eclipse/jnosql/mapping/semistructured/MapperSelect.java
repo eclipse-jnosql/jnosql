@@ -107,6 +107,24 @@ final class MapperSelect extends AbstractMapperQuery implements MapperFrom, Mapp
     }
 
     @Override
+    public MapperWhere contains(String value) {
+        containsImpl(value);
+        return this;
+    }
+
+    @Override
+    public MapperWhere startsWith(String value) {
+        startWithImpl(value);
+        return this;
+    }
+
+    @Override
+    public MapperWhere endsWith(String value) {
+        endsWithImpl(value);
+        return this;
+    }
+
+    @Override
     public <T> MapperWhere gt(T value) {
         gtImpl(value);
         return this;
@@ -156,6 +174,12 @@ final class MapperSelect extends AbstractMapperQuery implements MapperFrom, Mapp
     }
     private SelectQuery build() {
         return new MappingQuery(sorts, limit, start, condition, entity, List.of());
+    }
+
+    @Override
+    public long count() {
+        var query = build();
+        return this.template.count(query);
     }
 
     @Override
