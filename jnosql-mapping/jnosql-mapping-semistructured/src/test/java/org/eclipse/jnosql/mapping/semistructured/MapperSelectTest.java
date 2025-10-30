@@ -17,7 +17,9 @@ package org.eclipse.jnosql.mapping.semistructured;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
+import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
+import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
@@ -42,6 +44,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.contains;
+import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.endsWith;
+import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.startsWith;
 import static org.eclipse.jnosql.communication.semistructured.SelectQuery.select;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -141,6 +146,36 @@ class MapperSelectTest {
         template.select(Person.class).where("name").like("Ada").result();
         SelectQuery queryExpected = select().from("Person").where("name")
                 .like("Ada").build();
+        Mockito.verify(managerMock).select(captor.capture());
+        SelectQuery query = captor.getValue();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    void shouldSelectWhereContains() {
+        template.select(Person.class).where("name").contains("Ada").result();
+        SelectQuery queryExpected = SelectQuery.builder().from("Person")
+                .where(contains(Element.of("name", "Ada"))).build();
+        Mockito.verify(managerMock).select(captor.capture());
+        SelectQuery query = captor.getValue();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    void shouldSelectWhereStartWith() {
+        template.select(Person.class).where("name").startsWith("Ada").result();
+        SelectQuery queryExpected = SelectQuery.builder().from("Person")
+                .where(startsWith(Element.of("name", "Ada"))).build();
+        Mockito.verify(managerMock).select(captor.capture());
+        SelectQuery query = captor.getValue();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    void shouldSelectWhereEndsWith() {
+        template.select(Person.class).where("name").endsWith("Ada").result();
+        SelectQuery queryExpected = SelectQuery.builder().from("Person")
+                .where(endsWith(Element.of("name", "Ada"))).build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
         assertEquals(queryExpected, query);
