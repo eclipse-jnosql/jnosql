@@ -33,6 +33,7 @@ import org.eclipse.jnosql.mapping.semistructured.entities.Person;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -262,6 +263,15 @@ public class QueryTest {
             soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
             soft.assertThat(values).containsExactly("Ada", 20);
         });
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = "SELECT count(this) FROM Person WHERE name = 'Ada' ORDER BY name")
+    @DisplayName("Should execute a simple query using From with List")
+    void shouldReturnErrorWhenSelectExecuteUpdate(String textQuery){
+        Mockito.when(managerMock.count(Mockito.any(SelectQuery.class))).thenReturn(1L);
+        Query query = this.template.query(textQuery);
+        Assertions.assertThrows(UnsupportedOperationException.class, query::executeUpdate);
     }
 
 
