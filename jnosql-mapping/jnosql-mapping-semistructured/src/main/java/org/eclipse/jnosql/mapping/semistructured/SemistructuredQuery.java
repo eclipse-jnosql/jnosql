@@ -37,13 +37,17 @@ final class SemistructuredQuery implements Query {
 
     @Override
     public void executeUpdate() {
+        if(isCount()) {
+            long count = this.preparedStatement.count();
+            LOGGER.fine(() -> "The query " + query + " has been executed with " + count + " results");
+        }
         long count = this.preparedStatement.result().count();
         LOGGER.fine(() -> "The query " + query + " has been executed with " + count + " results");
     }
 
     @Override
     public <T> List<T> result() {
-        if(CommunicationPreparedStatement.PreparedStatementType.COUNT.equals(this.preparedStatement.type())) {
+        if(isCount()) {
             Stream<T> count = countStream();
             return count.toList();
         }
@@ -54,16 +58,15 @@ final class SemistructuredQuery implements Query {
 
     @Override
     public <T> Stream<T> stream() {
-        if(CommunicationPreparedStatement.PreparedStatementType.COUNT.equals(this.preparedStatement.type())) {
+        if(isCount()) {
             return countStream();
         }
         return this.preparedStatement.result();
     }
 
-
     @Override
     public <T> Optional<T> singleResult() {
-        if(CommunicationPreparedStatement.PreparedStatementType.COUNT.equals(this.preparedStatement.type())) {
+        if(isCount()) {
             return countSingleResult();
         }
         return this.preparedStatement.singleResult();
@@ -91,4 +94,9 @@ final class SemistructuredQuery implements Query {
         long count = this.preparedStatement.count();
         return (Stream<T>) Stream.of(count);
     }
+
+    private boolean isCount() {
+        return CommunicationPreparedStatement.PreparedStatementType.COUNT.equals(this.preparedStatement.type());
+    }
+
 }
