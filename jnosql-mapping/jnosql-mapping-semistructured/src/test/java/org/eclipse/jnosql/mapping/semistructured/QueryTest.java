@@ -44,6 +44,7 @@ import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.mockito.Mockito.when;
 
@@ -121,7 +122,7 @@ public class QueryTest {
     @DisplayName("Should execute a simple query using From with Single Result")
     void shouldSelectFromSingleResult(String textQuery){
         Query query = this.template.query(textQuery);
-        query.stream();
+        query.singleResult();
 
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery selectQuery = captor.getValue();
@@ -147,6 +148,46 @@ public class QueryTest {
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(count).isNotEmpty().get().isEqualTo(1L);
+            soft.assertThat(selectQuery.name()).isEqualTo("Person");
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            soft.assertThat(selectQuery.sorts()).isNotEmpty();
+            soft.assertThat(selectQuery.isCount()).isTrue();
+        });
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = "SELECT count(this) FROM Person WHERE name = 'Ada' ORDER BY name")
+    @DisplayName("Should execute a simple query using From with List")
+    void shouldSelectFromSingleResultAsCountList(String textQuery){
+        Mockito.when(managerMock.count(Mockito.any(SelectQuery.class))).thenReturn(1L);
+        Query query = this.template.query(textQuery);
+        List<Long> count = query.result();
+
+        Mockito.verify(managerMock).count(captor.capture());
+        SelectQuery selectQuery = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(count).isNotEmpty().contains(1L);
+            soft.assertThat(selectQuery.name()).isEqualTo("Person");
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            soft.assertThat(selectQuery.sorts()).isNotEmpty();
+            soft.assertThat(selectQuery.isCount()).isTrue();
+        });
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = "SELECT count(this) FROM Person WHERE name = 'Ada' ORDER BY name")
+    @DisplayName("Should execute a simple query using From with Stream")
+    void shouldSelectFromSingleResultAsCountStream(String textQuery){
+        Mockito.when(managerMock.count(Mockito.any(SelectQuery.class))).thenReturn(1L);
+        Query query = this.template.query(textQuery);
+        Stream<Long> count = query.stream();
+
+        Mockito.verify(managerMock).count(captor.capture());
+        SelectQuery selectQuery = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(count).isNotEmpty().contains(1L);
             soft.assertThat(selectQuery.name()).isEqualTo("Person");
             soft.assertThat(selectQuery.condition()).isNotEmpty();
             soft.assertThat(selectQuery.sorts()).isNotEmpty();
