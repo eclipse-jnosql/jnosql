@@ -131,7 +131,7 @@ public class QueryTest {
         Query query = this.template.query("SELECT count(this) FROM Person WHERE name = 'Ada' ORDER BY name");
         Optional<Long> count = query.singleResult();
 
-        Mockito.verify(managerMock).select(captor.capture());
+        Mockito.verify(managerMock).count(captor.capture());
         SelectQuery selectQuery = captor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
@@ -139,7 +139,7 @@ public class QueryTest {
             soft.assertThat(selectQuery.name()).isEqualTo("Person");
             soft.assertThat(selectQuery.condition()).isNotEmpty();
             soft.assertThat(selectQuery.sorts()).isEmpty();
-            soft.assertThat(selectQuery.isCount()).isFalse();
+            soft.assertThat(selectQuery.isCount()).isTrue();
         });
     }
 
