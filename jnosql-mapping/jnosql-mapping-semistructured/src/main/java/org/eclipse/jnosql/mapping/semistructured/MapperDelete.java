@@ -76,6 +76,24 @@ final class MapperDelete extends AbstractMapperQuery implements MapperDeleteFrom
     }
 
     @Override
+    public MapperDeleteWhere contains(String value) {
+        containsImpl(value);
+        return this;
+    }
+
+    @Override
+    public MapperDeleteWhere startsWith(String value) {
+        startWithImpl(value);
+        return this;
+    }
+
+    @Override
+    public MapperDeleteWhere endsWith(String value) {
+        endsWithImpl(value);
+        return this;
+    }
+
+    @Override
     public <T> MapperDeleteWhere gt(T value) {
         gtImpl(value);
         return this;
