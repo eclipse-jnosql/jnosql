@@ -32,6 +32,9 @@ import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.ValueSources;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -73,10 +76,11 @@ public class QueryTest {
                 persistManager, entities, converters);
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings ="FROM Person")
     @DisplayName("Should execute a simple query using From with List")
-    void shouldSelectFrom(){
-        Query query = this.template.query("FROM Person");
+    void shouldSelectFrom(String textQuery){
+        Query query = this.template.query(textQuery);
         query.result();
 
         Mockito.verify(managerMock).select(captor.capture());
@@ -90,10 +94,11 @@ public class QueryTest {
         });
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings ="FROM Person WHERE name = 'Ada'")
     @DisplayName("Should execute a simple query using From with Stream")
-    void shouldSelectFromStream(){
-        Query query = this.template.query("FROM Person WHERE name = 'Ada'");
+    void shouldSelectFromStream(String textQuery){
+        Query query = this.template.query(textQuery);
         query.stream();
 
         Mockito.verify(managerMock).select(captor.capture());
@@ -107,10 +112,11 @@ public class QueryTest {
         });
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings ="FROM Person WHERE name = 'Ada'")
     @DisplayName("Should execute a simple query using From with Single Result")
-    void shouldSelectFromSingleResult(){
-        Query query = this.template.query("FROM Person WHERE name = 'Ada' ORDER BY name");
+    void shouldSelectFromSingleResult(String textQuery){
+        Query query = this.template.query(textQuery);
         query.stream();
 
         Mockito.verify(managerMock).select(captor.capture());
@@ -124,11 +130,12 @@ public class QueryTest {
         });
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = "SELECT count(this) FROM Person WHERE name = 'Ada' ORDER BY name")
     @DisplayName("Should execute a simple query using From with Single Result")
-    void shouldSelectFromSingleResultAsCount(){
+    void shouldSelectFromSingleResultAsCount(String textQuery){
         Mockito.when(managerMock.count(Mockito.any(SelectQuery.class))).thenReturn(1L);
-        Query query = this.template.query("SELECT count(this) FROM Person WHERE name = 'Ada' ORDER BY name");
+        Query query = this.template.query(textQuery);
         Optional<Long> count = query.singleResult();
 
         Mockito.verify(managerMock).count(captor.capture());
@@ -138,7 +145,7 @@ public class QueryTest {
             soft.assertThat(count).isNotEmpty().get().isEqualTo(1L);
             soft.assertThat(selectQuery.name()).isEqualTo("Person");
             soft.assertThat(selectQuery.condition()).isNotEmpty();
-            soft.assertThat(selectQuery.sorts()).isEmpty();
+            soft.assertThat(selectQuery.sorts()).isNotEmpty();
             soft.assertThat(selectQuery.isCount()).isTrue();
         });
     }
