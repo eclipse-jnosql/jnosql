@@ -41,6 +41,7 @@ import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -336,7 +337,9 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
 
     @Override
     public Query query(String query) {
-       throw new UnsupportedOperationException("Not implemented yet");
+        Objects.requireNonNull(query, "query is required");
+        PreparedStatement preparedStatement = (PreparedStatement) this.prepare(query);
+       return new SemistructuredQuery(query, preparedStatement);
     }
 
     @Override
