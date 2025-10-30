@@ -139,6 +139,28 @@ abstract class AbstractMapperQuery {
         appendCondition(newCondition);
     }
 
+    protected void containsImpl(String value) {
+        requireNonNull(value, "value is required");
+        CriteriaCondition newCondition = CriteriaCondition
+                .contains(Element.of(mapping.columnField(name), getValue(value)));
+        appendCondition(newCondition);
+    }
+
+    protected void startWithImpl(String value) {
+        requireNonNull(value, "value is required");
+        CriteriaCondition newCondition = CriteriaCondition
+                .startsWith(Element.of(mapping.columnField(name), getValue(value)));
+        appendCondition(newCondition);
+    }
+
+    protected void endsWithImpl(String value) {
+        requireNonNull(value, "value is required");
+        CriteriaCondition newCondition = CriteriaCondition
+                .endsWith(Element.of(mapping.columnField(name), getValue(value)));
+        appendCondition(newCondition);
+    }
+
+
     protected Object getValue(Object value) {
         return ConverterUtil.getValue(value, mapping, name, converters);
     }
