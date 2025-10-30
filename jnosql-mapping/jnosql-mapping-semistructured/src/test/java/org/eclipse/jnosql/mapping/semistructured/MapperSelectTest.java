@@ -365,6 +365,16 @@ class MapperSelectTest {
     }
 
     @Test
+    void shouldSCount() {
+        template.select(Person.class).where("id").gte(10).count();
+        SelectQuery queryExpected = select().from("Person").where("_id")
+                .gte(10L).build();
+        Mockito.verify(managerMock).count(captor.capture());
+        SelectQuery query = captor.getValue();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
     void shouldReturnErrorSelectWhenOrderIsNull() {
         Assertions.assertThrows(NullPointerException.class, () -> template.select(Worker.class).orderBy(null));
     }
