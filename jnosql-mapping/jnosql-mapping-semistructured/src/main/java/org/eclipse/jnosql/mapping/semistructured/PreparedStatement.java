@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
+import org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 
@@ -60,6 +61,10 @@ public final class PreparedStatement implements org.eclipse.jnosql.mapping.Prepa
     public org.eclipse.jnosql.mapping.PreparedStatement bind(int index, Object value) {
         preparedStatement.bind(index, value);
         return this;
+    }
+
+    public CommunicationPreparedStatement.PreparedStatementType type() {
+        return this.preparedStatement.getType();
     }
 
     @Override

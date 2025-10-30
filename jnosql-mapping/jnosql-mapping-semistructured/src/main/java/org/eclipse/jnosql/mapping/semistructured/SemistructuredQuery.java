@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.nosql.Query;
+import org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement;
 
 import java.util.List;
 import java.util.Optional;
@@ -48,11 +49,18 @@ final class SemistructuredQuery implements Query {
 
     @Override
     public <T> Stream<T> stream() {
+        if(CommunicationPreparedStatement.PreparedStatementType.COUNT.equals(this.preparedStatement.type())) {
+            return countStream();
+        }
         return this.preparedStatement.result();
     }
 
+
     @Override
     public <T> Optional<T> singleResult() {
+        if(CommunicationPreparedStatement.PreparedStatementType.COUNT.equals(this.preparedStatement.type())) {
+            return countSingleResult();
+        }
         return this.preparedStatement.singleResult();
     }
 
@@ -66,5 +74,16 @@ final class SemistructuredQuery implements Query {
     public Query bind(int position, Object value) {
         this.preparedStatement.bind(position, value);
         return this;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> Optional<T> countSingleResult() {
+        long count = this.preparedStatement.count();
+        return (Optional<T>) Optional.of(count);
+    }
+    @SuppressWarnings("unchecked")
+    private <T> Stream<T> countStream() {
+        long count = this.preparedStatement.count();
+        return (Stream<T>) Stream.of(count);
     }
 }
