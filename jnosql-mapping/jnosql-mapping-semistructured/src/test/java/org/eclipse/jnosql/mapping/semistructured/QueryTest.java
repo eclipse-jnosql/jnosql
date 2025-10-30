@@ -20,6 +20,7 @@ import jakarta.inject.Inject;
 import jakarta.nosql.Query;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -197,7 +198,30 @@ public class QueryTest {
         });
     }
 
-    void shouldBindByBoth(String textQuery){}
+    @ParameterizedTest
+    @ValueSource(strings = "FROM Person WHERE name = ?1 AND age = :age ORDER BY name")
+    @DisplayName("Should execute a simple query using From with List")
+    void shouldBindByBoth(String textQuery){
+        Query query = this.template.query(textQuery);
+        query.bind(1, "Ada");
+        query.bind("age", 20);
+        query.stream();
+
+        Mockito.verify(managerMock).select(captor.capture());
+        SelectQuery selectQuery = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            var condition = selectQuery.condition().orElseThrow();
+            var conditions = condition.element().get(new TypeReference<List<CriteriaCondition>>() {
+            });
+            var values = conditions.stream().map(c -> c.element().get()).toList();
+            soft.assertThat(selectQuery.name()).isEqualTo("Person");
+            soft.assertThat(selectQuery.sorts()).isNotEmpty();
+            soft.assertThat(selectQuery.isCount()).isFalse();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
+            soft.assertThat(values).containsExactly("Ada", 20);
+        });
+    }
 
 
 }
