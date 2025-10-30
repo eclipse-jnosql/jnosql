@@ -37,9 +37,8 @@ final class SemistructuredQuery implements Query {
 
     @Override
     public void executeUpdate() {
-        if(isCount()) {
-            long count = this.preparedStatement.count();
-            LOGGER.fine(() -> "The query " + query + " has been executed with " + count + " results");
+        if(isQuery()) {
+          throw new UnsupportedOperationException("The query " + query + " is not an update statement");
         }
         long count = this.preparedStatement.result().count();
         LOGGER.fine(() -> "The query " + query + " has been executed with " + count + " results");
@@ -97,6 +96,11 @@ final class SemistructuredQuery implements Query {
 
     private boolean isCount() {
         return CommunicationPreparedStatement.PreparedStatementType.COUNT.equals(this.preparedStatement.type());
+    }
+
+    private boolean isQuery() {
+        return CommunicationPreparedStatement.PreparedStatementType.COUNT.equals(this.preparedStatement.type())
+                || CommunicationPreparedStatement.PreparedStatementType.SELECT.equals(this.preparedStatement.type());
     }
 
 }
