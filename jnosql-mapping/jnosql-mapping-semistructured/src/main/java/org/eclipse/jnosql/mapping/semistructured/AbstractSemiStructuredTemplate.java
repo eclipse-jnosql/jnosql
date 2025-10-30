@@ -20,7 +20,9 @@ import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import jakarta.data.page.impl.CursoredPageRecord;
+import jakarta.nosql.Query;
 import jakarta.nosql.QueryMapper;
+import jakarta.nosql.TypedQuery;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
@@ -330,6 +332,16 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
                 query.condition().orElse(null), query.name(), query.columns());
         Stream<T> result = select(queryPage);
         return NoSQLPage.of(result.toList(), pageRequest);
+    }
+
+    @Override
+    public Query query(String query) {
+       throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public <T> TypedQuery<T> typedQuery(String query, Class<T> type) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     protected <T> T persist(T entity, UnaryOperator<CommunicationEntity> persistAction) {
