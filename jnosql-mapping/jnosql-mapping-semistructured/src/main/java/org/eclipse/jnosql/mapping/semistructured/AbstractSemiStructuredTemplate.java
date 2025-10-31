@@ -41,7 +41,6 @@ import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -150,6 +149,7 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
                 .collect(Collectors.toList());
     }
 
+    @Override
     public <T> void delete(T entity) {
         requireNonNull(entity, "entity is required");
         EntityMetadata metadata = entities().get(entity.getClass());
@@ -163,6 +163,7 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         manager().delete(query);
     }
 
+    @Override
     public <T> void delete(Iterable<? extends T> iterable) {
         requireNonNull(iterable, "iterable is required");
         StreamSupport.stream(iterable.spliterator(), false)
@@ -337,7 +338,7 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
 
     @Override
     public Query query(String query) {
-        Objects.requireNonNull(query, "query is required");
+        requireNonNull(query, "query is required");
         PreparedStatement preparedStatement = (PreparedStatement) this.prepare(query);
        return new SemistructuredQuery(query, preparedStatement);
     }
