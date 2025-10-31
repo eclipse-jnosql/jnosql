@@ -25,6 +25,7 @@ import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.communication.semistructured.UpdateQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -70,6 +71,8 @@ public class QueryTest {
 
     private ArgumentCaptor<DeleteQuery> deleteCaptor;
 
+    private ArgumentCaptor<UpdateQuery> updateCaptor;
+
     @BeforeEach
     public void setUp() {
         managerMock = Mockito.mock(DatabaseManager.class);
@@ -77,6 +80,7 @@ public class QueryTest {
         Instance<DatabaseManager> instance = Mockito.mock(Instance.class);
         this.selectCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         this.deleteCaptor = ArgumentCaptor.forClass(DeleteQuery.class);
+        this.updateCaptor = ArgumentCaptor.forClass(UpdateQuery.class);
         when(instance.get()).thenReturn(managerMock);
         this.template = new DefaultSemiStructuredTemplate(converter, instance,
                 persistManager, entities, converters);
@@ -287,6 +291,23 @@ public class QueryTest {
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(deleteQuery.name()).isEqualTo("Person");
             soft.assertThat(deleteQuery.condition()).isNotEmpty();
+        });
+
+    }
+
+
+    @ParameterizedTest
+    @ValueSource(strings = "UPDATE Person SET age = 19 WHERE name = 'Ada'")
+    @DisplayName("Should execute delete query")
+    void shouldUpdate(String textQuery){
+        Query query = this.template.query(textQuery);
+        query.executeUpdate();
+        Mockito.verify(managerMock).update(updateCaptor.capture());
+        UpdateQuery updateQuery = updateCaptor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(updateQuery.name()).isEqualTo("Person");
+            soft.assertThat(updateQuery.condition()).isNotEmpty();
         });
 
     }
