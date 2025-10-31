@@ -14,5 +14,60 @@
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
-public class SemistructuredTypedQuery {
+import jakarta.nosql.Query;
+import jakarta.nosql.TypedQuery;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+final class SemistructuredTypedQuery<T> implements TypedQuery<T> {
+
+    private final Class<T> type;
+    private final String query;
+    private final SemistructuredQuery semistructuredQuery;
+
+    private PreparedStatement preparedStatement;
+    private SemistructuredTypedQuery(Class<T> type, String query, SemistructuredQuery semistructuredQuery, PreparedStatement preparedStatement) {
+        this.type = type;
+        this.query = query;
+        this.semistructuredQuery = semistructuredQuery;
+        this.preparedStatement = preparedStatement;
+    }
+
+    @Override
+    public List<T> result() {
+        return this.semistructuredQuery.result();
+    }
+
+    @Override
+    public Stream<T> stream() {
+        return this.semistructuredQuery.stream();
+    }
+
+    @Override
+    public Optional<T> singleResult() {
+        return this.semistructuredQuery.singleResult();
+    }
+
+    @Override
+    public void executeUpdate() {
+        this.semistructuredQuery.executeUpdate();
+    }
+
+    @Override
+    public Query bind(String name, Object value) {
+        this.preparedStatement.bind(name, value);
+        return this;
+    }
+
+    @Override
+    public TypedQuery<T> bind(int position, Object value) {
+        return null;
+    }
+
+    static <T> TypedQuery<T> of(String query, Class<T> type, PreparedStatement preparedStatement) {
+        var semistructuredQuery = SemistructuredQuery.of(query, preparedStatement);
+        return new SemistructuredTypedQuery<>(type, query, semistructuredQuery, preparedStatement);
+    }
 }
