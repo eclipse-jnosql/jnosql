@@ -17,7 +17,7 @@ package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-import jakarta.nosql.Query;
+import jakarta.nosql.TypedQuery;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
@@ -91,7 +91,7 @@ public class TypedQueryTest {
     @ValueSource(strings ="FROM Person")
     @DisplayName("Should execute a simple query using From with List")
     void shouldSelectFrom(String textQuery){
-        Query query = this.template.typedQuery(textQuery, Person.class);
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
         query.result();
 
         Mockito.verify(managerMock).select(selectCaptor.capture());
@@ -109,7 +109,7 @@ public class TypedQueryTest {
     @ValueSource(strings ="FROM Person WHERE name = 'Ada'")
     @DisplayName("Should execute a simple query using From with Stream")
     void shouldSelectFromStream(String textQuery){
-        Query query = this.template.typedQuery(textQuery, Person.class);
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
         query.stream();
 
         Mockito.verify(managerMock).select(selectCaptor.capture());
@@ -127,7 +127,7 @@ public class TypedQueryTest {
     @ValueSource(strings ="FROM Person WHERE name = 'Ada'")
     @DisplayName("Should execute a simple query using From with Single Result")
     void shouldSelectFromSingleResult(String textQuery){
-        Query query = this.template.typedQuery(textQuery, Person.class);
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
         query.singleResult();
 
         Mockito.verify(managerMock).select(selectCaptor.capture());
@@ -146,8 +146,8 @@ public class TypedQueryTest {
     @DisplayName("Should execute a simple query using From with Single Result")
     void shouldSelectFromSingleResultAsCount(String textQuery){
         Mockito.when(managerMock.count(Mockito.any(SelectQuery.class))).thenReturn(1L);
-        Query query = this.template.typedQuery(textQuery, Person.class);
-        Optional<Long> count = query.singleResult();
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
+        var count = query.singleResult();
 
         Mockito.verify(managerMock).count(selectCaptor.capture());
         SelectQuery selectQuery = selectCaptor.getValue();
@@ -166,14 +166,13 @@ public class TypedQueryTest {
     @DisplayName("Should execute a simple query using From with List")
     void shouldSelectFromSingleResultAsCountList(String textQuery){
         Mockito.when(managerMock.count(Mockito.any(SelectQuery.class))).thenReturn(1L);
-        Query query = this.template.typedQuery(textQuery, Person.class);
-        List<Long> count = query.result();
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
+        query.result();
 
         Mockito.verify(managerMock).count(selectCaptor.capture());
         SelectQuery selectQuery = selectCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(count).isNotEmpty().contains(1L);
             soft.assertThat(selectQuery.name()).isEqualTo("Person");
             soft.assertThat(selectQuery.condition()).isNotEmpty();
             soft.assertThat(selectQuery.sorts()).isNotEmpty();
@@ -186,14 +185,13 @@ public class TypedQueryTest {
     @DisplayName("Should execute a simple query using From with Stream")
     void shouldSelectFromSingleResultAsCountStream(String textQuery){
         Mockito.when(managerMock.count(Mockito.any(SelectQuery.class))).thenReturn(1L);
-        Query query = this.template.typedQuery(textQuery, Person.class);
-        Stream<Long> count = query.stream();
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
+        query.stream();
 
         Mockito.verify(managerMock).count(selectCaptor.capture());
         SelectQuery selectQuery = selectCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(count).isNotEmpty().contains(1L);
             soft.assertThat(selectQuery.name()).isEqualTo("Person");
             soft.assertThat(selectQuery.condition()).isNotEmpty();
             soft.assertThat(selectQuery.sorts()).isNotEmpty();
@@ -205,7 +203,7 @@ public class TypedQueryTest {
     @ValueSource(strings = "FROM Person WHERE name = :name ORDER BY name")
     @DisplayName("Should execute a simple query using From with List")
     void shouldBindByName(String textQuery){
-        Query query = this.template.typedQuery(textQuery, Person.class);
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
         query.bind("name", "Ada");
         query.stream();
 
@@ -227,7 +225,7 @@ public class TypedQueryTest {
     @ValueSource(strings = "FROM Person WHERE name = ?1 ORDER BY name")
     @DisplayName("Should execute a simple query using From with List")
     void shouldBindByPosition(String textQuery){
-        Query query = this.template.typedQuery(textQuery, Person.class);
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
         query.bind(1, "Ada");
         query.stream();
 
@@ -249,7 +247,7 @@ public class TypedQueryTest {
     @ValueSource(strings = "FROM Person WHERE name = ?1 AND age = :age ORDER BY name")
     @DisplayName("Should execute a simple query using From with List")
     void shouldBindByBoth(String textQuery){
-        Query query = this.template.typedQuery(textQuery, Person.class);
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
         query.bind(1, "Ada");
         query.bind("age", 20);
         query.stream();
@@ -275,7 +273,7 @@ public class TypedQueryTest {
     @DisplayName("Should execute a simple query using From with List")
     void shouldReturnErrorWhenSelectExecuteUpdate(String textQuery){
         Mockito.when(managerMock.count(Mockito.any(SelectQuery.class))).thenReturn(1L);
-        Query query = this.template.typedQuery(textQuery, Person.class);
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
         Assertions.assertThrows(UnsupportedOperationException.class, query::executeUpdate);
     }
 
@@ -284,7 +282,7 @@ public class TypedQueryTest {
     @ValueSource(strings = "DELETE FROM Person WHERE name = 'Ada'")
     @DisplayName("Should execute delete query")
     void shouldDelete(String textQuery){
-        Query query = this.template.typedQuery(textQuery, Person.class);
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
         query.executeUpdate();
         Mockito.verify(managerMock).delete(deleteCaptor.capture());
         DeleteQuery deleteQuery = deleteCaptor.getValue();
@@ -301,7 +299,7 @@ public class TypedQueryTest {
     @ValueSource(strings = "UPDATE Person SET age = 19 WHERE name = 'Ada'")
     @DisplayName("Should execute update query")
     void shouldUpdate(String textQuery){
-        Query query = this.template.typedQuery(textQuery, Person.class);
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
         query.executeUpdate();
         Mockito.verify(managerMock).update(updateCaptor.capture());
         UpdateQuery updateQuery = updateCaptor.getValue();
@@ -316,7 +314,7 @@ public class TypedQueryTest {
     @ValueSource(strings = {"DELETE FROM Person WHERE name = 'Ada'", "UPDATE Person SET age = 19 WHERE name = 'Ada'"})
     @DisplayName("Should return error when modification execute single result")
     void shouldReturnErrorWhenModificationExecuteSingleResult(String textQuery){
-        Query query = this.template.typedQuery(textQuery, Person.class);
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
         Assertions.assertThrows(UnsupportedOperationException.class, query::singleResult);
     }
 
@@ -324,7 +322,7 @@ public class TypedQueryTest {
     @ValueSource(strings = {"DELETE FROM Person WHERE name = 'Ada'", "UPDATE Person SET age = 19 WHERE name = 'Ada'"})
     @DisplayName("Should return error when modification execute List")
     void shouldReturnErrorWhenModificationExecuteList(String textQuery){
-        Query query = this.template.typedQuery(textQuery, Person.class);
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
         Assertions.assertThrows(UnsupportedOperationException.class, query::result);
     }
 
@@ -332,7 +330,7 @@ public class TypedQueryTest {
     @ValueSource(strings = {"DELETE FROM Person WHERE name = 'Ada'", "UPDATE Person SET age = 19 WHERE name = 'Ada'"})
     @DisplayName("Should return error when modification execute Stream")
     void shouldReturnErrorWhenModificationExecuteStream(String textQuery){
-        Query query = this.template.typedQuery(textQuery, Person.class);
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
         Assertions.assertThrows(UnsupportedOperationException.class, query::stream);
     }
 
