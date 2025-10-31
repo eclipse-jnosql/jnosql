@@ -335,6 +335,4 @@ public class QueryTest {
         Assertions.assertThrows(UnsupportedOperationException.class, query::stream);
     }
 
-
-
 }
