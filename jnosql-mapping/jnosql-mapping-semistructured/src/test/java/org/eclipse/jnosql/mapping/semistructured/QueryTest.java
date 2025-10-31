@@ -276,7 +276,7 @@ public class QueryTest {
 
 
     @ParameterizedTest
-    @ValueSource(strings = "DELETE FROM Person WHERE name = 'Ada' ORDER BY name")
+    @ValueSource(strings = "DELETE FROM Person WHERE name = 'Ada'")
     @DisplayName("Should execute delete query")
     void shouldDelete(String textQuery){
         Query query = this.template.query(textQuery);
