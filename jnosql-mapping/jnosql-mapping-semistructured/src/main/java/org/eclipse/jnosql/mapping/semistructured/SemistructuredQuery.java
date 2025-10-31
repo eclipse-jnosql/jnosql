@@ -27,7 +27,7 @@ final class SemistructuredQuery implements Query {
 
     private final PreparedStatement preparedStatement;
 
-    SemistructuredQuery(String query, PreparedStatement preparedStatement) {
+    private SemistructuredQuery(String query, PreparedStatement preparedStatement) {
         this.query = query;
         this.preparedStatement = preparedStatement;
     }
@@ -106,6 +106,10 @@ final class SemistructuredQuery implements Query {
 
     private UnsupportedOperationException executeUpdateDeleteStatementError(String x) {
         return new UnsupportedOperationException("The query " + query + x);
+    }
+
+    static SemistructuredQuery of(String query, PreparedStatement preparedStatement) {
+        return new SemistructuredQuery(query, preparedStatement);
     }
 
 }
