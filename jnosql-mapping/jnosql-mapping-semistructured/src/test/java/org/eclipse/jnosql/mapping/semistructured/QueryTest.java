@@ -23,23 +23,20 @@ import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
-import org.eclipse.jnosql.communication.semistructured.Element;
+import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
-import org.eclipse.jnosql.mapping.semistructured.entities.Person;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junit.jupiter.params.provider.ValueSources;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -69,14 +66,16 @@ public class QueryTest {
 
     private DefaultSemiStructuredTemplate template;
 
-    private ArgumentCaptor<SelectQuery> captor;
+    private ArgumentCaptor<SelectQuery> selectCaptor;
+
+    private ArgumentCaptor<DeleteQuery> deleteCaptor;
 
     @BeforeEach
     public void setUp() {
         managerMock = Mockito.mock(DatabaseManager.class);
         EventPersistManager persistManager = Mockito.mock(EventPersistManager.class);
         Instance<DatabaseManager> instance = Mockito.mock(Instance.class);
-        this.captor = ArgumentCaptor.forClass(SelectQuery.class);
+        this.selectCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         when(instance.get()).thenReturn(managerMock);
         this.template = new DefaultSemiStructuredTemplate(converter, instance,
                 persistManager, entities, converters);
@@ -89,8 +88,8 @@ public class QueryTest {
         Query query = this.template.query(textQuery);
         query.result();
 
-        Mockito.verify(managerMock).select(captor.capture());
-        SelectQuery selectQuery = captor.getValue();
+        Mockito.verify(managerMock).select(selectCaptor.capture());
+        SelectQuery selectQuery = selectCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(selectQuery.name()).isEqualTo("Person");
@@ -107,8 +106,8 @@ public class QueryTest {
         Query query = this.template.query(textQuery);
         query.stream();
 
-        Mockito.verify(managerMock).select(captor.capture());
-        SelectQuery selectQuery = captor.getValue();
+        Mockito.verify(managerMock).select(selectCaptor.capture());
+        SelectQuery selectQuery = selectCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(selectQuery.name()).isEqualTo("Person");
@@ -125,8 +124,8 @@ public class QueryTest {
         Query query = this.template.query(textQuery);
         query.singleResult();
 
-        Mockito.verify(managerMock).select(captor.capture());
-        SelectQuery selectQuery = captor.getValue();
+        Mockito.verify(managerMock).select(selectCaptor.capture());
+        SelectQuery selectQuery = selectCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(selectQuery.name()).isEqualTo("Person");
@@ -144,8 +143,8 @@ public class QueryTest {
         Query query = this.template.query(textQuery);
         Optional<Long> count = query.singleResult();
 
-        Mockito.verify(managerMock).count(captor.capture());
-        SelectQuery selectQuery = captor.getValue();
+        Mockito.verify(managerMock).count(selectCaptor.capture());
+        SelectQuery selectQuery = selectCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(count).isNotEmpty().get().isEqualTo(1L);
@@ -164,8 +163,8 @@ public class QueryTest {
         Query query = this.template.query(textQuery);
         List<Long> count = query.result();
 
-        Mockito.verify(managerMock).count(captor.capture());
-        SelectQuery selectQuery = captor.getValue();
+        Mockito.verify(managerMock).count(selectCaptor.capture());
+        SelectQuery selectQuery = selectCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(count).isNotEmpty().contains(1L);
@@ -184,8 +183,8 @@ public class QueryTest {
         Query query = this.template.query(textQuery);
         Stream<Long> count = query.stream();
 
-        Mockito.verify(managerMock).count(captor.capture());
-        SelectQuery selectQuery = captor.getValue();
+        Mockito.verify(managerMock).count(selectCaptor.capture());
+        SelectQuery selectQuery = selectCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(count).isNotEmpty().contains(1L);
@@ -204,8 +203,8 @@ public class QueryTest {
         query.bind("name", "Ada");
         query.stream();
 
-        Mockito.verify(managerMock).select(captor.capture());
-        SelectQuery selectQuery = captor.getValue();
+        Mockito.verify(managerMock).select(selectCaptor.capture());
+        SelectQuery selectQuery = selectCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
             var condition = selectQuery.condition().orElseThrow();
@@ -226,8 +225,8 @@ public class QueryTest {
         query.bind(1, "Ada");
         query.stream();
 
-        Mockito.verify(managerMock).select(captor.capture());
-        SelectQuery selectQuery = captor.getValue();
+        Mockito.verify(managerMock).select(selectCaptor.capture());
+        SelectQuery selectQuery = selectCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
             var condition = selectQuery.condition().orElseThrow();
@@ -249,8 +248,8 @@ public class QueryTest {
         query.bind("age", 20);
         query.stream();
 
-        Mockito.verify(managerMock).select(captor.capture());
-        SelectQuery selectQuery = captor.getValue();
+        Mockito.verify(managerMock).select(selectCaptor.capture());
+        SelectQuery selectQuery = selectCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
             var condition = selectQuery.condition().orElseThrow();
@@ -272,6 +271,23 @@ public class QueryTest {
         Mockito.when(managerMock.count(Mockito.any(SelectQuery.class))).thenReturn(1L);
         Query query = this.template.query(textQuery);
         Assertions.assertThrows(UnsupportedOperationException.class, query::executeUpdate);
+    }
+
+
+    @ParameterizedTest
+    @ValueSource(strings = "DELETE FROM Person WHERE name = 'Ada' ORDER BY name")
+    @DisplayName("Should execute delete query")
+    void shouldDelete(String textQuery){
+        Query query = this.template.query(textQuery);
+        query.executeUpdate();
+        Mockito.verify(managerMock).delete(deleteCaptor.capture());
+        DeleteQuery deleteQuery = deleteCaptor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(deleteQuery.name()).isEqualTo("Person");
+            soft.assertThat(deleteQuery.condition()).isNotEmpty();
+        });
+
     }
 
 
