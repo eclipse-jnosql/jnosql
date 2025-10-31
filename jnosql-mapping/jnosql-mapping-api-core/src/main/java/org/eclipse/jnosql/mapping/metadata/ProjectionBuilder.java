@@ -24,7 +24,7 @@ import java.util.ServiceLoader;
  * Strategy interface for building projection instances from query results.
  * <p>
  * A {@code ProjectorBuilder} is responsible for creating instances of projection
- * records (typically annotated with {@link org.eclipse.jnosql.mapping.Projection} using runtime data,
+ * records (typically annotated with {@link jakarta.nosql.Projection} using runtime data,
  * such as a tuple or column-value map retrieved from a query.
  * </p>
  *
