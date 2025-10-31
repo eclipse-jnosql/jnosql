@@ -40,8 +40,7 @@ final class SemistructuredQuery implements Query {
         if(isQuery()) {
           throw new UnsupportedOperationException("The query " + query + " is not an update statement");
         }
-        long count = this.preparedStatement.result().count();
-        LOGGER.fine(() -> "The query " + query + " has been executed with " + count + " results");
+        this.preparedStatement.result();
     }
 
     @Override
