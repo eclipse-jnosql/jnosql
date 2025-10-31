@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-abstract sealed class KeyValueQuery implements Query
+sealed abstract class KeyValueQuery implements Query
         permits SelectKeyValueQuery, DeleteKeyValueQuery {
 
     protected final String query;
