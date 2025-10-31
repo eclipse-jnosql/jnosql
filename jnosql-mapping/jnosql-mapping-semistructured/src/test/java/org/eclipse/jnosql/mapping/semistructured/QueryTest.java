@@ -313,10 +313,26 @@ public class QueryTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"DELETE FROM Person WHERE name = 'Ada'", "UPDATE Person SET age = 19 WHERE name = 'Ada'"})
-    @DisplayName("Should return error when modification execute List")
+    @DisplayName("Should return error when modification execute single result")
     void shouldReturnErrorWhenModificationExecuteSingleResult(String textQuery){
         Query query = this.template.query(textQuery);
         Assertions.assertThrows(UnsupportedOperationException.class, query::singleResult);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"DELETE FROM Person WHERE name = 'Ada'", "UPDATE Person SET age = 19 WHERE name = 'Ada'"})
+    @DisplayName("Should return error when modification execute List")
+    void shouldReturnErrorWhenModificationExecuteList(String textQuery){
+        Query query = this.template.query(textQuery);
+        Assertions.assertThrows(UnsupportedOperationException.class, query::result);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"DELETE FROM Person WHERE name = 'Ada'", "UPDATE Person SET age = 19 WHERE name = 'Ada'"})
+    @DisplayName("Should return error when modification execute Stream")
+    void shouldReturnErrorWhenModificationExecuteStream(String textQuery){
+        Query query = this.template.query(textQuery);
+        Assertions.assertThrows(UnsupportedOperationException.class, query::stream);
     }
 
 
