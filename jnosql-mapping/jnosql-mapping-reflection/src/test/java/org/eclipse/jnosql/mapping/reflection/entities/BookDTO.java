@@ -14,7 +14,8 @@
  */
 package org.eclipse.jnosql.mapping.reflection.entities;
 
-import org.eclipse.jnosql.mapping.Projection;
+
+import jakarta.nosql.Projection;
 
 @Projection
 public class BookDTO {
