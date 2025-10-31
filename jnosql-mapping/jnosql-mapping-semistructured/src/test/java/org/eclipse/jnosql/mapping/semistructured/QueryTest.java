@@ -76,6 +76,7 @@ public class QueryTest {
         EventPersistManager persistManager = Mockito.mock(EventPersistManager.class);
         Instance<DatabaseManager> instance = Mockito.mock(Instance.class);
         this.selectCaptor = ArgumentCaptor.forClass(SelectQuery.class);
+        this.deleteCaptor = ArgumentCaptor.forClass(DeleteQuery.class);
         when(instance.get()).thenReturn(managerMock);
         this.template = new DefaultSemiStructuredTemplate(converter, instance,
                 persistManager, entities, converters);
