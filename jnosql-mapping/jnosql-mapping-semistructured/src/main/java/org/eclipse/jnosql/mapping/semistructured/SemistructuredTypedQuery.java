@@ -56,14 +56,15 @@ final class SemistructuredTypedQuery<T> implements TypedQuery<T> {
     }
 
     @Override
-    public Query bind(String name, Object value) {
+    public TypedQuery<T> bind(String name, Object value) {
         this.preparedStatement.bind(name, value);
         return this;
     }
 
     @Override
     public TypedQuery<T> bind(int position, Object value) {
-        return null;
+        this.preparedStatement.bind(position, value);
+        return this;
     }
 
     static <T> TypedQuery<T> of(String query, Class<T> type, PreparedStatement preparedStatement) {
