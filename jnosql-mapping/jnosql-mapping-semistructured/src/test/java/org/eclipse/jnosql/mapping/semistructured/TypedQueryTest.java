@@ -122,6 +122,24 @@ public class TypedQueryTest {
     }
 
     @ParameterizedTest
+    @ValueSource(strings ="WHERE name = 'Ada'")
+    @DisplayName("Should execute a simple query using From with Stream")
+    void shouldSelectFromStreamWithoutFrom(String textQuery){
+        TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
+        query.stream();
+
+        Mockito.verify(managerMock).select(selectCaptor.capture());
+        SelectQuery selectQuery = selectCaptor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(selectQuery.name()).isEqualTo("Person");
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            soft.assertThat(selectQuery.sorts()).isEmpty();
+            soft.assertThat(selectQuery.isCount()).isFalse();
+        });
+    }
+
+    @ParameterizedTest
     @ValueSource(strings ="FROM Person WHERE name = 'Ada'")
     @DisplayName("Should execute a simple query using From with Single Result")
     void shouldSelectFromSingleResult(String textQuery){
