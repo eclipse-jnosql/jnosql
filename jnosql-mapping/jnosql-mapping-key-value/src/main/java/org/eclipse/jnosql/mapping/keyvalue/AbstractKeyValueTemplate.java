@@ -142,7 +142,7 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
 
     @Override
     public <T> void delete(T entity) {
-        Objects.requireNonNull(entity, "entity is required");
+        requireNonNull(entity, "entity is required");
         EntitiesMetadata entities = this.getConverter().getEntities();
         EntityMetadata entityMetadata = entities.get(entity.getClass());
         FieldMetadata idAttribute = entityMetadata.id().orElseThrow(() -> new IllegalArgumentException("The entity does not have an attribute with jakarta.nosql.Id annotation"));
@@ -170,13 +170,13 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
 
     @Override
     public <T> void delete(Iterable<? extends T> entities) {
-        Objects.requireNonNull(entities, "entities is required");
+        requireNonNull(entities, "entities is required");
         entities.forEach(this::delete);
     }
 
     @Override
     public Query query(String query) {
-        Objects.requireNonNull(query, "query is required");
+        requireNonNull(query, "query is required");
         QueryType type = QueryType.parse(query);
         if(QueryType.UPDATE.equals(type)) {
             throw new UnsupportedOperationException("Update is not supported yet");
