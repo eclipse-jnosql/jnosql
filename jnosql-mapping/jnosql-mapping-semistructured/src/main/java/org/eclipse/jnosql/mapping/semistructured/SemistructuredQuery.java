@@ -19,12 +19,9 @@ import org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStat
 
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 final class SemistructuredQuery implements Query {
-
-    private static final Logger LOGGER = Logger.getLogger(SemistructuredQuery.class.getName());
 
     private final String query;
 
@@ -38,36 +35,41 @@ final class SemistructuredQuery implements Query {
     @Override
     public void executeUpdate() {
         if(isQuery()) {
-          throw new UnsupportedOperationException("The query " + query + " is not an update statement");
+            throw executeUpdateDeleteStatementError(" is not either update or delete statement");
         }
         this.preparedStatement.result();
     }
 
     @Override
     public <T> List<T> result() {
-        if(isCount()) {
+        if (isCount()) {
             Stream<T> count = countStream();
             return count.toList();
+        } else if (isQuery()) {
+            Stream<T> entities = this.preparedStatement.result();
+            return entities.toList();
         }
-
-        Stream<T> entities = this.preparedStatement.result();
-        return entities.toList();
+        throw executeUpdateDeleteStatementError(" is not a select statement");
     }
 
     @Override
     public <T> Stream<T> stream() {
         if(isCount()) {
             return countStream();
+        } else if(isQuery()) {
+            return this.preparedStatement.result();
         }
-        return this.preparedStatement.result();
+        throw executeUpdateDeleteStatementError(" is not a select statement");
     }
 
     @Override
     public <T> Optional<T> singleResult() {
         if(isCount()) {
             return countSingleResult();
+        } else if(isQuery()) {
+            return this.preparedStatement.singleResult();
         }
-        return this.preparedStatement.singleResult();
+        throw executeUpdateDeleteStatementError(" is not a select statement");
     }
 
     @Override
@@ -100,6 +102,10 @@ final class SemistructuredQuery implements Query {
     private boolean isQuery() {
         return CommunicationPreparedStatement.PreparedStatementType.COUNT.equals(this.preparedStatement.type())
                 || CommunicationPreparedStatement.PreparedStatementType.SELECT.equals(this.preparedStatement.type());
+    }
+
+    private UnsupportedOperationException executeUpdateDeleteStatementError(String x) {
+        return new UnsupportedOperationException("The query " + query + x);
     }
 
 }
