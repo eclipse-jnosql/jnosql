@@ -36,7 +36,7 @@ import java.util.stream.Stream;
  */
 public final class PreparedStatement implements org.eclipse.jnosql.mapping.PreparedStatement {
 
-    private final org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement preparedStatement;
+    private final CommunicationPreparedStatement preparedStatement;
 
     private final EntityConverter converter;
 
@@ -44,7 +44,7 @@ public final class PreparedStatement implements org.eclipse.jnosql.mapping.Prepa
 
     private final EntitiesMetadata entitiesMetadata;
 
-    PreparedStatement(org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement preparedStatement,
+    PreparedStatement(CommunicationPreparedStatement preparedStatement,
                       EntityConverter converter, MapperObserver observer, EntitiesMetadata entitiesMetadata) {
         this.preparedStatement = preparedStatement;
         this.converter = converter;
