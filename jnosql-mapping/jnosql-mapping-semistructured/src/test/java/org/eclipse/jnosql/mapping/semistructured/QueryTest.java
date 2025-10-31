@@ -298,7 +298,7 @@ public class QueryTest {
 
     @ParameterizedTest
     @ValueSource(strings = "UPDATE Person SET age = 19 WHERE name = 'Ada'")
-    @DisplayName("Should execute delete query")
+    @DisplayName("Should execute update query")
     void shouldUpdate(String textQuery){
         Query query = this.template.query(textQuery);
         query.executeUpdate();
@@ -309,8 +309,16 @@ public class QueryTest {
             soft.assertThat(updateQuery.name()).isEqualTo("Person");
             soft.assertThat(updateQuery.condition()).isNotEmpty();
         });
-
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"DELETE FROM Person WHERE name = 'Ada'", "UPDATE Person SET age = 19 WHERE name = 'Ada'"})
+    @DisplayName("Should return error when modification execute List")
+    void shouldReturnErrorWhenModificationExecuteSingleResult(String textQuery){
+        Query query = this.template.query(textQuery);
+        Assertions.assertThrows(UnsupportedOperationException.class, query::singleResult);
+    }
+
 
 
 }
