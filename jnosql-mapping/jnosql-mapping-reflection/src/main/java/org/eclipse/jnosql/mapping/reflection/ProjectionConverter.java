@@ -16,6 +16,7 @@ import jakarta.nosql.Projection;
 import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionParameterMetadata;
 
+import java.lang.reflect.Parameter;
 import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,11 +41,12 @@ public class ProjectionConverter implements Function<Class<?>, ProjectionMetadat
         var constructor = type.getDeclaredConstructors()[0];
         var from = Optional.ofNullable(type.getAnnotation(Projection.class))
                 .map(Projection::from).orElse(null);
-        var projectionConstructor = new ReflectionProjectionConstructorMetadata(parameters(type.getRecordComponents()), constructor);
+        var projectionConstructor = new ReflectionProjectionConstructorMetadata(parameters(constructor.getParameters()),
+                constructor);
         return new ReflectionProjectionMetadata(className, type, from, projectionConstructor);
     }
 
-    private List<ProjectionParameterMetadata> parameters(RecordComponent[] components){
+    private List<ProjectionParameterMetadata> parameters(Parameter[] components){
         List<ProjectionParameterMetadata> parameters = new ArrayList<>();
         for (var component : components) {
             var name = Optional.ofNullable(component.getAnnotation(Column.class)).map(Column::value)
@@ -54,4 +56,5 @@ public class ProjectionConverter implements Function<Class<?>, ProjectionMetadat
         }
         return parameters;
     }
+ 
 }
