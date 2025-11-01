@@ -57,6 +57,7 @@ import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -111,6 +112,13 @@ class EntityConverterTest {
                 Element.of("phones", asList("234", "2342"))
                 , Element.of("movieCharacter", Collections.singletonMap("JavaZone", "Jedi"))
                 , Element.of("movieRating", Collections.singletonMap("JavaZone", 10))};
+    }
+
+    @Test
+    @DisplayName("Should have a default constructor for CDI ")
+    void shouldHaveDefaultConstructor() {
+        DefaultEntityConverter converter = new DefaultEntityConverter();
+        assertNotNull(converter);
     }
 
     @Test

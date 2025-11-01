@@ -56,7 +56,8 @@ public final class SelectParser extends AbstractWhere implements BiFunction<Stri
     public void exitOrderby_clause(JDQLParser.Orderby_clauseContext ctx) {
      ctx.orderby_item().stream().forEach(o -> {
          String field = o.state_field_path_expression().getText();
-         boolean desc = o.getChild(1).getText().equals("DESC");
+
+         boolean desc = o.getChild(1) != null && o.getChild(1).getText().equals("DESC");
          sorts.add(desc ? Sort.desc(field) : Sort.asc(field));
      });
     }

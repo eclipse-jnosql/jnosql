@@ -11,6 +11,7 @@
 package org.eclipse.jnosql.communication.semistructured;
 
 import org.eclipse.jnosql.communication.QueryException;
+import org.eclipse.jnosql.communication.query.data.QueryType;
 
 import java.util.Objects;
 import java.util.stream.Stream;

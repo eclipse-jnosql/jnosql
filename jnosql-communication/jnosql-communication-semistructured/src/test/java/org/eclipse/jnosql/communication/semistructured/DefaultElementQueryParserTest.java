@@ -11,6 +11,7 @@
 package org.eclipse.jnosql.communication.semistructured;
 
 import jakarta.data.exceptions.NonUniqueResultException;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -105,9 +106,13 @@ class DefaultElementQueryParserTest {
         DeleteQuery deleteQuery = captor.getValue();
         CriteriaCondition criteriaCondition = deleteQuery.condition().get();
         Element element = criteriaCondition.element();
-        assertEquals(Condition.EQUALS, criteriaCondition.condition());
-        assertEquals("age", element.name());
-        assertEquals(12, element.get());
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
+            softly.assertThat(element.name()).isEqualTo("age");
+            softly.assertThat(element.get()).isEqualTo(12);
+            softly.assertThat(prepare.getType()).isNotNull();
+        });
+
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")

@@ -25,12 +25,20 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
  */
 @ApplicationScoped
 class DefaultEntityConverter extends EntityConverter {
+    private final EntitiesMetadata entities;
+    private final Converters converters;
+    private final ProjectorConverter projectorConverter;
 
     @Inject
-    private EntitiesMetadata entities;
+    DefaultEntityConverter(EntitiesMetadata entities, Converters converters, ProjectorConverter projectorConverter) {
+        this.entities = entities;
+        this.converters = converters;
+        this.projectorConverter = projectorConverter;
+    }
 
-    @Inject
-    private Converters converters;
+    DefaultEntityConverter() {
+        this(null, null, null);
+    }
 
     @Override
     protected EntitiesMetadata entities() {
@@ -40,5 +48,10 @@ class DefaultEntityConverter extends EntityConverter {
     @Override
     protected Converters converters() {
         return converters;
+    }
+
+    @Override
+    protected ProjectorConverter projectorConverter() {
+        return projectorConverter;
     }
 }

@@ -20,7 +20,9 @@ import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import jakarta.data.page.impl.CursoredPageRecord;
+import jakarta.nosql.Query;
 import jakarta.nosql.QueryMapper;
+import jakarta.nosql.TypedQuery;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
@@ -35,6 +37,7 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
+import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 
 import java.time.Duration;
 import java.util.Iterator;
@@ -147,6 +150,7 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
                 .collect(Collectors.toList());
     }
 
+    @Override
     public <T> void delete(T entity) {
         requireNonNull(entity, "entity is required");
         EntityMetadata metadata = entities().get(entity.getClass());
@@ -160,6 +164,7 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         manager().delete(query);
     }
 
+    @Override
     public <T> void delete(Iterable<? extends T> iterable) {
         requireNonNull(iterable, "iterable is required");
         StreamSupport.stream(iterable.spliterator(), false)
@@ -330,6 +335,37 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
                 query.condition().orElse(null), query.name(), query.columns());
         Stream<T> result = select(queryPage);
         return NoSQLPage.of(result.toList(), pageRequest);
+    }
+
+    @Override
+    public Query query(String query) {
+        requireNonNull(query, "query is required");
+        PreparedStatement preparedStatement = (PreparedStatement) this.prepare(query);
+       return SemistructuredQuery.of(query, preparedStatement);
+    }
+
+    @Override
+    public <T> TypedQuery<T> typedQuery(String query, Class<T> type) {
+        requireNonNull(query, "query is required");
+        requireNonNull(type, "type is required");
+        var entityData = entities().findByClassName(type.getName());
+        var projector = entities().projection(type);
+        var entityName = entityName(type, projector, entityData);
+        var preparedStatement = (PreparedStatement) this.prepare(query, entityName);
+        return SemistructuredTypedQuery.of(query, preparedStatement, this, projector.orElse(null));
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private <T> String entityName(Class<T> type, Optional<ProjectionMetadata> projection, Optional<EntityMetadata> entityData) {
+        if(projection.isPresent()){
+            return projection.map(ProjectionMetadata::from)
+                    .map(e -> entities().findByClassName(e.getName()))
+                    .flatMap(Function.identity()).map(EntityMetadata::name).orElse(null);
+
+        } else{
+            return entityData.map(EntityMetadata::name).orElseThrow(() -> new IllegalArgumentException("There " +
+                    "is no entity " + type.getName()));
+        }
     }
 
     protected <T> T persist(T entity, UnaryOperator<CommunicationEntity> persistAction) {

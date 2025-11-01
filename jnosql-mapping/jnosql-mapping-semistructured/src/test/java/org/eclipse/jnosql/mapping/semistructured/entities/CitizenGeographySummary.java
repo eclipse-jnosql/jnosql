@@ -14,9 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.entities;
 
-import jakarta.data.repository.Select;
-import org.eclipse.jnosql.mapping.Projection;
+import jakarta.nosql.Column;
+import jakarta.nosql.Projection;
 
 @Projection
-public record CitizenGeographySummary(City city, @Select("city.name") String name) {
+public record CitizenGeographySummary(City city, @Column("city.name") String name) {
 }

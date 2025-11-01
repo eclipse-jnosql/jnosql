@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
+import org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 
@@ -35,7 +36,7 @@ import java.util.stream.Stream;
  */
 public final class PreparedStatement implements org.eclipse.jnosql.mapping.PreparedStatement {
 
-    private final org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement preparedStatement;
+    private final CommunicationPreparedStatement preparedStatement;
 
     private final EntityConverter converter;
 
@@ -43,7 +44,7 @@ public final class PreparedStatement implements org.eclipse.jnosql.mapping.Prepa
 
     private final EntitiesMetadata entitiesMetadata;
 
-    PreparedStatement(org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement preparedStatement,
+    PreparedStatement(CommunicationPreparedStatement preparedStatement,
                       EntityConverter converter, MapperObserver observer, EntitiesMetadata entitiesMetadata) {
         this.preparedStatement = preparedStatement;
         this.converter = converter;
@@ -55,6 +56,15 @@ public final class PreparedStatement implements org.eclipse.jnosql.mapping.Prepa
     public org.eclipse.jnosql.mapping.PreparedStatement bind(String name, Object value) {
         preparedStatement.bind(name, value);
         return this;
+    }
+
+    public org.eclipse.jnosql.mapping.PreparedStatement bind(int index, Object value) {
+        preparedStatement.bind(index, value);
+        return this;
+    }
+
+    public CommunicationPreparedStatement.PreparedStatementType type() {
+        return this.preparedStatement.getType();
     }
 
     @Override

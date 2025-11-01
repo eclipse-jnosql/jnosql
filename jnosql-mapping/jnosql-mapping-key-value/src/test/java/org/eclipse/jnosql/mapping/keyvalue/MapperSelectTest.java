@@ -81,6 +81,12 @@ class MapperSelectTest {
     }
 
     @Test
+    @DisplayName("Should not supported typed query")
+    void shouldNotSupportedTypedQuery(){
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.typedQuery(null, null));
+    }
+
+    @Test
     @DisplayName("Should return error when entity has not id")
     void shouldReturnErrorWhenEntityHasNotId() {
         Assertions.assertThrows(MappingException.class, () -> template.select(ErrorEntity.class));
@@ -129,6 +135,11 @@ class MapperSelectTest {
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").lte("Otavio"));
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").between(10, 20));
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").not());
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").contains("Otavio"));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").startsWith("Otavio"));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).where("id").endsWith("Otavio"));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.select(Person.class).count());
+
     }
 
     @Test

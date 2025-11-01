@@ -22,8 +22,8 @@ import jakarta.data.repository.DataRepository;
 import jakarta.data.repository.Repository;
 import jakarta.nosql.Embeddable;
 import jakarta.nosql.Entity;
+import jakarta.nosql.Projection;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
-import org.eclipse.jnosql.mapping.Projection;
 import org.eclipse.jnosql.mapping.metadata.ClassScanner;
 
 import java.util.Arrays;

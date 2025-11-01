@@ -27,7 +27,9 @@ import java.util.List;
 import static java.util.Objects.requireNonNull;
 
 final class MapperDelete implements QueryMapper.MapperDeleteFrom,
-        QueryMapper.MapperDeleteWhere, QueryMapper.MapperDeleteNameCondition, QueryMapper.MapperDeleteNotCondition {
+        QueryMapper.MapperDeleteWhere,
+        QueryMapper.MapperDeleteNameCondition,
+        QueryMapper.MapperDeleteNotCondition {
 
     private final transient EntityMetadata mapping;
 
@@ -50,6 +52,21 @@ final class MapperDelete implements QueryMapper.MapperDeleteFrom,
     @Override
     public QueryMapper.MapperDeleteWhere like(String value) {
         throw new UnsupportedOperationException("Key-value Mapper query does not support like condition");
+    }
+
+    @Override
+    public QueryMapper.MapperDeleteWhere contains(String value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support contains condition");
+    }
+
+    @Override
+    public QueryMapper.MapperDeleteWhere startsWith(String value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support startsWith condition");
+    }
+
+    @Override
+    public QueryMapper.MapperDeleteWhere endsWith(String value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support endsWith condition");
     }
 
     @Override
@@ -119,7 +136,7 @@ final class MapperDelete implements QueryMapper.MapperDeleteFrom,
     @Override
     public void execute() {
         validatedCondition();
-        template.delete(keys);
+        template.deleteByKeys(keys);
     }
 
     private void validatedCondition() {

@@ -14,12 +14,12 @@
  */
 package org.eclipse.jnosql.mapping.reflection.entities;
 
-import jakarta.data.repository.Select;
-import org.eclipse.jnosql.mapping.Projection;
+import jakarta.nosql.Column;
+import jakarta.nosql.Projection;
 
 import java.math.BigDecimal;
 
 
 @Projection
-public record ComputerView(String name, @Select("native") BigDecimal value) {
+public record ComputerView(String name, @Column("native") BigDecimal value) {
 }

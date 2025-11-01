@@ -15,10 +15,16 @@
 package org.eclipse.jnosql.mapping.keyvalue;
 
 
+import jakarta.nosql.Query;
 import jakarta.nosql.QueryMapper;
+import jakarta.nosql.TypedQuery;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.communication.keyvalue.KeyValueEntity;
+import org.eclipse.jnosql.communication.query.data.QueryType;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -113,13 +119,13 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
 
 
     @Override
-    public <K> void delete(K key) {
+    public <K> void deleteByKey(K key) {
         requireNonNull(key, "key is required");
         getManager().delete(key);
     }
 
     @Override
-    public <K> void delete(Iterable<K> keys) {
+    public <K> void deleteByKeys(Iterable<K> keys) {
         requireNonNull(keys, "keys is required");
         getManager().delete(keys);
     }
@@ -131,7 +137,17 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
 
     @Override
     public <T, K> void delete(Class<T> type, K id) {
-        this.delete(id);
+        this.deleteByKey(id);
+    }
+
+    @Override
+    public <T> void delete(T entity) {
+        requireNonNull(entity, "entity is required");
+        EntitiesMetadata entities = this.getConverter().getEntities();
+        EntityMetadata entityMetadata = entities.get(entity.getClass());
+        FieldMetadata idAttribute = entityMetadata.id().orElseThrow(() -> new IllegalArgumentException("The entity does not have an attribute with jakarta.nosql.Id annotation"));
+        Object key = idAttribute.read(entity);
+        getManager().delete(key);
     }
 
     @Override
@@ -150,6 +166,27 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
         var entities = converter.getEntities();
         var mapping = entities.get(type);
         return new MapperDelete(mapping, converter.getConverters(), this);
+    }
+
+    @Override
+    public <T> void delete(Iterable<? extends T> entities) {
+        requireNonNull(entities, "entities is required");
+        entities.forEach(this::delete);
+    }
+
+    @Override
+    public Query query(String query) {
+        requireNonNull(query, "query is required");
+        QueryType type = QueryType.parse(query);
+        if(QueryType.UPDATE.equals(type)) {
+            throw new UnsupportedOperationException("Update is not supported yet");
+        }
+        return KeyValueQuery.of(query, this, type);
+    }
+
+    @Override
+    public <T> TypedQuery<T> typedQuery(String query, Class<T> type) {
+        throw new UnsupportedOperationException("TypedQuery is not supported yet on key-value databases");
     }
 
     @SuppressWarnings("unchecked")

@@ -8,7 +8,7 @@
  * You may elect to redistribute this code under either of these licenses.
  *
  */
-package org.eclipse.jnosql.communication.semistructured;
+package org.eclipse.jnosql.communication.query.data;
 
 import java.util.Objects;
 

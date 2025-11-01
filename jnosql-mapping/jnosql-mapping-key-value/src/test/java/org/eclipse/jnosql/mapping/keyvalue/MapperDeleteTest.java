@@ -109,6 +109,9 @@ class MapperDeleteTest {
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.delete(Person.class).where("id").lte("Otavio"));
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.delete(Person.class).where("id").between(10, 20));
         Assertions.assertThrows(UnsupportedOperationException.class, () -> template.delete(Person.class).where("id").not());
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.delete(Person.class).where("name").contains("Otavio"));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.delete(Person.class).where("name").startsWith("Otavio"));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.delete(Person.class).where("name").endsWith("Otavio"));
     }
 
     @Test

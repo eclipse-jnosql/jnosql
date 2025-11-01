@@ -21,7 +21,7 @@ import java.util.function.Function;
  * A supplier of {@link ProjectionBuilder} instances used for constructing projection records.
  *
  * @see ProjectionBuilder
- * @see org.eclipse.jnosql.mapping.Projection
+ * @see jakarta.nosql.Projection
  * @see ProjectionMetadata
  */
 public interface ProjectionBuilderSupplier extends Function<ProjectionConstructorMetadata, ProjectionBuilder> {

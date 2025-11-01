@@ -89,6 +89,21 @@ final class MapperSelect implements QueryMapper.MapperFrom, QueryMapper.MapperLi
     }
 
     @Override
+    public QueryMapper.MapperWhere contains(String value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support contains condition");
+    }
+
+    @Override
+    public QueryMapper.MapperWhere startsWith(String value) {
+       throw new UnsupportedOperationException("Key-value Mapper query does not support startsWith condition");
+    }
+
+    @Override
+    public QueryMapper.MapperWhere endsWith(String value) {
+        throw new UnsupportedOperationException("Key-value Mapper query does not support endsWith condition");
+    }
+
+    @Override
     public <T> QueryMapper.MapperWhere gt(T value) {
         throw new UnsupportedOperationException("Key-value Mapper query does not support gt condition");
     }
@@ -146,6 +161,11 @@ final class MapperSelect implements QueryMapper.MapperFrom, QueryMapper.MapperLi
         }
         this.name = name;
         return this;
+    }
+
+    @Override
+    public long count() {
+       throw new UnsupportedOperationException("Key-value Mapper query does not support count");
     }
 
     @SuppressWarnings("unchecked")
