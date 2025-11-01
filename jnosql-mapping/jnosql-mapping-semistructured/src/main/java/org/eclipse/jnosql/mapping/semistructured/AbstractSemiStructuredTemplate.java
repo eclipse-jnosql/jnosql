@@ -352,8 +352,7 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         var projector = entities().projection(type);
         var entityName = entityName(type, projector, entityData);
         var preparedStatement = (PreparedStatement) this.prepare(query, entityName);
-        return SemistructuredTypedQuery.of(query, type, preparedStatement, projector.isPresent());
-
+        return SemistructuredTypedQuery.of(query, preparedStatement, this, projector.orElse(null));
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
