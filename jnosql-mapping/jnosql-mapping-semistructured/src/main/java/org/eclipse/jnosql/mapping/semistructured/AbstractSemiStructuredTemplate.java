@@ -37,6 +37,7 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
+import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 
 import java.time.Duration;
 import java.util.Iterator;
@@ -348,11 +349,24 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         requireNonNull(query, "query is required");
         requireNonNull(type, "type is required");
         var entityData = entities().findByClassName(type.getName());
-        var entityName = entityData.map(EntityMetadata::name).orElseThrow(() -> new IllegalArgumentException("There " +
-                "is no entity " + type.getName()));
+        var projector = entities().projection(type);
+        var entityName = entityName(type, projector, entityData);
         var preparedStatement = (PreparedStatement) this.prepare(query, entityName);
-        return SemistructuredTypedQuery.of(query, type, preparedStatement);
+        return SemistructuredTypedQuery.of(query, type, preparedStatement, projector.isPresent());
 
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private <T> String entityName(Class<T> type, Optional<ProjectionMetadata> projection, Optional<EntityMetadata> entityData) {
+        if(projection.isPresent()){
+            return projection.map(ProjectionMetadata::from)
+                    .map(e -> entities().findByClassName(e.getName()))
+                    .flatMap(Function.identity()).map(EntityMetadata::name).orElse(null);
+
+        } else{
+            return entityData.map(EntityMetadata::name).orElseThrow(() -> new IllegalArgumentException("There " +
+                    "is no entity " + type.getName()));
+        }
     }
 
     protected <T> T persist(T entity, UnaryOperator<CommunicationEntity> persistAction) {

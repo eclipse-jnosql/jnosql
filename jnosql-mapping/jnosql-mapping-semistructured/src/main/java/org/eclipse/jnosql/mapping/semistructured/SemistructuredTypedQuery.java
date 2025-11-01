@@ -21,17 +21,17 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 final class SemistructuredTypedQuery<T> implements TypedQuery<T> {
-
     private final Class<T> type;
     private final String query;
     private final SemistructuredQuery semistructuredQuery;
-
     private PreparedStatement preparedStatement;
-    private SemistructuredTypedQuery(Class<T> type, String query, SemistructuredQuery semistructuredQuery, PreparedStatement preparedStatement) {
+    private final boolean isProjection;
+    private SemistructuredTypedQuery(Class<T> type, String query, SemistructuredQuery semistructuredQuery, PreparedStatement preparedStatement, boolean isProjection) {
         this.type = type;
         this.query = query;
         this.semistructuredQuery = semistructuredQuery;
         this.preparedStatement = preparedStatement;
+        this.isProjection = isProjection;
     }
 
     @Override
@@ -66,8 +66,8 @@ final class SemistructuredTypedQuery<T> implements TypedQuery<T> {
         return this;
     }
 
-    static <T> TypedQuery<T> of(String query, Class<T> type, PreparedStatement preparedStatement) {
+    static <T> TypedQuery<T> of(String query, Class<T> type, PreparedStatement preparedStatement, boolean isProjection) {
         var semistructuredQuery = SemistructuredQuery.of(query, preparedStatement);
-        return new SemistructuredTypedQuery<>(type, query, semistructuredQuery, preparedStatement);
+        return new SemistructuredTypedQuery<>(type, query, semistructuredQuery, preparedStatement, isProjection);
     }
 }
