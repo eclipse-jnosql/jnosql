@@ -45,6 +45,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.mockito.Mockito.when;
@@ -354,9 +355,10 @@ public class TypedQueryTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings ="WHERE name = 'Ada'")
+    @ValueSource(strings ={"WHERE name = 'Ada'", "FROM Person WHERE name = 'Ada'", "", "WHERE name = 'Ada' ORDER BY " +
+            "name" })
     @DisplayName("Should execute a simple query using From with Stream on projection")
-    void shouldSelectFromStreamWithoutFromProjection(String textQuery){
+    void shouldSelectFromStreamWithoutFromProjectionWithStream(String textQuery){
         var communicationEntity = CommunicationEntity.of("Person");
         communicationEntity.add("_id", 123L);
         communicationEntity.add("name", "Ada");
@@ -365,13 +367,52 @@ public class TypedQueryTest {
 
         TypedQuery<PersonProjection> query = this.template.typedQuery(textQuery, PersonProjection.class);
         Stream<PersonProjection> stream = query.stream();
-        List<PersonProjection> entities = stream.toList();
+        List<PersonProjection> result = stream.toList();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(entities).isNotEmpty().hasSize(1);
-            soft.assertThat(entities).contains(new PersonProjection("Ada", 30));
+            soft.assertThat(result).isNotEmpty().hasSize(1);
+            soft.assertThat(result).contains(new PersonProjection("Ada", 30));
         });
+    }
 
+    @ParameterizedTest
+    @ValueSource(strings ={"WHERE name = 'Ada'", "FROM Person WHERE name = 'Ada'", "", "WHERE name = 'Ada' ORDER BY " +
+            "name" })
+    @DisplayName("Should execute a simple query using From with List on projection")
+    void shouldSelectFromStreamWithoutFromProjectionWithList(String textQuery){
+        var communicationEntity = CommunicationEntity.of("Person");
+        communicationEntity.add("_id", 123L);
+        communicationEntity.add("name", "Ada");
+        communicationEntity.add("age", 30);
+        Mockito.when(managerMock.select(Mockito.any())).thenReturn(Stream.of(communicationEntity));
+
+        TypedQuery<PersonProjection> query = this.template.typedQuery(textQuery, PersonProjection.class);
+        List<PersonProjection> result = query.result();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(result).isNotEmpty().hasSize(1);
+            soft.assertThat(result).contains(new PersonProjection("Ada", 30));
+        });
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings ={"WHERE name = 'Ada'", "FROM Person WHERE name = 'Ada'", "", "WHERE name = 'Ada' ORDER BY " +
+            "name" })
+    @DisplayName("Should execute a simple query using From with Single result on projection")
+    void shouldSelectFromStreamWithoutFromProjectionWithSingleResult(String textQuery){
+        var communicationEntity = CommunicationEntity.of("Person");
+        communicationEntity.add("_id", 123L);
+        communicationEntity.add("name", "Ada");
+        communicationEntity.add("age", 30);
+        Mockito.when(managerMock.select(Mockito.any())).thenReturn(Stream.of(communicationEntity));
+
+        TypedQuery<PersonProjection> query = this.template.typedQuery(textQuery, PersonProjection.class);
+        Optional<PersonProjection> personProjection = query.singleResult();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(personProjection).isNotEmpty();
+            soft.assertThat(personProjection).contains(new PersonProjection("Ada", 30));
+        });
     }
 
 
