@@ -60,6 +60,12 @@ public abstract class EntityConverter {
     protected abstract Converters converters();
 
     /**
+     * Retrieves the projector converter instance used for entity-to-projection transformations.
+     * @return the {@link ProjectorConverter} instance
+     */
+    protected abstract ProjectorConverter projectorConverter();
+
+    /**
      * Converts the provided entity instance to a {@link CommunicationEntity}.
      *
      * @param entity the entity instance to be converted
