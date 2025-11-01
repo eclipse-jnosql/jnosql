@@ -38,6 +38,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.eclipse.jnosql.communication.semistructured.DeleteQuery.delete;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -125,6 +126,26 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = DeleteQuery.builder().from("Person")
                 .where(CriteriaCondition.startsWith(Element.of("name", "Ada"))).build();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    void shouldDeleteWhereEndsWith() {
+        template.delete(Person.class).where("name").endsWith("Ada").execute();
+        Mockito.verify(managerMock).delete(captor.capture());
+        var query = captor.getValue();
+        var queryExpected = DeleteQuery.builder().from("Person")
+                .where(CriteriaCondition.endsWith(Element.of("name", "Ada"))).build();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    void shouldDeleteWhereInWith() {
+        template.delete(Person.class).where("name").in(List.of("Ada")).execute();
+        Mockito.verify(managerMock).delete(captor.capture());
+        var query = captor.getValue();
+        var queryExpected = DeleteQuery.builder().from("Person")
+                .where(CriteriaCondition.in(Element.of("name", List.of("Ada")))).build();
         assertEquals(queryExpected, query);
     }
 
