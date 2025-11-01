@@ -34,7 +34,7 @@ final class SemistructuredQuery implements Query {
 
     @Override
     public void executeUpdate() {
-        if(isQuery()) {
+        if(isDataRetrievalQuery()) {
             throw executeUpdateDeleteStatementError(" is not either update or delete statement");
         }
         this.preparedStatement.result();
@@ -45,7 +45,7 @@ final class SemistructuredQuery implements Query {
         if (isCount()) {
             Stream<T> count = countStream();
             return count.toList();
-        } else if (isQuery()) {
+        } else if (isDataRetrievalQuery()) {
             Stream<T> entities = this.preparedStatement.result();
             return entities.toList();
         }
@@ -56,7 +56,7 @@ final class SemistructuredQuery implements Query {
     public <T> Stream<T> stream() {
         if(isCount()) {
             return countStream();
-        } else if(isQuery()) {
+        } else if(isDataRetrievalQuery()) {
             return this.preparedStatement.result();
         }
         throw executeUpdateDeleteStatementError(" is not a select statement");
@@ -66,7 +66,7 @@ final class SemistructuredQuery implements Query {
     public <T> Optional<T> singleResult() {
         if(isCount()) {
             return countSingleResult();
-        } else if(isQuery()) {
+        } else if(isDataRetrievalQuery()) {
             return this.preparedStatement.singleResult();
         }
         throw executeUpdateDeleteStatementError(" is not a select statement");
@@ -99,7 +99,7 @@ final class SemistructuredQuery implements Query {
         return CommunicationPreparedStatement.PreparedStatementType.COUNT.equals(this.preparedStatement.type());
     }
 
-    private boolean isQuery() {
+    private boolean isDataRetrievalQuery() {
         return CommunicationPreparedStatement.PreparedStatementType.COUNT.equals(this.preparedStatement.type())
                 || CommunicationPreparedStatement.PreparedStatementType.SELECT.equals(this.preparedStatement.type());
     }
