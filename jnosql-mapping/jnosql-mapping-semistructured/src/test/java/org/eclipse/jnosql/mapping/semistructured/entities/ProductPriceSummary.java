@@ -14,9 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.entities;
 
-import jakarta.data.repository.Select;
+import jakarta.nosql.Column;
 import jakarta.nosql.Projection;
 
 @Projection
-public record ProductPriceSummary(String name, @Select("amount") Money price) {
+public record ProductPriceSummary(String name, @Column("amount") Money price) {
 }
