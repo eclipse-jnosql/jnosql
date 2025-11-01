@@ -17,7 +17,6 @@ import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionParameterMetadata;
 
 import java.lang.reflect.Parameter;
-import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -56,5 +55,5 @@ public class ProjectionConverter implements Function<Class<?>, ProjectionMetadat
         }
         return parameters;
     }
- 
+
 }
