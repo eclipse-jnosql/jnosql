@@ -15,7 +15,7 @@
 package org.eclipse.jnosql.mapping.semistructured.entities;
 
 import jakarta.data.repository.Select;
-import org.eclipse.jnosql.mapping.Projection;
+import jakarta.nosql.Projection;
 
 @Projection
 public record BookView(String name, @Select("age") int edition) {
