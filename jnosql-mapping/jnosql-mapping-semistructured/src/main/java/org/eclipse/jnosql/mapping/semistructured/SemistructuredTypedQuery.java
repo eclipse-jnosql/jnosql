@@ -14,7 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
-import jakarta.nosql.Query;
 import jakarta.nosql.TypedQuery;
 
 import java.util.List;
