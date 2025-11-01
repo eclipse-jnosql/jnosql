@@ -41,7 +41,6 @@ import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -349,7 +348,8 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         requireNonNull(query, "query is required");
         requireNonNull(type, "type is required");
         var entityData = entities().findByClassName(type.getName());
-        String entityName = entityData.map(EntityMetadata::name).orElseThrow(() -> new IllegalArgumentException("There is no entity " + type.getName()));
+        var entityName = entityData.map(EntityMetadata::name).orElseThrow(() -> new IllegalArgumentException("There " +
+                "is no entity " + type.getName()));
         var preparedStatement = (PreparedStatement) this.prepare(query, entityName);
         return SemistructuredTypedQuery.of(query, type, preparedStatement);
 
