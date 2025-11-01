@@ -21,6 +21,7 @@ import jakarta.nosql.TypedQuery;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
+import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
@@ -31,6 +32,7 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.entities.Person;
+import org.eclipse.jnosql.mapping.semistructured.entities.PersonProjection;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -43,6 +45,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.mockito.Mockito.when;
 
@@ -349,5 +352,27 @@ public class TypedQueryTest {
         TypedQuery<Person> query = this.template.typedQuery(textQuery, Person.class);
         Assertions.assertThrows(UnsupportedOperationException.class, query::stream);
     }
+
+    @ParameterizedTest
+    @ValueSource(strings ="WHERE name = 'Ada'")
+    @DisplayName("Should execute a simple query using From with Stream on projection")
+    void shouldSelectFromStreamWithoutFromProjection(String textQuery){
+        var communicationEntity = CommunicationEntity.of("Person");
+        communicationEntity.add("_id", 123L);
+        communicationEntity.add("name", "Ada");
+        communicationEntity.add("age", 30);
+        Mockito.when(managerMock.select(Mockito.any())).thenReturn(Stream.of(communicationEntity));
+
+        TypedQuery<PersonProjection> query = this.template.typedQuery(textQuery, PersonProjection.class);
+        Stream<PersonProjection> stream = query.stream();
+        List<PersonProjection> entities = stream.toList();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(entities).isNotEmpty().hasSize(1);
+            soft.assertThat(entities).contains(new PersonProjection("Ada", 30));
+        });
+
+    }
+
 
 }
