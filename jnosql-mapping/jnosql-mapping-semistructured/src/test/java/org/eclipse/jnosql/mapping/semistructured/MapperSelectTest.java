@@ -142,6 +142,16 @@ class MapperSelectTest {
     }
 
     @Test
+    void shouldSelectWhereIn() {
+        template.select(Person.class).where("name").in(List.of("Ada")).result();
+        SelectQuery queryExpected = select().from("Person").where("name")
+                .in(List.of("Ada")).build();
+        Mockito.verify(managerMock).select(captor.capture());
+        SelectQuery query = captor.getValue();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
     void shouldSelectWhereLike() {
         template.select(Person.class).where("name").like("Ada").result();
         SelectQuery queryExpected = select().from("Person").where("name")
