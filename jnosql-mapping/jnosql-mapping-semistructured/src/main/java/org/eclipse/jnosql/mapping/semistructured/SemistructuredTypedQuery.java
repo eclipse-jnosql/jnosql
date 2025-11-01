@@ -38,7 +38,7 @@ final class SemistructuredTypedQuery<T> implements TypedQuery<T> {
     @Override
     public List<T> result() {
         if(isProjection()) {
-            return stream().map(mapProjection()).toList();
+            return stream().toList();
         }
         return this.semistructuredQuery.result();
     }
