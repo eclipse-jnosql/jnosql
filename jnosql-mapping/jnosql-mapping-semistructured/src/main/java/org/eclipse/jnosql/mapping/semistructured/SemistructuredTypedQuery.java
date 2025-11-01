@@ -86,7 +86,8 @@ final class SemistructuredTypedQuery<T> implements TypedQuery<T> {
         return e -> projectorConverter.map(e, projectionMetadata);
     }
 
-    static <T> TypedQuery<T> of(String query, PreparedStatement preparedStatement,
+    static <T> TypedQuery<T> of(String query,
+                                PreparedStatement preparedStatement,
                                 AbstractSemiStructuredTemplate template,
                                 ProjectionMetadata projectionMetadata) {
         var semistructuredQuery = SemistructuredQuery.of(query, preparedStatement);
