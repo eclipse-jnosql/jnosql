@@ -16,8 +16,11 @@ package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
+import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -102,6 +105,26 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = delete().from("Person").where("name")
                 .like("Ada").build();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    void shouldDeleteWhereContains() {
+        template.delete(Person.class).where("name").contains("Ada").execute();
+        Mockito.verify(managerMock).delete(captor.capture());
+        var query = captor.getValue();
+        var queryExpected = DeleteQuery.builder().from("Person")
+                .where(CriteriaCondition.contains(Element.of("name", "Ada"))).build();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    void shouldDeleteWhereStartWith() {
+        template.delete(Person.class).where("name").startsWith("Ada").execute();
+        Mockito.verify(managerMock).delete(captor.capture());
+        var query = captor.getValue();
+        var queryExpected = DeleteQuery.builder().from("Person")
+                .where(CriteriaCondition.startsWith(Element.of("name", "Ada"))).build();
         assertEquals(queryExpected, query);
     }
 
