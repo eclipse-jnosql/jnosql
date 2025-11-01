@@ -15,37 +15,48 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.nosql.TypedQuery;
+import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 final class SemistructuredTypedQuery<T> implements TypedQuery<T> {
-    private final Class<T> type;
-    private final String query;
     private final SemistructuredQuery semistructuredQuery;
-    private PreparedStatement preparedStatement;
-    private final boolean isProjection;
-    private SemistructuredTypedQuery(Class<T> type, String query, SemistructuredQuery semistructuredQuery, PreparedStatement preparedStatement, boolean isProjection) {
-        this.type = type;
-        this.query = query;
+    private final AbstractSemiStructuredTemplate template;
+    private final ProjectionMetadata projectionMetadata;
+
+    private SemistructuredTypedQuery(SemistructuredQuery semistructuredQuery,
+                                     AbstractSemiStructuredTemplate template,
+                                     ProjectionMetadata projectionMetadata) {
         this.semistructuredQuery = semistructuredQuery;
-        this.preparedStatement = preparedStatement;
-        this.isProjection = isProjection;
+        this.template = template;
+        this.projectionMetadata = projectionMetadata;
     }
 
     @Override
     public List<T> result() {
+        if(isProjection()) {
+            return stream().map(mapProjection()).toList();
+        }
         return this.semistructuredQuery.result();
     }
 
     @Override
     public Stream<T> stream() {
+        if(isProjection()) {
+            return this.semistructuredQuery.stream().map(mapProjection());
+        }
         return this.semistructuredQuery.stream();
     }
 
     @Override
     public Optional<T> singleResult() {
+        if(isProjection()) {
+            return this.semistructuredQuery.singleResult().map(mapProjection());
+        }
+
         return this.semistructuredQuery.singleResult();
     }
 
@@ -56,18 +67,29 @@ final class SemistructuredTypedQuery<T> implements TypedQuery<T> {
 
     @Override
     public TypedQuery<T> bind(String name, Object value) {
-        this.preparedStatement.bind(name, value);
+        this.semistructuredQuery.bind(name, value);
         return this;
     }
 
     @Override
     public TypedQuery<T> bind(int position, Object value) {
-        this.preparedStatement.bind(position, value);
+        this.semistructuredQuery.bind(position, value);
         return this;
     }
 
-    static <T> TypedQuery<T> of(String query, Class<T> type, PreparedStatement preparedStatement, boolean isProjection) {
+    private boolean isProjection() {
+        return this.projectionMetadata != null;
+    }
+
+    private Function<Object, T> mapProjection() {
+        var projectorConverter = this.template.converter().projectorConverter();
+        return e -> projectorConverter.map(e, projectionMetadata);
+    }
+
+    static <T> TypedQuery<T> of(String query, PreparedStatement preparedStatement,
+                                AbstractSemiStructuredTemplate template,
+                                ProjectionMetadata projectionMetadata) {
         var semistructuredQuery = SemistructuredQuery.of(query, preparedStatement);
-        return new SemistructuredTypedQuery<>(type, query, semistructuredQuery, preparedStatement, isProjection);
+        return new SemistructuredTypedQuery<>(semistructuredQuery, template, projectionMetadata);
     }
 }
