@@ -14,10 +14,14 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
+import jakarta.data.constraint.Between;
 import jakarta.data.constraint.GreaterThan;
 import jakarta.data.constraint.In;
 import jakarta.data.constraint.LessThan;
+import jakarta.data.constraint.Like;
+import jakarta.data.constraint.NotBetween;
 import jakarta.data.constraint.NotIn;
+import jakarta.data.constraint.NotLike;
 import jakarta.data.repository.By;
 import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Find;
@@ -247,6 +251,16 @@ class CrudRepositoryProxyIsTest {
 
     public interface ProductCustomRepository extends CrudRepository<Product, String> {
 
+        @Find
+        List<Product> like(@By(_Product.NAME) Like name);
+
+        @Find
+        List<Product> notLike(@By(_Product.NAME) NotLike name);
+        @Find
+        List<Product> between(@By(_Product.PRICE) Between<BigDecimal> price);
+
+        @Find
+        List<Product> botBetween(@By(_Product.PRICE) NotBetween<BigDecimal> price);
         @Find
         List<Product> greaterThan(@By(_Product.PRICE) GreaterThan<BigDecimal> price);
 
