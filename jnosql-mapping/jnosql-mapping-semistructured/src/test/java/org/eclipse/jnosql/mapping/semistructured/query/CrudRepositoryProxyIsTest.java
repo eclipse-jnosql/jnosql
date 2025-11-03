@@ -15,11 +15,13 @@
 package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.data.constraint.Between;
+import jakarta.data.constraint.EqualTo;
 import jakarta.data.constraint.GreaterThan;
 import jakarta.data.constraint.In;
 import jakarta.data.constraint.LessThan;
 import jakarta.data.constraint.Like;
 import jakarta.data.constraint.NotBetween;
+import jakarta.data.constraint.NotEqualTo;
 import jakarta.data.constraint.NotIn;
 import jakarta.data.constraint.NotLike;
 import jakarta.data.repository.By;
@@ -44,6 +46,7 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -113,6 +116,30 @@ class CrudRepositoryProxyIsTest {
             softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
         });
     }
+
+
+    @Test
+    @DisplayName("Should Execute Query with explict annotation")
+    void shouldEqualsExplicitAnnotation() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.equals2("Mac");
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+        });
+    }
+
 
 
     @Test
@@ -230,7 +257,11 @@ class CrudRepositoryProxyIsTest {
 
         @Find
         List<Product> equals(@By(_Product.NAME) @Is String name);
+        @Find
+        List<Product> equals2(@By(_Product.NAME) @Is(EqualTo.class) String name);
 
+        @Find
+        List<Product> notEquals(@By(_Product.NAME) @Is(NotEqualTo.class) String name);
         @Find
         List<Product> greaterThan(@By(_Product.PRICE) @Is(GreaterThan.class) BigDecimal price);
 
@@ -242,6 +273,12 @@ class CrudRepositoryProxyIsTest {
 
         @Find
         List<Product> notIn(@By(_Product.NAME) @Is(NotIn.class) List<String> names);
+
+        @Find
+        List<Product> like(@By(_Product.NAME) @Is(Like.class) String name);
+
+        @Find
+        List<Product> notLike(@By(_Product.NAME) @Is(NotLike.class) String name);
     }
 
 
