@@ -117,6 +117,29 @@ class CrudRepositoryProxyIsTest {
         });
     }
 
+    @Test
+    void shouldNotEquals() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.notEquals("Mac");
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(NOT);
+            CriteriaCondition subCondition = condition.element().get(CriteriaCondition.class);
+            softly.assertThat(subCondition.condition()).isEqualTo(EQUALS);
+            softly.assertThat(subCondition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+        });
+    }
+
 
     @Test
     @DisplayName("Should Execute Query with explict annotation")
