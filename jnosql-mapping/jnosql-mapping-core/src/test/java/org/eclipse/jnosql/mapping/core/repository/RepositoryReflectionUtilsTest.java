@@ -213,12 +213,12 @@ class RepositoryReflectionUtilsTest {
 
     public static Stream<Arguments> conditionsInstances() {
         return Stream.of(
-                Arguments.of(false, Condition.GREATER_EQUALS_THAN, AtLeast.min(10)),
-                Arguments.of(false, Condition.LESSER_EQUALS_THAN, AtMost.max(10)),
-                Arguments.of(false, Condition.GREATER_THAN,GreaterThan.bound(10)),
-                Arguments.of(false, Condition.LESSER_THAN, LessThan.bound(10)),
-                Arguments.of(false, Condition.BETWEEN, Between.bounds(10, 20)),
-                Arguments.of(false, Condition.EQUALS, EqualTo.value(10)),
+                Arguments.of(false, Condition.GREATER_EQUALS_THAN, AtLeast.min(10), 10),
+                Arguments.of(false, Condition.LESSER_EQUALS_THAN, AtMost.max(10), 10),
+                Arguments.of(false, Condition.GREATER_THAN,GreaterThan.bound(10), 10),
+                Arguments.of(false, Condition.LESSER_THAN, LessThan.bound(10), 1),
+                Arguments.of(false, Condition.BETWEEN, Between.bounds(10, 20), List.of(10, 20)),
+                Arguments.of(false, Condition.EQUALS, EqualTo.value(10), 10),
                 Arguments.of(false, Condition.LIKE, Like.literal("name")),
                 Arguments.of(false, Condition.IN, In.values(10, 20)),
                 Arguments.of(true, Condition.BETWEEN, NotBetween.bounds(10, 20)),
