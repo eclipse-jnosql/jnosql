@@ -75,6 +75,8 @@ class CrudRepositoryProxyIsTest {
 
     private ProductRepository repository;
 
+    private ProductCustomRepository customRepository;
+
 
     @BeforeEach
     public void setUp() {
@@ -83,9 +85,10 @@ class CrudRepositoryProxyIsTest {
         var productHandler = new SemiStructuredRepositoryProxy<>(template,
                 entities, ProductRepository.class, converters);
 
-
-
         repository = (ProductRepository) Proxy.newProxyInstance(ProductRepository.class.getClassLoader(),
+                new Class[]{ProductRepository.class},
+                productHandler);
+        customRepository =  (ProductCustomRepository) Proxy.newProxyInstance(ProductRepository.class.getClassLoader(),
                 new Class[]{ProductRepository.class},
                 productHandler);
     }
