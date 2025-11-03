@@ -79,8 +79,6 @@ class CrudRepositoryProxyIsTest {
 
     private ProductRepository repository;
 
-    private ProductCustomRepository customRepository;
-
 
     @BeforeEach
     public void setUp() {
@@ -90,9 +88,6 @@ class CrudRepositoryProxyIsTest {
                 entities, ProductRepository.class, converters);
 
         repository = (ProductRepository) Proxy.newProxyInstance(ProductRepository.class.getClassLoader(),
-                new Class[]{ProductRepository.class},
-                productHandler);
-        customRepository =  (ProductCustomRepository) Proxy.newProxyInstance(ProductRepository.class.getClassLoader(),
                 new Class[]{ProductRepository.class},
                 productHandler);
     }
@@ -249,29 +244,5 @@ class CrudRepositoryProxyIsTest {
         List<Product> notIn(@By(_Product.NAME) @Is(NotIn.class) List<String> names);
     }
 
-    public interface ProductCustomRepository extends CrudRepository<Product, String> {
-
-        @Find
-        List<Product> like(@By(_Product.NAME) Like name);
-
-        @Find
-        List<Product> notLike(@By(_Product.NAME) NotLike name);
-        @Find
-        List<Product> between(@By(_Product.PRICE) Between<BigDecimal> price);
-
-        @Find
-        List<Product> botBetween(@By(_Product.PRICE) NotBetween<BigDecimal> price);
-        @Find
-        List<Product> greaterThan(@By(_Product.PRICE) GreaterThan<BigDecimal> price);
-
-        @Find
-        List<Product> lesserThan(@By(_Product.PRICE) LessThan<BigDecimal> price);
-
-        @Find
-        List<Product> in(@By(_Product.NAME) In<List<String>> names);
-
-        @Find
-        List<Product> notIn(@By(_Product.NAME) NotIn<String> names);
-    }
 
 }
