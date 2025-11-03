@@ -242,4 +242,19 @@ class CrudRepositoryProxyIsTest {
         List<Product> notIn(@By(_Product.NAME) @Is(NotIn.class) List<String> names);
     }
 
+    public interface ProductCustomRepository extends CrudRepository<Product, String> {
+
+        @Find
+        List<Product> greaterThan(@By(_Product.PRICE) GreaterThan<BigDecimal> price);
+
+        @Find
+        List<Product> lesserThan(@By(_Product.PRICE) LessThan<BigDecimal> price);
+
+        @Find
+        List<Product> in(@By(_Product.NAME) In<List<String>> names);
+
+        @Find
+        List<Product> notIn(@By(_Product.NAME) NotIn<String> names);
+    }
+
 }
