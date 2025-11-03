@@ -95,15 +95,13 @@ class CrudRepositoryProxyConstainInstanceTest {
     }
 
 
-
-
     @Test
     void shouldAtLeast() {
 
         when(template.select(any(SelectQuery.class)))
                 .thenReturn(Stream.of(new Product()));
 
-        repository.greaterThan(BigDecimal.TEN);
+        repository.greaterThan(GreaterThan.bound(BigDecimal.TEN));
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
@@ -124,7 +122,7 @@ class CrudRepositoryProxyConstainInstanceTest {
         when(template.select(any(SelectQuery.class)))
                 .thenReturn(Stream.of(new Product()));
 
-        repository.lesserThan(BigDecimal.TEN);
+        repository.lesserThan(LessThan.bound(BigDecimal.TEN));
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
@@ -145,7 +143,7 @@ class CrudRepositoryProxyConstainInstanceTest {
         when(template.select(any(SelectQuery.class)))
                 .thenReturn(Stream.of(new Product()));
 
-        repository.in(List.of("Mac", "Iphone"));
+        repository.in(In.values("Mac", "Iphone"));
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
@@ -166,7 +164,7 @@ class CrudRepositoryProxyConstainInstanceTest {
         when(template.select(any(SelectQuery.class)))
                 .thenReturn(Stream.of(new Product()));
 
-        repository.notIn(List.of("Mac", "Iphone"));
+        repository.notIn(NotIn.values("Mac", "Iphone"));
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
@@ -209,7 +207,7 @@ class CrudRepositoryProxyConstainInstanceTest {
         List<Product> lesserThan(@By(_Product.PRICE) LessThan<BigDecimal> price);
 
         @Find
-        List<Product> in(@By(_Product.NAME) In<List<String>> names);
+        List<Product> in(@By(_Product.NAME) In<String> names);
 
         @Find
         List<Product> notIn(@By(_Product.NAME) NotIn<String> names);
