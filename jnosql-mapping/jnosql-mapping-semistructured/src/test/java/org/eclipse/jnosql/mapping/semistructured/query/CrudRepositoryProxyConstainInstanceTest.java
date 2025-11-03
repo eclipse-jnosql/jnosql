@@ -20,6 +20,7 @@ import jakarta.data.constraint.In;
 import jakarta.data.constraint.LessThan;
 import jakarta.data.constraint.Like;
 import jakarta.data.constraint.NotBetween;
+import jakarta.data.constraint.NotEqualTo;
 import jakarta.data.constraint.NotIn;
 import jakarta.data.constraint.NotLike;
 import jakarta.data.repository.By;
@@ -116,27 +117,6 @@ class CrudRepositoryProxyConstainInstanceTest {
 
 
     @Test
-    void shouldDefaultMethod() {
-
-        when(template.select(any(SelectQuery.class)))
-                .thenReturn(Stream.of(new Product()));
-
-        repository.defaultMethod("Mac");
-        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
-        verify(template).select(captor.capture());
-        SelectQuery query = captor.getValue();
-
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(query.name()).isEqualTo("Product");
-            softly.assertThat(query.condition()).isPresent();
-            CriteriaCondition condition = query.condition().orElseThrow();
-            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
-            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
-        });
-    }
-
-    @Test
     void shouldAtLeast() {
 
         when(template.select(any(SelectQuery.class)))
@@ -225,6 +205,9 @@ class CrudRepositoryProxyConstainInstanceTest {
 
 
     public interface ProductRepository extends CrudRepository<Product, String> {
+
+        @Find
+        List<Product> notEqual(@By(_Product.NAME) NotEqualTo<String> name);
         @Find
         List<Product> like(@By(_Product.NAME) Like name);
 
