@@ -128,7 +128,8 @@ public enum RepositoryReflectionUtils {
             case jakarta.data.constraint.NotBetween<?> notBetween -> new ParamValue(Condition.BETWEEN,
                     List.of(valueFromExpression(notBetween.lowerBound()), valueFromExpression(notBetween.upperBound())), true);
             case NotEqualTo<?> notEqualTo -> new ParamValue(Condition.EQUALS, valueFromExpression(notEqualTo.expression()), true);
-            case jakarta.data.constraint.NotIn<?> notIn -> new ParamValue(Condition.IN,  notIn.expressions().stream().map(RepositoryReflectionUtils::valueFromExpression).toList(), true);
+            case jakarta.data.constraint.NotIn<?> notIn -> new ParamValue(Condition.IN,  notIn.expressions().stream()
+                    .map(RepositoryReflectionUtils::valueFromExpression).toList(), true);
             case jakarta.data.constraint.NotLike notLike -> new ParamValue(Condition.LIKE, valueFromExpression(notLike.pattern()), true);
             default ->
                     throw new UnsupportedOperationException("The FindBy annotation does not support this constraint: " + constraint.getClass()
