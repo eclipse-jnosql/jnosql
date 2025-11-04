@@ -59,6 +59,7 @@ import static org.eclipse.jnosql.communication.Condition.EQUALS;
 import static org.eclipse.jnosql.communication.Condition.GREATER_THAN;
 import static org.eclipse.jnosql.communication.Condition.IN;
 import static org.eclipse.jnosql.communication.Condition.LESSER_THAN;
+import static org.eclipse.jnosql.communication.Condition.LIKE;
 import static org.eclipse.jnosql.communication.Condition.NOT;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
@@ -225,6 +226,49 @@ class CrudRepositoryProxyConstainInstanceTest {
         });
     }
 
+    @Test
+    void shouldLike() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.like(Like.literal("Ada"));
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(LIKE);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Ada"));
+        });
+    }
+
+    @Test
+    void shouldNotLike() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.notLike(NotLike.pattern("Ada"));
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(NOT);
+            var criteriaCondition = condition.element().get(CriteriaCondition.class);
+            softly.assertThat(criteriaCondition.condition()).isEqualTo(LIKE);
+            softly.assertThat(criteriaCondition.element()).isEqualTo(Element.of(_Product.NAME, "Ada"));
+        });
+    }
 
 
     public interface ProductRepository extends CrudRepository<Product, String> {
