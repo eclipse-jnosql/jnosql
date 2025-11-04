@@ -101,7 +101,7 @@ public enum RepositoryReflectionUtils {
     ParamValue condition(Is is, Object value) {
         if (Objects.isNull(is) && !(value instanceof Constraint<?>)) {
             return new ParamValue(Condition.EQUALS, value, false);
-        } else if(value instanceof Constraint<?> constraint){
+        } else if (value instanceof Constraint<?> constraint) {
             return valueFromConstraintInstance(constraint);
         }
         Class<? extends Constraint<?>> constraint = (Class<? extends Constraint<?>>) is.value();
