@@ -278,11 +278,12 @@ class RepositoryReflectionUtilsTest {
                 softly.assertThat(param.negate()).isFalse();
             });
         }
-        //
+
         @Test
         @DisplayName("should create ParamValue equals when constraint is null and constraint instance")
         void shouldCreateParamValueEqualsWhenIsNullAndHaveConstraintInstance() {
-            var param = RepositoryReflectionUtils.INSTANCE.condition(null, "name");
+
+            var param = RepositoryReflectionUtils.INSTANCE.condition(null, AtMost.max(10));
             SoftAssertions.assertSoftly(softly -> {
                 softly.assertThat(param).isNotNull();
                 softly.assertThat(param.value()).isEqualTo("name");
@@ -306,7 +307,7 @@ class RepositoryReflectionUtilsTest {
                 }
             };
 
-            var param = RepositoryReflectionUtils.INSTANCE.condition(is, "name");
+            var param = RepositoryReflectionUtils.INSTANCE.condition(is, AtLeast.min(10));
             SoftAssertions.assertSoftly(softly -> {
                 softly.assertThat(param).isNotNull();
                 softly.assertThat(param.value()).isEqualTo("name");
