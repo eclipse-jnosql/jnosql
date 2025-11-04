@@ -31,6 +31,7 @@ import jakarta.data.constraint.NotIn;
 import jakarta.data.constraint.NotLike;
 import jakarta.data.repository.BasicRepository;
 import jakarta.data.repository.By;
+import jakarta.data.repository.Is;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import org.assertj.core.api.SoftAssertions;
@@ -42,6 +43,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -202,6 +204,30 @@ class RepositoryReflectionUtilsTest {
             softly.assertThat(param).isNotNull();
             softly.assertThat(param.value()).isEqualTo("name");
             softly.assertThat(param.condition()).isEqualTo(Condition.EQUALS);
+            softly.assertThat(param.negate()).isFalse();
+        });
+    }
+
+    @Test
+    @DisplayName("Should use the isParamValue")
+    void shouldUseTheIsParamValue() {
+        Is is = new Is() {
+            @Override
+            public Class<? extends Constraint> value() {
+                return Like.class;
+            }
+
+            @Override
+            public Class<? extends java.lang.annotation.Annotation> annotationType() {
+                return Is.class;
+            }
+        };
+
+        var param = RepositoryReflectionUtils.INSTANCE.condition(is, "name");
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(param).isNotNull();
+            softly.assertThat(param.value()).isEqualTo("name");
+            softly.assertThat(param.condition()).isEqualTo(Condition.LIKE);
             softly.assertThat(param.negate()).isFalse();
         });
     }
