@@ -16,82 +16,126 @@ package org.eclipse.jnosql.mapping.core.spi;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.inject.spi.InjectionPoint;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
+import static org.mockito.Mockito.*;
 
 class AbstractBeanTest {
 
 
-
     @Test
+    @DisplayName("should return empty injection points")
     void shouldGetInjectionPoints() {
-        // Create the AbstractBean instance
         AbstractBean<Object> abstractBean = getInstance();
 
-        // Call getInjectionPoints
         Set<InjectionPoint> injectionPoints = abstractBean.getInjectionPoints();
 
-        // Verify that the returned injectionPoints set is empty
-        assertEquals(Collections.emptySet(), injectionPoints);
+        assertThat(injectionPoints).isEmpty();
     }
 
     @Test
+    @DisplayName("should return ApplicationScoped as scope")
     void shouldReturnScope() {
-        // Create the AbstractBean instance
         AbstractBean<Object> abstractBean = getInstance();
 
-        // Call getScope
         Class<? extends Annotation> scope = abstractBean.getScope();
 
-        // Verify that the returned scope is ApplicationScoped.class
-        assertEquals(ApplicationScoped.class, scope);
+        assertThat(scope).isEqualTo(ApplicationScoped.class);
     }
 
     @Test
+    @DisplayName("should return name as null")
     void shouldReturnNameAsNull() {
-        // Create the AbstractBean instance
         AbstractBean<Object> abstractBean = getInstance();
 
-        // Call getName
         String name = abstractBean.getName();
 
-        // Verify that the returned name is null
-        assertNull(name);
+        assertThat(name).isNull();
     }
 
     @Test
+    @DisplayName("should return empty stereotypes")
     void shouldReturnEmptyStereotypes() {
-        // Create the AbstractBean instance
         AbstractBean<Object> abstractBean = getInstance();
 
-        // Call getStereotypes
         Set<Class<? extends Annotation>> stereotypes = abstractBean.getStereotypes();
 
-        // Verify that the returned set of stereotypes is empty
-        assertEquals(Collections.emptySet(), stereotypes);
+        assertThat(stereotypes).isEmpty();
     }
 
     @Test
-    void shouldReturnIsAlternativeAsFalse() {
-        // Create the AbstractBean instance
+    @DisplayName("should return false for isAlternative and isNullable")
+    void shouldReturnFalseForAlternativeAndNullable() {
         AbstractBean<Object> abstractBean = getInstance();
 
-        // Call isAlternative
-        boolean isAlternative = abstractBean.isAlternative();
-
-        // Verify that the returned isAlternative is false
-        assertFalse(isAlternative);
+        assertThat(abstractBean.isAlternative()).isFalse();
+        assertThat(abstractBean.isNullable()).isFalse();
     }
 
+    @Test
+    @DisplayName("should call CDI.current() and return instance without qualifier")
+    void shouldReturnInstanceFromCdiWithoutQualifier() {
+        AbstractBean<Object> abstractBean = getInstance();
+
+        try (MockedStatic<CDI> cdiMock = mockStatic(CDI.class)) {
+            @SuppressWarnings("unchecked")
+            CDI<Object> cdi = mock(CDI.class);
+            Instance<String> instance = mock(Instance.class);
+
+            cdiMock.when(CDI::current).thenReturn(cdi);
+            when(cdi.select(String.class)).thenReturn(instance);
+            when(instance.get()).thenReturn("mockedValue");
+
+            String result = abstractBean.getInstance(String.class);
+
+            assertThat(result).isEqualTo("mockedValue");
+            verify(instance).get();
+        }
+    }
+
+    @Test
+    @DisplayName("should call CDI.current() and return instance with qualifier")
+    void shouldReturnInstanceFromCdiWithQualifier() {
+        AbstractBean<Object> abstractBean = getInstance();
+
+        try (MockedStatic<CDI> cdiMock = mockStatic(CDI.class)) {
+            @SuppressWarnings("unchecked")
+            CDI<Object> cdi = mock(CDI.class);
+            Instance<String> instance = mock(Instance.class);
+            Annotation qualifier = mock(Annotation.class);
+
+            cdiMock.when(CDI::current).thenReturn(cdi);
+            when(cdi.select(String.class, qualifier)).thenReturn(instance);
+            when(instance.get()).thenReturn("qualifiedValue");
+
+            String result = abstractBean.getInstance(String.class, qualifier);
+
+            assertThat(result).isEqualTo("qualifiedValue");
+            verify(instance).get();
+        }
+    }
+
+    @Test
+    @DisplayName("should execute destroy without throwing any exception")
+    void shouldExecuteDestroyWithoutException() {
+        AbstractBean<Object> abstractBean = getInstance();
+        CreationalContext<Object> context = mock(CreationalContext.class);
+
+        assertThatCode(() -> abstractBean.destroy(new Object(), context))
+                .doesNotThrowAnyException();
+    }
 
     private AbstractBean<Object> getInstance(){
         return new AbstractBean<>() {
