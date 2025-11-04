@@ -67,9 +67,6 @@ class RepositoryReflectionUtilsTest {
         }
     }
 
-    // -----------------------------------------------------------------------------------------
-    // Group 1: Query and @By handling
-    // -----------------------------------------------------------------------------------------
     @Nested
     @DisplayName("Repository query and @By reflection tests")
     class GetByAndQueryTests {
@@ -121,9 +118,6 @@ class RepositoryReflectionUtilsTest {
         }
     }
 
-    // -----------------------------------------------------------------------------------------
-    // Group 2: Parameter name resolution (compiled with/without -parameters)
-    // -----------------------------------------------------------------------------------------
     @Nested
     @DisplayName("Reflection-based parameter extraction tests")
     class GetParamsTests {
@@ -196,9 +190,6 @@ class RepositoryReflectionUtilsTest {
         }
     }
 
-    // -----------------------------------------------------------------------------------------
-    // Group 3: Constraint-based ParamValue resolution
-    // -----------------------------------------------------------------------------------------
     @Nested
     @DisplayName("Constraint annotation mapping tests")
     class ConstraintMappingTests {
@@ -289,9 +280,6 @@ class RepositoryReflectionUtilsTest {
         }
     }
 
-    // -----------------------------------------------------------------------------------------
-    // Static method sources and repository interface
-    // -----------------------------------------------------------------------------------------
     public static Stream<Arguments> conditions() {
         return Stream.of(
                 Arguments.of(AtLeast.class, false, Condition.GREATER_EQUALS_THAN),
