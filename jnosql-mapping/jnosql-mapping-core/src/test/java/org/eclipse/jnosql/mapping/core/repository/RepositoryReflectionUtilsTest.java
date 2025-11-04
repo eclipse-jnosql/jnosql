@@ -36,6 +36,7 @@ import jakarta.data.repository.Query;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.mapping.core.entities.Person;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -190,6 +191,18 @@ class RepositoryReflectionUtilsTest {
             softly.assertThat(paramValue.condition()).isEqualTo(condition);
             softly.assertThat(paramValue.negate()).isEqualTo(isNegate);
             softly.assertThat(paramValue.value()).isEqualTo(value);
+        });
+    }
+
+    @Test
+    @DisplayName("Should create ParamValueEquals when the value is null")
+    void shouldCreateParamValueEqualsWhenIsNull(){
+        var param = RepositoryReflectionUtils.INSTANCE.condition(null, "name");
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(param).isNotNull();
+            softly.assertThat(param.value()).isEqualTo("name");
+            softly.assertThat(param.condition()).isEqualTo(Condition.EQUALS);
+            softly.assertThat(param.negate()).isFalse();
         });
     }
 
