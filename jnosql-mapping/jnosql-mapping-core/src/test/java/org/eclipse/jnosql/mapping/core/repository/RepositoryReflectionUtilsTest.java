@@ -278,6 +278,42 @@ class RepositoryReflectionUtilsTest {
                 softly.assertThat(param.negate()).isFalse();
             });
         }
+        //
+        @Test
+        @DisplayName("should create ParamValue equals when constraint is null and constraint instance")
+        void shouldCreateParamValueEqualsWhenIsNullAndHaveConstraintInstance() {
+            var param = RepositoryReflectionUtils.INSTANCE.condition(null, "name");
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(param).isNotNull();
+                softly.assertThat(param.value()).isEqualTo("name");
+                softly.assertThat(param.condition()).isEqualTo(Condition.EQUALS);
+                softly.assertThat(param.negate()).isFalse();
+            });
+        }
+
+        @Test
+        @DisplayName("should ignore @Is annotation when value is constraint instance")
+        void shouldIgnoreIsAnnotationWhenValueIsConstraintInstance() {
+            Is is = new Is() {
+                @Override
+                public Class<? extends Constraint> value() {
+                    return Like.class;
+                }
+
+                @Override
+                public Class<? extends java.lang.annotation.Annotation> annotationType() {
+                    return Is.class;
+                }
+            };
+
+            var param = RepositoryReflectionUtils.INSTANCE.condition(is, "name");
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(param).isNotNull();
+                softly.assertThat(param.value()).isEqualTo("name");
+                softly.assertThat(param.condition()).isEqualTo(Condition.LIKE);
+                softly.assertThat(param.negate()).isFalse();
+            });
+        }
     }
 
     public static Stream<Arguments> conditions() {
