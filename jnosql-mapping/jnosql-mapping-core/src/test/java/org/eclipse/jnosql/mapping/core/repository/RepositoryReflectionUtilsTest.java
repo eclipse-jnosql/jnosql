@@ -38,12 +38,12 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.mapping.core.entities.Person;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -60,178 +60,238 @@ class RepositoryReflectionUtilsTest {
 
     {
         try {
-            PERSON_REPOSITORY_COMPILED_WITH_PARAMETERS_CLASS = Class.forName(this.getClass().getPackageName() + ".PersonRepositoryCompiledWithParameters");
+            PERSON_REPOSITORY_COMPILED_WITH_PARAMETERS_CLASS =
+                    Class.forName(this.getClass().getPackageName() + ".PersonRepositoryCompiledWithParameters");
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    @Test
-    void shouldGetParamsWithoutSpecialParams() {
-        Method method = Arrays.stream(PersonRepository.class.getDeclaredMethods()).filter(m -> m.getName().equals("query"))
-                .findFirst().orElseThrow();
-        final Sort<Object> SPECIAL_PARAM = Sort.asc("");
-        Map<String, Object> params = RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada", SPECIAL_PARAM});
-        assertThat(params)
-                .hasSize(1)
-                .containsEntry("name", "Ada");
+    // -----------------------------------------------------------------------------------------
+    // Group 1: Query and @By handling
+    // -----------------------------------------------------------------------------------------
+    @Nested
+    @DisplayName("Repository query and @By reflection tests")
+    class GetByAndQueryTests {
 
+        @Test
+        @DisplayName("should return parameters without special ones")
+        void shouldGetParamsWithoutSpecialParams() {
+            Method method = Arrays.stream(PersonRepository.class.getDeclaredMethods())
+                    .filter(m -> m.getName().equals("query"))
+                    .findFirst()
+                    .orElseThrow();
+
+            final Sort<Object> specialParam = Sort.asc("");
+            Map<String, Object> params = RepositoryReflectionUtils.INSTANCE
+                    .getParams(method, new Object[]{"Ada", specialParam});
+
+            assertThat(params)
+                    .hasSize(1)
+                    .containsEntry("name", "Ada");
+        }
+
+        @Test
+        @DisplayName("should return query string from @Query annotation")
+        void shouldQuery() {
+            Method method = Arrays.stream(PersonRepository.class.getDeclaredMethods())
+                    .filter(m -> m.getName().equals("query"))
+                    .findFirst()
+                    .orElseThrow();
+
+            String query = RepositoryReflectionUtils.INSTANCE.getQuery(method);
+            assertEquals("FROM Person WHERE name = :name", query);
+        }
+
+        @Test
+        @DisplayName("should return @By parameters excluding Sort parameter")
+        void shouldByWithoutSpecialParams() {
+            Method method = Arrays.stream(PersonRepository.class.getDeclaredMethods())
+                    .filter(m -> m.getName().equals("query"))
+                    .findFirst()
+                    .orElseThrow();
+
+            final Sort<Object> specialParam = Sort.asc("");
+            Map<String, ParamValue> params =
+                    RepositoryReflectionUtils.INSTANCE.getBy(method, new Object[]{"Ada", specialParam});
+
+            assertThat(params)
+                    .hasSize(1)
+                    .containsEntry("name", new ParamValue(Condition.EQUALS, "Ada", false));
+        }
     }
 
-    @Test
-    void shouldQuery() {
-        Method method = Arrays.stream(PersonRepository.class.getDeclaredMethods()).filter(m -> m.getName().equals("query"))
-                .findFirst().orElseThrow();
-        String query = RepositoryReflectionUtils.INSTANCE.getQuery(method);
-        assertEquals("FROM Person WHERE name = :name", query);
+    // -----------------------------------------------------------------------------------------
+    // Group 2: Parameter name resolution (compiled with/without -parameters)
+    // -----------------------------------------------------------------------------------------
+    @Nested
+    @DisplayName("Reflection-based parameter extraction tests")
+    class GetParamsTests {
+
+        @Test
+        @DisplayName("should find parameters by position when compiled without -parameters")
+        void shouldFindByAgeWithoutParams() {
+            Method method = Stream.of(PersonRepository.class.getDeclaredMethods())
+                    .filter(m -> m.getName().equals("findAge"))
+                    .findFirst()
+                    .orElseThrow();
+
+            Map<String, Object> params = RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{10});
+            assertThat(method.getParameters()[0].isNamePresent()).isFalse();
+            assertThat(params)
+                    .hasSize(1)
+                    .containsEntry("?1", 10);
+        }
+
+        @Test
+        @DisplayName("should find parameters by name when compiled with -parameters")
+        void shouldFindByAgeWithParams() {
+            Method method = Stream.of(PERSON_REPOSITORY_COMPILED_WITH_PARAMETERS_CLASS.getDeclaredMethods())
+                    .filter(m -> m.getName().equals("findAge"))
+                    .findFirst()
+                    .orElseThrow();
+
+            Map<String, Object> params = RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{10});
+            assertThat(method.getParameters()[0].isNamePresent()).isTrue();
+            assertThat(params)
+                    .hasSize(2)
+                    .containsEntry("?1", 10)
+                    .containsEntry("age", 10);
+        }
+
+        @Test
+        @DisplayName("should handle multiple parameters without names")
+        void shouldFindByAgeAndNameWithoutParams() {
+            Method method = Stream.of(PersonRepository.class.getDeclaredMethods())
+                    .filter(m -> m.getName().equals("findAgeAndName"))
+                    .findFirst()
+                    .orElseThrow();
+
+            Map<String, Object> params =
+                    RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{10, "Ada"});
+
+            assertThat(params)
+                    .hasSize(2)
+                    .containsEntry("?1", 10)
+                    .containsEntry("?2", "Ada");
+        }
+
+        @Test
+        @DisplayName("should handle multiple parameters with names")
+        void shouldFindByAgeAndNameWithParams() {
+            Method method = Stream.of(PERSON_REPOSITORY_COMPILED_WITH_PARAMETERS_CLASS.getDeclaredMethods())
+                    .filter(m -> m.getName().equals("findAgeAndName"))
+                    .findFirst()
+                    .orElseThrow();
+
+            Map<String, Object> params =
+                    RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{10, "Ada"});
+
+            assertThat(params)
+                    .hasSize(4)
+                    .containsEntry("?1", 10)
+                    .containsEntry("?2", "Ada")
+                    .containsEntry("age", 10)
+                    .containsEntry("name", "Ada");
+        }
     }
 
-    @Test
-    void shouldByWithoutSpecialParams() {
-        Method method = Arrays.stream(PersonRepository.class.getDeclaredMethods()).filter(m -> m.getName().equals("query"))
-                .findFirst().orElseThrow();
-        final Sort<Object> SPECIAL_PARAM = Sort.asc("");
-        Map<String, ParamValue> params = RepositoryReflectionUtils.INSTANCE.getBy(method, new Object[]{"Ada", SPECIAL_PARAM});
-        assertThat(params)
-                .hasSize(1)
-                .containsEntry("name", new ParamValue(Condition.EQUALS, "Ada", false));
+    // -----------------------------------------------------------------------------------------
+    // Group 3: Constraint-based ParamValue resolution
+    // -----------------------------------------------------------------------------------------
+    @Nested
+    @DisplayName("Constraint annotation mapping tests")
+    class ConstraintMappingTests {
+
+        @ParameterizedTest(name = "should map positive constraint {0}")
+        @ValueSource(classes = {
+                AtLeast.class, AtMost.class, GreaterThan.class, LessThan.class,
+                Between.class, EqualTo.class, Like.class, In.class})
+        void shouldGetParamValueByPositive(Class<? extends Constraint<?>> constraint) {
+            ParamValue paramValue = RepositoryReflectionUtils.getParamValue("name", constraint);
+
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(paramValue.value()).isEqualTo("name");
+                softly.assertThat(paramValue.negate()).isFalse();
+            });
+        }
+
+        @ParameterizedTest(name = "should map negative constraint {0}")
+        @ValueSource(classes = {NotBetween.class, NotEqualTo.class, NotIn.class, NotLike.class})
+        void shouldGetParamValueByNegative(Class<? extends Constraint<?>> constraint) {
+            ParamValue paramValue = RepositoryReflectionUtils.getParamValue("name", constraint);
+
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(paramValue.value()).isEqualTo("name");
+                softly.assertThat(paramValue.negate()).isTrue();
+            });
+        }
+
+        @ParameterizedTest(name = "should match condition for {0}")
+        @MethodSource("org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtilsTest#conditions")
+        void shouldReturnParam(Class<? extends Constraint<?>> constraint, boolean isNegate, Condition condition) {
+            ParamValue paramValue = RepositoryReflectionUtils.getParamValue("name", constraint);
+
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(paramValue.condition()).isEqualTo(condition);
+                softly.assertThat(paramValue.negate()).isEqualTo(isNegate);
+                softly.assertThat(paramValue.value()).isEqualTo("name");
+            });
+        }
+
+        @ParameterizedTest(name = "should map constraint instance {0}")
+        @MethodSource("org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtilsTest#conditionsInstances")
+        void shouldReturnParamWithInstances(boolean isNegate, Condition condition,
+                                            Constraint<?> constraint, Object value) {
+            ParamValue paramValue = RepositoryReflectionUtils.getParamValue(constraint, EqualTo.class);
+
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(paramValue.condition()).isEqualTo(condition);
+                softly.assertThat(paramValue.negate()).isEqualTo(isNegate);
+                softly.assertThat(paramValue.value()).isEqualTo(value);
+            });
+        }
+
+        @Test
+        @DisplayName("should create ParamValue equals when constraint is null")
+        void shouldCreateParamValueEqualsWhenIsNull() {
+            var param = RepositoryReflectionUtils.INSTANCE.condition(null, "name");
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(param).isNotNull();
+                softly.assertThat(param.value()).isEqualTo("name");
+                softly.assertThat(param.condition()).isEqualTo(Condition.EQUALS);
+                softly.assertThat(param.negate()).isFalse();
+            });
+        }
+
+        @Test
+        @DisplayName("should use @Is annotation to resolve constraint type")
+        void shouldUseTheIsParamValue() {
+            Is is = new Is() {
+                @Override
+                public Class<? extends Constraint> value() {
+                    return Like.class;
+                }
+
+                @Override
+                public Class<? extends java.lang.annotation.Annotation> annotationType() {
+                    return Is.class;
+                }
+            };
+
+            var param = RepositoryReflectionUtils.INSTANCE.condition(is, "name");
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(param).isNotNull();
+                softly.assertThat(param.value()).isEqualTo("name");
+                softly.assertThat(param.condition()).isEqualTo(Condition.LIKE);
+                softly.assertThat(param.negate()).isFalse();
+            });
+        }
     }
 
-    @Test
-    // for code compiled without -parameters
-    void shouldFindByAgeWithoutParams() {
-        Method method = Stream.of(PersonRepository.class.getDeclaredMethods()).filter(m -> m.getName().equals("findAge"))
-                .findFirst().orElseThrow();
-        Map<String, Object> params = RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{10});
-        assertThat(method.getParameters()[0].isNamePresent()).isFalse();
-        assertThat(params)
-                .hasSize(1)
-                .containsEntry("?1", 10);
-    }
-
-    @Test
-    // for code compiled with -parameters
-    void shouldFindByAgeWithParams() throws ClassNotFoundException {
-        Method method = Stream.of(PERSON_REPOSITORY_COMPILED_WITH_PARAMETERS_CLASS.getDeclaredMethods()).filter(m -> m.getName().equals("findAge"))
-                .findFirst().orElseThrow();
-        Map<String, Object> params = RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{10});
-        assertThat(method.getParameters()[0].isNamePresent()).isTrue();
-        assertThat(params)
-                .hasSize(2)
-                .containsEntry("?1", 10)
-                .containsEntry("age", 10);
-    }
-
-    @Test
-    // for code compiled without -parameters
-    void shouldFindByAgeAndNameWithoutParams() {
-        Method method = Stream.of(PersonRepository.class.getDeclaredMethods()).filter(m -> m.getName().equals("findAgeAndName"))
-                .findFirst().orElseThrow();
-        Map<String, Object> params = RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{10, "Ada"});
-        assertThat(params)
-                .hasSize(2)
-                .containsEntry("?1", 10)
-                .containsEntry("?2", "Ada");
-    }
-
-    @Test
-    // for code compiled with -parameters
-    void shouldFindByAgeAndNameWithParams() {
-        Method method = Stream.of(PERSON_REPOSITORY_COMPILED_WITH_PARAMETERS_CLASS.getDeclaredMethods()).filter(m -> m.getName().equals("findAgeAndName"))
-                .findFirst().orElseThrow();
-        Map<String, Object> params = RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{10, "Ada"});
-        assertThat(params)
-                .hasSize(4)
-                .containsEntry("?1", 10)
-                .containsEntry("?2", "Ada")
-                .containsEntry("age", 10)
-                .containsEntry("name", "Ada");
-    }
-
-
-    @ParameterizedTest(name = "Testing positive {index} - {0}")
-    @ValueSource(classes = {AtLeast.class, AtMost.class, GreaterThan.class, LessThan.class, Between.class,
-            EqualTo.class, Like.class, In.class})
-    void shouldGetParamValueByPositive(Class<? extends Constraint<?>> constraint) {
-        ParamValue paramValue = RepositoryReflectionUtils.getParamValue("name", constraint);
-
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(paramValue.value()).isEqualTo("name");
-            softly.assertThat(paramValue.negate()).isFalse();
-        });
-    }
-
-    @ParameterizedTest(name = "Negative positive {index} - {0}")
-    @ValueSource(classes = {NotBetween.class, NotEqualTo.class, NotIn.class, NotLike.class})
-    void shouldGetParamValueByNegative(Class<? extends Constraint<?>> constraint) {
-        ParamValue paramValue = RepositoryReflectionUtils.getParamValue("name", constraint);
-
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(paramValue.value()).isEqualTo("name");
-            softly.assertThat(paramValue.negate()).isTrue();
-        });
-    }
-
-
-    @ParameterizedTest(name = "Testing condition {index} - {0}")
-    @MethodSource("conditions")
-    void shouldReturnParam(Class<? extends Constraint<?>> constraint, boolean isNegate, Condition condition) {
-        ParamValue paramValue = RepositoryReflectionUtils.getParamValue("name", constraint);
-
-        SoftAssertions.assertSoftly(softly -> {
-           softly.assertThat(paramValue.condition()).isEqualTo(condition);
-              softly.assertThat(paramValue.negate()).isEqualTo(isNegate);
-              softly.assertThat(paramValue.value()).isEqualTo("name");
-        });
-    }
-
-    @ParameterizedTest(name = "Testing condition {index} - {1} and the result: {2}")
-    @MethodSource("conditionsInstances")
-    void shouldReturnParamWithInstances(boolean isNegate, Condition condition, Constraint<?> constraint, Object value) {
-        ParamValue paramValue = RepositoryReflectionUtils.getParamValue(constraint, EqualTo.class);
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(paramValue.condition()).isEqualTo(condition);
-            softly.assertThat(paramValue.negate()).isEqualTo(isNegate);
-            softly.assertThat(paramValue.value()).isEqualTo(value);
-        });
-    }
-
-    @Test
-    @DisplayName("Should create ParamValueEquals when the value is null")
-    void shouldCreateParamValueEqualsWhenIsNull(){
-        var param = RepositoryReflectionUtils.INSTANCE.condition(null, "name");
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(param).isNotNull();
-            softly.assertThat(param.value()).isEqualTo("name");
-            softly.assertThat(param.condition()).isEqualTo(Condition.EQUALS);
-            softly.assertThat(param.negate()).isFalse();
-        });
-    }
-
-    @Test
-    @DisplayName("Should use the isParamValue")
-    void shouldUseTheIsParamValue() {
-        Is is = new Is() {
-            @Override
-            public Class<? extends Constraint> value() {
-                return Like.class;
-            }
-
-            @Override
-            public Class<? extends java.lang.annotation.Annotation> annotationType() {
-                return Is.class;
-            }
-        };
-
-        var param = RepositoryReflectionUtils.INSTANCE.condition(is, "name");
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(param).isNotNull();
-            softly.assertThat(param.value()).isEqualTo("name");
-            softly.assertThat(param.condition()).isEqualTo(Condition.LIKE);
-            softly.assertThat(param.negate()).isFalse();
-        });
-    }
-
+    // -----------------------------------------------------------------------------------------
+    // Static method sources and repository interface
+    // -----------------------------------------------------------------------------------------
     public static Stream<Arguments> conditions() {
         return Stream.of(
                 Arguments.of(AtLeast.class, false, Condition.GREATER_EQUALS_THAN),
@@ -249,12 +309,11 @@ class RepositoryReflectionUtilsTest {
         );
     }
 
-
     public static Stream<Arguments> conditionsInstances() {
         return Stream.of(
                 Arguments.of(false, Condition.GREATER_EQUALS_THAN, AtLeast.min(10), 10),
                 Arguments.of(false, Condition.LESSER_EQUALS_THAN, AtMost.max(10), 10),
-                Arguments.of(false, Condition.GREATER_THAN,GreaterThan.bound(10), 10),
+                Arguments.of(false, Condition.GREATER_THAN, GreaterThan.bound(10), 10),
                 Arguments.of(false, Condition.LESSER_THAN, LessThan.bound(10), 10),
                 Arguments.of(false, Condition.BETWEEN, Between.bounds(10, 20), List.of(10, 20)),
                 Arguments.of(false, Condition.EQUALS, EqualTo.value(10), 10),
@@ -270,7 +329,7 @@ class RepositoryReflectionUtilsTest {
     interface PersonRepository extends BasicRepository<Person, String> {
 
         @Query("FROM Person WHERE name = :name")
-        List<Person> query(@Param("name") @By("name")  String name, Sort sort);
+        List<Person> query(@Param("name") @By("name") String name, Sort sort);
 
         @Query("FROM Person WHERE age = ?1")
         List<Person> findAge(int age);
