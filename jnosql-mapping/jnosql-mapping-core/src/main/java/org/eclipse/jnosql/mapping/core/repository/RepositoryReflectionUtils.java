@@ -97,7 +97,7 @@ public enum RepositoryReflectionUtils {
         return params;
     }
 
-    public ParamValue condition(Is is, Object value) {
+    ParamValue condition(Is is, Object value) {
         if (Objects.isNull(is)) {
             return new ParamValue(Condition.EQUALS, value, false);
         }
