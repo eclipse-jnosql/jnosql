@@ -143,7 +143,7 @@ class CrudRepositoryProxyIsTest {
 
 
     @Test
-    @DisplayName("Should Execute Query with explict annotation")
+    @DisplayName("Should Execute Query with explicit annotation")
     void shouldEqualsExplicitAnnotation() {
 
         when(template.select(any(SelectQuery.class)))
