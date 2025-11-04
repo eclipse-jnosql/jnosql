@@ -182,14 +182,14 @@ class RepositoryReflectionUtilsTest {
         });
     }
 
-    @ParameterizedTest(name = "Testing condition {index} - {0}")
+    @ParameterizedTest(name = "Testing condition {index} - {1} and the result: {2}")
     @MethodSource("conditionsInstances")
-    void shouldReturnParamWithInstances(boolean isNegate, Condition condition, Constraint<?> constraint) {
+    void shouldReturnParamWithInstances(boolean isNegate, Condition condition, Constraint<?> constraint, Object value) {
         ParamValue paramValue = RepositoryReflectionUtils.getParamValue(constraint, EqualTo.class);
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(paramValue.condition()).isEqualTo(condition);
             softly.assertThat(paramValue.negate()).isEqualTo(isNegate);
-            softly.assertThat(paramValue.value()).isEqualTo("name");
+            softly.assertThat(paramValue.value()).isEqualTo(value);
         });
     }
 
@@ -216,15 +216,15 @@ class RepositoryReflectionUtilsTest {
                 Arguments.of(false, Condition.GREATER_EQUALS_THAN, AtLeast.min(10), 10),
                 Arguments.of(false, Condition.LESSER_EQUALS_THAN, AtMost.max(10), 10),
                 Arguments.of(false, Condition.GREATER_THAN,GreaterThan.bound(10), 10),
-                Arguments.of(false, Condition.LESSER_THAN, LessThan.bound(10), 1),
+                Arguments.of(false, Condition.LESSER_THAN, LessThan.bound(10), 10),
                 Arguments.of(false, Condition.BETWEEN, Between.bounds(10, 20), List.of(10, 20)),
                 Arguments.of(false, Condition.EQUALS, EqualTo.value(10), 10),
-                Arguments.of(false, Condition.LIKE, Like.literal("name")),
-                Arguments.of(false, Condition.IN, In.values(10, 20)),
-                Arguments.of(true, Condition.BETWEEN, NotBetween.bounds(10, 20)),
-                Arguments.of(true, Condition.EQUALS, NotEqualTo.value(10)),
-                Arguments.of(true, Condition.IN, NotIn.values(10, 20)),
-                Arguments.of(true, Condition.LIKE, NotLike.literal("name"))
+                Arguments.of(false, Condition.LIKE, Like.literal("name"), "name"),
+                Arguments.of(false, Condition.IN, In.values(10, 20), List.of(10, 20)),
+                Arguments.of(true, Condition.BETWEEN, NotBetween.bounds(10, 20), List.of(10, 20)),
+                Arguments.of(true, Condition.EQUALS, NotEqualTo.value(10), 10),
+                Arguments.of(true, Condition.IN, NotIn.values(10, 20), List.of(10, 20)),
+                Arguments.of(true, Condition.LIKE, NotLike.literal("name"), "name")
         );
     }
 
