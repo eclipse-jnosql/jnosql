@@ -97,14 +97,16 @@ public enum RepositoryReflectionUtils {
         return params;
     }
 
+    @SuppressWarnings("unchecked")
     ParamValue condition(Is is, Object value) {
-        if (Objects.isNull(is)) {
+        if (Objects.isNull(is) && !(value instanceof Constraint<?>)) {
             return new ParamValue(Condition.EQUALS, value, false);
+        } else if(value instanceof Constraint<?> constraint){
+            return valueFromConstraintInstance(constraint);
         }
-        Class<? extends Constraint> constraint = is.value();
+        Class<? extends Constraint<?>> constraint = (Class<? extends Constraint<?>>) is.value();
         return getParamValue(value, constraint);
     }
-
     static ParamValue getParamValue(Object value, Class<? extends Constraint> type) {
         if(value instanceof Constraint<?> constraint){
             return valueFromConstraintInstance(constraint);
