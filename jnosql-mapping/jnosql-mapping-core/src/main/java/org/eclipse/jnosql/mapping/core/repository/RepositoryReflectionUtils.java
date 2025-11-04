@@ -141,7 +141,7 @@ public enum RepositoryReflectionUtils {
     }
 
     private static Object  valueFromExpression(Expression<?, ?> expression) {
-        if(expression instanceof Literal<?> literal){
+        if (expression instanceof Literal<?> literal) {
             return literal.value();
         }
         throw new UnsupportedOperationException("On NoSQL database this is not supported: " + expression.getClass());
