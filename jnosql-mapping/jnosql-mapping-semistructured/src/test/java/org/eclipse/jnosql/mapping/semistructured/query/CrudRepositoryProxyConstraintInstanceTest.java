@@ -27,7 +27,6 @@ import jakarta.data.constraint.NotLike;
 import jakarta.data.repository.By;
 import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Find;
-import jakarta.data.repository.Is;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
@@ -71,7 +70,7 @@ import static org.mockito.Mockito.when;
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class})
-class CrudRepositoryProxyConstainInstanceTest {
+class CrudRepositoryProxyConstraintInstanceTest {
 
     private SemiStructuredTemplate template;
 
