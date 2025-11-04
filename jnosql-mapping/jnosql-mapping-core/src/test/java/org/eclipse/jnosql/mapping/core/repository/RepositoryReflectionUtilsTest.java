@@ -286,8 +286,8 @@ class RepositoryReflectionUtilsTest {
             var param = RepositoryReflectionUtils.INSTANCE.condition(null, AtMost.max(10));
             SoftAssertions.assertSoftly(softly -> {
                 softly.assertThat(param).isNotNull();
-                softly.assertThat(param.value()).isEqualTo("name");
-                softly.assertThat(param.condition()).isEqualTo(Condition.EQUALS);
+                softly.assertThat(param.value()).isEqualTo(10);
+                softly.assertThat(param.condition()).isEqualTo(Condition.LESSER_EQUALS_THAN);
                 softly.assertThat(param.negate()).isFalse();
             });
         }
