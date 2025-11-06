@@ -47,6 +47,10 @@ public class ProjectorConverter {
         this.entitiesMetadata = entitiesMetadata;
     }
 
+    ProjectorConverter() {
+        this(null);
+    }
+
 
     /**
      * Converts the given entity to a projection based on the provided metadata.
