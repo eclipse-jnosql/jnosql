@@ -28,7 +28,10 @@ import org.eclipse.jnosql.mapping.semistructured.entities.City;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 @EnableAutoWeld
@@ -43,6 +46,13 @@ class ProjectorConverterTest {
 
     @Inject
     private EntitiesMetadata entitiesMetadata;
+
+    @Test
+    @DisplayName("Should have a default constructor for CDI ")
+    void shouldHaveDefaultConstructor() {
+        ProjectorConverter converter = new ProjectorConverter();
+        assertNotNull(converter);
+    }
 
     @Test
     void shouldConvertEntityToProjection() {
