@@ -27,6 +27,7 @@ import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.First;
 import jakarta.data.repository.Is;
+import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
@@ -173,7 +174,7 @@ class CrudRepositoryProxyFirstAnnotationTest {
 
         @First(10)
         @Query("FROM Product where name =:name")
-        List<Product> query(String name);
+        List<Product> query(@Param("name") String name);
 
         @First(15)
         List<Product> findByName(String name);
