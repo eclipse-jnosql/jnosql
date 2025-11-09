@@ -292,7 +292,12 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
             sorts.addAll(selectQuery.sorts());
             sorts.addAll(special.sorts());
             long skip = limit.map(l -> l.startAt() - 1).orElse(selectQuery.skip());
-            long max = limit.map(Limit::maxResults).orElse((int) selectQuery.limit());
+            long max;
+            if (first != null) {
+                max = first.value();
+            } else {
+                max = limit.map(Limit::maxResults).orElse((int) selectQuery.limit());
+            }
             return new MappingQuery(sorts, max,
                     skip,
                     selectQuery.condition().orElse(null),
