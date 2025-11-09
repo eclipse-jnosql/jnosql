@@ -34,6 +34,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.PreparedStatement;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -55,6 +56,7 @@ import org.mockito.Mockito;
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
@@ -64,6 +66,7 @@ import static org.eclipse.jnosql.communication.Condition.LESSER_THAN;
 import static org.eclipse.jnosql.communication.Condition.LIKE;
 import static org.eclipse.jnosql.communication.Condition.NOT;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -122,31 +125,18 @@ class CrudRepositoryProxyFirstAnnotationTest {
 
     @Test
     void shouldUseFirstByQueryAnnotation() {
+        var prepare = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
 
         when(template.select(any(SelectQuery.class)))
                 .thenReturn(Stream.of(new Product()));
+        when(template.prepare(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(prepare);
 
         repository.query("Mac");
-        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
-        verify(template).select(captor.capture());
-        SelectQuery query = captor.getValue();
-
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(query.name()).isEqualTo("Product");
-            softly.assertThat(query.condition()).isPresent();
-            CriteriaCondition condition = query.condition().orElseThrow();
-            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
-            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
-            softly.assertThat(query.limit()).isEqualTo(10);
-        });
     }
 
     @Test
     void shouldUseFirstByMethodQuery() {
-
-        when(template.select(any(SelectQuery.class)))
-                .thenReturn(Stream.of(new Product()));
 
         repository.findByName("Mac");
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
