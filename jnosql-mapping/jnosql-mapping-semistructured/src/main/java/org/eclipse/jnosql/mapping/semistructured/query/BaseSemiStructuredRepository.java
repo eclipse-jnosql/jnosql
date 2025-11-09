@@ -124,8 +124,9 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         var queryParams = SELECT_PARSER.apply(selectQuery, parser());
         var query = queryParams.query();
         var params = queryParams.params();
+        var first = method.getAnnotation(First.class);
         paramsBinder().bind(params, args(args), method);
-        return updateQueryDynamically(args(args), query);
+        return updateQueryDynamically(args(args), query, first);
     }
 
     private static Object[] args(Object[] args) {
