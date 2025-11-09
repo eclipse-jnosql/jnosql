@@ -239,7 +239,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
             }
         }
         if(first != null){
-            return new MappingQuery(query.sorts(), Optional.ofNullable(first.value()).map(v -> (long) v).orElse(query.limit()), query.skip(),
+            return new MappingQuery(query.sorts(), Optional.of(first.value()).map(v -> (long) v).orElse(query.limit()), query.skip(),
                     query.condition().orElse(null), query.name(), query.columns());
         }
         return query;
