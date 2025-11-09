@@ -149,7 +149,8 @@ class CrudRepositoryProxyFirstAnnotationTest {
             CriteriaCondition condition = query.condition().orElseThrow();
             softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
             softly.assertThat(condition.condition()).isEqualTo(EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+            softly.assertThat(condition.element().name()).isEqualTo(_Product.NAME);
+            softly.assertThat(condition.element().get()).isEqualTo("Mac");
             softly.assertThat(query.limit()).isEqualTo(15);
         });
     }
