@@ -19,6 +19,7 @@ import jakarta.data.Limit;
 import jakarta.data.Sort;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import jakarta.data.repository.First;
 import jakarta.data.repository.Select;
 import jakarta.data.restrict.Restriction;
 import org.eclipse.jnosql.communication.Params;
@@ -218,7 +219,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         return typeClass;
     }
 
-    private SelectQuery includeInheritance(SelectQuery query) {
+    private SelectQuery includeInheritance(SelectQuery query, First first) {
         EntityMetadata metadata = this.entityMetadata();
         if (metadata.inheritance().isPresent()) {
             InheritanceMetadata inheritanceMetadata = metadata.inheritance().orElseThrow();
@@ -229,7 +230,10 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                     CriteriaCondition columnCondition = query.condition().orElseThrow();
                     condition = condition.and(columnCondition);
                 }
-                return new MappingQuery(query.sorts(), query.limit(), query.skip(),
+                return new MappingQuery(query.sorts(), Optional.ofNullable(first)
+                        .map(First::value)
+                        .map(v -> (long) v)
+                        .orElse(query.limit()), query.skip(),
                         condition, query.name(), query.columns());
             }
         }
@@ -260,9 +264,9 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
     }
 
 
-    protected SelectQuery updateQueryDynamically(Object[] args, SelectQuery query) {
+    protected SelectQuery updateQueryDynamically(Object[] args, SelectQuery query, First first) {
 
-        var selectInheritance = includeInheritance(query);
+        var selectInheritance = includeInheritance(query, first);
         var special = DynamicReturn.findSpecialParameters(args, sortParser());
 
         if (special.isEmpty()) {
