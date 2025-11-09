@@ -98,7 +98,7 @@ class CrudRepositoryProxyFirstAnnotationTest {
 
 
     @Test
-    void shouldEquals() {
+    void shouldUseFirstByFindAnnotation() {
 
         when(template.select(any(SelectQuery.class)))
                 .thenReturn(Stream.of(new Product()));
@@ -115,20 +115,68 @@ class CrudRepositoryProxyFirstAnnotationTest {
             softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
             softly.assertThat(condition.condition()).isEqualTo(EQUALS);
             softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
-            softly.assertThat(query.limit()).isEqualTo(1);
+            softly.assertThat(query.limit()).isEqualTo(5);
+        });
+    }
+
+    @Test
+    void shouldUseFirstByQueryAnnotation() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.query("Mac");
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+            softly.assertThat(query.limit()).isEqualTo(10);
+        });
+    }
+
+    @Test
+    void shouldUseFirstByMethodQuery() {
+
+        when(template.select(any(SelectQuery.class)))
+                .thenReturn(Stream.of(new Product()));
+
+        repository.findByName("Mac");
+        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).select(captor.capture());
+        SelectQuery query = captor.getValue();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(query.name()).isEqualTo("Product");
+            softly.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            softly.assertThat(condition).isInstanceOf(CriteriaCondition.class);
+            softly.assertThat(condition.condition()).isEqualTo(EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
+            softly.assertThat(query.limit()).isEqualTo(10);
         });
     }
 
 
 
+
     public interface ProductRepository extends CrudRepository<Product, String> {
         @Find
-        @First
+        @First(5)
         List<Product> find(@By(_Product.NAME) String name);
 
         @First(10)
         @Query("FROM Product where name =:name")
         List<Product> query(String name);
+
+        @First(15)
+        List<Product> findByName(String name);
 
     }
 
