@@ -14,19 +14,10 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
-import jakarta.data.constraint.EqualTo;
-import jakarta.data.constraint.GreaterThan;
-import jakarta.data.constraint.In;
-import jakarta.data.constraint.LessThan;
-import jakarta.data.constraint.Like;
-import jakarta.data.constraint.NotEqualTo;
-import jakarta.data.constraint.NotIn;
-import jakarta.data.constraint.NotLike;
 import jakarta.data.repository.By;
 import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.First;
-import jakarta.data.repository.Is;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import jakarta.inject.Inject;
@@ -34,7 +25,6 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
-import org.eclipse.jnosql.mapping.PreparedStatement;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -48,25 +38,16 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Proxy;
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
-import static org.eclipse.jnosql.communication.Condition.GREATER_THAN;
-import static org.eclipse.jnosql.communication.Condition.IN;
-import static org.eclipse.jnosql.communication.Condition.LESSER_THAN;
-import static org.eclipse.jnosql.communication.Condition.LIKE;
-import static org.eclipse.jnosql.communication.Condition.NOT;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
