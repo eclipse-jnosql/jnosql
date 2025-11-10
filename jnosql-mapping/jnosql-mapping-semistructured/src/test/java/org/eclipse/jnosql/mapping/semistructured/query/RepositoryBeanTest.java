@@ -86,7 +86,7 @@ class RepositoryBeanTest {
 
     @Test
     void shouldGetId() {
-        SoftAssertions.assertSoftly(soft -> {;
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(repositoryBean.getId()).isNotNull();
             soft.assertThat(repositoryBeanDefault.getId()).isNotNull();
         });
@@ -94,7 +94,7 @@ class RepositoryBeanTest {
 
     @Test
     void shouldGetTypes() {
-        SoftAssertions.assertSoftly(soft -> {;
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(repositoryBean.getTypes()).isNotNull();
             soft.assertThat(repositoryBeanDefault.getTypes()).isNotNull();
         });
