@@ -43,14 +43,11 @@ import static org.mockito.Mockito.spy;
 class BaseRepositoryBeanTest {
 
     private BaseRepositoryBean<MockRepository> repositoryBean;
-    private BaseRepositoryBean<MockRepository> defaultRepositoryBean;
     private final String provider = "testProvider";
 
     @BeforeEach
     void setUp() {
         repositoryBean = new MockBaseRepositoryBean(MockRepository.class, provider, DatabaseType.GRAPH);
-        defaultRepositoryBean = new MockBaseRepositoryBean(MockRepository.class, "", DatabaseType.COLUMN);
-        defaultRepositoryBean = new MockBaseRepositoryBean(MockRepository.class, "", DatabaseType.DOCUMENT);
     }
 
     @Test
