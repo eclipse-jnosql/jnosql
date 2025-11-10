@@ -345,7 +345,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         CriteriaCondition conditionConverted = RestrictionConverter.INSTANCE.parser(restriction,
                 entityMetadata(), converters()).orElse(null);
         SelectQuery updateQuery = selectQuery;
-        var limit = Optional.ofNullable(first).map(First::value).map(v -> (long) v).orElse(selectQuery.limit());
+        long limit = Optional.ofNullable(first).map(First::value).map(v -> (long) v).orElse(selectQuery.limit());
         if (conditionConverted != null) {
             var conditionOptional = selectQuery.condition();
 
