@@ -332,7 +332,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                 List<Sort<?>> sorts = new ArrayList<>(selectQuery.sorts());
                 sorts.addAll(special.sorts());
                 return new MappingQuery(sorts, Optional.ofNullable(first).map(First::value)
-                        .map(v -> (long)v).orElse(selectQuery.limit()), selectQuery.skip(),
+                        .map(v -> (long) v).orElse(selectQuery.limit()), selectQuery.skip(),
                         selectQuery.condition().orElse(null), selectQuery.name(), selectQuery.columns());
             }
             return selectQuery;
