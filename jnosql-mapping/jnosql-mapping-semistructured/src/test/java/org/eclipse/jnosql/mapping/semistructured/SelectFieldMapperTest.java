@@ -66,16 +66,11 @@ class SelectFieldMapperTest {
 
     private DefaultSemiStructuredTemplate template;
 
-    private ArgumentCaptor<CommunicationEntity> captor;
-
-    private EventPersistManager eventPersistManager;
-
     @SuppressWarnings("unchecked")
     @BeforeEach
     void setUp() {
         managerMock = Mockito.mock(DatabaseManager.class);
-        eventPersistManager = Mockito.mock(EventPersistManager.class);
-        captor = ArgumentCaptor.forClass(CommunicationEntity.class);
+        EventPersistManager eventPersistManager = Mockito.mock(EventPersistManager.class);
         Instance<DatabaseManager> instance = Mockito.mock(Instance.class);
         Mockito.when(instance.get()).thenReturn(managerMock);
         this.template = new DefaultSemiStructuredTemplate(converter, instance,

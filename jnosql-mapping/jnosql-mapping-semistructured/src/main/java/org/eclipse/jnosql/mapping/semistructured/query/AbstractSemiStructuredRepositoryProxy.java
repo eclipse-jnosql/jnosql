@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 import jakarta.data.Sort;
 import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.data.repository.Find;
+import jakarta.data.repository.First;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Select;
@@ -67,6 +68,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         var queryValue = method.getAnnotation(Query.class).value();
         var queryType = QueryType.parse(queryValue);
         var returnType = method.getReturnType();
+        var first = method.getAnnotation(First.class);
         LOGGER.finest("Query: " + queryValue + " with type: " + queryType + " and return type: " + returnType);
         queryType.checkValidReturn(returnType, queryValue);
 
@@ -80,10 +82,10 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
                     var prepare = (org.eclipse.jnosql.mapping.semistructured.PreparedStatement) template().prepare(textQuery, entity);
                     List<Sort<?>> sortsFromAnnotation = getSorts(method, entityMetadata());
                     if (sortsFromAnnotation.isEmpty()) {
-                        prepare.setSelectMapper(query -> updateQueryDynamically(params, query));
+                        prepare.setSelectMapper(query -> updateQueryDynamically(params, query, first));
                     } else {
                         prepare.setSelectMapper(query -> {
-                            var selectQuery = updateQueryDynamically(params, query);
+                            var selectQuery = updateQueryDynamically(params, query, first);
                             List<Sort<?>> sorts = new ArrayList<>(selectQuery.sorts());
                             sorts.addAll(sortsFromAnnotation);
                             return new MappingQuery(sorts, selectQuery.limit(), selectQuery.skip(),
@@ -104,8 +106,9 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
             var textQuery = method.getAnnotation(Query.class).value();
             var prepare = (org.eclipse.jnosql.mapping.semistructured.PreparedStatement)template().prepare(textQuery, entity);
             var argsParams = RepositoryReflectionUtils.INSTANCE.getParams(method, params);
+            var first = method.getAnnotation(First.class);
             argsParams.forEach(prepare::bind);
-            var selectQuery = updateQueryDynamically(params, prepare.selectQuery().orElseThrow());
+            var selectQuery = updateQueryDynamically(params, prepare.selectQuery().orElseThrow(), first);
             var special = DynamicReturn.findSpecialParameters(params, sortParser());
             var pageRequest = special.pageRequest()
                     .orElseThrow(() -> new IllegalArgumentException("Pageable is required in the method signature as parameter at " + method));
@@ -120,7 +123,8 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         } else {
             var parameters = RepositoryReflectionUtils.INSTANCE.getBy(method, params);
             var query = toQuery(parameters, method);
-            var updateQuery = updateQueryDynamically(params, query);
+            var first = method.getAnnotation(First.class);
+            var updateQuery = updateQueryDynamically(params, query, first);
             var special = DynamicReturn.findSpecialParameters(params, sortParser());
             var pageRequest = special.pageRequest()
                     .orElseThrow(() -> new IllegalArgumentException("Pageable is required in the method signature as parameter at " + method));
@@ -150,7 +154,8 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
     protected Object executeFindAll(Object instance, Method method, Object[] params) {
         Class<?> type = entityMetadata().type();
         var query = SelectQuery.select().from(entityMetadata().name()).build();
-        return executeFindByQuery(method, params, type, updateQueryDynamically(params, query));
+        var first = method.getAnnotation(First.class);
+        return executeFindByQuery(method, params, type, updateQueryDynamically(params, query, first));
     }
 
     @Override
@@ -174,7 +179,8 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         Class<?> type = entityMetadata().type();
         var parameters = RepositoryReflectionUtils.INSTANCE.getBy(method, params);
         var query = toQuery(parameters, method);
-        return executeFindByQuery(method, params, type, updateQueryDynamically(params, query));
+        var first = method.getAnnotation(First.class);
+        return executeFindByQuery(method, params, type, updateQueryDynamically(params, query, first));
     }
 
     protected SelectQuery toQuery(Map<String, ParamValue> parameters, Method method) {

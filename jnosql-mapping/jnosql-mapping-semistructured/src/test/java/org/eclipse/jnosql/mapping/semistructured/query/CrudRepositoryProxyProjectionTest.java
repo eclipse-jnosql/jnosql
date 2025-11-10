@@ -185,7 +185,6 @@ class CrudRepositoryProxyProjectionTest {
         mac.setType(Product.ProductType.ELECTRONICS);
 
         when(template.select(any(SelectQuery.class))).thenReturn(Stream.of(mac));
-        ;
         var name = productRepository.page(PageRequest.ofSize(10));
 
         SoftAssertions.assertSoftly(softly -> {
@@ -319,7 +318,7 @@ class CrudRepositoryProxyProjectionTest {
 
             softly.assertThat(summaries).contains(new ProductPriceSummary("Mac", new Money("USD", BigDecimal.valueOf(1000))),
                     new ProductPriceSummary("Sofa", new Money("USD", BigDecimal.valueOf(100))),
-                    new ProductPriceSummary("T-Shirt", new Money("USD", BigDecimal.valueOf(20))));;
+                    new ProductPriceSummary("T-Shirt", new Money("USD", BigDecimal.valueOf(20))));
         });
 
     }
@@ -373,7 +372,7 @@ class CrudRepositoryProxyProjectionTest {
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(summaries).contains(new ProductPriceSummary("Mac", new Money("USD", BigDecimal.valueOf(1000))),
                     new ProductPriceSummary("Sofa", new Money("USD", BigDecimal.valueOf(100))),
-                    new ProductPriceSummary("T-Shirt", new Money("USD", BigDecimal.valueOf(20))));;
+                    new ProductPriceSummary("T-Shirt", new Money("USD", BigDecimal.valueOf(20))));
         });
 
     }

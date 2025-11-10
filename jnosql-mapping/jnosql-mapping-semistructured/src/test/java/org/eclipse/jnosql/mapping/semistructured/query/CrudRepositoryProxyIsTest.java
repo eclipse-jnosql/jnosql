@@ -14,13 +14,11 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
-import jakarta.data.constraint.Between;
 import jakarta.data.constraint.EqualTo;
 import jakarta.data.constraint.GreaterThan;
 import jakarta.data.constraint.In;
 import jakarta.data.constraint.LessThan;
 import jakarta.data.constraint.Like;
-import jakarta.data.constraint.NotBetween;
 import jakarta.data.constraint.NotEqualTo;
 import jakarta.data.constraint.NotIn;
 import jakarta.data.constraint.NotLike;

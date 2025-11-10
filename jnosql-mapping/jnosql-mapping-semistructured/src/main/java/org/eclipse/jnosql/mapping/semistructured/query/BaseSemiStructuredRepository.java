@@ -19,6 +19,7 @@ import jakarta.data.Limit;
 import jakarta.data.Sort;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import jakarta.data.repository.First;
 import jakarta.data.repository.Select;
 import jakarta.data.restrict.Restriction;
 import org.eclipse.jnosql.communication.Params;
@@ -123,8 +124,9 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         var queryParams = SELECT_PARSER.apply(selectQuery, parser());
         var query = queryParams.query();
         var params = queryParams.params();
+        var first = method.getAnnotation(First.class);
         paramsBinder().bind(params, args(args), method);
-        return updateQueryDynamically(args(args), query);
+        return updateQueryDynamically(args(args), query, first);
     }
 
     private static Object[] args(Object[] args) {
@@ -218,7 +220,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         return typeClass;
     }
 
-    private SelectQuery includeInheritance(SelectQuery query) {
+    private SelectQuery includeInheritance(SelectQuery query, First first) {
         EntityMetadata metadata = this.entityMetadata();
         if (metadata.inheritance().isPresent()) {
             InheritanceMetadata inheritanceMetadata = metadata.inheritance().orElseThrow();
@@ -229,9 +231,16 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                     CriteriaCondition columnCondition = query.condition().orElseThrow();
                     condition = condition.and(columnCondition);
                 }
-                return new MappingQuery(query.sorts(), query.limit(), query.skip(),
+                return new MappingQuery(query.sorts(), Optional.ofNullable(first)
+                        .map(First::value)
+                        .map(v -> (long) v)
+                        .orElse(query.limit()), query.skip(),
                         condition, query.name(), query.columns());
             }
+        }
+        if (first != null){
+            return new MappingQuery(query.sorts(), Optional.of(first.value()).map(v -> (long) v).orElse(query.limit()), query.skip(),
+                    query.condition().orElse(null), query.name(), query.columns());
         }
         return query;
     }
@@ -260,9 +269,9 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
     }
 
 
-    protected SelectQuery updateQueryDynamically(Object[] args, SelectQuery query) {
+    protected SelectQuery updateQueryDynamically(Object[] args, SelectQuery query, First first) {
 
-        var selectInheritance = includeInheritance(query);
+        var selectInheritance = includeInheritance(query, first);
         var special = DynamicReturn.findSpecialParameters(args, sortParser());
 
         if (special.isEmpty()) {
@@ -271,7 +280,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
 
         final SelectQuery selectQuery;
         if (special.restriction().isPresent()) {
-            selectQuery = includeRestrictCondition(special, selectInheritance);
+            selectQuery = includeRestrictCondition(special, selectInheritance, first);
         } else {
             selectQuery = selectInheritance;
         }
@@ -283,7 +292,12 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
             sorts.addAll(selectQuery.sorts());
             sorts.addAll(special.sorts());
             long skip = limit.map(l -> l.startAt() - 1).orElse(selectQuery.skip());
-            long max = limit.map(Limit::maxResults).orElse((int) selectQuery.limit());
+            long max;
+            if (first != null) {
+                max = first.value();
+            } else {
+                max = limit.map(Limit::maxResults).orElse((int) selectQuery.limit());
+            }
             return new MappingQuery(sorts, max,
                     skip,
                     selectQuery.condition().orElse(null),
@@ -317,28 +331,30 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
             if (!special.sorts().isEmpty()) {
                 List<Sort<?>> sorts = new ArrayList<>(selectQuery.sorts());
                 sorts.addAll(special.sorts());
-                return new MappingQuery(sorts, selectQuery.limit(), selectQuery.skip(),
+                return new MappingQuery(sorts, Optional.ofNullable(first).map(First::value)
+                        .map(v -> (long) v).orElse(selectQuery.limit()), selectQuery.skip(),
                         selectQuery.condition().orElse(null), selectQuery.name(), selectQuery.columns());
             }
             return selectQuery;
         });
     }
 
-    private SelectQuery includeRestrictCondition(SpecialParameters special, SelectQuery selectQuery) {
+    private SelectQuery includeRestrictCondition(SpecialParameters special, SelectQuery selectQuery, First first) {
         Restriction<?> restriction = special.restriction().orElseThrow();
 
         CriteriaCondition conditionConverted = RestrictionConverter.INSTANCE.parser(restriction,
                 entityMetadata(), converters()).orElse(null);
         SelectQuery updateQuery = selectQuery;
+        long limit = Optional.ofNullable(first).map(First::value).map(v -> (long) v).orElse(selectQuery.limit());
         if (conditionConverted != null) {
             var conditionOptional = selectQuery.condition();
 
             if (conditionOptional.isPresent()) {
                 CriteriaCondition condition = conditionOptional.orElseThrow();
-                updateQuery = new MappingQuery(selectQuery.sorts(), selectQuery.limit(),
+                updateQuery = new MappingQuery(selectQuery.sorts(), limit,
                         selectQuery.skip(), condition.and(conditionConverted), selectQuery.name(), selectQuery.columns());
             } else {
-                updateQuery = new MappingQuery(selectQuery.sorts(), selectQuery.limit(),
+                updateQuery = new MappingQuery(selectQuery.sorts(), limit,
                         selectQuery.skip(), conditionConverted, selectQuery.name(), selectQuery.columns());
             }
         }

@@ -33,14 +33,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 class CustomRepositoryBeanTest {
+    private static final String PROVIDER = "testProvider";
 
     private CustomRepositoryBean<MockRepository> repositoryBean;
     private CustomRepositoryBean<?> defaultRepositoryBean;
-    private final String provider = "testProvider";
 
     @BeforeEach
     void setUp() {
-        repositoryBean = new CustomRepositoryBean<>(MockRepository.class, provider, DatabaseType.GRAPH) {
+        repositoryBean = new CustomRepositoryBean<>(MockRepository.class, PROVIDER, DatabaseType.GRAPH) {
             @Override
             protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
                 return SemiStructuredTemplate.class;

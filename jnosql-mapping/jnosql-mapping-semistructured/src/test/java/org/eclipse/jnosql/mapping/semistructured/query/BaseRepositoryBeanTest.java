@@ -41,16 +41,12 @@ import static org.mockito.Mockito.spy;
  * Unit tests for {@link BaseRepositoryBean}.
  */
 class BaseRepositoryBeanTest {
-
+    private static final String PROVIDER = "testProvider";
     private BaseRepositoryBean<MockRepository> repositoryBean;
-    private BaseRepositoryBean<MockRepository> defaultRepositoryBean;
-    private final String provider = "testProvider";
 
     @BeforeEach
     void setUp() {
-        repositoryBean = new MockBaseRepositoryBean(MockRepository.class, provider, DatabaseType.GRAPH);
-        defaultRepositoryBean = new MockBaseRepositoryBean(MockRepository.class, "", DatabaseType.COLUMN);
-        defaultRepositoryBean = new MockBaseRepositoryBean(MockRepository.class, "", DatabaseType.DOCUMENT);
+        repositoryBean = new MockBaseRepositoryBean(MockRepository.class, PROVIDER, DatabaseType.GRAPH);
     }
 
     @Test

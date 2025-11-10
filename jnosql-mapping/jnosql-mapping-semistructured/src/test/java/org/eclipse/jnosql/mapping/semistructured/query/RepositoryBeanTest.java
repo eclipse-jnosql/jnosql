@@ -36,13 +36,13 @@ import static org.mockito.Mockito.spy;
 
 class RepositoryBeanTest {
 
+    private static final String PROVIDER = "testProvider";
     private RepositoryBean<MockRepository> repositoryBean;
     private RepositoryBean<MockRepository> repositoryBeanDefault;
-    private final String provider = "testProvider";
 
     @BeforeEach
     void setUp() {
-        repositoryBean = new RepositoryBean<>(MockRepository.class, provider, DatabaseType.DOCUMENT) {
+        repositoryBean = new RepositoryBean<>(MockRepository.class, PROVIDER, DatabaseType.DOCUMENT) {
             @Override
             protected Class<? extends SemiStructuredTemplate> getTemplateClass() {
                 return SemiStructuredTemplate.class;
@@ -86,7 +86,7 @@ class RepositoryBeanTest {
 
     @Test
     void shouldGetId() {
-        SoftAssertions.assertSoftly(soft -> {;
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(repositoryBean.getId()).isNotNull();
             soft.assertThat(repositoryBeanDefault.getId()).isNotNull();
         });
@@ -94,7 +94,7 @@ class RepositoryBeanTest {
 
     @Test
     void shouldGetTypes() {
-        SoftAssertions.assertSoftly(soft -> {;
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(repositoryBean.getTypes()).isNotNull();
             soft.assertThat(repositoryBeanDefault.getTypes()).isNotNull();
         });
