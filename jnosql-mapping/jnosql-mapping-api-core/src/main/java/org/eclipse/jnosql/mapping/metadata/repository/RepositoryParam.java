@@ -14,5 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.metadata.repository;
 
+import java.util.Optional;
+
 public interface RepositoryParam {
+
+
 }
