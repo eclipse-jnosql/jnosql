@@ -14,5 +14,19 @@
  */
 package org.eclipse.jnosql.mapping.metadata.repository;
 
+import jakarta.data.Sort;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
+
 public interface MethodExecution {
+
+    Optional<String> query();
+
+    OptionalInt first();
+
+    List<Sort<?>> sorts();
+
+
 }
