@@ -13,5 +13,7 @@
  *   Otavio Santana
  */
 
-
+/**
+ * This package contains the metadata data representation of repository in Jakarta Data.
+ */
 package org.eclipse.jnosql.mapping.metadata.repository;
