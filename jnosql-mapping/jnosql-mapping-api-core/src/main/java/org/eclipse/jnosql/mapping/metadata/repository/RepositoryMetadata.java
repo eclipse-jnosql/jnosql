@@ -19,10 +19,20 @@ import java.util.Optional;
 
 public interface RepositoryMetadata {
 
-    boolean builtIn();
-
+    /**
+     * Returns the entity type handled by this repository, if any.
+     *
+     * @return an {@link Optional} containing the entity class, or empty if
+     * this repository is not parameterized with an entity type.
+     */
     Optional<Class<?>> entity();
 
+    /**
+     * Returns the identifier type associated with this repository’s entity, if any.
+     *
+     * @return an {@link Optional} containing the identifier class, or empty
+     * if this repository does not declare an identifier type.
+     */
     Optional<Class<?>> id();
 
     Optional<Class<?>> fromRepository();
