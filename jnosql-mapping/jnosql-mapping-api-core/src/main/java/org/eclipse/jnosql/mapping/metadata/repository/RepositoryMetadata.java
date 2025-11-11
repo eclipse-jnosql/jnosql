@@ -17,6 +17,13 @@ package org.eclipse.jnosql.mapping.metadata.repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Provides metadata about a Jakarta Data repository type.
+ * This interface is primarily used by Jakarta Data implementations and
+ * tooling (e.g., annotation processors, runtime engines, or schema generators)
+ * to describe and inspect repository structures, including their entity type,
+ * identifier type, and inherited repository interfaces.
+ */
 public interface RepositoryMetadata {
 
     /**
