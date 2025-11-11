@@ -16,12 +16,6 @@ package org.eclipse.jnosql.mapping.metadata.repository;
 
 import jakarta.data.repository.BasicRepository;
 import jakarta.data.repository.CrudRepository;
-import jakarta.data.repository.Delete;
-import jakarta.data.repository.Find;
-import jakarta.data.repository.Insert;
-import jakarta.data.repository.Query;
-import jakarta.data.repository.Save;
-import jakarta.data.repository.Update;
 
 /**
  * It defines the operation that might be from the Method
@@ -70,7 +64,7 @@ public enum RepositoryType {
      */
     CUSTOM_REPOSITORY,
     /**
-     * Method that has {@link Query} annotation
+     * Method that has {@link jakarta.data.repository.Query} annotation
      */
     QUERY,
     /**
