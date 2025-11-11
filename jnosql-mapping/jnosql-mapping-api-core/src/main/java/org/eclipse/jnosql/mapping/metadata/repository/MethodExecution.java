@@ -28,5 +28,6 @@ public interface MethodExecution {
 
     List<Sort<?>> sorts();
 
+    String name();
 
 }
