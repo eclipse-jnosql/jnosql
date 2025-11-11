@@ -45,11 +45,11 @@ public interface RepositoryMetadata {
     /**
      * Returns metadata about the declared query methods of this repository.
      * <p>
-     * Each method is represented by a {@link MethodExecution} instance,
+     * Each method is represented by a {@link RepositoryMethod} instance,
      * describing its signature, parameters, and query derivation strategy.
      *
-     * @return a list of {@link MethodExecution} descriptors defined in this repository.
+     * @return a list of {@link RepositoryMethod} descriptors defined in this repository.
      *         The list may be empty but never {@code null}.
      */
-    List<MethodExecution> methods();
+    List<RepositoryMethod> methods();
 }

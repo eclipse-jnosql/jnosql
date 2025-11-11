@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-public interface MethodExecution {
+public interface RepositoryMethod {
 
     Optional<String> query();
 
