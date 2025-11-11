@@ -14,5 +14,18 @@
  */
 package org.eclipse.jnosql.mapping.metadata.repository;
 
+import java.util.List;
+import java.util.Optional;
+
 public interface RepositoryMetadata {
+
+    boolean builtIn();
+
+    Optional<Class<?>> entity();
+
+    Optional<Class<?>> id();
+
+    Optional<Class<?>> fromRepository();
+
+    List<MethodExecution> methods();
 }
