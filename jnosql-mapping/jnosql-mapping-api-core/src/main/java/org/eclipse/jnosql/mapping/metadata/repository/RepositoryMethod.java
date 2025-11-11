@@ -32,4 +32,6 @@ public interface RepositoryMethod {
 
     RepositoryType type();
 
+    List<RepositoryParam> params();
+
 }
