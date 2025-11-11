@@ -30,4 +30,6 @@ public interface MethodExecution {
 
     String name();
 
+    RepositoryType type();
+
 }
