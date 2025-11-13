@@ -19,9 +19,15 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * This class is the {@link EntityMetadata} repository.
- * So it contains entities that has the {@link jakarta.nosql.Entity} annotation.
+ * Provides access to metadata for all loaded entity types.
+ * This interface acts as the repository for {@link EntityMetadata}
+ * instances. It manages classes annotated with
+ * {@link jakarta.nosql.Entity} and offers lookup
+ * operations by class, name, simple name, or discriminator hierarchy.
+ *
+ * @since 1.0
  */
+
 public interface EntitiesMetadata {
 
     /**
