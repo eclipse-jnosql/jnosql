@@ -18,5 +18,6 @@ import java.util.Optional;
 
 public interface RepositoryParam {
 
+    Optional<ISMetadata> is();
 
 }
