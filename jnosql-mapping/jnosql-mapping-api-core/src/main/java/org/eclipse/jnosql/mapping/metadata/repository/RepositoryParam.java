@@ -14,10 +14,28 @@
  */
 package org.eclipse.jnosql.mapping.metadata.repository;
 
+
+import jakarta.data.constraint.Constraint;
+
 import java.util.Optional;
 
 public interface RepositoryParam {
 
-    Optional<ISMetadata> is();
+    /**
+     * The representation of {@link jakarta.data.repository.Is#value()}
+     * @return the representation of {@link jakarta.data.repository.Is#value()}
+     */
+    Optional<Class<? extends Constraint>> is();
 
+    /**
+     * The name of the parameter, where it can be overwritable by {@link jakarta.data.repository.Param}
+     * @return the name of the parameter
+     */
+    String name();
+
+    /**
+     * The representation of {@link jakarta.data.repository.By#value()}
+     * @return The representation of {@link jakarta.data.repository.By#value()}
+     */
+    String by();
 }
