@@ -28,12 +28,4 @@ public record DefaultFieldValue(Object value, FieldMetadata field) implements Fi
         return value != null;
     }
 
-
-    @Override
-    public String toString() {
-        return "FieldValue{" +
-                "value=" + value +
-                ", field=" + field +
-                '}';
-    }
 }
