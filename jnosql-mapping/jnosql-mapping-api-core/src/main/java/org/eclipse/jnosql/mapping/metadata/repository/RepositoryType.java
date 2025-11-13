@@ -17,7 +17,6 @@ package org.eclipse.jnosql.mapping.metadata.repository;
 
 /**
  * Semantic classification of a repository method.
- *
  * Each constant identifies how a Jakarta Data repository method should be
  * interpreted and executed, based on naming conventions, annotations, or
  * inheritance from built-in repository interfaces.
