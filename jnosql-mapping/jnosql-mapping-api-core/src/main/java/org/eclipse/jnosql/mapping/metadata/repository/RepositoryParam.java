@@ -27,7 +27,6 @@ import java.util.Optional;
  * control how it is interpreted in derived or annotated queries. This interface exposes these details so that Jakarta
  * Data implementations can analyze or bind parameters accordingly.
  *
- * @since 1.0
  */
 public interface RepositoryParam {
 
