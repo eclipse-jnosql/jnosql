@@ -93,4 +93,9 @@ public interface RepositoryMethod {
      */
     Optional<Class<?>> elementType();
 
+    /**
+     * The value list form {@link jakarta.data.repository.Query#value}
+     * @return the value list form {@link jakarta.data.repository.Query#value}
+     */
+     List<String> select();
 }
