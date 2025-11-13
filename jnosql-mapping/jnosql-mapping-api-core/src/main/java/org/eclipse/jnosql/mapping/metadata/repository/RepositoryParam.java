@@ -19,23 +19,50 @@ import jakarta.data.constraint.Constraint;
 
 import java.util.Optional;
 
+/**
+ * Provides metadata about a parameter declared in a repository method.
+ * <p>
+ * Each repository parameter can be annotated with Jakarta Data annotations such as
+ * {@link jakarta.data.repository.Param}, {@link jakarta.data.repository.Is}, or {@link jakarta.data.repository.By} to control how it is interpreted in
+ * derived or annotated queries. This interface exposes these details so that
+ * Jakarta Data implementations can analyze or bind parameters accordingly.
+ *
+ * @since 1.0
+ */
 public interface RepositoryParam {
 
     /**
-     * The representation of {@link jakarta.data.repository.Is#value()}
-     * @return the representation of {@link jakarta.data.repository.Is#value()}
+     * Returns the constraint type specified by {@link jakarta.data.repository.Is#value()}, if present.
+     * <p>
+     * The {@link jakarta.data.repository.Is} annotation defines comparison semantics (e.g., {@code Is.Equal},
+     * {@code Is.GreaterThan}, {@code Is.Not}) that influence query generation.
+     *
+     * @return an {@link Optional} containing the constraint type defined by
+     * {@link jakarta.data.repository.Is#value()}, or empty if no {@link jakarta.data.repository.Is} annotation is present.
      */
     Optional<Class<? extends Constraint>> is();
 
     /**
-     * The name of the parameter, where it can be overwritable by {@link jakarta.data.repository.Param}
-     * @return the name of the parameter
+     * Returns the name of the parameter as it should appear in the query.
+     * <p>
+     * If the parameter is annotated with {@link jakarta.data.repository.Param}, the value provided by that
+     * annotation overrides the default parameter name derived from the method signature.
+     *
+     * @return the effective name of the repository method parameter, never {@code null}.
      */
     String name();
 
     /**
-     * The representation of {@link jakarta.data.repository.By#value()}
-     * @return The representation of {@link jakarta.data.repository.By#value()}
+     * Returns the property path specified by {@link jakarta.data.repository.By#value()} for this parameter.
+     * <p>
+     * The {@link jakarta.data.repository.By} annotation defines the entity attribute path to which the
+     * parameter is bound when constructing derived queries, for example:
+     * <pre>
+     *     List<Person> findByAddressCity(@By("address.city") String city);
+     * </pre>
+     *
+     * @return the property path defined by {@link jakarta.data.repository.By#value()}, or an empty string
+     * if no {@link jakarta.data.repository.By} annotation is present.
      */
     String by();
 }
