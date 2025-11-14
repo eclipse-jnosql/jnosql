@@ -91,7 +91,7 @@ class ReflectionRepositorySupplierTest {
            soft.assertThat(method.query()).isEmpty();
            soft.assertThat(method.returnType().orElseThrow()).isEqualTo(List.class);
             soft.assertThat(method.elementType().orElseThrow()).isEqualTo(Person.class);
-            soft.assertThat(method.sorts()).isNotEmpty();
+            soft.assertThat(method.sorts()).isEmpty();
             soft.assertThat(method.first()).isEmpty();
             soft.assertThat(method.type()).isEqualTo(RepositoryType.FIND_BY);
         });
@@ -120,7 +120,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldVerifySortOnFindByName() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> findByName = metadata.find("findByName");
+        Optional<RepositoryMethod> findByName = metadata.find("findByNameAndAge");
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(findByName).isPresent();
             var method = findByName.orElseThrow();
@@ -131,4 +131,17 @@ class ReflectionRepositorySupplierTest {
                             new Sort<>("age", true, true));
         });
     }
+
+    @DisplayName("should load first on findByNameAndAge")
+    @Test
+    void shouldGetFirst(){
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> findByName = metadata.find("findByNameAndAge");
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(findByName).isPresent();
+            var method = findByName.orElseThrow();
+          soft.assertThat(method.first().getAsInt()).isEqualTo(12);
+        });
+    }
+
 }
