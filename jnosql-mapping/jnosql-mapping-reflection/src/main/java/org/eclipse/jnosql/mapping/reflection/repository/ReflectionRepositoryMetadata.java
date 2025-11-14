@@ -20,10 +20,11 @@ import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import java.util.List;
 import java.util.Optional;
 
-public record ReflectionRepositoryMetadata(Class<?> type, List<RepositoryMethod> methods) implements RepositoryMetadata {
+public record ReflectionRepositoryMetadata(Class<?> type, Class<?> entityType, List<RepositoryMethod> methods) implements RepositoryMetadata {
+
     @Override
     public Optional<Class<?>> entity() {
-        return Optional.ofNullable(type);
+        return Optional.ofNullable(entityType);
     }
 
 }
