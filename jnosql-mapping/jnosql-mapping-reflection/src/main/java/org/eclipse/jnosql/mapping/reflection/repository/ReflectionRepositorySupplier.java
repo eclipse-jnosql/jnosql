@@ -16,12 +16,17 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetadata> {
 
     @Override
     public RepositoryMetadata apply(Class<?> type) {
+        Objects.requireNonNull(type, "type is required");
+        if(!type.isInterface()) {
+            throw new IllegalArgumentException("The type " + type.getName() + " is not an interface");
+        }
         return null;
     }
 }
