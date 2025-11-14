@@ -25,9 +25,7 @@ import java.util.Optional;
  * {@link jakarta.nosql.Entity} and offers lookup
  * operations by class, name, simple name, or discriminator hierarchy.
  *
- * @since 1.0
  */
-
 public interface EntitiesMetadata {
 
     /**
