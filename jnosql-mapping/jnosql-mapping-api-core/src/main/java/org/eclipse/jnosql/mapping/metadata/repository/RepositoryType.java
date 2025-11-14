@@ -25,16 +25,6 @@ package org.eclipse.jnosql.mapping.metadata.repository;
 public enum RepositoryType {
 
     /**
-     * Method inherited from a built-in repository such as
-     * {@link jakarta.data.repository.CrudRepository CrudRepository},
-     * {@link jakarta.data.repository.BasicRepository BasicRepository}, or
-     * {@link org.eclipse.jnosql.mapping.NoSQLRepository NoSQLRepository}.
-     * Typically corresponds to standard create, read, update, or delete
-     * operations defined by the Jakarta Data specification.
-     */
-    DEFAULT,
-
-    /**
      * Derived query method that starts with the keyword {@code findBy}.
      * Used to perform selection based on entity attributes and typically
      * returns an entity, an {@code Optional}, or a {@code List}.
@@ -77,23 +67,10 @@ public enum RepositoryType {
     EXISTS_BY,
 
     /**
-     * Method declared by {@link java.lang.Object java.lang.Object}, such as
-     * {@code toString()}, {@code equals(Object)}, or {@code hashCode()}.
-     * These methods are ignored by repository processing.
-     */
-    OBJECT_METHOD,
-
-    /**
      * Method defined as a {@code default} method within the repository interface.
      * Executed directly by user code rather than by the Jakarta Data provider.
      */
     DEFAULT_METHOD,
-
-    /**
-     * Method implemented in a user-provided custom repository class.
-     * Executed outside Jakarta Data’s derived or annotated query mechanisms.
-     */
-    CUSTOM_REPOSITORY,
 
     /**
      * Method annotated with
@@ -139,5 +116,10 @@ public enum RepositoryType {
      * {@link jakarta.data.repository.Update jakarta.data.repository.Update}.
      * Represents an explicit update operation that modifies existing entities.
      */
-    UPDATE
+    UPDATE,
+
+    /**
+     * At the stage it is undefined, thus, required validation
+     */
+    UNKNOWN;
 }
