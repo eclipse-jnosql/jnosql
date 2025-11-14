@@ -14,8 +14,13 @@
  */
 package org.eclipse.jnosql.mapping.reflection.repository;
 
+import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
+import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,6 +43,20 @@ class ReflectionRepositorySupplierTest {
         NullPointerException exception = assertThrows(NullPointerException.class,
                 () -> supplier.apply(null));
         assertEquals("type is required", exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = {BasicEmptyPersonRepository.class, EmptyPersonRepository.class})
+    @DisplayName("Should return RepositoryMetadata instance")
+    void shouldReturnRepositoryMetadataInstance(Class<?> type) {
+        RepositoryMetadata metadata = supplier.apply(type);
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(metadata).isNotNull();
+            soft.assertThat(metadata).isInstanceOf(ReflectionRepositoryMetadata.class);
+            soft.assertThat(metadata.entity()).get().isEqualTo(Person.class);
+            soft.assertThat(metadata.type()).isEqualTo(type);
+            soft.assertThat(metadata.methods()).isNotNull().isEmpty();
+        });
     }
 
     //the test list
