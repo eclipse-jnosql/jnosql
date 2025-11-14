@@ -25,5 +25,13 @@ import java.util.Optional;
  */
 public interface RepositoriesMetadata {
 
+    /**
+     * Retrieves the metadata associated with a specific repository type.
+     *
+     * @param type the repository class to retrieve metadata for; must not be null
+     * @return an {@code Optional} containing the metadata for the specified repository type,
+     *         or empty if no metadata is available for the given type
+     * @throws NullPointerException if the provided type is null
+     */
     Optional<RepositoryMetadata> getRepositoryMetadata(Class<?> type);
 }
