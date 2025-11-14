@@ -34,7 +34,7 @@ class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetad
             throw new IllegalArgumentException("The type " + type.getName() + " is not an interface");
         }
         Class<?> entity = findEntity(type.getGenericInterfaces());
-        return new ReflectionRepositoryMetadata(type, entity, Collections.emptyList());
+        return new ReflectionRepositoryMetadata(type, entity, Collections.emptyList(), Collections.emptyMap());
     }
 
     private Class<?> findEntity(Type[] genericInterfaces) {
