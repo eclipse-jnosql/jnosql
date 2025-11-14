@@ -34,12 +34,16 @@ class ReflectionRepositoriesMetadataTest {
     @Inject
     private RepositoriesMetadata repositoriesMetadata;
 
-
     @Test
     void shouldInjectRepository(){
         Assertions.assertThat(repositoriesMetadata).isNotNull();
     }
 
+    @Test
+    void shouldReturnNPEErrorWhenTypeIsNull() {
+        Assertions.assertThatThrownBy(() -> repositoriesMetadata.get(null))
+                .isInstanceOf(NullPointerException.class);
+    }
 
 
 }
