@@ -59,6 +59,19 @@ class ReflectionRepositorySupplierTest {
         });
     }
 
+    @Test
+    @DisplayName("Should return custom repository with no methods")
+    void shouldReturnCustomRepositoryNoMethods() {
+        RepositoryMetadata metadata = supplier.apply(PersonCustomEmptyRepository.class);
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(metadata).isNotNull();
+            soft.assertThat(metadata).isInstanceOf(ReflectionRepositoryMetadata.class);
+            soft.assertThat(metadata.entity()).isEmpty();
+            soft.assertThat(metadata.type()).isEqualTo(PersonCustomEmptyRepository.class);
+            soft.assertThat(metadata.methods()).isNotNull().isEmpty();
+        });
+    }
+
     //the test list
     //should get the entity
     //should get the
