@@ -14,11 +14,31 @@
  */
 package org.eclipse.jnosql.mapping.reflection.repository;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ReflectionRepositorySupplierTest {
 
     private ReflectionRepositorySupplier supplier = new ReflectionRepositorySupplier();
+
+    @Test
+    @DisplayName("Should return an error when its not an interface")
+    void shouldReturnErrorWhenItsNotAnInterface() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> supplier.apply(ReflectionRepositorySupplierTest.class));
+        assertEquals("The type " + ReflectionRepositorySupplierTest.class.getName() + " is not an interface",
+                exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should return an error when its null")
+    void shouldReturnErrorWhenItsNull() {
+        NullPointerException exception = assertThrows(NullPointerException.class,
+                () -> supplier.apply(null));
+        assertEquals("type is required", exception.getMessage());
+    }
 
     //the test list
     //should get the entity
