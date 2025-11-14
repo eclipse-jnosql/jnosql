@@ -33,5 +33,5 @@ public interface RepositoriesMetadata {
      *         or empty if no metadata is available for the given type
      * @throws NullPointerException if the provided type is null
      */
-    Optional<RepositoryMetadata> getRepositoryMetadata(Class<?> type);
+    Optional<RepositoryMetadata> get(Class<?> type);
 }
