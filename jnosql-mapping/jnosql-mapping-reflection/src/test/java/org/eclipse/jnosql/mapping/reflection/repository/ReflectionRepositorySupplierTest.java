@@ -16,11 +16,15 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -69,6 +73,24 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(metadata.entity()).isEmpty();
             soft.assertThat(metadata.type()).isEqualTo(PersonCustomEmptyRepository.class);
             soft.assertThat(metadata.methods()).isNotNull().isEmpty();
+        });
+    }
+
+    @Test
+    @DisplayName("Should return method query findByName")
+    void shouldMethodQueryFindByName(){
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> findByName = metadata.find("findByName");
+        SoftAssertions.assertSoftly(soft ->{
+           soft.assertThat(findByName).isPresent();
+           var method = findByName.orElseThrow();
+           soft.assertThat(method.name()).isEqualTo("findByName");
+           soft.assertThat(method.query()).isEmpty();
+           soft.assertThat(method.returnType()).isEqualTo(List.class);
+            soft.assertThat(method.elementType()).isEqualTo(Person.class);
+            soft.assertThat(method.sorts()).isEmpty();
+            soft.assertThat(method.first()).isEmpty();
+            soft.assertThat(method.params()).isNotEmpty();
         });
     }
 

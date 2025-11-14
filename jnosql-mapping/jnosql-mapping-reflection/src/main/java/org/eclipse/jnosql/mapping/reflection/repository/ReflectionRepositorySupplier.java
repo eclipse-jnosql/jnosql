@@ -15,10 +15,16 @@
 package org.eclipse.jnosql.mapping.reflection.repository;
 
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -34,7 +40,17 @@ class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetad
             throw new IllegalArgumentException("The type " + type.getName() + " is not an interface");
         }
         Class<?> entity = findEntity(type.getGenericInterfaces());
-        return new ReflectionRepositoryMetadata(type, entity, Collections.emptyList(), Collections.emptyMap());
+        List<RepositoryMethod> methods = new ArrayList<>(type.getDeclaredMethods().length);
+        Map<Method, RepositoryMethod> methodByMethodReflection = new HashMap<>(type.getDeclaredMethods().length);
+        for (Method method : type.getDeclaredMethods()) {
+            RepositoryMethod repositoryMethod = to(type, method);
+
+        }
+        return new ReflectionRepositoryMetadata(type, entity, methods, methodByMethodReflection);
+    }
+
+    private RepositoryMethod to(Class<?> type, Method method) {
+        return null;
     }
 
     private Class<?> findEntity(Type[] genericInterfaces) {
