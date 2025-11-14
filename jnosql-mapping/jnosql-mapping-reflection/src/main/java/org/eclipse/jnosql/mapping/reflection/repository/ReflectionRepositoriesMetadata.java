@@ -24,6 +24,7 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class ReflectionRepositoriesMetadata implements RepositoriesMetadata {
+
     @Override
     public Optional<RepositoryMetadata> get(Class<?> type) {
         Objects.requireNonNull(type, "type is required");
