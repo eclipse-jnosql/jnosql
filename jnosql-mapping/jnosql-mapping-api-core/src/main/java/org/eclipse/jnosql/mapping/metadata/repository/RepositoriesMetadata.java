@@ -14,5 +14,16 @@
  */
 package org.eclipse.jnosql.mapping.metadata.repository;
 
+import java.util.Optional;
+
+/**
+ * Represents a source of metadata for Jakarta Data repository types.
+ * This interface provides functionality for retrieving metadata about repository
+ * structures, using the repository's class type as a key.
+ * Implementations of this interface can be utilized by tools and runtime engines
+ * to inspect and analyze repositories within a Jakarta Data application.
+ */
 public interface RepositoriesMetadata {
+
+    Optional<RepositoryMetadata> getRepositoryMetadata(Class<?> type);
 }
