@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.reflection.repository;
 
 import jakarta.data.Sort;
-import jakarta.data.repository.OrderBy;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
@@ -92,7 +91,7 @@ class ReflectionRepositorySupplierTest {
            soft.assertThat(method.query()).isEmpty();
            soft.assertThat(method.returnType().orElseThrow()).isEqualTo(List.class);
             soft.assertThat(method.elementType().orElseThrow()).isEqualTo(Person.class);
-            soft.assertThat(method.sorts()).isEmpty();
+            soft.assertThat(method.sorts()).isNotEmpty();
             soft.assertThat(method.first()).isEmpty();
             soft.assertThat(method.type()).isEqualTo(RepositoryType.FIND_BY);
         });
@@ -128,8 +127,8 @@ class ReflectionRepositorySupplierTest {
             List<Sort<?>> sorts = method.sorts();
             soft.assertThat(sorts)
                     .hasSize(2)
-                    .contains(new Sort<>("name", true, true),
-                            new Sort<>("age", false, true));
+                    .contains(new Sort<>("name", false, true),
+                            new Sort<>("age", true, true));
         });
     }
 }
