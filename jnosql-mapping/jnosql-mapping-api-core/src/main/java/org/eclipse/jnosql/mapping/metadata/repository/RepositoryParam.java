@@ -38,7 +38,7 @@ public interface RepositoryParam {
      * @return an {@link Optional} containing the constraint type defined by {@link jakarta.data.repository.Is#value()},
      * or empty if no {@link jakarta.data.repository.Is} annotation is present.
      */
-    Optional<Class<? extends Constraint>> is();
+    Optional<Class<? extends Constraint<?>>> is();
 
     /**
      * Returns the name of the parameter as it should appear in the query.
