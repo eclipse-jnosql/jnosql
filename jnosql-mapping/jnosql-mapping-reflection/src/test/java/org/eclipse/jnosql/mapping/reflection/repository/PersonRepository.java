@@ -17,5 +17,11 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import jakarta.data.repository.CrudRepository;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 
+import java.util.List;
+
 public interface PersonRepository extends CrudRepository<Person, Long> {
+
+    List<Person> findByName(String name);
+
+    List<Person> findByNameAndAge(String name, int age);
 }

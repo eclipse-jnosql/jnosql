@@ -72,8 +72,5 @@ class ReflectionRepositorySupplierTest {
         });
     }
 
-    //the test list
-    //should get the entity
-    //should get the
 
 }
