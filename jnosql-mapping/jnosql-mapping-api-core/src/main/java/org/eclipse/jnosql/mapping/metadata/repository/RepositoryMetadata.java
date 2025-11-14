@@ -35,14 +35,6 @@ public interface RepositoryMetadata {
     Optional<Class<?>> entity();
 
     /**
-     * Returns the identifier type associated with this repository’s entity, if any.
-     *
-     * @return an {@link Optional} containing the identifier class, or empty
-     * if this repository does not declare an identifier type.
-     */
-    Optional<Class<?>> id();
-
-    /**
      * Returns metadata about the declared query methods of this repository.
      * <p>
      * Each method is represented by a {@link RepositoryMethod} instance,
