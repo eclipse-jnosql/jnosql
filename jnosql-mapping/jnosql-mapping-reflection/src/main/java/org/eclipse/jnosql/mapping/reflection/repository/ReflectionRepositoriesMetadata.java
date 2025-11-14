@@ -18,6 +18,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -25,6 +26,7 @@ import java.util.Optional;
 public class ReflectionRepositoriesMetadata implements RepositoriesMetadata {
     @Override
     public Optional<RepositoryMetadata> get(Class<?> type) {
+        Objects.requireNonNull(type, "type is required");
         return Optional.empty();
     }
 }
