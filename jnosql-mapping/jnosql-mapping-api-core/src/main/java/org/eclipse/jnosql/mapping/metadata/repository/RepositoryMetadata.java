@@ -51,4 +51,14 @@ public interface RepositoryMetadata {
      *         The list may be empty but never {@code null}.
      */
     List<RepositoryMethod> methods();
+
+    /**
+     * Finds a {@link RepositoryMethod} that matches the provided method representation.
+     *
+     * @param method an object representing the method to search for; typically, this may
+     *               be the method's name, signature, or another identifying attribute.
+     * @return an {@link Optional} containing the matching {@link RepositoryMethod} if found,
+     *         or an empty {@link Optional} if no match exists.
+     */
+    Optional<RepositoryMethod> find(Object method);
 }
