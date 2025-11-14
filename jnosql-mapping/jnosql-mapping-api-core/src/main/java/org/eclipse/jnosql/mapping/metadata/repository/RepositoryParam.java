@@ -63,4 +63,13 @@ public interface RepositoryParam {
      * {@link jakarta.data.repository.By} annotation is present.
      */
     String by();
+
+    /**
+     * Returns the type of the parameter in the repository method.
+     * This information typically corresponds to the Java class of the parameter,
+     * providing insight into its expected data type and usage.
+     *
+     * @return the {@link Class} representing the type of the parameter, never null.
+     */
+    Class<?> type();
 }
