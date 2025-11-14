@@ -92,10 +92,4 @@ public interface RepositoryMethod {
      * @return an {@link Optional} containing the element type, or empty if not applicable.
      */
     Optional<Class<?>> elementType();
-
-    /**
-     * The value list form {@link jakarta.data.repository.Query#value}
-     * @return the value list form {@link jakarta.data.repository.Query#value}
-     */
-     List<String> select();
 }
