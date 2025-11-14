@@ -23,7 +23,7 @@ import java.util.Optional;
 
 
 @ApplicationScoped
-public class ReflectionRepositoriesMetadata implements RepositoriesMetadata {
+class ReflectionRepositoriesMetadata implements RepositoriesMetadata {
 
     @Override
     public Optional<RepositoryMetadata> get(Class<?> type) {
