@@ -17,14 +17,27 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
-public record ReflectionRepositoryMetadata(Class<?> type, Class<?> entityType, List<RepositoryMethod> methods) implements RepositoryMetadata {
+public record ReflectionRepositoryMetadata(Class<?> type, Class<?> entityType, List<RepositoryMethod> methods,
+                                           Map<Method, RepositoryMethod> methodByMethodReflection) implements RepositoryMetadata {
 
     @Override
     public Optional<Class<?>> entity() {
         return Optional.ofNullable(entityType);
+    }
+
+    @Override
+    public Optional<RepositoryMethod> find(Object method) {
+        Objects.requireNonNull(method, "method is required");
+        if(method instanceof Method){
+            return Optional.ofNullable(methodByMethodReflection.get(method));
+        }
+        return Optional.empty();
     }
 
 }
