@@ -117,9 +117,14 @@ public enum RepositoryType {
      * Represents an explicit update operation that modifies existing entities.
      */
     UPDATE,
-
+    /**
+     * Method that returns a paginated result set.
+     */
+    CURSOR_PAGINATION,
     /**
      * At the stage it is undefined, thus, required validation
      */
-    UNKNOWN;
+    UNKNOWN
+
+
 }
