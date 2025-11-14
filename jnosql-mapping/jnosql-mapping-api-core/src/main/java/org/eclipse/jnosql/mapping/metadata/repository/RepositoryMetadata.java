@@ -35,6 +35,13 @@ public interface RepositoryMetadata {
     Optional<Class<?>> entity();
 
     /**
+     * Retrieves the type of the repository.
+     *
+     * @return the class type of the repository.
+     */
+    Class<?> type();
+
+    /**
      * Returns metadata about the declared query methods of this repository.
      * <p>
      * Each method is represented by a {@link RepositoryMethod} instance,
