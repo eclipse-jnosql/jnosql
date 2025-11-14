@@ -19,6 +19,7 @@ import jakarta.data.constraint.Constraint;
 import jakarta.data.repository.By;
 import jakarta.data.repository.First;
 import jakarta.data.repository.Is;
+import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
@@ -26,6 +27,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryType;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
@@ -80,7 +82,7 @@ class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetad
         }
 
         List<RepositoryParam> params = to(method.getParameters());
-        List<Sort<?>> sorts = Collections.emptyList();
+        List<Sort<?>> sorts = to(method.getAnnotationsByType(OrderBy.class));
         return new ReflectionRepositoryMethod(name,
                 type,
                 queryValue,
@@ -90,6 +92,15 @@ class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetad
                 params,
                 sorts);
     }
+
+    private List<Sort<?>> to(OrderBy[] orderBys) {
+        List<Sort<?>> sorts = new ArrayList<>(orderBys.length);
+        for (OrderBy orderBy : orderBys) {
+            sorts.add(new Sort<>(orderBy.value(), !orderBy.descending(), orderBy.ignoreCase()));
+        }
+        return sorts;
+    }
+
 
     @SuppressWarnings("unchecked")
     private List<RepositoryParam> to(Parameter[] parameters) {

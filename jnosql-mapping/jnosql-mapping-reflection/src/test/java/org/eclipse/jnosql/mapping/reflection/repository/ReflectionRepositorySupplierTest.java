@@ -14,6 +14,8 @@
  */
 package org.eclipse.jnosql.mapping.reflection.repository;
 
+import jakarta.data.Sort;
+import jakarta.data.repository.OrderBy;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
@@ -111,9 +113,23 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(repositoryParam.name()).isNotNull();
             soft.assertThat(repositoryParam.is()).isEmpty();
             soft.assertThat(repositoryParam.by()).isNotNull();
-
+            soft.assertThat(repositoryParam.type()).isEqualTo(String.class);
         });
     }
 
-
+    @DisplayName("should load sort on findByName")
+    @Test
+    void shouldVerifySortOnFindByName() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> findByName = metadata.find("findByName");
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(findByName).isPresent();
+            var method = findByName.orElseThrow();
+            List<Sort<?>> sorts = method.sorts();
+            soft.assertThat(sorts)
+                    .hasSize(2)
+                    .contains(new Sort<>("name", true, true),
+                            new Sort<>("age", false, true));
+        });
+    }
 }
