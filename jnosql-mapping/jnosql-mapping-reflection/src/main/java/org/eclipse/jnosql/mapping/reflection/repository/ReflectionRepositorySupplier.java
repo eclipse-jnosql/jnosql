@@ -16,16 +16,38 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetadata> {
+
+    private static final Logger LOGGER = Logger.getLogger(ReflectionRepositorySupplier.class.getName());
 
     @Override
     public RepositoryMetadata apply(Class<?> type) {
         Objects.requireNonNull(type, "type is required");
         if(!type.isInterface()) {
             throw new IllegalArgumentException("The type " + type.getName() + " is not an interface");
+        }
+        Class<?> entity = findEntity(type.getGenericInterfaces());
+        return new ReflectionRepositoryMetadata(type, entity, Collections.emptyList());
+    }
+
+    private Class<?> findEntity(Type[] genericInterfaces) {
+        for (Type genericInterface : genericInterfaces) {
+            if (genericInterface instanceof ParameterizedType parameterizedType) {
+                Type[] arguments = parameterizedType.getActualTypeArguments();
+               if (arguments.length > 0) {
+                   Type entityType = arguments[0];
+                   if (entityType instanceof Class<?> entity) {
+                       return entity;
+                   }
+               }
+            }
         }
         return null;
     }
