@@ -37,7 +37,7 @@ public record ReflectionRepositoryMetadata(Class<?> type, Class<?> entityType, L
         if(method instanceof Method){
             return Optional.ofNullable(methodByMethodReflection.get(method));
         }
-        return Optional.empty();
+        return methods.stream().filter(m -> m.name().equals(method.toString())).findFirst();
     }
 
 }

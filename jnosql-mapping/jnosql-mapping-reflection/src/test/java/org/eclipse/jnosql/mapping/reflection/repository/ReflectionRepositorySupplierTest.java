@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryType;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -86,11 +87,11 @@ class ReflectionRepositorySupplierTest {
            var method = findByName.orElseThrow();
            soft.assertThat(method.name()).isEqualTo("findByName");
            soft.assertThat(method.query()).isEmpty();
-           soft.assertThat(method.returnType()).isEqualTo(List.class);
-            soft.assertThat(method.elementType()).isEqualTo(Person.class);
+           soft.assertThat(method.returnType().orElseThrow()).isEqualTo(List.class);
+            soft.assertThat(method.elementType().orElseThrow()).isEqualTo(Person.class);
             soft.assertThat(method.sorts()).isEmpty();
             soft.assertThat(method.first()).isEmpty();
-            soft.assertThat(method.params()).isNotEmpty();
+            soft.assertThat(method.type()).isEqualTo(RepositoryType.FIND_BY);
         });
     }
 

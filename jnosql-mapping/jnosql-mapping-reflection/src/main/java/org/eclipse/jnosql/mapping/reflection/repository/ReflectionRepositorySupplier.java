@@ -14,8 +14,13 @@
  */
 package org.eclipse.jnosql.mapping.reflection.repository;
 
+import jakarta.data.Sort;
+import jakarta.data.repository.First;
+import jakarta.data.repository.Query;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryType;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -26,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -36,33 +42,60 @@ class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetad
     @Override
     public RepositoryMetadata apply(Class<?> type) {
         Objects.requireNonNull(type, "type is required");
-        if(!type.isInterface()) {
+        if (!type.isInterface()) {
             throw new IllegalArgumentException("The type " + type.getName() + " is not an interface");
         }
         Class<?> entity = findEntity(type.getGenericInterfaces());
         List<RepositoryMethod> methods = new ArrayList<>(type.getDeclaredMethods().length);
         Map<Method, RepositoryMethod> methodByMethodReflection = new HashMap<>(type.getDeclaredMethods().length);
         for (Method method : type.getDeclaredMethods()) {
-            RepositoryMethod repositoryMethod = to(type, method);
-
+            RepositoryMethod repositoryMethod = to(method);
+            methods.add(repositoryMethod);
+            methodByMethodReflection.put(method, repositoryMethod);
         }
         return new ReflectionRepositoryMetadata(type, entity, methods, methodByMethodReflection);
     }
 
-    private RepositoryMethod to(Class<?> type, Method method) {
-        return null;
+    private RepositoryMethod to(Method method) {
+
+        String name = method.getName();
+        RepositoryType type = RepositoryType.FIND_BY;
+        String queryValue = Optional.ofNullable(method.getAnnotation(Query.class))
+                .map(Query::value).orElse(null);
+        Integer firstValue = Optional.ofNullable(method.getAnnotation(First.class))
+                .map(First::value).orElse(null);
+        Class<?> returnTypeValue = method.getReturnType();
+        Class<?> elementTypeValue = null;
+
+        if( method.getGenericReturnType() instanceof ParameterizedType parameterizedType){
+            Type[] arguments = parameterizedType.getActualTypeArguments();
+            if(arguments.length > 0){
+                elementTypeValue = (Class<?>) arguments[0];
+            }
+        }
+
+        List<RepositoryParam> params = Collections.emptyList();
+        List<Sort<?>> sorts = Collections.emptyList();
+        return new ReflectionRepositoryMethod(name,
+                type,
+                queryValue,
+                firstValue,
+                returnTypeValue,
+                elementTypeValue,
+                params,
+                sorts);
     }
 
     private Class<?> findEntity(Type[] genericInterfaces) {
         for (Type genericInterface : genericInterfaces) {
             if (genericInterface instanceof ParameterizedType parameterizedType) {
                 Type[] arguments = parameterizedType.getActualTypeArguments();
-               if (arguments.length > 0) {
-                   Type entityType = arguments[0];
-                   if (entityType instanceof Class<?> entity) {
-                       return entity;
-                   }
-               }
+                if (arguments.length > 0) {
+                    Type entityType = arguments[0];
+                    if (entityType instanceof Class<?> entity) {
+                        return entity;
+                    }
+                }
             }
         }
         return null;
