@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryType;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.junit.jupiter.api.DisplayName;
@@ -92,6 +93,25 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(method.sorts()).isEmpty();
             soft.assertThat(method.first()).isEmpty();
             soft.assertThat(method.type()).isEqualTo(RepositoryType.FIND_BY);
+        });
+    }
+
+    @DisplayName("Should verify params on findByName")
+    @Test
+    void shouldVerifyParamsOnFindByName() {
+
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> findByName = metadata.find("findByName");
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(findByName).isPresent();
+            var method = findByName.orElseThrow();
+            List<RepositoryParam> params = method.params();
+            soft.assertThat(params).isNotEmpty().hasSize(1);
+            RepositoryParam repositoryParam = params.get(0);
+            soft.assertThat(repositoryParam.name()).isEqualTo("name");
+            soft.assertThat(repositoryParam.is()).isEmpty();
+            soft.assertThat(repositoryParam.by()).isEmpty();
+
         });
     }
 

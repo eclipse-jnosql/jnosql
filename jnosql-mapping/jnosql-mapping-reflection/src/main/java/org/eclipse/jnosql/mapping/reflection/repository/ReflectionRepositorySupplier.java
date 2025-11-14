@@ -15,7 +15,11 @@
 package org.eclipse.jnosql.mapping.reflection.repository;
 
 import jakarta.data.Sort;
+import jakarta.data.constraint.Constraint;
+import jakarta.data.repository.By;
 import jakarta.data.repository.First;
+import jakarta.data.repository.Is;
+import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
@@ -23,6 +27,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryType;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -74,7 +79,7 @@ class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetad
             }
         }
 
-        List<RepositoryParam> params = Collections.emptyList();
+        List<RepositoryParam> params = to(method.getParameters());
         List<Sort<?>> sorts = Collections.emptyList();
         return new ReflectionRepositoryMethod(name,
                 type,
@@ -84,6 +89,26 @@ class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetad
                 elementTypeValue,
                 params,
                 sorts);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<RepositoryParam> to(Parameter[] parameters) {
+        List<RepositoryParam> params = new ArrayList<>(parameters.length);
+        for (Parameter parameter : parameters) {
+            Class<? extends Constraint<?>> isValue = (Class<? extends Constraint<?>>) Optional.ofNullable(parameter
+                    .getAnnotation(Is.class))
+                    .map(Is::value)
+                    .orElse(null);
+            String name = Optional.ofNullable(parameter.getAnnotation(Param.class))
+                    .map(Param::value)
+                    .orElse(parameter.getName());
+            String by = Optional.ofNullable(parameter.getAnnotation(By.class))
+                    .map(By::value)
+                    .orElse(parameter.getName());
+            Class<?> type = parameter.getType();
+            params.add(new ReflectionRepositoryParam(isValue, name, by, type));
+        }
+        return params;
     }
 
     private Class<?> findEntity(Type[] genericInterfaces) {
