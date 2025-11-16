@@ -35,7 +35,7 @@ enum RepositoryTypeConverter {
 
 
     private static final MethodPattern FIND_BY =
-            MethodPattern.of("findBy", RepositoryType.FIND_BY);
+            MethodPattern.of("find", RepositoryType.FIND_BY);
 
     private static final MethodPattern DELETE_BY =
             MethodPattern.of("deleteBy", RepositoryType.DELETE_BY);
