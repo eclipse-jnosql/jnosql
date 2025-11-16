@@ -30,7 +30,9 @@ import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -87,11 +89,6 @@ class RepositoryTypeConverterTest {
         assertEquals(RepositoryType.QUERY, RepositoryTypeConverter.of(getMethod(DevRepository.class, "query")));
     }
 
-    @Test
-    void shouldReturnError() {
-        org.assertj.core.api.Assertions.assertThatThrownBy(() -> RepositoryTypeConverter.of(getMethod(DevRepository.class, "nope")))
-                .isInstanceOf(UnsupportedOperationException.class);
-    }
 
     @Test
     void shouldReturnParameterBased() throws NoSuchMethodException {
@@ -119,13 +116,12 @@ class RepositoryTypeConverterTest {
         assertEquals(RepositoryType.EXISTS_BY, RepositoryTypeConverter.of(getMethod(DevRepository.class, "existsByName")));
     }
 
-    @Test
-    void shouldReturnOrder() throws NoSuchMethodException {
+    @ParameterizedTest
+    @ValueSource(strings = {"order", "order2", "nope"})
+    void shouldReturnUnknown(String method) throws NoSuchMethodException {
 
-        Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> RepositoryTypeConverter.of(getMethod(DevRepository.class, "order")));
-        Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> RepositoryTypeConverter.of(getMethod(DevRepository.class, "order2")));
+        var value = RepositoryTypeConverter.of(getMethod(DevRepository.class, method));
+        Assertions.assertEquals(RepositoryType.UNKNOWN, value);
     }
 
     @Test
