@@ -8,6 +8,8 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 == [Unreleased]
 
+== [1.1.11] - 2025-11-16
+
 === Added
 
 - Add support to Mapper on Key-value databases
