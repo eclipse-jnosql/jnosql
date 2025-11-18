@@ -64,7 +64,7 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
     Person savePerson(Person person);
 
     @Insert
-    Person inserPerson(Person person);
+    Person insertPerson(Person person);
 
     @Update
     Person updatePerson(Person person);
