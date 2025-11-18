@@ -64,7 +64,7 @@ class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetad
     private RepositoryMethod to(Method method) {
 
         String name = method.getName();
-        RepositoryType type = RepositoryType.FIND_BY;
+        RepositoryType type = RepositoryTypeConverter.of(method);
         String queryValue = Optional.ofNullable(method.getAnnotation(Query.class))
                 .map(Query::value).orElse(null);
         Integer firstValue = Optional.ofNullable(method.getAnnotation(First.class))
