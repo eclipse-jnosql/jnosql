@@ -58,6 +58,7 @@ class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetad
             methods.add(repositoryMethod);
             methodByMethodReflection.put(method, repositoryMethod);
         }
+        LOGGER.finest(() -> "The repository " + type.getName() + " has " + methods.size() + " methods");
         return new ReflectionRepositoryMetadata(type, entity, methods, methodByMethodReflection);
     }
 
