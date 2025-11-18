@@ -53,4 +53,7 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
     @Find
     List<Person> find2(@By("name") @Is(GreaterThan.class) String name);
 
+    @Find
+    CursoredPage<Person> cursor(@By("age") int age);
+
 }

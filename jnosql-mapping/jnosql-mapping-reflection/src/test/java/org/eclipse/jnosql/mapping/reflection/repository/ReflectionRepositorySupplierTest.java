@@ -283,6 +283,24 @@ class ReflectionRepositorySupplierTest {
         });
     }
 
+    @Test
+    void shouldCursor() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find("cursor");
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            soft.assertThat(method.query()).isEmpty();
+            soft.assertThat(method.type()).isEqualTo(RepositoryType.CURSOR_PAGINATION);
+            List<RepositoryParam> params = method.params();
+            soft.assertThat(params).isNotEmpty().hasSize(1);
+            RepositoryParam repositoryParam = params.getFirst();
+            soft.assertThat(repositoryParam.is()).isEmpty();
+            soft.assertThat(repositoryParam.by()).isNotNull().isEqualTo("age");
+            soft.assertThat(repositoryParam.type()).isEqualTo(int.class);
+        });
+    }
+
 
 
 }
