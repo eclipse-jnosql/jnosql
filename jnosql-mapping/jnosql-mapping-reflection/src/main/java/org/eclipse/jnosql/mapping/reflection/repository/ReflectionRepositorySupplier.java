@@ -71,14 +71,7 @@ class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetad
         Integer firstValue = Optional.ofNullable(method.getAnnotation(First.class))
                 .map(First::value).orElse(null);
         Class<?> returnTypeValue = method.getReturnType();
-        Class<?> elementTypeValue = null;
-
-        if( method.getGenericReturnType() instanceof ParameterizedType parameterizedType){
-            Type[] arguments = parameterizedType.getActualTypeArguments();
-            if(arguments.length > 0){
-                elementTypeValue = (Class<?>) arguments[0];
-            }
-        }
+        Class<?> elementTypeValue = getElementTypeValue(method);
 
         List<RepositoryParam> params = to(method.getParameters());
         List<Sort<?>> sorts = to(method.getAnnotationsByType(OrderBy.class));
@@ -90,6 +83,16 @@ class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetad
                 elementTypeValue,
                 params,
                 sorts);
+    }
+
+    private static Class<?> getElementTypeValue(Method method) {
+        if( method.getGenericReturnType() instanceof ParameterizedType parameterizedType){
+            Type[] arguments = parameterizedType.getActualTypeArguments();
+            if(arguments.length > 0){
+                return  (Class<?>) arguments[0];
+            }
+        }
+        return null;
     }
 
     private List<Sort<?>> to(OrderBy[] orderBys) {
