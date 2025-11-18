@@ -240,4 +240,25 @@ class ReflectionRepositorySupplierTest {
         });
     }
 
+    @DisplayName("should find exists by name")
+    @Test
+    void shouldFind() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find("find");
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            soft.assertThat(method.query()).isEmpty();
+            soft.assertThat(method.type()).isEqualTo(RepositoryType.PARAMETER_BASED);
+            List<RepositoryParam> params = method.params();
+            soft.assertThat(params).isNotEmpty().hasSize(1);
+            RepositoryParam repositoryParam = params.getFirst();
+            soft.assertThat(repositoryParam.is()).isEmpty();
+            soft.assertThat(repositoryParam.by()).isNotNull().isEqualTo("name");
+            soft.assertThat(repositoryParam.type()).isEqualTo(String.class);
+        });
+    }
+
+
+
 }

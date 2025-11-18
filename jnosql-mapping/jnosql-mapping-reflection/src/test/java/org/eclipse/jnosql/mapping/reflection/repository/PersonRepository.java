@@ -14,7 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.reflection.repository;
 
+import jakarta.data.repository.By;
 import jakarta.data.repository.CrudRepository;
+import jakarta.data.repository.Find;
 import jakarta.data.repository.First;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Param;
@@ -41,4 +43,7 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
     long countByName(String name);
 
     boolean existsByName(String name);
+
+    @Find
+    List<Person> find(@By("name") String name);
 }
