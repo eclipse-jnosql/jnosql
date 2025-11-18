@@ -184,4 +184,20 @@ class ReflectionRepositorySupplierTest {
         });
     }
 
+
+    @Test
+    @DisplayName("should count all")
+    void shouldCountAll() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find("countAll");
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            soft.assertThat(method.query()).isEmpty();
+            soft.assertThat(method.type()).isEqualTo(RepositoryType.COUNT_ALL);
+            List<RepositoryParam> params = method.params();
+            soft.assertThat(params).isEmpty();
+        });
+    }
+
 }

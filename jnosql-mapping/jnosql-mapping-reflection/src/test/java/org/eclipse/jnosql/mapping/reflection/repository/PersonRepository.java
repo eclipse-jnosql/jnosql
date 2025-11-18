@@ -36,4 +36,6 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
 
     void deleteByName(String name);
 
+    long countAll();
+
 }
