@@ -72,4 +72,8 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
     @Delete
     void deletePerson(Person person);
 
+    default List<Person> customMethod() {
+        return List.of();
+    }
+
 }

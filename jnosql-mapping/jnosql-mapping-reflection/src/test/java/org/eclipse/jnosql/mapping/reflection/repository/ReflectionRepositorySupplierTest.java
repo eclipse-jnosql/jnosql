@@ -352,6 +352,18 @@ class ReflectionRepositorySupplierTest {
         });
     }
 
+    @Test
+    void shouldCustomMethod() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find("customMethod");
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            soft.assertThat(method.query()).isEmpty();
+            soft.assertThat(method.type()).isEqualTo(RepositoryType.DEFAULT_METHOD);
+        });
+    }
+
 
 
 }
