@@ -43,7 +43,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RepositoryTypeConverterTest {
 
-
     @Test
     void shouldReturnFindBy() throws NoSuchMethodException {
         assertEquals(RepositoryType.FIND_BY, RepositoryTypeConverter.of(getMethod(DevRepository.class, "findByName")));
