@@ -38,4 +38,5 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
 
     long countAll();
 
+    long countByName(String name);
 }
