@@ -144,4 +144,24 @@ class ReflectionRepositorySupplierTest {
         });
     }
 
+    @DisplayName("should load first on findByNameAndAge")
+    @Test
+    void shouldGetQuery(){
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find("query");
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            soft.assertThat(method.query()).isPresent().get().isEqualTo("From Person where name = :name");
+            soft.assertThat(method.type()).isEqualTo(RepositoryType.QUERY);
+            List<RepositoryParam> params = method.params();
+            soft.assertThat(params).isNotEmpty().hasSize(1);
+            RepositoryParam repositoryParam = params.get(0);
+            soft.assertThat(repositoryParam.name()).isNotNull();
+            soft.assertThat(repositoryParam.is()).isEmpty();
+            soft.assertThat(repositoryParam.by()).isNotNull();
+            soft.assertThat(repositoryParam.type()).isEqualTo(String.class);
+        });
+    }
+
 }

@@ -17,6 +17,8 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.First;
 import jakarta.data.repository.OrderBy;
+import jakarta.data.repository.Param;
+import jakarta.data.repository.Query;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 
 import java.util.List;
@@ -29,4 +31,7 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
     @OrderBy(value = "name", descending = true, ignoreCase = true)
     @OrderBy(value = "age", ignoreCase = true)
     List<Person> findByNameAndAge(String name, int age);
+    @Query("From Person where name = :name")
+    List<Person> query(@Param("name") String name);
+
 }
