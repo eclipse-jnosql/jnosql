@@ -18,12 +18,16 @@ import jakarta.data.constraint.GreaterThan;
 import jakarta.data.page.CursoredPage;
 import jakarta.data.repository.By;
 import jakarta.data.repository.CrudRepository;
+import jakarta.data.repository.Delete;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.First;
+import jakarta.data.repository.Insert;
 import jakarta.data.repository.Is;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
+import jakarta.data.repository.Save;
+import jakarta.data.repository.Update;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 
 import java.util.List;
@@ -55,5 +59,17 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
 
     @Find
     CursoredPage<Person> cursor(@By("age") int age);
+
+    @Save
+    Person savePerson(Person person);
+
+    @Insert
+    Person inserPerson(Person person);
+
+    @Update
+    Person updatePerson(Person person);
+
+    @Delete
+    void deletePerson(Person person);
 
 }
