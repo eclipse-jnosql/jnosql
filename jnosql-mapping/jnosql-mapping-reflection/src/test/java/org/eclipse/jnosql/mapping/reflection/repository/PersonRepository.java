@@ -34,4 +34,6 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
     @Query("From Person where name = :name")
     List<Person> query(@Param("name") String name);
 
+    void deleteByName(String name);
+
 }
