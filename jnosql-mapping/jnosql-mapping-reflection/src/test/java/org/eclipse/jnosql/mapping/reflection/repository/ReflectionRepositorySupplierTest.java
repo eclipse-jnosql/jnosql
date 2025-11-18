@@ -364,6 +364,18 @@ class ReflectionRepositorySupplierTest {
         });
     }
 
+    @Test
+    void shouldUnknownMethod() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find("unknownMethod");
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            soft.assertThat(method.query()).isEmpty();
+            soft.assertThat(method.type()).isEqualTo(RepositoryType.UNKNOWN);
+        });
+    }
+
 
 
 }

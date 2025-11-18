@@ -72,6 +72,10 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
     @Delete
     void deletePerson(Person person);
 
+    @OrderBy("sample")
+    @OrderBy("test")
+    String unknownMethod();
+
     default List<Person> customMethod() {
         return List.of();
     }
