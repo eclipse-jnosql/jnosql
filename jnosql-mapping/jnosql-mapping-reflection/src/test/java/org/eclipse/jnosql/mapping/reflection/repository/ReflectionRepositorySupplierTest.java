@@ -15,6 +15,8 @@
 package org.eclipse.jnosql.mapping.reflection.repository;
 
 import jakarta.data.Sort;
+import jakarta.data.constraint.Constraint;
+import jakarta.data.constraint.GreaterThan;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
@@ -254,6 +256,28 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(params).isNotEmpty().hasSize(1);
             RepositoryParam repositoryParam = params.getFirst();
             soft.assertThat(repositoryParam.is()).isEmpty();
+            soft.assertThat(repositoryParam.by()).isNotNull().isEqualTo("name");
+            soft.assertThat(repositoryParam.type()).isEqualTo(String.class);
+        });
+    }
+
+
+    @DisplayName("should find exists by name")
+    @Test
+    void shouldFindUsingIs() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find("find2");
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            soft.assertThat(method.query()).isEmpty();
+            soft.assertThat(method.type()).isEqualTo(RepositoryType.PARAMETER_BASED);
+            List<RepositoryParam> params = method.params();
+            soft.assertThat(params).isNotEmpty().hasSize(1);
+            RepositoryParam repositoryParam = params.getFirst();
+            soft.assertThat(repositoryParam.is()).isNotEmpty();
+            Class<? extends Constraint<?>> type = repositoryParam.is().orElseThrow();
+            soft.assertThat(type).isEqualTo(GreaterThan.class);
             soft.assertThat(repositoryParam.by()).isNotNull().isEqualTo("name");
             soft.assertThat(repositoryParam.type()).isEqualTo(String.class);
         });

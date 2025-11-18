@@ -14,10 +14,13 @@
  */
 package org.eclipse.jnosql.mapping.reflection.repository;
 
+import jakarta.data.constraint.GreaterThan;
+import jakarta.data.page.CursoredPage;
 import jakarta.data.repository.By;
 import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.First;
+import jakarta.data.repository.Is;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
@@ -46,4 +49,8 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
 
     @Find
     List<Person> find(@By("name") String name);
+
+    @Find
+    List<Person> find2(@By("name") @Is(GreaterThan.class) String name);
+
 }
