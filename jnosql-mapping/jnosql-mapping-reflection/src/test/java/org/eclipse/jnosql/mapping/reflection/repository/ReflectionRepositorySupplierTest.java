@@ -220,4 +220,24 @@ class ReflectionRepositorySupplierTest {
         });
     }
 
+    @DisplayName("should exist by name")
+    @Test
+    void shouldExistByName() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find("existsByName");
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            soft.assertThat(method.query()).isEmpty();
+            soft.assertThat(method.type()).isEqualTo(RepositoryType.EXISTS_BY);
+            List<RepositoryParam> params = method.params();
+            soft.assertThat(params).isNotEmpty().hasSize(1);
+            RepositoryParam repositoryParam = params.getFirst();
+            soft.assertThat(repositoryParam.name()).isNotNull();
+            soft.assertThat(repositoryParam.is()).isEmpty();
+            soft.assertThat(repositoryParam.by()).isNotNull();
+            soft.assertThat(repositoryParam.type()).isEqualTo(String.class);
+        });
+    }
+
 }
