@@ -92,4 +92,10 @@ public interface RepositoryMethod {
      * @return an {@link Optional} containing the element type, or empty if not applicable.
      */
     Optional<Class<?>> elementType();
+
+    /**
+     * The representation of the {@link jakarta.data.repository.Select} annotations at the method.
+     * @return the attributes at the select annotation
+     */
+    List<String> select();
 }
