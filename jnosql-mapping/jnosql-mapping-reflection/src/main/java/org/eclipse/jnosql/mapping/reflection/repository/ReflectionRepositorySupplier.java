@@ -43,8 +43,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
-class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetadata> {
+enum ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetadata> {
 
+    INSTANCE;
     private static final Logger LOGGER = Logger.getLogger(ReflectionRepositorySupplier.class.getName());
 
     @Override

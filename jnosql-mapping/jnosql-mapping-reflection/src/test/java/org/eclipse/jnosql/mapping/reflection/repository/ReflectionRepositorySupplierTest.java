@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ReflectionRepositorySupplierTest {
 
-    private final ReflectionRepositorySupplier supplier = new ReflectionRepositorySupplier();
+    private final ReflectionRepositorySupplier supplier = ReflectionRepositorySupplier.INSTANCE;
 
     @Test
     @DisplayName("Should return an error when its not an interface")
