@@ -30,7 +30,9 @@ record ReflectionRepositoryMethod(String name,
                                   Class<?> returnTypeValue,
                                   Class<?> elementTypeValue,
                                   List<RepositoryParam> params,
-                                  List<Sort<?>> sorts) implements RepositoryMethod {
+                                  List<Sort<?>> sorts,
+                                  List<String> select,
+                                  List<String> annotations) implements RepositoryMethod {
     @Override
     public Optional<String> query() {
         return Optional.ofNullable(queryValue);

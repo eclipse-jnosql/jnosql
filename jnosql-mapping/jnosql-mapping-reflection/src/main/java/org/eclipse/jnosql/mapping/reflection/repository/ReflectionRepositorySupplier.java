@@ -22,16 +22,19 @@ import jakarta.data.repository.Is;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
+import jakarta.data.repository.Select;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryType;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +77,17 @@ class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetad
         Class<?> elementTypeValue = getElementTypeValue(method);
 
         List<RepositoryParam> params = to(method.getParameters());
+
         List<Sort<?>> sorts = to(method.getAnnotationsByType(OrderBy.class));
+        List<String> select = Arrays.stream(method.getDeclaredAnnotationsByType(Select.class))
+                .map(Select::value)
+                .toList();
+        List<String> annotations = Arrays.stream(method.getAnnotations())
+                .map(Annotation::toString)
+                .map(s -> s.substring(1, s.indexOf('(')))
+                .distinct()
+                .toList();
+
         return new ReflectionRepositoryMethod(name,
                 type,
                 queryValue,
@@ -82,7 +95,9 @@ class ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetad
                 returnTypeValue,
                 elementTypeValue,
                 params,
-                sorts);
+                sorts,
+                select,
+                annotations);
     }
 
     private static Class<?> getElementTypeValue(Method method) {

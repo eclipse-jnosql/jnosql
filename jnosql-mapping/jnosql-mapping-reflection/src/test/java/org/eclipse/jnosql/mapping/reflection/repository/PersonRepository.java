@@ -82,7 +82,7 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
     }
 
     @Select("age")
-    @OrderBy("name")
-    List<Person> findByNameAndAge(String name, Integer age);
+    @Select("name")
+    List<Person> findByNameAndPhones(String name, String phone);
 
 }
