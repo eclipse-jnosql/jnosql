@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import jakarta.inject.Inject;
 import jakarta.nosql.Convert;
 import org.assertj.core.api.Assertions;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.reflection.FieldReader;
 import org.eclipse.jnosql.mapping.reflection.entities.AnimalRepository;
@@ -35,6 +36,9 @@ class ReflectionRepositoriesMetadataTest {
 
     @Inject
     private RepositoriesMetadata repositoriesMetadata;
+
+    @Inject
+    private EntitiesMetadata entitiesMetadata;
 
     @Test
     void shouldInjectRepository(){
@@ -61,5 +65,10 @@ class ReflectionRepositoriesMetadataTest {
     @Test
     void shouldReturnCustomRepository(){
         Assertions.assertThat(repositoriesMetadata.get(Garage.class)).isNotEmpty();
+    }
+
+    @Test
+    void shouldReceivedProjectorFromLoadRepository() {
+
     }
 }

@@ -42,7 +42,7 @@ class ReflectionRepositorySupplierTest {
     void shouldReturnErrorWhenItsNotAnInterface() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> supplier.apply(ReflectionRepositorySupplierTest.class));
-        assertEquals("The type " + ReflectionRepositorySupplierTest.class.getName() + " is not an interface",
+        assertEquals("The repository type " + ReflectionRepositorySupplierTest.class.getName() + " is not an interface",
                 exception.getMessage());
     }
 
@@ -398,7 +398,7 @@ class ReflectionRepositorySupplierTest {
             var method = query.orElseThrow();
             List<String> annotations = method.annotations();
             soft.assertThat(annotations).hasSize(3)
-                    .contains("jakarta.data.repository.Select.List",
+                    .contains("jakarta.data.repository.Select$List",
                     "jakarta.data.repository.Query",
                     "org.eclipse.jnosql.mapping.reflection.repository.Custom");
         });
