@@ -49,7 +49,7 @@ public class ProjectionConverter implements Function<Class<?>, ProjectionMetadat
     }
 
     private List<ProjectionParameterMetadata> parameters(Parameter[] parameters, RecordComponent[] components) {
-        if(parameters.length != components.length) {
+        if (parameters.length != components.length) {
             throw new IllegalArgumentException(
                     "Record components and constructor parameters are misaligned for projection: "
                             + components.getClass().getSimpleName()
