@@ -23,6 +23,7 @@ import org.eclipse.jnosql.mapping.reflection.entities.Job;
 import org.eclipse.jnosql.mapping.reflection.entities.Library;
 import org.eclipse.jnosql.mapping.reflection.entities.MovieRepository;
 import org.eclipse.jnosql.mapping.reflection.entities.NoSQLVendor;
+import org.eclipse.jnosql.mapping.reflection.entities.PCView;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.eclipse.jnosql.mapping.reflection.entities.PersonRepository;
 import org.junit.jupiter.api.Assertions;
@@ -127,7 +128,7 @@ class ReflectionClassScannerTest {
     @Test
     void shouldFindProjections() {
         Set<Class<?>> projections = classScanner.projections();
-        assertThat(projections).hasSize(1)
-                .contains(ComputerView.class);
+        assertThat(projections).hasSize(2)
+                .contains(ComputerView.class, PCView.class);
     }
 }
