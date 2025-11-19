@@ -23,10 +23,13 @@ import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Select;
+import jakarta.enterprise.event.Event;
+import jakarta.nosql.Projection;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryType;
+import org.eclipse.jnosql.mapping.reflection.ProjectionFound;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -42,13 +45,15 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
-enum ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetadata> {
+enum ReflectionRepositorySupplier  {
 
     INSTANCE;
     private static final Logger LOGGER = Logger.getLogger(ReflectionRepositorySupplier.class.getName());
 
-    @Override
     public RepositoryMetadata apply(Class<?> type) {
+        return apply(type, null);
+    }
+    public RepositoryMetadata apply(Class<?> type, Event<ProjectionFound> projectionFoundEvent) {
         Objects.requireNonNull(type, "type is required");
         if (!type.isInterface()) {
             throw new IllegalArgumentException("The repository type " + type.getName() + " is not an interface");
@@ -57,7 +62,7 @@ enum ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetada
         List<RepositoryMethod> methods = new ArrayList<>(type.getDeclaredMethods().length);
         Map<Method, RepositoryMethod> methodByMethodReflection = new HashMap<>(type.getDeclaredMethods().length);
         for (Method method : type.getDeclaredMethods()) {
-            RepositoryMethod repositoryMethod = to(method);
+            RepositoryMethod repositoryMethod = to(method, projectionFoundEvent);
             methods.add(repositoryMethod);
             methodByMethodReflection.put(method, repositoryMethod);
         }
@@ -65,7 +70,8 @@ enum ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetada
         return new ReflectionRepositoryMetadata(type, entity, methods, methodByMethodReflection);
     }
 
-    private RepositoryMethod to(Method method) {
+
+    private RepositoryMethod to(Method method, Event<ProjectionFound> projectionFoundEvent) {
 
         String name = method.getName();
         RepositoryType type = RepositoryTypeConverter.of(method);
@@ -75,6 +81,10 @@ enum ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetada
                 .map(First::value).orElse(null);
         Class<?> returnTypeValue = method.getReturnType();
         Class<?> elementTypeValue = getElementTypeValue(method);
+        if(projectionFoundEvent!= null) {
+            checkProjectionFound(returnTypeValue, projectionFoundEvent);
+            checkProjectionFound(elementTypeValue, projectionFoundEvent);
+        }
 
         List<RepositoryParam> params = to(method.getParameters());
 
@@ -97,6 +107,19 @@ enum ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetada
                 sorts,
                 select,
                 annotations);
+    }
+
+    /**
+     * Verifies if the record does not have the {@link Projection} annotation, in this case, it will accepted as
+     * projection, because of the Jakarta Data spec
+     * @param type the type
+     * @param projectionFoundEvent the event to be fired
+     */
+    private void checkProjectionFound(Class<?> type, Event<ProjectionFound> projectionFoundEvent) {
+        if (type != null && type.isRecord() && type.getAnnotation(Projection.class) == null) {
+            projectionFoundEvent.fire(new ProjectionFound(type));
+        }
+
     }
 
     private static Class<?> getElementTypeValue(Method method) {

@@ -41,7 +41,7 @@ class ReflectionRepositoriesMetadataTest {
     private EntitiesMetadata entitiesMetadata;
 
     @Test
-    void shouldInjectRepository(){
+    void shouldInjectRepository() {
         Assertions.assertThat(repositoriesMetadata).isNotNull();
     }
 
@@ -58,12 +58,12 @@ class ReflectionRepositoriesMetadataTest {
     }
 
     @Test
-    void shouldReturnRepository(){
+    void shouldReturnRepository() {
         Assertions.assertThat(repositoriesMetadata.get(AnimalRepository.class)).isNotEmpty();
     }
 
     @Test
-    void shouldReturnCustomRepository(){
+    void shouldReturnCustomRepository() {
         Assertions.assertThat(repositoriesMetadata.get(Garage.class)).isNotEmpty();
     }
 
