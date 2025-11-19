@@ -18,9 +18,11 @@ import jakarta.inject.Inject;
 import jakarta.nosql.Convert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
+import org.awaitility.Awaitility;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.reflection.FieldReader;
 import org.eclipse.jnosql.mapping.reflection.entities.AnimalRepository;
 import org.eclipse.jnosql.mapping.reflection.entities.CarResult;
@@ -31,6 +33,7 @@ import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.Optional;
 
 @EnableAutoWeld
@@ -74,6 +77,8 @@ class ReflectionRepositoriesMetadataTest {
 
     @Test
     void shouldReceivedProjectorFromLoadRepository() {
+        Optional<RepositoryMetadata> repositoryMetadata = repositoriesMetadata.get(AnimalRepository.class);
+        Assertions.assertThat(repositoryMetadata).isNotEmpty();
         Optional<ProjectionMetadata> projection = entitiesMetadata.projection(CarResult.class);
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(projection).isPresent();

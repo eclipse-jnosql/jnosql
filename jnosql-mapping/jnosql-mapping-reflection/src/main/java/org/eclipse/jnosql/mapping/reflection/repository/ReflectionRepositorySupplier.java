@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
 enum ReflectionRepositorySupplier  {
@@ -53,6 +52,7 @@ enum ReflectionRepositorySupplier  {
     public RepositoryMetadata apply(Class<?> type) {
         return apply(type, null);
     }
+
     public RepositoryMetadata apply(Class<?> type, Event<ProjectionFound> projectionFoundEvent) {
         Objects.requireNonNull(type, "type is required");
         if (!type.isInterface()) {
