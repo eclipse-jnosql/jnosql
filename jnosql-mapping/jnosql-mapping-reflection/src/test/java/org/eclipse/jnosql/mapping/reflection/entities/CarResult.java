@@ -14,12 +14,5 @@
  */
 package org.eclipse.jnosql.mapping.reflection.entities;
 
-import jakarta.data.repository.Repository;
-
-import java.util.List;
-
-@Repository
-public interface Garage {
-
-    List<CarResult> find();
+public record CarResult(String model, String plate) {
 }

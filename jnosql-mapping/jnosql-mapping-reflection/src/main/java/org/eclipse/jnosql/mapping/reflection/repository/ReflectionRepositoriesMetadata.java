@@ -15,9 +15,12 @@
 package org.eclipse.jnosql.mapping.reflection.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.metadata.ClassScanner;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
+import org.eclipse.jnosql.mapping.reflection.ProjectionFound;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,7 +38,20 @@ class ReflectionRepositoriesMetadata implements RepositoriesMetadata {
 
     private final Map<Class<?>, RepositoryMetadata> repositories = new HashMap<>();
 
+
+    private final Event<ProjectionFound> projectionFoundEvent;
+
+    @Inject
+    ReflectionRepositoriesMetadata(Event<ProjectionFound> projectionFoundEvent) {
+        this.projectionFoundEvent = projectionFoundEvent;
+    }
+
     ReflectionRepositoriesMetadata() {
+        this(null);
+    }
+
+    @Inject
+    void init() {
         ClassScanner scanner = ClassScanner.load();
         Set<Class<?>> customRepositories = scanner.customRepositories();
         Set<Class<?>> loadRepositories = scanner.repositories();
@@ -46,7 +62,7 @@ class ReflectionRepositoriesMetadata implements RepositoriesMetadata {
         LOGGER.fine("Found repositories: " + repositoriesType);
         var supplier = ReflectionRepositorySupplier.INSTANCE;
         for (Class<?> type : repositoriesType) {
-            RepositoryMetadata metadata = supplier.apply(type);
+            RepositoryMetadata metadata = supplier.apply(type, projectionFoundEvent);
             repositories.put(type, metadata);
         }
 

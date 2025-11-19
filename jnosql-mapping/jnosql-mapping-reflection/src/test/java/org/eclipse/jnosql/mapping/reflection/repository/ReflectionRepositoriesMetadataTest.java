@@ -17,16 +17,21 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import jakarta.inject.Inject;
 import jakarta.nosql.Convert;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.reflection.FieldReader;
 import org.eclipse.jnosql.mapping.reflection.entities.AnimalRepository;
+import org.eclipse.jnosql.mapping.reflection.entities.CarResult;
 import org.eclipse.jnosql.mapping.reflection.entities.Garage;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 @EnableAutoWeld
 @AddPackages(value = Convert.class)
@@ -69,6 +74,10 @@ class ReflectionRepositoriesMetadataTest {
 
     @Test
     void shouldReceivedProjectorFromLoadRepository() {
-
+        Optional<ProjectionMetadata> projection = entitiesMetadata.projection(CarResult.class);
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(projection).isPresent();
+            soft.assertThat(projection.orElseThrow().type()).isEqualTo(CarResult.class);
+        });
     }
 }
