@@ -389,5 +389,20 @@ class ReflectionRepositorySupplierTest {
         });
     }
 
+    @Test
+    void shouldUseCustomAnnotation() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find("queryAll");
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            soft.assertThat(method.query()).isEmpty();
+            soft.assertThat(method.type()).isEqualTo(RepositoryType.FIND_BY);
+            soft.assertThat(method.select()).hasSize(2).contains("name", "age");
+        });
+    }
+
+
+
 
 }
