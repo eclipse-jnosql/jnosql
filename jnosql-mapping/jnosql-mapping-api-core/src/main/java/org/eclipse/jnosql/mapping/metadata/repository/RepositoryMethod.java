@@ -98,4 +98,10 @@ public interface RepositoryMethod {
      * @return the attributes at the select annotation
      */
     List<String> select();
+
+    /**
+     * This method return the list of annotations present at the repository method.
+     * @return the list of annotations
+     */
+    List<String> annotations();
 }
