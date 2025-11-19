@@ -19,6 +19,7 @@ import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.reflection.entities.AnimalRepository;
 import org.eclipse.jnosql.mapping.reflection.entities.ComputerView;
 import org.eclipse.jnosql.mapping.reflection.entities.Contact;
+import org.eclipse.jnosql.mapping.reflection.entities.Garage;
 import org.eclipse.jnosql.mapping.reflection.entities.Job;
 import org.eclipse.jnosql.mapping.reflection.entities.Library;
 import org.eclipse.jnosql.mapping.reflection.entities.MovieRepository;
@@ -102,8 +103,8 @@ class ReflectionClassScannerTest {
     @Test
     void shouldReturnCustomRepositories() {
         Set<Class<?>> repositories = classScanner.customRepositories();
-        assertThat(repositories).hasSize(1)
-                .contains(Library.class);
+        assertThat(repositories).hasSize(2)
+                .contains(Library.class, Garage.class);
     }
 
     @Test
@@ -115,8 +116,8 @@ class ReflectionClassScannerTest {
     @Test
     void shouldReturnCustomRepository() {
         Set<Class<?>> repositories = classScanner.customRepositories();
-        assertThat(repositories).hasSize(1)
-                .contains(Library.class);
+        assertThat(repositories).hasSize(2)
+                .contains(Library.class, Garage.class);
     }
 
     @Test
