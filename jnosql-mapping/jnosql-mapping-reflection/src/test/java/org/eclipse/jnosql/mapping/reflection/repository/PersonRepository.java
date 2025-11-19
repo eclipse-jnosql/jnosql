@@ -85,4 +85,10 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
     @Select("name")
     List<Person> findByNameAndPhones(String name, String phone);
 
+    @Select("age")
+    @Select("name")
+    @Query("FROM Person")
+    @Custom
+    List<Person> queryAll();
+
 }
