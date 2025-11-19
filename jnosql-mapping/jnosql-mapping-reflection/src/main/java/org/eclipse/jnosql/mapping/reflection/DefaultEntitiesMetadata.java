@@ -135,7 +135,7 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
         return Optional.ofNullable(projections.get(projection));
     }
 
-    void projection(@Observes ProjectionFound projectionFound) {
+    void projectionFound(@Observes ProjectionFound projectionFound) {
         LOGGER.fine(() -> "Adding projection: " + projectionFound);
         Function<Class<?>, ProjectionMetadata> projectionConverter = new ProjectionConverter();
         ProjectionMetadata apply = projectionConverter.apply(projectionFound.type());

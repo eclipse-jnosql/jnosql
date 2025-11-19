@@ -21,6 +21,7 @@ import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 import org.eclipse.jnosql.mapping.reflection.entities.BookDTO;
+import org.eclipse.jnosql.mapping.reflection.entities.CarResult;
 import org.eclipse.jnosql.mapping.reflection.entities.ComputerView;
 import org.eclipse.jnosql.mapping.reflection.entities.Movie;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
@@ -160,6 +161,19 @@ class DefaultEntitiesMetadataTest {
             ProjectionMetadata projectionMetadata = projection.orElseThrow();
             softly.assertThat(projectionMetadata.type()).isEqualTo(ComputerView.class);
             softly.assertThat(projectionMetadata.className()).isEqualTo(ComputerView.class.getName());
+        });
+    }
+
+    @Test
+    void shouldLoadFromObserver(){
+        ProjectionFound projectionFound = new ProjectionFound(CarResult.class);
+        mappings.projectionFound(projectionFound);
+        Optional<ProjectionMetadata> projection = mappings.projection(CarResult.class);
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(projection).isPresent();
+            ProjectionMetadata projectionMetadata = projection.orElseThrow();
+            softly.assertThat(projectionMetadata.type()).isEqualTo(CarResult.class);
+            softly.assertThat(projectionMetadata.className()).isEqualTo(CarResult.class.getName());
         });
     }
 }
