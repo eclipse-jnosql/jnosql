@@ -27,6 +27,7 @@ import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Save;
+import jakarta.data.repository.Select;
 import jakarta.data.repository.Update;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 
@@ -79,5 +80,9 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
     default List<Person> customMethod() {
         return List.of();
     }
+
+    @Select("age")
+    @OrderBy("name")
+    List<Person> findByNameAndAge(String name, Integer age);
 
 }
