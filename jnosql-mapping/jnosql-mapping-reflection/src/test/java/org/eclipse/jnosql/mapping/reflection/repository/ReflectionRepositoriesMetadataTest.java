@@ -19,6 +19,8 @@ import jakarta.nosql.Convert;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.reflection.FieldReader;
+import org.eclipse.jnosql.mapping.reflection.entities.AnimalRepository;
+import org.eclipse.jnosql.mapping.reflection.entities.Garage;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
@@ -46,4 +48,18 @@ class ReflectionRepositoriesMetadataTest {
     }
 
 
+    @Test
+    void shouldReturnEmptyWhenTypeIsNull() {
+        Assertions.assertThat(repositoriesMetadata.get(Object.class)).isEmpty();
+    }
+
+    @Test
+    void shouldReturnRepository(){
+        Assertions.assertThat(repositoriesMetadata.get(AnimalRepository.class)).isNotEmpty();
+    }
+
+    @Test
+    void shouldReturnCustomRepository(){
+        Assertions.assertThat(repositoriesMetadata.get(Garage.class)).isNotEmpty();
+    }
 }

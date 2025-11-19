@@ -19,6 +19,8 @@ import org.eclipse.jnosql.mapping.metadata.ClassScanner;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,10 +33,16 @@ class ReflectionRepositoriesMetadata implements RepositoriesMetadata {
 
     private static final Logger LOGGER = Logger.getLogger(ReflectionRepositoriesMetadata.class.getName());
 
-    private Map<Class<?>, RepositoryMetadata> repositories;
+    private final Map<Class<?>, RepositoryMetadata> repositories = new HashMap<>();
 
     ReflectionRepositoriesMetadata() {
-        Set<Class<?>> repositoriesType = ClassScanner.load().repositories();
+        ClassScanner scanner = ClassScanner.load();
+        Set<Class<?>> customRepositories = scanner.customRepositories();
+        Set<Class<?>> loadRepositories = scanner.repositories();
+        Set<Class<?>> repositoriesType = new HashSet<>(customRepositories.size() + loadRepositories.size());
+        repositoriesType.addAll(customRepositories);
+        repositoriesType.addAll(loadRepositories);
+
         LOGGER.fine("Found repositories: " + repositoriesType);
         var supplier = ReflectionRepositorySupplier.INSTANCE;
         for (Class<?> type : repositoriesType) {
