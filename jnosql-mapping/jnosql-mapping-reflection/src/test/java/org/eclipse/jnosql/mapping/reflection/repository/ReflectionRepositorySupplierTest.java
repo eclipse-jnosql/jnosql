@@ -396,9 +396,11 @@ class ReflectionRepositorySupplierTest {
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
-            soft.assertThat(method.query()).isEmpty();
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.FIND_BY);
-            soft.assertThat(method.select()).hasSize(2).contains("name", "age");
+            List<String> annotations = method.annotations();
+            soft.assertThat(annotations).hasSize(3)
+                    .contains("jakarta.data.repository.Select.List",
+                    "jakarta.data.repository.Query",
+                    "org.eclipse.jnosql.mapping.reflection.repository.Custom");
         });
     }
 
