@@ -56,7 +56,7 @@ public class ProjectionConverter implements Function<Class<?>, ProjectionMetadat
             );
         }
         List<ProjectionParameterMetadata> projectionParameters = new ArrayList<>();
-        for(int index = 0; index < parameters.length; index++) {
+        for (int index = 0; index < parameters.length; index++) {
             var component = components[index];
             var parameter = parameters[index];
             var name = getName(parameter, component);
