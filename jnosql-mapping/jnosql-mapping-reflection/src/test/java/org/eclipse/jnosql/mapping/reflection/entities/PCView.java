@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.reflection.entities;
 
 import jakarta.data.repository.Select;
-import jakarta.nosql.Column;
 import jakarta.nosql.Projection;
 
 import java.math.BigDecimal;
