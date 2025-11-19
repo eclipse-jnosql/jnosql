@@ -52,7 +52,7 @@ enum ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetada
     public RepositoryMetadata apply(Class<?> type) {
         Objects.requireNonNull(type, "type is required");
         if (!type.isInterface()) {
-            throw new IllegalArgumentException("The type " + type.getName() + " is not an interface");
+            throw new IllegalArgumentException("The repository type " + type.getName() + " is not an interface");
         }
         Class<?> entity = findEntity(type.getGenericInterfaces());
         List<RepositoryMethod> methods = new ArrayList<>(type.getDeclaredMethods().length);
