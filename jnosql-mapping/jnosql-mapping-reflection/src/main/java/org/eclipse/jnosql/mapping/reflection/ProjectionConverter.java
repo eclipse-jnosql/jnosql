@@ -11,6 +11,7 @@
  */
 package org.eclipse.jnosql.mapping.reflection;
 
+import jakarta.data.repository.Select;
 import jakarta.nosql.Column;
 import jakarta.nosql.Projection;
 import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
@@ -48,12 +49,20 @@ public class ProjectionConverter implements Function<Class<?>, ProjectionMetadat
     private List<ProjectionParameterMetadata> parameters(Parameter[] components){
         List<ProjectionParameterMetadata> parameters = new ArrayList<>();
         for (var component : components) {
-            var name = Optional.ofNullable(component.getAnnotation(Column.class)).map(Column::value)
-                    .orElse(component.getName());
+            var name = getName(component);
             var type = component.getType();
             parameters.add(new ReflectionProjectionParameterMetadata(name, type));
         }
         return parameters;
+    }
+
+    private static String getName(Parameter component) {
+        Optional<String> nameFromColumn = Optional.ofNullable(component.getAnnotation(Column.class)).map(Column::value);
+        Optional<String> nameFromSelect = Optional.ofNullable(component.getAnnotation(Select.class)).map(Select::value);
+
+        return nameFromColumn
+                .or(() -> nameFromSelect)
+                .orElse(component.getName());
     }
 
 }
