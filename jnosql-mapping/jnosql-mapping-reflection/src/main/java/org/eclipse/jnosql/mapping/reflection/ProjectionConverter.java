@@ -18,6 +18,7 @@ import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionParameterMetadata;
 
 import java.lang.reflect.Parameter;
+import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -41,28 +42,37 @@ public class ProjectionConverter implements Function<Class<?>, ProjectionMetadat
         var constructor = type.getDeclaredConstructors()[0];
         var from = Optional.ofNullable(type.getAnnotation(Projection.class))
                 .map(Projection::from).orElse(null);
-        var projectionConstructor = new ReflectionProjectionConstructorMetadata(parameters(constructor.getParameters()),
+        var projectionConstructor = new ReflectionProjectionConstructorMetadata(parameters(constructor.getParameters(),
+                type.getRecordComponents()),
                 constructor);
         return new ReflectionProjectionMetadata(className, type, from, projectionConstructor);
     }
 
-    private List<ProjectionParameterMetadata> parameters(Parameter[] components){
-        List<ProjectionParameterMetadata> parameters = new ArrayList<>();
-        for (var component : components) {
-            var name = getName(component);
-            var type = component.getType();
-            parameters.add(new ReflectionProjectionParameterMetadata(name, type));
+    private List<ProjectionParameterMetadata> parameters(Parameter[] parameters, RecordComponent[] components) {
+        if(parameters.length != components.length) {
+            throw new IllegalArgumentException(
+                    "Record components and constructor parameters are misaligned for projection: "
+                            + components.getClass().getSimpleName()
+            );
         }
-        return parameters;
+        List<ProjectionParameterMetadata> projectionParameters = new ArrayList<>();
+        for(int index = 0; index < parameters.length; index++) {
+            var component = components[index];
+            var parameter = parameters[index];
+            var name = getName(parameter, component);
+            var type = component.getType();
+            projectionParameters.add(new ReflectionProjectionParameterMetadata(name, type));
+        }
+        return projectionParameters;
     }
 
-    private static String getName(Parameter component) {
-        Optional<String> nameFromColumn = Optional.ofNullable(component.getAnnotation(Column.class)).map(Column::value);
-        Optional<String> nameFromSelect = Optional.ofNullable(component.getAnnotation(Select.class)).map(Select::value);
+    private static String getName(Parameter parameter, RecordComponent recordComponent) {
+        Optional<String> nameFromColumn = Optional.ofNullable(parameter.getAnnotation(Column.class)).map(Column::value);
+        Optional<String> nameFromSelect = Optional.ofNullable(recordComponent.getAnnotation(Select.class)).map(Select::value);
 
         return nameFromColumn
                 .or(() -> nameFromSelect)
-                .orElse(component.getName());
+                .orElse(parameter.getName());
     }
 
 }
