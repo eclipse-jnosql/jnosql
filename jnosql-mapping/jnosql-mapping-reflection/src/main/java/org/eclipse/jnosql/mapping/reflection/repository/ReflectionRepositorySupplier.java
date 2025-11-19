@@ -84,8 +84,7 @@ enum ReflectionRepositorySupplier implements Function<Class<?>, RepositoryMetada
                 .map(Select::value)
                 .toList();
         List<String> annotations = Arrays.stream(method.getAnnotations())
-                .map(Annotation::toString)
-                .map(s -> s.substring(1, s.indexOf('(')))
+                .map(annotation -> annotation.annotationType().getName())
                 .distinct()
                 .toList();
 
