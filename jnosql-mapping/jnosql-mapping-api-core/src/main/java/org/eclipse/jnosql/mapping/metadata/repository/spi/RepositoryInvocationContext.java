@@ -29,9 +29,9 @@ import java.util.Objects;
  * method invocation, enabling both runtime and annotation-processor–generated implementations
  * to pass execution details to a {@code RepositoryOperationExecutor}.
  */
-public record RepositoryParameter(MethodKey methodKey, RepositoryMethod method, RepositoryMetadata metadata, Object[] parameters) {
+public record RepositoryInvocationContext(MethodKey methodKey, RepositoryMethod method, RepositoryMetadata metadata, Object[] parameters) {
 
-    public RepositoryParameter {
+    public RepositoryInvocationContext {
         Objects.requireNonNull(methodKey, "methodKey is required");
         Objects.requireNonNull(method, "method is required");
         Objects.requireNonNull(metadata, "metadata is required");

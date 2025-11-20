@@ -26,7 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(MockitoExtension.class)
-class RepositoryParameterTest {
+class RepositoryInvocationContextTest {
 
     private MethodKey methodKey = new NameKey("methodName");
 
@@ -39,7 +39,7 @@ class RepositoryParameterTest {
     @Test
     void shouldNotAllowNullMethodKey() {
         assertThatThrownBy(() ->
-                new RepositoryParameter(null, repositoryMethod, repositoryMetadata, new Object[]{})
+                new RepositoryInvocationContext(null, repositoryMethod, repositoryMetadata, new Object[]{})
         ).isInstanceOf(NullPointerException.class)
                 .hasMessage("methodKey is required");
     }
@@ -47,7 +47,7 @@ class RepositoryParameterTest {
     @Test
     void shouldNotAllowNullRepositoryMethod() {
         assertThatThrownBy(() ->
-                new RepositoryParameter(methodKey, null, repositoryMetadata, new Object[]{})
+                new RepositoryInvocationContext(methodKey, null, repositoryMetadata, new Object[]{})
         ).isInstanceOf(NullPointerException.class)
                 .hasMessage("method is required");
     }
@@ -55,7 +55,7 @@ class RepositoryParameterTest {
     @Test
     void shouldNotAllowNullMetadata() {
         assertThatThrownBy(() ->
-                new RepositoryParameter(methodKey, repositoryMethod, null, new Object[]{})
+                new RepositoryInvocationContext(methodKey, repositoryMethod, null, new Object[]{})
         ).isInstanceOf(NullPointerException.class)
                 .hasMessage("metadata is required");
     }
@@ -63,7 +63,7 @@ class RepositoryParameterTest {
     @Test
     void shouldNotAllowNullParametersArray() {
         assertThatThrownBy(() ->
-                new RepositoryParameter(methodKey, repositoryMethod, repositoryMetadata, null)
+                new RepositoryInvocationContext(methodKey, repositoryMethod, repositoryMetadata, null)
         ).isInstanceOf(NullPointerException.class)
                 .hasMessage("parameters is required");
     }
