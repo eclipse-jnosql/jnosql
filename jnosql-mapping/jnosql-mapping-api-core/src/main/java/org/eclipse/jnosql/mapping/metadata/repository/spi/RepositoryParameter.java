@@ -18,6 +18,8 @@ import org.eclipse.jnosql.mapping.metadata.repository.MethodKey;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 
+import java.util.Objects;
+
 
 /**
  * Represents the invocation context for a repository operation, combining the resolved
@@ -28,4 +30,11 @@ import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
  * to pass execution details to a {@code RepositoryOperationExecutor}.
  */
 public record RepositoryParameter(MethodKey methodKey, RepositoryMethod method, RepositoryMetadata metadata, Object[] parameters) {
+
+    public RepositoryParameter {
+        Objects.requireNonNull(methodKey, "methodKey is required");
+        Objects.requireNonNull(method, "method is required");
+        Objects.requireNonNull(metadata, "metadata is required");
+        Objects.requireNonNull(parameters, "parameters is required");
+    }
 }
