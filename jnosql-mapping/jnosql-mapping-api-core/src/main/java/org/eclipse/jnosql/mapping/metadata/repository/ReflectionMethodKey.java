@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -12,20 +12,13 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.metadata;
+package org.eclipse.jnosql.mapping.metadata.repository;
 
-import java.util.Objects;
+import java.lang.reflect.Method;
 
-public record DefaultFieldValue(Object value, FieldMetadata field) implements FieldValue {
-
-    public DefaultFieldValue(Object value, FieldMetadata field) {
-        this.value = value;
-        this.field = Objects.requireNonNull(field, "field is required");
-    }
-
-    @Override
-    public boolean isNotEmpty() {
-        return value != null;
-    }
-
-}
+/**
+ * A {@link MethodKey} that wraps a reflective {@link java.lang.reflect.Method} and is used
+ * exclusively in the proxy-based runtime implementation to resolve the corresponding
+ * {@link RepositoryMethod} from the metadata.
+ */
+public record ReflectionMethodKey(Method method) implements MethodKey {}

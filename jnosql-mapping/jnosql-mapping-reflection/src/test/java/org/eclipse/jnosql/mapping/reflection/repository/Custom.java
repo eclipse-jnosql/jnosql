@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -12,20 +12,15 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.metadata;
+package org.eclipse.jnosql.mapping.reflection.repository;
 
-import java.util.Objects;
 
-public record DefaultFieldValue(Object value, FieldMetadata field) implements FieldValue {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    public DefaultFieldValue(Object value, FieldMetadata field) {
-        this.value = value;
-        this.field = Objects.requireNonNull(field, "field is required");
-    }
-
-    @Override
-    public boolean isNotEmpty() {
-        return value != null;
-    }
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Custom {
 }

@@ -21,10 +21,12 @@ import org.eclipse.jnosql.mapping.reflection.entities.AnimalRepository;
 import org.eclipse.jnosql.mapping.reflection.entities.BookDTO;
 import org.eclipse.jnosql.mapping.reflection.entities.ComputerView;
 import org.eclipse.jnosql.mapping.reflection.entities.Contact;
+import org.eclipse.jnosql.mapping.reflection.entities.Garage;
 import org.eclipse.jnosql.mapping.reflection.entities.Job;
 import org.eclipse.jnosql.mapping.reflection.entities.Library;
 import org.eclipse.jnosql.mapping.reflection.entities.MovieRepository;
 import org.eclipse.jnosql.mapping.reflection.entities.NoSQLVendor;
+import org.eclipse.jnosql.mapping.reflection.entities.PCView;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.eclipse.jnosql.mapping.reflection.entities.PersonRepository;
 import org.junit.jupiter.api.Assertions;
@@ -103,8 +105,8 @@ class ClassGraphClassScannerTest {
     @Test
     void shouldReturnCustomRepositories() {
         Set<Class<?>> repositories = classScanner.customRepositories();
-        assertThat(repositories).hasSize(1)
-                .contains(Library.class);
+        assertThat(repositories).hasSize(2)
+                .contains(Library.class, Garage.class);
     }
 
     @Test
@@ -116,8 +118,8 @@ class ClassGraphClassScannerTest {
     @Test
     void shouldReturnCustomRepository() {
         Set<Class<?>> repositories = classScanner.customRepositories();
-        assertThat(repositories).hasSize(1)
-                .contains(Library.class);
+        assertThat(repositories).hasSize(2)
+                .contains(Library.class,  Garage.class);
     }
 
     @Test
@@ -129,22 +131,22 @@ class ClassGraphClassScannerTest {
     @Test
     void shouldReturnProjections() {
         Set<Class<?>> projections = classScanner.projections();
-        assertThat(projections).hasSize(1)
-                .contains(ComputerView.class)
-                .doesNotContain(BookDTO.class, BookDTO.class);
+        assertThat(projections).hasSize(2)
+                .contains(ComputerView.class, PCView.class)
+                .doesNotContain(BookDTO.class);
     }
 
     @Test
     void shouldIgnoreProjectionClassesThatAreNotRecords() {
         Set<Class<?>> projections = classScanner.projections();
-        assertThat(projections).hasSize(1)
+        assertThat(projections).hasSize(2)
                 .doesNotContain(BookDTO.class);
     }
 
     @Test
     void shouldIgnoreProjectionClassesThatAreNotAnnotated() {
         Set<Class<?>> projections = classScanner.projections();
-        assertThat(projections).hasSize(1)
+        assertThat(projections).hasSize(2)
                 .doesNotContain(BookDTO.class);
     }
 

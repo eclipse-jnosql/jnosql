@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -12,20 +12,12 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.metadata;
+package org.eclipse.jnosql.mapping.metadata.repository;
 
-import java.util.Objects;
-
-public record DefaultFieldValue(Object value, FieldMetadata field) implements FieldValue {
-
-    public DefaultFieldValue(Object value, FieldMetadata field) {
-        this.value = value;
-        this.field = Objects.requireNonNull(field, "field is required");
-    }
-
-    @Override
-    public boolean isNotEmpty() {
-        return value != null;
-    }
-
-}
+/**
+ * A marker interface representing a normalized lookup key used to identify repository methods
+ * within the metadata, allowing different invocation strategies—such as reflective methods,
+ * precomputed signatures, or simplified test-only names—to participate in a unified resolution
+ * mechanism.
+ */
+public sealed interface MethodKey permits MethodSignatureKey, ReflectionMethodKey, NameKey {}

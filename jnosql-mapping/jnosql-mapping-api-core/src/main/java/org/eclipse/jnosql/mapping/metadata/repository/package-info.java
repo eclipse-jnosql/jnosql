@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2025 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -12,20 +12,8 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.metadata;
 
-import java.util.Objects;
-
-public record DefaultFieldValue(Object value, FieldMetadata field) implements FieldValue {
-
-    public DefaultFieldValue(Object value, FieldMetadata field) {
-        this.value = value;
-        this.field = Objects.requireNonNull(field, "field is required");
-    }
-
-    @Override
-    public boolean isNotEmpty() {
-        return value != null;
-    }
-
-}
+/**
+ * This package contains the metadata data representation of repository in Jakarta Data.
+ */
+package org.eclipse.jnosql.mapping.metadata.repository;
