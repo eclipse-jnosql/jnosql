@@ -18,5 +18,14 @@ import org.eclipse.jnosql.mapping.metadata.repository.MethodKey;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 
+
+/**
+ * Represents the invocation context for a repository operation, combining the resolved
+ * {@link MethodKey} used to identify the method, the corresponding {@link RepositoryMethod}
+ * metadata, the owning {@link RepositoryMetadata}, and the actual parameter values supplied
+ * by the caller. This record provides a unified, reflection-agnostic view of a repository
+ * method invocation, enabling both runtime and annotation-processor–generated implementations
+ * to pass execution details to a {@code RepositoryOperationExecutor}.
+ */
 public record RepositoryParameter(MethodKey methodKey, RepositoryMethod method, RepositoryMetadata metadata, Object[] parameters) {
 }
