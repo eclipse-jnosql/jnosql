@@ -18,7 +18,9 @@ import jakarta.data.Sort;
 import jakarta.data.constraint.Constraint;
 import jakarta.data.constraint.GreaterThan;
 import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.mapping.metadata.repository.MethodSignatureKey;
 import org.eclipse.jnosql.mapping.metadata.repository.NameKey;
+import org.eclipse.jnosql.mapping.metadata.repository.ReflectionMethodKey;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
@@ -29,6 +31,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -403,6 +407,35 @@ class ReflectionRepositorySupplierTest {
                     "jakarta.data.repository.Query",
                     "org.eclipse.jnosql.mapping.reflection.repository.Custom");
         });
+    }
+
+
+    @Test
+    void shouldFindByMethodReflection(){
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Method methodFromReflection = Arrays.stream(PersonRepository.class.getDeclaredMethods()).filter(m -> m.getName().equals("query")).findFirst().orElseThrow();
+        Optional<RepositoryMethod> query = metadata.find(new ReflectionMethodKey(methodFromReflection));
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            soft.assertThat(method.query()).isPresent().get().isEqualTo("From Person where name = :name");
+            soft.assertThat(method.type()).isEqualTo(RepositoryType.QUERY);
+            List<RepositoryParam> params = method.params();
+            soft.assertThat(params).isNotEmpty().hasSize(1);
+            RepositoryParam repositoryParam = params.getFirst();
+            soft.assertThat(repositoryParam.name()).isNotNull();
+            soft.assertThat(repositoryParam.is()).isEmpty();
+            soft.assertThat(repositoryParam.by()).isNotNull();
+            soft.assertThat(repositoryParam.type()).isEqualTo(String.class);
+        });
+    }
+
+    @Test
+    void shouldNotFindByMethodSignature() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        MethodSignatureKey methodSignatureKey = new MethodSignatureKey("query", new Class[]{String.class});
+        Optional<RepositoryMethod> query = metadata.find(methodSignatureKey);
+        assertTrue(query.isEmpty());
     }
 
 
