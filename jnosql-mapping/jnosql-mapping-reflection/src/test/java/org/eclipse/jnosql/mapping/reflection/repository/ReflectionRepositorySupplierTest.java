@@ -18,6 +18,7 @@ import jakarta.data.Sort;
 import jakarta.data.constraint.Constraint;
 import jakarta.data.constraint.GreaterThan;
 import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.mapping.metadata.repository.NameKey;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
@@ -85,7 +86,7 @@ class ReflectionRepositorySupplierTest {
     @DisplayName("Should return method query findByName")
     void shouldMethodQueryFindByName(){
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> findByName = metadata.find("findByName");
+        Optional<RepositoryMethod> findByName = metadata.find(new NameKey("findByName"));
         SoftAssertions.assertSoftly(soft ->{
            soft.assertThat(findByName).isPresent();
            var method = findByName.orElseThrow();
@@ -104,7 +105,7 @@ class ReflectionRepositorySupplierTest {
     void shouldVerifyParamsOnFindByName() {
 
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> findByName = metadata.find("findByName");
+        Optional<RepositoryMethod> findByName = metadata.find(new NameKey("findByName"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(findByName).isPresent();
             var method = findByName.orElseThrow();
@@ -122,7 +123,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldVerifySortOnFindByName() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> findByName = metadata.find("findByNameAndAge");
+        Optional<RepositoryMethod> findByName = metadata.find(new NameKey("findByNameAndAge"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(findByName).isPresent();
             var method = findByName.orElseThrow();
@@ -138,7 +139,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldGetFirst(){
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> findByName = metadata.find("findByNameAndAge");
+        Optional<RepositoryMethod> findByName = metadata.find(new NameKey("findByNameAndAge"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(findByName).isPresent();
             var method = findByName.orElseThrow();
@@ -150,7 +151,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldGetQuery(){
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> query = metadata.find("query");
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("query"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
@@ -170,7 +171,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldDeleteByName() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> query = metadata.find("deleteByName");
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("deleteByName"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
@@ -191,7 +192,7 @@ class ReflectionRepositorySupplierTest {
     @DisplayName("should count all")
     void shouldCountAll() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> query = metadata.find("countAll");
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("countAll"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
@@ -206,7 +207,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldCountByName() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> query = metadata.find("countByName");
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("countByName"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
@@ -226,7 +227,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldExistByName() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> query = metadata.find("existsByName");
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("existsByName"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
@@ -246,7 +247,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldFind() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> query = metadata.find("find");
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("find"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
@@ -266,7 +267,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldFindUsingIs() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> query = metadata.find("find2");
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("find2"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
@@ -286,7 +287,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldCursor() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> query = metadata.find("cursor");
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("cursor"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
@@ -304,7 +305,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldSavePerson() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> query = metadata.find("savePerson");
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("savePerson"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
@@ -321,7 +322,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldInsertPerson() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> query = metadata.find("insertPerson");
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("insertPerson"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
@@ -338,7 +339,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldUpdatePerson() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> query = metadata.find("updatePerson");
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("updatePerson"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
@@ -355,7 +356,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldCustomMethod() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> query = metadata.find("customMethod");
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("customMethod"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
@@ -367,7 +368,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldUnknownMethod() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> query = metadata.find("unknownMethod");
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("unknownMethod"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
@@ -379,7 +380,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldGetSelect() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> query = metadata.find("findByNameAndPhones");
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("findByNameAndPhones"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
@@ -392,7 +393,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldUseCustomAnnotation() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        Optional<RepositoryMethod> query = metadata.find("queryAll");
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("queryAll"));
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();

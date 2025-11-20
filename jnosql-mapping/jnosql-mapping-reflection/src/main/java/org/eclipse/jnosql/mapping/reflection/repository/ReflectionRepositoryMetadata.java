@@ -14,6 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.reflection.repository;
 
+import org.eclipse.jnosql.mapping.metadata.repository.MethodKey;
+import org.eclipse.jnosql.mapping.metadata.repository.NameKey;
+import org.eclipse.jnosql.mapping.metadata.repository.ReflectionMethodKey;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 
@@ -32,12 +35,17 @@ public record ReflectionRepositoryMetadata(Class<?> type, Class<?> entityType, L
     }
 
     @Override
-    public Optional<RepositoryMethod> find(Object method) {
-        Objects.requireNonNull(method, "method is required");
-        if(method instanceof Method){
-            return Optional.ofNullable(methodByMethodReflection.get(method));
-        }
-        return methods.stream().filter(m -> m.name().equals(method.toString())).findFirst();
+    public Optional<RepositoryMethod> find(MethodKey key) {
+        Objects.requireNonNull(key, "key is required");
+        return switch (key) {
+
+            case ReflectionMethodKey rm ->  Optional.ofNullable(methodByMethodReflection.get(rm.method()));
+            case NameKey nk ->
+                    methods.stream()
+                            .filter(m -> m.name().equals(nk.name()))
+                            .findFirst();
+            default -> Optional.empty();
+        };
     }
 
 }
