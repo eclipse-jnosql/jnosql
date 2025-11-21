@@ -18,7 +18,7 @@ package org.eclipse.jnosql.mapping.metadata.repository.spi;
 /**
  * Executes a repository method that returns a cursor-based paginated result,
  * using continuation tokens or cursors to retrieve windows of data efficiently
- * across large datasets.
+ * across large datasets. This operation is defined by {@link jakarta.data.page.CursoredPage}
  */
 public interface CursorPaginationOperation extends RepositoryOperation {
 }
