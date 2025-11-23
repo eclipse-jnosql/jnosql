@@ -17,6 +17,8 @@ package org.eclipse.jnosql.mapping.core.repository;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 
+import java.util.Objects;
+
 /**
  * Describes a repository method by combining its resolved
  * {@link RepositoryMethodType} with the corresponding
@@ -36,4 +38,8 @@ import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 public record RepositoryMethodDescriptor(
         RepositoryMethodType type,
         RepositoryMethod method
-) {}
+) {
+    public RepositoryMethodDescriptor {
+        Objects.requireNonNull(type, "type is required");
+    }
+}
