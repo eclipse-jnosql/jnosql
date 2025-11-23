@@ -23,9 +23,5 @@
  * clearer and more consistent API aligned with Jakarta Data. Applications and
  * extensions should migrate to the new package, as this legacy structure will
  * not receive new features.
- *
- * @deprecated since 1.1, use
- * {@code org.eclipse.jnosql.mapping.semistructured.repository}
  */
-@Deprecated(since = "1.1", forRemoval = true)
 package org.eclipse.jnosql.mapping.semistructured.query;
