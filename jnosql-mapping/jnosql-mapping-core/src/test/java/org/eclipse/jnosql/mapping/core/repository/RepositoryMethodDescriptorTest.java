@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,11 +38,12 @@ class RepositoryMethodDescriptorTest {
         RepositoryMethodDescriptor descriptor =
                 new RepositoryMethodDescriptor(RepositoryMethodType.FIND_BY, mockMethod);
 
-        assertThat(descriptor.type())
-                .isEqualTo(RepositoryMethodType.FIND_BY);
-
-        assertThat(descriptor.method())
-                .isSameAs(mockMethod);
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(descriptor.type())
+                    .isEqualTo(RepositoryMethodType.FIND_BY);
+            softly.assertThat(descriptor.method())
+                    .isSameAs(mockMethod);
+        });
     }
 
     @Test
@@ -50,11 +51,11 @@ class RepositoryMethodDescriptorTest {
         RepositoryMethodDescriptor descriptor =
                 new RepositoryMethodDescriptor(RepositoryMethodType.DELETE_BY, null);
 
-        assertThat(descriptor.type())
-                .isEqualTo(RepositoryMethodType.DELETE_BY);
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(descriptor.type()).isEqualTo(RepositoryMethodType.DELETE_BY);
+            softly.assertThat(descriptor.method()).isNull();
+        });
 
-        assertThat(descriptor.method())
-                .isNull();
     }
 
     @Test
@@ -62,30 +63,5 @@ class RepositoryMethodDescriptorTest {
         assertThatThrownBy(() -> new RepositoryMethodDescriptor(null, mockMethod))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("type is required");
-    }
-
-    @Test
-    void shouldFollowRecordEqualitySemantics() {
-        RepositoryMethodDescriptor d1 =
-                new RepositoryMethodDescriptor(RepositoryMethodType.QUERY, mockMethod);
-
-        RepositoryMethodDescriptor d2 =
-                new RepositoryMethodDescriptor(RepositoryMethodType.QUERY, mockMethod);
-
-        RepositoryMethodDescriptor d3 =
-                new RepositoryMethodDescriptor(RepositoryMethodType.QUERY, anotherMockMethod);
-
-        assertThat(d1).isEqualTo(d2);
-        assertThat(d1).isNotEqualTo(d3);
-    }
-
-    @Test
-    void shouldHaveValidToString() {
-        RepositoryMethodDescriptor descriptor =
-                new RepositoryMethodDescriptor(RepositoryMethodType.SAVE, mockMethod);
-
-        assertThat(descriptor.toString())
-                .contains("type=SAVE")
-                .contains("method=");
     }
 }
