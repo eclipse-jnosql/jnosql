@@ -27,7 +27,7 @@ import jakarta.data.repository.Save;
 import jakarta.data.repository.Update;
 import jakarta.data.restrict.Restriction;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
-import org.eclipse.jnosql.mapping.metadata.repository.RepositoryType;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,110 +41,110 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class RepositoryTypeConverterTest {
+class RepositoryMethodTypeConverterTest {
 
     @Test
     void shouldReturnFindBy() throws NoSuchMethodException {
-        assertEquals(RepositoryType.FIND_BY, RepositoryTypeConverter.of(getMethod(DevRepository.class, "findByName")));
+        assertEquals(RepositoryMethodType.FIND_BY, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "findByName")));
     }
 
     @Test
     void shouldReturnFindFirstBy() throws NoSuchMethodException {
-        assertEquals(RepositoryType.FIND_BY, RepositoryTypeConverter.of(getMethod(DevRepository.class, "findFirst10ByAge")));
+        assertEquals(RepositoryMethodType.FIND_BY, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "findFirst10ByAge")));
     }
 
     @Test
     void shouldReturnSave() throws NoSuchMethodException {
-        assertEquals(RepositoryType.SAVE, RepositoryTypeConverter.of(getMethod(DevRepository.class, "save")));
+        assertEquals(RepositoryMethodType.SAVE, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "save")));
     }
 
     @Test
     void shouldReturnInsert() throws NoSuchMethodException {
-        assertEquals(RepositoryType.INSERT, RepositoryTypeConverter.of(getMethod(DevRepository.class, "insert")));
+        assertEquals(RepositoryMethodType.INSERT, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "insert")));
     }
 
     @Test
     void shouldReturnDelete() throws NoSuchMethodException {
-        assertEquals(RepositoryType.DELETE, RepositoryTypeConverter.of(getMethod(DevRepository.class, "delete")));
+        assertEquals(RepositoryMethodType.DELETE, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "delete")));
     }
 
     @Test
     void shouldReturnUpdate() throws NoSuchMethodException {
-        assertEquals(RepositoryType.UPDATE, RepositoryTypeConverter.of(getMethod(DevRepository.class, "update")));
+        assertEquals(RepositoryMethodType.UPDATE, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "update")));
     }
 
     @Test
     void shouldReturnDeleteBy() throws NoSuchMethodException {
-        assertEquals(RepositoryType.DELETE_BY, RepositoryTypeConverter.of(getMethod(DevRepository.class, "deleteByName")));
+        assertEquals(RepositoryMethodType.DELETE_BY, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "deleteByName")));
     }
 
     @Test
     void shouldReturnFindAllBy() throws NoSuchMethodException {
-        assertEquals(RepositoryType.FIND_ALL, RepositoryTypeConverter.of(getMethod(DevRepository.class, "findAll")));
+        assertEquals(RepositoryMethodType.FIND_ALL, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "findAll")));
     }
 
     @Test
     void shouldReturnJNoSQLQuery() throws NoSuchMethodException {
-        assertEquals(RepositoryType.QUERY, RepositoryTypeConverter.of(getMethod(DevRepository.class, "query")));
+        assertEquals(RepositoryMethodType.QUERY, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "query")));
     }
 
 
     @Test
     void shouldReturnParameterBased() throws NoSuchMethodException {
-        assertEquals(RepositoryType.PARAMETER_BASED, RepositoryTypeConverter.of(getMethod(DevRepository.class, "find")));
+        assertEquals(RepositoryMethodType.PARAMETER_BASED, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "find")));
     }
 
     @Test
     void shouldReturnParameterBased2() throws NoSuchMethodException {
-        assertEquals(RepositoryType.PARAMETER_BASED, RepositoryTypeConverter.of(getMethod(DevRepository.class, "find2")));
+        assertEquals(RepositoryMethodType.PARAMETER_BASED, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "find2")));
     }
 
 
     @Test
     void shouldReturnCountBy() throws NoSuchMethodException {
-        assertEquals(RepositoryType.COUNT_BY, RepositoryTypeConverter.of(getMethod(DevRepository.class, "countByName")));
+        assertEquals(RepositoryMethodType.COUNT_BY, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "countByName")));
     }
 
     @Test
     void shouldReturnCountAll() throws NoSuchMethodException {
-        assertEquals(RepositoryType.COUNT_ALL, RepositoryTypeConverter.of(getMethod(DevRepository.class, "countAll")));
+        assertEquals(RepositoryMethodType.COUNT_ALL, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "countAll")));
     }
 
     @Test
     void shouldReturnExistsBy() throws NoSuchMethodException {
-        assertEquals(RepositoryType.EXISTS_BY, RepositoryTypeConverter.of(getMethod(DevRepository.class, "existsByName")));
+        assertEquals(RepositoryMethodType.EXISTS_BY, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "existsByName")));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"order", "order2", "nope"})
     void shouldReturnUnknown(String method) throws NoSuchMethodException {
 
-        var value = RepositoryTypeConverter.of(getMethod(DevRepository.class, method));
-        Assertions.assertEquals(RepositoryType.UNKNOWN, value);
+        var value = RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, method));
+        Assertions.assertEquals(RepositoryMethodType.UNKNOWN, value);
     }
 
     @Test
     void shouldDefaultMethod() throws NoSuchMethodException {
-        assertEquals(RepositoryType.DEFAULT_METHOD, RepositoryTypeConverter.of(getMethod(DevRepository.class,
+        assertEquals(RepositoryMethodType.DEFAULT_METHOD, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class,
                 "duplicate")));
     }
 
 
     @Test
     void shouldReturnFindByNameOrderByName() throws NoSuchMethodException {
-        assertEquals(RepositoryType.CURSOR_PAGINATION, RepositoryTypeConverter.of(getMethod(DevRepository.class, "findByNameOrderByName")));
+        assertEquals(RepositoryMethodType.CURSOR_PAGINATION, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "findByNameOrderByName")));
     }
 
     @Test
     void shouldFindRestrictionWithFind() throws NoSuchMethodException {
-        assertEquals(RepositoryType.PARAMETER_BASED,
-                RepositoryTypeConverter.of(getMethod(DevRepository.class, "findRestriction")));
+        assertEquals(RepositoryMethodType.PARAMETER_BASED,
+                RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "findRestriction")));
     }
 
     @Test
     void shouldFindRestrictionWithQuery() throws NoSuchMethodException {
-        assertEquals(RepositoryType.QUERY,
-                RepositoryTypeConverter.of(getMethod(DevRepository.class, "queryRestriction")));
+        assertEquals(RepositoryMethodType.QUERY,
+                RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "queryRestriction")));
     }
 
 

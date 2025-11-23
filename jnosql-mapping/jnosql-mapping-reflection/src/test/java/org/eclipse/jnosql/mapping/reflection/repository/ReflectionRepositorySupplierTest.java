@@ -23,8 +23,9 @@ import org.eclipse.jnosql.mapping.metadata.repository.NameKey;
 import org.eclipse.jnosql.mapping.metadata.repository.ReflectionMethodKey;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
-import org.eclipse.jnosql.mapping.metadata.repository.RepositoryType;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -100,7 +101,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(method.elementType().orElseThrow()).isEqualTo(Person.class);
             soft.assertThat(method.sorts()).isEmpty();
             soft.assertThat(method.first()).isEmpty();
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.FIND_BY);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.FIND_BY);
         });
     }
 
@@ -160,7 +161,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
             soft.assertThat(method.query()).isPresent().get().isEqualTo("From Person where name = :name");
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.QUERY);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.QUERY);
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isNotEmpty().hasSize(1);
             RepositoryParam repositoryParam = params.getFirst();
@@ -180,7 +181,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
             soft.assertThat(method.query()).isEmpty();
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.DELETE_BY);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.DELETE_BY);
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isNotEmpty().hasSize(1);
             RepositoryParam repositoryParam = params.getFirst();
@@ -201,7 +202,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
             soft.assertThat(method.query()).isEmpty();
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.COUNT_ALL);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.COUNT_ALL);
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isEmpty();
         });
@@ -216,7 +217,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
             soft.assertThat(method.query()).isEmpty();
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.COUNT_BY);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.COUNT_BY);
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isNotEmpty().hasSize(1);
             RepositoryParam repositoryParam = params.getFirst();
@@ -236,7 +237,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
             soft.assertThat(method.query()).isEmpty();
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.EXISTS_BY);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.EXISTS_BY);
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isNotEmpty().hasSize(1);
             RepositoryParam repositoryParam = params.getFirst();
@@ -256,7 +257,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
             soft.assertThat(method.query()).isEmpty();
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.PARAMETER_BASED);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.PARAMETER_BASED);
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isNotEmpty().hasSize(1);
             RepositoryParam repositoryParam = params.getFirst();
@@ -276,7 +277,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
             soft.assertThat(method.query()).isEmpty();
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.PARAMETER_BASED);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.PARAMETER_BASED);
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isNotEmpty().hasSize(1);
             RepositoryParam repositoryParam = params.getFirst();
@@ -296,7 +297,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
             soft.assertThat(method.query()).isEmpty();
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.CURSOR_PAGINATION);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.CURSOR_PAGINATION);
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isNotEmpty().hasSize(1);
             RepositoryParam repositoryParam = params.getFirst();
@@ -314,7 +315,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
             soft.assertThat(method.query()).isEmpty();
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.SAVE);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.SAVE);
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isNotEmpty().hasSize(1);
             RepositoryParam repositoryParam = params.getFirst();
@@ -331,7 +332,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
             soft.assertThat(method.query()).isEmpty();
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.INSERT);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.INSERT);
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isNotEmpty().hasSize(1);
             RepositoryParam repositoryParam = params.getFirst();
@@ -348,7 +349,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
             soft.assertThat(method.query()).isEmpty();
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.UPDATE);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.UPDATE);
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isNotEmpty().hasSize(1);
             RepositoryParam repositoryParam = params.getFirst();
@@ -365,7 +366,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
             soft.assertThat(method.query()).isEmpty();
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.DEFAULT_METHOD);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.DEFAULT_METHOD);
         });
     }
 
@@ -377,7 +378,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
             soft.assertThat(method.query()).isEmpty();
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.UNKNOWN);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.UNKNOWN);
         });
     }
 
@@ -389,7 +390,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
             soft.assertThat(method.query()).isEmpty();
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.FIND_BY);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.FIND_BY);
             soft.assertThat(method.select()).hasSize(2).contains("name", "age");
         });
     }
@@ -419,7 +420,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
             soft.assertThat(method.query()).isPresent().get().isEqualTo("From Person where name = :name");
-            soft.assertThat(method.type()).isEqualTo(RepositoryType.QUERY);
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.QUERY);
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isNotEmpty().hasSize(1);
             RepositoryParam repositoryParam = params.getFirst();

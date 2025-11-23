@@ -28,7 +28,7 @@ import jakarta.nosql.Projection;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
-import org.eclipse.jnosql.mapping.metadata.repository.RepositoryType;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 import org.eclipse.jnosql.mapping.reflection.ProjectionFound;
 
 import java.lang.reflect.Method;
@@ -74,7 +74,7 @@ enum ReflectionRepositorySupplier  {
     private RepositoryMethod to(Method method, Event<ProjectionFound> projectionFoundEvent) {
 
         String name = method.getName();
-        RepositoryType type = RepositoryTypeConverter.of(method);
+        RepositoryMethodType type = RepositoryMethodTypeConverter.of(method);
         String queryValue = Optional.ofNullable(method.getAnnotation(Query.class))
                 .map(Query::value).orElse(null);
         Integer firstValue = Optional.ofNullable(method.getAnnotation(First.class))
