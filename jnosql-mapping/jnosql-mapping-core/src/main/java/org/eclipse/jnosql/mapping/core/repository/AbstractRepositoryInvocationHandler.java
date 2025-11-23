@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.ReflectionMethodKey;
@@ -67,8 +68,13 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         switch (methodDescriptor.type()) {
             case DEFAULT -> {
                 return unwrapInvocationTargetException(() -> method.invoke(repository(), params));
-            } case OBJECT_METHOD -> {
-                return unwrapInvocationTargetException(() ->  unwrapInvocationTargetException(() -> method.invoke(this, params)));
+            }
+            case OBJECT_METHOD -> {
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() -> method.invoke(this, params)));
+            }
+            case CUSTOM_REPOSITORY -> {
+                Object customRepository = CDI.current().select(method.getDeclaringClass()).get();
+                return unwrapInvocationTargetException(() -> method.invoke(customRepository, params));
             }
         }
         return null;
