@@ -15,6 +15,9 @@
 package org.eclipse.jnosql.mapping.metadata.repository;
 
 
+import jakarta.data.repository.BasicRepository;
+import jakarta.data.repository.CrudRepository;
+
 /**
  * Semantic classification of a repository method.
  * Each constant identifies how a Jakarta Data repository method should be
@@ -124,7 +127,18 @@ public enum RepositoryMethodType {
     /**
      * At the stage it is undefined, thus, required validation
      */
-    UNKNOWN
-
+    UNKNOWN,
+    /**
+     * Methods from either {@link CrudRepository}, {@link  BasicRepository} and {@link  org.eclipse.jnosql.mapping.NoSQLRepository}
+     */
+    DEFAULT,
+    /**
+     * Methods from {@link Object}
+     */
+    OBJECT_METHOD,
+    /**
+     * The method that belongs to the interface using a custom repository.
+     */
+    CUSTOM_REPOSITORY
 
 }
