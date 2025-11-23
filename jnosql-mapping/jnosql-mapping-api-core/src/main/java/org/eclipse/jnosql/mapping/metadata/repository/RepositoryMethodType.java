@@ -22,7 +22,7 @@ package org.eclipse.jnosql.mapping.metadata.repository;
  * inheritance from built-in repository interfaces.
  *
  */
-public enum RepositoryType {
+public enum RepositoryMethodType {
 
     /**
      * Derived query method that starts with the keyword {@code findBy}.

@@ -60,9 +60,9 @@ public interface RepositoryMethod {
 
     /**
      * Returns the repository operation type, such as {@code SELECT}, {@code UPDATE}, or {@code DELETE}.
-     * @return the {@link RepositoryType} representing this method’s behavior.
+     * @return the {@link RepositoryMethodType} representing this method’s behavior.
      */
-    RepositoryType type();
+    RepositoryMethodType type();
 
     /**
      * Returns metadata about each parameter of this repository method.
