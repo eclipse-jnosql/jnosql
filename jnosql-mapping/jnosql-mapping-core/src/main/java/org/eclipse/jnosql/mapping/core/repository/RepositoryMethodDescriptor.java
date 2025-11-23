@@ -18,16 +18,23 @@ import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 
 /**
- * Represents the result of resolving a repository method into its
- * semantic {@link RepositoryMethodType RepositoryMethodType} together
- * with the corresponding {@link RepositoryMethod} metadata, when available.
+ * Describes a repository method by combining its resolved
+ * {@link RepositoryMethodType} with the corresponding
+ * {@link RepositoryMethod} metadata when available.
+ *
+ * This descriptor is the outcome of method analysis performed during
+ * repository initialization. It classifies a Java {@code Method} into
+ * one of the supported semantic types and, when applicable, provides
+ * the parsed metadata used for query execution. Methods such as those
+ * inherited from {@code Object} may not expose metadata but still
+ * require classification, and this descriptor represents both cases.
  *
  * @param type   the resolved semantic type of the repository method
- * @param method the metadata associated with the method, or {@code null}
- *               when the method does not expose Jakarta Data metadata
+ * @param method the parsed repository method metadata, or {@code null}
+ *               when the method does not provide Jakarta Data metadata
  *
  */
-public record RepositoryMethodResolution(
+public record RepositoryMethodDescriptor(
         RepositoryMethodType type,
         RepositoryMethod method
 ) {}
