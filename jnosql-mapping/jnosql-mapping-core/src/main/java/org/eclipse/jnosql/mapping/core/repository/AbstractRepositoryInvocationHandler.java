@@ -22,6 +22,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,17 +57,25 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
      */
     protected abstract RepositoryMetadata repositoryMetadata();
 
-    protected Map<Method, RepositoryMethodResolution> methodRepositoryTypeMap = new HashMap<>();
+    protected Map<Method, RepositoryMethodDescriptor> methodRepositoryTypeMap = new HashMap<>();
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] params) throws Throwable {
 
-        RepositoryMethodResolution repositoryType = repositoryType(method);
+        RepositoryMethodDescriptor methodDescriptor = methodDescriptor(method);
+
+        switch (methodDescriptor.type()) {
+            case DEFAULT -> {
+                return unwrapInvocationTargetException(() -> method.invoke(repository(), params));
+            } case OBJECT_METHOD -> {
+                return unwrapInvocationTargetException(() ->  unwrapInvocationTargetException(() -> method.invoke(this, params)));
+            }
+        }
         return null;
     }
 
-    private RepositoryMethodResolution repositoryType(Method method) {
-        RepositoryMethodResolution repositoryMethodType = this.methodRepositoryTypeMap.get(method);
+    private RepositoryMethodDescriptor methodDescriptor(Method method) {
+        RepositoryMethodDescriptor repositoryMethodType = this.methodRepositoryTypeMap.get(method);
         if(repositoryMethodType == null) {
             var repositoryMethod = repositoryMetadata().find(new ReflectionMethodKey(method));
             var type  = repositoryMethod.map(RepositoryMethod::type).orElse(RepositoryMethodType.UNKNOWN);
@@ -77,5 +86,13 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
             }
         }
         return repositoryMethodType;
+    }
+
+    protected Object unwrapInvocationTargetException(ThrowingSupplier<Object> supplier) throws Throwable {
+        try {
+            return supplier.get();
+        } catch (InvocationTargetException ex) {
+            throw ex.getCause();
+        }
     }
 }
