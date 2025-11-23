@@ -14,10 +14,41 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-public class AbstractRepositoryInvocationHandler<T, K> implements InvocationHandler {
+public abstract class AbstractRepositoryInvocationHandler<T, K> implements InvocationHandler {
+
+    /**
+     * Retrieves the underlying repository associated with this proxy.
+     *
+     * @return The underlying repository.
+     */
+    protected abstract AbstractRepository<T, K> repository();
+
+    /**
+     * Retrieves the type of the repository interface.
+     *
+     * @return The repository interface type.
+     */
+    protected abstract Class<?> repositoryType();
+
+    /**
+     * Retrieves the metadata information about the entity managed by this repository.
+     *
+     * @return The entity metadata information.
+     */
+    protected abstract EntityMetadata entityMetadata();
+
+    /**
+     * Retrieves the metadata information about the repository.
+     * @return the metadata information
+     */
+    protected abstract RepositoryMetadata repositoryMetadata();
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
