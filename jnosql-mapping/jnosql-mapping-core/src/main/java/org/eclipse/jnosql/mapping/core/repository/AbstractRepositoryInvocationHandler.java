@@ -56,21 +56,21 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
      */
     protected abstract RepositoryMetadata repositoryMetadata();
 
-    protected Map<Method, RepositoryMethodType> methodRepositoryTypeMap = new HashMap<>();
+    protected Map<Method, RepositoryMethodResolution> methodRepositoryTypeMap = new HashMap<>();
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-        RepositoryMethodType repositoryType = repositoryType(method);
+        RepositoryMethodResolution repositoryType = repositoryType(method);
         return null;
     }
 
-    private RepositoryMethodType repositoryType(Method method) {
-        RepositoryMethodType repositoryMethodType = this.methodRepositoryTypeMap.get(method);
+    private RepositoryMethodResolution repositoryType(Method method) {
+        RepositoryMethodResolution repositoryMethodType = this.methodRepositoryTypeMap.get(method);
         if(repositoryMethodType == null) {
             var repositoryMethod = repositoryMetadata().find(new ReflectionMethodKey(method));
-            repositoryMethodType = repositoryMethod.map(RepositoryMethod::type).orElse(RepositoryMethodType.UNKNOWN);
-            if(RepositoryMethodType.UNKNOWN.equals(repositoryMethodType)) {
+            var type  = repositoryMethod.map(RepositoryMethod::type).orElse(RepositoryMethodType.UNKNOWN);
+            if(RepositoryMethodType.UNKNOWN.equals(type)) {
              //validation here
             } else {
                 this.methodRepositoryTypeMap.put(method, repositoryMethodType);
