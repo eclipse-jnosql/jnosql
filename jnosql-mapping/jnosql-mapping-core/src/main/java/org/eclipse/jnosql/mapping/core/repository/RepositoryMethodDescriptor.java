@@ -21,7 +21,6 @@ import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
  * Describes a repository method by combining its resolved
  * {@link RepositoryMethodType} with the corresponding
  * {@link RepositoryMethod} metadata when available.
- *
  * This descriptor is the outcome of method analysis performed during
  * repository initialization. It classifies a Java {@code Method} into
  * one of the supported semantic types and, when applicable, provides
