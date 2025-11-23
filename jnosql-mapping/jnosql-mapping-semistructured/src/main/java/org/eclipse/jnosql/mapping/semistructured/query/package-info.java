@@ -17,7 +17,6 @@
  * This package is deprecated and preserved only for backward compatibility.
  * It contains the previous query execution infrastructure for semi-structured
  * databases, including legacy components used before Jakarta Data integration.
- *
  * The new execution model is now provided in
  * {@code org.eclipse.jnosql.mapping.semistructured.repository}, which offers a
  * clearer and more consistent API aligned with Jakarta Data. Applications and
