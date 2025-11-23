@@ -16,12 +16,18 @@ package org.eclipse.jnosql.mapping.core.repository;
 
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.ReflectionMethodKey;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class AbstractRepositoryInvocationHandler<T, K> implements InvocationHandler {
+
 
     /**
      * Retrieves the underlying repository associated with this proxy.
@@ -50,8 +56,26 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
      */
     protected abstract RepositoryMetadata repositoryMetadata();
 
+    protected Map<Method, RepositoryMethodType> methodRepositoryTypeMap = new HashMap<>();
+
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+
+        RepositoryMethodType repositoryType = repositoryType(method);
         return null;
+    }
+
+    private RepositoryMethodType repositoryType(Method method) {
+        RepositoryMethodType repositoryMethodType = this.methodRepositoryTypeMap.get(method);
+        if(repositoryMethodType == null) {
+            var repositoryMethod = repositoryMetadata().find(new ReflectionMethodKey(method));
+            repositoryMethodType = repositoryMethod.map(RepositoryMethod::type).orElse(RepositoryMethodType.UNKNOWN);
+            if(RepositoryMethodType.UNKNOWN.equals(repositoryMethodType)) {
+             //validation here
+            } else {
+                this.methodRepositoryTypeMap.put(method, repositoryMethodType);
+            }
+        }
+        return repositoryMethodType;
     }
 }
