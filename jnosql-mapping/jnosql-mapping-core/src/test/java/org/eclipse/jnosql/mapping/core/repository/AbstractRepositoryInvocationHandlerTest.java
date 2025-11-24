@@ -83,6 +83,13 @@ class AbstractRepositoryInvocationHandlerTest {
         });
     }
 
+    @Test
+    void shouldCacheMapResult() {
+        for (int index = 0; index < 10; index++) {
+            Assertions.assertThatCode(() -> personRepository.toString()).doesNotThrowAnyException();
+        }
+    }
+
 
    private class RepositoryExecutor extends AbstractRepository<Person, Long> {
 

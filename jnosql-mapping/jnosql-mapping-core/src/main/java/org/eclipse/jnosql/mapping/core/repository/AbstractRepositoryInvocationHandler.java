@@ -81,17 +81,20 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
     }
 
     private RepositoryMethodDescriptor methodDescriptor(Method method) {
-        RepositoryMethodDescriptor repositoryMethodType = this.methodRepositoryTypeMap.get(method);
+        var repositoryMethodType = this.methodRepositoryTypeMap.get(method);
         if(repositoryMethodType == null) {
-            var repositoryMethod = repositoryMetadata().find(new ReflectionMethodKey(method));
-            var type  = repositoryMethod.map(RepositoryMethod::type).orElse(RepositoryMethodType.UNKNOWN);
-            if(RepositoryMethodType.UNKNOWN.equals(type) && Object.class.equals(method.getDeclaringClass())) {
-                repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.OBJECT_METHOD, null);
-                this.methodRepositoryTypeMap.put(method, repositoryMethodType);
-            } else {
-                this.methodRepositoryTypeMap.put(method, repositoryMethodType);
-            }
+            repositoryMethodType = processingMethodDescriptor(method, repositoryMethodType);
         }
+        return repositoryMethodType;
+    }
+
+    private RepositoryMethodDescriptor processingMethodDescriptor(Method method, RepositoryMethodDescriptor repositoryMethodType) {
+        var repositoryMethod = repositoryMetadata().find(new ReflectionMethodKey(method));
+        var type  = repositoryMethod.map(RepositoryMethod::type).orElse(RepositoryMethodType.UNKNOWN);
+        if(RepositoryMethodType.UNKNOWN.equals(type) && Object.class.equals(method.getDeclaringClass())) {
+            repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.OBJECT_METHOD, null);
+        }
+        this.methodRepositoryTypeMap.put(method, repositoryMethodType);
         return repositoryMethodType;
     }
 
