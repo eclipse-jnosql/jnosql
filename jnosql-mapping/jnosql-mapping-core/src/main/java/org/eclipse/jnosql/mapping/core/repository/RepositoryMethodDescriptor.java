@@ -35,10 +35,7 @@ import java.util.Objects;
  *               when the method does not provide Jakarta Data metadata
  *
  */
-public record RepositoryMethodDescriptor(
-        RepositoryMethodType type,
-        RepositoryMethod method
-) {
+public record RepositoryMethodDescriptor(RepositoryMethodType type, RepositoryMethod method) {
     public RepositoryMethodDescriptor {
         Objects.requireNonNull(type, "type is required");
     }
