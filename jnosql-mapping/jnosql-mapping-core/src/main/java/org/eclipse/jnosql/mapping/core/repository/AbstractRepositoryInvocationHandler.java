@@ -14,7 +14,10 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+import jakarta.data.repository.BasicRepository;
+import jakarta.data.repository.CrudRepository;
 import jakarta.enterprise.inject.spi.CDI;
+import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.ReflectionMethodKey;
@@ -27,9 +30,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 public abstract class AbstractRepositoryInvocationHandler<T, K> implements InvocationHandler {
 
+
+    private static final Predicate<Class<?>> IS_REPOSITORY_METHOD = Predicate.<Class<?>>isEqual(CrudRepository.class)
+            .or(Predicate.isEqual(BasicRepository.class))
+            .or(Predicate.isEqual(NoSQLRepository.class));
 
     /**
      * Retrieves the underlying repository associated with this proxy.
@@ -91,8 +99,15 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
     private RepositoryMethodDescriptor processingMethodDescriptor(Method method, RepositoryMethodDescriptor repositoryMethodType) {
         var repositoryMethod = repositoryMetadata().find(new ReflectionMethodKey(method));
         var type  = repositoryMethod.map(RepositoryMethod::type).orElse(RepositoryMethodType.UNKNOWN);
-        if(RepositoryMethodType.UNKNOWN.equals(type) && Object.class.equals(method.getDeclaringClass())) {
+        if(!RepositoryMethodType.UNKNOWN.equals(type)){
+            this.methodRepositoryTypeMap.put(method, repositoryMethodType);
+            return repositoryMethodType;
+        }
+
+        if(Object.class.equals(method.getDeclaringClass())) {
             repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.OBJECT_METHOD, null);
+        } else if(IS_REPOSITORY_METHOD.test(method.getDeclaringClass())) {
+            repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.DEFAULT, null);
         }
         this.methodRepositoryTypeMap.put(method, repositoryMethodType);
         return repositoryMethodType;
