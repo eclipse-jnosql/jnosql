@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-public record ReflectionRepositoryMetadata(Class<?> type, Class<?> entityType, List<RepositoryMethod> methods,
+record ReflectionRepositoryMetadata(Class<?> type, Class<?> entityType, List<RepositoryMethod> methods,
                                            Map<Method, RepositoryMethod> methodByMethodReflection) implements RepositoryMetadata {
 
     @Override
