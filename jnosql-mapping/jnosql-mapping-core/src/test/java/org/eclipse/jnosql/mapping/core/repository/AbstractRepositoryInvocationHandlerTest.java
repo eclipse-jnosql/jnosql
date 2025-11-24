@@ -20,8 +20,8 @@ import jakarta.nosql.Template;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.core.VetedConverter;
-import org.eclipse.jnosql.mapping.core.entities.Person;
-import org.eclipse.jnosql.mapping.core.entities.PersonRepository;
+import org.eclipse.jnosql.mapping.core.entities.ComicBook;
+import org.eclipse.jnosql.mapping.core.entities.ComicBookRepository;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
@@ -46,60 +46,54 @@ import java.lang.reflect.Proxy;
 @AddPackages(value = ReflectionClassConverter.class)
 class AbstractRepositoryInvocationHandlerTest {
     private Template template;
-
     @Inject
     private EntitiesMetadata entitiesMetadata;
-
     @Inject
     private RepositoriesMetadata repositoriesMetadata;
-
     private RepositoryExecutor executor;
-
     private TestRepositoryInvocationHandler repositoryHandler;
-
-    private PersonRepository personRepository;
+    private ComicBookRepository comicBookRepository;
 
     @BeforeEach
     void setUp(){
         this.template = Mockito.mock(Template.class);
         this.executor = new RepositoryExecutor();
         this.repositoryHandler = new TestRepositoryInvocationHandler<>(executor);
-        personRepository = (PersonRepository) Proxy.newProxyInstance(
+        comicBookRepository = (ComicBookRepository) Proxy.newProxyInstance(
                 AbstractRepositoryInvocationHandlerTest.class.getClassLoader(),
-                new Class[] { PersonRepository.class }, repositoryHandler);
+                new Class[] { ComicBookRepository.class }, repositoryHandler);
     }
 
     @Test
     void shouldInstantiateHandler() {
-        Assertions.assertThat(personRepository).isNotNull();
+        Assertions.assertThat(comicBookRepository).isNotNull();
     }
 
     @Test
     void shouldExecuteMethodsFromObject() {
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThatCode(() -> personRepository.toString()).doesNotThrowAnyException();
-            softly.assertThatCode(() -> personRepository.hashCode()).doesNotThrowAnyException();
-            softly.assertThatCode(() -> personRepository.equals(personRepository)).doesNotThrowAnyException();
+            softly.assertThatCode(() -> comicBookRepository.toString()).doesNotThrowAnyException();
+            softly.assertThatCode(() -> comicBookRepository.hashCode()).doesNotThrowAnyException();
+            softly.assertThatCode(() -> comicBookRepository.equals(comicBookRepository)).doesNotThrowAnyException();
         });
     }
 
     @Test
     void shouldCacheMapResult() {
         for (int index = 0; index < 10; index++) {
-            Assertions.assertThatCode(() -> personRepository.toString()).doesNotThrowAnyException();
+            Assertions.assertThatCode(() -> comicBookRepository.toString()).doesNotThrowAnyException();
         }
     }
 
     @Test
     void shouldExecuteCustomMethods() {
-        Mockito.when(template.insert(Mockito.any(Person.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        Person person = personRepository.save(Person.builder().withName("Ada").build());
-        Assertions.assertThat(person).isNotNull();
-        Mockito.verify(template).insert(person);
+        Mockito.when(template.insert(Mockito.any(ComicBook.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        ComicBook bookComic = comicBookRepository.save(new ComicBook("123421", "Book Comic"));
+        Assertions.assertThat(bookComic).isNotNull();
+        Mockito.verify(template).insert(bookComic);
     }
 
-
-   private class RepositoryExecutor extends AbstractRepository<Person, Long> {
+   private class RepositoryExecutor extends AbstractRepository<ComicBook, Long> {
 
         @Override
         protected Template template() {
@@ -108,7 +102,7 @@ class AbstractRepositoryInvocationHandlerTest {
 
         @Override
         protected EntityMetadata entityMetadata() {
-            return entitiesMetadata.get(Person.class);
+            return entitiesMetadata.get(ComicBook.class);
         }
     }
 
@@ -128,17 +122,17 @@ class AbstractRepositoryInvocationHandlerTest {
 
         @Override
         protected Class<?> repositoryType() {
-            return Person.class;
+            return ComicBook.class;
         }
 
         @Override
         protected EntityMetadata entityMetadata() {
-            return entitiesMetadata.get(Person.class);
+            return entitiesMetadata.get(ComicBook.class);
         }
 
         @Override
         protected RepositoryMetadata repositoryMetadata() {
-            return repositoriesMetadata.get(PersonRepository.class).orElseThrow();
+            return repositoriesMetadata.get(ComicBookRepository.class).orElseThrow();
         }
     }
 }
