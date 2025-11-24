@@ -90,6 +90,14 @@ class AbstractRepositoryInvocationHandlerTest {
         }
     }
 
+    @Test
+    void shouldExecuteCustomMethods() {
+        Mockito.when(template.insert(Mockito.any(Person.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        Person person = personRepository.save(Person.builder().withName("Ada").build());
+        Assertions.assertThat(person).isNotNull();
+        Mockito.verify(template).insert(person);
+    }
+
 
    private class RepositoryExecutor extends AbstractRepository<Person, Long> {
 
