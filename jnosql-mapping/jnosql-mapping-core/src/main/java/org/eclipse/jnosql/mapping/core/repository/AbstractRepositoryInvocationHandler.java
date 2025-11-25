@@ -47,13 +47,6 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
     protected abstract AbstractRepository<T, K> repository();
 
     /**
-     * Retrieves the type of the repository interface.
-     *
-     * @return The repository interface type.
-     */
-    protected abstract Class<?> repositoryType();
-
-    /**
      * Retrieves the metadata information about the entity managed by this repository.
      *
      * @return The entity metadata information.

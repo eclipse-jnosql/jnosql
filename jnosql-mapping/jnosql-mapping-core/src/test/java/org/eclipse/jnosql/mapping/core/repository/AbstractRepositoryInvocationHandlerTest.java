@@ -124,11 +124,6 @@ class AbstractRepositoryInvocationHandlerTest {
         }
 
         @Override
-        protected Class<?> repositoryType() {
-            return ComicBook.class;
-        }
-
-        @Override
         protected EntityMetadata entityMetadata() {
             return entitiesMetadata.get(ComicBook.class);
         }
