@@ -33,6 +33,7 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -45,6 +46,7 @@ import java.lang.reflect.Proxy;
 @AddPackages(value = InfrastructureOperatorProvider.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class})
 @AddPackages(value = ReflectionClassConverter.class)
+@DisplayName("Test scenario where the handler goes on the infrastructure operation provider")
 class AbstractRepositoryInvocationHandlerTest {
     private Template template;
     @Inject
