@@ -29,7 +29,7 @@ class TestRepositoryInvocationHandler<T, K> extends AbstractRepositoryInvocation
     private final InfrastructureOperatorProvider infrastructureOperatorProvider;
 
 
-    public TestRepositoryInvocationHandler(AbstractRepository<T, K> repository,
+    TestRepositoryInvocationHandler(AbstractRepository<T, K> repository,
                                            EntityMetadata entityMetadata,
                                            RepositoryMetadata repositoryMetadata,
                                            InfrastructureOperatorProvider infrastructureOperatorProvider) {

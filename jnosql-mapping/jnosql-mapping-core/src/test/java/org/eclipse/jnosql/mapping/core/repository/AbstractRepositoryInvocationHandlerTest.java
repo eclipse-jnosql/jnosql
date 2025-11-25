@@ -53,14 +53,14 @@ class AbstractRepositoryInvocationHandlerTest {
     private RepositoriesMetadata repositoriesMetadata;
     @Inject
     private InfrastructureOperatorProvider infrastructureOperatorProvider;
-    private RepositoryExecutor executor;
+    private TestRepositoryExecutor executor;
     private TestRepositoryInvocationHandler<?, ?> repositoryHandler;
     private ComicBookRepository comicBookRepository;
 
     @BeforeEach
     void setUp() {
         this.template = Mockito.mock(Template.class);
-        this.executor = new RepositoryExecutor();
+        this.executor = new TestRepositoryExecutor(this.template, entitiesMetadata);
         this.repositoryHandler = new TestRepositoryInvocationHandler<>(executor
                 , entitiesMetadata.get(ComicBook.class),
                 repositoriesMetadata.get(ComicBookRepository.class).orElseThrow(),
@@ -103,19 +103,6 @@ class AbstractRepositoryInvocationHandlerTest {
     void shouldExecuteComponentsMethods() {
         var component = comicBookRepository.component();
         Assertions.assertThat(component).isNotNull().isEqualTo("Game based on the Comic Book");
-    }
-
-    private class RepositoryExecutor extends AbstractRepository<ComicBook, Long> {
-
-        @Override
-        protected Template template() {
-            return template;
-        }
-
-        @Override
-        protected EntityMetadata entityMetadata() {
-            return entitiesMetadata.get(ComicBook.class);
-        }
     }
 
 }
