@@ -54,7 +54,7 @@ class AbstractRepositoryInvocationHandlerTest {
     @Inject
     private InfrastructureOperatorProvider infrastructureOperatorProvider;
     private RepositoryExecutor executor;
-    private TestRepositoryInvocationHandler repositoryHandler;
+    private TestRepositoryInvocationHandler<?,?> repositoryHandler;
     private ComicBookRepository comicBookRepository;
 
     @BeforeEach
@@ -111,15 +111,15 @@ class AbstractRepositoryInvocationHandlerTest {
 
     public class TestRepositoryInvocationHandler<T, K> extends AbstractRepositoryInvocationHandler {
 
-        private final AbstractRepository repository;
+        private final AbstractRepository<?,?> repository;
 
-        TestRepositoryInvocationHandler(AbstractRepository repository) {
+        TestRepositoryInvocationHandler(AbstractRepository<?,?> repository) {
             this.repository = repository;
         }
 
 
         @Override
-        protected AbstractRepository repository() {
+        protected AbstractRepository<?,?> repository() {
             return repository;
         }
 
