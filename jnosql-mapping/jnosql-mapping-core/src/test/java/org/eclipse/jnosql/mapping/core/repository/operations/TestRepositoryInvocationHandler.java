@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.core.repository.operations;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.core.repository.AbstractRepositoryInvocationHandler;
 import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
+import org.eclipse.jnosql.mapping.core.repository.RepositoryOperationProvider;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 
@@ -30,15 +31,19 @@ class TestRepositoryInvocationHandler<T, K> extends AbstractRepositoryInvocation
 
     private final InfrastructureOperatorProvider infrastructureOperatorProvider;
 
+    private final RepositoryOperationProvider repositoryOperationProvider;
+
 
     TestRepositoryInvocationHandler(AbstractRepository<T, K> repository,
                                            EntityMetadata entityMetadata,
                                            RepositoryMetadata repositoryMetadata,
-                                           InfrastructureOperatorProvider infrastructureOperatorProvider) {
+                                           InfrastructureOperatorProvider infrastructureOperatorProvider,
+                                    RepositoryOperationProvider repositoryOperationProvider) {
         this.repository = repository;
         this.entityMetadata = entityMetadata;
         this.repositoryMetadata = repositoryMetadata;
         this.infrastructureOperatorProvider = infrastructureOperatorProvider;
+        this.repositoryOperationProvider = repositoryOperationProvider;
     }
 
     @Override
@@ -59,5 +64,10 @@ class TestRepositoryInvocationHandler<T, K> extends AbstractRepositoryInvocation
     @Override
     protected InfrastructureOperatorProvider infrastructureOperatorProvider() {
         return infrastructureOperatorProvider;
+    }
+
+    @Override
+    protected RepositoryOperationProvider repositoryOperationProvider() {
+        return repositoryOperationProvider;
     }
 }

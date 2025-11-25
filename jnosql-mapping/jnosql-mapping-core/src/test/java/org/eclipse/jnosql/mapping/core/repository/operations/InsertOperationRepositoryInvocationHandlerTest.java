@@ -45,8 +45,8 @@ import java.lang.reflect.Proxy;
 @AddPackages(value = InfrastructureOperatorProvider.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class})
 @AddPackages(value = ReflectionClassConverter.class)
-@DisplayName("Test scenario where the handler goes on the infrastructure operation provider")
-class InfrastructureOperationRepositoryInvocationHandlerTest {
+@DisplayName("Test scenario where the handler goes on the insert provider")
+class InsertOperationRepositoryInvocationHandlerTest {
     private Template template;
     @Inject
     private EntitiesMetadata entitiesMetadata;
@@ -71,43 +71,16 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
                 infrastructureOperatorProvider,
                 repositoryOperationProvider);
         comicBookRepository = (ComicBookRepository) Proxy.newProxyInstance(
-                InfrastructureOperationRepositoryInvocationHandlerTest.class.getClassLoader(),
+                InsertOperationRepositoryInvocationHandlerTest.class.getClassLoader(),
                 new Class[]{ComicBookRepository.class}, repositoryHandler);
     }
 
     @Test
-    void shouldInstantiateHandler() {
-        Assertions.assertThat(comicBookRepository).isNotNull();
+    void shouldInsertVoid() {
+        comicBookRepository.insertSingle(new ComicBook("1234", "Book"));
+        Mockito.when(template.insert(Mockito.any())).thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.verify(template).insert(Mockito.any());
     }
 
-    @Test
-    void shouldExecuteMethodsFromObject() {
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThatCode(() -> comicBookRepository.toString()).doesNotThrowAnyException();
-            softly.assertThatCode(() -> comicBookRepository.hashCode()).doesNotThrowAnyException();
-            softly.assertThatCode(() -> comicBookRepository.equals(comicBookRepository)).doesNotThrowAnyException();
-        });
-    }
-
-    @Test
-    void shouldCacheMapResult() {
-        for (int index = 0; index < 10; index++) {
-            Assertions.assertThatCode(() -> comicBookRepository.toString()).doesNotThrowAnyException();
-        }
-    }
-
-    @Test
-    void shouldExecuteSupportedMethod() {
-        Mockito.when(template.insert(Mockito.any(ComicBook.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        ComicBook bookComic = comicBookRepository.save(new ComicBook("123421", "Book Comic"));
-        Assertions.assertThat(bookComic).isNotNull();
-        Mockito.verify(template).insert(bookComic);
-    }
-
-    @Test
-    void shouldExecuteComponentsMethods() {
-        var component = comicBookRepository.component();
-        Assertions.assertThat(component).isNotNull().isEqualTo("Game based on the Comic Book");
-    }
 
 }
