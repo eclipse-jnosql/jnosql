@@ -19,7 +19,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class DefaultBookComponent implements BookComponent{
     @Override
-    public String getName() {
+    public String component() {
         return "Game based on the Comic Book";
     }
 }

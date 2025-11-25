@@ -17,5 +17,5 @@ package org.eclipse.jnosql.mapping.core.entities;
 public interface BookComponent {
 
 
-    String getName();
+    String component();
 }
