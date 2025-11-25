@@ -14,27 +14,28 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+
 import java.lang.reflect.Method;
 
 /**
- * Handles the invocation of custom repository methods implemented outside the
- * standard Jakarta Data repository contract. The implementation is typically
- * obtained from CDI and invoked directly.
+ * Handles the invocation of methods inherited from {@code java.lang.Object}
+ * on the proxy instance, such as {@code toString}, {@code equals}, and
+ * {@code hashCode}.
  * <p>
- * This interface is used only by the reflection-based proxy. Code-generated
- * repositories do not depend on CDI-based custom method invocation and do not
- * use this type.
+ * This interface is used exclusively by the reflection-based proxy layer.
+ * It is not required for generated repository implementations.
  *
  */
-public interface CustomRepositoryMethodInvoker {
+public interface ObjectMethodOperator {
 
     /**
-     * Invokes a custom repository method on a CDI-managed implementation.
+     * Invokes a method from {@code Object} on the proxy instance.
      *
-     * @param method the method declared in the custom repository interface
+     * @param proxy  the dynamic proxy instance
+     * @param method the {@code Object} method being invoked
      * @param params the method parameters
      * @return the method result
      * @throws Exception if invocation fails
      */
-    Object invokeCustomRepository(Method method, Object[] params) throws Exception;
+    Object invokeObjectMethod(Object proxy, Method method, Object[] params) throws Exception;
 }

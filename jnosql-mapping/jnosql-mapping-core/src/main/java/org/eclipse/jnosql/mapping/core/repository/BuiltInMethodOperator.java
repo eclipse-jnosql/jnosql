@@ -14,28 +14,26 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
-
 import java.lang.reflect.Method;
 
 /**
- * Handles the invocation of methods inherited from {@code java.lang.Object}
- * on the proxy instance, such as {@code toString}, {@code equals}, and
- * {@code hashCode}.
+ * Handles the invocation of default interface methods on a repository.
  * <p>
- * This interface is used exclusively by the reflection-based proxy layer.
- * It is not required for generated repository implementations.
+ * This interface is used only by the reflection-based repository proxy.
+ * Generated repository implementations do not rely on default interface
+ * method invocation and therefore do not use this type.
  *
  */
-public interface ObjectMethodInvoker {
+public interface BuiltInMethodOperator {
 
     /**
-     * Invokes a method from {@code Object} on the proxy instance.
+     * Invokes a default method from the repository interface using reflection.
      *
-     * @param proxy  the dynamic proxy instance
-     * @param method the {@code Object} method being invoked
-     * @param params the method parameters
+     * @param repository the repository implementation instance
+     * @param method     the default method to invoke
+     * @param params     the method parameters
      * @return the method result
      * @throws Exception if invocation fails
      */
-    Object invokeObjectMethod(Object proxy, Method method, Object[] params) throws Exception;
+    Object invokeDefault(Object repository, Method method, Object[] params) throws Exception;
 }

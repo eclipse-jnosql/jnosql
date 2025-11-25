@@ -17,23 +17,24 @@ package org.eclipse.jnosql.mapping.core.repository;
 import java.lang.reflect.Method;
 
 /**
- * Handles the invocation of default interface methods on a repository.
+ * Handles the invocation of custom repository methods implemented outside the
+ * standard Jakarta Data repository contract. The implementation is typically
+ * obtained from CDI and invoked directly.
  * <p>
- * This interface is used only by the reflection-based repository proxy.
- * Generated repository implementations do not rely on default interface
- * method invocation and therefore do not use this type.
+ * This interface is used only by the reflection-based proxy. Code-generated
+ * repositories do not depend on CDI-based custom method invocation and do not
+ * use this type.
  *
  */
-public interface DefaultMethodInvoker {
+public interface CustomRepositoryMethodOperator {
 
     /**
-     * Invokes a default method from the repository interface using reflection.
+     * Invokes a custom repository method on a CDI-managed implementation.
      *
-     * @param repository the repository implementation instance
-     * @param method     the default method to invoke
-     * @param params     the method parameters
+     * @param method the method declared in the custom repository interface
+     * @param params the method parameters
      * @return the method result
      * @throws Exception if invocation fails
      */
-    Object invokeDefault(Object repository, Method method, Object[] params) throws Exception;
+    Object invokeCustomRepository(Method method, Object[] params) throws Exception;
 }
