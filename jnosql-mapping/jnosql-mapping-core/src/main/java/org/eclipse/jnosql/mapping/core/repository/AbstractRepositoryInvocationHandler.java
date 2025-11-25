@@ -79,6 +79,17 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
      */
     protected abstract InfrastructureOperatorProvider infrastructureOperatorProvider();
 
+    /**
+     * Provides the {@link RepositoryOperationProvider} to manage and execute repository operations.
+     * Each operation corresponds to a specific type of repository interaction, offering consistent
+     * and extensible behavior for repository method execution. This method is utilized internally
+     * by the dynamic repository proxy and code-generated repository classes.
+     *
+     * @return an instance of {@link RepositoryOperationProvider} responsible for delegating
+     * repository method execution.
+     */
+    protected abstract RepositoryOperationProvider repositoryOperationProvider();
+
     protected Map<Method, RepositoryMethodDescriptor> methodRepositoryTypeMap = new HashMap<>();
 
     @Override
