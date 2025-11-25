@@ -14,6 +14,8 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
+
 import java.lang.reflect.Method;
 
 /**
@@ -35,5 +37,5 @@ public interface BuiltInMethodOperator {
      * @return the method result
      * @throws Exception if invocation fails
      */
-    Object invokeDefault(Object repository, Method method, Object[] params) throws Exception;
+    Object invokeDefault(AbstractRepository<?, ?> repository, Method method, Object[] params) throws Exception;
 }
