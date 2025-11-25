@@ -12,7 +12,7 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.core.repository;
+package org.eclipse.jnosql.mapping.core.repository.operations;
 
 import jakarta.nosql.Template;
 import org.eclipse.jnosql.mapping.core.entities.ComicBook;

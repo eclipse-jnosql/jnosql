@@ -12,7 +12,7 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.core.repository;
+package org.eclipse.jnosql.mapping.core.repository.operations;
 
 import jakarta.inject.Inject;
 import jakarta.nosql.Convert;
@@ -22,11 +22,9 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.core.VetedConverter;
 import org.eclipse.jnosql.mapping.core.entities.ComicBook;
 import org.eclipse.jnosql.mapping.core.entities.ComicBookRepository;
-import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
+import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
-import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
-import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.reflection.ReflectionClassConverter;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.jboss.weld.junit5.auto.AddExtensions;
@@ -47,7 +45,7 @@ import java.lang.reflect.Proxy;
 @AddExtensions({ReflectionEntityMetadataExtension.class})
 @AddPackages(value = ReflectionClassConverter.class)
 @DisplayName("Test scenario where the handler goes on the infrastructure operation provider")
-class AbstractRepositoryInvocationHandlerTest {
+class InfrastructureOperationRepositoryInvocationHandlerTest {
     private Template template;
     @Inject
     private EntitiesMetadata entitiesMetadata;
@@ -68,7 +66,7 @@ class AbstractRepositoryInvocationHandlerTest {
                 repositoriesMetadata.get(ComicBookRepository.class).orElseThrow(),
                 infrastructureOperatorProvider);
         comicBookRepository = (ComicBookRepository) Proxy.newProxyInstance(
-                AbstractRepositoryInvocationHandlerTest.class.getClassLoader(),
+                InfrastructureOperationRepositoryInvocationHandlerTest.class.getClassLoader(),
                 new Class[]{ComicBookRepository.class}, repositoryHandler);
     }
 

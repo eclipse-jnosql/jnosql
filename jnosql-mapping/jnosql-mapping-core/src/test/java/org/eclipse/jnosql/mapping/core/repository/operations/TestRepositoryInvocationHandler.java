@@ -12,13 +12,15 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.core.repository;
+package org.eclipse.jnosql.mapping.core.repository.operations;
 
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
+import org.eclipse.jnosql.mapping.core.repository.AbstractRepositoryInvocationHandler;
+import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 
-class TestRepositoryInvocationHandler<T, K> extends AbstractRepositoryInvocationHandler<T, K>  {
+class TestRepositoryInvocationHandler<T, K> extends AbstractRepositoryInvocationHandler<T, K> {
 
     private final AbstractRepository<T, K> repository;
 
