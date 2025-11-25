@@ -18,5 +18,5 @@ import jakarta.data.repository.Repository;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
 
 @Repository
-public interface ComicBookRepository extends NoSQLRepository<ComicBook, String> {
+public interface ComicBookRepository extends NoSQLRepository<ComicBook, String>, BookComponent {
 }
