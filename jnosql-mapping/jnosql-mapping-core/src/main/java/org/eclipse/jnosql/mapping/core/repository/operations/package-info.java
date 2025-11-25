@@ -13,4 +13,19 @@
  *   Otavio Santana
  */
 
+/**
+ * Provides the default core implementations for the semantic repository
+ * operations defined by the Jakarta Data integration layer. Each class in
+ * this package implements a specific repository operation, such as
+ * {@code findBy}, {@code findAll}, {@code countBy}, annotated queries, or
+ * cursor-based pagination.
+ *
+ * <p>
+ * These implementations serve as the baseline execution engine used by the
+ * repository proxy. Storage providers or specialized engines may override
+ * any of these components using CDI alternatives. Operations that are not
+ * supported by the core engine provide implementations that consistently
+ * throw {@link java.lang.UnsupportedOperationException}.
+ * </p>
+ */
 package org.eclipse.jnosql.mapping.core.repository.operations;
