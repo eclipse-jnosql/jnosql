@@ -54,17 +54,20 @@ class AbstractRepositoryInvocationHandlerTest {
     @Inject
     private InfrastructureOperatorProvider infrastructureOperatorProvider;
     private RepositoryExecutor executor;
-    private TestRepositoryInvocationHandler<?,?> repositoryHandler;
+    private TestRepositoryInvocationHandler<?, ?> repositoryHandler;
     private ComicBookRepository comicBookRepository;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         this.template = Mockito.mock(Template.class);
         this.executor = new RepositoryExecutor();
-        this.repositoryHandler = new TestRepositoryInvocationHandler<>(executor);
+        this.repositoryHandler = new TestRepositoryInvocationHandler<>(executor
+                , entitiesMetadata.get(ComicBook.class),
+                repositoriesMetadata.get(ComicBookRepository.class).orElseThrow(),
+                infrastructureOperatorProvider);
         comicBookRepository = (ComicBookRepository) Proxy.newProxyInstance(
                 AbstractRepositoryInvocationHandlerTest.class.getClassLoader(),
-                new Class[] { ComicBookRepository.class }, repositoryHandler);
+                new Class[]{ComicBookRepository.class}, repositoryHandler);
     }
 
     @Test
@@ -102,7 +105,7 @@ class AbstractRepositoryInvocationHandlerTest {
         Assertions.assertThat(component).isNotNull().isEqualTo("Game based on the Comic Book");
     }
 
-   private class RepositoryExecutor extends AbstractRepository<ComicBook, Long> {
+    private class RepositoryExecutor extends AbstractRepository<ComicBook, Long> {
 
         @Override
         protected Template template() {
@@ -115,33 +118,4 @@ class AbstractRepositoryInvocationHandlerTest {
         }
     }
 
-    public class TestRepositoryInvocationHandler<T, K> extends AbstractRepositoryInvocationHandler {
-
-        private final AbstractRepository<?,?> repository;
-
-        TestRepositoryInvocationHandler(AbstractRepository<?,?> repository) {
-            this.repository = repository;
-        }
-
-
-        @Override
-        protected AbstractRepository<?,?> repository() {
-            return repository;
-        }
-
-        @Override
-        protected EntityMetadata entityMetadata() {
-            return entitiesMetadata.get(ComicBook.class);
-        }
-
-        @Override
-        protected RepositoryMetadata repositoryMetadata() {
-            return repositoriesMetadata.get(ComicBookRepository.class).orElseThrow();
-        }
-
-        @Override
-        protected InfrastructureOperatorProvider infrastructureOperatorProvider() {
-            return infrastructureOperatorProvider;
-        }
-    }
 }
