@@ -66,6 +66,17 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
      */
     protected abstract RepositoryMetadata repositoryMetadata();
 
+    /**
+     * Provides an instance of InfrastructureOperatorProvider, which supplies
+     * operational components required by the dynamic repository proxy. These
+     * components manage how various categories of infrastructure-level method
+     * invocations are performed. It is intended for internal use by the proxy
+     * implementation and not by the repository's semantic execution layer.
+     *
+     * @return an InfrastructureOperatorProvider instance that facilitates operation handling
+     */
+    protected abstract InfrastructureOperatorProvider infrastructureOperatorProvider();
+
     protected Map<Method, RepositoryMethodDescriptor> methodRepositoryTypeMap = new HashMap<>();
 
     @Override
@@ -75,14 +86,15 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
 
         switch (methodDescriptor.type()) {
             case DEFAULT -> {
-                return unwrapInvocationTargetException(() -> method.invoke(repository(), params));
+                return unwrapInvocationTargetException(() -> infrastructureOperatorProvider().defaultMethodOperator().invokeDefault(repository(), method, params));
             }
             case OBJECT_METHOD -> {
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() -> method.invoke(this, params)));
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                        infrastructureOperatorProvider().objectMethodOperator().invokeObjectMethod(this, method, params)));
             }
             case CUSTOM_REPOSITORY -> {
-                Object customRepository = CDI.current().select(method.getDeclaringClass()).get();
-                return unwrapInvocationTargetException(() -> method.invoke(customRepository, params));
+                return unwrapInvocationTargetException(() ->
+                        infrastructureOperatorProvider().customRepositoryMethodOperator().invokeCustomRepository(method, params));
             }
         }
         return null;
