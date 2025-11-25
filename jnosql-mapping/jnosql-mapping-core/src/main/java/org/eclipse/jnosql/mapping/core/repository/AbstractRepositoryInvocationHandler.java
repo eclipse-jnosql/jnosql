@@ -24,6 +24,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.ReflectionMethodKey;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
+import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -108,6 +109,11 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
             case CUSTOM_REPOSITORY -> {
                 return unwrapInvocationTargetException(() ->
                         infrastructureOperatorProvider().customRepositoryMethodOperator().invokeCustomRepository(method, params));
+            }
+            case INSERT -> {
+                RepositoryInvocationContext context = new RepositoryInvocationContext(methodDescriptor.method(), repositoryMetadata(), params);
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                        repositoryOperationProvider().insertOperation().execute(context)));
             }
         }
         return null;
