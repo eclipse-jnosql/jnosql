@@ -32,6 +32,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
+/**
+ * An abstract implementation of the {@link InvocationHandler} specifically designed for repository-related
+ * proxy invocation handling. This class provides a framework for intercepting and dispatching method calls
+ * to dynamic proxies that wrap repository instances. It determines the type of method being invoked and
+ * dispatches it appropriately using specialized operators.
+ *
+ * @param <T> The type of the entity managed by the repository.
+ * @param <K> The type of the key or identifier of the entity.
+ */
 public abstract class AbstractRepositoryInvocationHandler<T, K> implements InvocationHandler {
 
 

@@ -34,7 +34,9 @@ import static org.eclipse.jnosql.mapping.core.query.AnnotationOperation.UPDATE;
  *
  * @param <T> The type of the entity managed by the repository.
  * @param <K> The type of the entity's ID.
+ * @deprecated use {@link org.eclipse.jnosql.mapping.core.repository.AbstractRepositoryInvocationHandler} instead
  */
+@Deprecated(forRemoval = true)
 public abstract class AbstractRepositoryProxy<T, K> implements InvocationHandler {
 
     /**
