@@ -42,6 +42,7 @@ import java.lang.reflect.Proxy;
 @AddPackages(value = Convert.class)
 @AddPackages(value = EntitiesMetadata.class)
 @AddPackages(value = VetedConverter.class)
+@AddPackages(value = InfrastructureOperatorProvider.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class})
 @AddPackages(value = ReflectionClassConverter.class)
 class AbstractRepositoryInvocationHandlerTest {
@@ -50,6 +51,8 @@ class AbstractRepositoryInvocationHandlerTest {
     private EntitiesMetadata entitiesMetadata;
     @Inject
     private RepositoriesMetadata repositoriesMetadata;
+    @Inject
+    private InfrastructureOperatorProvider infrastructureOperatorProvider;
     private RepositoryExecutor executor;
     private TestRepositoryInvocationHandler repositoryHandler;
     private ComicBookRepository comicBookRepository;
@@ -133,6 +136,11 @@ class AbstractRepositoryInvocationHandlerTest {
         @Override
         protected RepositoryMetadata repositoryMetadata() {
             return repositoriesMetadata.get(ComicBookRepository.class).orElseThrow();
+        }
+
+        @Override
+        protected InfrastructureOperatorProvider infrastructureOperatorProvider() {
+            return infrastructureOperatorProvider;
         }
     }
 }
