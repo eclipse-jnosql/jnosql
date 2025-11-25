@@ -109,13 +109,19 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
             return repositoryMethodType;
         }
 
-        if(Object.class.equals(method.getDeclaringClass())) {
+        if (Object.class.equals(method.getDeclaringClass())) {
             repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.OBJECT_METHOD, null);
-        } else if(IS_REPOSITORY_METHOD.test(method.getDeclaringClass())) {
+        } else if (IS_REPOSITORY_METHOD.test(method.getDeclaringClass())) {
             repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.DEFAULT, null);
+        } else if (isCDIComponent(method.getDeclaringClass())) {
+            repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.CUSTOM_REPOSITORY, null);
         }
         this.methodRepositoryTypeMap.put(method, repositoryMethodType);
         return repositoryMethodType;
+    }
+
+    private boolean isCDIComponent(Class<?> type) {
+        return CDI.current().select(type).isResolvable();
     }
 
     protected Object unwrapInvocationTargetException(ThrowingSupplier<Object> supplier) throws Throwable {

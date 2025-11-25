@@ -89,11 +89,17 @@ class AbstractRepositoryInvocationHandlerTest {
     }
 
     @Test
-    void shouldExecuteCustomMethods() {
+    void shouldExecuteSupportedMethod() {
         Mockito.when(template.insert(Mockito.any(ComicBook.class))).thenAnswer(invocation -> invocation.getArgument(0));
         ComicBook bookComic = comicBookRepository.save(new ComicBook("123421", "Book Comic"));
         Assertions.assertThat(bookComic).isNotNull();
         Mockito.verify(template).insert(bookComic);
+    }
+
+    @Test
+    void shouldExecuteComponentsMethods() {
+        var component = comicBookRepository.component();
+        Assertions.assertThat(component).isNotNull().isEqualTo("Game based on the Comic Book");
     }
 
    private class RepositoryExecutor extends AbstractRepository<ComicBook, Long> {
