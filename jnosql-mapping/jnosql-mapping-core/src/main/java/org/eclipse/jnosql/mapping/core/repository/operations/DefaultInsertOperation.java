@@ -18,6 +18,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.InsertOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 @ApplicationScoped
@@ -27,17 +29,22 @@ class DefaultInsertOperation implements InsertOperation {
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
         Object[] parameters = context.parameters();
-        if(parameters.length != 1) {
+        if (parameters.length != 1) {
             throw new IllegalArgumentException("The insert method must have only one parameter instead of: " + parameters.length + " parameters: "
                     + Arrays.toString(parameters));
         }
         var template = context.template();
-        if(parameters[0] instanceof Object[]) {
+        Object element = parameters[0];
+        if (element != null && element.getClass().isArray()) {
 
-        }
-        else if(parameters[0] instanceof Iterable iterable) {
+            var entities = new ArrayList<>();
+            template.insert(Arrays.asList((Object[]) element)).forEach(entities::add);
+            Object entityArray = Array.newInstance(element.getClass().getComponentType(), entities.size());
+            System.arraycopy(entities.toArray(), 0, entityArray, 0, entities.size());
+            return (T) entityArray;
+        } else if (element instanceof Iterable<?> iterable) {
             return (T) template.insert(iterable);
         }
-        return (T) template.insert(parameters[0]);
+        return (T) template.insert(element);
     }
 }

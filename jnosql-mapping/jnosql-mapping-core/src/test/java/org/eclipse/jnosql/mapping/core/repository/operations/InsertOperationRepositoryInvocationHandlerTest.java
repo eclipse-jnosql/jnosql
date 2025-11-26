@@ -106,5 +106,14 @@ class InsertOperationRepositoryInvocationHandlerTest {
         Mockito.verify(template).insert(Mockito.any(Iterable.class));
     }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    void shouldInsertArrayReturn() {
+        Mockito.when(template.insert(Mockito.any(Iterable.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        ComicBook[] books = comicBookRepository.insert(new ComicBook[]{new ComicBook("1234", "Book")});
+        Assertions.assertThat(books).isNotNull().isNotEmpty().contains(new ComicBook("1234", "Book"));
+        Mockito.verify(template).insert(Mockito.any(Iterable.class));
+    }
+
 
 }
