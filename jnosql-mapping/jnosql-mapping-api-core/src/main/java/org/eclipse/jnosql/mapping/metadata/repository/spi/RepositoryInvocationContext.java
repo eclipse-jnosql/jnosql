@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.metadata.repository.spi;
 
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.MethodKey;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
@@ -29,11 +30,12 @@ import java.util.Objects;
  * method invocation, enabling both runtime and annotation-processor–generated implementations
  * to pass execution details to a {@code RepositoryOperationExecutor}.
  */
-public record RepositoryInvocationContext(RepositoryMethod method, RepositoryMetadata metadata, Object[] parameters) {
+public record RepositoryInvocationContext(RepositoryMethod method, RepositoryMetadata metadata, EntityMetadata entityMetadata, Object[] parameters) {
 
     public RepositoryInvocationContext {
         Objects.requireNonNull(method, "method is required");
         Objects.requireNonNull(metadata, "metadata is required");
+        Objects.requireNonNull(entityMetadata, "entityMetadata is required");
         Objects.requireNonNull(parameters, "parameters is required");
     }
 }

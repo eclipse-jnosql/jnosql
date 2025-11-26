@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.metadata.repository.spi;
 
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.junit.jupiter.api.Test;
@@ -32,11 +33,14 @@ class RepositoryInvocationContextTest {
     @Mock
     private RepositoryMetadata repositoryMetadata;
 
+    @Mock
+    private EntityMetadata entityMetadata;
+
 
     @Test
     void shouldNotAllowNullRepositoryMethod() {
         assertThatThrownBy(() ->
-                new RepositoryInvocationContext(null, repositoryMetadata, new Object[]{})
+                new RepositoryInvocationContext(null, repositoryMetadata, entityMetadata, new Object[]{})
         ).isInstanceOf(NullPointerException.class)
                 .hasMessage("method is required");
     }
@@ -44,7 +48,7 @@ class RepositoryInvocationContextTest {
     @Test
     void shouldNotAllowNullMetadata() {
         assertThatThrownBy(() ->
-                new RepositoryInvocationContext(repositoryMethod, null, new Object[]{})
+                new RepositoryInvocationContext(repositoryMethod, null,entityMetadata,  new Object[]{})
         ).isInstanceOf(NullPointerException.class)
                 .hasMessage("metadata is required");
     }
@@ -52,8 +56,15 @@ class RepositoryInvocationContextTest {
     @Test
     void shouldNotAllowNullParametersArray() {
         assertThatThrownBy(() ->
-                new RepositoryInvocationContext(repositoryMethod, repositoryMetadata, null)
+                new RepositoryInvocationContext(repositoryMethod, repositoryMetadata, entityMetadata, null)
         ).isInstanceOf(NullPointerException.class)
                 .hasMessage("parameters is required");
+    }
+
+    @Test
+    void shouldNotAllowNullEntityMetadata() {
+        assertThatThrownBy(() ->
+                new RepositoryInvocationContext(repositoryMethod, repositoryMetadata, null, new Object[]{})
+        ).isInstanceOf(NullPointerException.class);
     }
 }
