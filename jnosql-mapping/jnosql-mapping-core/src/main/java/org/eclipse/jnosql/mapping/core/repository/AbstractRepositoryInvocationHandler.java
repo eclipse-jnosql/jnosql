@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.core.repository;
 import jakarta.data.repository.BasicRepository;
 import jakarta.data.repository.CrudRepository;
 import jakarta.enterprise.inject.spi.CDI;
+import jakarta.nosql.Template;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
@@ -91,6 +92,16 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
      */
     protected abstract RepositoryOperationProvider repositoryOperationProvider();
 
+    /**
+     * Provides an implementation of the {@code Template} that serves as a central
+     * component for managing and orchestrating operations related to repositories.
+     *
+     * @return an instance of {@code Template} responsible for executing the
+     * repository-related operations and acting as a mediator for infrastructure
+     * functions in the repository context.
+     */
+    protected abstract Template template();
+
     protected Map<Method, RepositoryMethodDescriptor> methodRepositoryTypeMap = new HashMap<>();
 
     @Override
@@ -111,7 +122,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                         infrastructureOperatorProvider().customRepositoryMethodOperator().invokeCustomRepository(method, params));
             }
             case INSERT -> {
-                RepositoryInvocationContext context = new RepositoryInvocationContext(methodDescriptor.method(), repositoryMetadata(), entityMetadata(), params);
+                RepositoryInvocationContext context = new RepositoryInvocationContext(methodDescriptor.method(), repositoryMetadata(), entityMetadata(), , params);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().insertOperation().execute(context)));
             }
