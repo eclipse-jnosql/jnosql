@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Proxy;
+import java.util.List;
 
 @EnableAutoWeld
 @AddPackages(value = Convert.class)
@@ -83,9 +84,26 @@ class InsertOperationRepositoryInvocationHandlerTest {
 
     @Test
     void shouldInsertVoid() {
-        comicBookRepository.insertSingle(new ComicBook("1234", "Book"));
-        Mockito.when(template.insert(Mockito.any())).thenAnswer(invocation -> invocation.getArgument(0));
-        Mockito.verify(template).insert(Mockito.any());
+        Mockito.when(template.insert(Mockito.any(ComicBook.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        comicBookRepository.insert(new ComicBook("1234", "Book"));
+        Mockito.verify(template).insert(Mockito.any(ComicBook.class));
+    }
+
+    @Test
+    void shouldInsertReturn() {
+        Mockito.when(template.insert(Mockito.any(ComicBook.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        ComicBook book = comicBookRepository.insert(new ComicBook("1234", "Book"));
+        Assertions.assertThat(book).isNotNull().isInstanceOf(ComicBook.class);
+        Mockito.verify(template).insert(Mockito.any(ComicBook.class));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void shouldInsertIterableReturn() {
+        Mockito.when(template.insert(Mockito.any(Iterable.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        List<ComicBook> books = comicBookRepository.insert(List.of(new ComicBook("1234", "Book")));
+        Assertions.assertThat(books).isNotNull().isNotEmpty().contains(new ComicBook("1234", "Book"));
+        Mockito.verify(template).insert(Mockito.any(Iterable.class));
     }
 
 

@@ -30,11 +30,11 @@ public interface ComicBookRepository extends NoSQLRepository<ComicBook, String>,
     void insertVoid(ComicBook book);
 
     @Insert
-    ComicBook insertSingle(ComicBook book);
+    ComicBook insert(ComicBook book);
 
     @Insert
-    List<ComicBook> insertSingle(List<ComicBook> books);
+    List<ComicBook> insert(List<ComicBook> books);
 
     @Insert
-    ComicBook[] insertSingle(ComicBook[] books);
+    ComicBook[] insert(ComicBook[] books);
 }

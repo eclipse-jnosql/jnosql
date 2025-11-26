@@ -23,6 +23,7 @@ import java.util.Arrays;
 @ApplicationScoped
 class DefaultInsertOperation implements InsertOperation {
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
         Object[] parameters = context.parameters();
@@ -30,6 +31,13 @@ class DefaultInsertOperation implements InsertOperation {
             throw new IllegalArgumentException("The insert method must have only one parameter instead of: " + parameters.length + " parameters: "
                     + Arrays.toString(parameters));
         }
-        return null;
+        var template = context.template();
+        if(parameters[0] instanceof Object[]) {
+
+        }
+        else if(parameters[0] instanceof Iterable iterable) {
+            return (T) template.insert(iterable);
+        }
+        return (T) template.insert(parameters[0]);
     }
 }
