@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.core.entities;
 
 import jakarta.data.repository.Insert;
 import jakarta.data.repository.Repository;
+import jakarta.data.repository.Update;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
 
 import java.util.List;
@@ -37,4 +38,20 @@ public interface ComicBookRepository extends NoSQLRepository<ComicBook, String>,
 
     @Insert
     ComicBook[] insert(ComicBook[] books);
+
+
+    @Update
+    void invalidUpdate();
+
+    @Update
+    void updateVoid(ComicBook book);
+
+    @Update
+    ComicBook update(ComicBook book);
+
+    @Update
+    List<ComicBook> update(List<ComicBook> books);
+
+    @Update
+    ComicBook[] update(ComicBook[] books);
 }
