@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.core.repository.operations;
 import jakarta.inject.Inject;
 import jakarta.nosql.Convert;
 import jakarta.nosql.Template;
+import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.mapping.core.VetedConverter;
 import org.eclipse.jnosql.mapping.core.entities.ComicBook;
 import org.eclipse.jnosql.mapping.core.entities.ComicBookRepository;
@@ -71,6 +72,13 @@ class InsertOperationRepositoryInvocationHandlerTest {
         comicBookRepository = (ComicBookRepository) Proxy.newProxyInstance(
                 InsertOperationRepositoryInvocationHandlerTest.class.getClassLoader(),
                 new Class[]{ComicBookRepository.class}, repositoryHandler);
+    }
+
+
+    @Test
+    void shouldInvalidWhenParameterIsInvalid() {
+        Assertions.assertThatThrownBy(() -> comicBookRepository.invalidInsert())
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

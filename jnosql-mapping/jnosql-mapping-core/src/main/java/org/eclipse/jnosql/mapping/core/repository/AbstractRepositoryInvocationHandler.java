@@ -49,6 +49,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
     private static final Predicate<Class<?>> IS_REPOSITORY_METHOD = Predicate.<Class<?>>isEqual(CrudRepository.class)
             .or(Predicate.isEqual(BasicRepository.class))
             .or(Predicate.isEqual(NoSQLRepository.class));
+    private static final Object[] EMPTY = new Object[0];
 
     /**
      * Retrieves the underlying repository associated with this proxy.
@@ -122,14 +123,19 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                         infrastructureOperatorProvider().customRepositoryMethodOperator().invokeCustomRepository(method, params));
             }
             case INSERT -> {
-                RepositoryInvocationContext context = new RepositoryInvocationContext(methodDescriptor.method(),
-                        repositoryMetadata(), entityMetadata(),
-                        template(), params);
+                RepositoryInvocationContext context = getRepositoryInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().insertOperation().execute(context)));
             }
         }
         return null;
+    }
+
+    private RepositoryInvocationContext getRepositoryInvocationContext(Object[] params, RepositoryMethodDescriptor methodDescriptor) {
+        RepositoryInvocationContext context = new RepositoryInvocationContext(methodDescriptor.method(),
+                repositoryMetadata(), entityMetadata(),
+                template(), params == null ? EMPTY : params);
+        return context;
     }
 
     private RepositoryMethodDescriptor methodDescriptor(Method method) {
