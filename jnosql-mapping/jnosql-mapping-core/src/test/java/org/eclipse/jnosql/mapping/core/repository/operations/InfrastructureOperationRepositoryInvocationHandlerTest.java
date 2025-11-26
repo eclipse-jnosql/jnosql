@@ -23,7 +23,6 @@ import org.eclipse.jnosql.mapping.core.VetedConverter;
 import org.eclipse.jnosql.mapping.core.entities.ComicBook;
 import org.eclipse.jnosql.mapping.core.entities.ComicBookRepository;
 import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
-import org.eclipse.jnosql.mapping.core.repository.RepositoryOperationProvider;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.reflection.ReflectionClassConverter;
@@ -54,9 +53,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
     private RepositoriesMetadata repositoriesMetadata;
     @Inject
     private InfrastructureOperatorProvider infrastructureOperatorProvider;
-
     @Inject
-    private RepositoryOperationProvider repositoryOperationProvider;
+    private CoreBaseRepositoryOperationProvider repositoryOperationProvider;
     private TestRepositoryExecutor executor;
     private TestRepositoryInvocationHandler<?, ?> repositoryHandler;
     private ComicBookRepository comicBookRepository;

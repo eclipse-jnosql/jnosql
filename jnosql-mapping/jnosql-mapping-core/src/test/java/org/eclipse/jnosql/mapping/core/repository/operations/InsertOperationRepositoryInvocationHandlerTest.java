@@ -17,13 +17,10 @@ package org.eclipse.jnosql.mapping.core.repository.operations;
 import jakarta.inject.Inject;
 import jakarta.nosql.Convert;
 import jakarta.nosql.Template;
-import org.assertj.core.api.Assertions;
-import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.core.VetedConverter;
 import org.eclipse.jnosql.mapping.core.entities.ComicBook;
 import org.eclipse.jnosql.mapping.core.entities.ComicBookRepository;
 import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
-import org.eclipse.jnosql.mapping.core.repository.RepositoryOperationProvider;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.reflection.ReflectionClassConverter;
@@ -56,7 +53,7 @@ class InsertOperationRepositoryInvocationHandlerTest {
     private InfrastructureOperatorProvider infrastructureOperatorProvider;
 
     @Inject
-    private RepositoryOperationProvider repositoryOperationProvider;
+    private CoreBaseRepositoryOperationProvider repositoryOperationProvider;
     private TestRepositoryExecutor executor;
     private TestRepositoryInvocationHandler<?, ?> repositoryHandler;
     private ComicBookRepository comicBookRepository;

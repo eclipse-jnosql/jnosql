@@ -49,8 +49,8 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.UpdateOperation;
  * override this behavior.
  */
 @ApplicationScoped
-@Typed(CoretBaseRepositoryOperationProvider.class)
-public class CoretBaseRepositoryOperationProvider implements RepositoryOperationProvider {
+@Typed(CoreBaseRepositoryOperationProvider.class)
+public class CoreBaseRepositoryOperationProvider implements RepositoryOperationProvider {
 
 
     private final InsertOperation insertOperation;
@@ -59,17 +59,17 @@ public class CoretBaseRepositoryOperationProvider implements RepositoryOperation
     private final  SaveOperation saveOperation;
 
     @Inject
-    CoretBaseRepositoryOperationProvider(InsertOperation insertOperation,
-                                         UpdateOperation updateOperation,
-                                         DeleteOperation deleteOperation,
-                                         SaveOperation saveOperation) {
+    CoreBaseRepositoryOperationProvider(InsertOperation insertOperation,
+                                        UpdateOperation updateOperation,
+                                        DeleteOperation deleteOperation,
+                                        SaveOperation saveOperation) {
         this.insertOperation = insertOperation;
         this.updateOperation = updateOperation;
         this.deleteOperation = deleteOperation;
         this.saveOperation = saveOperation;
     }
 
-    CoretBaseRepositoryOperationProvider() {
+    CoreBaseRepositoryOperationProvider() {
         this(null, null, null, null);
     }
 
