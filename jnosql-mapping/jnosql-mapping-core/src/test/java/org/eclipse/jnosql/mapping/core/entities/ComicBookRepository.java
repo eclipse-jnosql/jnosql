@@ -24,6 +24,9 @@ import java.util.List;
 public interface ComicBookRepository extends NoSQLRepository<ComicBook, String>, BookComponent {
 
     @Insert
+    void invalidInsert();
+
+    @Insert
     void insertVoid(ComicBook book);
 
     @Insert
