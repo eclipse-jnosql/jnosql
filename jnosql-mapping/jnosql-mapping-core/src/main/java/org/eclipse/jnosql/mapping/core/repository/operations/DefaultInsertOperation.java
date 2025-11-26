@@ -18,10 +18,18 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.InsertOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
+import java.util.Arrays;
+
 @ApplicationScoped
 class DefaultInsertOperation implements InsertOperation {
+
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
+        Object[] parameters = context.parameters();
+        if(parameters.length != 1) {
+            throw new IllegalArgumentException("The insert method must have only one parameter instead of: " + parameters.length + " parameters: "
+                    + Arrays.toString(parameters));
+        }
         return null;
     }
 }
