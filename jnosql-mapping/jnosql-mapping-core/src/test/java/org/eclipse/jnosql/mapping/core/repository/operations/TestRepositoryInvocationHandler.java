@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.operations;
 
+import jakarta.nosql.Template;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.core.repository.AbstractRepositoryInvocationHandler;
 import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
@@ -33,17 +34,21 @@ class TestRepositoryInvocationHandler<T, K> extends AbstractRepositoryInvocation
 
     private final RepositoryOperationProvider repositoryOperationProvider;
 
+    private final Template template;
+
 
     TestRepositoryInvocationHandler(AbstractRepository<T, K> repository,
                                            EntityMetadata entityMetadata,
                                            RepositoryMetadata repositoryMetadata,
                                            InfrastructureOperatorProvider infrastructureOperatorProvider,
-                                    RepositoryOperationProvider repositoryOperationProvider) {
+                                    RepositoryOperationProvider repositoryOperationProvider,
+                                    Template template) {
         this.repository = repository;
         this.entityMetadata = entityMetadata;
         this.repositoryMetadata = repositoryMetadata;
         this.infrastructureOperatorProvider = infrastructureOperatorProvider;
         this.repositoryOperationProvider = repositoryOperationProvider;
+        this.template = template;
     }
 
     @Override
@@ -69,5 +74,10 @@ class TestRepositoryInvocationHandler<T, K> extends AbstractRepositoryInvocation
     @Override
     protected RepositoryOperationProvider repositoryOperationProvider() {
         return repositoryOperationProvider;
+    }
+
+    @Override
+    protected Template template() {
+        return template;
     }
 }

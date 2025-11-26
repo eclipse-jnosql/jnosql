@@ -122,7 +122,9 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                         infrastructureOperatorProvider().customRepositoryMethodOperator().invokeCustomRepository(method, params));
             }
             case INSERT -> {
-                RepositoryInvocationContext context = new RepositoryInvocationContext(methodDescriptor.method(), repositoryMetadata(), entityMetadata(), , params);
+                RepositoryInvocationContext context = new RepositoryInvocationContext(methodDescriptor.method(),
+                        repositoryMetadata(), entityMetadata(),
+                        template(), params);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().insertOperation().execute(context)));
             }

@@ -67,7 +67,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
                 , entitiesMetadata.get(ComicBook.class),
                 repositoriesMetadata.get(ComicBookRepository.class).orElseThrow(),
                 infrastructureOperatorProvider,
-                repositoryOperationProvider);
+                repositoryOperationProvider,
+                template);
         comicBookRepository = (ComicBookRepository) Proxy.newProxyInstance(
                 InfrastructureOperationRepositoryInvocationHandlerTest.class.getClassLoader(),
                 new Class[]{ComicBookRepository.class}, repositoryHandler);
