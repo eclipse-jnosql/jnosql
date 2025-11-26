@@ -19,11 +19,15 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.CountAllOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.CountByOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.CursorPaginationOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteByOperation;
+import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.ExistsByOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.FindAllOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.FindByOperation;
+import org.eclipse.jnosql.mapping.metadata.repository.spi.InsertOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.ParameterBasedOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.QueryOperation;
+import org.eclipse.jnosql.mapping.metadata.repository.spi.SaveOperation;
+import org.eclipse.jnosql.mapping.metadata.repository.spi.UpdateOperation;
 
 /**
  * Provides access to the full set of Jakarta Data semantic repository
@@ -33,12 +37,32 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.QueryOperation;
  * whether derived from method naming conventions, resolved from annotations,
  * or identified through parameter patterns.
  *
- * <p>Engines that offer comprehensive query capabilities, such as document
- * or semi-structured backends, implement this interface directly. Engines
- * with limited support may implement only
- * {@link BaseRepositoryOperationProvider}.
  */
-public interface RepositoryOperationProvider extends BaseRepositoryOperationProvider {
+public interface RepositoryOperationProvider  {
+
+    /**
+     * Returns the operator responsible for executing explicit
+     * {@code @Insert} operations.
+     */
+    InsertOperation insertOperation();
+
+    /**
+     * Returns the operator responsible for executing explicit
+     * {@code @Update} operations.
+     */
+    UpdateOperation updateOperation();
+
+    /**
+     * Returns the operator responsible for executing explicit
+     * {@code @Delete} operations.
+     */
+    DeleteOperation deleteOperation();
+
+    /**
+     * Returns the operator responsible for executing explicit
+     * {@code @Save} operations.
+     */
+    SaveOperation saveOperation();
 
     /**
      * Returns the operator for executing derived {@code findBy} queries.
