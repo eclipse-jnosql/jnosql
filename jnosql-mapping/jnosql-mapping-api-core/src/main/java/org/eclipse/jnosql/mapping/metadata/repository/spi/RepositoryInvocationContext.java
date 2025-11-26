@@ -31,10 +31,10 @@ import java.util.Objects;
  * method invocation, enabling both runtime and annotation-processor–generated implementations
  * to pass execution details to a {@code RepositoryOperationExecutor}.
  */
-public record RepositoryInvocationContext<T extends Template>(RepositoryMethod method,
+public record RepositoryInvocationContext(RepositoryMethod method,
                                           RepositoryMetadata metadata,
                                           EntityMetadata entityMetadata,
-                                          T template,
+                                          Template template,
                                           Object[] parameters) {
 
     public RepositoryInvocationContext {
@@ -43,5 +43,10 @@ public record RepositoryInvocationContext<T extends Template>(RepositoryMethod m
         Objects.requireNonNull(entityMetadata, "entityMetadata is required");
         Objects.requireNonNull(template, "template is required");
         Objects.requireNonNull(parameters, "parameters is required");
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Template> T castTemplate() {
+        return (T) template;
     }
 }

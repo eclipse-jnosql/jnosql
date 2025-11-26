@@ -15,13 +15,14 @@
 package org.eclipse.jnosql.mapping.core.repository.operations;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.nosql.Template;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.InsertOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
 @ApplicationScoped
 class DefaultInsertOperation implements InsertOperation {
     @Override
-    public <T> T execute(RepositoryInvocationContext context) {
+    public <T> T execute(RepositoryInvocationContext<Template> context) {
         return null;
     }
 }
