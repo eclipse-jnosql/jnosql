@@ -122,19 +122,21 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
     private RepositoryMethodDescriptor methodDescriptor(Method method) {
         var repositoryMethodType = this.methodRepositoryTypeMap.get(method);
         if(repositoryMethodType == null) {
-            repositoryMethodType = processingMethodDescriptor(method, repositoryMethodType);
+            repositoryMethodType = processingMethodDescriptor(method);
         }
         return repositoryMethodType;
     }
 
-    private RepositoryMethodDescriptor processingMethodDescriptor(Method method, RepositoryMethodDescriptor repositoryMethodType) {
+    private RepositoryMethodDescriptor processingMethodDescriptor(Method method) {
         var repositoryMethod = repositoryMetadata().find(new ReflectionMethodKey(method));
         var type  = repositoryMethod.map(RepositoryMethod::type).orElse(RepositoryMethodType.UNKNOWN);
-        if(!RepositoryMethodType.UNKNOWN.equals(type)){
+        if (!RepositoryMethodType.UNKNOWN.equals(type)) {
+            RepositoryMethodDescriptor repositoryMethodType = new RepositoryMethodDescriptor(type, repositoryMethod.orElseThrow());
             this.methodRepositoryTypeMap.put(method, repositoryMethodType);
             return repositoryMethodType;
         }
 
+        RepositoryMethodDescriptor repositoryMethodType = null;
         if (Object.class.equals(method.getDeclaringClass())) {
             repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.OBJECT_METHOD, null);
         } else if (IS_REPOSITORY_METHOD.test(method.getDeclaringClass())) {
