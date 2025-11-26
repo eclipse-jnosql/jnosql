@@ -19,31 +19,26 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.CountAllOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.CountByOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.CursorPaginationOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteByOperation;
-import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.ExistsByOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.FindAllOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.FindByOperation;
-import org.eclipse.jnosql.mapping.metadata.repository.spi.InsertOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.ParameterBasedOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.QueryOperation;
-import org.eclipse.jnosql.mapping.metadata.repository.spi.SaveOperation;
-import org.eclipse.jnosql.mapping.metadata.repository.spi.UpdateOperation;
 
 /**
- * Provides access to all semantic Jakarta Data repository operations supported
- * by the execution engine. Each method returns a component responsible for
- * executing a specific {@link org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType}, whether derived from a
- * method name, declared through an annotation, or resolved by parameter
- * inspection.
+ * Provides access to the full set of Jakarta Data semantic repository
+ * operations supported by an execution engine. Each method returns a
+ * component responsible for performing a specific
+ * {@link org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType},
+ * whether derived from method naming conventions, resolved from annotations,
+ * or identified through parameter patterns.
  *
- * <p>
- * This provider is used by both the dynamic proxy implementation and any
- * code-generated repository implementations to delegate execution of
- * repository methods in a consistent and extensible way.
- *
- * @since 1.1
+ * <p>Engines that offer comprehensive query capabilities, such as document
+ * or semi-structured backends, implement this interface directly. Engines
+ * with limited support may implement only
+ * {@link BaseRepositoryOperationProvider}.
  */
-public interface RepositoryOperationProvider {
+public interface RepositoryOperationProvider extends BaseRepositoryOperationProvider {
 
     /**
      * Returns the operator for executing derived {@code findBy} queries.
@@ -71,27 +66,12 @@ public interface RepositoryOperationProvider {
     ExistsByOperation existsByOperation();
 
     /**
-     * Returns the operator for executing explicit {@code @Insert} operations.
-     */
-    InsertOperation insertOperation();
-
-    /**
-     * Returns the operator for executing explicit {@code @Update} operations.
-     */
-    UpdateOperation updateOperation();
-
-    /**
-     * Returns the operator for executing explicit {@code @Delete} operations.
-     */
-    DeleteOperation deleteOperation();
-
-    /**
      * Returns the operator for executing derived {@code deleteBy} queries.
      */
     DeleteByOperation deleteByOperation();
 
     /**
-     * Returns the operator for executing parameter-based queries defined
+     * Returns the operator for executing parameter-based operations defined
      * through the {@code @Find} annotation.
      */
     ParameterBasedOperation parameterBasedOperation();
@@ -105,9 +85,4 @@ public interface RepositoryOperationProvider {
      * Returns the operator for executing explicit {@code @Query} operations.
      */
     QueryOperation queryOperation();
-
-    /**
-     * Returns the operator for executing explicit {@code @Save} operations.
-     */
-    SaveOperation saveOperation();
 }

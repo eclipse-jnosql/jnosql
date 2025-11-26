@@ -31,11 +31,27 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.UpdateOperation;
  */
 public interface BaseRepositoryOperationProvider {
 
+    /**
+     * Returns the operator responsible for executing explicit
+     * {@code @Insert} operations.
+     */
     InsertOperation insertOperation();
 
+    /**
+     * Returns the operator responsible for executing explicit
+     * {@code @Update} operations.
+     */
     UpdateOperation updateOperation();
 
+    /**
+     * Returns the operator responsible for executing explicit
+     * {@code @Delete} operations.
+     */
     DeleteOperation deleteOperation();
 
+    /**
+     * Returns the operator responsible for executing explicit
+     * {@code @Save} operations.
+     */
     SaveOperation saveOperation();
 }
