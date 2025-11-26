@@ -19,10 +19,32 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.InsertOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.UpdateOperation;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 @ApplicationScoped
 class DefaultUpdateOperation implements UpdateOperation {
+
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
-        return null;
+        Object[] parameters = context.parameters();
+        if (parameters.length != 1) {
+            throw new IllegalArgumentException("The insert method must have only one parameter instead of: " + parameters.length + " parameters: "
+                    + Arrays.toString(parameters));
+        }
+        var template = context.template();
+        Object element = parameters[0];
+        if (element != null && element.getClass().isArray()) {
+            var entities = new ArrayList<>();
+            template.update(Arrays.asList((Object[]) element)).forEach(entities::add);
+            Object entityArray = Array.newInstance(element.getClass().getComponentType(), entities.size());
+            System.arraycopy(entities.toArray(), 0, entityArray, 0, entities.size());
+            return (T) entityArray;
+        } else if (element instanceof Iterable<?> iterable) {
+            return (T) template.update(iterable);
+        }
+        return (T) template.update(element);
     }
 }
