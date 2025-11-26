@@ -44,9 +44,4 @@ public record RepositoryInvocationContext(RepositoryMethod method,
         Objects.requireNonNull(template, "template is required");
         Objects.requireNonNull(parameters, "parameters is required");
     }
-
-    @SuppressWarnings("unchecked")
-    public <T extends Template> T castTemplate() {
-        return (T) template;
-    }
 }
