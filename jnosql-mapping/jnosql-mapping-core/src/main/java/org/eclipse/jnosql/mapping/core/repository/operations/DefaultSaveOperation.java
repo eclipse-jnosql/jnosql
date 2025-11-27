@@ -15,10 +15,14 @@
 package org.eclipse.jnosql.mapping.core.repository.operations;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.nosql.Template;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.SaveOperation;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 @ApplicationScoped
 class DefaultSaveOperation implements SaveOperation {
@@ -42,8 +46,19 @@ class DefaultSaveOperation implements SaveOperation {
 
         return (T) save(entity, context);
     }
-
     private Object save(Object entity, RepositoryInvocationContext context) {
-        return entity;
+        Template template = context.template();
+        EntityMetadata entityMetadata = context.entityMetadata();
+        var id = entityMetadata.id()
+                .orElseThrow(() ->
+                        new IllegalArgumentException(" The entity "
+                                + entity.getClass().getName()
+                                + " does not have an id property"));
+        var isAtDatabase = template.find(entity.getClass(), id).isPresent();
+        if(isAtDatabase){
+            return template.update(entity);
+        }else {
+            return template.insert(entity);
+        }
     }
 }
