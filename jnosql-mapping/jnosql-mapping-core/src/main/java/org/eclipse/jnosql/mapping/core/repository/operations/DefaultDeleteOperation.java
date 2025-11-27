@@ -23,18 +23,26 @@ import java.util.Arrays;
 
 @ApplicationScoped
 class DefaultDeleteOperation implements DeleteOperation {
+
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
         var parameters = context.parameters();
         var returnType = context.method().returnType().orElse(void.class);
-        if(parameters.length != 1) {
+        var template = context.template();
+        if (parameters.length != 1) {
             throw new IllegalArgumentException("Delete operation requires one parameter instead of: "
                     + Arrays.asList(parameters));
-        } else if(isNotVoidReturn(returnType)) {
+        } else if (isNotVoidReturn(returnType)) {
             throw new IllegalArgumentException("Delete operation doesn't support return type: " + returnType +
-            " it supports void as return");
+                    " it supports void as return");
         }
-
+        var entity = parameters[0];
+        if (entity instanceof Iterable<?> entities) {
+            template.delete(entities);
+        } else if (entity.getClass().isArray()) {
+            template.delete(Arrays.asList((Object[]) entity));
+        }
+        template.delete(entity);
         return null;
     }
 
