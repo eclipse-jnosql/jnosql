@@ -122,20 +122,25 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                         infrastructureOperatorProvider().customRepositoryMethodOperator().invokeCustomRepository(method, params));
             }
             case INSERT -> {
-                RepositoryInvocationContext context = getRepositoryInvocationContext(params, methodDescriptor);
+                RepositoryInvocationContext context = repositoryInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().insertOperation().execute(context)));
             }
             case UPDATE -> {
-                RepositoryInvocationContext context = getRepositoryInvocationContext(params, methodDescriptor);
+                RepositoryInvocationContext context = repositoryInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().updateOperation().execute(context)));
             }
+            case DELETE -> {
+                RepositoryInvocationContext context = repositoryInvocationContext(params, methodDescriptor);
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                        repositoryOperationProvider().deleteOperation().execute(context)));
+            }
         }
-        return null;
+        throw new UnsupportedOperationException("Method not supported: " + method);
     }
 
-    private RepositoryInvocationContext getRepositoryInvocationContext(Object[] params, RepositoryMethodDescriptor methodDescriptor) {
+    private RepositoryInvocationContext repositoryInvocationContext(Object[] params, RepositoryMethodDescriptor methodDescriptor) {
         RepositoryInvocationContext context = new RepositoryInvocationContext(methodDescriptor.method(),
                 repositoryMetadata(), entityMetadata(),
                 template(), params == null ? EMPTY : params);

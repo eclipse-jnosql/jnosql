@@ -19,10 +19,17 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.UpdateOperation;
 
+import java.util.Arrays;
+
 @ApplicationScoped
 class DefaultDeleteOperation implements DeleteOperation {
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
+        var parameters = context.parameters();
+        if(parameters.length != 1) {
+            throw new IllegalArgumentException("Delete operation requires one parameter instead of: "
+                    + Arrays.asList(parameters));
+        }
         return null;
     }
 }
