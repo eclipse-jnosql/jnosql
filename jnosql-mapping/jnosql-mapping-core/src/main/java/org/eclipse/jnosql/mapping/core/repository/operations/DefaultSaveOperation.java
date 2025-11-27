@@ -49,11 +49,12 @@ class DefaultSaveOperation implements SaveOperation {
     private Object save(Object entity, RepositoryInvocationContext context) {
         Template template = context.template();
         EntityMetadata entityMetadata = context.entityMetadata();
-        var id = entityMetadata.id()
+        var idField = entityMetadata.id()
                 .orElseThrow(() ->
                         new IllegalArgumentException(" The entity "
                                 + entity.getClass().getName()
                                 + " does not have an id property"));
+        var id = idField.read(entity);
         var isAtDatabase = template.find(entity.getClass(), id).isPresent();
         if(isAtDatabase){
             return template.update(entity);

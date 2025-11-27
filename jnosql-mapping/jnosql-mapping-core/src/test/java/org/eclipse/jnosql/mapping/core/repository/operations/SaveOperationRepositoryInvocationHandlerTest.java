@@ -93,7 +93,13 @@ class SaveOperationRepositoryInvocationHandlerTest {
 
 
     @Test
-    void shouldUpdateWhenThereIsAtDatabase() {}
+    void shouldUpdateWhenThereIsAtDatabase() {
+        Mockito.when(template.find(ComicBook.class, "id")).thenReturn(Optional.of(new ComicBook("id", "Book")));
+        Mockito.when(template.update(Mockito.any(ComicBook.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        var book = comicBookRepository.save(new ComicBook("id", "Book"));
+        Mockito.verify(template).update(Mockito.any(ComicBook.class));
+        Assertions.assertThat(book).isNotNull();
+    }
 
     @Test
     void shouldSaveIterable() {}
