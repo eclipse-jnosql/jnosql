@@ -54,7 +54,7 @@ public class CoreBaseRepositoryOperationProvider implements RepositoryOperationP
 
 
     private final InsertOperation insertOperation;
-    private final  UpdateOperation updateOperation;
+    private final UpdateOperation updateOperation;
     private final  DeleteOperation deleteOperation;
     private final  SaveOperation saveOperation;
 
