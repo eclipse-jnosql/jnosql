@@ -83,7 +83,7 @@ class SaveOperationRepositoryInvocationHandlerTest {
     }
 
     @Test
-   void shouldInsertWhenThereNoAtDatabase() {
+   void shouldInsertWhenThereIsNoEntityAtDatabase() {
        Mockito.when(template.find(ComicBook.class, "id")).thenReturn(Optional.empty());
        Mockito.when(template.insert(Mockito.any(ComicBook.class))).thenAnswer(invocation -> invocation.getArgument(0));
        var book = comicBookRepository.save(new ComicBook("id", "Book"));
