@@ -41,8 +41,9 @@ class DefaultDeleteOperation implements DeleteOperation {
             template.delete(entities);
         } else if (entity.getClass().isArray()) {
             template.delete(Arrays.asList((Object[]) entity));
+        } else {
+            template.delete(entity);
         }
-        template.delete(entity);
         return null;
     }
 
