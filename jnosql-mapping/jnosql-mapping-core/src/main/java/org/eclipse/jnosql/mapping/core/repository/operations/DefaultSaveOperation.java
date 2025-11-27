@@ -18,11 +18,32 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.SaveOperation;
 
+import java.util.Arrays;
+
 @ApplicationScoped
 class DefaultSaveOperation implements SaveOperation {
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
-        return null;
+        var parameters = context.parameters();
+
+        if(parameters.length != 1) {
+            throw new IllegalArgumentException("The save method must have only one parameter instead of: " + parameters.length + " parameters: "
+                    + Arrays.toString(parameters));
+        }
+        var entity = parameters[0];
+        if (entity instanceof Iterable<?> iterable) {
+
+        }
+        if (entity.getClass().isArray()) {
+
+        }
+
+        return (T) save(entity, context);
+    }
+
+    private Object save(Object entity, RepositoryInvocationContext context) {
+        return entity;
     }
 }

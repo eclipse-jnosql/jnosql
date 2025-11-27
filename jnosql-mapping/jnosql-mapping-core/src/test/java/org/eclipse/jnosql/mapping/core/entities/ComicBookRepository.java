@@ -73,4 +73,19 @@ public interface ComicBookRepository extends NoSQLRepository<ComicBook, String>,
 
     @Delete
     void delete(ComicBook[] books);
+
+    @Save
+    void invalidSave();
+
+    @Save
+    void saveVoid(ComicBook book);
+
+    @Save
+    ComicBook save(ComicBook book);
+
+    @Save
+    List<ComicBook> save(List<ComicBook> books);
+
+    @Save
+    ComicBook[] save(ComicBook[] books);
 }

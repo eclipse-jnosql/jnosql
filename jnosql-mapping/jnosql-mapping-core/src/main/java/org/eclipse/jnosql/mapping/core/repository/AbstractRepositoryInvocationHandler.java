@@ -134,6 +134,11 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().deleteOperation().execute(context)));
             }
+            case SAVE -> {
+                RepositoryInvocationContext context = repositoryInvocationContext(params, methodDescriptor);
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                        repositoryOperationProvider().saveOperation().execute(context)));
+            }
             default -> throw new UnsupportedOperationException("Method not supported: " + method);
         }
     }
