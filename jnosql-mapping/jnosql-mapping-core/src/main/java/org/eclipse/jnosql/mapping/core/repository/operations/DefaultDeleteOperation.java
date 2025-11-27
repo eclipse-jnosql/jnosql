@@ -26,10 +26,19 @@ class DefaultDeleteOperation implements DeleteOperation {
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
         var parameters = context.parameters();
+        var returnType = context.method().returnType().orElse(void.class);
         if(parameters.length != 1) {
             throw new IllegalArgumentException("Delete operation requires one parameter instead of: "
                     + Arrays.asList(parameters));
+        } else if(isNotVoidReturn(returnType)) {
+            throw new IllegalArgumentException("Delete operation doesn't support return type: " + returnType +
+            " it supports void as return");
         }
+
         return null;
+    }
+
+    private boolean isNotVoidReturn(Class<?> returnType) {
+        return !returnType.equals(void.class);
     }
 }

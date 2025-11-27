@@ -83,8 +83,9 @@ class DeleteOperationRepositoryInvocationHandlerTest {
 
     @Test
     void shouldReturnErrorInvalidReturn() {
-        comicBookRepository.delete(new ComicBook("1234", "Book"));
-        Mockito.verify(template).delete(Mockito.any(ComicBook.class));
+        Assertions.assertThatThrownBy(() ->  comicBookRepository.invalidDelete(new ComicBook("1234", "Book")))
+                .isInstanceOf(IllegalArgumentException.class);
+        Mockito.verify(template, Mockito.never()).delete(Mockito.any(ComicBook.class));
     }
 
     @Test
