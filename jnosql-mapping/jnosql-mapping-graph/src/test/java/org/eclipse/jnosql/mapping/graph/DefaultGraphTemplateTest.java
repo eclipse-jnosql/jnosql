@@ -21,6 +21,7 @@ import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
+import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DefaultGraphTemplateTest {
+
+    @Mock
+    private EntityConverterFactory entityConverterFactory;
 
     @Mock
     private EntityConverter entityConverter;
@@ -82,6 +86,7 @@ class DefaultGraphTemplateTest {
         when(communicationEdge.target()).thenReturn(targetEntity);
         when(entityConverter.toEntity(sourceEntity)).thenReturn(person);
         when(entityConverter.toEntity(targetEntity)).thenReturn(book);
+        when(entityConverterFactory.create(graphDatabaseManager)).thenReturn(entityConverter);
 
         Edge<Person, Book> edge = graphTemplate.edge(person, label, book, properties);
 
@@ -124,6 +129,7 @@ class DefaultGraphTemplateTest {
         when(communicationEdge.properties()).thenReturn(Map.of("since", 2020));
         when(entityConverter.toEntity(sourceEntity)).thenReturn(person);
         when(entityConverter.toEntity(targetEntity)).thenReturn(book);
+        when(entityConverterFactory.create(graphDatabaseManager)).thenReturn(entityConverter);
 
         Optional<Edge<Person, Book>> edge = graphTemplate.findEdgeById(edgeId);
 

@@ -11,9 +11,9 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *   Michele Rastelli
  */
 package org.eclipse.jnosql.mapping.semistructured;
-
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,51 +21,26 @@ import org.eclipse.jnosql.communication.semistructured.IdFieldNameSupplier;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 
-import java.util.Optional;
-
-/**
- * The default implementation to {@link EntityConverter}
- */
 @ApplicationScoped
-class DefaultEntityConverter extends EntityConverter {
+public class DefaultEntityConverterFactory implements EntityConverterFactory {
+
     private final EntitiesMetadata entities;
     private final Converters converters;
     private final ProjectorConverter projectorConverter;
-    private final IdFieldNameSupplier idFieldNameSupplier;
 
     @Inject
-    DefaultEntityConverter(EntitiesMetadata entities, Converters converters, ProjectorConverter projectorConverter) {
-        this(entities, converters, projectorConverter, Optional::empty);
-    }
-
-    DefaultEntityConverter(EntitiesMetadata entities, Converters converters, ProjectorConverter projectorConverter, IdFieldNameSupplier idFieldNameSupplier) {
+    public DefaultEntityConverterFactory(EntitiesMetadata entities, Converters converters, ProjectorConverter projectorConverter) {
         this.entities = entities;
         this.converters = converters;
         this.projectorConverter = projectorConverter;
-        this.idFieldNameSupplier = idFieldNameSupplier;
     }
 
-    DefaultEntityConverter() {
-        this(null, null, null, null);
-    }
-
-    @Override
-    protected EntitiesMetadata entities() {
-        return entities;
+    public DefaultEntityConverterFactory() {
+        this(null, null, null);
     }
 
     @Override
-    protected Converters converters() {
-        return converters;
-    }
-
-    @Override
-    protected ProjectorConverter projectorConverter() {
-        return projectorConverter;
-    }
-
-    @Override
-    protected IdFieldNameSupplier idFieldNameSupplier() {
-        return idFieldNameSupplier;
+    public EntityConverter create(IdFieldNameSupplier idFieldNameSupplier) {
+        return new DefaultEntityConverter(entities, converters, projectorConverter, idFieldNameSupplier);
     }
 }
