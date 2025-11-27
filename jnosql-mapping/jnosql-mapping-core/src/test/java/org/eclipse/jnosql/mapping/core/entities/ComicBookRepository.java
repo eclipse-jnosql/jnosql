@@ -14,8 +14,10 @@
  */
 package org.eclipse.jnosql.mapping.core.entities;
 
+import jakarta.data.repository.Delete;
 import jakarta.data.repository.Insert;
 import jakarta.data.repository.Repository;
+import jakarta.data.repository.Save;
 import jakarta.data.repository.Update;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
 
@@ -39,7 +41,6 @@ public interface ComicBookRepository extends NoSQLRepository<ComicBook, String>,
     @Insert
     ComicBook[] insert(ComicBook[] books);
 
-
     @Update
     void invalidUpdate();
 
@@ -54,4 +55,22 @@ public interface ComicBookRepository extends NoSQLRepository<ComicBook, String>,
 
     @Update
     ComicBook[] update(ComicBook[] books);
+
+    @Delete
+    void invalidDelete();
+
+    @Delete
+    ComicBook invalidDelete(ComicBook book);
+
+    @Delete
+    int deleteReturn(ComicBook book);
+
+    @Delete
+    void delete(ComicBook book);
+
+    @Delete
+    void delete(List<ComicBook> books);
+
+    @Delete
+    void delete(ComicBook[] books);
 }
