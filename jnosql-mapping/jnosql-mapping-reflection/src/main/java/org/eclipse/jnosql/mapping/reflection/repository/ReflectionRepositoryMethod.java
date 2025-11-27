@@ -17,14 +17,14 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import jakarta.data.Sort;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
-import org.eclipse.jnosql.mapping.metadata.repository.RepositoryType;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
 record ReflectionRepositoryMethod(String name,
-                                  RepositoryType type,
+                                  RepositoryMethodType type,
                                   String queryValue,
                                   Integer firstValue,
                                   Class<?> returnTypeValue,

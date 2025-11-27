@@ -21,7 +21,7 @@ import jakarta.data.repository.Insert;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Save;
 import jakarta.data.repository.Update;
-import org.eclipse.jnosql.mapping.metadata.repository.RepositoryType;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -30,45 +30,45 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
-enum RepositoryTypeConverter {
+enum RepositoryMethodTypeConverter {
     INSTANCE;
 
 
     private static final MethodPattern FIND_BY =
-            MethodPattern.of("find", RepositoryType.FIND_BY);
+            MethodPattern.of("find", RepositoryMethodType.FIND_BY);
 
     private static final MethodPattern DELETE_BY =
-            MethodPattern.of("deleteBy", RepositoryType.DELETE_BY);
+            MethodPattern.of("deleteBy", RepositoryMethodType.DELETE_BY);
 
     private static final MethodPattern COUNT_ALL =
-            MethodPattern.of("countAll", RepositoryType.COUNT_ALL);
+            MethodPattern.of("countAll", RepositoryMethodType.COUNT_ALL);
 
     private static final MethodPattern COUNT_BY =
-            MethodPattern.of("countBy", RepositoryType.COUNT_BY);
+            MethodPattern.of("countBy", RepositoryMethodType.COUNT_BY);
 
     private static final MethodPattern EXISTS_BY =
-            MethodPattern.of("existsBy", RepositoryType.EXISTS_BY);
+            MethodPattern.of("existsBy", RepositoryMethodType.EXISTS_BY);
 
     private static final Set<MethodPattern> METHOD_PATTERNS =
             Set.of(FIND_BY, DELETE_BY, COUNT_ALL, COUNT_BY, EXISTS_BY);
 
     private static final MethodOperation INSERT =
-            MethodOperation.of(Insert.class, RepositoryType.INSERT);
+            MethodOperation.of(Insert.class, RepositoryMethodType.INSERT);
 
     private static final MethodOperation SAVE =
-            MethodOperation.of(Save.class, RepositoryType.SAVE);
+            MethodOperation.of(Save.class, RepositoryMethodType.SAVE);
 
     private static final MethodOperation DELETE =
-            MethodOperation.of(Delete.class, RepositoryType.DELETE);
+            MethodOperation.of(Delete.class, RepositoryMethodType.DELETE);
 
     private static final MethodOperation UPDATE =
-            MethodOperation.of(Update.class, RepositoryType.UPDATE);
+            MethodOperation.of(Update.class, RepositoryMethodType.UPDATE);
 
     private static final MethodOperation QUERY =
-            MethodOperation.of(Query.class, RepositoryType.QUERY);
+            MethodOperation.of(Query.class, RepositoryMethodType.QUERY);
 
     private static final MethodOperation FIND_QUERY =
-            MethodOperation.of(Find.class, RepositoryType.PARAMETER_BASED);
+            MethodOperation.of(Find.class, RepositoryMethodType.PARAMETER_BASED);
 
     private static final Set<MethodOperation> OPERATION_ANNOTATIONS =
             Set.of(INSERT, SAVE, DELETE, UPDATE, QUERY, FIND_QUERY);
@@ -77,21 +77,21 @@ enum RepositoryTypeConverter {
     private static final String FIND_ALL = "findAll";
 
 
-    public static RepositoryType of(Method method) {
+    public static RepositoryMethodType of(Method method) {
         Objects.requireNonNull(method, "method is required");
 
         if (method.isDefault()) {
-            return RepositoryType.DEFAULT_METHOD;
+            return RepositoryMethodType.DEFAULT_METHOD;
         }
 
         if (method.getReturnType().equals(CursoredPage.class)) {
-            return RepositoryType.CURSOR_PAGINATION;
+            return RepositoryMethodType.CURSOR_PAGINATION;
         }
 
         Predicate<MethodOperation> hasAnnotation =
                 op -> method.getAnnotation(op.annotation()) != null;
 
-        Optional<RepositoryType> annotationMatch = OPERATION_ANNOTATIONS.stream()
+        Optional<RepositoryMethodType> annotationMatch = OPERATION_ANNOTATIONS.stream()
                 .filter(hasAnnotation)
                 .map(MethodOperation::type)
                 .findFirst();
@@ -101,26 +101,26 @@ enum RepositoryTypeConverter {
         }
 
         if (FIND_ALL.equals(method.getName())) {
-            return RepositoryType.FIND_ALL;
+            return RepositoryMethodType.FIND_ALL;
         }
 
         return METHOD_PATTERNS.stream()
                 .filter(pattern -> method.getName().startsWith(pattern.keyword()))
                 .findFirst()
                 .map(MethodPattern::type)
-                .orElse(RepositoryType.UNKNOWN);
+                .orElse(RepositoryMethodType.UNKNOWN);
     }
 
 
-    private record MethodPattern(String keyword, RepositoryType type) {
-        static MethodPattern of(String keyword, RepositoryType type) {
+    private record MethodPattern(String keyword, RepositoryMethodType type) {
+        static MethodPattern of(String keyword, RepositoryMethodType type) {
             return new MethodPattern(keyword, type);
         }
     }
 
     private record MethodOperation(Class<? extends Annotation> annotation,
-                                   RepositoryType type) {
-        static MethodOperation of(Class<? extends Annotation> annotation, RepositoryType type) {
+                                   RepositoryMethodType type) {
+        static MethodOperation of(Class<? extends Annotation> annotation, RepositoryMethodType type) {
             return new MethodOperation(annotation, type);
         }
     }

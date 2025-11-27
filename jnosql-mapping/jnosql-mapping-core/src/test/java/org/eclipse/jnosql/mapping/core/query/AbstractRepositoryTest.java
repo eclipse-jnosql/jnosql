@@ -147,9 +147,18 @@ class AbstractRepositoryTest {
     }
 
     @Test
+    void shouldSaveAll() {
+        Person person = Person.builder().withId(10L).withAge(10).withName("Ada").build();
+        this.repository.saveAll(List.of(person));
+        Mockito.verify(template).insert(person);
+    }
+
+    @Test
     void shouldReturnException(){
         Assertions.assertThrows(UnsupportedOperationException.class, () -> this.repository.findAll());
         Assertions.assertThrows(UnsupportedOperationException.class, () -> this.repository.findAll(null, null));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> this.repository.deleteAll());
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> this.repository.countBy());
     }
 
     class PeopleRepository extends AbstractRepository<Person, Long> {

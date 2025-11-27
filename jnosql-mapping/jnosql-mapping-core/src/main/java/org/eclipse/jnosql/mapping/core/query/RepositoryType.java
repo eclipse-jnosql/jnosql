@@ -35,7 +35,9 @@ import java.util.function.Predicate;
 
 /**
  * It defines the operation that might be from the Method
+ * @deprecated use this {@link org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType}
  */
+@Deprecated(forRemoval = true)
 public enum RepositoryType {
 
     /**

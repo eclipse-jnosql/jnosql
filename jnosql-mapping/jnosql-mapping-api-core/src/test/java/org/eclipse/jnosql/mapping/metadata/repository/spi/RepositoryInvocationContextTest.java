@@ -14,8 +14,8 @@
  */
 package org.eclipse.jnosql.mapping.metadata.repository.spi;
 
-import org.eclipse.jnosql.mapping.metadata.repository.MethodKey;
-import org.eclipse.jnosql.mapping.metadata.repository.NameKey;
+import jakarta.nosql.Template;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.junit.jupiter.api.Test;
@@ -28,26 +28,23 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @ExtendWith(MockitoExtension.class)
 class RepositoryInvocationContextTest {
 
-    private MethodKey methodKey = new NameKey("methodName");
-
     @Mock
     private RepositoryMethod repositoryMethod;
 
     @Mock
     private RepositoryMetadata repositoryMetadata;
 
-    @Test
-    void shouldNotAllowNullMethodKey() {
-        assertThatThrownBy(() ->
-                new RepositoryInvocationContext(null, repositoryMethod, repositoryMetadata, new Object[]{})
-        ).isInstanceOf(NullPointerException.class)
-                .hasMessage("methodKey is required");
-    }
+    @Mock
+    private EntityMetadata entityMetadata;
+
+    @Mock
+    private Template template;
+
 
     @Test
     void shouldNotAllowNullRepositoryMethod() {
         assertThatThrownBy(() ->
-                new RepositoryInvocationContext(methodKey, null, repositoryMetadata, new Object[]{})
+                new RepositoryInvocationContext(null, repositoryMetadata, entityMetadata, template, new Object[]{})
         ).isInstanceOf(NullPointerException.class)
                 .hasMessage("method is required");
     }
@@ -55,7 +52,7 @@ class RepositoryInvocationContextTest {
     @Test
     void shouldNotAllowNullMetadata() {
         assertThatThrownBy(() ->
-                new RepositoryInvocationContext(methodKey, repositoryMethod, null, new Object[]{})
+                new RepositoryInvocationContext(repositoryMethod, null,entityMetadata, template,  new Object[]{})
         ).isInstanceOf(NullPointerException.class)
                 .hasMessage("metadata is required");
     }
@@ -63,8 +60,23 @@ class RepositoryInvocationContextTest {
     @Test
     void shouldNotAllowNullParametersArray() {
         assertThatThrownBy(() ->
-                new RepositoryInvocationContext(methodKey, repositoryMethod, repositoryMetadata, null)
+                new RepositoryInvocationContext(repositoryMethod, repositoryMetadata, entityMetadata, template, null)
         ).isInstanceOf(NullPointerException.class)
                 .hasMessage("parameters is required");
+    }
+
+    @Test
+    void shouldNotAllowNullEntityMetadata() {
+        assertThatThrownBy(() ->
+                new RepositoryInvocationContext(repositoryMethod, repositoryMetadata, null, template, new Object[]{})
+        ).isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    void shouldNotAllowNullTemplate() {
+        assertThatThrownBy(() ->
+                new RepositoryInvocationContext(repositoryMethod, repositoryMetadata, entityMetadata, null,
+                        new Object[]{})
+        ).isInstanceOf(NullPointerException.class);
     }
 }
