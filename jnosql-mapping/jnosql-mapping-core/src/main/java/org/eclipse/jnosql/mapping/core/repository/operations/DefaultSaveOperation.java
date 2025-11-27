@@ -20,6 +20,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.SaveOperation;
 
 @ApplicationScoped
 class DefaultSaveOperation implements SaveOperation {
+
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
         return null;
