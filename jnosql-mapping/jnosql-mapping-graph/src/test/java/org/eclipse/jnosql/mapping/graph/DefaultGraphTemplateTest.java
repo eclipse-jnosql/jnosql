@@ -58,7 +58,6 @@ class DefaultGraphTemplateTest {
     @Mock
     private Converters converters;
 
-    @InjectMocks
     private DefaultGraphTemplate graphTemplate;
 
     private Person person;
@@ -68,6 +67,8 @@ class DefaultGraphTemplateTest {
     void setUp() {
         person = new Person();
         book = new Book();
+        when(entityConverterFactory.create(graphDatabaseManager)).thenReturn(entityConverter);
+        this.graphTemplate = new DefaultGraphTemplate(entityConverterFactory, graphDatabaseManager, eventPersistManager, entitiesMetadata, converters);
     }
 
     @Test
@@ -86,7 +87,7 @@ class DefaultGraphTemplateTest {
         when(communicationEdge.target()).thenReturn(targetEntity);
         when(entityConverter.toEntity(sourceEntity)).thenReturn(person);
         when(entityConverter.toEntity(targetEntity)).thenReturn(book);
-        when(entityConverterFactory.create(graphDatabaseManager)).thenReturn(entityConverter);
+
 
         Edge<Person, Book> edge = graphTemplate.edge(person, label, book, properties);
 
@@ -129,7 +130,6 @@ class DefaultGraphTemplateTest {
         when(communicationEdge.properties()).thenReturn(Map.of("since", 2020));
         when(entityConverter.toEntity(sourceEntity)).thenReturn(person);
         when(entityConverter.toEntity(targetEntity)).thenReturn(book);
-        when(entityConverterFactory.create(graphDatabaseManager)).thenReturn(entityConverter);
 
         Optional<Edge<Person, Book>> edge = graphTemplate.findEdgeById(edgeId);
 

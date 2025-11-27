@@ -34,7 +34,7 @@ import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 class DefaultColumnTemplate extends AbstractSemiStructuredTemplate implements ColumnTemplate {
 
 
-    private final EntityConverterFactory converter;
+    private final EntityConverter converter;
 
     private final  DatabaseManager manager;
 
@@ -47,11 +47,11 @@ class DefaultColumnTemplate extends AbstractSemiStructuredTemplate implements Co
 
 
     @Inject
-    DefaultColumnTemplate(EntityConverterFactory converter,
+    DefaultColumnTemplate(EntityConverterFactory converterFactory,
                           @Database(DatabaseType.COLUMN) DatabaseManager manager,
                           EventPersistManager eventManager,
                           EntitiesMetadata entities, Converters converters) {
-        this.converter = converter;
+        this.converter = converterFactory.create(manager);
         this.manager = manager;
         this.eventManager = eventManager;
         this.entities = entities;
@@ -64,7 +64,7 @@ class DefaultColumnTemplate extends AbstractSemiStructuredTemplate implements Co
 
     @Override
     protected EntityConverter converter() {
-        return converter.create(manager);
+        return converter;
     }
 
     @Override
