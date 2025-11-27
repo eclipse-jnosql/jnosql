@@ -27,7 +27,7 @@ import java.util.stream.Stream;
  *
  * @see CommunicationEntity
  */
-public interface DatabaseManager extends AutoCloseable {
+public interface DatabaseManager extends IdFieldNameSupplier, AutoCloseable {
 
     /**
      * Returns the name of the managed database.
@@ -343,6 +343,16 @@ public interface DatabaseManager extends AutoCloseable {
      * @throws UnsupportedOperationException if the database does not support this operation
      */
     long count(String entity);
+
+    /**
+     * The id field name to be used in the communication layer for the specific database implementation.
+     * If not present, the value of the {@code @Id} annotation will be used.
+     * @return the field name
+     */
+    @Override
+    default Optional<String> defaultIdFieldName() {
+        return Optional.empty();
+    }
 
     /**
      * Closes the database manager and releases any associated resources.

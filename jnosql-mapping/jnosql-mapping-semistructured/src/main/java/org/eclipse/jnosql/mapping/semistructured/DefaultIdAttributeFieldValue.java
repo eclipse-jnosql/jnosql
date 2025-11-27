@@ -14,22 +14,26 @@
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
+import org.eclipse.jnosql.communication.semistructured.IdFieldNameSupplier;
 import org.eclipse.jnosql.mapping.metadata.DefaultFieldValue;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldValue;
 
-final class DefaultAttributeFieldValue extends AbstractAttributeFieldValue {
+final class DefaultIdAttributeFieldValue extends AbstractAttributeFieldValue {
 
-    private DefaultAttributeFieldValue(FieldValue fieldValue) {
+    private final IdFieldNameSupplier idFieldNameSupplier;
+
+    private DefaultIdAttributeFieldValue(FieldValue fieldValue, IdFieldNameSupplier idFieldNameSupplier) {
         super(fieldValue);
+        this.idFieldNameSupplier = idFieldNameSupplier;
     }
 
     @Override
     protected String name() {
-        return field().name();
+        return idFieldNameSupplier.defaultIdFieldName().orElseGet(() -> field().name());
     }
 
-    static AttributeFieldValue of(Object value, FieldMetadata field) {
-        return new DefaultAttributeFieldValue(new DefaultFieldValue(value, field));
+    static AttributeFieldValue of(Object value, FieldMetadata field, IdFieldNameSupplier idFieldNameSupplier) {
+        return new DefaultIdAttributeFieldValue(new DefaultFieldValue(value, field), idFieldNameSupplier);
     }
 }

@@ -160,7 +160,8 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         var idValue = idField.read(entity);
         LOGGER.fine("Deleting entity: " + entity.getClass() + " with id: " + idValue);
         DeleteQuery query = DeleteQuery.delete().from(metadata.name())
-                .where(idField.name()).eq(idValue).build();
+                .where(converter().idFieldNameSupplier().defaultIdFieldName().orElseGet(idField::name))
+                .eq(idValue).build();
         manager().delete(query);
     }
 
@@ -215,7 +216,8 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
 
         Object value = ConverterUtil.getValue(id, entityMetadata, idField.fieldName(), converters());
         return this.select(type)
-                .where(idField.name()).eq(value).singleResult();
+                .where(converter().idFieldNameSupplier().defaultIdFieldName().orElseGet(idField::name))
+                .eq(value).singleResult();
     }
 
     @Override
@@ -229,7 +231,8 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         Object value = ConverterUtil.getValue(id, entityMetadata, idField.fieldName(), converters());
 
         this.delete(type)
-                .where(idField.name()).eq(value)
+                .where(converter().idFieldNameSupplier().defaultIdFieldName().orElseGet(idField::name))
+                .eq(value)
                 .execute();
     }
 

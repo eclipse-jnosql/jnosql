@@ -24,6 +24,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.AbstractSemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
+import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 
 
@@ -33,7 +34,7 @@ import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 class DefaultDocumentTemplate extends AbstractSemiStructuredTemplate implements DocumentTemplate {
 
 
-    private final EntityConverter converter;
+    private final EntityConverterFactory converter;
 
     private final  DatabaseManager manager;
 
@@ -46,7 +47,7 @@ class DefaultDocumentTemplate extends AbstractSemiStructuredTemplate implements 
 
 
     @Inject
-    DefaultDocumentTemplate(EntityConverter converter,
+    DefaultDocumentTemplate(EntityConverterFactory converter,
                             @Database(DatabaseType.DOCUMENT) DatabaseManager manager,
                             EventPersistManager eventManager,
                             EntitiesMetadata entities, Converters converters){
@@ -63,7 +64,7 @@ class DefaultDocumentTemplate extends AbstractSemiStructuredTemplate implements 
 
     @Override
     protected EntityConverter converter() {
-        return converter;
+        return converter.create(manager);
     }
 
     @Override

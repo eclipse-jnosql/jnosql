@@ -17,12 +17,14 @@ package org.eclipse.jnosql.mapping.semistructured;
 import jakarta.data.exceptions.MappingException;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.Element;
+import org.eclipse.jnosql.communication.semistructured.IdFieldNameSupplier;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.ConstructorBuilder;
 import org.eclipse.jnosql.mapping.metadata.ConstructorMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldParameterMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
 import org.eclipse.jnosql.mapping.metadata.ParameterMetaData;
 
@@ -61,9 +63,19 @@ public abstract class EntityConverter {
 
     /**
      * Retrieves the projector converter instance used for entity-to-projection transformations.
+     *
      * @return the {@link ProjectorConverter} instance
      */
     protected abstract ProjectorConverter projectorConverter();
+
+    /**
+     * Retrieves the default id field name supplier.
+     *
+     * @return the {@link IdFieldNameSupplier} instance
+     */
+    protected IdFieldNameSupplier idFieldNameSupplier() {
+        return Optional::empty;
+    }
 
     /**
      * Converts the provided entity instance to a {@link CommunicationEntity}.
@@ -149,7 +161,11 @@ public abstract class EntityConverter {
 
     protected AttributeFieldValue to(FieldMetadata field, Object entity) {
         Object value = field.read(entity);
-        return DefaultAttributeFieldValue.of(value, field);
+        if (field.isId()) {
+            return DefaultIdAttributeFieldValue.of(value, field, idFieldNameSupplier());
+        } else {
+            return DefaultAttributeFieldValue.of(value, field);
+        }
     }
 
     protected <T> Consumer<String> feedObject(T entity, List<Element> elements, Map<String, FieldMetadata> fieldsGroupByName) {
@@ -181,7 +197,8 @@ public abstract class EntityConverter {
         }
     }
 
-    private <T> T convertEntityByConstructor(List<Element> elements, EntityMetadata mapping) {
+    private <T> T convertEntityByConstructor(List<Element> elementList, EntityMetadata mapping) {
+        List<Element> elements = mapIdName(elementList, mapping);
         ConstructorBuilder builder = ConstructorBuilder.of(mapping.constructor());
         for (ParameterMetaData parameter : builder.parameters()) {
             Predicate<Element> matchName = c -> c.name().equals(parameter.name());
@@ -201,19 +218,42 @@ public abstract class EntityConverter {
         return builder.build();
     }
 
-    private <T> T convertEntity(List<Element> elements, EntityMetadata mapping, T instance) {
+    private <T> T convertEntity(List<Element> elementList, EntityMetadata mapping, T instance) {
+        List<Element> elements = mapIdName(elementList, mapping);
         final Map<String, FieldMetadata> fieldsGroupByName = mapping.fieldsGroupByName();
         final List<String> names = elements.stream().map(Element::name).sorted().toList();
         final Predicate<String> existField = k -> Collections.binarySearch(names, k) >= 0;
         final Predicate<String> isElementType = k -> {
             var type = fieldsGroupByName.get(k).mappingType();
-            return EMBEDDED.equals(type)|| EMBEDDED_GROUP.equals(type) || ENTITY.equals(type);
+            return EMBEDDED.equals(type) || EMBEDDED_GROUP.equals(type) || ENTITY.equals(type);
         };
         fieldsGroupByName.keySet().stream()
                 .filter(existField.or(isElementType))
                 .forEach(feedObject(instance, elements, fieldsGroupByName));
 
         return instance;
+    }
+
+    private List<Element> mapIdName(List<Element> elements, EntityMetadata mapping) {
+        Optional<String> mappingIdNameOptional = mapping.id().map(FieldParameterMetadata::name);
+        Optional<String> communicationIdNameOptional = idFieldNameSupplier().defaultIdFieldName();
+
+        if (mappingIdNameOptional.isEmpty() || communicationIdNameOptional.isEmpty()) {
+            return elements;
+        }
+
+        String mappingIdName = mappingIdNameOptional.get();
+        String communicationIdName = communicationIdNameOptional.get();
+
+        if(mappingIdName.equals(communicationIdName)) {
+            return elements;
+        }
+
+        return elements.stream()
+                .filter(e -> !e.name().equals(mappingIdName))
+                .map(e -> e.name().equals(communicationIdName) ?
+                        Element.of(mappingIdName, e.value()) : e)
+                .toList();
     }
 
     private <T> T mapInheritanceEntity(CommunicationEntity entity, Class<?> type) {

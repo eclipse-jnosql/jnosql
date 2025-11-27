@@ -11,25 +11,19 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *   Michele Rastelli
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
-import org.eclipse.jnosql.mapping.metadata.DefaultFieldValue;
-import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
-import org.eclipse.jnosql.mapping.metadata.FieldValue;
+import org.eclipse.jnosql.communication.semistructured.IdFieldNameSupplier;
 
-final class DefaultAttributeFieldValue extends AbstractAttributeFieldValue {
-
-    private DefaultAttributeFieldValue(FieldValue fieldValue) {
-        super(fieldValue);
-    }
-
-    @Override
-    protected String name() {
-        return field().name();
-    }
-
-    static AttributeFieldValue of(Object value, FieldMetadata field) {
-        return new DefaultAttributeFieldValue(new DefaultFieldValue(value, field));
-    }
+/**
+ * Factory interface for creating instances of {@link EntityConverter}.
+ * Allows customization of entity conversion behaviors by supplying an implementation
+ * of {@link IdFieldNameSupplier}.
+ * This interface abstracts the creation logic for {@link EntityConverter},
+ * enabling contextual configuration for specific database implementation.
+ */
+public interface EntityConverterFactory {
+    EntityConverter create(IdFieldNameSupplier idFieldNameSupplier);
 }

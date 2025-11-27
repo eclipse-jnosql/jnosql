@@ -23,6 +23,7 @@ import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
+import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 
 
@@ -31,7 +32,7 @@ import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 @Database(DatabaseType.GRAPH)
 class DefaultGraphTemplate extends AbstractGraphTemplate implements GraphTemplate {
 
-    private final EntityConverter converter;
+    private final EntityConverterFactory converter;
 
     private final  GraphDatabaseManager manager;
 
@@ -43,11 +44,11 @@ class DefaultGraphTemplate extends AbstractGraphTemplate implements GraphTemplat
 
 
     @Inject
-    DefaultGraphTemplate(EntityConverter converter,
+    DefaultGraphTemplate(EntityConverterFactory converter,
                          GraphDatabaseManager manager,
                          EventPersistManager eventManager,
                          EntitiesMetadata entities,
-                         Converters converters){
+                         Converters converters) {
         this.converter = converter;
         this.manager = manager;
         this.eventManager = eventManager;
@@ -61,7 +62,7 @@ class DefaultGraphTemplate extends AbstractGraphTemplate implements GraphTemplat
 
     @Override
     protected EntityConverter converter() {
-        return converter;
+        return converter.create(manager);
     }
 
     @Override
