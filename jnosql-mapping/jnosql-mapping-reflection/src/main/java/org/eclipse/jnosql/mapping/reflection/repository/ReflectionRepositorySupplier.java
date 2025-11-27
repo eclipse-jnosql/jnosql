@@ -129,6 +129,10 @@ enum ReflectionRepositorySupplier  {
                 return  (Class<?>) arguments[0];
             }
         }
+        Class<?> returnType = method.getReturnType();
+        if (returnType.isArray()) {
+            return returnType.getComponentType();
+        }
         return null;
     }
 

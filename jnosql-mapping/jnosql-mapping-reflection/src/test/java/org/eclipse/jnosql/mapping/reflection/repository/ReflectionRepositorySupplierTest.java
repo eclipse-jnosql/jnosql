@@ -439,7 +439,19 @@ class ReflectionRepositorySupplierTest {
         assertTrue(query.isEmpty());
     }
 
-
+    @Test
+    void shouldSolveArray() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("savePersonArray"));
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            soft.assertThat(method.query()).isEmpty();
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.SAVE);
+            soft.assertThat(method.returnType().orElseThrow()).isEqualTo(Person[].class);
+            soft.assertThat(method.elementType().orElseThrow()).isEqualTo(Person.class);
+        });
+    }
 
 
 }
