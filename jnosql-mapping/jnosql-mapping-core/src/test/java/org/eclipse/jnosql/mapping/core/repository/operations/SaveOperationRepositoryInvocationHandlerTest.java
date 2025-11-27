@@ -102,9 +102,21 @@ class SaveOperationRepositoryInvocationHandlerTest {
     }
 
     @Test
-    void shouldSaveIterable() {}
+    void shouldSaveIterable() {
+        Mockito.when(template.find(ComicBook.class, "id")).thenReturn(Optional.of(new ComicBook("id", "Book")));
+        Mockito.when(template.update(Mockito.any(ComicBook.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        var books = comicBookRepository.save(List.of(new ComicBook("id", "Book updated")));
+        Mockito.verify(template).update(new ComicBook("id", "Book updated"));
+        Assertions.assertThat(books).isNotNull().isNotEmpty().contains(new ComicBook("id", "Book updated"));
+    }
 
     @Test
-    void shouldSaveArray(){}
+    void shouldSaveArray(){
+        Mockito.when(template.find(ComicBook.class, "id")).thenReturn(Optional.of(new ComicBook("id", "Book")));
+        Mockito.when(template.update(Mockito.any(ComicBook.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        var books = comicBookRepository.save(new ComicBook[]{new ComicBook("id", "Book updated")});
+        Mockito.verify(template).update(new ComicBook("id", "Book updated"));
+        Assertions.assertThat(books).isNotNull().isNotEmpty().contains(new ComicBook("id", "Book updated"));
+    }
 
 }

@@ -21,8 +21,12 @@ import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.SaveOperation;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @ApplicationScoped
 class DefaultSaveOperation implements SaveOperation {
@@ -38,10 +42,16 @@ class DefaultSaveOperation implements SaveOperation {
         }
         var entity = parameters[0];
         if (entity instanceof Iterable<?> iterable) {
-
+            List<T> entities = new ArrayList<>();
+            iterable.forEach(e -> entities.add((T) save(e, context)));
+            return (T) entities;
         }
         if (entity.getClass().isArray()) {
-
+            var entities = new ArrayList<>();
+            Arrays.stream((Object[]) entity).forEach(e -> entities.add(save(e, context)));
+            Object entityArray = Array.newInstance(entity.getClass().getComponentType(), entities.size());
+            System.arraycopy(entities.toArray(), 0, entityArray, 0, entities.size());
+            return (T) entityArray;
         }
 
         return (T) save(entity, context);
