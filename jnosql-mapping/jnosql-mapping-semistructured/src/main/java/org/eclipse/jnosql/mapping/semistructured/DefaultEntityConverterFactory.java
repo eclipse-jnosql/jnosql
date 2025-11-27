@@ -22,20 +22,19 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 
 @ApplicationScoped
-public class DefaultEntityConverterFactory implements EntityConverterFactory {
+class DefaultEntityConverterFactory implements EntityConverterFactory {
 
     private final EntitiesMetadata entities;
     private final Converters converters;
     private final ProjectorConverter projectorConverter;
-
     @Inject
-    public DefaultEntityConverterFactory(EntitiesMetadata entities, Converters converters, ProjectorConverter projectorConverter) {
+    DefaultEntityConverterFactory(EntitiesMetadata entities, Converters converters, ProjectorConverter projectorConverter) {
         this.entities = entities;
         this.converters = converters;
         this.projectorConverter = projectorConverter;
     }
 
-    public DefaultEntityConverterFactory() {
+    DefaultEntityConverterFactory() {
         this(null, null, null);
     }
 
