@@ -17,7 +17,6 @@ package org.eclipse.jnosql.mapping.core.repository.operations;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
-import org.eclipse.jnosql.mapping.metadata.repository.spi.UpdateOperation;
 
 import java.util.Arrays;
 
@@ -32,7 +31,8 @@ class DefaultDeleteOperation implements DeleteOperation {
         if (parameters.length != 1) {
             throw new IllegalArgumentException("Delete operation requires one parameter instead of: "
                     + Arrays.asList(parameters));
-        } else if (isNotVoidReturn(returnType)) {
+        }
+        if (isNotVoidReturn(returnType)) {
             throw new IllegalArgumentException("Delete operation doesn't support return type: " + returnType +
                     " it supports void as return");
         }

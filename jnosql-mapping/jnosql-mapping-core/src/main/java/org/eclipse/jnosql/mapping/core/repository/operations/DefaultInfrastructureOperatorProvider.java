@@ -39,7 +39,7 @@ class DefaultInfrastructureOperatorProvider implements InfrastructureOperatorPro
         this.customRepositoryMethodOperator = customRepositoryMethodOperator;
     }
 
-    DefaultInfrastructureOperatorProvider(){
+    DefaultInfrastructureOperatorProvider() {
         this(null, null, null);
     }
 

@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.core.repository.operations;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.SaveOperation;
 

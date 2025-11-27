@@ -44,12 +44,12 @@ import java.util.function.Predicate;
  * @param <K> The type of the key or identifier of the entity.
  */
 public abstract class AbstractRepositoryInvocationHandler<T, K> implements InvocationHandler {
-
-
     private static final Predicate<Class<?>> IS_REPOSITORY_METHOD = Predicate.<Class<?>>isEqual(CrudRepository.class)
             .or(Predicate.isEqual(BasicRepository.class))
             .or(Predicate.isEqual(NoSQLRepository.class));
     private static final Object[] EMPTY = new Object[0];
+
+    protected Map<Method, RepositoryMethodDescriptor> methodRepositoryTypeMap = new HashMap<>();
 
     /**
      * Retrieves the underlying repository associated with this proxy.
@@ -102,8 +102,6 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
      */
     protected abstract Template template();
 
-    protected Map<Method, RepositoryMethodDescriptor> methodRepositoryTypeMap = new HashMap<>();
-
     @Override
     public Object invoke(Object proxy, Method method, Object[] params) throws Throwable {
 
@@ -136,15 +134,14 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().deleteOperation().execute(context)));
             }
+            default -> throw new UnsupportedOperationException("Method not supported: " + method);
         }
-        throw new UnsupportedOperationException("Method not supported: " + method);
     }
 
     private RepositoryInvocationContext repositoryInvocationContext(Object[] params, RepositoryMethodDescriptor methodDescriptor) {
-        RepositoryInvocationContext context = new RepositoryInvocationContext(methodDescriptor.method(),
+        return new RepositoryInvocationContext(methodDescriptor.method(),
                 repositoryMetadata(), entityMetadata(),
                 template(), params == null ? EMPTY : params);
-        return context;
     }
 
     private RepositoryMethodDescriptor methodDescriptor(Method method) {
