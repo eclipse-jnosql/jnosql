@@ -30,7 +30,7 @@ class DefaultUpdateOperation implements UpdateOperation {
     public <T> T execute(RepositoryInvocationContext context) {
         Object[] parameters = context.parameters();
         if (parameters.length != 1) {
-            throw new IllegalArgumentException("The insert method must have only one parameter instead of: " + parameters.length + " parameters: "
+            throw new IllegalArgumentException("The update method must have only one parameter instead of: " + parameters.length + " parameters: "
                     + Arrays.toString(parameters));
         }
         var template = context.template();
