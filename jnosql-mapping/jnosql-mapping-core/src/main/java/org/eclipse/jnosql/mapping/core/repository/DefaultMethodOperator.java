@@ -14,8 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
-import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
-
 import java.lang.reflect.Method;
 
 
