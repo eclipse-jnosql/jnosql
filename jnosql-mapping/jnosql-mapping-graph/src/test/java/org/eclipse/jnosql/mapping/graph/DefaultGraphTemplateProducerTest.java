@@ -25,6 +25,7 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -53,4 +54,12 @@ class DefaultGraphTemplateProducerTest {
         GraphTemplate graphTemplate = producer.apply(manager);
         assertNotNull(graphTemplate);
     }
+
+    @Test
+    @DisplayName("Should have a default constructor for CDI ")
+    void shouldHaveDefaultConstructor() {
+        GraphTemplateProducer.ProducerGraphTemplate template = new GraphTemplateProducer.ProducerGraphTemplate();
+        assertNotNull(template);
+    }
+
 }

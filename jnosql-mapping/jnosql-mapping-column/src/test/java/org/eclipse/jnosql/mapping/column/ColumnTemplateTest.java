@@ -26,9 +26,11 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.eclipse.jnosql.mapping.DatabaseType.COLUMN;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class, ColumnTemplate.class})
@@ -52,5 +54,12 @@ class ColumnTemplateTest {
     @Test
     void shouldInjectQualifier() {
         Assertions.assertNotNull(qualifier);
+    }
+
+    @Test
+    @DisplayName("Should have a default constructor for CDI ")
+    void shouldHaveDefaultConstructor() {
+        DefaultColumnTemplate template = new DefaultColumnTemplate();
+        assertNotNull(template);
     }
 }

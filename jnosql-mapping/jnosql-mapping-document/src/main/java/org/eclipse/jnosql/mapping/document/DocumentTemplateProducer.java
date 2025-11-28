@@ -81,7 +81,11 @@ public class DocumentTemplateProducer implements Function<DatabaseManager, Docum
         }
 
         ProducerDocumentTemplate() {
-            this(null, null, null, null, null);
+            this.converter = null;
+            this.manager = null;
+            this.eventManager = null;
+            this.entities = null;
+            this.converters = null;
         }
 
         @Override
