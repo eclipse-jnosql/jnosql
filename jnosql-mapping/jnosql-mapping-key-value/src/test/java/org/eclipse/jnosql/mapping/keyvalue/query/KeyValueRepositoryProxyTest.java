@@ -281,7 +281,7 @@ class KeyValueRepositoryProxyTest {
 
     @Test
     void shouldReturnNotSupported(){
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> userRepository.existByName("Ada"));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> userRepository.existsByName("Ada"));
         Assertions.assertThrows(UnsupportedOperationException.class, () -> userRepository.findByAge(10));
         Assertions.assertThrows(UnsupportedOperationException.class, () -> userRepository.find("Ada"));
         Assertions.assertThrows(UnsupportedOperationException.class, () -> userRepository.deleteByAge(10));

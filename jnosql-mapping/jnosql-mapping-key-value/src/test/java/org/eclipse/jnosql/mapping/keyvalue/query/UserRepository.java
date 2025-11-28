@@ -57,7 +57,7 @@ public interface UserRepository extends NoSQLRepository<User, String>, CrudRepos
     @Delete
     void deleteUser(User user);
 
-    void existByName(String name);
+    void existsByName(String name);
 
     User findByAge(Integer age);
 
