@@ -25,6 +25,7 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -50,5 +51,12 @@ class DefaultColumnTemplateProducerTest {
         DatabaseManager manager = Mockito.mock(DatabaseManager.class);
         ColumnTemplate columnTemplate = producer.apply(manager);
         assertNotNull(columnTemplate);
+    }
+
+    @Test
+    @DisplayName("Should have a default constructor for CDI ")
+    void shouldHaveDefaultConstructor() {
+        ColumnTemplateProducer.ProducerColumnTemplate template = new ColumnTemplateProducer.ProducerColumnTemplate();
+        assertNotNull(template);
     }
 }

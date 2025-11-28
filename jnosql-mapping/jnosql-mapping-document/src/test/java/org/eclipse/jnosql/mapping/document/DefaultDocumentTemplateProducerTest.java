@@ -25,6 +25,7 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -53,4 +54,12 @@ class DefaultDocumentTemplateProducerTest {
         DocumentTemplate documentTemplate = producer.apply(manager);
         assertNotNull(documentTemplate);
     }
+
+    @Test
+    @DisplayName("Should have a default constructor for CDI ")
+    void shouldHaveDefaultConstructor() {
+        DocumentTemplateProducer.ProducerDocumentTemplate template = new DocumentTemplateProducer.ProducerDocumentTemplate();
+        assertNotNull(template);
+    }
+
 }

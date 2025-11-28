@@ -59,7 +59,11 @@ class DefaultDocumentTemplate extends AbstractSemiStructuredTemplate implements 
     }
 
     DefaultDocumentTemplate() {
-        this(null, null, null, null, null);
+        this.converter = null;
+        this.manager = null;
+        this.eventManager = null;
+        this.entities = null;
+        this.converters = null;
     }
 
     @Override
