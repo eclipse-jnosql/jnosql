@@ -14,14 +14,18 @@
  */
 package org.eclipse.jnosql.mapping.keyvalue.query;
 
+import jakarta.data.repository.BasicRepository;
 import jakarta.data.repository.CrudRepository;
 import jakarta.enterprise.context.spi.CreationalContext;
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
+import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
+import org.eclipse.jnosql.mapping.core.repository.operations.CoreBaseRepositoryOperationProvider;
 import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
 import org.eclipse.jnosql.mapping.core.util.AnnotationLiteralUtil;
 import org.eclipse.jnosql.mapping.keyvalue.KeyValueTemplate;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Proxy;
@@ -33,7 +37,7 @@ import java.util.Set;
 /**
  * Artemis discoveryBean to CDI extension to register {@link KeyValueTemplate}
  */
-public class RepositoryKeyValueBean<T extends CrudRepository> extends AbstractBean<T> {
+public class RepositoryKeyValueBean<T extends CrudRepository<?,?>> extends AbstractBean<T> {
 
     private final Class<?> type;
 
@@ -75,11 +79,10 @@ public class RepositoryKeyValueBean<T extends CrudRepository> extends AbstractBe
     public T create(CreationalContext<T> creationalContext) {
         KeyValueTemplate template = provider.isEmpty() ? getInstance(KeyValueTemplate.class) :
                 getInstance(KeyValueTemplate.class, DatabaseQualifier.ofKeyValue(provider));
-        EntitiesMetadata entities = getInstance(EntitiesMetadata.class);
-        var handler = new KeyValueRepositoryProxy<>(type, entities, template);
-        return (T) Proxy.newProxyInstance(type.getClassLoader(),
-                new Class[]{type},
-                handler);
+
+        var keyValueRepositoryProducer = getInstance(KeyValueRepositoryProducer.class);
+        Class<?  extends BasicRepository<?, ?>> repositoryClass = (Class<? extends BasicRepository<?, ?>>) type;
+        return (T) keyValueRepositoryProducer.get(repositoryClass, template);
     }
 
 

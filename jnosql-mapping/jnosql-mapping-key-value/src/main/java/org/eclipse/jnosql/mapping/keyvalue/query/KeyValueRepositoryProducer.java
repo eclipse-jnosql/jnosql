@@ -19,9 +19,14 @@ import jakarta.data.repository.BasicRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
+import org.eclipse.jnosql.mapping.core.repository.CoreRepositoryInvocationHandler;
+import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
+import org.eclipse.jnosql.mapping.core.repository.operations.CoreBaseRepositoryOperationProvider;
 import org.eclipse.jnosql.mapping.keyvalue.KeyValueTemplate;
 import org.eclipse.jnosql.mapping.keyvalue.KeyValueTemplateProducer;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 
 import java.lang.reflect.Proxy;
 import java.util.Objects;
@@ -31,9 +36,19 @@ public class KeyValueRepositoryProducer {
 
     @Inject
     private KeyValueTemplateProducer producer;
-
     @Inject
     private EntitiesMetadata entities;
+    @Inject
+    private InfrastructureOperatorProvider infrastructureOperatorProvider;
+
+    @Inject
+    private CoreBaseRepositoryOperationProvider repositoryOperationProvider;
+
+    @Inject
+    private RepositoriesMetadata repositoriesMetadata;
+
+    KeyValueRepositoryProducer() {
+    }
 
     public <T, K, R extends BasicRepository<T, K>> R get(Class<R> repositoryClass, BucketManager manager) {
         Objects.requireNonNull(repositoryClass, "repository class is required");
@@ -46,9 +61,21 @@ public class KeyValueRepositoryProducer {
     public <T, K, R extends BasicRepository<T, K>> R get(Class<R> repositoryClass, KeyValueTemplate template) {
         Objects.requireNonNull(repositoryClass, "repository class is required");
         Objects.requireNonNull(template, "template class is required");
-        KeyValueRepositoryProxy<T, K> handler = new KeyValueRepositoryProxy<>(repositoryClass, entities, template);
+        var entityMetadata = getMetadata(repositoryClass);
+        DefaultKeyValueRepository<T, K> executor = DefaultKeyValueRepository.of(template, entityMetadata);
+
+        var repositoryHandler =  CoreRepositoryInvocationHandler.of(executor
+                , entityMetadata,
+                repositoriesMetadata.get(repositoryClass).orElseThrow(),
+                infrastructureOperatorProvider,
+                repositoryOperationProvider,
+                template);
         return (R) Proxy.newProxyInstance(repositoryClass.getClassLoader(),
                 new Class[]{repositoryClass},
-                handler);
+                repositoryHandler);
+    }
+
+    private <T, K, R extends BasicRepository<T, K>> EntityMetadata getMetadata(Class<R> repositoryClass) {
+        return entities.get(repositoryClass);
     }
 }
