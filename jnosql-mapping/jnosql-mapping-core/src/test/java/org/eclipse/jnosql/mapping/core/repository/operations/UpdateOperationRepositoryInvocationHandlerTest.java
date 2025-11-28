@@ -54,7 +54,6 @@ class UpdateOperationRepositoryInvocationHandlerTest {
     private RepositoriesMetadata repositoriesMetadata;
     @Inject
     private InfrastructureOperatorProvider infrastructureOperatorProvider;
-
     @Inject
     private CoreBaseRepositoryOperationProvider repositoryOperationProvider;
     private TestRepositoryExecutor executor;
