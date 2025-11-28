@@ -269,7 +269,7 @@ class KeyValueRepositoryProxyTest {
     void shouldDeleteUsingAnnotation(){
         User user = new User("12", "Poliana", 30);
         userRepository.deleteUser(user);
-        Mockito.verify(template).delete(User.class, "12");
+        Mockito.verify(template).delete(user);
     }
 
     @Test
