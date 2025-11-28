@@ -112,7 +112,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                 return unwrapInvocationTargetException(() -> infrastructureOperatorProvider().buildInMethodOperator().invokeDefault(repository(), method, params));
             }
             case DEFAULT_METHOD -> {
-                return unwrapInvocationTargetException(() -> infrastructureOperatorProvider().defaultMethodOperator().invokeDefault(repository(), method, params));
+                return unwrapInvocationTargetException(() -> infrastructureOperatorProvider().defaultMethodOperator().invokeDefault(proxy, method, params));
             }
             case OBJECT_METHOD -> {
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
