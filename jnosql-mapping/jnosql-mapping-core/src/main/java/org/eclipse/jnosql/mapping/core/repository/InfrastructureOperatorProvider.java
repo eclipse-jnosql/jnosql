@@ -34,7 +34,7 @@ public interface InfrastructureOperatorProvider {
      *
      * @return the default method operator
      */
-    BuiltInMethodOperator defaultMethodOperator();
+    BuiltInMethodOperator buildInMethodOperator();
 
     /**
      * Returns the operator responsible for invoking methods inherited from
@@ -51,4 +51,15 @@ public interface InfrastructureOperatorProvider {
      * @return the custom repository method operator
      */
     CustomRepositoryMethodOperator customRepositoryMethodOperator();
+
+    /**
+     * Returns the operator responsible for invoking default methods defined
+     * in repository interfaces. These operators execute default interface
+     * methods outside the semantic repository operation pipeline, leveraging
+     * the JVM's default-method invocation mechanism.
+     *
+     * @return an instance of DefaultMethodOperator to handle default method
+     *         invocation in repository interfaces
+     */
+    DefaultMethodOperator defaultMethodOperator();
 }

@@ -32,7 +32,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -110,7 +109,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
 
         switch (methodDescriptor.type()) {
             case DEFAULT -> {
-                return unwrapInvocationTargetException(() -> infrastructureOperatorProvider().defaultMethodOperator().invokeDefault(repository(), method, params));
+                return unwrapInvocationTargetException(() -> infrastructureOperatorProvider().buildInMethodOperator().invokeDefault(repository(), method, params));
             }
             case DEFAULT_METHOD -> {
                 return unwrapInvocationTargetException(() -> infrastructureOperatorProvider().defaultMethodOperator().invokeDefault(repository(), method, params));
