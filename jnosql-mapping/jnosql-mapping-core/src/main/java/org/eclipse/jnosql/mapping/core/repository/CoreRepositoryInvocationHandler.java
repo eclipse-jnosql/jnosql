@@ -52,21 +52,7 @@ public class CoreRepositoryInvocationHandler<T, K>  extends AbstractRepositoryIn
 
     private final Template template;
 
-
-    /**
-     * Creates a new {@code CoreRepositoryInvocationHandler} with the components
-     * required to resolve and execute Jakarta Data repository methods through the
-     * Core engine.
-     *
-     * @param repository                       the repository implementation that provides CRUD semantics
-     * @param entityMetadata                   metadata describing the entity type managed by the repository
-     * @param repositoryMetadata               metadata describing the Jakarta Data repository interface
-     * @param infrastructureOperatorProvider   provider for executing built-in or custom infrastructure methods
-     * @param repositoryOperationProvider      provider for executing semantic repository operations
-     * @param template                         the underlying NoSQL {@link Template} used for persistence
-     * @throws NullPointerException if any argument is {@code null}
-     */
-    public CoreRepositoryInvocationHandler(
+    private CoreRepositoryInvocationHandler(
             AbstractRepository<T, K> repository,
             EntityMetadata entityMetadata,
             RepositoryMetadata repositoryMetadata,
@@ -110,5 +96,36 @@ public class CoreRepositoryInvocationHandler<T, K>  extends AbstractRepositoryIn
     @Override
     protected Template template() {
         return template;
+    }
+
+    /**
+     * Creates a new {@code CoreRepositoryInvocationHandler} with the components
+     * required to resolve and execute Jakarta Data repository methods through the
+     * Core engine.
+     *
+     * @param repository                       the repository implementation that provides CRUD semantics
+     * @param entityMetadata                   metadata describing the entity type managed by the repository
+     * @param repositoryMetadata               metadata describing the Jakarta Data repository interface
+     * @param infrastructureOperatorProvider   provider for executing built-in or custom infrastructure methods
+     * @param repositoryOperationProvider      provider for executing semantic repository operations
+     * @param template                         the underlying NoSQL {@link Template} used for persistence
+     * @throws NullPointerException if any argument is {@code null}
+     */
+    public static <T, K> CoreRepositoryInvocationHandler<T, K> of(
+            AbstractRepository<T, K> repository,
+            EntityMetadata entityMetadata,
+            RepositoryMetadata repositoryMetadata,
+            InfrastructureOperatorProvider infrastructureOperatorProvider,
+            RepositoryOperationProvider repositoryOperationProvider,
+            Template template
+    ) {
+        return new CoreRepositoryInvocationHandler<>(
+                repository,
+                entityMetadata,
+                repositoryMetadata,
+                infrastructureOperatorProvider,
+                repositoryOperationProvider,
+                template
+        );
     }
 }
