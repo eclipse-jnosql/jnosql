@@ -42,6 +42,7 @@ public class KeyValueRepositoryProducer {
         return get(repositoryClass, template);
     }
 
+    @SuppressWarnings("unchecked")
     public <T, K, R extends BasicRepository<T, K>> R get(Class<R> repositoryClass, KeyValueTemplate template) {
         Objects.requireNonNull(repositoryClass, "repository class is required");
         Objects.requireNonNull(template, "template class is required");
