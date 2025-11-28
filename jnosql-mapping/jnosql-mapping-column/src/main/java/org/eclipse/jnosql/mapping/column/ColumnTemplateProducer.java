@@ -22,6 +22,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.AbstractSemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
+import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 
 import java.util.Objects;
@@ -52,7 +53,7 @@ public class ColumnTemplateProducer implements Function<DatabaseManager, ColumnT
 
 
     @Inject
-    private EntityConverter converter;
+    private EntityConverterFactory converter;
 
     @Inject
     private EventPersistManager eventManager;
@@ -88,12 +89,12 @@ public class ColumnTemplateProducer implements Function<DatabaseManager, ColumnT
 
         private final  Converters converters;
 
-        ProducerColumnTemplate(EntityConverter converter,
+        ProducerColumnTemplate(EntityConverterFactory converter,
                                DatabaseManager manager,
                                EventPersistManager eventManager,
                                EntitiesMetadata entities,
                                Converters converters) {
-            this.converter = converter;
+            this.converter = converter.create(manager);
             this.manager = manager;
             this.eventManager = eventManager;
             this.entities = entities;

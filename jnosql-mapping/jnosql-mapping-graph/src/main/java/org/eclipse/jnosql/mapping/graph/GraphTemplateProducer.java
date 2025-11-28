@@ -21,6 +21,7 @@ import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
+import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 
 import java.util.Objects;
@@ -34,7 +35,7 @@ import java.util.function.Function;
 public class GraphTemplateProducer implements Function<GraphDatabaseManager, GraphTemplate> {
 
     @Inject
-    private EntityConverter converter;
+    private EntityConverterFactory converter;
 
     @Inject
     private EventPersistManager eventManager;
@@ -66,12 +67,12 @@ public class GraphTemplateProducer implements Function<GraphDatabaseManager, Gra
 
         private final  Converters converters;
 
-        ProducerGraphTemplate(EntityConverter converter,
+        ProducerGraphTemplate(EntityConverterFactory converter,
                               GraphDatabaseManager manager,
                               EventPersistManager eventManager,
                               EntitiesMetadata entities,
                               Converters converters) {
-            this.converter = converter;
+            this.converter = converter.create(manager);
             this.manager = manager;
             this.eventManager = eventManager;
             this.entities = entities;
