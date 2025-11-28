@@ -112,4 +112,8 @@ public interface ComicBookRepository extends NoSQLRepository<ComicBook, String>,
 
     CursoredPage<ComicBook> cursor();
 
+    default String defaultMethod() {
+        return "defaultMethod";
+    }
+
 }
