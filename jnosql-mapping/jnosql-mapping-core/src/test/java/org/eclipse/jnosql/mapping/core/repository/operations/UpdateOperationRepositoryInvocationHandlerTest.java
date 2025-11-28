@@ -115,5 +115,7 @@ class UpdateOperationRepositoryInvocationHandlerTest {
         Mockito.verify(template).update(Mockito.any(Iterable.class));
     }
 
+    void shouldFindBy()
+
 
 }
