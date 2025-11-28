@@ -69,14 +69,12 @@ class KeyValueRepositoryProxyTest {
     private UserRepository userRepository;
 
     @Inject
-    private EntitiesMetadata entitiesMetadata;
+    private KeyValueRepositoryProducer producer;
+
     @BeforeEach
     void setUp() {
         this.template = Mockito.mock(KeyValueTemplate.class);
-        KeyValueRepositoryProxy handler = new KeyValueRepositoryProxy(UserRepository.class, entitiesMetadata, template);
-        userRepository = (UserRepository) Proxy.newProxyInstance(UserRepository.class.getClassLoader(),
-                new Class[]{UserRepository.class},
-                handler);
+        this.userRepository = producer.get(UserRepository.class, template);
     }
 
     @Test

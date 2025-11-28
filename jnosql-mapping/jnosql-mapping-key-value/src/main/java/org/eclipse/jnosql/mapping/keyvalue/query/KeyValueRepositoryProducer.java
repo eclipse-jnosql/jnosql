@@ -28,7 +28,9 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
 import java.util.Objects;
 
 @ApplicationScoped
@@ -58,11 +60,11 @@ public class KeyValueRepositoryProducer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T, K, R extends BasicRepository<T, K>> R get(Class<R> repositoryClass, KeyValueTemplate template) {
+    public <R extends BasicRepository<?, ?>> R get(Class<R> repositoryClass, KeyValueTemplate template) {
         Objects.requireNonNull(repositoryClass, "repository class is required");
         Objects.requireNonNull(template, "template class is required");
         var entityMetadata = getMetadata(repositoryClass);
-        DefaultKeyValueRepository<T, K> executor = DefaultKeyValueRepository.of(template, entityMetadata);
+        DefaultKeyValueRepository<?, ?> executor = DefaultKeyValueRepository.of(template, entityMetadata);
 
         var repositoryHandler =  CoreRepositoryInvocationHandler.of(executor
                 , entityMetadata,
@@ -75,7 +77,9 @@ public class KeyValueRepositoryProducer {
                 repositoryHandler);
     }
 
-    private <T, K, R extends BasicRepository<T, K>> EntityMetadata getMetadata(Class<R> repositoryClass) {
-        return entities.get(repositoryClass);
+    private <R extends BasicRepository<?, ?>> EntityMetadata getMetadata(Class<R> repositoryClass) {
+        Type genericInterface = repositoryClass.getGenericInterfaces()[0];
+        ParameterizedType pt = (ParameterizedType) genericInterface;
+        return entities.get((Class<?>) pt.getActualTypeArguments()[0]);
     }
 }

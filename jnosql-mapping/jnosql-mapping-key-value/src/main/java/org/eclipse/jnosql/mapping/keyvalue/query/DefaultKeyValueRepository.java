@@ -29,7 +29,7 @@ import java.util.Objects;
  * @param <T> The type of entities managed by the repository.
  * @param <K> The type of the key used for key-value operations.
  */
-public class DefaultKeyValueRepository<T, K>  extends AbstractRepository<T, K> {
+class DefaultKeyValueRepository<T, K>  extends AbstractRepository<T, K> {
 
 
     private final KeyValueTemplate repository;
