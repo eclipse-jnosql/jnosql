@@ -21,6 +21,7 @@ import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.mapping.core.VetedConverter;
 import org.eclipse.jnosql.mapping.core.entities.ComicBook;
 import org.eclipse.jnosql.mapping.core.entities.ComicBookRepository;
+import org.eclipse.jnosql.mapping.core.repository.CoreRepositoryInvocationHandler;
 import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
@@ -58,14 +59,14 @@ class SaveOperationRepositoryInvocationHandlerTest {
     @Inject
     private CoreBaseRepositoryOperationProvider repositoryOperationProvider;
     private TestRepositoryExecutor executor;
-    private TestRepositoryInvocationHandler<?, ?> repositoryHandler;
+    private CoreRepositoryInvocationHandler<?, ?> repositoryHandler;
     private ComicBookRepository comicBookRepository;
 
     @BeforeEach
     void setUp() {
         this.template = Mockito.mock(Template.class);
         this.executor = new TestRepositoryExecutor(this.template, entitiesMetadata);
-        this.repositoryHandler = new TestRepositoryInvocationHandler<>(executor
+        this.repositoryHandler = CoreRepositoryInvocationHandler.of(executor
                 , entitiesMetadata.get(ComicBook.class),
                 repositoriesMetadata.get(ComicBookRepository.class).orElseThrow(),
                 infrastructureOperatorProvider,
