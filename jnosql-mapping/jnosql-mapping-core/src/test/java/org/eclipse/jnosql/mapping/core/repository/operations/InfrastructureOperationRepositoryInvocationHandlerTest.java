@@ -110,6 +110,11 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
         Assertions.assertThat(component).isNotNull().isEqualTo("Game based on the Comic Book");
     }
 
+    @Test
+    void shouldExecuteDefaultMethod() {
+        var component = comicBookRepository.defaultMethod();
+        Assertions.assertThat(component).isNotNull().isEqualTo("defaultMethod");
+    }
 
     @Test
     void shouldReturnUnsupportedError(){

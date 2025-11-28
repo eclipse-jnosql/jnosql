@@ -31,13 +31,11 @@ public interface DefaultMethodOperator {
     /**
      * Invokes a default method declared on a repository interface.
      *
-     * @param repository the repository instance used as the invocation target
+     * @param instance the repository instance used as the invocation target
      * @param method     the default method being executed
      * @param params     the method arguments
      * @return the result returned by the default method
      * @throws Exception if the default method invocation fails
      */
-    Object invokeDefault(AbstractRepository<?, ?> repository,
-                         Method method,
-                         Object[] params) throws Exception;
+    Object invokeDefault(Object instance, Method method, Object[] params) throws Throwable;
 }
