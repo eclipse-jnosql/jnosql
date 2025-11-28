@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.keyvalue.query;
 
 
+import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.keyvalue.KeyValueTemplate;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 
@@ -28,7 +29,7 @@ import java.util.Objects;
  * @param <T> The type of entities managed by the repository.
  * @param <K> The type of the key used for key-value operations.
  */
-public class DefaultKeyValueRepository<T, K>  extends AbstractKeyValueRepository<T, K> {
+class DefaultKeyValueRepository<T, K>  extends AbstractRepository<T, K> {
 
 
     private final KeyValueTemplate repository;
@@ -48,6 +49,11 @@ public class DefaultKeyValueRepository<T, K>  extends AbstractKeyValueRepository
     @Override
     protected EntityMetadata entityMetadata() {
         return metadata;
+    }
+
+    @Override
+    protected String getErrorMessage() {
+        return "The key-value type does not support %s method";
     }
 
 

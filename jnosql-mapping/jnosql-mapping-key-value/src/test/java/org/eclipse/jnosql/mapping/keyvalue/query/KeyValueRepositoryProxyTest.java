@@ -69,14 +69,12 @@ class KeyValueRepositoryProxyTest {
     private UserRepository userRepository;
 
     @Inject
-    private EntitiesMetadata entitiesMetadata;
+    private KeyValueRepositoryProducer producer;
+
     @BeforeEach
     void setUp() {
         this.template = Mockito.mock(KeyValueTemplate.class);
-        KeyValueRepositoryProxy handler = new KeyValueRepositoryProxy(UserRepository.class, entitiesMetadata, template);
-        userRepository = (UserRepository) Proxy.newProxyInstance(UserRepository.class.getClassLoader(),
-                new Class[]{UserRepository.class},
-                handler);
+        this.userRepository = producer.get(UserRepository.class, template);
     }
 
     @Test
@@ -271,7 +269,7 @@ class KeyValueRepositoryProxyTest {
     void shouldDeleteUsingAnnotation(){
         User user = new User("12", "Poliana", 30);
         userRepository.deleteUser(user);
-        Mockito.verify(template).delete(User.class, "12");
+        Mockito.verify(template).delete(user);
     }
 
     @Test
@@ -283,7 +281,7 @@ class KeyValueRepositoryProxyTest {
 
     @Test
     void shouldReturnNotSupported(){
-      Assertions.assertThrows(UnsupportedOperationException.class, () -> userRepository.existByName("Ada"));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> userRepository.existsByName("Ada"));
         Assertions.assertThrows(UnsupportedOperationException.class, () -> userRepository.findByAge(10));
         Assertions.assertThrows(UnsupportedOperationException.class, () -> userRepository.find("Ada"));
         Assertions.assertThrows(UnsupportedOperationException.class, () -> userRepository.deleteByAge(10));
@@ -298,44 +296,4 @@ class KeyValueRepositoryProxyTest {
             return this.key("Poliana");
         }
     }
-
-    public interface UserRepository extends NoSQLRepository<User, String>, CrudRepository<User, String>, BaseQuery<User>, PersonStatisticRepository {
-
-        Optional<User> findByName(String name);
-
-        @Query("get \"12\"")
-        Optional<User> findByQuery();
-
-
-        @Query("get @id")
-        Optional<User> querybyKey(@Param("id") String key);
-        default Optional<User> otavio() {
-            return querybyKey("otavio");
-        }
-
-        @Query("get @id")
-        Optional<User> findByQuery(@Param("id") String id);
-
-        @Insert
-        User insertUser(User user);
-        @Update
-        User updateUser(User user);
-
-        @Save
-        User saveUser(User user);
-
-        @Delete
-        void deleteUser(User user);
-
-        void existByName(String name);
-
-        User findByAge(Integer age);
-
-        User find(String name);
-
-        void deleteByAge(Integer age);
-
-        int countByName(String name);
-    }
-
 }
