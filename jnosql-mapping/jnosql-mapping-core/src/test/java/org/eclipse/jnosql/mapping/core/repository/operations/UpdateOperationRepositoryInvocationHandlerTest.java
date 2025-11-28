@@ -115,7 +115,30 @@ class UpdateOperationRepositoryInvocationHandlerTest {
         Mockito.verify(template).update(Mockito.any(Iterable.class));
     }
 
-    void shouldFindBy()
+
+    @Test
+    void shouldReturnUnsupportedError(){
+        Assertions.assertThatThrownBy(() -> comicBookRepository.findByName("name"))
+                .isInstanceOf(UnsupportedOperationException.class);
+
+        Assertions.assertThatThrownBy(() -> comicBookRepository.countByName("name"))
+                .isInstanceOf(UnsupportedOperationException.class);
+
+        Assertions.assertThatThrownBy(() -> comicBookRepository.countAll())
+                .isInstanceOf(UnsupportedOperationException.class);
+
+        Assertions.assertThatThrownBy(() -> comicBookRepository.existsByName("name"))
+                .isInstanceOf(UnsupportedOperationException.class);
+
+        Assertions.assertThatThrownBy(() -> comicBookRepository.deleteByName("name"))
+                .isInstanceOf(UnsupportedOperationException.class);
+
+        Assertions.assertThatThrownBy(() -> comicBookRepository.find("name"))
+                .isInstanceOf(UnsupportedOperationException.class);
+
+        Assertions.assertThatThrownBy(() -> comicBookRepository.cursor())
+                .isInstanceOf(UnsupportedOperationException.class);
+    }
 
 
 }

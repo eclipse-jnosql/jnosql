@@ -108,7 +108,7 @@ public interface ComicBookRepository extends NoSQLRepository<ComicBook, String>,
     void deleteByName(String name);
 
     @Find
-    List<ComicBook> findByNameStartsWith(String name);
+    List<ComicBook> find(String name);
 
     CursoredPage<ComicBook> cursor();
 
