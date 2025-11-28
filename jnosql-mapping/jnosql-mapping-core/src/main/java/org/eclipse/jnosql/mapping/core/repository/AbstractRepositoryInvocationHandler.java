@@ -32,6 +32,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -111,6 +112,9 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
             case DEFAULT -> {
                 return unwrapInvocationTargetException(() -> infrastructureOperatorProvider().defaultMethodOperator().invokeDefault(repository(), method, params));
             }
+            case DEFAULT_METHOD -> {
+                return unwrapInvocationTargetException(() -> infrastructureOperatorProvider().defaultMethodOperator().invokeDefault(repository(), method, params));
+            }
             case OBJECT_METHOD -> {
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         infrastructureOperatorProvider().objectMethodOperator().invokeObjectMethod(this, method, params)));
@@ -120,17 +124,17 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                         infrastructureOperatorProvider().customRepositoryMethodOperator().invokeCustomRepository(method, params));
             }
             case INSERT -> {
-                RepositoryInvocationContext context = repositoryInvocationContext(params, methodDescriptor);
+                var context = repositoryInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().insertOperation().execute(context)));
             }
             case UPDATE -> {
-                RepositoryInvocationContext context = repositoryInvocationContext(params, methodDescriptor);
+                var context = repositoryInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().updateOperation().execute(context)));
             }
             case DELETE -> {
-                RepositoryInvocationContext context = repositoryInvocationContext(params, methodDescriptor);
+                var context = repositoryInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().deleteOperation().execute(context)));
             }
@@ -138,6 +142,51 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                 RepositoryInvocationContext context = repositoryInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().saveOperation().execute(context)));
+            }
+            case DELETE_BY -> {
+                var context = repositoryInvocationContext(params, methodDescriptor);
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                        repositoryOperationProvider().deleteByOperation().execute(context)));
+            }
+            case FIND_BY -> {
+                var context = repositoryInvocationContext(params, methodDescriptor);
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                        repositoryOperationProvider().findByOperation().execute(context)));
+            }
+            case COUNT_ALL -> {
+                var context = repositoryInvocationContext(params, methodDescriptor);
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                        repositoryOperationProvider().countAllOperation().execute(context)));
+            }
+            case COUNT_BY -> {
+                var context = repositoryInvocationContext(params, methodDescriptor);
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                        repositoryOperationProvider().countByOperation().execute(context)));
+            }
+            case CURSOR_PAGINATION -> {
+                var context = repositoryInvocationContext(params, methodDescriptor);
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                        repositoryOperationProvider().cursorPaginationOperation().execute(context)));
+            }
+            case PARAMETER_BASED -> {
+                var context = repositoryInvocationContext(params, methodDescriptor);
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                        repositoryOperationProvider().parameterBasedOperation().execute(context)));
+            }
+            case EXISTS_BY -> {
+                var context = repositoryInvocationContext(params, methodDescriptor);
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                        repositoryOperationProvider().existsByOperation().execute(context)));
+            }
+            case FIND_ALL -> {
+                var context = repositoryInvocationContext(params, methodDescriptor);
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                        repositoryOperationProvider().findAllOperation().execute(context)));
+            }
+            case QUERY -> {
+                var context = repositoryInvocationContext(params, methodDescriptor);
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                        repositoryOperationProvider().queryOperation().execute(context)));
             }
             default -> throw new UnsupportedOperationException("Method not supported: " + method);
         }
