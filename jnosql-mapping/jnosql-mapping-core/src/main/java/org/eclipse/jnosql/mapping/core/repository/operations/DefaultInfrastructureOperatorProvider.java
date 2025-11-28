@@ -18,6 +18,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.core.repository.BuiltInMethodOperator;
 import org.eclipse.jnosql.mapping.core.repository.CustomRepositoryMethodOperator;
+import org.eclipse.jnosql.mapping.core.repository.DefaultMethodOperator;
 import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
 import org.eclipse.jnosql.mapping.core.repository.ObjectMethodOperator;
 
@@ -30,22 +31,29 @@ class DefaultInfrastructureOperatorProvider implements InfrastructureOperatorPro
 
     private final CustomRepositoryMethodOperator customRepositoryMethodOperator;
 
+    private final DefaultMethodOperator defaultMethodOperator;
+
     @Inject
     DefaultInfrastructureOperatorProvider(BuiltInMethodOperator builtInMethodOperator,
                                           ObjectMethodOperator objectMethodOperator,
-                                          CustomRepositoryMethodOperator customRepositoryMethodOperator) {
+                                          CustomRepositoryMethodOperator customRepositoryMethodOperator,
+                                          DefaultMethodOperator defaultMethodOperator) {
         this.builtInMethodOperator = builtInMethodOperator;
         this.objectMethodOperator = objectMethodOperator;
         this.customRepositoryMethodOperator = customRepositoryMethodOperator;
+        this.defaultMethodOperator = defaultMethodOperator;
     }
 
     DefaultInfrastructureOperatorProvider() {
-        this(null, null, null);
+        this.builtInMethodOperator = null;
+        this.objectMethodOperator = null;
+        this.customRepositoryMethodOperator = null;
+        this.defaultMethodOperator = null;
     }
 
 
     @Override
-    public BuiltInMethodOperator defaultMethodOperator() {
+    public BuiltInMethodOperator buildInMethodOperator() {
         return builtInMethodOperator;
     }
 
@@ -57,5 +65,10 @@ class DefaultInfrastructureOperatorProvider implements InfrastructureOperatorPro
     @Override
     public CustomRepositoryMethodOperator customRepositoryMethodOperator() {
         return customRepositoryMethodOperator;
+    }
+
+    @Override
+    public DefaultMethodOperator defaultMethodOperator() {
+        return defaultMethodOperator;
     }
 }

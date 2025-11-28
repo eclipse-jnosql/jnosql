@@ -14,14 +14,18 @@
  */
 package org.eclipse.jnosql.mapping.core.entities;
 
+import jakarta.data.page.CursoredPage;
 import jakarta.data.repository.Delete;
+import jakarta.data.repository.Find;
 import jakarta.data.repository.Insert;
 import jakarta.data.repository.Repository;
 import jakarta.data.repository.Save;
 import jakarta.data.repository.Update;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
+import org.eclipse.jnosql.mapping.metadata.repository.spi.CursorPaginationOperation;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Repository
 public interface ComicBookRepository extends NoSQLRepository<ComicBook, String>, BookComponent {
@@ -88,4 +92,28 @@ public interface ComicBookRepository extends NoSQLRepository<ComicBook, String>,
 
     @Save
     ComicBook[] save(ComicBook[] books);
+
+
+    List<ComicBook> findByName(String name);
+
+    Stream<ComicBook> findAll();
+
+    long countByName(String name);
+
+
+    long countAll();
+
+    boolean existsByName(String name);
+
+    void deleteByName(String name);
+
+    @Find
+    List<ComicBook> find(String name);
+
+    CursoredPage<ComicBook> cursor();
+
+    default String defaultMethod() {
+        return "defaultMethod";
+    }
+
 }

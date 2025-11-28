@@ -54,7 +54,6 @@ class UpdateOperationRepositoryInvocationHandlerTest {
     private RepositoriesMetadata repositoriesMetadata;
     @Inject
     private InfrastructureOperatorProvider infrastructureOperatorProvider;
-
     @Inject
     private CoreBaseRepositoryOperationProvider repositoryOperationProvider;
     private TestRepositoryExecutor executor;
@@ -114,6 +113,4 @@ class UpdateOperationRepositoryInvocationHandlerTest {
         Assertions.assertThat(books).isNotNull().isNotEmpty().contains(new ComicBook("1234", "Book"));
         Mockito.verify(template).update(Mockito.any(Iterable.class));
     }
-
-
 }

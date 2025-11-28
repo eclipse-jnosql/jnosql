@@ -110,4 +110,34 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
         Assertions.assertThat(component).isNotNull().isEqualTo("Game based on the Comic Book");
     }
 
+    @Test
+    void shouldExecuteDefaultMethod() {
+        var component = comicBookRepository.defaultMethod();
+        Assertions.assertThat(component).isNotNull().isEqualTo("defaultMethod");
+    }
+
+    @Test
+    void shouldReturnUnsupportedError(){
+        Assertions.assertThatThrownBy(() -> comicBookRepository.findByName("name"))
+                .isInstanceOf(UnsupportedOperationException.class);
+
+        Assertions.assertThatThrownBy(() -> comicBookRepository.countByName("name"))
+                .isInstanceOf(UnsupportedOperationException.class);
+
+        Assertions.assertThatThrownBy(() -> comicBookRepository.countAll())
+                .isInstanceOf(UnsupportedOperationException.class);
+
+        Assertions.assertThatThrownBy(() -> comicBookRepository.existsByName("name"))
+                .isInstanceOf(UnsupportedOperationException.class);
+
+        Assertions.assertThatThrownBy(() -> comicBookRepository.deleteByName("name"))
+                .isInstanceOf(UnsupportedOperationException.class);
+
+        Assertions.assertThatThrownBy(() -> comicBookRepository.find("name"))
+                .isInstanceOf(UnsupportedOperationException.class);
+
+        Assertions.assertThatThrownBy(() -> comicBookRepository.cursor())
+                .isInstanceOf(UnsupportedOperationException.class);
+    }
+
 }
