@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import jakarta.data.Sort;
 import jakarta.data.constraint.Constraint;
 import jakarta.data.constraint.GreaterThan;
+import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.repository.MethodSignatureKey;
 import org.eclipse.jnosql.mapping.metadata.repository.NameKey;
@@ -458,7 +459,28 @@ class ReflectionRepositorySupplierTest {
     @DisplayName( "Should return empty entity when is custom repository")
     void shouldReturnEmptyEntityWhenIsCustomRepository(){
         RepositoryMetadata metadata = supplier.apply(PersonEmptyCustomRepository.class);
-        assertTrue(metadata.entity().isEmpty());
+        Assertions.assertThat(metadata.entity()).isEmpty();
+    }
+
+    @Test
+    @DisplayName( "Should return entity when custom repository entity")
+    void shouldReturnEntityWhenCustomRepositoryEntity() {
+        RepositoryMetadata metadata = supplier.apply(PersonDeleteCustomRepository.class);
+        Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
+    }
+
+    @Test
+    @DisplayName( "Should return entity when custom repository entity")
+    void shouldReturnEntityWhenCustomRepositoryListEntity() {
+        RepositoryMetadata metadata = supplier.apply(PersonListCustomRepository.class);
+        Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
+    }
+
+    @Test
+    @DisplayName( "Should return entity when custom repository array entity")
+    void shouldReturnEntityWhenCustomRepositoryArrayEntity() {
+        RepositoryMetadata metadata = supplier.apply(PersonArrayCustomRepository.class);
+        Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
     }
 
 }
