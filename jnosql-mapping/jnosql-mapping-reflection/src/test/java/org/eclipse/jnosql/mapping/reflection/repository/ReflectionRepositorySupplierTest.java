@@ -490,4 +490,22 @@ class ReflectionRepositorySupplierTest {
         Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
     }
 
+    @Test
+    void shouldFindEntityWhenParameterIsArray() {
+        RepositoryMetadata metadata = supplier.apply(PersonFindByNameArrayCustomRepository.class);
+        Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
+    }
+
+    @Test
+    void shouldReturnWhenCursorPage() {
+        RepositoryMetadata metadata = supplier.apply(PersonFindByNameInstanceCustomRepository.class);
+        Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
+    }
+
+    @Test
+    void shouldReturnEntityWhenIsInstance() {
+        RepositoryMetadata metadata = supplier.apply(PersonFindByNameIterableCustomRepository.class);
+        Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
+    }
+
 }
