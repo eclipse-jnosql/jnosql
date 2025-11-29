@@ -19,6 +19,6 @@ import org.eclipse.jnosql.mapping.reflection.entities.Person;
 
 public interface PersonArrayCustomRepository {
 
-    @Delete
+   @Delete
    void findByName(Person[] people);
 }
