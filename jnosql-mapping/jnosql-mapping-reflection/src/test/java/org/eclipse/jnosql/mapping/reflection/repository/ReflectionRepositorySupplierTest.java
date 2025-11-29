@@ -464,6 +464,13 @@ class ReflectionRepositorySupplierTest {
 
     @Test
     @DisplayName( "Should return entity when custom repository entity")
+    void shouldFindEntityWhenFindByMethod() {
+        RepositoryMetadata metadata = supplier.apply(PersonFindByNameCustomRepository.class);
+        Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
+    }
+
+    @Test
+    @DisplayName( "Should return entity when custom repository entity")
     void shouldReturnEntityWhenCustomRepositoryEntity() {
         RepositoryMetadata metadata = supplier.apply(PersonDeleteCustomRepository.class);
         Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
