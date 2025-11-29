@@ -79,7 +79,14 @@ enum ReflectionRepositorySupplier {
         for (RepositoryMethod method : methods) {
             switch (method.type()) {
                 case SAVE, INSERT, UPDATE, DELETE -> {
-
+                    if(!method.params().isEmpty()) {
+                        RepositoryParam param = method.params().get(0);
+                        if(param.type().getAnnotation(Entity.class) != null){
+                            return param.type();
+                        } else if (param.elementType().isPresent() && method.elementType().orElseThrow().getAnnotation(Entity.class) != null) {
+                            return param.elementType();
+                        }
+                    }
                 }
                 case FIND_BY, FIND_ALL, CURSOR_PAGINATION -> {
 
