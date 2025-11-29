@@ -72,4 +72,16 @@ public interface RepositoryParam {
      * @return the {@link Class} representing the type of the parameter, never null.
      */
     Class<?> type();
+
+    /**
+     * Returns the element type contained within the return structure, if applicable.
+     * For example:
+     * <ul>
+     *   <li>If the method returns {@code List<Person>}, this will be {@code Person.class}.</li>
+     *   <li>If the method returns {@code Optional<Order>}, this will be {@code Order.class}.</li>
+     * </ul>
+     *
+     * @return an {@link Optional} containing the element type, or empty if not applicable.
+     */
+    Optional<Class<?>> elementType();
 }
