@@ -454,4 +454,11 @@ class ReflectionRepositorySupplierTest {
     }
 
 
+    @Test
+    @DisplayName( "Should return empty entity when is custom repository")
+    void shouldReturnEmptyEntityWhenIsCustomRepository(){
+        RepositoryMetadata metadata = supplier.apply(PersonEmptyCustomRepository.class);
+        assertTrue(metadata.entity().isEmpty());
+    }
+
 }
