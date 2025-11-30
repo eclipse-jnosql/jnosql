@@ -508,4 +508,22 @@ class ReflectionRepositorySupplierTest {
         Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
     }
 
+    @Test
+    void shouldGetElementTypeAtParametersEmpty() {
+        RepositoryMetadata metadata = supplier.apply(PersonDeleteCustomRepository.class);
+        RepositoryMethod repositoryMethod = metadata.methods().getFirst();
+        RepositoryParam param = repositoryMethod.params().getFirst();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(param.elementType()).isEmpty();
+            soft.assertThat(param.type()).isEqualTo(Person.class);
+        });
+    }
+
+    void shouldGetElementTypeFromParameterizedType() {
+
+    }
+
+    void shouldGetElementTypeFromArray() {}
+
 }
