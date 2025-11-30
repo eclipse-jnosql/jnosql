@@ -98,6 +98,7 @@ enum ReflectionRepositorySupplier {
                         return elementType.orElseThrow();
                     }
                 }
+                default -> LOGGER.finest(() -> "The repository method " + method.name() + " could you not be used to find the entity");
             }
         }
         return null;
