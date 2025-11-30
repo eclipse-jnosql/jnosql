@@ -540,7 +540,7 @@ class ReflectionRepositorySupplierTest {
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(param.elementType()).isNotEmpty().get().isEqualTo(Person.class);
-            soft.assertThat(param.type()).isEqualTo(List.class);
+            soft.assertThat(param.type()).isEqualTo(Person[].class);
         });
     }
 

@@ -79,10 +79,10 @@ enum ReflectionRepositorySupplier {
         for (RepositoryMethod method : methods) {
             switch (method.type()) {
                 case SAVE, INSERT, UPDATE, DELETE -> {
-                    if(!method.params().isEmpty()) {
+                    if (!method.params().isEmpty()) {
                         RepositoryParam param = method.params().get(0);
                         Optional<Class<?>> elementType = param.elementType().filter(m -> m.getAnnotation(Entity.class) != null);
-                        if(param.type().getAnnotation(Entity.class) != null){
+                        if (param.type().getAnnotation(Entity.class) != null) {
                             return param.type();
                         } else if (elementType.isPresent()) {
                             return elementType.orElseThrow();
@@ -93,13 +93,13 @@ enum ReflectionRepositorySupplier {
                     var returnType = method.returnType().filter(m -> m.getAnnotation(Entity.class) != null);
                     var elementType = method.elementType().filter(m -> m.getAnnotation(Entity.class) != null);
                     if (returnType.isPresent()) {
-                            return returnType.orElseThrow();
-                        } else if (elementType.isPresent()) {
-                            return elementType.orElseThrow();
-                        }
+                        return returnType.orElseThrow();
+                    } else if (elementType.isPresent()) {
+                        return elementType.orElseThrow();
                     }
                 }
             }
+        }
         return null;
     }
 
@@ -195,8 +195,11 @@ enum ReflectionRepositorySupplier {
                     .orElse(parameter.getName());
             Class<?> type = parameter.getType();
             Class<?> elementType = null;
-            if(parameter.getParameterizedType() instanceof ParameterizedType parameterizedType){
+            if (parameter.getParameterizedType() instanceof ParameterizedType parameterizedType) {
                 elementType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+            }
+            if (parameter.getType().isArray()) {
+                elementType = parameter.getType().getComponentType();
             }
             params.add(new ReflectionRepositoryParam(isValue, name, by, type, elementType));
         }
