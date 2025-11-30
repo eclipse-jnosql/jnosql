@@ -19,6 +19,7 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 - Adjustments at CustomRepositoryHandler to handle inheritance correctly
 - Include Cache on queries
 - Update Jakarta Data to version 1.1.0-M1
+- Allow to provider define the id name, overriding the value from Id annotation
 
 === Added
 
