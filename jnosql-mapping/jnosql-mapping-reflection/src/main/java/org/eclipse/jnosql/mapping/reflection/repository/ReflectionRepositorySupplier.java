@@ -89,18 +89,16 @@ enum ReflectionRepositorySupplier {
                     }
                 }
                 case FIND_BY, FIND_ALL, CURSOR_PAGINATION -> {
-
-                    if (method.returnType().isPresent()) {
-                        Class<?> returnType = method.returnType().orElseThrow();
-                        if (returnType.getAnnotation(Entity.class) != null) {
-                            return returnType;
-                        } else if (method.elementType().isPresent() && method.elementType().orElseThrow().getAnnotation(Entity.class) != null) {
-                            return method.elementType().orElseThrow();
+                    var returnType = method.returnType().filter(m -> m.getAnnotation(Entity.class) != null);
+                    var elementType = method.elementType().filter(m -> m.getAnnotation(Entity.class) != null);
+                    if (returnType.isPresent()) {
+                            return returnType.orElseThrow();
+                        } else if (elementType.isPresent()) {
+                            return elementType.orElseThrow();
                         }
                     }
                 }
             }
-        }
         return null;
     }
 
