@@ -81,10 +81,11 @@ enum ReflectionRepositorySupplier {
                 case SAVE, INSERT, UPDATE, DELETE -> {
                     if(!method.params().isEmpty()) {
                         RepositoryParam param = method.params().get(0);
+                        Optional<Class<?>> elementType = param.elementType().filter(m -> m.getAnnotation(Entity.class) != null);
                         if(param.type().getAnnotation(Entity.class) != null){
                             return param.type();
-                        } else if (param.elementType().isPresent() && method.elementType().orElseThrow().getAnnotation(Entity.class) != null) {
-                            return param.elementType().orElseThrow();
+                        } else if (elementType.isPresent()) {
+                            return elementType.orElseThrow();
                         }
                     }
                 }
