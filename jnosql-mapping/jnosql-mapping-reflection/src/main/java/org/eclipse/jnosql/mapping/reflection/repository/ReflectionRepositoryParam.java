@@ -22,10 +22,16 @@ import java.util.Optional;
 record ReflectionRepositoryParam(Class<? extends Constraint<?>> isValue,
                                  String name,
                                  String by,
-                                 Class<?> type) implements RepositoryParam {
+                                 Class<?> type,
+                                 Class<?> elementTypeValue) implements RepositoryParam {
 
     @Override
     public Optional<Class<? extends Constraint<?>>> is() {
         return Optional.ofNullable(isValue);
+    }
+
+    @Override
+    public Optional<Class<?>> elementType() {
+        return Optional.ofNullable(elementTypeValue);
     }
 }

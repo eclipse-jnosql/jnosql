@@ -24,6 +24,7 @@ import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Select;
 import jakarta.enterprise.event.Event;
+import jakarta.nosql.Entity;
 import jakarta.nosql.Projection;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
@@ -44,7 +45,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-enum ReflectionRepositorySupplier  {
+enum ReflectionRepositorySupplier {
 
     INSTANCE;
     private static final Logger LOGGER = Logger.getLogger(ReflectionRepositorySupplier.class.getName());
@@ -66,8 +67,41 @@ enum ReflectionRepositorySupplier  {
             methods.add(repositoryMethod);
             methodByMethodReflection.put(method, repositoryMethod);
         }
+        if (entity == null) {
+            LOGGER.finest(() -> "The repository " + type.getName() + " is a custom repository checking methods");
+            entity = findEntityByMethods(methods);
+        }
         LOGGER.finest(() -> "The repository " + type.getName() + " has " + methods.size() + " methods");
         return new ReflectionRepositoryMetadata(type, entity, methods, methodByMethodReflection);
+    }
+
+    private Class<?> findEntityByMethods(List<RepositoryMethod> methods) {
+        for (RepositoryMethod method : methods) {
+            switch (method.type()) {
+                case SAVE, INSERT, UPDATE, DELETE -> {
+                    if (!method.params().isEmpty()) {
+                        RepositoryParam param = method.params().get(0);
+                        Optional<Class<?>> elementType = param.elementType().filter(m -> m.getAnnotation(Entity.class) != null);
+                        if (param.type().getAnnotation(Entity.class) != null) {
+                            return param.type();
+                        } else if (elementType.isPresent()) {
+                            return elementType.orElseThrow();
+                        }
+                    }
+                }
+                case FIND_BY, FIND_ALL, CURSOR_PAGINATION -> {
+                    var returnType = method.returnType().filter(m -> m.getAnnotation(Entity.class) != null);
+                    var elementType = method.elementType().filter(m -> m.getAnnotation(Entity.class) != null);
+                    if (returnType.isPresent()) {
+                        return returnType.orElseThrow();
+                    } else if (elementType.isPresent()) {
+                        return elementType.orElseThrow();
+                    }
+                }
+                default -> LOGGER.finest(() -> "The repository method " + method.name() + " could you not be used to find the entity");
+            }
+        }
+        return null;
     }
 
 
@@ -81,7 +115,7 @@ enum ReflectionRepositorySupplier  {
                 .map(First::value).orElse(null);
         Class<?> returnTypeValue = method.getReturnType();
         Class<?> elementTypeValue = getElementTypeValue(method);
-        if(projectionFoundEvent!= null) {
+        if (projectionFoundEvent != null) {
             checkProjectionFound(returnTypeValue, projectionFoundEvent);
             checkProjectionFound(elementTypeValue, projectionFoundEvent);
         }
@@ -112,7 +146,8 @@ enum ReflectionRepositorySupplier  {
     /**
      * Verifies if the record does not have the {@link Projection} annotation, in this case, it will accepted as
      * projection, because of the Jakarta Data spec
-     * @param type the type
+     *
+     * @param type                 the type
      * @param projectionFoundEvent the event to be fired
      */
     private void checkProjectionFound(Class<?> type, Event<ProjectionFound> projectionFoundEvent) {
@@ -123,10 +158,10 @@ enum ReflectionRepositorySupplier  {
     }
 
     private static Class<?> getElementTypeValue(Method method) {
-        if( method.getGenericReturnType() instanceof ParameterizedType parameterizedType){
+        if (method.getGenericReturnType() instanceof ParameterizedType parameterizedType) {
             Type[] arguments = parameterizedType.getActualTypeArguments();
-            if(arguments.length > 0){
-                return  (Class<?>) arguments[0];
+            if (arguments.length > 0) {
+                return (Class<?>) arguments[0];
             }
         }
         Class<?> returnType = method.getReturnType();
@@ -150,7 +185,7 @@ enum ReflectionRepositorySupplier  {
         List<RepositoryParam> params = new ArrayList<>(parameters.length);
         for (Parameter parameter : parameters) {
             Class<? extends Constraint<?>> isValue = (Class<? extends Constraint<?>>) Optional.ofNullable(parameter
-                    .getAnnotation(Is.class))
+                            .getAnnotation(Is.class))
                     .map(Is::value)
                     .orElse(null);
             String name = Optional.ofNullable(parameter.getAnnotation(Param.class))
@@ -160,7 +195,14 @@ enum ReflectionRepositorySupplier  {
                     .map(By::value)
                     .orElse(parameter.getName());
             Class<?> type = parameter.getType();
-            params.add(new ReflectionRepositoryParam(isValue, name, by, type));
+            Class<?> elementType = null;
+            if (parameter.getParameterizedType() instanceof ParameterizedType parameterizedType) {
+                elementType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+            }
+            if (parameter.getType().isArray()) {
+                elementType = parameter.getType().getComponentType();
+            }
+            params.add(new ReflectionRepositoryParam(isValue, name, by, type, elementType));
         }
         return params;
     }

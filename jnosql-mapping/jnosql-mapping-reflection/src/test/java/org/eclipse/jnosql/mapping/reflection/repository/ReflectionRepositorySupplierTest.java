@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import jakarta.data.Sort;
 import jakarta.data.constraint.Constraint;
 import jakarta.data.constraint.GreaterThan;
+import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.repository.MethodSignatureKey;
 import org.eclipse.jnosql.mapping.metadata.repository.NameKey;
@@ -453,5 +454,94 @@ class ReflectionRepositorySupplierTest {
         });
     }
 
+
+    @Test
+    @DisplayName( "Should return empty entity when is custom repository")
+    void shouldReturnEmptyEntityWhenIsCustomRepository(){
+        RepositoryMetadata metadata = supplier.apply(PersonEmptyCustomRepository.class);
+        Assertions.assertThat(metadata.entity()).isEmpty();
+    }
+
+    @Test
+    @DisplayName( "Should return entity when custom repository entity")
+    void shouldFindEntityWhenFindByMethod() {
+        RepositoryMetadata metadata = supplier.apply(PersonFindByNameCustomRepository.class);
+        Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
+    }
+
+    @Test
+    @DisplayName( "Should return entity when custom repository entity")
+    void shouldReturnEntityWhenCustomRepositoryEntity() {
+        RepositoryMetadata metadata = supplier.apply(PersonDeleteCustomRepository.class);
+        Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
+    }
+
+    @Test
+    @DisplayName( "Should return entity when custom repository entity")
+    void shouldReturnEntityWhenCustomRepositoryListEntity() {
+        RepositoryMetadata metadata = supplier.apply(PersonListCustomRepository.class);
+        Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
+    }
+
+    @Test
+    @DisplayName( "Should return entity when custom repository array entity")
+    void shouldReturnEntityWhenCustomRepositoryArrayEntity() {
+        RepositoryMetadata metadata = supplier.apply(PersonArrayCustomRepository.class);
+        Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
+    }
+
+    @Test
+    void shouldFindEntityWhenParameterIsArray() {
+        RepositoryMetadata metadata = supplier.apply(PersonFindByNameArrayCustomRepository.class);
+        Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
+    }
+
+    @Test
+    void shouldReturnWhenCursorPage() {
+        RepositoryMetadata metadata = supplier.apply(PersonFindByNameInstanceCustomRepository.class);
+        Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
+    }
+
+    @Test
+    void shouldReturnEntityWhenIsInstance() {
+        RepositoryMetadata metadata = supplier.apply(PersonFindByNameIterableCustomRepository.class);
+        Assertions.assertThat(metadata.entity()).isNotEmpty().get().isEqualTo(Person.class);
+    }
+
+    @Test
+    void shouldGetElementTypeAtParametersEmpty() {
+        RepositoryMetadata metadata = supplier.apply(PersonDeleteCustomRepository.class);
+        RepositoryMethod repositoryMethod = metadata.methods().getFirst();
+        RepositoryParam param = repositoryMethod.params().getFirst();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(param.elementType()).isEmpty();
+            soft.assertThat(param.type()).isEqualTo(Person.class);
+        });
+    }
+
+    @Test
+    void shouldGetElementTypeFromParameterizedType() {
+        RepositoryMetadata metadata = supplier.apply(PersonListCustomRepository.class);
+        RepositoryMethod repositoryMethod = metadata.methods().getFirst();
+        RepositoryParam param = repositoryMethod.params().getFirst();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(param.elementType()).isNotEmpty().get().isEqualTo(Person.class);
+            soft.assertThat(param.type()).isEqualTo(List.class);
+        });
+    }
+
+    @Test
+    void shouldGetElementTypeFromArray() {
+        RepositoryMetadata metadata = supplier.apply(PersonArrayCustomRepository.class);
+        RepositoryMethod repositoryMethod = metadata.methods().getFirst();
+        RepositoryParam param = repositoryMethod.params().getFirst();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(param.elementType()).isNotEmpty().get().isEqualTo(Person.class);
+            soft.assertThat(param.type()).isEqualTo(Person[].class);
+        });
+    }
 
 }
