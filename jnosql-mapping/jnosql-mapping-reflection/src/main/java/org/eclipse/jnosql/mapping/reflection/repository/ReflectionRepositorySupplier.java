@@ -84,7 +84,7 @@ enum ReflectionRepositorySupplier {
                         if(param.type().getAnnotation(Entity.class) != null){
                             return param.type();
                         } else if (param.elementType().isPresent() && method.elementType().orElseThrow().getAnnotation(Entity.class) != null) {
-                            return param.elementType();
+                            return param.elementType().orElseThrow();
                         }
                     }
                 }
