@@ -195,7 +195,8 @@ enum ReflectionRepositorySupplier {
                     .map(By::value)
                     .orElse(parameter.getName());
             Class<?> type = parameter.getType();
-            params.add(new ReflectionRepositoryParam(isValue, name, by, type));
+            Class<?> elementType = null;
+            params.add(new ReflectionRepositoryParam(isValue, name, by, type, elementType));
         }
         return params;
     }
