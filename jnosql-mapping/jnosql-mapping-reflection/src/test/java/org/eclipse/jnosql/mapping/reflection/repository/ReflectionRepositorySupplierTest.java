@@ -520,10 +520,28 @@ class ReflectionRepositorySupplierTest {
         });
     }
 
+    @Test
     void shouldGetElementTypeFromParameterizedType() {
+        RepositoryMetadata metadata = supplier.apply(PersonListCustomRepository.class);
+        RepositoryMethod repositoryMethod = metadata.methods().getFirst();
+        RepositoryParam param = repositoryMethod.params().getFirst();
 
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(param.elementType()).isNotEmpty().get().isEqualTo(Person.class);
+            soft.assertThat(param.type()).isEqualTo(List.class);
+        });
     }
 
-    void shouldGetElementTypeFromArray() {}
+    @Test
+    void shouldGetElementTypeFromArray() {
+        RepositoryMetadata metadata = supplier.apply(PersonArrayCustomRepository.class);
+        RepositoryMethod repositoryMethod = metadata.methods().getFirst();
+        RepositoryParam param = repositoryMethod.params().getFirst();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(param.elementType()).isNotEmpty().get().isEqualTo(Person.class);
+            soft.assertThat(param.type()).isEqualTo(List.class);
+        });
+    }
 
 }
