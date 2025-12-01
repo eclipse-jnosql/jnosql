@@ -32,6 +32,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 
@@ -64,6 +65,23 @@ class SemistructuredRepositoryTest {
         Assertions.assertThat(repository).isNotNull();
     }
 
+    @Test
+    void shouldGetTemplate() {
+        Assertions.assertThat(repository.template()).isNotNull();
+    }
+
+    @Test
+    void shouldGetEntityMetadata() {
+        Assertions.assertThat(repository.entityMetadata()).isNotNull();
+    }
+
+    @Test
+    void shouldCountBy() {
+        Mockito.when(template.count(Person.class)).thenReturn(1L);
+        var countBy = repository.countBy();
+        Assertions.assertThat(countBy).isEqualTo(1L);
+        Mockito.verify(template).count(Person.class);
+    }
 
 
 }
