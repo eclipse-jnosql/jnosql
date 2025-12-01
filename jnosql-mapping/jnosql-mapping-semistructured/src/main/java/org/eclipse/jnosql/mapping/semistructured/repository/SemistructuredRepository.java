@@ -48,7 +48,7 @@ import java.util.stream.Stream;
  * @param <T> the entity type managed by this repository
  * @param <K> the type of the entity's identifier
  */
-public class SemistructuredRepository <T, K>  extends AbstractRepository<T, K> {
+public class SemistructuredRepository<T, K>  extends AbstractRepository<T, K> {
 
     private final SemiStructuredTemplate repository;
 
