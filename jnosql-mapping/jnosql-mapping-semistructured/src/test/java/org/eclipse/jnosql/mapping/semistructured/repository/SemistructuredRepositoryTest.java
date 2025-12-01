@@ -83,5 +83,10 @@ class SemistructuredRepositoryTest {
         Mockito.verify(template).count(Person.class);
     }
 
+    @Test
+    void shouldDeleteAll() {
+        repository.deleteAll();
+        Mockito.verify(template).deleteAll(Person.class);
+    }
 
 }
