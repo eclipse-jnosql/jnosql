@@ -89,4 +89,10 @@ class SemistructuredRepositoryTest {
         Mockito.verify(template).deleteAll(Person.class);
     }
 
+    @Test
+    void shouldFindAll() {
+        repository.findAll();
+        Mockito.verify(template).findAll(Person.class);
+    }
+
 }
