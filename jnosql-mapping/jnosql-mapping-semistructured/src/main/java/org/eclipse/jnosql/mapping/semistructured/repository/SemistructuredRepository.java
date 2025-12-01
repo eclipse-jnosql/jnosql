@@ -14,13 +14,20 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
+import jakarta.data.Direction;
 import jakarta.data.Order;
+import jakarta.data.Sort;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.core.NoSQLPage;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -68,23 +75,36 @@ public class SemistructuredRepository <T, K>  extends AbstractRepository<T, K> {
     }
 
     @Override
-    public void deleteAll() {
-        throw new UnsupportedOperationException(String.format(getErrorMessage(), "deleteAll"));
+    public long countBy() {
+        return template().count(type());
     }
 
-    @Override
-    public long countBy() {
-        throw new UnsupportedOperationException(String.format(getErrorMessage(), "count"));
-    }
 
     @Override
     public Page<T> findAll(PageRequest pageRequest, Order<T> order) {
-        throw new UnsupportedOperationException(String.format(getErrorMessage(), "findAll"));
+        Objects.requireNonNull(pageRequest, "pageRequest is required");
+        EntityMetadata metadata = entityMetadata();
+        List<Sort<?>> sorts = new ArrayList<>();
+        order.forEach(sort -> {
+            Sort<?> sortQuery = Sort.of(metadata.columnField(sort.property()), sort.isAscending() ? Direction.ASC : Direction.DESC, false);
+            sorts.add(sortQuery);
+        });
+        SelectQuery query = new MappingQuery(sorts,
+                pageRequest.size(), NoSQLPage.skip(pageRequest)
+                , null ,metadata.name(), List.of());
+
+        List<T> entities = template().<T>select(query).toList();
+        return NoSQLPage.of(entities, pageRequest);
     }
 
     @Override
     public Stream<T> findAll() {
-        throw new UnsupportedOperationException(String.format(getErrorMessage(), "findAll"));
+        return template().findAll(type());
+    }
+
+    @Override
+    public void deleteAll() {
+        template().deleteAll(type());
     }
 
 
