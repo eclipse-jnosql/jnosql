@@ -14,8 +14,12 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
+import jakarta.data.Order;
+import jakarta.data.Sort;
+import jakarta.data.page.PageRequest;
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
@@ -34,6 +38,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Collections;
+import java.util.stream.Stream;
 
 
 @EnableAutoWeld
@@ -95,4 +102,20 @@ class SemistructuredRepositoryTest {
         Mockito.verify(template).findAll(Person.class);
     }
 
+    @Test
+    void shouldFindPagination() {
+        Mockito.when(template.select(Mockito.any(SelectQuery.class)))
+                .thenReturn(Stream.empty());
+        PageRequest pageRequest = PageRequest.ofPage(1).size(10);
+        repository.findAll(pageRequest, Order.by(Sort.asc("name"),
+                Sort.desc("age")));
+
+        Mockito.verify(template).select(Mockito.any(SelectQuery.class));
+    }
+
+    @Test
+    void shouldGetErrorMessage() {
+        Assertions.assertThat(repository.getErrorMessage())
+                .isEqualTo("The Semistructured type does not support %s method");
+    }
 }
