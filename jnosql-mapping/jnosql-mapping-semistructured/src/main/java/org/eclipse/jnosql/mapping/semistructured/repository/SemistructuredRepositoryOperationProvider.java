@@ -32,7 +32,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.SaveOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.UpdateOperation;
 
 @ApplicationScoped
-public class SemistructuredRepositoryOperationProvider implements RepositoryOperationProvider {
+class SemistructuredRepositoryOperationProvider implements RepositoryOperationProvider {
 
     @Inject
     private InsertOperation insertOperation;
