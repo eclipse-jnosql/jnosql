@@ -14,9 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.operations;
 
-import jakarta.data.repository.Delete;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Typed;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
