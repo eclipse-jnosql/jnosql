@@ -61,7 +61,7 @@ public class CoreBaseRepositoryOperationProvider implements RepositoryOperationP
     @Inject
     CoreBaseRepositoryOperationProvider(InsertOperation insertOperation,
                                         UpdateOperation updateOperation,
-                                        CoreDeleteOperation deleteOperation,
+                                        DeleteOperation deleteOperation,
                                         SaveOperation saveOperation) {
         this.insertOperation = insertOperation;
         this.updateOperation = updateOperation;
