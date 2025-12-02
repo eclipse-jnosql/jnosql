@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @ApplicationScoped
-class DefaultSaveOperation implements SaveOperation {
+class CoreSaveOperation implements SaveOperation {
 
     @SuppressWarnings("unchecked")
     @Override
