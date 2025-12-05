@@ -15,11 +15,11 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import org.eclipse.jnosql.mapping.metadata.repository.spi.CountByOperation;
+import org.eclipse.jnosql.mapping.metadata.repository.spi.QueryOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
 @ApplicationScoped
-class SemiStructureCountByOperation implements CountByOperation {
+class SemistructuredQueryOperation implements QueryOperation {
 
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
