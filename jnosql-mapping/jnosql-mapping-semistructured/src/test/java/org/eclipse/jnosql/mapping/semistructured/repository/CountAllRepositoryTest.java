@@ -42,21 +42,33 @@ public class CountAllRepositoryTest {
     @Inject
     private SemistructuredRepositoryProducer producer;
 
-    private ComicBookRepository repository;
+    private ComicBookRepository comicBookRepository;
+
+    private ComicBookBookStore bookStore;
 
     private SemiStructuredTemplate template;
 
     @BeforeEach
     void setUP() {
         this.template = Mockito.mock(SemiStructuredTemplate.class);
-        this.repository = producer.get(ComicBookRepository.class, template);
+        this.comicBookRepository = producer.get(ComicBookRepository.class, template);
+        this.bookStore = producer.get(ComicBookBookStore.class, template);
     }
 
     @Test
-    @DisplayName("Should count all")
+    @DisplayName("Should count all using built-in Repository")
     void shouldCountAll() {
         Mockito.when(template.count(ComicBook.class)).thenReturn(1L);
-        long result = repository.countAll();
+        long result = comicBookRepository.countAll();
+        Assertions.assertThat(result).isEqualTo(1L);
+        Mockito.verify(template).count(ComicBook.class);
+    }
+
+    @Test
+    @DisplayName("Should count all using built-in Repository")
+    void shouldCountCustomAll() {
+        Mockito.when(template.count(ComicBook.class)).thenReturn(1L);
+        long result = bookStore.countAll();
         Assertions.assertThat(result).isEqualTo(1L);
         Mockito.verify(template).count(ComicBook.class);
     }
