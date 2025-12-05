@@ -127,8 +127,8 @@ public class SemistructuredRepository<T, K>  extends AbstractRepository<T, K> {
      * @throws NullPointerException if {@code template} or {@code metadata} is {@code null}
      */
     public static <T, K> SemistructuredRepository<T, K> of(SemiStructuredTemplate template, EntityMetadata metadata) {
-        Objects.requireNonNull(template,"template is required");
-        Objects.requireNonNull(metadata,"metadata is required");
+        Objects.requireNonNull(template, "template is required");
+        Objects.requireNonNull(metadata, "metadata is required");
         return new SemistructuredRepository<>(metadata, template);
     }
 }
