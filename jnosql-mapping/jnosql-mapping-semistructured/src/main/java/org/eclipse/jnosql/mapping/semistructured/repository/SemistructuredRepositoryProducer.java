@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 
-import jakarta.data.repository.BasicRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.core.repository.CoreRepositoryInvocationHandler;
@@ -24,7 +23,6 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
-import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredRepositoryProxy;
 
 import java.lang.reflect.Proxy;
 import java.util.Objects;
@@ -51,7 +49,7 @@ class SemistructuredRepositoryProducer {
         RepositoryMetadata repositoryMetadata = repositoriesMetadata.get(repositoryClass).orElseThrow();
         var entityMetadata = entities.get(repositoryMetadata.entity().orElseThrow());
 
-        var executor = SemiStructuredRepositoryProxy.SemiStructuredRepository.of(template, entityMetadata);
+        var executor = SemistructuredRepository.of(template, entityMetadata);
 
         var repositoryHandler =  CoreRepositoryInvocationHandler.of(executor
                 , entityMetadata,

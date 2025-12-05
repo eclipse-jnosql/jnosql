@@ -55,9 +55,6 @@ class SemistructuredRepositoryTest {
     @Inject
     private EntitiesMetadata entitiesMetadata;
 
-    @Inject
-    private Converters converters;
-
     private  SemistructuredRepository<Object, Object> repository;
 
     @BeforeEach
