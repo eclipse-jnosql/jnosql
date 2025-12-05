@@ -53,6 +53,7 @@ public class CountAllRepositoryTest {
     }
 
     @Test
+    @DisplayName("Should count all")
     void shouldCountAll() {
         Mockito.when(template.count(ComicBook.class)).thenReturn(1L);
         long result = repository.countAll();
