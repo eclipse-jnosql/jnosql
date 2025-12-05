@@ -68,7 +68,14 @@ class SemistructuredRepositoryProducerTest {
 
     @Test
     void shouldReturnCustomRepositoryInstance() {
-        Tasks repository = producer.get(Tasks.class, semiStructuredTemplate);
+        var repository = producer.get(Tasks.class, semiStructuredTemplate);
         Assertions.assertThat(repository).isNotNull();
     }
+
+    @Test
+    void shouldReturnRepositoryInstance() {
+        var repository = producer.get(ComicBookRepository.class, semiStructuredTemplate);
+        Assertions.assertThat(repository).isNotNull();
+    }
+
 }
