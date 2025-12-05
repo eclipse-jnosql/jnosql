@@ -45,7 +45,7 @@ class SemistructuredRepositoryProducer {
     private RepositoriesMetadata repositoriesMetadata;
 
     @SuppressWarnings("unchecked")
-    public <R extends BasicRepository<?, ?>> R get(Class<R> repositoryClass, SemiStructuredTemplate template) {
+    public <R> R get(Class<?> repositoryClass, SemiStructuredTemplate template) {
         Objects.requireNonNull(repositoryClass, "repository class is required");
         Objects.requireNonNull(template, "template class is required");
         RepositoryMetadata repositoryMetadata = repositoriesMetadata.get(repositoryClass).orElseThrow();
