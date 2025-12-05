@@ -20,4 +20,7 @@ import org.eclipse.jnosql.mapping.NoSQLRepository;
 
 @Repository
 public interface ComicBookRepository extends NoSQLRepository<ComicBook, String> {
+
+
+    long countAll();
 }
