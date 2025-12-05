@@ -15,14 +15,25 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.CountAllOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
+import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
+
+import java.util.function.Function;
 
 @ApplicationScoped
 class SemistructuredCountAllOperation implements CountAllOperation {
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
-        return null;
+        var entityMetadata = context.entityMetadata();
+        var template = (SemiStructuredTemplate) context.template();
+        var method = context.method();
+        Long count = template.count(entityMetadata.type());
+        var returnType = method.returnType();
+        Function<Class<?>, Object> mapper = r -> Value.of(count).get(r);
+        return (T) returnType.map(mapper).orElse(count);
     }
 }
