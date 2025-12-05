@@ -15,8 +15,53 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 
+import jakarta.data.repository.BasicRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import org.eclipse.jnosql.mapping.core.repository.CoreRepositoryInvocationHandler;
+import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
+import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
+import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredRepositoryProxy;
+
+import java.lang.reflect.Proxy;
+import java.util.Objects;
 
 @ApplicationScoped
 class SemistructuredRepositoryProducer {
+
+    @Inject
+    private EntitiesMetadata entities;
+
+    @Inject
+    private InfrastructureOperatorProvider infrastructureOperatorProvider;
+
+    @Inject
+    private SemistructuredRepositoryOperationProvider semistructuredRepositoryOperationProvider;
+
+    @Inject
+    private RepositoriesMetadata repositoriesMetadata;
+
+    @SuppressWarnings("unchecked")
+    public <R extends BasicRepository<?, ?>> R get(Class<R> repositoryClass, SemiStructuredTemplate template) {
+        Objects.requireNonNull(repositoryClass, "repository class is required");
+        Objects.requireNonNull(template, "template class is required");
+        RepositoryMetadata repositoryMetadata = repositoriesMetadata.get(repositoryClass).orElseThrow();
+        var entityMetadata = entities.get(repositoryMetadata.entity().orElseThrow());
+
+        var executor = SemiStructuredRepositoryProxy.SemiStructuredRepository.of(template, entityMetadata);
+
+        var repositoryHandler =  CoreRepositoryInvocationHandler.of(executor
+                , entityMetadata,
+                repositoryMetadata,
+                infrastructureOperatorProvider,
+                semistructuredRepositoryOperationProvider,
+                template);
+        return (R) Proxy.newProxyInstance(repositoryClass.getClassLoader(),
+                new Class[]{repositoryClass},
+                repositoryHandler);
+    }
+
 }
