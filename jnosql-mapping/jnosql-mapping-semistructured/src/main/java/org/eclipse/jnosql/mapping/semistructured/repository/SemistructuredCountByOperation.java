@@ -16,12 +16,13 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.nosql.Template;
-import org.eclipse.jnosql.communication.query.method.SelectMethodProvider;
+import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.CountByOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
+
+import java.util.function.Function;
 
 @ApplicationScoped
 class SemistructuredCountByOperation implements CountByOperation {
@@ -40,9 +41,12 @@ class SemistructuredCountByOperation implements CountByOperation {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
+        var method = context.method();
         SelectQuery selectQuery = this.semistructuredOperation.selectQuery(context);
         var template = (SemiStructuredTemplate) context.template();
         Long count = template.count(selectQuery);
-        return (T) count;
+        var returnType = method.returnType();
+        Function<Class<?>, Object> mapper = r -> Value.of(count).get(r);
+        return (T) returnType.map(mapper).orElse(count);
     }
 }
