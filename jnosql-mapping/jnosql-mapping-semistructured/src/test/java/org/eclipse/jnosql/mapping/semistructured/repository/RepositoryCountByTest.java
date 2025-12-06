@@ -63,13 +63,13 @@ public class RepositoryCountByTest {
     }
 
     @Test
-    @DisplayName("Should count all using built-in Repository")
-    void shouldCountAll() {
-        Mockito.when(template.count(ComicBook.class)).thenReturn(1L);
+    @DisplayName("Should count by using built-in Repository")
+    void shouldCountBy() {
+        Mockito.when(template.count(Mockito.any(SelectQuery.class)))
+                .thenReturn(1L);
         long result = comicBookRepository.countByName("The Lord of the Rings");
         Mockito.verify(template).count(captor.capture());
         Assertions.assertThat(result).isEqualTo(1L);
-        Mockito.verify(template).count(ComicBook.class);
 
         SelectQuery selectQuery = captor.getValue();
 
@@ -84,14 +84,13 @@ public class RepositoryCountByTest {
     }
 
     @Test
-    @DisplayName("Should count all using built-in Repository")
-    void shouldCountCustomAll() {
+    @DisplayName("Should count by using built-in Repository")
+    void shouldCountByCustom() {
         Mockito.when(template.count(Mockito.any(SelectQuery.class)))
                 .thenReturn(1L);
         long result = bookStore.countByName("The Lord of the Rings");
         Mockito.verify(template).count(captor.capture());
         Assertions.assertThat(result).isEqualTo(1L);
-        Mockito.verify(template).count(ComicBook.class);
 
         SelectQuery selectQuery = captor.getValue();
 

@@ -66,7 +66,7 @@ public class RepositoryCountAllTest {
 
     @Test
     @DisplayName("Should count all using built-in Repository")
-    void shouldCountCustomAll() {
+    void shouldCountAllCustom() {
         Mockito.when(template.count(ComicBook.class)).thenReturn(1L);
         long result = bookStore.countAll();
         Assertions.assertThat(result).isEqualTo(1L);
