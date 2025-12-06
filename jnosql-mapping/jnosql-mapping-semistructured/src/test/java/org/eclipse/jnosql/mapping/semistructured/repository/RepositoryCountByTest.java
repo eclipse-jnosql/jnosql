@@ -17,6 +17,9 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
@@ -29,6 +32,7 @@ import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 @DisplayName("The scenarios to test the feature count all")
@@ -48,28 +52,56 @@ public class RepositoryCountByTest {
 
     private SemiStructuredTemplate template;
 
+    private ArgumentCaptor<SelectQuery> captor;
+
     @BeforeEach
     void setUP() {
         this.template = Mockito.mock(SemiStructuredTemplate.class);
         this.comicBookRepository = producer.get(ComicBookRepository.class, template);
         this.bookStore = producer.get(ComicBookBookStore.class, template);
+        this.captor = ArgumentCaptor.forClass(SelectQuery.class);
     }
 
     @Test
     @DisplayName("Should count all using built-in Repository")
     void shouldCountAll() {
         Mockito.when(template.count(ComicBook.class)).thenReturn(1L);
-        long result = comicBookRepository.countAll();
+        long result = comicBookRepository.countByName("The Lord of the Rings");
+        Mockito.verify(template).count(captor.capture());
         Assertions.assertThat(result).isEqualTo(1L);
         Mockito.verify(template).count(ComicBook.class);
+
+        SelectQuery selectQuery = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(selectQuery.name()).isEqualTo("ComicBook");
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            soft.assertThat(selectQuery.sorts()).isEmpty();
+            soft.assertThat(selectQuery.isCount()).isTrue();
+            CriteriaCondition criteriaCondition = selectQuery.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.element().get()).isEqualTo("The Lord of the Rings");
+        });
     }
 
     @Test
     @DisplayName("Should count all using built-in Repository")
     void shouldCountCustomAll() {
-        Mockito.when(template.count(ComicBook.class)).thenReturn(1L);
-        long result = bookStore.countAll();
+        Mockito.when(template.count(Mockito.any(SelectQuery.class)))
+                .thenReturn(1L);
+        long result = bookStore.countByName("The Lord of the Rings");
+        Mockito.verify(template).count(captor.capture());
         Assertions.assertThat(result).isEqualTo(1L);
         Mockito.verify(template).count(ComicBook.class);
+
+        SelectQuery selectQuery = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(selectQuery.name()).isEqualTo("ComicBook");
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            soft.assertThat(selectQuery.sorts()).isEmpty();
+            soft.assertThat(selectQuery.isCount()).isTrue();
+            CriteriaCondition criteriaCondition = selectQuery.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.element().get()).isEqualTo("The Lord of the Rings");
+        });
     }
 }
