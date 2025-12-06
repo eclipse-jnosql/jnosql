@@ -15,14 +15,34 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.nosql.Template;
+import org.eclipse.jnosql.communication.query.method.SelectMethodProvider;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.CountByOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
+import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 @ApplicationScoped
 class SemistructuredCountByOperation implements CountByOperation {
 
+    private final SemistructuredOperation semistructuredOperation;
+
+    @Inject
+    SemistructuredCountByOperation(SemistructuredOperation semistructuredOperation) {
+        this.semistructuredOperation = semistructuredOperation;
+    }
+
+    SemistructuredCountByOperation() {
+        this.semistructuredOperation = null;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
-        return null;
+        SelectQuery selectQuery = this.semistructuredOperation.selectQuery(context);
+        var template = (SemiStructuredTemplate) context.template();
+        Long count = template.count(selectQuery);
+        return (T) count;
     }
 }
