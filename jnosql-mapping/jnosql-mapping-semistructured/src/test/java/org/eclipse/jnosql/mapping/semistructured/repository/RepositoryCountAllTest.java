@@ -37,7 +37,7 @@ import org.mockito.Mockito;
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class})
-public class CountAllRepositoryTest {
+public class RepositoryCountAllTest {
 
     @Inject
     private SemistructuredRepositoryProducer producer;
