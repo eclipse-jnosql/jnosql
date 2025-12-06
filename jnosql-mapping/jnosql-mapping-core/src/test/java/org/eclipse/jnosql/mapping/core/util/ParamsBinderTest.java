@@ -79,7 +79,7 @@ class ParamsBinderTest {
         Params params = Params.newParams();
         params.add("name");
         Assertions.assertThrows(DynamicQueryException.class, () ->
-                binder.bind(params, new Object[0], method)
+                binder.bind(params, new Object[0], method.getName())
         );
     }
 
@@ -88,7 +88,7 @@ class ParamsBinderTest {
         Method method = PersonRepository.class.getDeclaredMethods()[0];
         Params params = Params.newParams();
         Value value = params.add("name");
-        binder.bind(params, new Object[]{"otavio"}, method);
+        binder.bind(params, new Object[]{"otavio"}, method.getName());
 
         Object param = value.get();
         Assertions.assertNotNull(param);
@@ -100,7 +100,7 @@ class ParamsBinderTest {
         Method method = PersonRepository.class.getDeclaredMethods()[0];
         Params params = Params.newParams();
         Value value = params.add("name_1212");
-        binder.bind(params, new Object[]{"otavio"}, method);
+        binder.bind(params, new Object[]{"otavio"}, method.getName());
 
         Object param = value.get();
         Assertions.assertNotNull(param);
@@ -112,7 +112,7 @@ class ParamsBinderTest {
         Method method = PersonRepository.class.getDeclaredMethods()[1];
         Params params = Params.newParams();
         Value value = params.add("name_1212");
-        binder.bind(params, new Object[]{"otavio"}, method);
+        binder.bind(params, new Object[]{"otavio"}, method.getName());
 
         Object param = value.get();
         Assertions.assertNotNull(param);
@@ -124,7 +124,7 @@ class ParamsBinderTest {
         Method method = PersonRepository.class.getDeclaredMethods()[1];
         Params params = Params.newParams();
         Value value = params.add("name_1212");
-        binder.bind(params, new Object[]{Arrays.asList("otavio", "poliana")}, method);
+        binder.bind(params, new Object[]{Arrays.asList("otavio", "poliana")}, method.getName());
 
         Object param = value.get();
         Assertions.assertNotNull(param);
@@ -137,7 +137,7 @@ class ParamsBinderTest {
         Method method = PersonRepository.class.getDeclaredMethods()[2];
         Params params = Params.newParams();
         Value value = params.add("age_1212");
-        binder.bind(params, new Object[]{1L}, method);
+        binder.bind(params, new Object[]{1L}, method.getName());
 
         Object param = value.get();
         Assertions.assertNotNull(param);
@@ -149,7 +149,7 @@ class ParamsBinderTest {
         Method method = PersonRepository.class.getDeclaredMethods()[1];
         Params params = Params.newParams();
         Value value = params.add("age");
-        binder.bind(params, new Object[]{Arrays.asList(1L, 2L)}, method);
+        binder.bind(params, new Object[]{Arrays.asList(1L, 2L)}, method.getName());
 
         Object param = value.get();
         Assertions.assertNotNull(param);
