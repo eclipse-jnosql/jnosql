@@ -26,4 +26,6 @@ public interface ComicBookBookStore {
 
     List<ComicBook> findByName(String name);
     long countAll();
+
+    long countByName(String name);
 }

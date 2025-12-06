@@ -23,4 +23,6 @@ public interface ComicBookRepository extends NoSQLRepository<ComicBook, String> 
 
 
     long countAll();
+
+    long countByName(String name);
 }
