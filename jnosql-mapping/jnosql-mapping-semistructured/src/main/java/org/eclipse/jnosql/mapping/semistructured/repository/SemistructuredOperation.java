@@ -36,26 +36,30 @@ class SemistructuredOperation {
     private final Map<Class<?>, CommunicationObserverParser> parsers;
     private final Map<Class<?>, ParamsBinder> paramsBinderMap;
 
+    private final Converters converters;
+
     @Inject
-    private Converters converters;
+    SemistructuredOperation(Converters converters) {
+        this.converters = converters;
+        this.parsers = new ConcurrentHashMap<>();
+        this.paramsBinderMap = new ConcurrentHashMap<>();
+    }
     public SemistructuredOperation() {
+        this.converters = null;
         this.parsers = new ConcurrentHashMap<>();
         this.paramsBinderMap = new ConcurrentHashMap<>();
     }
 
-    CommunicationObserverParser observer(EntityMetadata entityMetadata) {
+    private CommunicationObserverParser observer(EntityMetadata entityMetadata) {
         Class<?> entityType = entityMetadata.type();
         return parsers.computeIfAbsent(entityType,key -> new RepositorySemiStructuredObserverParser(entityMetadata));
     }
 
-    ParamsBinder paramsBinder(EntityMetadata entityMetadata) {
+    private ParamsBinder paramsBinder(EntityMetadata entityMetadata) {
         Class<?> entityType = entityMetadata.type();
         return paramsBinderMap.computeIfAbsent(entityType,key -> new ParamsBinder(entityMetadata, converters));
     }
 
-    SelectQueryParser selectParser() {
-        return SELECT_PARSER;
-    }
 
     public SelectQuery selectQuery(RepositoryInvocationContext context) {
         var method = context.method();
@@ -64,7 +68,7 @@ class SemistructuredOperation {
         var provider = SelectMethodProvider.INSTANCE;
         var selectQuery = provider.apply(method.name(), entityMetadata.name());
         var observer = this.observer(entityMetadata);
-        var queryParams = this.selectParser().apply(selectQuery, observer);
+        var queryParams = SELECT_PARSER.apply(selectQuery, observer);
         var query = queryParams.query();
         var params = queryParams.params();
         var paramsBinder = this.paramsBinder(entityMetadata);
