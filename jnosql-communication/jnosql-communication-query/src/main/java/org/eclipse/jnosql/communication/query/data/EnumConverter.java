@@ -46,7 +46,7 @@ enum EnumConverter implements Function<String, Enum<?>> {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private Enum<?> getEnumValue(String enumClassName, String enumValueName) throws ClassNotFoundException {
-        Class<?> enumClass = Class.forName(enumClassName);
+        Class<?> enumClass = Class.forName(enumClassName, true, Thread.currentThread().getContextClassLoader());
         if (enumClass.isEnum()) {
             Class<? extends Enum> enumType = enumClass.asSubclass(Enum.class);
             return Enum.valueOf(enumType, enumValueName);
