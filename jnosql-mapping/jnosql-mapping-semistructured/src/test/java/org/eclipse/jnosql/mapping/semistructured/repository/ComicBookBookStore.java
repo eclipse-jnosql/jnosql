@@ -28,4 +28,6 @@ public interface ComicBookBookStore {
     long countAll();
 
     long countByName(String name);
+
+    boolean existsByName(String name);
 }
