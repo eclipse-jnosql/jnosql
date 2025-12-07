@@ -23,6 +23,6 @@ import jakarta.nosql.Entity;
 public class PhotoSocialMedia extends SocialMedia {
 
     @Column
-    private String videoId;
+    protected String videoId;
 
 }
