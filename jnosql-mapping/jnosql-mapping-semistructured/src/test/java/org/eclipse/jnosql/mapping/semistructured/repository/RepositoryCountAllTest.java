@@ -26,6 +26,8 @@ import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBook;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBookBookStore;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBookRepository;
+import org.eclipse.jnosql.mapping.semistructured.repository.entities.PhotoSocialMedia;
+import org.eclipse.jnosql.mapping.semistructured.repository.entities.VideoSocialMedia;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -70,21 +72,21 @@ public class RepositoryCountAllTest extends AbstractRepositoryTest {
     }
 
     @Test
-    @DisplayName("Should count all using built-in Repository")
-    void shouldCountAll() {
-        Mockito.when(template.count(ComicBook.class)).thenReturn(1L);
-        long result = comicBookRepository.countAll();
+    @DisplayName("Should count all using inheritance Repository by VideoSocialMedia")
+    void shouldInheritanceVideoMedia() {
+        Mockito.when(template.count(VideoSocialMedia.class)).thenReturn(1L);
+        long result = videoSocialMediaRepository.countAll();
         Assertions.assertThat(result).isEqualTo(1L);
-        Mockito.verify(template).count(ComicBook.class);
+        Mockito.verify(template).count(VideoSocialMedia.class);
     }
 
     @Test
-    @DisplayName("Should count all using built-in Repository")
-    void shouldCountAllCustom() {
-        Mockito.when(template.count(ComicBook.class)).thenReturn(1L);
-        long result = bookStore.countAll();
+    @DisplayName("Should count all using inheritance Repository by PhotoSocialMedia")
+    void shouldInheritance() {
+        Mockito.when(template.count(PhotoSocialMedia.class)).thenReturn(1L);
+        long result = photoSocialMediaRepository.countAll();
         Assertions.assertThat(result).isEqualTo(1L);
-        Mockito.verify(template).count(ComicBook.class);
+        Mockito.verify(template).count(PhotoSocialMedia.class);
     }
 
 
