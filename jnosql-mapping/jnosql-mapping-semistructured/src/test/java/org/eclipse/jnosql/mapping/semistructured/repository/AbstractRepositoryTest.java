@@ -1,11 +1,13 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBookBookStore;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBookRepository;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.PhotoSocialMediaRepository;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.VideoSocialMediaRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 abstract class AbstractRepositoryTest {
@@ -19,6 +21,8 @@ abstract class AbstractRepositoryTest {
 
     protected VideoSocialMediaRepository videoSocialMediaRepository;
 
+    protected ArgumentCaptor<SelectQuery> captor;
+
 
 
     @BeforeEach
@@ -28,6 +32,7 @@ abstract class AbstractRepositoryTest {
         this.bookStore = producer().get(ComicBookBookStore.class, template);
         this.photoSocialMediaRepository = producer().get(PhotoSocialMediaRepository.class, template);
         this.videoSocialMediaRepository = producer().get(VideoSocialMediaRepository.class, template);
+        this.captor = ArgumentCaptor.forClass(SelectQuery.class);
     }
 
     abstract SemistructuredRepositoryProducer producer();

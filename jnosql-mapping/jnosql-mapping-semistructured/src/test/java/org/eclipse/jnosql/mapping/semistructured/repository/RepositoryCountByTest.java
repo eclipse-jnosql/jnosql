@@ -43,25 +43,14 @@ import org.mockito.Mockito;
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class})
-public class RepositoryCountByTest {
+public class RepositoryCountByTest extends AbstractRepositoryTest {
 
     @Inject
     private SemistructuredRepositoryProducer producer;
 
-    private ComicBookRepository comicBookRepository;
-
-    private ComicBookBookStore bookStore;
-
-    private SemiStructuredTemplate template;
-
-    private ArgumentCaptor<SelectQuery> captor;
-
-    @BeforeEach
-    void setUP() {
-        this.template = Mockito.mock(SemiStructuredTemplate.class);
-        this.comicBookRepository = producer.get(ComicBookRepository.class, template);
-        this.bookStore = producer.get(ComicBookBookStore.class, template);
-        this.captor = ArgumentCaptor.forClass(SelectQuery.class);
+    @Override
+    SemistructuredRepositoryProducer producer() {
+        return producer;
     }
 
     @Test
@@ -105,4 +94,6 @@ public class RepositoryCountByTest {
             soft.assertThat(criteriaCondition.element().get()).isEqualTo("The Lord of the Rings");
         });
     }
+
+
 }
