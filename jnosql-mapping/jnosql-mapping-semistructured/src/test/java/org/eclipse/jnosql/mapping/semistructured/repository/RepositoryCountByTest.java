@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-@DisplayName("The scenarios to test the feature count all")
+@DisplayName("The scenarios to test the feature count by")
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
 @AddPackages(MockProducer.class)
