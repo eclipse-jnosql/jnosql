@@ -40,22 +40,33 @@ import org.mockito.Mockito;
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class})
-public class RepositoryCountAllTest {
+public class RepositoryCountAllTest extends AbstractRepositoryTest {
 
     @Inject
     private SemistructuredRepositoryProducer producer;
 
-    private ComicBookRepository comicBookRepository;
+    @Override
+    SemistructuredRepositoryProducer producer() {
+        return producer;
+    }
 
-    private ComicBookBookStore bookStore;
 
-    private SemiStructuredTemplate template;
+    @Test
+    @DisplayName("Should count all using built-in Repository")
+    void shouldCountAll() {
+        Mockito.when(template.count(ComicBook.class)).thenReturn(1L);
+        long result = comicBookRepository.countAll();
+        Assertions.assertThat(result).isEqualTo(1L);
+        Mockito.verify(template).count(ComicBook.class);
+    }
 
-    @BeforeEach
-    void setUP() {
-        this.template = Mockito.mock(SemiStructuredTemplate.class);
-        this.comicBookRepository = producer.get(ComicBookRepository.class, template);
-        this.bookStore = producer.get(ComicBookBookStore.class, template);
+    @Test
+    @DisplayName("Should count all using built-in Repository")
+    void shouldCountAllCustom() {
+        Mockito.when(template.count(ComicBook.class)).thenReturn(1L);
+        long result = bookStore.countAll();
+        Assertions.assertThat(result).isEqualTo(1L);
+        Mockito.verify(template).count(ComicBook.class);
     }
 
     @Test
@@ -75,4 +86,6 @@ public class RepositoryCountAllTest {
         Assertions.assertThat(result).isEqualTo(1L);
         Mockito.verify(template).count(ComicBook.class);
     }
+
+
 }
