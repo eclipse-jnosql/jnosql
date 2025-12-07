@@ -15,16 +15,14 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.nosql.Column;
+import jakarta.nosql.DiscriminatorValue;
 import jakarta.nosql.Entity;
-import jakarta.nosql.Inheritance;
 
-@Inheritance
 @Entity
+@DiscriminatorValue("photo")
 class PhotoSocialMedia extends SocialMedia {
 
     @Column
     private String videoId;
-
-
 
 }

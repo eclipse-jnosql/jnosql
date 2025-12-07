@@ -17,9 +17,7 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 import jakarta.nosql.Column;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Id;
-import jakarta.nosql.Inheritance;
 
-@Inheritance
 @Entity
 abstract class SocialMedia {
 
