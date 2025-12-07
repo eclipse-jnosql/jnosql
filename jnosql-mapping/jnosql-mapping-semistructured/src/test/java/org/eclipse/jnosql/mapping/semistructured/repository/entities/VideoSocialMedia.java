@@ -27,4 +27,12 @@ public class VideoSocialMedia extends SocialMedia {
 
 
 
+    public static VideoSocialMedia of(String id, String name, String videoId) {
+        VideoSocialMedia socialMedia = new VideoSocialMedia();
+        socialMedia.id = id;
+        socialMedia.name = name;
+        socialMedia.videoId = videoId;
+        return socialMedia;
+    }
+
 }
