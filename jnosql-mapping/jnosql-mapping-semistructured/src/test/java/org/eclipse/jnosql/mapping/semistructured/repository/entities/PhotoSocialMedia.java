@@ -12,20 +12,17 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.semistructured.repository;
+package org.eclipse.jnosql.mapping.semistructured.repository.entities;
 
 import jakarta.nosql.Column;
 import jakarta.nosql.DiscriminatorValue;
 import jakarta.nosql.Entity;
-import jakarta.nosql.Inheritance;
 
 @Entity
-@DiscriminatorValue("video")
-class VideoSocialMedia extends SocialMedia {
+@DiscriminatorValue("photo")
+public class PhotoSocialMedia extends SocialMedia {
 
     @Column
     private String videoId;
-
-
 
 }

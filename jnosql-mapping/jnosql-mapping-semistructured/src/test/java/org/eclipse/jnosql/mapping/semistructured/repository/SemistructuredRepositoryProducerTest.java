@@ -14,7 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
-import jakarta.data.repository.BasicRepository;
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -24,6 +23,7 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.query.Tasks;
+import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBookRepository;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;

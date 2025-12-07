@@ -12,12 +12,19 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.semistructured.repository;
+package org.eclipse.jnosql.mapping.semistructured.repository.entities;
 
-import jakarta.nosql.Column;
-import jakarta.nosql.Entity;
-import jakarta.nosql.Id;
 
-@Entity
-public record ComicBook(@Id String id, @Column String name, @Column int year) {
+import jakarta.data.repository.Repository;
+import org.eclipse.jnosql.mapping.NoSQLRepository;
+
+@Repository
+public interface ComicBookRepository extends NoSQLRepository<ComicBook, String> {
+
+
+    long countAll();
+
+    long countByName(String name);
+
+    boolean existsByName(String name);
 }

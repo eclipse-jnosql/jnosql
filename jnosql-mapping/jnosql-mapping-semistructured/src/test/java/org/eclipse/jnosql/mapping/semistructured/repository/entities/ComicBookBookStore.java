@@ -12,11 +12,10 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.semistructured.repository;
+package org.eclipse.jnosql.mapping.semistructured.repository.entities;
 
 
 import jakarta.data.repository.Repository;
-import org.eclipse.jnosql.mapping.NoSQLRepository;
 
 import java.util.List;
 

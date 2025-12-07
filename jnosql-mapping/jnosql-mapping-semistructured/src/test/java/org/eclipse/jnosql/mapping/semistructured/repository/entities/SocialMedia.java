@@ -12,14 +12,14 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.semistructured.repository;
+package org.eclipse.jnosql.mapping.semistructured.repository.entities;
 
 import jakarta.nosql.Column;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Id;
 
 @Entity
-abstract class SocialMedia {
+public abstract class SocialMedia {
 
     @Id
     protected String id;
