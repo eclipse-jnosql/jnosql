@@ -31,6 +31,8 @@ import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBookBookStore;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBookRepository;
+import org.eclipse.jnosql.mapping.semistructured.repository.entities.SocialMedia;
+import org.eclipse.jnosql.mapping.semistructured.repository.entities.VideoSocialMedia;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -73,7 +75,6 @@ public class RepositoryCountByTest extends AbstractRepositoryTest {
             soft.assertThat(selectQuery.name()).isEqualTo("ComicBook");
             soft.assertThat(selectQuery.condition()).isNotEmpty();
             soft.assertThat(selectQuery.sorts()).isEmpty();
-            soft.assertThat(selectQuery.isCount()).isTrue();
             CriteriaCondition criteriaCondition = selectQuery.condition().orElseThrow();
             soft.assertThat(criteriaCondition.element().get()).isEqualTo("The Lord of the Rings");
         });
@@ -94,7 +95,6 @@ public class RepositoryCountByTest extends AbstractRepositoryTest {
             soft.assertThat(selectQuery.name()).isEqualTo("ComicBook");
             soft.assertThat(selectQuery.condition()).isNotEmpty();
             soft.assertThat(selectQuery.sorts()).isEmpty();
-            soft.assertThat(selectQuery.isCount()).isTrue();
             CriteriaCondition criteriaCondition = selectQuery.condition().orElseThrow();
             soft.assertThat(criteriaCondition.element().get()).isEqualTo("The Lord of the Rings");
         });
@@ -112,17 +112,49 @@ public class RepositoryCountByTest extends AbstractRepositoryTest {
         SelectQuery selectQuery = captor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(selectQuery.name()).isEqualTo("SocialMedia");
+            soft.assertThat(selectQuery.name()).isEqualTo(SocialMedia.class.getSimpleName());
             soft.assertThat(selectQuery.condition()).isNotEmpty();
             soft.assertThat(selectQuery.sorts()).isEmpty();
-            soft.assertThat(selectQuery.isCount()).isTrue();
             var criteriaCondition = selectQuery.condition().orElseThrow();
             Element element = criteriaCondition.element();
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.AND);
             var conditions = element.get(new TypeReference<List<CriteriaCondition>>() {
             });
             soft.assertThat(conditions).hasSize(2);
+            var fromSystem = conditions.get(0);
+            var fromUser = conditions.get(1);
+            soft.assertThat(fromSystem).isEqualTo(CriteriaCondition.eq(Element.of("dtype", "photo")));
+            soft.assertThat(fromUser.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(fromUser.element().get()).isEqualTo("The Lord of the Rings");
+        });
+    }
 
+    @Test
+    @DisplayName("Should count by using built-in Repository Inheritance VideoSocialMedia")
+    void shouldInheritanceVideoMediaCountBy() {
+        Mockito.when(template.exists(Mockito.any(SelectQuery.class)))
+                .thenReturn(true);
+        boolean result = videoSocialMediaRepository.existsByName("The Lord of the Rings");
+        Mockito.verify(template).exists(captor.capture());
+        Assertions.assertThat(result).isTrue();
+
+        SelectQuery selectQuery = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(selectQuery.name()).isEqualTo(SocialMedia.class.getSimpleName());
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            soft.assertThat(selectQuery.sorts()).isEmpty();
+            var criteriaCondition = selectQuery.condition().orElseThrow();
+            Element element = criteriaCondition.element();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.AND);
+            var conditions = element.get(new TypeReference<List<CriteriaCondition>>() {
+            });
+            soft.assertThat(conditions).hasSize(2);
+            var fromSystem = conditions.get(0);
+            var fromUser = conditions.get(1);
+            soft.assertThat(fromSystem).isEqualTo(CriteriaCondition.eq(Element.of("dtype", "video")));
+            soft.assertThat(fromUser.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(fromUser.element().get()).isEqualTo("The Lord of the Rings");
         });
     }
 

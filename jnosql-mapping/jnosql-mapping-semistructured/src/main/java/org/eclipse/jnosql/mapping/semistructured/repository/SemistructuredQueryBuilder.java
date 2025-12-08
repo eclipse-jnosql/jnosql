@@ -67,8 +67,7 @@ class SemistructuredQueryBuilder {
         var params = queryParams.params();
         var paramsBinder = this.paramsBinder(entityMetadata);
         paramsBinder.bind(params, parameters, method.name());
-        return query;
-       // return includeInheritance(query, entityMetadata);
+        return includeInheritance(query, entityMetadata);
     }
 
 
