@@ -16,7 +16,6 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.query.method.DeleteMethodProvider;
 import org.eclipse.jnosql.communication.query.method.SelectMethodProvider;
 import org.eclipse.jnosql.communication.semistructured.CommunicationObserverParser;
@@ -30,8 +29,8 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.util.ParamsBinder;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
-import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
+import org.eclipse.jnosql.mapping.semistructured.MappingDeleteQuery;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 import org.eclipse.jnosql.mapping.semistructured.query.RepositorySemiStructuredObserverParser;
 
@@ -88,7 +87,7 @@ class SemistructuredQueryBuilder {
         var query = queryParams.query();
         var paramsBinder = this.paramsBinder(entityMetadata);
         paramsBinder.bind(params, parameters, method.name());
-        return query;
+        return includeInheritance(query, entityMetadata);
     }
 
 
@@ -103,20 +102,39 @@ class SemistructuredQueryBuilder {
     }
 
     private SelectQuery includeInheritance(SelectQuery query, EntityMetadata metadata) {
+        var condition = includeInheritance(metadata);
+        if (condition == null) {
+            return query;
+        }
+        if (query.condition().isPresent()) {
+            CriteriaCondition columnCondition = query.condition().orElseThrow();
+            condition = condition.and(columnCondition);
+        }
+        return new MappingQuery(query.sorts(), query.limit(), query.skip(),
+                condition, query.name(), query.columns());
+    }
+
+    private DeleteQuery includeInheritance(DeleteQuery query, EntityMetadata metadata) {
+        var condition = includeInheritance(metadata);
+        if (condition == null) {
+            return query;
+        }
+        if (query.condition().isPresent()) {
+            CriteriaCondition columnCondition = query.condition().orElseThrow();
+            condition = condition.and(columnCondition);
+        }
+        return new MappingDeleteQuery( query.name(), condition);
+    }
+
+    private CriteriaCondition includeInheritance(EntityMetadata metadata) {
         if (metadata.inheritance().isPresent()) {
             InheritanceMetadata inheritanceMetadata = metadata.inheritance().orElseThrow();
             if (!inheritanceMetadata.parent().equals(metadata.type())) {
-                CriteriaCondition condition = CriteriaCondition.eq(Element.of(inheritanceMetadata.discriminatorColumn(),
+                return CriteriaCondition.eq(Element.of(inheritanceMetadata.discriminatorColumn(),
                         inheritanceMetadata.discriminatorValue()));
-                if (query.condition().isPresent()) {
-                    CriteriaCondition columnCondition = query.condition().orElseThrow();
-                    condition = condition.and(columnCondition);
-                }
-                return new MappingQuery(query.sorts(), query.limit(), query.skip(),
-                        condition, query.name(), query.columns());
             }
         }
-        return query;
+        return null;
     }
 
 
