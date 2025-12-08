@@ -16,9 +16,13 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.jnosql.communication.Params;
+import org.eclipse.jnosql.communication.query.method.DeleteMethodProvider;
 import org.eclipse.jnosql.communication.query.method.SelectMethodProvider;
 import org.eclipse.jnosql.communication.semistructured.CommunicationObserverParser;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
+import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
+import org.eclipse.jnosql.communication.semistructured.DeleteQueryParser;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.communication.semistructured.SelectQueryParser;
@@ -26,6 +30,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.util.ParamsBinder;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 import org.eclipse.jnosql.mapping.semistructured.query.RepositorySemiStructuredObserverParser;
@@ -37,6 +42,8 @@ import java.util.concurrent.ConcurrentHashMap;
 class SemistructuredQueryBuilder {
 
     private static final SelectQueryParser SELECT_PARSER = new SelectQueryParser();
+
+    private static final DeleteQueryParser DELETE_PARSER = new DeleteQueryParser();
     private final Map<Class<?>, CommunicationObserverParser> parsers;
     private final Map<Class<?>, ParamsBinder> paramsBinderMap;
 
@@ -70,6 +77,20 @@ class SemistructuredQueryBuilder {
         return includeInheritance(query, entityMetadata);
     }
 
+    public DeleteQuery deleteQuery(RepositoryInvocationContext context) {
+        var entityMetadata = context.entityMetadata();
+        var provider = DeleteMethodProvider.INSTANCE;
+        var method = context.method();
+        var deleteQuery = provider.apply(method.name(), entityMetadata.name());
+        var queryParams = DELETE_PARSER.apply(deleteQuery, observer(entityMetadata));
+        var params = queryParams.params();
+        var parameters = context.parameters();
+        var query = queryParams.query();
+        var paramsBinder = this.paramsBinder(entityMetadata);
+        paramsBinder.bind(params, parameters, method.name());
+        return query;
+    }
+
 
     private CommunicationObserverParser observer(EntityMetadata entityMetadata) {
         Class<?> entityType = entityMetadata.type();
@@ -97,5 +118,7 @@ class SemistructuredQueryBuilder {
         }
         return query;
     }
+
+
 
 }

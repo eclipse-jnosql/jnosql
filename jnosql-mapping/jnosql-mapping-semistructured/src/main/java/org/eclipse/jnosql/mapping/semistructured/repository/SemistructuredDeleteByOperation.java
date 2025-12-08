@@ -15,11 +15,24 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteByOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
 @ApplicationScoped
 class SemistructuredDeleteByOperation implements DeleteByOperation {
+
+    private final SemistructuredQueryBuilder semistructuredQueryBuilder;
+
+    @Inject
+    SemistructuredDeleteByOperation(SemistructuredQueryBuilder semistructuredQueryBuilder) {
+        this.semistructuredQueryBuilder = semistructuredQueryBuilder;
+    }
+
+    SemistructuredDeleteByOperation() {
+        this.semistructuredQueryBuilder = null;
+    }
+
 
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
