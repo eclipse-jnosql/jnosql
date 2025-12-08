@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class})
-class SemistructuredOperationTest {
+class SemistructuredQueryBuilderTest {
 
     @Test
     void shouldInstanceDefaultConstructor() {

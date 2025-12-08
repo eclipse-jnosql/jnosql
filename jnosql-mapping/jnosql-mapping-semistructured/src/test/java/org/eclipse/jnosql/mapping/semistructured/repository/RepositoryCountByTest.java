@@ -18,7 +18,10 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
+import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -36,6 +39,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
+import java.util.List;
 
 @DisplayName("The scenarios to test the feature count by")
 @EnableAutoWeld
@@ -92,6 +97,32 @@ public class RepositoryCountByTest extends AbstractRepositoryTest {
             soft.assertThat(selectQuery.isCount()).isTrue();
             CriteriaCondition criteriaCondition = selectQuery.condition().orElseThrow();
             soft.assertThat(criteriaCondition.element().get()).isEqualTo("The Lord of the Rings");
+        });
+    }
+
+    @Test
+    @DisplayName("Should count by using built-in Repository Inheritance PhotoMedia")
+    void shouldInheritancePhotoMediaCountBy() {
+        Mockito.when(template.exists(Mockito.any(SelectQuery.class)))
+                .thenReturn(true);
+        boolean result = photoSocialMediaRepository.existsByName("The Lord of the Rings");
+        Mockito.verify(template).exists(captor.capture());
+        Assertions.assertThat(result).isTrue();
+
+        SelectQuery selectQuery = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(selectQuery.name()).isEqualTo("SocialMedia");
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            soft.assertThat(selectQuery.sorts()).isEmpty();
+            soft.assertThat(selectQuery.isCount()).isTrue();
+            var criteriaCondition = selectQuery.condition().orElseThrow();
+            Element element = criteriaCondition.element();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.AND);
+            var conditions = element.get(new TypeReference<List<CriteriaCondition>>() {
+            });
+            soft.assertThat(conditions).hasSize(2);
+
         });
     }
 

@@ -14,7 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
-import jakarta.data.repository.First;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.query.method.SelectMethodProvider;
@@ -32,11 +31,10 @@ import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 import org.eclipse.jnosql.mapping.semistructured.query.RepositorySemiStructuredObserverParser;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ApplicationScoped
-class SemistructuredOperation {
+class SemistructuredQueryBuilder {
 
     private static final SelectQueryParser SELECT_PARSER = new SelectQueryParser();
     private final Map<Class<?>, CommunicationObserverParser> parsers;
@@ -45,12 +43,12 @@ class SemistructuredOperation {
     private final Converters converters;
 
     @Inject
-    SemistructuredOperation(Converters converters) {
+    SemistructuredQueryBuilder(Converters converters) {
         this.converters = converters;
         this.parsers = new ConcurrentHashMap<>();
         this.paramsBinderMap = new ConcurrentHashMap<>();
     }
-    public SemistructuredOperation() {
+    public SemistructuredQueryBuilder() {
         this.converters = null;
         this.parsers = new ConcurrentHashMap<>();
         this.paramsBinderMap = new ConcurrentHashMap<>();
@@ -69,7 +67,8 @@ class SemistructuredOperation {
         var params = queryParams.params();
         var paramsBinder = this.paramsBinder(entityMetadata);
         paramsBinder.bind(params, parameters, method.name());
-        return includeInheritance(query, entityMetadata);
+        return query;
+       // return includeInheritance(query, entityMetadata);
     }
 
 

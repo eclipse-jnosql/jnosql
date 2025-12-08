@@ -27,22 +27,22 @@ import java.util.function.Function;
 @ApplicationScoped
 class SemistructuredCountByOperation implements CountByOperation {
 
-    private final SemistructuredOperation semistructuredOperation;
+    private final SemistructuredQueryBuilder semistructuredQueryBuilder;
 
     @Inject
-    SemistructuredCountByOperation(SemistructuredOperation semistructuredOperation) {
-        this.semistructuredOperation = semistructuredOperation;
+    SemistructuredCountByOperation(SemistructuredQueryBuilder semistructuredQueryBuilder) {
+        this.semistructuredQueryBuilder = semistructuredQueryBuilder;
     }
 
     SemistructuredCountByOperation() {
-        this.semistructuredOperation = null;
+        this.semistructuredQueryBuilder = null;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
         var method = context.method();
-        SelectQuery selectQuery = this.semistructuredOperation.selectQuery(context);
+        SelectQuery selectQuery = this.semistructuredQueryBuilder.selectQuery(context);
         var template = (SemiStructuredTemplate) context.template();
         Long count = template.count(selectQuery);
         var returnType = method.returnType();

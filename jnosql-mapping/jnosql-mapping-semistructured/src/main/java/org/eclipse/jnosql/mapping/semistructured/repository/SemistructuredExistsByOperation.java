@@ -24,22 +24,22 @@ import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 @ApplicationScoped
 class SemistructuredExistsByOperation implements ExistsByOperation {
 
-    private final SemistructuredOperation semistructuredOperation;
+    private final SemistructuredQueryBuilder semistructuredQueryBuilder;
 
     @Inject
-    SemistructuredExistsByOperation(SemistructuredOperation semistructuredOperation) {
-        this.semistructuredOperation = semistructuredOperation;
+    SemistructuredExistsByOperation(SemistructuredQueryBuilder semistructuredQueryBuilder) {
+        this.semistructuredQueryBuilder = semistructuredQueryBuilder;
     }
 
     SemistructuredExistsByOperation() {
-        this.semistructuredOperation = null;
+        this.semistructuredQueryBuilder = null;
     }
 
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
-        SelectQuery selectQuery = this.semistructuredOperation.selectQuery(context);
+        SelectQuery selectQuery = this.semistructuredQueryBuilder.selectQuery(context);
         var template = (SemiStructuredTemplate) context.template();
         Boolean exists = template.exists(selectQuery);
         return (T) exists;
