@@ -28,4 +28,8 @@ public interface PhotoSocialMediaRepository extends BasicRepository<PhotoSocialM
     long countByName(String name);
 
     boolean existsByName(String name);
+
+    boolean existsBy();
+
+    boolean countBy();
 }

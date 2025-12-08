@@ -28,4 +28,8 @@ public interface VideoSocialMediaRepository extends BasicRepository<VideoSocialM
     long countByName(String name);
 
     boolean existsByName(String name);
+
+    boolean existsBy();
+
+    boolean countBy();
 }

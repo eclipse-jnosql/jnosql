@@ -158,5 +158,49 @@ public class RepositoryCountByTest extends AbstractRepositoryTest {
         });
     }
 
+    @Test
+    @DisplayName("Should count by using built-in Repository Inheritance VideoSocialMedia without no parameter")
+    void shouldInheritanceVideoMediaCountByNoParameter() {
+        Mockito.when(template.exists(Mockito.any(SelectQuery.class)))
+                .thenReturn(true);
+        boolean result = videoSocialMediaRepository.existsBy();
+        Mockito.verify(template).exists(captor.capture());
+        Assertions.assertThat(result).isTrue();
+
+        SelectQuery selectQuery = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(selectQuery.name()).isEqualTo(SocialMedia.class.getSimpleName());
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            soft.assertThat(selectQuery.sorts()).isEmpty();
+            var criteriaCondition = selectQuery.condition().orElseThrow();
+            Element element = criteriaCondition.element();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(criteriaCondition.element()).isEqualTo(Element.of("dtype", "video"));
+        });
+    }
+
+    @Test
+    @DisplayName("Should count by using built-in Repository Inheritance PhotoSocialMedia without no parameter")
+    void shouldInheritancePhotoMediaCountByNoParameter() {
+        Mockito.when(template.exists(Mockito.any(SelectQuery.class)))
+                .thenReturn(true);
+        boolean result = photoSocialMediaRepository.existsBy();
+        Mockito.verify(template).exists(captor.capture());
+        Assertions.assertThat(result).isTrue();
+
+        SelectQuery selectQuery = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(selectQuery.name()).isEqualTo(SocialMedia.class.getSimpleName());
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            soft.assertThat(selectQuery.sorts()).isEmpty();
+            var criteriaCondition = selectQuery.condition().orElseThrow();
+            Element element = criteriaCondition.element();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(criteriaCondition.element()).isEqualTo(Element.of("dtype", "photo"));
+        });
+    }
+
 
 }
