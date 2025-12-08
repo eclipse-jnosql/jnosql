@@ -103,11 +103,11 @@ public class RepositoryCountByTest extends AbstractRepositoryTest {
     @Test
     @DisplayName("Should count by using built-in Repository Inheritance PhotoMedia")
     void shouldInheritancePhotoMediaCountBy() {
-        Mockito.when(template.exists(Mockito.any(SelectQuery.class)))
-                .thenReturn(true);
-        boolean result = photoSocialMediaRepository.existsByName("The Lord of the Rings");
-        Mockito.verify(template).exists(captor.capture());
-        Assertions.assertThat(result).isTrue();
+        Mockito.when(template.count(Mockito.any(SelectQuery.class)))
+                .thenReturn(10L);
+        var result = photoSocialMediaRepository.countByName("The Lord of the Rings");
+        Mockito.verify(template).count(captor.capture());
+        Assertions.assertThat(result).isEqualTo(10L);
 
         SelectQuery selectQuery = captor.getValue();
 
@@ -132,11 +132,11 @@ public class RepositoryCountByTest extends AbstractRepositoryTest {
     @Test
     @DisplayName("Should count by using built-in Repository Inheritance VideoSocialMedia")
     void shouldInheritanceVideoMediaCountBy() {
-        Mockito.when(template.exists(Mockito.any(SelectQuery.class)))
-                .thenReturn(true);
-        boolean result = videoSocialMediaRepository.existsByName("The Lord of the Rings");
+        Mockito.when(template.count(Mockito.any(SelectQuery.class)))
+                .thenReturn(10L);
+        var result = videoSocialMediaRepository.countByName("The Lord of the Rings");
         Mockito.verify(template).exists(captor.capture());
-        Assertions.assertThat(result).isTrue();
+        Assertions.assertThat(result).isEqualTo(10L);
 
         SelectQuery selectQuery = captor.getValue();
 
@@ -161,11 +161,11 @@ public class RepositoryCountByTest extends AbstractRepositoryTest {
     @Test
     @DisplayName("Should count by using built-in Repository Inheritance VideoSocialMedia without no parameter")
     void shouldInheritanceVideoMediaCountByNoParameter() {
-        Mockito.when(template.exists(Mockito.any(SelectQuery.class)))
-                .thenReturn(true);
-        boolean result = videoSocialMediaRepository.existsBy();
+        Mockito.when(template.count(Mockito.any(SelectQuery.class)))
+                .thenReturn(10L);
+        var result = videoSocialMediaRepository.countBy();
         Mockito.verify(template).exists(captor.capture());
-        Assertions.assertThat(result).isTrue();
+        Assertions.assertThat(result).isEqualTo(10L);
 
         SelectQuery selectQuery = captor.getValue();
 
@@ -183,8 +183,8 @@ public class RepositoryCountByTest extends AbstractRepositoryTest {
     @Test
     @DisplayName("Should count by using built-in Repository Inheritance PhotoSocialMedia without no parameter")
     void shouldInheritancePhotoMediaCountByNoParameter() {
-        Mockito.when(template.exists(Mockito.any(SelectQuery.class)))
-                .thenReturn(true);
+        Mockito.when(template.count(Mockito.any(SelectQuery.class)))
+                .thenReturn(10L);
         boolean result = photoSocialMediaRepository.existsBy();
         Mockito.verify(template).exists(captor.capture());
         Assertions.assertThat(result).isTrue();

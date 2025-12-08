@@ -31,5 +31,5 @@ public interface VideoSocialMediaRepository extends BasicRepository<VideoSocialM
 
     boolean existsBy();
 
-    boolean countBy();
+    long countBy();
 }

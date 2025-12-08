@@ -31,5 +31,5 @@ public interface PhotoSocialMediaRepository extends BasicRepository<PhotoSocialM
 
     boolean existsBy();
 
-    boolean countBy();
+    long countBy();
 }
