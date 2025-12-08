@@ -14,16 +14,17 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
+import org.junit.jupiter.api.Test;
 
-import jakarta.data.repository.Repository;
-import org.eclipse.jnosql.mapping.NoSQLRepository;
+import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.List;
-
-@Repository
-public interface ComicBookBookStore {
+class SemistructuredCountByOperationTest {
 
 
-    List<ComicBook> findByName(String name);
-    long countAll();
+    @Test
+    void shouldCreateInstanceWithDefaultConstructor() {
+        SemistructuredCountByOperation operation = new SemistructuredCountByOperation();
+        assertNotNull(operation);
+    }
+
 }

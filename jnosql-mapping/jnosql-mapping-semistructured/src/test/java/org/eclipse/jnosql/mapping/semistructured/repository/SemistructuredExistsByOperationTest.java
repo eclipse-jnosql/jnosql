@@ -14,10 +14,16 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
-import jakarta.nosql.Column;
-import jakarta.nosql.Entity;
-import jakarta.nosql.Id;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-@Entity
-public record ComicBook(@Id String id, @Column String name, @Column int year) {
+class SemistructuredExistsByOperationTest {
+
+
+    @Test
+    void shouldCreateInstanceWithDefaultConstructor() {
+        SemistructuredExistsByOperation operation = new SemistructuredExistsByOperation();
+        Assertions.assertThat(operation).isNotNull();
+    }
+
 }

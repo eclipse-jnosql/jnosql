@@ -22,11 +22,12 @@ import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
-import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
+import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBook;
+import org.eclipse.jnosql.mapping.semistructured.repository.entities.PhotoSocialMedia;
+import org.eclipse.jnosql.mapping.semistructured.repository.entities.VideoSocialMedia;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -37,23 +38,16 @@ import org.mockito.Mockito;
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class})
-public class CountAllRepositoryTest {
+public class RepositoryCountAllTest extends AbstractRepositoryTest {
 
     @Inject
     private SemistructuredRepositoryProducer producer;
 
-    private ComicBookRepository comicBookRepository;
-
-    private ComicBookBookStore bookStore;
-
-    private SemiStructuredTemplate template;
-
-    @BeforeEach
-    void setUP() {
-        this.template = Mockito.mock(SemiStructuredTemplate.class);
-        this.comicBookRepository = producer.get(ComicBookRepository.class, template);
-        this.bookStore = producer.get(ComicBookBookStore.class, template);
+    @Override
+    SemistructuredRepositoryProducer producer() {
+        return producer;
     }
+
 
     @Test
     @DisplayName("Should count all using built-in Repository")
@@ -66,10 +60,30 @@ public class CountAllRepositoryTest {
 
     @Test
     @DisplayName("Should count all using built-in Repository")
-    void shouldCountCustomAll() {
+    void shouldCountAllCustom() {
         Mockito.when(template.count(ComicBook.class)).thenReturn(1L);
         long result = bookStore.countAll();
         Assertions.assertThat(result).isEqualTo(1L);
         Mockito.verify(template).count(ComicBook.class);
     }
+
+    @Test
+    @DisplayName("Should count all using inheritance Repository by VideoSocialMedia")
+    void shouldInheritanceVideoMedia() {
+        Mockito.when(template.count(VideoSocialMedia.class)).thenReturn(1L);
+        long result = videoSocialMediaRepository.countAll();
+        Assertions.assertThat(result).isEqualTo(1L);
+        Mockito.verify(template).count(VideoSocialMedia.class);
+    }
+
+    @Test
+    @DisplayName("Should count all using inheritance Repository by PhotoSocialMedia")
+    void shouldInheritance() {
+        Mockito.when(template.count(PhotoSocialMedia.class)).thenReturn(1L);
+        long result = photoSocialMediaRepository.countAll();
+        Assertions.assertThat(result).isEqualTo(1L);
+        Mockito.verify(template).count(PhotoSocialMedia.class);
+    }
+
+
 }

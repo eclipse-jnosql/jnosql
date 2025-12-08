@@ -15,14 +15,40 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteByOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
+import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 @ApplicationScoped
 class SemistructuredDeleteByOperation implements DeleteByOperation {
 
+    private final SemistructuredQueryBuilder semistructuredQueryBuilder;
+
+    @Inject
+    SemistructuredDeleteByOperation(SemistructuredQueryBuilder semistructuredQueryBuilder) {
+        this.semistructuredQueryBuilder = semistructuredQueryBuilder;
+    }
+
+    SemistructuredDeleteByOperation() {
+        this.semistructuredQueryBuilder = null;
+    }
+
+
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
-        return null;
+        var method = context.method();
+        var returnType = method.returnType().orElse(void.class);
+        if(returnType.equals(void.class) || returnType.equals(Void.class)) {
+            DeleteQuery deleteQuery = semistructuredQueryBuilder.deleteQuery(context);
+            var template = (SemiStructuredTemplate)context.template();
+            template.delete(deleteQuery);
+            return (T) Void.class;
+        }
+
+        throw new UnsupportedOperationException("The Eclipse JNoSQL Semistructured does not support the method " + method
+        + " with return type " + returnType + " delete only works with void");
     }
 }
