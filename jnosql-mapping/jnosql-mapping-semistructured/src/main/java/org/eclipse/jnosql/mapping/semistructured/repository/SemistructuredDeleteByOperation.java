@@ -16,10 +16,12 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.nosql.Template;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteByOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
+import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 @ApplicationScoped
 class SemistructuredDeleteByOperation implements DeleteByOperation {
@@ -39,11 +41,12 @@ class SemistructuredDeleteByOperation implements DeleteByOperation {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
-        RepositoryMethod method = context.method();
-        Class<?> returnType = method.returnType().orElse(void.class);
+        var method = context.method();
+        var returnType = method.returnType().orElse(void.class);
         if(returnType.equals(void.class) || returnType.equals(Void.class)) {
             DeleteQuery deleteQuery = semistructuredQueryBuilder.deleteQuery(context);
-            context.template().delete(deleteQuery);
+            var template = (SemiStructuredTemplate)context.template();
+            template.delete(deleteQuery);
             return (T) Void.class;
         }
 

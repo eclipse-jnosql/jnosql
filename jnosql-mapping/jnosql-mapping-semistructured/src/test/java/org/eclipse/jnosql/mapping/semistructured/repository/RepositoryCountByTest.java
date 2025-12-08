@@ -28,18 +28,12 @@ import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
-import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
-import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBookBookStore;
-import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBookRepository;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.SocialMedia;
-import org.eclipse.jnosql.mapping.semistructured.repository.entities.VideoSocialMedia;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.List;
@@ -66,10 +60,10 @@ public class RepositoryCountByTest extends AbstractRepositoryTest {
         Mockito.when(template.exists(Mockito.any(SelectQuery.class)))
                 .thenReturn(true);
         boolean result = comicBookRepository.existsByName("The Lord of the Rings");
-        Mockito.verify(template).exists(captor.capture());
+        Mockito.verify(template).exists(selectQueryCaptor.capture());
         Assertions.assertThat(result).isTrue();
 
-        SelectQuery selectQuery = captor.getValue();
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(selectQuery.name()).isEqualTo("ComicBook");
@@ -86,10 +80,10 @@ public class RepositoryCountByTest extends AbstractRepositoryTest {
         Mockito.when(template.exists(Mockito.any(SelectQuery.class)))
                 .thenReturn(true);
         boolean result = bookStore.existsByName("The Lord of the Rings");
-        Mockito.verify(template).exists(captor.capture());
+        Mockito.verify(template).exists(selectQueryCaptor.capture());
         Assertions.assertThat(result).isTrue();
 
-        SelectQuery selectQuery = captor.getValue();
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(selectQuery.name()).isEqualTo("ComicBook");
@@ -106,10 +100,10 @@ public class RepositoryCountByTest extends AbstractRepositoryTest {
         Mockito.when(template.count(Mockito.any(SelectQuery.class)))
                 .thenReturn(10L);
         var result = photoSocialMediaRepository.countByName("The Lord of the Rings");
-        Mockito.verify(template).count(captor.capture());
+        Mockito.verify(template).count(selectQueryCaptor.capture());
         Assertions.assertThat(result).isEqualTo(10L);
 
-        SelectQuery selectQuery = captor.getValue();
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(selectQuery.name()).isEqualTo(SocialMedia.class.getSimpleName());
@@ -135,10 +129,10 @@ public class RepositoryCountByTest extends AbstractRepositoryTest {
         Mockito.when(template.count(Mockito.any(SelectQuery.class)))
                 .thenReturn(10L);
         var result = videoSocialMediaRepository.countByName("The Lord of the Rings");
-        Mockito.verify(template).exists(captor.capture());
+        Mockito.verify(template).exists(selectQueryCaptor.capture());
         Assertions.assertThat(result).isEqualTo(10L);
 
-        SelectQuery selectQuery = captor.getValue();
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(selectQuery.name()).isEqualTo(SocialMedia.class.getSimpleName());
@@ -164,10 +158,10 @@ public class RepositoryCountByTest extends AbstractRepositoryTest {
         Mockito.when(template.count(Mockito.any(SelectQuery.class)))
                 .thenReturn(10L);
         var result = videoSocialMediaRepository.countBy();
-        Mockito.verify(template).exists(captor.capture());
+        Mockito.verify(template).exists(selectQueryCaptor.capture());
         Assertions.assertThat(result).isEqualTo(10L);
 
-        SelectQuery selectQuery = captor.getValue();
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(selectQuery.name()).isEqualTo(SocialMedia.class.getSimpleName());
@@ -186,10 +180,10 @@ public class RepositoryCountByTest extends AbstractRepositoryTest {
         Mockito.when(template.count(Mockito.any(SelectQuery.class)))
                 .thenReturn(10L);
         boolean result = photoSocialMediaRepository.existsBy();
-        Mockito.verify(template).exists(captor.capture());
+        Mockito.verify(template).exists(selectQueryCaptor.capture());
         Assertions.assertThat(result).isTrue();
 
-        SelectQuery selectQuery = captor.getValue();
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(selectQuery.name()).isEqualTo(SocialMedia.class.getSimpleName());

@@ -35,4 +35,6 @@ public interface PhotoSocialMediaRepository extends BasicRepository<PhotoSocialM
 
     void deleteByName(String name);
 
+    void deleteBy();
+
 }

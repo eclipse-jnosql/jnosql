@@ -1,5 +1,6 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
+import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBookBookStore;
@@ -21,7 +22,8 @@ abstract class AbstractRepositoryTest {
 
     protected VideoSocialMediaRepository videoSocialMediaRepository;
 
-    protected ArgumentCaptor<SelectQuery> captor;
+    protected ArgumentCaptor<SelectQuery> selectQueryCaptor;
+    protected ArgumentCaptor<DeleteQuery> deleteQueryCaptor;
 
 
 
@@ -32,7 +34,8 @@ abstract class AbstractRepositoryTest {
         this.bookStore = producer().get(ComicBookBookStore.class, template);
         this.photoSocialMediaRepository = producer().get(PhotoSocialMediaRepository.class, template);
         this.videoSocialMediaRepository = producer().get(VideoSocialMediaRepository.class, template);
-        this.captor = ArgumentCaptor.forClass(SelectQuery.class);
+        this.selectQueryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
+        this.deleteQueryCaptor = ArgumentCaptor.forClass(DeleteQuery.class);
     }
 
     abstract SemistructuredRepositoryProducer producer();
