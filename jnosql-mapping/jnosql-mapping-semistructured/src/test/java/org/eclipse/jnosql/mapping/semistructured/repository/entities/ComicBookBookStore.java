@@ -29,4 +29,8 @@ public interface ComicBookBookStore {
     long countByName(String name);
 
     boolean existsByName(String name);
+
+    void deleteByName(String name);
+
+    int deleteByYear(int year);
 }

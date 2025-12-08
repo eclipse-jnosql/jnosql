@@ -32,4 +32,6 @@ public interface VideoSocialMediaRepository extends BasicRepository<VideoSocialM
     boolean existsBy();
 
     long countBy();
+
+    void deleteByName(String name);
 }

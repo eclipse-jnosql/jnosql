@@ -32,4 +32,7 @@ public interface PhotoSocialMediaRepository extends BasicRepository<PhotoSocialM
     boolean existsBy();
 
     long countBy();
+
+    void deleteByName(String name);
+
 }
