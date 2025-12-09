@@ -69,6 +69,7 @@ class DynamicReturnPaginationTest {
                 .returnType(method.getReturnType())
                 .methodName(method.getName())
                 .singleResult(singleResult)
+                .result(stream)
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
