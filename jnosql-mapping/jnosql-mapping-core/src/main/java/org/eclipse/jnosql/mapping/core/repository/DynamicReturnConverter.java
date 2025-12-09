@@ -72,14 +72,12 @@ public enum DynamicReturnConverter {
      */
     @SuppressWarnings({"unchecked"})
     public Object convert(DynamicQueryMethodReturn<?> dynamicQueryMethod) {
-        Method method = dynamicQueryMethod.method();
-        Object[] args = dynamicQueryMethod.args();
         Function<String, PreparedStatement> prepareConverter = dynamicQueryMethod.prepareConverter();
         Class<?> typeClass = dynamicQueryMethod.typeClass();
 
-        String queryString = RepositoryReflectionUtils.INSTANCE.getQuery(method);
+        String queryString = dynamicQueryMethod.querySupplier();
 
-        Map<String, Object> params = RepositoryReflectionUtils.INSTANCE.getParams(method, args);
+        Map<String, Object> params = dynamicQueryMethod.params();
         boolean namedParameters = queryContainsNamedParameters(queryString);
         PreparedStatement prepare = prepareConverter.apply(queryString);
                     params.entrySet().stream()
