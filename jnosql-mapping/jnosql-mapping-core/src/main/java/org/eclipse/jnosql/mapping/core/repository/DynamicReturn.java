@@ -61,11 +61,11 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
     /**
      * A wrapper function that convert a result as a list to a result as optional
      *
-     * @param method the method source
+     * @param methodName the method name
      * @return the function that does this conversion
      */
-    public static Function<Supplier<Stream<?>>, Supplier<Optional<?>>> toSingleResult(final Method method) {
-        return new SupplierConverter(method);
+    public static Function<Supplier<Stream<?>>, Supplier<Optional<?>>> toSingleResult(final String methodName) {
+        return new SupplierConverter(methodName);
     }
 
     /**
@@ -104,7 +104,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
         return DynamicReturnConverter.INSTANCE.convert(this);
     }
 
-    private record SupplierConverter(Method method) implements Function<Supplier<Stream<?>>, Supplier<Optional<?>>> {
+    private record SupplierConverter(String methodName) implements Function<Supplier<Stream<?>>, Supplier<Optional<?>>> {
 
         @Override
             public Supplier<Optional<?>> apply(Supplier<Stream<?>> supplier) {
@@ -118,7 +118,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
                     if (!iterator.hasNext()) {
                         return Optional.ofNullable(entity);
                     }
-                    throw new NonUniqueResultException("No unique result to the method: " + method);
+                    throw new NonUniqueResultException("No unique result to the method: " + methodName);
                 };
             }
         }
