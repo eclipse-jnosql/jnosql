@@ -50,6 +50,7 @@ class DynamicQueryMethodReturnTest {
                 .returnType(method.getReturnType())
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .prepareConverter(s -> preparedStatement)
+                .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Optional);
@@ -71,6 +72,7 @@ class DynamicQueryMethodReturnTest {
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
+                .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
                 .build();
         Object execute = dynamicReturn.execute();
@@ -94,6 +96,7 @@ class DynamicQueryMethodReturnTest {
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
+                .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
                 .build();
 
@@ -113,6 +116,7 @@ class DynamicQueryMethodReturnTest {
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
+                .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
                 .build();
         Object execute = dynamicReturn.execute();
@@ -133,6 +137,7 @@ class DynamicQueryMethodReturnTest {
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
+                .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
                 .build();
         Object execute = dynamicReturn.execute();
@@ -151,6 +156,7 @@ class DynamicQueryMethodReturnTest {
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
+                .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
                 .build();
         Object execute = dynamicReturn.execute();
@@ -173,6 +179,7 @@ class DynamicQueryMethodReturnTest {
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
+                .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
                 .build();
         Object execute = dynamicReturn.execute();
@@ -192,6 +199,7 @@ class DynamicQueryMethodReturnTest {
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
+                .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
                 .build();
         Object execute = dynamicReturn.execute();
@@ -213,6 +221,7 @@ class DynamicQueryMethodReturnTest {
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
+                .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
                 .build();
         Object execute = dynamicReturn.execute();
@@ -232,6 +241,7 @@ class DynamicQueryMethodReturnTest {
                 .typeClass(Person.class)
                 .methodName(method.getName())
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
+                .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .returnType(method.getReturnType())
                 .prepareConverter(s -> preparedStatement)
                 .build();
@@ -256,6 +266,7 @@ class DynamicQueryMethodReturnTest {
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
+                .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .args(new Object[]{"Ada"})
                 .prepareConverter(s -> preparedStatement)
                 .build();
@@ -278,6 +289,7 @@ class DynamicQueryMethodReturnTest {
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
+                .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
                 .build();
 
@@ -303,6 +315,7 @@ class DynamicQueryMethodReturnTest {
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
+                .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .args(new Object[]{"Ada", PageRequest.ofPage(10)})
                 .prepareConverter(s -> preparedStatement)
                 .pageRequest(PageRequest.ofPage(10))
