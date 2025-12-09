@@ -12,15 +12,25 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.semistructured.repository;
+package org.eclipse.jnosql.mapping.semistructured.repository.entities;
 
 
 import jakarta.data.repository.Repository;
-import org.eclipse.jnosql.mapping.NoSQLRepository;
+
+import java.util.List;
 
 @Repository
-public interface ComicBookRepository extends NoSQLRepository<ComicBook, String> {
+public interface ComicBookBookStore {
 
 
+    List<ComicBook> findByName(String name);
     long countAll();
+
+    long countByName(String name);
+
+    boolean existsByName(String name);
+
+    void deleteByName(String name);
+
+    int deleteByYear(int year);
 }

@@ -20,7 +20,6 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -52,19 +51,18 @@ public class ParamsBinder {
      *
      * @param params the params
      * @param args   the args
-     * @param method the method
+     * @param methodName the method name
      * @throws NullPointerException when there is null parameter
      */
-    public void bind(Params params, Object[] args, Method method) {
-
+    public void bind(Params params, Object[] args, String methodName) {
         Objects.requireNonNull(params, "params is required");
         Objects.requireNonNull(args, "args is required");
-        Objects.requireNonNull(method, "method is required");
+        Objects.requireNonNull(methodName, "methodName is required");
 
         List<String> names = params.getParametersNames();
         if (names.size() > args.length) {
             throw new DynamicQueryException("The number of parameters in a query is bigger than the number of " +
-                    "parameters in the method: " + method);
+                    "parameters in the method: " + methodName);
         }
         for (int index = 0; index < names.size(); index++) {
             String name = names.get(index);

@@ -28,7 +28,12 @@ import java.util.Optional;
  * This record represents a mapping implementation of the {@link SelectQuery} interface.
  * It encapsulates information about sorting, limit, skip, criteria condition, and the entity name.
  */
-public record MappingQuery(List<Sort<?>> sorts, long limit, long skip, CriteriaCondition criteriaCondition, String entity, List<String> columns)
+public record MappingQuery(List<Sort<?>> sorts,
+                           long limit,
+                           long skip,
+                           CriteriaCondition criteriaCondition,
+                           String entity,
+                           List<String> columns)
         implements SelectQuery {
 
 

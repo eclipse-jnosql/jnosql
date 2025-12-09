@@ -75,7 +75,7 @@ class ParamsBinderTest {
         QueryParams columnQueryParams = queryParser.apply(selectQuery, parser);
         Params params = columnQueryParams.params();
         Object[] args = {10};
-        paramsBinder.bind(params, args, method);
+        paramsBinder.bind(params, args, method.getName());
         var query = columnQueryParams.query();
         CriteriaCondition columnCondition = query.condition().get();
         Value value = columnCondition.element().value();
@@ -97,7 +97,7 @@ class ParamsBinderTest {
         SelectQueryParser queryParser = new SelectQueryParser();
         var queryParams = queryParser.apply(selectQuery, parser);
         Params params = queryParams.params();
-        paramsBinder.bind(params, new Object[]{10L, "Ada"}, method);
+        paramsBinder.bind(params, new Object[]{10L, "Ada"}, method.getName());
         var query = queryParams.query();
         var columnCondition = query.condition().get();
         List<CriteriaCondition> conditions = columnCondition.element().get(new TypeReference<>() {
