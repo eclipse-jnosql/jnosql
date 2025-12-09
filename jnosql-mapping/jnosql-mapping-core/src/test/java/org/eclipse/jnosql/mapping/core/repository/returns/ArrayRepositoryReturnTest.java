@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -50,12 +51,14 @@ class ArrayRepositoryReturnTest {
     @SuppressWarnings("unchecked")
     @Test
     void shouldReturnArray() {
+        Method method = Person.class.getDeclaredMethods()[0];
         Person ada = new Person("Ada");
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .singleResult(Optional::empty)
                 .classSource(Person.class)
                 .result(() -> Stream.of(ada))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .methodName(method.getName())
+                .returnType(method.getReturnType())
                 .build();
         Person[] person = (Person[]) repositoryReturn.convert(dynamic);
         SoftAssertions.assertSoftly(s -> {
@@ -68,6 +71,7 @@ class ArrayRepositoryReturnTest {
     @SuppressWarnings("unchecked")
     @Test
     void shouldReturnListPage() {
+        Method method = Person.class.getDeclaredMethods()[0];
         Person ada = new Person("Ada");
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
@@ -75,7 +79,8 @@ class ArrayRepositoryReturnTest {
                 .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.empty())
                 .streamPagination(p -> Stream.of(ada))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .methodName(method.getName())
+                .returnType(method.getReturnType())
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();

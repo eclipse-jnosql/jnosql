@@ -26,6 +26,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -40,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unchecked")
 class InstanceRepositoryReturnTest {
 
     private final RepositoryReturn repositoryReturn = new InstanceRepositoryReturn();
@@ -59,9 +61,10 @@ class InstanceRepositoryReturnTest {
         assertThat(repositoryReturn.isCompatible(Person.class, returnType)).isFalse();
     }
 
+
     @Test
     void shouldReturnInstancePage() {
-
+        Method method = Person.class.getDeclaredMethods()[0];
         Person ada = new Person("Ada");
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
@@ -69,7 +72,8 @@ class InstanceRepositoryReturnTest {
                 .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.of(ada))
                 .streamPagination(p -> Stream.empty())
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();
@@ -80,13 +84,15 @@ class InstanceRepositoryReturnTest {
 
     @Test
     void shouldReturnNullAsInstancePage() {
+        Method method = Person.class.getDeclaredMethods()[0];
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
                 .singleResult(Optional::empty)
                 .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.empty())
                 .streamPagination(p -> Stream.empty())
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();
@@ -96,13 +102,14 @@ class InstanceRepositoryReturnTest {
 
     @Test
     void shouldReturnInstance() {
-
+        Method method = Person.class.getDeclaredMethods()[0];
         Person ada = new Person("Ada");
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .singleResult(() -> Optional.of(ada))
                 .classSource(Person.class)
                 .result(Collections::emptyList)
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .build();
         Person person = (Person) repositoryReturn.convert(dynamic);
         Assertions.assertNotNull(person);
@@ -111,11 +118,13 @@ class InstanceRepositoryReturnTest {
 
     @Test
     void shouldReturnNullAsInstance() {
+        Method method = Person.class.getDeclaredMethods()[0];
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .singleResult(Optional::empty)
                 .classSource(Person.class)
                 .result(Collections::emptyList)
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .build();
         Person person = (Person) repositoryReturn.convert(dynamic);
         Assertions.assertNull(person);

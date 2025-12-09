@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -35,6 +36,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
 class QueueRepositoryReturnTest {
 
@@ -54,13 +56,15 @@ class QueueRepositoryReturnTest {
     @Test
     void shouldReturnLinkedListPage() {
         Person ada = new Person("Ada");
+        Method method = Person.class.getDeclaredMethods()[0];
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
                 .singleResult(Optional::empty)
                 .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.empty())
                 .streamPagination(p -> Stream.of(ada))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();
@@ -73,11 +77,13 @@ class QueueRepositoryReturnTest {
     @Test
     void shouldReturnLinkedList() {
         Person ada = new Person("Ada");
+        Method method = Person.class.getDeclaredMethods()[0];
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .singleResult(Optional::empty)
                 .classSource(Person.class)
                 .result(() -> Stream.of(ada))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .build();
         LinkedList<Person> person = (LinkedList<Person>) repositoryReturn.convert(dynamic);
         Assertions.assertNotNull(person);

@@ -66,7 +66,8 @@ class DynamicReturnPaginationTest {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(method).result(stream)
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .singleResult(singleResult)
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
@@ -83,6 +84,7 @@ class DynamicReturnPaginationTest {
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldReturnOptional() throws NoSuchMethodException {
 
@@ -95,7 +97,9 @@ class DynamicReturnPaginationTest {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(method).result(stream)
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
+                .result(stream)
                 .singleResult(singleResult)
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
@@ -112,6 +116,7 @@ class DynamicReturnPaginationTest {
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldReturnAnInstance() throws NoSuchMethodException {
         Method method = method(PersonRepository.class, "getInstance");
@@ -123,7 +128,9 @@ class DynamicReturnPaginationTest {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(method).result(stream)
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
+                .result(stream)
                 .singleResult(singleResult)
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
@@ -138,6 +145,7 @@ class DynamicReturnPaginationTest {
         Mockito.verify(streamPagination, Mockito.never()).apply(pageRequest);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldReturnNull() throws NoSuchMethodException {
 
@@ -150,7 +158,9 @@ class DynamicReturnPaginationTest {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(method).result(stream)
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
+                .result(stream)
                 .singleResult(singleResult)
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
@@ -165,6 +175,7 @@ class DynamicReturnPaginationTest {
         Mockito.verify(streamPagination, Mockito.never()).apply(pageRequest);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldReturnList() throws NoSuchMethodException {
 
@@ -176,7 +187,9 @@ class DynamicReturnPaginationTest {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(method).result(stream)
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
+                .result(stream)
                 .singleResult(singleResult)
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
@@ -193,6 +206,7 @@ class DynamicReturnPaginationTest {
         Mockito.verify(streamPagination).apply(pageRequest);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldReturnIterable() throws NoSuchMethodException {
 
@@ -204,7 +218,9 @@ class DynamicReturnPaginationTest {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(method).result(stream)
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
+                .result(stream)
                 .singleResult(singleResult)
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
@@ -220,6 +236,7 @@ class DynamicReturnPaginationTest {
         Mockito.verify(streamPagination).apply(pageRequest);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldReturnCollection() throws NoSuchMethodException {
 
@@ -231,7 +248,9 @@ class DynamicReturnPaginationTest {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(method).result(stream)
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
+                .result(stream)
                 .singleResult(singleResult)
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
@@ -247,6 +266,7 @@ class DynamicReturnPaginationTest {
         Mockito.verify(streamPagination).apply(pageRequest);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldReturnSet() throws NoSuchMethodException {
 
@@ -258,7 +278,9 @@ class DynamicReturnPaginationTest {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(method).result(stream)
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
+                .result(stream)
                 .singleResult(singleResult)
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
@@ -274,6 +296,7 @@ class DynamicReturnPaginationTest {
         Mockito.verify(streamPagination).apply(pageRequest);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldReturnQueue() throws NoSuchMethodException {
 
@@ -285,7 +308,9 @@ class DynamicReturnPaginationTest {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(method).result(stream)
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
+                .result(stream)
                 .singleResult(singleResult)
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
@@ -302,6 +327,7 @@ class DynamicReturnPaginationTest {
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldReturnStream() throws NoSuchMethodException {
 
@@ -313,7 +339,9 @@ class DynamicReturnPaginationTest {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(method).result(stream)
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
+                .result(stream)
                 .singleResult(singleResult)
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
@@ -328,6 +356,7 @@ class DynamicReturnPaginationTest {
         Mockito.verify(streamPagination).apply(pageRequest);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldReturnSortedSet() throws NoSuchMethodException {
 
@@ -339,7 +368,9 @@ class DynamicReturnPaginationTest {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(method).result(stream)
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
+                .result(stream)
                 .singleResult(singleResult)
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
@@ -355,6 +386,7 @@ class DynamicReturnPaginationTest {
         Mockito.verify(streamPagination).apply(pageRequest);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldReturnNavigableSet() throws NoSuchMethodException {
 
@@ -366,7 +398,9 @@ class DynamicReturnPaginationTest {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(method).result(stream)
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
+                .result(stream)
                 .singleResult(singleResult)
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
@@ -383,6 +417,7 @@ class DynamicReturnPaginationTest {
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldReturnDeque() throws NoSuchMethodException {
 
@@ -394,7 +429,9 @@ class DynamicReturnPaginationTest {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(method).result(stream)
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
+                .result(stream)
                 .singleResult(singleResult)
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
@@ -410,6 +447,7 @@ class DynamicReturnPaginationTest {
         Mockito.verify(streamPagination).apply(pageRequest);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldReturnErrorWhenExecutePage() throws NoSuchMethodException {
         Method method = method(PersonRepository.class, "getPage");
@@ -418,7 +456,9 @@ class DynamicReturnPaginationTest {
         PageRequest pageRequest = getPagination();
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(method).result(stream)
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
+                .result(stream)
                 .singleResult(singleResult)
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)

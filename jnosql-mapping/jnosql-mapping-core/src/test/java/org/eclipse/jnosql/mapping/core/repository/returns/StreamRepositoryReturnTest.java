@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unchecked")
 class StreamRepositoryReturnTest {
 
     private final RepositoryReturn repositoryReturn = new StreamRepositoryReturn();
@@ -48,16 +50,19 @@ class StreamRepositoryReturnTest {
     }
 
 
+
     @Test
     void shouldReturnStreamPage() {
         Person ada = new Person("Ada");
+        Method method = Person.class.getDeclaredMethods()[0];
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
                 .singleResult(Optional::empty)
                 .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.empty())
                 .streamPagination(p -> Stream.of(ada))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();
@@ -71,11 +76,13 @@ class StreamRepositoryReturnTest {
     @Test
     void shouldReturnStream() {
         Person ada = new Person("Ada");
+        Method method = Person.class.getDeclaredMethods()[0];
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .singleResult(Optional::empty)
                 .classSource(Person.class)
                 .result(() -> Stream.of(ada))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .build();
         Stream<Person> person = (Stream<Person>) repositoryReturn.convert(dynamic);
         Assertions.assertNotNull(person);

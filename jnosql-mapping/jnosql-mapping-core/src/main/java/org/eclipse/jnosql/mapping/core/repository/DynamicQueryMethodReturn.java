@@ -111,6 +111,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         private Supplier<Map<String, Object>> paramsSupplier;
         @SuppressWarnings("unchecked")
         private Function<Object, T> queryMapper = (Function<Object, T>) Function.identity();
+        private Class<?> returnType;
 
         private DynamicQueryMethodReturnBuilder() {
         }
@@ -152,18 +153,26 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
             return this;
         }
 
+        public DynamicQueryMethodReturnBuilder<T> returnType(Class<?> returnType) {
+            this.returnType = returnType;
+            return this;
+        }
+
         public DynamicQueryMethodReturn<T> build() {
             Objects.requireNonNull(typeClass, "typeClass is required");
             Objects.requireNonNull(prepareConverter, "prepareConverter is required");
             Objects.requireNonNull(querySupplier, "querySupplier is required");
             Objects.requireNonNull(paramsSupplier, "paramsSupplier is required");
+            Objects.requireNonNull(queryMapper, "queryMapper is required");
+            Objects.requireNonNull(returnType, "returnType is required");
             return new DynamicQueryMethodReturn<>(args,
                     typeClass,
                     prepareConverter,
                     pageRequest,
                     queryMapper,
                     querySupplier,
-                    paramsSupplier);
+                    paramsSupplier,
+                    returnType);
         }
     }
 

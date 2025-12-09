@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -35,6 +36,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
 class PageRepositoryReturnTest {
 
@@ -50,7 +52,6 @@ class PageRepositoryReturnTest {
         assertFalse(repositoryReturn.isCompatible(Person.class, Object.class));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     void shouldReturnPage() {
 
@@ -58,13 +59,15 @@ class PageRepositoryReturnTest {
 
         Mockito.when(page.content()).thenReturn(List.of(ada));
 
+        Method method = Person.class.getDeclaredMethods()[0];
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
                 .singleResult(Optional::empty)
                 .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.empty())
                 .streamPagination(p -> Stream.of(ada))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();
@@ -79,13 +82,14 @@ class PageRepositoryReturnTest {
 
     @Test
     void shouldReturnErrorWhenUsePage() {
-
+        Method method = Person.class.getDeclaredMethods()[0];
         Person ada = new Person("Ada");
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .singleResult(Optional::empty)
                 .classSource(Person.class)
                 .result(() -> Stream.of(ada))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .build();
         Assertions.assertThrows(DynamicQueryException.class, () -> repositoryReturn.convert(dynamic));
     }
