@@ -125,7 +125,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         var query = queryParams.query();
         var params = queryParams.params();
         var first = method.getAnnotation(First.class);
-        paramsBinder().bind(params, args(args), method);
+        paramsBinder().bind(params, args(args), method.getName());
         return updateQueryDynamically(args(args), query, first);
     }
 
@@ -139,7 +139,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         var queryParams = DELETE_PARSER.apply(deleteQuery, parser());
         var query = queryParams.query();
         Params params = queryParams.params();
-        paramsBinder().bind(params, args(args), method);
+        paramsBinder().bind(params, args(args), method.getName());
         return query;
     }
 

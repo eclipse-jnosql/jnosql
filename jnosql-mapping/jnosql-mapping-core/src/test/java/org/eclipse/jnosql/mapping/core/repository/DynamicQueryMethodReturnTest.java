@@ -45,6 +45,7 @@ class DynamicQueryMethodReturnTest {
         Mockito.when(preparedStatement.result()).thenReturn(Stream.empty());
         var dynamicReturn = DynamicQueryMethodReturn.builder()
                 .typeClass(Person.class)
+                .returnType(method.getReturnType())
                 .method(method)
                 .prepareConverter(s -> preparedStatement)
                 .build();
