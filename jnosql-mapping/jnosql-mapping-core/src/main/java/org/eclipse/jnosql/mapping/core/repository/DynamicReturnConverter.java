@@ -93,7 +93,7 @@ public enum DynamicReturnConverter {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(typeClass)
-                .methodName(dynamicQueryMethod.querySupplier())
+                .methodName(dynamicQueryMethod.methodName())
                 .returnType(dynamicQueryMethod.returnType())
                 .result(() -> prepare.result().map(dynamicQueryMethod.queryMapper()))
                 .singleResult(() -> prepare.singleResult().map(dynamicQueryMethod.queryMapper()))
