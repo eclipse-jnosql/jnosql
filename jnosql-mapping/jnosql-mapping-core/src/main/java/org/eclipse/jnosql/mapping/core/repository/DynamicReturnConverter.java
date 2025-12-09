@@ -48,9 +48,8 @@ public enum DynamicReturnConverter {
      */
     public Object convert(DynamicReturn<?> dynamic) {
 
-        Method method = dynamic.method();
         Class<?> typeClass = dynamic.typeClass();
-        Class<?> returnType = method.getReturnType();
+        Class<?> returnType = dynamic.returnType();
 
         RepositoryReturn repositoryReturn = repositoryReturns
                 .stream()
@@ -94,7 +93,8 @@ public enum DynamicReturnConverter {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(typeClass)
-                .methodSource(method)
+                .methodName(dynamicQueryMethod.querySupplier())
+                .returnType(dynamicQueryMethod.returnType())
                 .result(() -> prepare.result().map(dynamicQueryMethod.queryMapper()))
                 .singleResult(() -> prepare.singleResult().map(dynamicQueryMethod.queryMapper()))
                 .pagination(pageRequest)

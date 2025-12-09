@@ -18,7 +18,6 @@ import jakarta.data.exceptions.NonUniqueResultException;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 
-import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -30,16 +29,14 @@ import java.util.stream.Stream;
 import static java.util.Objects.requireNonNull;
 
 /**
- * This instance has information to return at the dynamic query in Repository.
- * To create an instance, use, {@link DynamicReturn#builder()}
+ * This instance has information to return at the dynamic query in Repository. To create an instance, use,
+ * {@link DynamicReturn#builder()}
  *
  * @param <T> the source type
  */
 public final class DynamicReturn<T> implements MethodDynamicExecutable {
 
     private final Class<T> classSource;
-
-    private final Method methodSource;
 
     private final Supplier<Optional<T>> singleResult;
 
@@ -52,6 +49,10 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
     private final Function<PageRequest, Stream<T>> streamPagination;
 
     private final Function<PageRequest, Page<T>> page;
+
+    private final String methodName;
+
+    private final Class<?> returnType;
 
     /**
      * A predicate to check it the object is instance of {@link PageRequest}
@@ -71,7 +72,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
     /**
      * Finds {@link SpecialParameters} from array object
      *
-     * @param params the params
+     * @param params     the params
      * @param sortParser the sort parser
      * @return a {@link SpecialParameters} instance
      */
@@ -98,46 +99,57 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
                 .findFirst().orElse(null);
     }
 
+    public String methodName() {
+        return methodName;
+    }
+
+    public Class<?> returnType() {
+        return returnType;
+    }
 
     @Override
     public Object execute() {
         return DynamicReturnConverter.INSTANCE.convert(this);
     }
 
-    private record SupplierConverter(String methodName) implements Function<Supplier<Stream<?>>, Supplier<Optional<?>>> {
+    private record SupplierConverter(
+            String methodName) implements Function<Supplier<Stream<?>>, Supplier<Optional<?>>> {
 
         @Override
-            public Supplier<Optional<?>> apply(Supplier<Stream<?>> supplier) {
-                return () -> {
-                    Stream<?> entities = supplier.get();
-                    final Iterator<?> iterator = entities.iterator();
-                    if (!iterator.hasNext()) {
-                        return Optional.empty();
-                    }
-                    final Object entity = iterator.next();
-                    if (!iterator.hasNext()) {
-                        return Optional.ofNullable(entity);
-                    }
-                    throw new NonUniqueResultException("No unique result to the method: " + methodName);
-                };
-            }
+        public Supplier<Optional<?>> apply(Supplier<Stream<?>> supplier) {
+            return () -> {
+                Stream<?> entities = supplier.get();
+                final Iterator<?> iterator = entities.iterator();
+                if (!iterator.hasNext()) {
+                    return Optional.empty();
+                }
+                final Object entity = iterator.next();
+                if (!iterator.hasNext()) {
+                    return Optional.ofNullable(entity);
+                }
+                throw new NonUniqueResultException("No unique result to the method: " + methodName);
+            };
         }
+    }
 
 
-    private DynamicReturn(Class<T> classSource, Method methodSource,
+    private DynamicReturn(Class<T> classSource,
                           Supplier<Optional<T>> singleResult,
                           Supplier<Stream<T>> result, PageRequest pageRequest,
                           Function<PageRequest, Optional<T>> singleResultPagination,
                           Function<PageRequest, Stream<T>> streamPagination,
-                          Function<PageRequest, Page<T>> page) {
+                          Function<PageRequest, Page<T>> page,
+                          String methodName,
+                          Class<?> returnType) {
         this.classSource = classSource;
-        this.methodSource = methodSource;
         this.singleResult = singleResult;
         this.result = result;
         this.pageRequest = pageRequest;
         this.singleResultPagination = singleResultPagination;
         this.streamPagination = streamPagination;
         this.page = page;
+        this.methodName = methodName;
+        this.returnType = returnType;
     }
 
     /**
@@ -147,15 +159,6 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
      */
     public Class<T> typeClass() {
         return classSource;
-    }
-
-    /**
-     * The method source at the Repository
-     *
-     * @return The method source at the Repository
-     */
-    public Method method() {
-        return methodSource;
     }
 
     /**
@@ -223,14 +226,13 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
 
     /**
      * A builder of {@link DynamicReturn}
+     *
      * @param <T> the type
      */
     @SuppressWarnings("rawtypes")
     public static final class DefaultDynamicReturnBuilder<T> {
 
         private Class<?> classSource;
-
-        private Method methodSource;
 
         private Supplier<Optional<T>> singleResult;
 
@@ -244,6 +246,10 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
 
         private Function<PageRequest, Page<T>> page;
 
+        private String methodName;
+
+        private Class<?> returnType;
+
         private DefaultDynamicReturnBuilder() {
         }
 
@@ -256,12 +262,13 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
             return this;
         }
 
-        /**
-         * @param methodSource the method source
-         * @return the builder instance
-         */
-        public DefaultDynamicReturnBuilder methodSource(Method methodSource) {
-            this.methodSource = methodSource;
+        public DefaultDynamicReturnBuilder<T> methodName(String methodName) {
+            this.methodName = methodName;
+            return this;
+        }
+
+        public DefaultDynamicReturnBuilder<T> returnType(Class<?> returnType) {
+            this.returnType = returnType;
             return this;
         }
 
@@ -328,9 +335,10 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
         @SuppressWarnings({"rawtypes", "unchecked"})
         public DynamicReturn<T> build() {
             requireNonNull(classSource, "the class Source is required");
-            requireNonNull(methodSource, "the method Source is required");
             requireNonNull(singleResult, "the single result supplier is required");
             requireNonNull(result, "the result supplier is required");
+            requireNonNull(methodName, "the method name is required");
+            requireNonNull(returnType, "the return type is required");
 
             if (pageRequest != null) {
                 requireNonNull(singleResultPagination, "singleResultPagination is required when pagination is not null");
@@ -338,8 +346,8 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
                 requireNonNull(page, "page is required when pagination is not null");
             }
 
-            return new DynamicReturn(classSource, methodSource, singleResult, result,
-                    pageRequest, singleResultPagination, streamPagination, page);
+            return new DynamicReturn(classSource, singleResult, result,
+                    pageRequest, singleResultPagination, streamPagination, page, methodName, returnType);
         }
     }
 

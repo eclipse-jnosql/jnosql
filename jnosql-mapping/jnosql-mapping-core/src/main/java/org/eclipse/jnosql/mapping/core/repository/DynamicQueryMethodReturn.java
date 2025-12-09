@@ -32,11 +32,9 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
     private final Function<String, PreparedStatement> prepareConverter;
     private final PageRequest pageRequest;
     private final Function<Object, T> queryMapper;
-
     private final Supplier<String> querySupplier;
-
     private final Supplier<Map<String, Object>> paramsSupplier;
-
+    private final Class<?> returnType;
 
     private DynamicQueryMethodReturn(Object[] args, Class<?> typeClass,
                                      Function<String,
@@ -44,7 +42,8 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
                                      PageRequest pageRequest,
                                      Function<Object, T> queryMapper,
                                      Supplier<String> querySupplier,
-                                     Supplier<Map<String, Object>> paramsSupplier) {
+                                     Supplier<Map<String, Object>> paramsSupplier,
+                                     Class<?> returnType) {
         this.querySupplier = querySupplier;
         this.args = args;
         this.typeClass = typeClass;
@@ -52,6 +51,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         this.pageRequest = pageRequest;
         this.queryMapper = queryMapper;
         this.paramsSupplier = paramsSupplier;
+        this.returnType = returnType;
     }
 
     String querySupplier() {
@@ -60,6 +60,10 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
 
     Map<String, Object> params() {
         return paramsSupplier.get();
+    }
+
+    Class<?> returnType() {
+        return returnType;
     }
 
     Object[] args() {
