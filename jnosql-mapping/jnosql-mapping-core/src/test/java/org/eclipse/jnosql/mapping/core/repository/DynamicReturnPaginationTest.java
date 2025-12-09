@@ -72,7 +72,8 @@ class DynamicReturnPaginationTest {
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
-                .page(page).build();
+                .page(page)
+                .build();
         Object execute = dynamicReturn.execute();
 
         Assertions.assertTrue(execute instanceof Optional);

@@ -123,7 +123,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         private Function<Object, T> queryMapper = (Function<Object, T>) Function.identity();
         private Class<?> returnType;
 
-        private String memthodName;
+        private String methodName;
 
         private DynamicQueryMethodReturnBuilder() {
         }
@@ -171,7 +171,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         }
 
         public DynamicQueryMethodReturnBuilder<T> methodName(String methodName) {
-            this.memthodName = methodName;
+            this.methodName = methodName;
             return this;
         }
 
@@ -182,7 +182,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
             Objects.requireNonNull(paramsSupplier, "paramsSupplier is required");
             Objects.requireNonNull(queryMapper, "queryMapper is required");
             Objects.requireNonNull(returnType, "returnType is required");
-            Objects.requireNonNull(memthodName, "methodName is required");
+            Objects.requireNonNull(methodName, "methodName is required");
             return new DynamicQueryMethodReturn<>(args,
                     typeClass,
                     prepareConverter,
@@ -191,7 +191,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
                     querySupplier,
                     paramsSupplier,
                     returnType,
-                    memthodName);
+                    methodName);
         }
     }
 

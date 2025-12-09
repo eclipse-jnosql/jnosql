@@ -48,6 +48,7 @@ class DynamicQueryMethodReturnTest {
                 .returnType(method.getReturnType())
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
+                .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .prepareConverter(s -> preparedStatement)
                 .build();
         Object execute = dynamicReturn.execute();
@@ -69,6 +70,7 @@ class DynamicQueryMethodReturnTest {
                 .typeClass(Person.class)
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
+                .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .prepareConverter(s -> preparedStatement)
                 .build();
         Object execute = dynamicReturn.execute();
@@ -91,6 +93,7 @@ class DynamicQueryMethodReturnTest {
                 .typeClass(Person.class)
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
+                .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .prepareConverter(s -> preparedStatement)
                 .build();
 
@@ -109,6 +112,7 @@ class DynamicQueryMethodReturnTest {
                 .typeClass(Person.class)
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
+                .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .prepareConverter(s -> preparedStatement)
                 .build();
         Object execute = dynamicReturn.execute();
@@ -128,6 +132,7 @@ class DynamicQueryMethodReturnTest {
                 .typeClass(Person.class)
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
+                .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .prepareConverter(s -> preparedStatement)
                 .build();
         Object execute = dynamicReturn.execute();
@@ -145,6 +150,7 @@ class DynamicQueryMethodReturnTest {
                 .typeClass(Person.class)
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
+                .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .prepareConverter(s -> preparedStatement)
                 .build();
         Object execute = dynamicReturn.execute();
@@ -166,6 +172,7 @@ class DynamicQueryMethodReturnTest {
                 .typeClass(Person.class)
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
+                .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .prepareConverter(s -> preparedStatement)
                 .build();
         Object execute = dynamicReturn.execute();
@@ -184,6 +191,7 @@ class DynamicQueryMethodReturnTest {
                 .typeClass(Person.class)
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
+                .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .prepareConverter(s -> preparedStatement)
                 .build();
         Object execute = dynamicReturn.execute();
@@ -204,6 +212,7 @@ class DynamicQueryMethodReturnTest {
                 .typeClass(Person.class)
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
+                .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .prepareConverter(s -> preparedStatement)
                 .build();
         Object execute = dynamicReturn.execute();
@@ -222,6 +231,7 @@ class DynamicQueryMethodReturnTest {
         var dynamicReturn = DynamicQueryMethodReturn.builder()
                 .typeClass(Person.class)
                 .methodName(method.getName())
+                .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .returnType(method.getReturnType())
                 .prepareConverter(s -> preparedStatement)
                 .build();
@@ -245,6 +255,7 @@ class DynamicQueryMethodReturnTest {
                 .typeClass(Person.class)
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
+                .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .args(new Object[]{"Ada"})
                 .prepareConverter(s -> preparedStatement)
                 .build();
@@ -266,6 +277,7 @@ class DynamicQueryMethodReturnTest {
                 .typeClass(Person.class)
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
+                .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .prepareConverter(s -> preparedStatement)
                 .build();
 
@@ -290,6 +302,7 @@ class DynamicQueryMethodReturnTest {
                 .typeClass(Person.class)
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
+                .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .args(new Object[]{"Ada", PageRequest.ofPage(10)})
                 .prepareConverter(s -> preparedStatement)
                 .pageRequest(PageRequest.ofPage(10))
