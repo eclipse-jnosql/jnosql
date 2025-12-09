@@ -56,7 +56,7 @@ class DynamicReturnPaginationTest {
     @Test
     void shouldReturnEmptyOptional() throws NoSuchMethodException {
 
-        Method method = getMethod(PersonRepository.class, "getOptional");
+        Method method = method(PersonRepository.class, "getOptional");
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
 
@@ -86,7 +86,7 @@ class DynamicReturnPaginationTest {
     @Test
     void shouldReturnOptional() throws NoSuchMethodException {
 
-        Method method = getMethod(PersonRepository.class, "getOptional");
+        Method method = method(PersonRepository.class, "getOptional");
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
         PageRequest pageRequest = getPagination();
@@ -114,7 +114,7 @@ class DynamicReturnPaginationTest {
 
     @Test
     void shouldReturnAnInstance() throws NoSuchMethodException {
-        Method method = getMethod(PersonRepository.class, "getInstance");
+        Method method = method(PersonRepository.class, "getInstance");
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
 
@@ -141,7 +141,7 @@ class DynamicReturnPaginationTest {
     @Test
     void shouldReturnNull() throws NoSuchMethodException {
 
-        Method method = getMethod(PersonRepository.class, "getInstance");
+        Method method = method(PersonRepository.class, "getInstance");
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
 
@@ -168,7 +168,7 @@ class DynamicReturnPaginationTest {
     @Test
     void shouldReturnList() throws NoSuchMethodException {
 
-        Method method = getMethod(PersonRepository.class, "getList");
+        Method method = method(PersonRepository.class, "getList");
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
         PageRequest pageRequest = getPagination();
@@ -196,7 +196,7 @@ class DynamicReturnPaginationTest {
     @Test
     void shouldReturnIterable() throws NoSuchMethodException {
 
-        Method method = getMethod(PersonRepository.class, "getIterable");
+        Method method = method(PersonRepository.class, "getIterable");
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
         PageRequest pageRequest = getPagination();
@@ -223,7 +223,7 @@ class DynamicReturnPaginationTest {
     @Test
     void shouldReturnCollection() throws NoSuchMethodException {
 
-        Method method = getMethod(PersonRepository.class, "getCollection");
+        Method method = method(PersonRepository.class, "getCollection");
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
         PageRequest pageRequest = getPagination();
@@ -250,7 +250,7 @@ class DynamicReturnPaginationTest {
     @Test
     void shouldReturnSet() throws NoSuchMethodException {
 
-        Method method = getMethod(PersonRepository.class, "getSet");
+        Method method = method(PersonRepository.class, "getSet");
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
         PageRequest pageRequest = getPagination();
@@ -277,7 +277,7 @@ class DynamicReturnPaginationTest {
     @Test
     void shouldReturnQueue() throws NoSuchMethodException {
 
-        Method method = getMethod(PersonRepository.class, "getQueue");
+        Method method = method(PersonRepository.class, "getQueue");
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
         PageRequest pageRequest = getPagination();
@@ -305,7 +305,7 @@ class DynamicReturnPaginationTest {
     @Test
     void shouldReturnStream() throws NoSuchMethodException {
 
-        Method method = getMethod(PersonRepository.class, "getStream");
+        Method method = method(PersonRepository.class, "getStream");
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
         PageRequest pageRequest = getPagination();
@@ -331,7 +331,7 @@ class DynamicReturnPaginationTest {
     @Test
     void shouldReturnSortedSet() throws NoSuchMethodException {
 
-        Method method = getMethod(PersonRepository.class, "getSortedSet");
+        Method method = method(PersonRepository.class, "getSortedSet");
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
         PageRequest pageRequest = getPagination();
@@ -358,7 +358,7 @@ class DynamicReturnPaginationTest {
     @Test
     void shouldReturnNavigableSet() throws NoSuchMethodException {
 
-        Method method = getMethod(PersonRepository.class, "getNavigableSet");
+        Method method = method(PersonRepository.class, "getNavigableSet");
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
         PageRequest pageRequest = getPagination();
@@ -386,7 +386,7 @@ class DynamicReturnPaginationTest {
     @Test
     void shouldReturnDeque() throws NoSuchMethodException {
 
-        Method method = getMethod(PersonRepository.class, "getDeque");
+        Method method = method(PersonRepository.class, "getDeque");
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
         PageRequest pageRequest = getPagination();
@@ -412,7 +412,7 @@ class DynamicReturnPaginationTest {
 
     @Test
     void shouldReturnErrorWhenExecutePage() throws NoSuchMethodException {
-        Method method = getMethod(PersonRepository.class, "getPage");
+        Method method = method(PersonRepository.class, "getPage");
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
         PageRequest pageRequest = getPagination();
@@ -432,7 +432,7 @@ class DynamicReturnPaginationTest {
         Mockito.verify(page).apply(pageRequest);
     }
 
-    private Method getMethod(Class<?> repository, String methodName) throws NoSuchMethodException {
+    private Method method(Class<?> repository, String methodName) throws NoSuchMethodException {
         return Stream.of(repository.getDeclaredMethods())
                 .filter(m -> m.getName().equals(methodName))
                 .findFirst().get();

@@ -48,7 +48,7 @@ public enum DynamicReturnConverter {
      */
     public Object convert(DynamicReturn<?> dynamic) {
 
-        Method method = dynamic.getMethod();
+        Method method = dynamic.method();
         Class<?> typeClass = dynamic.typeClass();
         Class<?> returnType = method.getReturnType();
 

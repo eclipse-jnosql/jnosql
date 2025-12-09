@@ -154,7 +154,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
      *
      * @return The method source at the Repository
      */
-    public Method getMethod() {
+    public Method method() {
         return methodSource;
     }
 

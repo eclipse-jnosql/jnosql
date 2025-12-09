@@ -26,7 +26,7 @@ public class PageRepositoryReturn extends AbstractRepositoryReturn {
 
     @Override
     public <T> Object convert(DynamicReturn<T> dynamicReturn) {
-        throw new DynamicQueryException("There is not pagination at the method: " + dynamicReturn.getMethod());
+        throw new DynamicQueryException("There is not pagination at the method: " + dynamicReturn.method());
     }
 
     @Override
