@@ -24,8 +24,11 @@ import static java.util.stream.StreamSupport.stream;
 /**
  * Enumeration representing the operations with annotations.
  * Each operation defines a specific behavior when invoked.
+ * We are moving to the new engine, thus, this class will be removed, please, check the
+ * new implementation at {@link org.eclipse.jnosql.mapping.core.repository.operations}
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
+@Deprecated(forRemoval = true)
 public enum AnnotationOperation {
 
     /**

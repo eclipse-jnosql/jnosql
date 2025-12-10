@@ -18,38 +18,56 @@ package org.eclipse.jnosql.mapping.core.repository;
 import jakarta.data.page.PageRequest;
 import org.eclipse.jnosql.mapping.PreparedStatement;
 
-import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * This instance has the information to run the JNoSQL native query at {@link jakarta.data.repository.CrudRepository}
  */
 public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutable {
-
-
-    private final Method method;
     private final Object[] args;
     private final Class<?> typeClass;
     private final Function<String, PreparedStatement> prepareConverter;
     private final PageRequest pageRequest;
-
     private final Function<Object, T> queryMapper;
+    private final Supplier<String> querySupplier;
+    private final Supplier<Map<String, Object>> paramsSupplier;
+    private final Class<?> returnType;
 
-    private DynamicQueryMethodReturn(Method method, Object[] args, Class<?> typeClass,
-                                     Function<String, PreparedStatement> prepareConverter,
+    private final String methodName;
+
+    private DynamicQueryMethodReturn(Object[] args, Class<?> typeClass,
+                                     Function<String,
+                                             PreparedStatement> prepareConverter,
                                      PageRequest pageRequest,
-                                     Function<Object, T> queryMapper) {
-        this.method = method;
+                                     Function<Object, T> queryMapper,
+                                     Supplier<String> querySupplier,
+                                     Supplier<Map<String, Object>> paramsSupplier,
+                                     Class<?> returnType,
+                                     String methodName) {
+        this.querySupplier = querySupplier;
         this.args = args;
         this.typeClass = typeClass;
         this.prepareConverter = prepareConverter;
         this.pageRequest = pageRequest;
         this.queryMapper = queryMapper;
+        this.paramsSupplier = paramsSupplier;
+        this.returnType = returnType;
+        this.methodName = methodName;
     }
 
-    Method method() {
-        return method;
+    String querySupplier() {
+        return querySupplier.get();
+    }
+
+    Map<String, Object> params() {
+        return paramsSupplier.get();
+    }
+
+    Class<?> returnType() {
+        return returnType;
     }
 
     Object[] args() {
@@ -66,6 +84,10 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
 
     PageRequest pageRequest() {
         return pageRequest;
+    }
+
+    public String methodName() {
+        return methodName;
     }
 
     Function<Object, T> queryMapper() {
@@ -85,26 +107,39 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         return DynamicReturnConverter.INSTANCE.convert(this);
     }
 
+
+
     public static final class DynamicQueryMethodReturnBuilder<T> {
 
-        private Method method;
         private Object[] args;
         private Class<?> typeClass;
         private Function<String, PreparedStatement> prepareConverter;
         private PageRequest pageRequest;
+
+        private Supplier<String> querySupplier;
+
+        private Supplier<Map<String, Object>> paramsSupplier;
         @SuppressWarnings("unchecked")
         private Function<Object, T> queryMapper = (Function<Object, T>) Function.identity();
+        private Class<?> returnType;
+
+        private String methodName;
 
         private DynamicQueryMethodReturnBuilder() {
         }
 
-        public DynamicQueryMethodReturnBuilder<T> method(Method method) {
-            this.method = method;
+        public DynamicQueryMethodReturnBuilder<T> querySupplier(Supplier<String> querySupplier) {
+            this.querySupplier = querySupplier;
+            return this;
+        }
+
+        public DynamicQueryMethodReturnBuilder<T> paramsSupplier(Supplier<Map<String, Object>> paramsSupplier) {
+            this.paramsSupplier = paramsSupplier;
             return this;
         }
 
         public DynamicQueryMethodReturnBuilder<T> args(Object[] args) {
-            if(args != null) {
+            if (args != null) {
                 this.args = args.clone();
             }
             return this;
@@ -130,11 +165,33 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
             return this;
         }
 
+        public DynamicQueryMethodReturnBuilder<T> returnType(Class<?> returnType) {
+            this.returnType = returnType;
+            return this;
+        }
+
+        public DynamicQueryMethodReturnBuilder<T> methodName(String methodName) {
+            this.methodName = methodName;
+            return this;
+        }
+
         public DynamicQueryMethodReturn<T> build() {
-            Objects.requireNonNull(method, "method is required");
             Objects.requireNonNull(typeClass, "typeClass is required");
             Objects.requireNonNull(prepareConverter, "prepareConverter is required");
-            return new DynamicQueryMethodReturn<>(method, args, typeClass, prepareConverter, pageRequest, queryMapper);
+            Objects.requireNonNull(querySupplier, "querySupplier is required");
+            Objects.requireNonNull(paramsSupplier, "paramsSupplier is required");
+            Objects.requireNonNull(queryMapper, "queryMapper is required");
+            Objects.requireNonNull(returnType, "returnType is required");
+            Objects.requireNonNull(methodName, "methodName is required");
+            return new DynamicQueryMethodReturn<>(args,
+                    typeClass,
+                    prepareConverter,
+                    pageRequest,
+                    queryMapper,
+                    querySupplier,
+                    paramsSupplier,
+                    returnType,
+                    methodName);
         }
     }
 

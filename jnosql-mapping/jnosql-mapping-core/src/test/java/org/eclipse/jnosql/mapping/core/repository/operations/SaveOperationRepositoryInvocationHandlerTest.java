@@ -21,6 +21,8 @@ import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.mapping.core.VetedConverter;
 import org.eclipse.jnosql.mapping.core.entities.ComicBook;
 import org.eclipse.jnosql.mapping.core.entities.ComicBookRepository;
+import org.eclipse.jnosql.mapping.core.entities.InvalidEntity;
+import org.eclipse.jnosql.mapping.core.entities.InvalidEntityRepository;
 import org.eclipse.jnosql.mapping.core.repository.CoreRepositoryInvocationHandler;
 import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
@@ -62,6 +64,8 @@ class SaveOperationRepositoryInvocationHandlerTest {
     private CoreRepositoryInvocationHandler<?, ?> repositoryHandler;
     private ComicBookRepository comicBookRepository;
 
+    private InvalidEntityRepository invalidEntityRepository;
+
     @BeforeEach
     void setUp() {
         this.template = Mockito.mock(Template.class);
@@ -75,6 +79,17 @@ class SaveOperationRepositoryInvocationHandlerTest {
         comicBookRepository = (ComicBookRepository) Proxy.newProxyInstance(
                 SaveOperationRepositoryInvocationHandlerTest.class.getClassLoader(),
                 new Class[]{ComicBookRepository.class}, repositoryHandler);
+
+        var invalidHandler = CoreRepositoryInvocationHandler.of(executor
+                , entitiesMetadata.get(InvalidEntity.class),
+                repositoriesMetadata.get(InvalidEntityRepository.class).orElseThrow(),
+                infrastructureOperatorProvider,
+                repositoryOperationProvider,
+                template);
+
+        invalidEntityRepository = (InvalidEntityRepository) Proxy.newProxyInstance(
+                SaveOperationRepositoryInvocationHandlerTest.class.getClassLoader(),
+                new Class[]{InvalidEntityRepository.class}, invalidHandler);
     }
 
     @Test
@@ -118,6 +133,13 @@ class SaveOperationRepositoryInvocationHandlerTest {
         var books = comicBookRepository.save(new ComicBook[]{new ComicBook("id", "Book updated")});
         Mockito.verify(template).update(new ComicBook("id", "Book updated"));
         Assertions.assertThat(books).isNotNull().isNotEmpty().contains(new ComicBook("id", "Book updated"));
+    }
+
+    @Test
+    void shouldGetErrorWhenEntityDoesNotHaveId(){
+        Assertions.assertThatThrownBy(() -> invalidEntityRepository.invalidSave(new InvalidEntity("Invalid")))
+                .isInstanceOf(IllegalArgumentException.class);
+
     }
 
 }

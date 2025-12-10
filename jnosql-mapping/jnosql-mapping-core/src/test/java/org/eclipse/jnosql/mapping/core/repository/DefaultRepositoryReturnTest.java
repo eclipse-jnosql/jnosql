@@ -22,12 +22,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unchecked")
 class DefaultRepositoryReturnTest {
 
     private final RepositoryReturn repositoryReturn = new DefaultRepositoryReturn();
@@ -43,8 +45,10 @@ class DefaultRepositoryReturnTest {
     }
 
 
+
     @Test
     void shouldReturnDefaultPage() {
+        Method method = Person.class.getDeclaredMethods()[0];
         Person ada = new Person("Ada");
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
@@ -52,7 +56,8 @@ class DefaultRepositoryReturnTest {
                 .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.empty())
                 .streamPagination(p -> Stream.of(ada))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();
@@ -62,12 +67,14 @@ class DefaultRepositoryReturnTest {
 
     @Test
     void shouldReturnDefault() {
+        Method method = Person.class.getDeclaredMethods()[0];
         Person ada = new Person("Ada");
         DynamicReturn<Person> dynamic  = DynamicReturn.builder()
                 .singleResult(Optional::empty)
                 .classSource(Person.class)
                 .result(() -> Stream.of(ada))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .build();
         Object person = repositoryReturn.convert(dynamic);
         Assertions.assertNotNull(person);

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.NavigableSet;
 import java.util.Objects;
@@ -36,6 +37,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
 class SortedSetRepositoryReturnTest {
 
@@ -56,13 +58,15 @@ class SortedSetRepositoryReturnTest {
     @Test
     void shouldReturnTreeSetPage() {
         Person ada = new Person("Ada");
+        Method method = Person.class.getDeclaredMethods()[0];
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
                 .singleResult(Optional::empty)
                 .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.empty())
                 .streamPagination(p -> Stream.of(ada))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();
@@ -75,11 +79,13 @@ class SortedSetRepositoryReturnTest {
     @Test
     void shouldReturnTreeSet() {
         Person ada = new Person("Ada");
+        Method method = Person.class.getDeclaredMethods()[0];
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .singleResult(Optional::empty)
                 .classSource(Person.class)
                 .result(() -> Stream.of(ada))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .build();
         TreeSet<Person> person = (TreeSet<Person>) repositoryReturn.convert(dynamic);
         Assertions.assertNotNull(person);
@@ -89,6 +95,7 @@ class SortedSetRepositoryReturnTest {
 
     @Test
     void shouldReturnErrorOnTreeSetPage() {
+        Method method = Person.class.getDeclaredMethods()[0];
         Animal animal = new Animal();
         DynamicReturn<Animal> dynamic = DynamicReturn.builder()
                 .classSource(Animal.class)
@@ -96,7 +103,8 @@ class SortedSetRepositoryReturnTest {
                 .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.empty())
                 .streamPagination(p -> Stream.of(animal))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();
@@ -105,6 +113,7 @@ class SortedSetRepositoryReturnTest {
 
     @Test
     void shouldReturnErrorOnTreeSet() {
+        Method method = Person.class.getDeclaredMethods()[0];
         Animal animal = new Animal();
         DynamicReturn<Animal> dynamic = DynamicReturn.builder()
                 .classSource(Animal.class)
@@ -112,7 +121,8 @@ class SortedSetRepositoryReturnTest {
                 .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.empty())
                 .streamPagination(p -> Stream.of(animal))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();

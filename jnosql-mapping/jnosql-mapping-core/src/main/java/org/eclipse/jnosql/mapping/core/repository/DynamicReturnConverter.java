@@ -18,7 +18,6 @@ import jakarta.data.page.PageRequest;
 import org.eclipse.jnosql.mapping.PreparedStatement;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -48,9 +47,8 @@ public enum DynamicReturnConverter {
      */
     public Object convert(DynamicReturn<?> dynamic) {
 
-        Method method = dynamic.getMethod();
         Class<?> typeClass = dynamic.typeClass();
-        Class<?> returnType = method.getReturnType();
+        Class<?> returnType = dynamic.returnType();
 
         RepositoryReturn repositoryReturn = repositoryReturns
                 .stream()
@@ -72,14 +70,12 @@ public enum DynamicReturnConverter {
      */
     @SuppressWarnings({"unchecked"})
     public Object convert(DynamicQueryMethodReturn<?> dynamicQueryMethod) {
-        Method method = dynamicQueryMethod.method();
-        Object[] args = dynamicQueryMethod.args();
         Function<String, PreparedStatement> prepareConverter = dynamicQueryMethod.prepareConverter();
         Class<?> typeClass = dynamicQueryMethod.typeClass();
 
-        String queryString = RepositoryReflectionUtils.INSTANCE.getQuery(method);
+        String queryString = dynamicQueryMethod.querySupplier();
 
-        Map<String, Object> params = RepositoryReflectionUtils.INSTANCE.getParams(method, args);
+        Map<String, Object> params = dynamicQueryMethod.params();
         boolean namedParameters = queryContainsNamedParameters(queryString);
         PreparedStatement prepare = prepareConverter.apply(queryString);
                     params.entrySet().stream()
@@ -96,7 +92,8 @@ public enum DynamicReturnConverter {
 
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(typeClass)
-                .methodSource(method)
+                .methodName(dynamicQueryMethod.methodName())
+                .returnType(dynamicQueryMethod.returnType())
                 .result(() -> prepare.result().map(dynamicQueryMethod.queryMapper()))
                 .singleResult(() -> prepare.singleResult().map(dynamicQueryMethod.queryMapper()))
                 .pagination(pageRequest)

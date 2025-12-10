@@ -37,6 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Proxy;
+import java.util.Collections;
 
 @EnableAutoWeld
 @AddPackages(value = Convert.class)
@@ -114,6 +115,11 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
     void shouldExecuteDefaultMethod() {
         var component = comicBookRepository.defaultMethod();
         Assertions.assertThat(component).isNotNull().isEqualTo("defaultMethod");
+    }
+
+    @Test
+    void shouldExecuteMethodFromRepository() {
+        comicBookRepository.saveAll(Collections.singletonList(new ComicBook("123421", "Book Comic")));
     }
 
     @Test

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,6 +33,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unchecked")
 class OptionalRepositoryReturnTest {
 
     private final RepositoryReturn repositoryReturn = new OptionalRepositoryReturn();
@@ -46,15 +48,18 @@ class OptionalRepositoryReturnTest {
         Assertions.assertFalse(repositoryReturn.isCompatible(Person.class, Object.class));
     }
 
+
     @Test
     void shouldReturnOptional() {
 
         Person ada = new Person("Ada");
+        Method method = Person.class.getDeclaredMethods()[0];
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .singleResult(() -> Optional.of(ada))
                 .classSource(Person.class)
                 .result(Collections::emptyList)
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .build();
         Optional<Person> person = (Optional<Person>) repositoryReturn.convert(dynamic);
         Assertions.assertNotNull(person);
@@ -64,13 +69,14 @@ class OptionalRepositoryReturnTest {
 
     @Test
     void shouldReturnEmptyOptional() {
-
+        Method method = Person.class.getDeclaredMethods()[0];
         Person ada = new Person("Ada");
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .singleResult(Optional::empty)
                 .classSource(Person.class)
                 .result(Collections::emptyList)
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .build();
         Optional<Person> person = (Optional<Person>) repositoryReturn.convert(dynamic);
         Assertions.assertNotNull(person);
@@ -80,7 +86,7 @@ class OptionalRepositoryReturnTest {
 
     @Test
     void shouldReturnOptionalPage() {
-
+        Method method = Person.class.getDeclaredMethods()[0];
         Person ada = new Person("Ada");
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
@@ -88,7 +94,8 @@ class OptionalRepositoryReturnTest {
                 .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.of(ada))
                 .streamPagination(p -> Stream.empty())
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();
@@ -100,7 +107,7 @@ class OptionalRepositoryReturnTest {
 
     @Test
     void shouldReturnOptionalEmptyPage() {
-
+        Method method = Person.class.getDeclaredMethods()[0];
         Person ada = new Person("Ada");
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
@@ -108,7 +115,8 @@ class OptionalRepositoryReturnTest {
                 .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.empty())
                 .streamPagination(p -> Stream.empty())
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .returnType(method.getReturnType())
+                .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();

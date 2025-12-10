@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unchecked")
 class ListRepositoryReturnTest {
 
     private final RepositoryReturn repositoryReturn = new ListRepositoryReturn();
@@ -51,14 +53,17 @@ class ListRepositoryReturnTest {
         assertFalse(repositoryReturn.isCompatible(Person.class, Object.class));
     }
 
+
     @Test
     void shouldReturnList() {
+        Method method = Person.class.getDeclaredMethods()[0];
         Person ada = new Person("Ada");
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .singleResult(Optional::empty)
                 .classSource(Person.class)
                 .result(() -> Stream.of(ada))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .methodName(method.getName())
+                .returnType(method.getReturnType())
                 .build();
         List<Person> person = (List<Person>) repositoryReturn.convert(dynamic);
         Assertions.assertNotNull(person);
@@ -68,6 +73,7 @@ class ListRepositoryReturnTest {
 
     @Test
     void shouldReturnListPage() {
+        Method method = Person.class.getDeclaredMethods()[0];
         Person ada = new Person("Ada");
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
@@ -75,7 +81,8 @@ class ListRepositoryReturnTest {
                 .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.empty())
                 .streamPagination(p -> Stream.of(ada))
-                .methodSource(Person.class.getDeclaredMethods()[0])
+                .methodName(method.getName())
+                .returnType(method.getReturnType())
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();
