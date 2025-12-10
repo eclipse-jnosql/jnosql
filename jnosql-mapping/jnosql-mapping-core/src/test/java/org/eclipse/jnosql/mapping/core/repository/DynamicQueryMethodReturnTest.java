@@ -47,7 +47,6 @@ class DynamicQueryMethodReturnTest {
                 .typeClass(Person.class)
                 .returnType(method.getReturnType())
                 .methodName(method.getName())
-                .returnType(method.getReturnType())
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .prepareConverter(s -> preparedStatement)
                 .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
