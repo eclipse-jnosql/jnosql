@@ -33,7 +33,7 @@ class CoreSaveOperation implements SaveOperation {
     public <T> T execute(RepositoryInvocationContext context) {
         var parameters = context.parameters();
 
-        if(parameters.length != 1) {
+        if (parameters.length != 1) {
             throw new IllegalArgumentException("The save method must have only one parameter instead of: " + parameters.length + " parameters: "
                     + Arrays.toString(parameters));
         }
@@ -53,6 +53,7 @@ class CoreSaveOperation implements SaveOperation {
 
         return (T) save(entity, context);
     }
+
     private Object save(Object entity, RepositoryInvocationContext context) {
         Template template = context.template();
         EntityMetadata entityMetadata = context.entityMetadata();
@@ -63,9 +64,9 @@ class CoreSaveOperation implements SaveOperation {
                                 + " does not have an id property"));
         var id = idField.read(entity);
         var isAtDatabase = template.find(entity.getClass(), id).isPresent();
-        if(isAtDatabase){
+        if (isAtDatabase) {
             return template.update(entity);
-        }else {
+        } else {
             return template.insert(entity);
         }
     }
