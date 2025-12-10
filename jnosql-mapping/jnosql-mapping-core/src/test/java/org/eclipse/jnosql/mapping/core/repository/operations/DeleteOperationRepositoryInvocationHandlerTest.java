@@ -107,5 +107,8 @@ class DeleteOperationRepositoryInvocationHandlerTest {
         Mockito.verify(template).delete(Mockito.any(Iterable.class));
     }
 
-
+    @Test
+    void shouldExecuteEqualsToString() {
+        Assertions.assertThat(comicBookRepository.toString()).isNotNull();
+    }
 }
