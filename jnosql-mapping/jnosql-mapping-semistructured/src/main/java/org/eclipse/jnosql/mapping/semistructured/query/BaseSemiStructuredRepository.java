@@ -172,7 +172,9 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
     protected Object executeFindByQuery(Method method, Object[] args, Class<?> typeClass, SelectQuery query) {
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(typeClass)
-                .methodSource(method)
+                .methodName(method.getName())
+                .returnType(method.getReturnType())
+
                 .result(() -> {
                     Stream<Object> select = template().select(query);
                     return select.map(mapper(method));

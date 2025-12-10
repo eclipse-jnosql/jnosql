@@ -74,7 +74,10 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
 
         var methodReturn = DynamicQueryMethodReturn.builder()
                 .args(params)
-                .method(method)
+                .methodName(method.getName())
+                .returnType(method.getReturnType())
+                .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
+                .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, params))
                 .typeClass(type)
                 .pageRequest(pageRequest)
                 .mapper(mapper(method))
