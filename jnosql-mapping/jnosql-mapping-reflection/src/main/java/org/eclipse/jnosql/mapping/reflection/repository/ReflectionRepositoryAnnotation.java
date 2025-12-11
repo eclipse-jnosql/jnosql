@@ -19,7 +19,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.RepositoryAnnotation;
 import java.util.Map;
 
 record ReflectionRepositoryAnnotation(Class<?> annotation,
-                                      Map<String, Object> attributes,
-                                      boolean isProviderAnnotation) implements RepositoryAnnotation {
+                                      Map<String, Object> attributes, boolean isProviderAnnotation) implements RepositoryAnnotation {
+
 
 }
