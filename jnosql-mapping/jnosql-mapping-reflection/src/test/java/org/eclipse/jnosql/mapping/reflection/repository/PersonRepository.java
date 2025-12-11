@@ -94,4 +94,7 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
     @Save
     Person[] savePersonArray(Person[] person);
 
+    @SampleQuery("sample query")
+    List<Person> sampleQuery();
+
 }
