@@ -38,6 +38,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -428,6 +429,24 @@ class ReflectionRepositorySupplierTest {
             var attributes = queryAnnotation.attributes();
             soft.assertThat(attributes).isNotEmpty();
             soft.assertThat(attributes.get("value")).isEqualTo("FROM Person");
+        });
+    }
+
+    @Test
+    void shouldShowCustomProviderAnnotation(){
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("sampleQuery"));
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            var annotations = method.annotations();
+            var annotation = annotations.getFirst();
+            soft.assertThat(annotation).isNotNull();
+            soft.assertThat(annotation.annotation()).isEqualTo(SampleQuery.class);
+            soft.assertThat(annotation.isProviderAnnotation()).isTrue();
+            Map<String, Object> attributes = annotation.attributes();
+            soft.assertThat(attributes).isNotEmpty();
+            soft.assertThat(attributes).containsEntry("value", "sample query");
         });
     }
 
