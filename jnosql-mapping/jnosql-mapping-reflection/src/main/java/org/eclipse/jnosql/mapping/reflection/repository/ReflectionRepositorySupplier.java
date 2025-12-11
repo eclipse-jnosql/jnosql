@@ -26,6 +26,7 @@ import jakarta.data.repository.Select;
 import jakarta.enterprise.event.Event;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Projection;
+import org.eclipse.jnosql.mapping.ProviderQuery;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryAnnotation;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
@@ -235,7 +236,7 @@ enum ReflectionRepositorySupplier {
                         " from the annotation " + annotationType.getName(), e);
             }
         });
-        boolean isProviderAnnotation = annotationType.isAnnotationPresent(org.eclipse.jnosql.mapping.ProviderQuery.class);
+        boolean isProviderAnnotation = annotationType.isAnnotationPresent(ProviderQuery.class);
         return new ReflectionRepositoryAnnotation(annotationType, attributes, isProviderAnnotation);
     }
 }
