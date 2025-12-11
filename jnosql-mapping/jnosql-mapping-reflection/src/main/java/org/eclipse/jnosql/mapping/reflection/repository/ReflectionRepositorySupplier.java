@@ -26,6 +26,7 @@ import jakarta.data.repository.Select;
 import jakarta.enterprise.event.Event;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Projection;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryAnnotation;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
@@ -126,8 +127,8 @@ enum ReflectionRepositorySupplier {
         List<String> select = Arrays.stream(method.getDeclaredAnnotationsByType(Select.class))
                 .map(Select::value)
                 .toList();
-        List<String> annotations = Arrays.stream(method.getAnnotations())
-                .map(annotation -> annotation.annotationType().getName())
+        List<RepositoryAnnotation> annotations = Arrays.stream(method.getAnnotations())
+                .map(this::toAnnotation)
                 .distinct()
                 .toList();
 
@@ -220,5 +221,21 @@ enum ReflectionRepositorySupplier {
             }
         }
         return null;
+    }
+
+    private RepositoryAnnotation toAnnotation(java.lang.annotation.Annotation annotation) {
+        Class<?> annotationType = annotation.annotationType();
+        Map<String, Object> attributes = new HashMap<>();
+        Arrays.stream(annotationType.getDeclaredMethods()).forEach(method -> {
+            try {
+                Object value = method.invoke(annotation);
+                attributes.put(method.getName(), value);
+            } catch (Exception e) {
+                throw new IllegalStateException("Could not retrieve the attribute " + method.getName() +
+                        " from the annotation " + annotationType.getName(), e);
+            }
+        });
+        boolean isProviderAnnotation = annotationType.isAnnotationPresent(org.eclipse.jnosql.mapping.ProviderQuery.class);
+        return new ReflectionRepositoryAnnotation(annotationType, attributes, isProviderAnnotation);
     }
 }
