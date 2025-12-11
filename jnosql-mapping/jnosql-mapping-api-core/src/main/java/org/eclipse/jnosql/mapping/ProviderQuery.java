@@ -23,20 +23,53 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Qualifier that marks a repository-level query annotation as being handled
- * by a specific provider. This annotation allows the execution engine to
- * associate a custom query language with its corresponding
- * {@link org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryOperation}
- * implementation.
+ * Qualifier that links a custom query annotation and its executing
+ * {@link org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryOperation} implementation.
  *
- * <p>It is applied to user-defined query annotations such as:
- * <pre>{@code
- * @ProviderQuery("cql")
- * public @interface Cql { String value(); }
- * }</pre>
+ * <p>Vendors use this annotation in two places:</p>
+ * <ol>
+ *   <li>
+ *     On a <strong>repository-level query annotation</strong> that defines
+ *     the query language, for example:
+ *     <pre>{@code
+ *     @ProviderQuery("cql")
+ *     @Retention(RUNTIME)
+ *     @Target(METHOD)
+ *     public @interface Cql {
+ *         String value();
+ *     }
+ *     }</pre>
+ *   </li>
+ *   <li>
+ *     On the <strong>operation implementation</strong> that executes methods
+ *     using that query language, for example:
+ *     <pre>{@code
+ *     @ProviderQuery("cql")
+ *     @ApplicationScoped
+ *     public class CqlRepositoryOperation implements RepositoryOperation {
  *
- * <p>The value identifies the provider family (e.g., "sql", "cql", "gremlin"),
- * enabling both CDI and the execution engine to resolve the correct operation.
+ *         @Override
+ *         public <T> T execute(RepositoryInvocationContext context) {
+ *             // execute CQL query here...
+ *         }
+ *     }
+ *     }</pre>
+ *   </li>
+ * </ol>
+ *
+ * <p>The {@link #value()} must be the same on both the query annotation and
+ * the operation implementation. This allows the execution engine to:
+ * </p>
+ * <ul>
+ *   <li>detect the provider from the repository method’s annotation, and</li>
+ *   <li>resolve the matching {@code RepositoryOperation} bean qualified
+ *       with the same {@code @ProviderQuery} value.</li>
+ * </ul>
+ *
+ * <p>This contract works for both reflection-based discovery and
+ * annotation-processor–generated metadata, since the link is expressed
+ * via the annotation type and qualifier value, not via {@code Method}
+ * or {@code Annotation} instances.</p>
  */
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
@@ -44,8 +77,7 @@ import java.lang.annotation.Target;
 public @interface ProviderQuery {
 
     /**
-     * Identifies the provider or query language family.
-     * Examples: "cql", "sql", "gremlin", "cypher", "arangoql".
+     * Identifies the provider or query language family. Examples: "cql", "sql", "gremlin", "cypher", "arangoql".
      *
      * @return the provider identifier; never null.
      */
