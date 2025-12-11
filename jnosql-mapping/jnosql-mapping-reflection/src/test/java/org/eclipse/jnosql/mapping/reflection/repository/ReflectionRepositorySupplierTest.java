@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import jakarta.data.Sort;
 import jakarta.data.constraint.Constraint;
 import jakarta.data.constraint.GreaterThan;
+import jakarta.data.repository.Query;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.repository.MethodSignatureKey;
@@ -410,6 +411,23 @@ class ReflectionRepositorySupplierTest {
                     .contains("jakarta.data.repository.Select$List",
                     "jakarta.data.repository.Query",
                     "org.eclipse.jnosql.mapping.reflection.repository.Custom");
+        });
+    }
+
+    @Test
+    void shouldGetAttributesFromAnnotation(){
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("queryAll"));
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            var annotations = method.annotations();
+            var queryAnnotation = annotations.stream()
+                    .filter(a -> a.annotation()
+                    .equals(Query.class)).findFirst().orElseThrow();
+            var attributes = queryAnnotation.attributes();
+            soft.assertThat(attributes).isNotEmpty();
+            soft.assertThat(attributes.get("value")).isEqualTo("FROM Person");
         });
     }
 
