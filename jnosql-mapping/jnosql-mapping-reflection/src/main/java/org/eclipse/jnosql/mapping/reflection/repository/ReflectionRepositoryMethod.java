@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.reflection.repository;
 
 import jakarta.data.Sort;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryAnnotation;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
@@ -32,7 +33,7 @@ record ReflectionRepositoryMethod(String name,
                                   List<RepositoryParam> params,
                                   List<Sort<?>> sorts,
                                   List<String> select,
-                                  List<String> annotations) implements RepositoryMethod {
+                                  List<RepositoryAnnotation> annotations) implements RepositoryMethod {
     @Override
     public Optional<String> query() {
         return Optional.ofNullable(queryValue);
