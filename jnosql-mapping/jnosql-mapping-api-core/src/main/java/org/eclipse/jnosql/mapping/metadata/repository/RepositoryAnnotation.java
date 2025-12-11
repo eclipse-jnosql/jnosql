@@ -64,4 +64,23 @@ public interface RepositoryAnnotation {
      * @return a non-null map containing the annotation’s attribute values.
      */
     Map<String, Object> attributes();
+
+    /**
+     * Indicates whether this annotation originates from a custom provider.
+     * <p>
+     * An annotation is considered a <em>provider annotation</em> when its
+     * declaration is itself annotated with {@link org.eclipse.jnosql.mapping.ProviderQuery}. Such
+     * annotations activate a provider-specific {@link org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryOperation}
+     * capable of executing the corresponding query language.
+     *
+     * <p>Examples of provider annotations:</p>
+     * <ul>
+     *   <li>{@code @Cql}, when {@code @Cql} is annotated with {@code @ProviderQuery("cql")}</li>
+     *   <li>{@code @GremlinQuery}, when annotated with {@code @ProviderQuery("gremlin")}</li>
+     * </ul>
+     *
+     * @return {@code true} if the annotation participates in provider-based
+     *         query execution; {@code false} otherwise
+     */
+    boolean isProviderAnnotation();
 }
