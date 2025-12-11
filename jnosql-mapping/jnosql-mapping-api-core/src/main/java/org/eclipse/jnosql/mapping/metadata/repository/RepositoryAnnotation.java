@@ -18,9 +18,18 @@ import java.util.Map;
 
 /**
  * Represents a single annotation declared on a repository method.
- *This enables method metadata to be consumed by the execution engine
- * in a uniform way, regardless of which query or provider annotations
- * are present.
+ * <p>
+ * This abstraction allows repository method metadata to be consumed by the
+ * execution engine in a uniform way, regardless of whether the metadata was
+ * obtained through reflection or through annotation processing.
+ * <p>
+ * Each annotation is represented by:
+ * <ul>
+ *   <li>its annotation type ({@link Class}), and</li>
+ *   <li>a map of attribute names and resolved values</li>
+ * </ul>
+ * This decouples the metadata model from {@code java.lang.annotation.Annotation}
+ * so the same structure can be used at both compile time and runtime.
  */
 public interface RepositoryAnnotation {
 
