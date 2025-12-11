@@ -14,5 +14,45 @@
  */
 package org.eclipse.jnosql.mapping.metadata.repository;
 
+import java.util.Map;
+
+/**
+ * Represents a single annotation declared on a repository method.
+ *This enables method metadata to be consumed by the execution engine
+ * in a uniform way, regardless of which query or provider annotations
+ * are present.
+ */
 public interface RepositoryAnnotation {
+
+    /**
+     * Returns the fully-qualified annotation type name.
+     * <p>
+     * Examples:
+     * <ul>
+     *   <li>{@code "jakarta.data.repository.Query"}</li>
+     *   <li>{@code "org.example.CQL"}</li>
+     * </ul>
+     *
+     * @return the annotation type name; never {@code null}.
+     */
+    Class<?> annotation();
+
+    /**
+     * Returns a map of attribute names to their resolved values.
+     * <p>
+     * These values correspond to the annotation attributes as declared on the
+     * repository method and may be populated either through reflection or an
+     * annotation processor.
+     *
+     * <p>Example:
+     * <pre>
+     * {@code
+     *     "value" : "SELECT * FROM person WHERE id = :id",
+     *     "timeout" : 2000
+     * }
+     * </pre>
+     *
+     * @return a non-null map containing the annotation’s attribute values.
+     */
+    Map<String, Object> attributes();
 }
