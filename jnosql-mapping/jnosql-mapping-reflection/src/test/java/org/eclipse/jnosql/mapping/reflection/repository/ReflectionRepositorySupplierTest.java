@@ -22,6 +22,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.repository.MethodSignatureKey;
 import org.eclipse.jnosql.mapping.metadata.repository.NameKey;
 import org.eclipse.jnosql.mapping.metadata.repository.ReflectionMethodKey;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryAnnotation;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
@@ -403,8 +404,9 @@ class ReflectionRepositorySupplierTest {
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
-            List<String> annotations = method.annotations();
-            soft.assertThat(annotations).hasSize(3)
+            List<RepositoryAnnotation> annotations = method.annotations();
+            List<String> annotationsNames = annotations.stream().map(a -> a.annotation().getName()).toList();
+            soft.assertThat(annotationsNames).hasSize(3)
                     .contains("jakarta.data.repository.Select$List",
                     "jakarta.data.repository.Query",
                     "org.eclipse.jnosql.mapping.reflection.repository.Custom");
