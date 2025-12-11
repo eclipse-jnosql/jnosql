@@ -103,5 +103,5 @@ public interface RepositoryMethod {
      * This method return the list of annotations present at the repository method.
      * @return the list of annotations
      */
-    List<String> annotations();
+    List<RepositoryAnnotation> annotations();
 }
