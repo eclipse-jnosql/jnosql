@@ -123,7 +123,7 @@ public enum RepositoryMethodType {
     /**
      * Methods from either {@link CrudRepository}, {@link  BasicRepository} and {@link  org.eclipse.jnosql.mapping.NoSQLRepository}
      */
-    DEFAULT,
+    BUILT_IN_METHOD,
     /**
      * Methods from {@link Object}
      */

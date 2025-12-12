@@ -108,7 +108,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         RepositoryMethodDescriptor methodDescriptor = methodDescriptor(method);
 
         switch (methodDescriptor.type()) {
-            case DEFAULT -> {
+            case BUILT_IN_METHOD -> {
                 return unwrapInvocationTargetException(() -> infrastructureOperatorProvider().buildInMethodOperator().invokeDefault(repository(), method, params));
             }
             case DEFAULT_METHOD -> {
@@ -218,7 +218,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         if (Object.class.equals(method.getDeclaringClass())) {
             repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.OBJECT_METHOD, null);
         } else if (IS_REPOSITORY_METHOD.test(method.getDeclaringClass())) {
-            repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.DEFAULT, null);
+            repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.BUILT_IN_METHOD, null);
         } else if (isCDIComponent(method.getDeclaringClass())) {
             repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.CUSTOM_REPOSITORY, null);
         }
