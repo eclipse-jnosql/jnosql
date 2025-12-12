@@ -90,22 +90,12 @@ public enum RepositoryMethodType {
      * an entity depending on its state.
      */
     SAVE,
-
-    /**
-     * Method annotated with
-     * {@link jakarta.data.repository.Find jakarta.data.repository.Find}.
-     * The query is resolved dynamically from the parameters rather than a
-     * fixed name pattern or explicit query string.
-     */
-    PARAMETER_BASED,
-
     /**
      * Method annotated with
      * {@link jakarta.data.repository.Insert jakarta.data.repository.Insert}.
      * Represents an explicit insert operation that adds a new entity.
      */
     INSERT,
-
     /**
      * Method annotated with
      * {@link jakarta.data.repository.Delete jakarta.data.repository.Delete}.
@@ -113,13 +103,19 @@ public enum RepositoryMethodType {
      * entities matching the specified conditions.
      */
     DELETE,
-
     /**
      * Method annotated with
      * {@link jakarta.data.repository.Update jakarta.data.repository.Update}.
      * Represents an explicit update operation that modifies existing entities.
      */
     UPDATE,
+    /**
+     * Method annotated with
+     * {@link jakarta.data.repository.Find jakarta.data.repository.Find}.
+     * The query is resolved dynamically from the parameters rather than a
+     * fixed name pattern or explicit query string.
+     */
+    PARAMETER_BASED,
     /**
      * Method that returns a paginated result set.
      */
