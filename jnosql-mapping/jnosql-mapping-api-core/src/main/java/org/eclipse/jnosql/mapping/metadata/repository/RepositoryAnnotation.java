@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.metadata.repository;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents a single annotation declared on a repository method.
@@ -83,4 +84,22 @@ public interface RepositoryAnnotation {
      *         query execution; {@code false} otherwise
      */
     boolean isProviderAnnotation();
+
+    /**
+     * Returns the provider identifier when this annotation is a provider
+     * annotation. This value corresponds to the {@code @ProviderQuery("...")}
+     * qualifier on the annotation type.
+     *
+     * <p>Examples:</p>
+     * <ul>
+     *   <li>For {@code @Cql}, returns {@code "cql"}</li>
+     *   <li>For {@code @GremlinQuery}, returns {@code "gremlin"}</li>
+     * </ul>
+     *
+     * <p>When {@link #isProviderAnnotation()} is {@code false}, this returns
+     * {@link java.util.Optional#empty()}.</p>
+     *
+     * @return the provider identifier or empty if not applicable
+     */
+    Optional<String> provider();
 }
