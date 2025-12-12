@@ -451,6 +451,22 @@ class ReflectionRepositorySupplierTest {
     }
 
     @Test
+    void shouldProviderName(){
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("sampleQuery"));
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            var annotations = method.annotations();
+            var annotation = annotations.getFirst();
+            soft.assertThat(annotation).isNotNull();
+            soft.assertThat(annotation.annotation()).isEqualTo(SampleQuery.class);
+            soft.assertThat(annotation.isProviderAnnotation()).isTrue();
+            soft.assertThat(annotation.provider()).isPresent().get().isEqualTo("sample");
+        });
+    }
+
+    @Test
     void shouldDefineCustomTrueOnCustomAnnotation() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
         Optional<RepositoryMethod> query = metadata.find(new NameKey("sampleQuery"));
