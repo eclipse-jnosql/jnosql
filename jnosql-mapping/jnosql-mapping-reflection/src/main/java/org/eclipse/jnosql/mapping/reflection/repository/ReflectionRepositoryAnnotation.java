@@ -17,9 +17,16 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryAnnotation;
 
 import java.util.Map;
+import java.util.Optional;
 
 record ReflectionRepositoryAnnotation(Class<?> annotation,
-                                      Map<String, Object> attributes, boolean isProviderAnnotation) implements RepositoryAnnotation {
+                                      Map<String, Object> attributes,
+                                      boolean isProviderAnnotation,
+                                      String providerValue) implements RepositoryAnnotation {
 
 
+    @Override
+    public Optional<String> provider() {
+        return Optional.ofNullable(providerValue);
+    }
 }
