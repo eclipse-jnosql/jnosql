@@ -110,7 +110,6 @@ enum ReflectionRepositorySupplier {
     private RepositoryMethod to(Method method, Event<ProjectionFound> projectionFoundEvent) {
 
         String name = method.getName();
-        RepositoryMethodType type = RepositoryMethodTypeConverter.of(method);
         String queryValue = Optional.ofNullable(method.getAnnotation(Query.class))
                 .map(Query::value).orElse(null);
         Integer firstValue = Optional.ofNullable(method.getAnnotation(First.class))
@@ -132,6 +131,9 @@ enum ReflectionRepositorySupplier {
                 .map(this::toAnnotation)
                 .distinct()
                 .toList();
+        boolean isProviderQuery = annotations.stream()
+                .anyMatch(RepositoryAnnotation::isProviderAnnotation);
+        RepositoryMethodType type = getRepositoryMethodType(method, isProviderQuery);
 
         return new ReflectionRepositoryMethod(name,
                 type,
@@ -238,5 +240,15 @@ enum ReflectionRepositorySupplier {
         });
         boolean isProviderAnnotation = annotationType.isAnnotationPresent(ProviderQuery.class);
         return new ReflectionRepositoryAnnotation(annotationType, attributes, isProviderAnnotation);
+    }
+
+    private static RepositoryMethodType getRepositoryMethodType(Method method, boolean isProviderQuery) {
+        RepositoryMethodType type;
+        if (isProviderQuery) {
+            type = RepositoryMethodType.PROVIDER_OPERATION;
+        } else{
+            type = RepositoryMethodTypeConverter.of(method);
+        }
+        return type;
     }
 }
