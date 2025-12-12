@@ -23,5 +23,5 @@ package org.eclipse.jnosql.mapping.metadata.repository.spi;
  * strategy without altering Jakarta Data’s built-in semantics.
  *
  */
-public interface ProviderOperation {
+public interface ProviderOperation extends RepositoryOperation {
 }
