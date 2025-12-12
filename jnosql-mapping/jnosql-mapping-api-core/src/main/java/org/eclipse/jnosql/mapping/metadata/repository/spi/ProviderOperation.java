@@ -15,13 +15,12 @@
 package org.eclipse.jnosql.mapping.metadata.repository.spi;
 
 /**
- * Represents an operation executed through a provider-defined query mechanism.
- * A repository method is mapped to a {@code ProviderOperation} when it uses a
- * custom query annotation annotated with
- * {@link org.eclipse.jnosql.mapping.ProviderQuery}.
- * This enables external providers to supply their own query model or execution
- * strategy without altering Jakarta Data’s built-in semantics.
- *
+ * Represents a repository operation executed through a provider-defined query
+ * mechanism. A method is mapped to a {@code ProviderOperation} when its query
+ * annotation is associated with a provider via
+ * {@link org.eclipse.jnosql.mapping.ProviderQuery}, enabling execution using a
+ * custom query language or runtime distinct from Jakarta Data’s built-in
+ * operations.
  */
 public interface ProviderOperation extends RepositoryOperation {
 }
