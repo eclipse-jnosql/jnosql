@@ -450,6 +450,17 @@ class ReflectionRepositorySupplierTest {
         });
     }
 
+    @Test
+    void shouldDefineCustomTrueOnCustomAnnotation() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("sampleQuery"));
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.PROVIDER_OPERATION);
+        });
+    }
+
 
     @Test
     void shouldFindByMethodReflection(){
