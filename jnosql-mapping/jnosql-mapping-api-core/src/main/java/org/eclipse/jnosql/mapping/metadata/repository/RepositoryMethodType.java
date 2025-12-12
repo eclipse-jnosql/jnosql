@@ -71,7 +71,7 @@ public enum RepositoryMethodType {
 
     /**
      * Method defined as a {@code default} method within the repository interface.
-     * Executed directly by user code rather than by the Jakarta Data provider.
+     * Executed directly without involving the Jakarta Data provider.
      */
     DEFAULT_METHOD,
 
@@ -121,10 +121,6 @@ public enum RepositoryMethodType {
      */
     CURSOR_PAGINATION,
     /**
-     * At the stage it is undefined, thus, required validation
-     */
-    UNKNOWN,
-    /**
      * Methods from either {@link CrudRepository}, {@link  BasicRepository} and {@link  org.eclipse.jnosql.mapping.NoSQLRepository}
      */
     DEFAULT,
@@ -135,6 +131,10 @@ public enum RepositoryMethodType {
     /**
      * The method that belongs to the interface using a custom repository.
      */
-    CUSTOM_REPOSITORY
+    CUSTOM_REPOSITORY,
+    /**
+     * At the stage it is undefined, thus, required validation
+     */
+    UNKNOWN
 
 }
