@@ -47,6 +47,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import static java.util.Optional.ofNullable;
+
 enum ReflectionRepositorySupplier {
 
     INSTANCE;
@@ -110,9 +112,9 @@ enum ReflectionRepositorySupplier {
     private RepositoryMethod to(Method method, Event<ProjectionFound> projectionFoundEvent) {
 
         String name = method.getName();
-        String queryValue = Optional.ofNullable(method.getAnnotation(Query.class))
+        String queryValue = ofNullable(method.getAnnotation(Query.class))
                 .map(Query::value).orElse(null);
-        Integer firstValue = Optional.ofNullable(method.getAnnotation(First.class))
+        Integer firstValue = ofNullable(method.getAnnotation(First.class))
                 .map(First::value).orElse(null);
         Class<?> returnTypeValue = method.getReturnType();
         Class<?> elementTypeValue = getElementTypeValue(method);
@@ -188,14 +190,14 @@ enum ReflectionRepositorySupplier {
     private List<RepositoryParam> to(Parameter[] parameters) {
         List<RepositoryParam> params = new ArrayList<>(parameters.length);
         for (Parameter parameter : parameters) {
-            Class<? extends Constraint<?>> isValue = (Class<? extends Constraint<?>>) Optional.ofNullable(parameter
+            Class<? extends Constraint<?>> isValue = (Class<? extends Constraint<?>>) ofNullable(parameter
                             .getAnnotation(Is.class))
                     .map(Is::value)
                     .orElse(null);
-            String name = Optional.ofNullable(parameter.getAnnotation(Param.class))
+            String name = ofNullable(parameter.getAnnotation(Param.class))
                     .map(Param::value)
                     .orElse(parameter.getName());
-            String by = Optional.ofNullable(parameter.getAnnotation(By.class))
+            String by = ofNullable(parameter.getAnnotation(By.class))
                     .map(By::value)
                     .orElse(parameter.getName());
             Class<?> type = parameter.getType();
@@ -239,7 +241,10 @@ enum ReflectionRepositorySupplier {
             }
         });
         boolean isProviderAnnotation = annotationType.isAnnotationPresent(ProviderQuery.class);
-        return new ReflectionRepositoryAnnotation(annotationType, attributes, isProviderAnnotation);
+        var providerValue = ofNullable(annotationType.getAnnotation(ProviderQuery.class))
+                .map(ProviderQuery::value)
+                .orElse(null);
+        return new ReflectionRepositoryAnnotation(annotationType, attributes, isProviderAnnotation, providerValue);
     }
 
     private static RepositoryMethodType getRepositoryMethodType(Method method, boolean isProviderQuery) {
