@@ -186,6 +186,10 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                 var context = repositoryInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().queryOperation().execute(context)));
+            } case PROVIDER_OPERATION -> {
+                var context = repositoryInvocationContext(params, methodDescriptor);
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                        repositoryOperationProvider().providerOperation().execute(context)));
             }
             default -> throw new UnsupportedOperationException("Method not supported: " + method);
         }
