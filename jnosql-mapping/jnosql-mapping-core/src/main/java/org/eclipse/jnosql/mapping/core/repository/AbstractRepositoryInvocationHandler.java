@@ -197,7 +197,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                 template(), params == null ? EMPTY : params);
     }
 
-    private RepositoryMethodDescriptor methodDescriptor(Method method) {
+    protected RepositoryMethodDescriptor methodDescriptor(Method method) {
         var repositoryMethodType = this.methodRepositoryTypeMap.get(method);
         if (repositoryMethodType == null) {
             repositoryMethodType = processingMethodDescriptor(method);
