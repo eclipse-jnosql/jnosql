@@ -23,17 +23,17 @@ import org.eclipse.jnosql.mapping.DynamicQueryException;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryAnnotation;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.ProviderOperation;
+import org.eclipse.jnosql.mapping.metadata.repository.spi.ProviderQueryHandler;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
 import java.util.List;
 
 @ApplicationScoped
-@Typed(CoreProviderOperation.class)
-public class CoreProviderOperation implements ProviderOperation {
+class CoreProviderOperation implements ProviderOperation {
 
     @Inject
     @Any
-    private Instance<ProviderOperation> providers;
+    private Instance<ProviderQueryHandler> providers;
 
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
@@ -46,12 +46,12 @@ public class CoreProviderOperation implements ProviderOperation {
 
         String provider = providerAnnotation.provider().orElseThrow(() -> new DynamicQueryException("No provider found at the method: " + method.name()));
 
-        Instance<ProviderOperation> repositoryOperation = providers.select(ProviderOperation.class,
+        Instance<ProviderQueryHandler> repositoryOperation = providers.select(ProviderQueryHandler.class,
                 ProviderQueryLiteral.of(provider));
 
         if (repositoryOperation.isUnsatisfied() || repositoryOperation.isAmbiguous()) {
             throw new DynamicQueryException(
-                    "Cannot resolve ProviderOperation for provider '" + provider +
+                    "Cannot resolve ProviderQueryHandler for provider '" + provider +
                             "' required by repository method: " + method.name());
         }
         return repositoryOperation.get().execute(context);
