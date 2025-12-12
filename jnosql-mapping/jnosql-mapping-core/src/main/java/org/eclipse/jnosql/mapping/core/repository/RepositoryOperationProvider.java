@@ -25,6 +25,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.FindAllOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.FindByOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.InsertOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.ParameterBasedOperation;
+import org.eclipse.jnosql.mapping.metadata.repository.spi.ProviderOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.QueryOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.SaveOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.UpdateOperation;
@@ -109,4 +110,11 @@ public interface RepositoryOperationProvider  {
      * Returns the operator for executing explicit {@code @Query} operations.
      */
     QueryOperation queryOperation();
+
+    /**
+     * Returns the {@link ProviderOperation} used to execute repository methods that declare a provider-specific
+     * query annotation marked with {@code @ProviderQuery}; this operation is responsible for interpreting the
+     * method’s provider identifier and delegating execution to the appropriate vendor implementation.
+     */
+    ProviderOperation providerOperation();
 }
