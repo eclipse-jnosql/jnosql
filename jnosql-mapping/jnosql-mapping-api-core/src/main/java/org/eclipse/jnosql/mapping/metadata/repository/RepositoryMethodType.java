@@ -133,6 +133,11 @@ public enum RepositoryMethodType {
      */
     CUSTOM_REPOSITORY,
     /**
+     * Method annotated with a provider-defined query annotation where the annotation
+     * is marked with {@code @ProviderQuery}.
+     */
+    PROVIDER_OPERATION,
+    /**
      * At the stage it is undefined, thus, required validation
      */
     UNKNOWN
