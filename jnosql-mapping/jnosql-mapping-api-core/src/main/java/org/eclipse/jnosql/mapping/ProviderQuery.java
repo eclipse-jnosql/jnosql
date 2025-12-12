@@ -24,14 +24,19 @@ import java.lang.annotation.Target;
 
 /**
  * Qualifier that links a custom repository query annotation with the
- * {@link org.eclipse.jnosql.mapping.metadata.repository.spi.ProviderOperation}
+ * {@link org.eclipse.jnosql.mapping.metadata.repository.spi.ProviderQueryHandler}
  * responsible for executing it.
  *
  * <p>A custom query annotation must declare {@code @ProviderQuery} to indicate
- * that its execution is delegated to an external provider. The provider then
- * implements a {@code ProviderOperation} and applies the same qualifier value,
- * allowing the execution engine to match repository methods with the correct
- * provider at runtime.</p>
+ * that its execution is handled by an external provider. This allows repository
+ * methods to express queries or operations that rely on a provider-specific
+ * execution model rather than Jakarta Data’s built-in derived or annotated
+ * operations.</p>
+ *
+ * <p>Providers implement their own {@code ProviderQueryHandler} and annotate
+ * it with the same {@code @ProviderQuery} value used on the custom query
+ * annotation. At runtime, the invocation engine resolves the appropriate
+ * handler based solely on this qualifier.</p>
  *
  * <pre>{@code
  * @ProviderQuery("example")
@@ -43,19 +48,19 @@ import java.lang.annotation.Target;
  *
  * @ProviderQuery("example")
  * @ApplicationScoped
- * public class ExampleProviderOperation implements ProviderOperation {
- *
+ * public class ExampleQueryHandler implements ProviderQueryHandler {
  *     @Override
  *     public <T> T execute(RepositoryInvocationContext context) {
- *         // provider-specific execution
+ *         // provider-specific execution mechanism
  *     }
  * }
  * }</pre>
  *
- * <p>The {@link #value()} must match on both the query annotation and the
- * provider implementation. This mechanism supports both reflection-based
- * discovery and annotation-processor models, since the linkage is expressed
- * through the qualifier rather than annotation instances.</p>
+ * <p>The {@link #value()} must match between the custom query annotation and its
+ * provider handler. This design allows the mechanism to work consistently for
+ * reflection-based metadata and annotation-processor–generated metadata, since
+ * the provider link is expressed through the qualifier rather than concrete
+ * annotation instances.</p>
  */
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
@@ -63,7 +68,9 @@ import java.lang.annotation.Target;
 public @interface ProviderQuery {
 
     /**
-     * Identifies the provider or query language family. Examples: "cql", "sql", "gremlin", "cypher", "arangoql".
+     * Identifies the provider or query mechanism name.
+     * This string is used to associate a custom query annotation with the
+     * corresponding {@code ProviderQueryHandler}.
      *
      * @return the provider identifier; never null.
      */
