@@ -18,6 +18,7 @@ import jakarta.inject.Inject;
 import jakarta.nosql.Convert;
 import jakarta.nosql.Template;
 import org.assertj.core.api.Assertions;
+import org.eclipse.jnosql.mapping.DynamicQueryException;
 import org.eclipse.jnosql.mapping.core.VetedConverter;
 import org.eclipse.jnosql.mapping.core.entities.ComicBook;
 import org.eclipse.jnosql.mapping.core.entities.ComicBookRepository;
@@ -86,6 +87,13 @@ class ProviderOperationRepositoryInvocationHandlerTest {
     void shouldExecuteProviderOperation() {
         String provider = comicBookRepository.sampleProvider("test");
         Assertions.assertThat(provider).contains("Sample of query using provider test");
+    }
+
+    @Test
+    void shouldNotExecuteProviderOperation() {
+        Assertions.assertThatThrownBy(() -> comicBookRepository.invalidProvider("test"))
+                .isInstanceOf(DynamicQueryException.class);
+
     }
 
 

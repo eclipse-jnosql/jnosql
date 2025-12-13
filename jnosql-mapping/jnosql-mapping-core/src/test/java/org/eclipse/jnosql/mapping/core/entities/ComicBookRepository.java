@@ -22,6 +22,7 @@ import jakarta.data.repository.Repository;
 import jakarta.data.repository.Save;
 import jakarta.data.repository.Update;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
+import org.eclipse.jnosql.mapping.core.repository.operations.NoVendorSampleQueryProvider;
 import org.eclipse.jnosql.mapping.core.repository.operations.SampleQueryProvider;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.CursorPaginationOperation;
 
@@ -120,4 +121,6 @@ public interface ComicBookRepository extends NoSQLRepository<ComicBook, String>,
     @SampleQueryProvider("Sample of query using provider")
     String sampleProvider(String name);
 
+    @NoVendorSampleQueryProvider("Sample of query using provider")
+    String invalidProvider(String name);
 }
