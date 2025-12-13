@@ -467,7 +467,7 @@ class ReflectionRepositorySupplierTest {
     }
 
     @Test
-    void shouldDefineCustomTrueOnCustomAnnotation() {
+    void shouldIdentifyProviderOperationMethodType() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
         Optional<RepositoryMethod> query = metadata.find(new NameKey("sampleQuery"));
         SoftAssertions.assertSoftly(soft -> {
