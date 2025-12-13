@@ -50,8 +50,11 @@ class CoreProviderOperation implements ProviderOperation {
 
         if (repositoryOperation.isUnsatisfied() || repositoryOperation.isAmbiguous()) {
             throw new DynamicQueryException(
-                    "Cannot resolve ProviderQueryHandler for provider '" + provider +
-                            "' required by repository method: " + method.name());
+                    "Cannot resolve ProviderQueryHandler for provider '" + provider + "' " +
+                            "required by repository method '" + method.name() + "'. " +
+                            "Ensure that exactly one ProviderQueryHandler is registered with " +
+                            "@ProviderQuery(\"" + provider + "\") and that it is visible to the CDI container."
+            );
         }
         return repositoryOperation.get().execute(context);
     }
