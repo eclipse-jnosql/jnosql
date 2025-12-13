@@ -35,15 +35,15 @@ import java.util.Optional;
 public interface RepositoryAnnotation {
 
     /**
-     * Returns the fully-qualified annotation type name.
+     * Returns the annotation type as a {@link Class} object.
      * <p>
      * Examples:
      * <ul>
-     *   <li>{@code "jakarta.data.repository.Query"}</li>
-     *   <li>{@code "org.example.CQL"}</li>
+     *   <li>{@code jakarta.data.repository.Query.class}</li>
+     *   <li>{@code org.example.CQL.class}</li>
      * </ul>
      *
-     * @return the annotation type name; never {@code null}.
+     * @return the annotation type; never {@code null}.
      */
     Class<?> annotation();
 
