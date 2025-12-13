@@ -82,7 +82,7 @@ class CoreBaseRepositoryOperationProviderTest {
     }
 
     @Test
-    @DisplayName("DeleteOperation must NOT throw UnsupportedOperationException")
+    @DisplayName("ProviderOperation must NOT throw UnsupportedOperationException")
     void shouldReturnProviderOperation() {
         Assertions.assertThatCode(() -> provider.providerOperation())
                 .doesNotThrowAnyException();
