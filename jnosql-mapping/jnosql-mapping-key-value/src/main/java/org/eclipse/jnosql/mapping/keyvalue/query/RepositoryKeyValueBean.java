@@ -48,7 +48,7 @@ public class RepositoryKeyValueBean<T extends CrudRepository<?,?>> extends Abstr
      * @param type        the tye
      * @param provider    the provider name, that must be a
      */
-    public RepositoryKeyValueBean(Class type, String provider) {
+    public RepositoryKeyValueBean(Class<?> type, String provider) {
         this.type = type;
         this.types = Collections.singleton(type);
         this.provider = provider;
