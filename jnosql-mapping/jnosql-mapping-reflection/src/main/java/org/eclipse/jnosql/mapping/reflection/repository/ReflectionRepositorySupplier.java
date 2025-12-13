@@ -251,7 +251,7 @@ enum ReflectionRepositorySupplier {
         RepositoryMethodType type;
         if (isProviderQuery) {
             type = RepositoryMethodType.PROVIDER_OPERATION;
-        } else{
+        } else {
             type = RepositoryMethodTypeConverter.of(method);
         }
         return type;
