@@ -27,6 +27,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.FindAllOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.FindByOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.InsertOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.ParameterBasedOperation;
+import org.eclipse.jnosql.mapping.metadata.repository.spi.ProviderOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.QueryOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.SaveOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.UpdateOperation;
@@ -69,6 +70,9 @@ class SemistructuredRepositoryOperationProvider implements RepositoryOperationPr
 
     @Inject
     private QueryOperation queryOperation;
+
+    @Inject
+    private ProviderOperation providerOperation;
 
     @Override
     public InsertOperation insertOperation() {
@@ -133,5 +137,10 @@ class SemistructuredRepositoryOperationProvider implements RepositoryOperationPr
     @Override
     public QueryOperation queryOperation() {
         return queryOperation;
+    }
+
+    @Override
+    public ProviderOperation providerOperation() {
+        return providerOperation;
     }
 }
