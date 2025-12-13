@@ -109,4 +109,9 @@ class SemistructuredRepositoryOperationProviderTest {
     void shouldProvideQueryOperation() {
         assertThat(provider.queryOperation()).isNotNull();
     }
+
+    @Test
+    void shouldProviderOperation(){
+        assertThat(provider.providerOperation()).isNotNull();
+    }
 }

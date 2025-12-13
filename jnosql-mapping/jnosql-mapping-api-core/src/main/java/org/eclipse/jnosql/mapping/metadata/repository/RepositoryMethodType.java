@@ -71,7 +71,7 @@ public enum RepositoryMethodType {
 
     /**
      * Method defined as a {@code default} method within the repository interface.
-     * Executed directly by user code rather than by the Jakarta Data provider.
+     * Executed directly without involving the Jakarta Data provider.
      */
     DEFAULT_METHOD,
 
@@ -90,22 +90,12 @@ public enum RepositoryMethodType {
      * an entity depending on its state.
      */
     SAVE,
-
-    /**
-     * Method annotated with
-     * {@link jakarta.data.repository.Find jakarta.data.repository.Find}.
-     * The query is resolved dynamically from the parameters rather than a
-     * fixed name pattern or explicit query string.
-     */
-    PARAMETER_BASED,
-
     /**
      * Method annotated with
      * {@link jakarta.data.repository.Insert jakarta.data.repository.Insert}.
      * Represents an explicit insert operation that adds a new entity.
      */
     INSERT,
-
     /**
      * Method annotated with
      * {@link jakarta.data.repository.Delete jakarta.data.repository.Delete}.
@@ -113,7 +103,6 @@ public enum RepositoryMethodType {
      * entities matching the specified conditions.
      */
     DELETE,
-
     /**
      * Method annotated with
      * {@link jakarta.data.repository.Update jakarta.data.repository.Update}.
@@ -121,17 +110,20 @@ public enum RepositoryMethodType {
      */
     UPDATE,
     /**
+     * Method annotated with
+     * {@link jakarta.data.repository.Find jakarta.data.repository.Find}.
+     * The query is resolved dynamically from the parameters rather than a
+     * fixed name pattern or explicit query string.
+     */
+    PARAMETER_BASED,
+    /**
      * Method that returns a paginated result set.
      */
     CURSOR_PAGINATION,
     /**
-     * At the stage it is undefined, thus, required validation
-     */
-    UNKNOWN,
-    /**
      * Methods from either {@link CrudRepository}, {@link  BasicRepository} and {@link  org.eclipse.jnosql.mapping.NoSQLRepository}
      */
-    DEFAULT,
+    BUILT_IN_METHOD,
     /**
      * Methods from {@link Object}
      */
@@ -139,6 +131,15 @@ public enum RepositoryMethodType {
     /**
      * The method that belongs to the interface using a custom repository.
      */
-    CUSTOM_REPOSITORY
+    CUSTOM_REPOSITORY,
+    /**
+     * Method annotated with a provider-defined query annotation where the annotation
+     * is marked with {@code @ProviderQuery}.
+     */
+    PROVIDER_OPERATION,
+    /**
+     * At the stage it is undefined, thus, required validation
+     */
+    UNKNOWN
 
 }

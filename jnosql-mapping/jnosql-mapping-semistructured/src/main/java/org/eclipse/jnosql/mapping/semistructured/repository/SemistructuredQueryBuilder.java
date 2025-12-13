@@ -54,6 +54,7 @@ class SemistructuredQueryBuilder {
         this.parsers = new ConcurrentHashMap<>();
         this.paramsBinderMap = new ConcurrentHashMap<>();
     }
+
     public SemistructuredQueryBuilder() {
         this.converters = null;
         this.parsers = new ConcurrentHashMap<>();

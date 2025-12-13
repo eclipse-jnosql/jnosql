@@ -28,6 +28,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.FindAllOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.FindByOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.InsertOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.ParameterBasedOperation;
+import org.eclipse.jnosql.mapping.metadata.repository.spi.ProviderOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.QueryOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.SaveOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.UpdateOperation;
@@ -55,22 +56,25 @@ public class CoreBaseRepositoryOperationProvider implements RepositoryOperationP
 
     private final InsertOperation insertOperation;
     private final UpdateOperation updateOperation;
-    private final  DeleteOperation deleteOperation;
-    private final  SaveOperation saveOperation;
+    private final DeleteOperation deleteOperation;
+    private final SaveOperation saveOperation;
+    private final ProviderOperation providerOperation;
 
     @Inject
     CoreBaseRepositoryOperationProvider(InsertOperation insertOperation,
                                         UpdateOperation updateOperation,
                                         DeleteOperation deleteOperation,
-                                        SaveOperation saveOperation) {
+                                        SaveOperation saveOperation,
+                                        ProviderOperation providerOperation) {
         this.insertOperation = insertOperation;
         this.updateOperation = updateOperation;
         this.deleteOperation = deleteOperation;
         this.saveOperation = saveOperation;
+        this.providerOperation = providerOperation;
     }
 
     CoreBaseRepositoryOperationProvider() {
-        this(null, null, null, null);
+        this(null, null, null, null, null);
     }
 
     @Override
@@ -92,6 +96,11 @@ public class CoreBaseRepositoryOperationProvider implements RepositoryOperationP
     @Override
     public SaveOperation saveOperation() {
         return saveOperation;
+    }
+
+    @Override
+    public ProviderOperation providerOperation() {
+        return providerOperation;
     }
 
     @Override
@@ -138,5 +147,4 @@ public class CoreBaseRepositoryOperationProvider implements RepositoryOperationP
     public QueryOperation queryOperation() {
         throw new UnsupportedOperationException("The Core API does not support queryOperation");
     }
-
 }

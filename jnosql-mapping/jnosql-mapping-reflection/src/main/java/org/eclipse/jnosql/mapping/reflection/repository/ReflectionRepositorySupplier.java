@@ -26,6 +26,8 @@ import jakarta.data.repository.Select;
 import jakarta.enterprise.event.Event;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Projection;
+import org.eclipse.jnosql.mapping.ProviderQuery;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryAnnotation;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
@@ -44,6 +46,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
+
+import static java.util.Optional.ofNullable;
 
 enum ReflectionRepositorySupplier {
 
@@ -108,10 +112,9 @@ enum ReflectionRepositorySupplier {
     private RepositoryMethod to(Method method, Event<ProjectionFound> projectionFoundEvent) {
 
         String name = method.getName();
-        RepositoryMethodType type = RepositoryMethodTypeConverter.of(method);
-        String queryValue = Optional.ofNullable(method.getAnnotation(Query.class))
+        String queryValue = ofNullable(method.getAnnotation(Query.class))
                 .map(Query::value).orElse(null);
-        Integer firstValue = Optional.ofNullable(method.getAnnotation(First.class))
+        Integer firstValue = ofNullable(method.getAnnotation(First.class))
                 .map(First::value).orElse(null);
         Class<?> returnTypeValue = method.getReturnType();
         Class<?> elementTypeValue = getElementTypeValue(method);
@@ -126,10 +129,13 @@ enum ReflectionRepositorySupplier {
         List<String> select = Arrays.stream(method.getDeclaredAnnotationsByType(Select.class))
                 .map(Select::value)
                 .toList();
-        List<String> annotations = Arrays.stream(method.getAnnotations())
-                .map(annotation -> annotation.annotationType().getName())
+        List<RepositoryAnnotation> annotations = Arrays.stream(method.getAnnotations())
+                .map(this::toAnnotation)
                 .distinct()
                 .toList();
+        boolean isProviderQuery = annotations.stream()
+                .anyMatch(RepositoryAnnotation::isProviderAnnotation);
+        RepositoryMethodType type = getRepositoryMethodType(method, isProviderQuery);
 
         return new ReflectionRepositoryMethod(name,
                 type,
@@ -184,14 +190,14 @@ enum ReflectionRepositorySupplier {
     private List<RepositoryParam> to(Parameter[] parameters) {
         List<RepositoryParam> params = new ArrayList<>(parameters.length);
         for (Parameter parameter : parameters) {
-            Class<? extends Constraint<?>> isValue = (Class<? extends Constraint<?>>) Optional.ofNullable(parameter
+            Class<? extends Constraint<?>> isValue = (Class<? extends Constraint<?>>) ofNullable(parameter
                             .getAnnotation(Is.class))
                     .map(Is::value)
                     .orElse(null);
-            String name = Optional.ofNullable(parameter.getAnnotation(Param.class))
+            String name = ofNullable(parameter.getAnnotation(Param.class))
                     .map(Param::value)
                     .orElse(parameter.getName());
-            String by = Optional.ofNullable(parameter.getAnnotation(By.class))
+            String by = ofNullable(parameter.getAnnotation(By.class))
                     .map(By::value)
                     .orElse(parameter.getName());
             Class<?> type = parameter.getType();
@@ -220,5 +226,34 @@ enum ReflectionRepositorySupplier {
             }
         }
         return null;
+    }
+
+    private RepositoryAnnotation toAnnotation(java.lang.annotation.Annotation annotation) {
+        Class<?> annotationType = annotation.annotationType();
+        Map<String, Object> attributes = new HashMap<>();
+        Arrays.stream(annotationType.getDeclaredMethods()).forEach(method -> {
+            try {
+                Object value = method.invoke(annotation);
+                attributes.put(method.getName(), value);
+            } catch (Exception e) {
+                throw new IllegalStateException("Could not retrieve the attribute " + method.getName() +
+                        " from the annotation " + annotationType.getName(), e);
+            }
+        });
+        boolean isProviderAnnotation = annotationType.isAnnotationPresent(ProviderQuery.class);
+        var providerValue = ofNullable(annotationType.getAnnotation(ProviderQuery.class))
+                .map(ProviderQuery::value)
+                .orElse(null);
+        return new ReflectionRepositoryAnnotation(annotationType, attributes, isProviderAnnotation, providerValue);
+    }
+
+    private static RepositoryMethodType getRepositoryMethodType(Method method, boolean isProviderQuery) {
+        RepositoryMethodType type;
+        if (isProviderQuery) {
+            type = RepositoryMethodType.PROVIDER_OPERATION;
+        } else {
+            type = RepositoryMethodTypeConverter.of(method);
+        }
+        return type;
     }
 }

@@ -176,4 +176,11 @@ class DefaultEntitiesMetadataTest {
             softly.assertThat(projectionMetadata.className()).isEqualTo(CarResult.class.getName());
         });
     }
+
+    @Test
+    void shouldReturnToString() {
+        String toString = mappings.toString();
+        Assertions.assertNotNull(toString);
+        Assertions.assertTrue(toString.contains("DefaultEntitiesMetadata"));
+    }
 }

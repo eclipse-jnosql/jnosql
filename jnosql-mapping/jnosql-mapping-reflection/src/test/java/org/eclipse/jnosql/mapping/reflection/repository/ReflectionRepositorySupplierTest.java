@@ -17,11 +17,13 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import jakarta.data.Sort;
 import jakarta.data.constraint.Constraint;
 import jakarta.data.constraint.GreaterThan;
+import jakarta.data.repository.Query;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.repository.MethodSignatureKey;
 import org.eclipse.jnosql.mapping.metadata.repository.NameKey;
 import org.eclipse.jnosql.mapping.metadata.repository.ReflectionMethodKey;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryAnnotation;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
@@ -36,6 +38,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -403,11 +406,74 @@ class ReflectionRepositorySupplierTest {
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
-            List<String> annotations = method.annotations();
-            soft.assertThat(annotations).hasSize(3)
+            List<RepositoryAnnotation> annotations = method.annotations();
+            List<String> annotationsNames = annotations.stream().map(a -> a.annotation().getName()).toList();
+            soft.assertThat(annotationsNames).hasSize(3)
                     .contains("jakarta.data.repository.Select$List",
                     "jakarta.data.repository.Query",
                     "org.eclipse.jnosql.mapping.reflection.repository.Custom");
+        });
+    }
+
+    @Test
+    void shouldGetAttributesFromAnnotation(){
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("queryAll"));
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            var annotations = method.annotations();
+            var queryAnnotation = annotations.stream()
+                    .filter(a -> a.annotation()
+                    .equals(Query.class)).findFirst().orElseThrow();
+            var attributes = queryAnnotation.attributes();
+            soft.assertThat(attributes).isNotEmpty();
+            soft.assertThat(attributes.get("value")).isEqualTo("FROM Person");
+        });
+    }
+
+    @Test
+    void shouldShowCustomProviderAnnotation(){
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("sampleQuery"));
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            var annotations = method.annotations();
+            var annotation = annotations.getFirst();
+            soft.assertThat(annotation).isNotNull();
+            soft.assertThat(annotation.annotation()).isEqualTo(SampleQuery.class);
+            soft.assertThat(annotation.isProviderAnnotation()).isTrue();
+            Map<String, Object> attributes = annotation.attributes();
+            soft.assertThat(attributes).isNotEmpty();
+            soft.assertThat(attributes).containsEntry("value", "sample query");
+        });
+    }
+
+    @Test
+    void shouldReturnProviderName(){
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("sampleQuery"));
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            var annotations = method.annotations();
+            var annotation = annotations.getFirst();
+            soft.assertThat(annotation).isNotNull();
+            soft.assertThat(annotation.annotation()).isEqualTo(SampleQuery.class);
+            soft.assertThat(annotation.isProviderAnnotation()).isTrue();
+            soft.assertThat(annotation.provider()).isPresent().get().isEqualTo("sample");
+        });
+    }
+
+    @Test
+    void shouldIdentifyProviderOperationMethodType() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        Optional<RepositoryMethod> query = metadata.find(new NameKey("sampleQuery"));
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query).isPresent();
+            var method = query.orElseThrow();
+            soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.PROVIDER_OPERATION);
         });
     }
 

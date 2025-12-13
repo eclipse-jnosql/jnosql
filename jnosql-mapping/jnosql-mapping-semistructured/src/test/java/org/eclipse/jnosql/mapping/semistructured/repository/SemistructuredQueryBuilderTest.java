@@ -35,8 +35,8 @@ class SemistructuredQueryBuilderTest {
 
     @Test
     void shouldInstanceDefaultConstructor() {
-        SemistructuredRepositoryProducer producer = new SemistructuredRepositoryProducer();
-        Assertions.assertThat(producer).isNotNull();
+        SemistructuredQueryBuilder builder = new SemistructuredQueryBuilder();
+        Assertions.assertThat(builder).isNotNull();
     }
 
 

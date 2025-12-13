@@ -108,7 +108,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         RepositoryMethodDescriptor methodDescriptor = methodDescriptor(method);
 
         switch (methodDescriptor.type()) {
-            case DEFAULT -> {
+            case BUILT_IN_METHOD -> {
                 return unwrapInvocationTargetException(() -> infrastructureOperatorProvider().buildInMethodOperator().invokeDefault(repository(), method, params));
             }
             case DEFAULT_METHOD -> {
@@ -186,6 +186,10 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                 var context = repositoryInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().queryOperation().execute(context)));
+            } case PROVIDER_OPERATION -> {
+                var context = repositoryInvocationContext(params, methodDescriptor);
+                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                        repositoryOperationProvider().providerOperation().execute(context)));
             }
             default -> throw new UnsupportedOperationException("Method not supported: " + method);
         }
@@ -197,7 +201,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                 template(), params == null ? EMPTY : params);
     }
 
-    private RepositoryMethodDescriptor methodDescriptor(Method method) {
+    protected RepositoryMethodDescriptor methodDescriptor(Method method) {
         var repositoryMethodType = this.methodRepositoryTypeMap.get(method);
         if (repositoryMethodType == null) {
             repositoryMethodType = processingMethodDescriptor(method);
@@ -218,7 +222,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         if (Object.class.equals(method.getDeclaringClass())) {
             repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.OBJECT_METHOD, null);
         } else if (IS_REPOSITORY_METHOD.test(method.getDeclaringClass())) {
-            repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.DEFAULT, null);
+            repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.BUILT_IN_METHOD, null);
         } else if (isCDIComponent(method.getDeclaringClass())) {
             repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.CUSTOM_REPOSITORY, null);
         }
