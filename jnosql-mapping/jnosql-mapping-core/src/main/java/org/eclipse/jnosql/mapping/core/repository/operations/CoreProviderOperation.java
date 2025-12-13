@@ -41,9 +41,9 @@ class CoreProviderOperation implements ProviderOperation {
         var providerAnnotation = annotations.stream()
                 .filter(RepositoryAnnotation::isProviderAnnotation)
                 .findFirst()
-                .orElseThrow(() -> new DynamicQueryException("No provider found at the method: " + method.name()));
+                .orElseThrow(() -> new DynamicQueryException("No provider annotation found on method: " + method.name()));
 
-        String provider = providerAnnotation.provider().orElseThrow(() -> new DynamicQueryException("No provider found at the method: " + method.name()));
+        String provider = providerAnnotation.provider().orElseThrow(() -> new DynamicQueryException("Provider annotation missing identifier on method: " + method.name()));
 
         Instance<ProviderQueryHandler> repositoryOperation = providers.select(ProviderQueryHandler.class,
                 ProviderQueryLiteral.of(provider));
