@@ -67,6 +67,13 @@ class SemistructuredRepositoryProducerTest {
     }
 
     @Test
+    void shouldInstanceDefaultConstructor() {
+        SemistructuredRepositoryProducer producer = new SemistructuredRepositoryProducer();
+        Assertions.assertThat(producer).isNotNull();
+    }
+
+
+    @Test
     void shouldReturnCustomRepositoryInstance() {
         var repository = producer.get(Tasks.class, semiStructuredTemplate);
         Assertions.assertThat(repository).isNotNull();
