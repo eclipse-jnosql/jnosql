@@ -451,7 +451,7 @@ class ReflectionRepositorySupplierTest {
     }
 
     @Test
-    void shouldProviderName(){
+    void shouldReturnProviderName(){
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
         Optional<RepositoryMethod> query = metadata.find(new NameKey("sampleQuery"));
         SoftAssertions.assertSoftly(soft -> {
