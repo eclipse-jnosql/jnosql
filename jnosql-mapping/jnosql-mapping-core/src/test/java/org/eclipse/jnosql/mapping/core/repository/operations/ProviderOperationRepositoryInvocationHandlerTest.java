@@ -48,7 +48,7 @@ import java.util.Optional;
 @AddPackages(value = InfrastructureOperatorProvider.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class})
 @AddPackages(value = ReflectionClassConverter.class)
-@DisplayName("Test scenario where the handler goes on the save provider")
+@DisplayName("Test scenario where the handler executes provider-defined query operations")
 class ProviderOperationRepositoryInvocationHandlerTest {
 
     private Template template;
