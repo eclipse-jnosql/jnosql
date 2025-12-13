@@ -83,7 +83,7 @@ class ProviderOperationRepositoryInvocationHandlerTest {
     }
 
     @Test
-    void shouldInvalidWhenParameterIsInvalid() {
+    void shouldExecuteProviderOperation() {
         String provider = comicBookRepository.sampleProvider("test");
         Assertions.assertThat(provider).contains("Sample of query using provider test");
     }
