@@ -14,8 +14,16 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class SemistructuredFindAllOperationTest {
 
+
+    @Test
+    void shouldCreateInstance() {
+        SemistructuredFindAllOperation operation = new SemistructuredFindAllOperation();
+        assertNotNull(operation);
+    }
 }
