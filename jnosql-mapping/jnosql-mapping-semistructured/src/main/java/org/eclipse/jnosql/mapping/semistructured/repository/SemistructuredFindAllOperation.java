@@ -15,14 +15,36 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.FindAllOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
+import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 @ApplicationScoped
 class SemistructuredFindAllOperation implements FindAllOperation {
 
+    private final SemistructuredQueryBuilder semistructuredQueryBuilder;
+
+    @Inject
+    SemistructuredFindAllOperation(SemistructuredQueryBuilder semistructuredQueryBuilder) {
+        this.semistructuredQueryBuilder = semistructuredQueryBuilder;
+    }
+
+    SemistructuredFindAllOperation() {
+        this.semistructuredQueryBuilder = null;
+    }
+
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
-        return null;
+        EntityMetadata entityMetadata = context.entityMetadata();
+        var template = (SemiStructuredTemplate) context.template();
+        Class<?> type = entityMetadata.type();
+        RepositoryMethod method = context.method();
+        var query = SelectQuery.select().from(entityMetadata.name()).build();
     }
+
+
 }
