@@ -55,7 +55,7 @@ class SemistructuredQueryBuilder {
         this.paramsBinderMap = new ConcurrentHashMap<>();
     }
 
-    public SemistructuredQueryBuilder() {
+    SemistructuredQueryBuilder() {
         this.converters = null;
         this.parsers = new ConcurrentHashMap<>();
         this.paramsBinderMap = new ConcurrentHashMap<>();
@@ -77,7 +77,7 @@ class SemistructuredQueryBuilder {
         return includeInheritance(query, entityMetadata);
     }
 
-    public DeleteQuery deleteQuery(RepositoryInvocationContext context) {
+    DeleteQuery deleteQuery(RepositoryInvocationContext context) {
         var entityMetadata = context.entityMetadata();
         var provider = DeleteMethodProvider.INSTANCE;
         var method = context.method();
