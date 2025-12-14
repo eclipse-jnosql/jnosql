@@ -62,7 +62,7 @@ class SemistructuredQueryBuilder {
     }
 
 
-    public SelectQuery selectQuery(RepositoryInvocationContext context) {
+    SelectQuery selectQuery(RepositoryInvocationContext context) {
         var method = context.method();
         var entityMetadata = context.entityMetadata();
         var parameters = context.parameters();
