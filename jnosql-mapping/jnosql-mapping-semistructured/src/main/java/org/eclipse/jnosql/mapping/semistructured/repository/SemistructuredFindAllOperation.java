@@ -28,15 +28,21 @@ class SemistructuredFindAllOperation implements FindAllOperation {
 
     private final SemistructuredQueryBuilder semistructuredQueryBuilder;
 
+    private final SemistructuredReturnType semistructuredReturnType;
+
     @Inject
-    SemistructuredFindAllOperation(SemistructuredQueryBuilder semistructuredQueryBuilder) {
+    SemistructuredFindAllOperation(SemistructuredQueryBuilder semistructuredQueryBuilder,
+                                   SemistructuredReturnType semistructuredReturnType) {
         this.semistructuredQueryBuilder = semistructuredQueryBuilder;
+        this.semistructuredReturnType = semistructuredReturnType;
     }
 
     SemistructuredFindAllOperation() {
         this.semistructuredQueryBuilder = null;
+        this.semistructuredReturnType = null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
         EntityMetadata entityMetadata = context.entityMetadata();
@@ -44,6 +50,8 @@ class SemistructuredFindAllOperation implements FindAllOperation {
         Class<?> type = entityMetadata.type();
         RepositoryMethod method = context.method();
         var query = SelectQuery.select().from(entityMetadata.name()).build();
+
+        return (T) semistructuredReturnType.executeFindByQuery(context, query);
     }
 
 
