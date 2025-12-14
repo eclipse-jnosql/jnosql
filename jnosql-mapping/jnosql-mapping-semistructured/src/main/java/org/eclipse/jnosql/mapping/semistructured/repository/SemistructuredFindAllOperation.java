@@ -21,7 +21,6 @@ import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.FindAllOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
-import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 @ApplicationScoped
 class SemistructuredFindAllOperation implements FindAllOperation {
@@ -46,7 +45,6 @@ class SemistructuredFindAllOperation implements FindAllOperation {
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
         EntityMetadata entityMetadata = context.entityMetadata();
-        var template = (SemiStructuredTemplate) context.template();
         Class<?> type = entityMetadata.type();
         RepositoryMethod method = context.method();
         var query = SelectQuery.select().from(entityMetadata.name()).build();
