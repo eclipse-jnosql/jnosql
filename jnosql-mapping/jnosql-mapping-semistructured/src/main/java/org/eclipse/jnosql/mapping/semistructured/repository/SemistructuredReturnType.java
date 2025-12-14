@@ -23,8 +23,10 @@ import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
+import org.eclipse.jnosql.mapping.semistructured.ProjectorConverter;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -33,6 +35,8 @@ import java.util.stream.Stream;
 class SemistructuredReturnType {
 
     private EntitiesMetadata entitiesMetadata;
+
+    private ProjectorConverter projectorConverter;
 
     @SuppressWarnings("unchecked")
     protected Object executeFindByQuery(RepositoryInvocationContext context, SelectQuery query) {
@@ -65,17 +69,16 @@ class SemistructuredReturnType {
     protected <E> Function<Object, E> mapper(RepositoryInvocationContext context) {
         return value -> {
             RepositoryMethod method = context.method();
-            var entityMetadata = context.entityMetadata();
             var returnType = method.elementType().orElseThrow();
             Optional<ProjectionMetadata> projection = this.entitiesMetadata.projection(returnType);
             if (projection.isPresent()) {
                 ProjectionMetadata projectionMetadata = projection.orElseThrow();
-                return projectorConverter().map(value, projectionMetadata);
+                return projectorConverter.map(value, projectionMetadata);
             }
-            Select[] annotations = method.getAnnotationsByType(Select.class);
-            if (annotations.length == 1) {
-                String fieldReturn = annotations[0].value();
-                Optional<EntityMetadata> valueEntityMetadata = entitiesMetadata().findByClassName(value.getClass().getName());
+            List<String> select = method.select();
+            if (select.size() == 1) {
+                String fieldReturn = select.getFirst();
+                Optional<EntityMetadata> valueEntityMetadata = entitiesMetadata.findByClassName(value.getClass().getName());
                 return (E) valueEntityMetadata
                         .map(entityMetadata -> value(entityMetadata, fieldReturn, value))
                         .orElse(value);
