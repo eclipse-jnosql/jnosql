@@ -22,6 +22,7 @@ import java.util.List;
 @Repository
 public interface ComicBookBookStore {
 
+    List<ComicBook> findAll();
 
     List<ComicBook> findByName(String name);
     long countAll();
