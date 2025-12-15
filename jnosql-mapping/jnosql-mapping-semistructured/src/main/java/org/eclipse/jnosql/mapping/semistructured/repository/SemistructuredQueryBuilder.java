@@ -91,6 +91,11 @@ class SemistructuredQueryBuilder {
         return includeInheritance(query, entityMetadata);
     }
 
+    public SelectQuery updateQuery(SelectQuery query, RepositoryInvocationContext context) {
+        var entityMetadata = context.entityMetadata();
+        return includeInheritance(query, entityMetadata);
+    }
+
 
     private CommunicationObserverParser observer(EntityMetadata entityMetadata) {
         Class<?> entityType = entityMetadata.type();
@@ -137,7 +142,6 @@ class SemistructuredQueryBuilder {
         }
         return null;
     }
-
 
 
 }
