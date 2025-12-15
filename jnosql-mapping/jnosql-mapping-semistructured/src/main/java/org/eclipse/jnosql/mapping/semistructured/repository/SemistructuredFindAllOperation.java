@@ -45,7 +45,9 @@ class SemistructuredFindAllOperation implements FindAllOperation {
     public <T> T execute(RepositoryInvocationContext context) {
         EntityMetadata entityMetadata = context.entityMetadata();
         var query = SelectQuery.select().from(entityMetadata.name()).build();
-        return (T) semistructuredReturnType.executeFindByQuery(context, query);
+
+        return (T) semistructuredReturnType.executeFindByQuery(context,
+                semistructuredQueryBuilder.updateQuery(query,context));
     }
 
 
