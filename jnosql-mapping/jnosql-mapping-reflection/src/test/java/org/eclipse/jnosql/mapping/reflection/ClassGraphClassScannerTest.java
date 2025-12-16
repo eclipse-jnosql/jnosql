@@ -131,7 +131,7 @@ class ClassGraphClassScannerTest {
     @Test
     void shouldReturnProjections() {
         Set<Class<?>> projections = classScanner.projections();
-        assertThat(projections).hasSize(2)
+        assertThat(projections).hasSize(3)
                 .contains(ComputerView.class, PCView.class)
                 .doesNotContain(BookDTO.class);
     }
@@ -139,14 +139,14 @@ class ClassGraphClassScannerTest {
     @Test
     void shouldIgnoreProjectionClassesThatAreNotRecords() {
         Set<Class<?>> projections = classScanner.projections();
-        assertThat(projections).hasSize(2)
+        assertThat(projections).hasSize(3)
                 .doesNotContain(BookDTO.class);
     }
 
     @Test
     void shouldIgnoreProjectionClassesThatAreNotAnnotated() {
         Set<Class<?>> projections = classScanner.projections();
-        assertThat(projections).hasSize(2)
+        assertThat(projections).hasSize(3)
                 .doesNotContain(BookDTO.class);
     }
 

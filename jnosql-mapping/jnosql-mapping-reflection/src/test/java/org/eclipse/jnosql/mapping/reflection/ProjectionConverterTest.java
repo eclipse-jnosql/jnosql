@@ -13,11 +13,13 @@ package org.eclipse.jnosql.mapping.reflection;
 
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.ProjectionConstructorMetadata;
+import org.eclipse.jnosql.mapping.reflection.entities.BookSummary;
 import org.eclipse.jnosql.mapping.reflection.entities.ComputerView;
 import org.eclipse.jnosql.mapping.reflection.entities.PCView;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.Year;
 
 class ProjectionConverterTest {
 
@@ -92,6 +94,21 @@ class ProjectionConverterTest {
             softly.assertThat(constructor.parameters().get(0).type()).isEqualTo(String.class);
             softly.assertThat(constructor.parameters().get(1).name()).isEqualTo("native");
             softly.assertThat(constructor.parameters().get(1).type()).isEqualTo(BigDecimal.class);
+        });
+    }
+
+    @Test
+    void shouldUseAttributeNameWhenAnnotationIsBlank() {
+        Class<?> type = BookSummary.class;
+        var metadata = converter.apply(type);
+        var constructor = metadata.constructor();
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(constructor).isNotNull();
+            softly.assertThat(constructor.parameters()).hasSize(2);
+            softly.assertThat(constructor.parameters().get(0).name()).isEqualTo("name");
+            softly.assertThat(constructor.parameters().get(0).type()).isEqualTo(String.class);
+            softly.assertThat(constructor.parameters().get(1).name()).isEqualTo("release");
+            softly.assertThat(constructor.parameters().get(1).type()).isEqualTo(Year.class);
         });
     }
 
