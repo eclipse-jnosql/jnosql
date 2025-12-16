@@ -26,6 +26,7 @@ import org.eclipse.jnosql.mapping.reflection.entities.ComputerView;
 import org.eclipse.jnosql.mapping.reflection.entities.Movie;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.eclipse.jnosql.mapping.reflection.entities.Vendor;
+import org.eclipse.jnosql.mapping.reflection.entities.constructor.Counter;
 import org.eclipse.jnosql.mapping.reflection.entities.inheritance.EmailNotification;
 import org.eclipse.jnosql.mapping.reflection.entities.inheritance.LargeProject;
 import org.eclipse.jnosql.mapping.reflection.entities.inheritance.Notification;
@@ -175,6 +176,14 @@ class DefaultEntitiesMetadataTest {
             softly.assertThat(projectionMetadata.type()).isEqualTo(CarResult.class);
             softly.assertThat(projectionMetadata.className()).isEqualTo(CarResult.class.getName());
         });
+    }
+
+    @Test
+    void shouldIgnoreWhenIsEntity(){
+        ProjectionFound projectionFound = new ProjectionFound(Counter.class);
+        mappings.projectionFound(projectionFound);
+        Optional<ProjectionMetadata> projection = mappings.projection(Counter.class);
+        SoftAssertions.assertSoftly(softly -> softly.assertThat(projection).isNotPresent());
     }
 
     @Test
