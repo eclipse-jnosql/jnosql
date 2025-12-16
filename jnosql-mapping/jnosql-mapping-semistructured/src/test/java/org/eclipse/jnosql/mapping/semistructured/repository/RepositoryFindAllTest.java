@@ -31,6 +31,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 @DisplayName("The scenarios to test the feature find all")
@@ -54,12 +55,18 @@ public class RepositoryFindAllTest extends AbstractRepositoryTest {
     @Test
     @DisplayName("Should find all using built-in Repository")
     void shouldFindAll() {
-        Mockito.when(template.select(Mockito.any(SelectQuery.class))).thenReturn(Stream.empty());
-        bookStore.findAll();
+        var comicBook = new ComicBook("1", "Batman", 2020);
+        Mockito.when(template.select(Mockito.any(SelectQuery.class))).thenReturn(Stream.of(comicBook));
+        List<ComicBook> comicBooks = bookStore.findAll();
+
         Mockito.verify(template).select(selectQueryCaptor.capture());
         SelectQuery selectQuery = selectQueryCaptor.getValue();
 
         SoftAssertions.assertSoftly( softly -> {
+            softly.assertThat(comicBooks).isNotNull();
+            softly.assertThat(comicBooks).hasSize(1);
+            softly.assertThat(comicBooks.getFirst()).isEqualTo(comicBook);
+
             softly.assertThat(selectQuery.name()).isEqualTo(ComicBook.class.getSimpleName());
             softly.assertThat(selectQuery.condition()).isNotNull().isEmpty();
         });
