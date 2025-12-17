@@ -25,6 +25,7 @@ import org.eclipse.jnosql.mapping.core.NoSQLPage;
 import org.eclipse.jnosql.mapping.core.repository.SpecialParameters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 import org.eclipse.jnosql.mapping.semistructured.query.RestrictionConverter;
@@ -35,42 +36,126 @@ import java.util.function.Function;
 
 enum DynamicSelectQueryBuilder {
 
-INSTANCE;
+    INSTANCE;
 
     SelectQuery updateDynamicQuery(SelectQuery query,
                                    RepositoryInvocationContext context,
                                    CommunicationObserverParser parser,
                                    Converters converters) {
 
-        var method = context.method();
-        var entityMetadata = context.entityMetadata();
         var specialParameters = SpecialParameters.of(context.parameters(), Function.identity());
+        var pagination = resolvePagination(query, context.method(), specialParameters);
+        var condition = condition(query, converters, context.entityMetadata(), specialParameters);
+        var sorts = sorts(query, parser, context);
+        var columns = columns(query, parser, context);
+        
+        return new MappingQuery(sorts,
+                pagination.limit,
+                pagination.skip,
+                condition,
+                query.name(),
+                columns);
+    }
+
+    static SelectQuery includeInheritance(SelectQuery query, EntityMetadata metadata) {
+        var condition = includeInheritance(metadata);
+        if (condition == null) {
+            return query;
+        }
+        if (query.condition().isPresent()) {
+            CriteriaCondition columnCondition = query.condition().orElseThrow();
+            condition = condition.and(columnCondition);
+        }
+        return new MappingQuery(query.sorts(), query.limit(), query.skip(),
+                condition, query.name(), query.columns());
+    }
+
+    static CriteriaCondition includeInheritance(EntityMetadata metadata) {
+        if (metadata.inheritance().isPresent()) {
+            InheritanceMetadata inheritanceMetadata = metadata.inheritance().orElseThrow();
+            if (!inheritanceMetadata.parent().equals(metadata.type())) {
+                return CriteriaCondition.eq(Element.of(inheritanceMetadata.discriminatorColumn(),
+                        inheritanceMetadata.discriminatorValue()));
+            }
+        }
+        return null;
+    }
+
+    static SelectQuery applyInheritance(SelectQuery query, RepositoryInvocationContext context) {
+        var entityMetadata = context.entityMetadata();
+        return includeInheritance(query, entityMetadata);
+    }
+
+
+    private static CriteriaCondition appendCriteriaCondition(CriteriaCondition condition, CriteriaCondition newCondition) {
+        if (condition != null) {
+            condition = condition.and(newCondition);
+        } else {
+            condition = newCondition;
+        }
+        return condition;
+    }
+
+    private static List<String> columns(SelectQuery query,
+                                        CommunicationObserverParser parser,
+                                        RepositoryInvocationContext context) {
+
+        var entityMetadata = context.entityMetadata();
+        var method = context.method();
 
         var columns = new ArrayList<>(query.columns());
         columns.addAll(method.select());
+        if (columns.isEmpty()) {
+            return columns;
+        }
+        return columns.stream().map(c -> parser.fireSelectField(entityMetadata.name(), c)).toList();
+    }
 
+    private static List<Sort<?>> sorts(SelectQuery query,
+                                       CommunicationObserverParser parser,
+                                       RepositoryInvocationContext context) {
+
+        var entityMetadata = context.entityMetadata();
+        var method = context.method();
         var sorts = new ArrayList<>(query.sorts());
         sorts.addAll(method.sorts());
 
-        var limit = query.limit();
-        var skip = query.skip();
+        if (sorts.isEmpty()) {
+            return sorts;
+        }
+        List<Sort<?>> updateSorts = new ArrayList<>(sorts.size());
+        updateSorts.addAll(sorts.stream().map(sort -> {
+            String attribute = parser.fireSortProperty(entityMetadata.name(), sort.property());
+            return Sort.of(attribute, sort.isAscending() ? Direction.ASC : Direction.DESC, sort.ignoreCase());
+        }).toList());
+        return updateSorts;
+    }
+
+    private Pagination resolvePagination(SelectQuery query,
+                                         RepositoryMethod method,
+                                         SpecialParameters specialParameters) {
+
+        long limit = query.limit();
+        long skip = query.skip();
+
         if (method.first().isPresent()) {
-            limit = 0;
-            skip = method.first().orElseThrow();
+            return new Pagination(0, method.first().orElseThrow());
         }
 
         if (specialParameters.limit().isPresent()) {
             var limitParam = specialParameters.limit().orElseThrow();
-            limit = limitParam.maxResults();
-            skip = limitParam.startAt() - 1;
+            return new Pagination(limitParam.maxResults(), limitParam.startAt() - 1);
         }
 
-        if(specialParameters.pageRequest().isPresent()) {
+        if (specialParameters.pageRequest().isPresent()) {
             var pageRequest = specialParameters.pageRequest().orElseThrow();
-            limit = pageRequest.size();
-            skip = NoSQLPage.skip(pageRequest);
+            return new Pagination(pageRequest.size(), NoSQLPage.skip(pageRequest));
         }
 
+        return new Pagination(limit, skip);
+    }
+
+    private static CriteriaCondition condition(SelectQuery query, Converters converters, EntityMetadata entityMetadata, SpecialParameters specialParameters) {
         var condition = query.condition().orElse(null);
         var conditionInheritance = includeInheritance(entityMetadata);
         if (conditionInheritance != null) {
@@ -85,72 +170,9 @@ INSTANCE;
                 condition = appendCriteriaCondition(condition, restrictionCondition.orElseThrow());
             }
         }
-
-        return new MappingQuery(sorts(parser, sorts, entityMetadata),
-                limit, skip,
-                condition, query.name(),
-                columns(parser, columns, entityMetadata));
-    }
-
-    SelectQuery includeInheritance(SelectQuery query, EntityMetadata metadata) {
-        var condition = includeInheritance(metadata);
-        if (condition == null) {
-            return query;
-        }
-        if (query.condition().isPresent()) {
-            CriteriaCondition columnCondition = query.condition().orElseThrow();
-            condition = condition.and(columnCondition);
-        }
-        return new MappingQuery(query.sorts(), query.limit(), query.skip(),
-                condition, query.name(), query.columns());
-    }
-
-    CriteriaCondition includeInheritance(EntityMetadata metadata) {
-        if (metadata.inheritance().isPresent()) {
-            InheritanceMetadata inheritanceMetadata = metadata.inheritance().orElseThrow();
-            if (!inheritanceMetadata.parent().equals(metadata.type())) {
-                return CriteriaCondition.eq(Element.of(inheritanceMetadata.discriminatorColumn(),
-                        inheritanceMetadata.discriminatorValue()));
-            }
-        }
-        return null;
-    }
-
-    SelectQuery applyInheritance(SelectQuery query, RepositoryInvocationContext context) {
-        var entityMetadata = context.entityMetadata();
-        return includeInheritance(query, entityMetadata);
-    }
-
-
-
-    private static CriteriaCondition appendCriteriaCondition(CriteriaCondition condition, CriteriaCondition newCondition) {
-        if (condition != null) {
-            condition = condition.and(newCondition);
-        } else {
-            condition = newCondition;
-        }
         return condition;
     }
 
-    private static List<String> columns(CommunicationObserverParser parser, ArrayList<String> columns,
-                                        EntityMetadata entityMetadata) {
-        if(columns.isEmpty()) {
-            return columns;
-        }
-        return columns.stream().map(c -> parser.fireSelectField(entityMetadata.name(), c)).toList();
-    }
-
-    private static List<Sort<?>> sorts(CommunicationObserverParser parser,
-                                          List<Sort<?>> sorts,
-                                          EntityMetadata entityMetadata) {
-        if(sorts.isEmpty()) {
-            return sorts;
-        }
-        List<Sort<?>> updateSorts = new ArrayList<>(sorts.size());
-        updateSorts.addAll(sorts.stream().map(sort -> {
-            String attribute = parser.fireSortProperty(entityMetadata.name(), sort.property());
-            return Sort.of(attribute, sort.isAscending() ? Direction.ASC : Direction.DESC, sort.ignoreCase());
-        }).toList());
-        return updateSorts;
+    private record Pagination(long limit, long skip) {
     }
 }
