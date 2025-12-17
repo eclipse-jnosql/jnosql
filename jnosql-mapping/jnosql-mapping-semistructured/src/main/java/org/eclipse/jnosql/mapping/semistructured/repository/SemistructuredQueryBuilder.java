@@ -97,12 +97,12 @@ class SemistructuredQueryBuilder {
     }
 
 
-    private CommunicationObserverParser observer(EntityMetadata entityMetadata) {
+    CommunicationObserverParser observer(EntityMetadata entityMetadata) {
         Class<?> entityType = entityMetadata.type();
         return parsers.computeIfAbsent(entityType,key -> new RepositorySemiStructuredObserverParser(entityMetadata));
     }
 
-    private ParamsBinder paramsBinder(EntityMetadata entityMetadata) {
+    ParamsBinder paramsBinder(EntityMetadata entityMetadata) {
         Class<?> entityType = entityMetadata.type();
         return paramsBinderMap.computeIfAbsent(entityType,key -> new ParamsBinder(entityMetadata, converters));
     }
