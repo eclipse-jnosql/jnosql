@@ -130,14 +130,14 @@ class SemistructuredReturnType {
     protected <E> Function<Object, E> mapper(RepositoryMethod method) {
         return value -> {
             var returnType = method.elementType().orElse(method.returnType().orElseThrow());
-            Optional<ProjectionMetadata> projection = this.entitiesMetadata.projection(returnType);
+            var projection = this.entitiesMetadata.projection(returnType);
             if (projection.isPresent()) {
                 ProjectionMetadata projectionMetadata = projection.orElseThrow();
                 return projectorConverter.map(value, projectionMetadata);
             }
-            var annotations = method.select();
-            if (annotations.size() == 1) {
-                String fieldReturn = annotations.getFirst();
+            var attributes = method.select();
+            if (attributes.size() == 1) {
+                String fieldReturn = attributes.getFirst();
                 Optional<EntityMetadata> valueEntityMetadata = entitiesMetadata.findByClassName(value.getClass().getName());
                 return (E) valueEntityMetadata
                         .map(entityMetadata -> value(entityMetadata, fieldReturn, value))
