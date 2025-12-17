@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
+import jakarta.data.Limit;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CommunicationObserverParser;
@@ -76,7 +77,6 @@ class DynamicSelectQueryBuilderTest {
     }
 
  // Test cases would go here
- // should test without any dynamic changes
  // should include dynamic select columns
  // should include dynamic sorts
  // should include first parameter
@@ -105,11 +105,24 @@ class DynamicSelectQueryBuilderTest {
         });
     }
 
+    @Test
+    @DisplayName("Should include limit parameter")
+    void shouldIncludeLimitParameter() {
+        var query = SelectQuery.select().from(ComicBook.class.getSimpleName()).build();
+        var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
+        var parameters = new Object[]{Limit.range(1, 15)};
+        var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
 
-    /*RepositoryMethod method,
-    RepositoryMetadata metadata,
-    EntityMetadata entityMetadata,
-    Template template,
-    Object[] parameters*/
+        var updatedQuery = DynamicSelectQueryBuilder.INSTANCE.updateDynamicQuery(query, context, parser, converters);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(updatedQuery).isNotNull();
+            softly.assertThat(updatedQuery.name()).isEqualTo(ComicBook.class.getSimpleName());
+            softly.assertThat(updatedQuery.columns()).isEmpty();
+            softly.assertThat(updatedQuery.sorts()).isEmpty();
+            softly.assertThat(updatedQuery.limit()).isEqualTo(15);
+            softly.assertThat(updatedQuery.skip()).isEqualTo(0);
+        });
+    }
 
 }
