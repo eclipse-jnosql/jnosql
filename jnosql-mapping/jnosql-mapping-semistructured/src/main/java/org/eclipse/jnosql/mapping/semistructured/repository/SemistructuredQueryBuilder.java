@@ -76,7 +76,7 @@ class SemistructuredQueryBuilder {
         var params = queryParams.params();
         var paramsBinder = this.paramsBinder(entityMetadata);
         paramsBinder.bind(params, parameters, method.name());
-        return DynamicSelectQueryBuilder.INSTANCE.includeInheritance(query, entityMetadata);
+        return DynamicSelectQueryBuilder.includeInheritance(query, entityMetadata);
     }
 
     DeleteQuery deleteQuery(RepositoryInvocationContext context) {
@@ -94,7 +94,7 @@ class SemistructuredQueryBuilder {
     }
 
     SelectQuery applyInheritance(SelectQuery query, RepositoryInvocationContext context) {
-        return DynamicSelectQueryBuilder.INSTANCE.applyInheritance(query, context);
+        return DynamicSelectQueryBuilder.applyInheritance(query, context);
     }
 
     SelectQuery updateDynamicQuery(SelectQuery query, RepositoryInvocationContext context) {
@@ -115,7 +115,7 @@ class SemistructuredQueryBuilder {
     }
 
     private DeleteQuery includeInheritance(DeleteQuery query, EntityMetadata metadata) {
-        var condition = DynamicSelectQueryBuilder.INSTANCE.includeInheritance(metadata);
+        var condition = DynamicSelectQueryBuilder.includeInheritance(metadata);
         if (condition == null) {
             return query;
         }
