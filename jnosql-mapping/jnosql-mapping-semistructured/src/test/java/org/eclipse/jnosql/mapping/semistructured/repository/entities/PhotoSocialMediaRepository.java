@@ -23,6 +23,7 @@ import java.util.List;
 public interface PhotoSocialMediaRepository extends BasicRepository<PhotoSocialMedia, Long> {
 
     List<ComicBook> findByName(String name);
+
     long countAll();
 
     long countByName(String name);
