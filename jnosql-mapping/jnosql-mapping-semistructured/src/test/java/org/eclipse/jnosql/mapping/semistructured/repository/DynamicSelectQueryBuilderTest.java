@@ -17,5 +17,14 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 import static org.junit.jupiter.api.Assertions.*;
 
 class DynamicSelectQueryBuilderTest {
+ // Test cases would go here
+ // should test without any dynamic changes
+ // should include dynamic select columns
+ // should include dynamic sorts
+ // should include first parameter
+ //should include as limit parameter
+ //should include pageRequest parameter
+ //should include inheritance type condition
+ //should include restriction
 
 }
