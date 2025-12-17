@@ -21,6 +21,7 @@ import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.core.NoSQLPage;
 import org.eclipse.jnosql.mapping.core.repository.SpecialParameters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
@@ -62,6 +63,12 @@ INSTANCE;
             var limitParam = specialParameters.limit().orElseThrow();
             limit = limitParam.maxResults();
             skip = limitParam.startAt() - 1;
+        }
+
+        if(specialParameters.pageRequest().isPresent()) {
+            var pageRequest = specialParameters.pageRequest().orElseThrow();
+            limit = pageRequest.size();
+            skip = NoSQLPage.skip(pageRequest);
         }
 
         var condition = query.condition().orElse(null);
