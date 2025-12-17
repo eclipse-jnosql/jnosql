@@ -14,18 +14,70 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
+import org.eclipse.jnosql.communication.semistructured.CommunicationObserverParser;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.core.repository.SpecialParameters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
+import org.eclipse.jnosql.mapping.semistructured.query.RestrictionConverter;
+
+import java.util.ArrayList;
+import java.util.function.Function;
 
 enum DynamicSelectQueryBuilder {
 
 INSTANCE;
 
+    SelectQuery updateDynamicQuery(SelectQuery query, RepositoryInvocationContext context,
+                                   CommunicationObserverParser parser
+            , Converters converters) {
+        var method = context.method();
+        var specialParameters = SpecialParameters.of(context.parameters(), Function.identity());
+        var columns = new ArrayList<>(query.columns());
+        columns.addAll(method.select());
+        var sorts = new ArrayList<>(query.sorts());
+        var limit = query.limit();
+        var skip = query.skip();
+        sorts.addAll(method.sorts());
+        var condition = query.condition().orElse(null);
+        var conditionInheritance = includeInheritance(context.entityMetadata());
+        if (conditionInheritance != null) {
+            condition = appendCriteriaCondition(condition, conditionInheritance);
+        }
+        if (method.first().isPresent()) {
+            limit = 0;
+            skip = method.first().orElseThrow();
+        }
+        if (specialParameters.limit().isPresent()) {
+            var limitParam = specialParameters.limit().orElseThrow();
+            limit = limitParam.maxResults();
+            skip = limitParam.startAt() - 1;
+        }
+        if (specialParameters.restriction().isPresent()) {
+            var restriction = specialParameters.restriction().orElseThrow();
+            var restrictionCondition = RestrictionConverter.INSTANCE.parser(restriction, context.entityMetadata(),
+                    converters);
+            if (restrictionCondition.isPresent()) {
+                condition = appendCriteriaCondition(condition, restrictionCondition.orElseThrow());
+            }
+        }
+        return new MappingQuery(sorts, limit, skip,
+                condition, query.name(), columns);
+    }
+
+    private static CriteriaCondition appendCriteriaCondition(CriteriaCondition condition, CriteriaCondition newCondition) {
+        if (condition != null) {
+            condition = condition.and(newCondition);
+        } else {
+            condition = newCondition;
+        }
+        return condition;
+    }
 
     SelectQuery includeInheritance(SelectQuery query, EntityMetadata metadata) {
         var condition = includeInheritance(metadata);
