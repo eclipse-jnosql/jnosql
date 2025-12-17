@@ -98,8 +98,9 @@ class SemistructuredQueryBuilder {
     }
 
     SelectQuery updateDynamicQuery(SelectQuery query, RepositoryInvocationContext context) {
-        RepositoryMethod method = context.method();
-        return null;
+        return DynamicSelectQueryBuilder.INSTANCE.updateDynamicQuery(query, context,
+                observer(context.entityMetadata()),
+                converters);
     }
 
 
