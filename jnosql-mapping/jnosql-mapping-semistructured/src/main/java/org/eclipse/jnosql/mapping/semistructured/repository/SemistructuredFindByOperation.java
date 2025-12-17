@@ -15,11 +15,28 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.FindByOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
 @ApplicationScoped
 class SemistructuredFindByOperation implements FindByOperation {
+
+    private final SemistructuredQueryBuilder semistructuredQueryBuilder;
+
+    private final SemistructuredReturnType semistructuredReturnType;
+
+    @Inject
+    SemistructuredFindByOperation(SemistructuredQueryBuilder semistructuredQueryBuilder,
+                                   SemistructuredReturnType semistructuredReturnType) {
+        this.semistructuredQueryBuilder = semistructuredQueryBuilder;
+        this.semistructuredReturnType = semistructuredReturnType;
+    }
+
+    SemistructuredFindByOperation() {
+        this.semistructuredQueryBuilder = null;
+        this.semistructuredReturnType = null;
+    }
 
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
