@@ -91,7 +91,7 @@ class SemistructuredQueryBuilder {
         return includeInheritance(query, entityMetadata);
     }
 
-    public SelectQuery updateQuery(SelectQuery query, RepositoryInvocationContext context) {
+    SelectQuery updateQuery(SelectQuery query, RepositoryInvocationContext context) {
         var entityMetadata = context.entityMetadata();
         return includeInheritance(query, entityMetadata);
     }
