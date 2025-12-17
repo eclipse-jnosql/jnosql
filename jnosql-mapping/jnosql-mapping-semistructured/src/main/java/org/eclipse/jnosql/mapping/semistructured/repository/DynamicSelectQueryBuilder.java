@@ -48,7 +48,7 @@ enum DynamicSelectQueryBuilder {
         var condition = condition(query, converters, context.entityMetadata(), specialParameters);
         var sorts = sorts(query, parser, context);
         var columns = columns(query, parser, context);
-        
+
         return new MappingQuery(sorts,
                 pagination.limit,
                 pagination.skip,
