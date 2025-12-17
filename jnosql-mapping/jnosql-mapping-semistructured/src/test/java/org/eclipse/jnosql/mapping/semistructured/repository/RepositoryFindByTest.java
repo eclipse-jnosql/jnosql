@@ -58,7 +58,7 @@ public class RepositoryFindByTest extends AbstractRepositoryTest {
 
     @Test
     @DisplayName("Should findByName using built-in Repository")
-    void shouldCountBy() {
+    void shouldFindByName() {
         ComicBook comicBook = new ComicBook("1", "The Lord of the Rings", 1954);
         Mockito.when(template.select(Mockito.any(SelectQuery.class)))
                 .thenReturn(Stream.of(comicBook));
@@ -77,6 +77,35 @@ public class RepositoryFindByTest extends AbstractRepositoryTest {
             soft.assertThat(criteriaCondition.element().get()).isEqualTo("The Lord of the Rings");
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(criteriaCondition.element().name()).isEqualTo("name");
+        });
+    }
+
+    @Test
+    @DisplayName("Should order by sort annotations")
+    void shouldOrderBySortAnnotations(){
+        ComicBook comicBook = new ComicBook("1", "The Lord of the Rings", 1954);
+        Mockito.when(template.select(Mockito.any(SelectQuery.class)))
+                .thenReturn(Stream.of(comicBook));
+
+        var result = bookStore.findByNameAndYear("The Lord of the Rings", 2012);
+        Mockito.verify(template).select(selectQueryCaptor.capture());
+        Assertions.assertThat(result).isNotNull().containsExactly("The Lord of the Rings");
+
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
+
+        SoftAssertions.assertSoftly(soft ->{
+            soft.assertThat(selectQuery.name()).isEqualTo("ComicBook");
+            soft.assertThat(selectQuery.columns()).containsExactly("name");
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            CriteriaCondition criteriaCondition = selectQuery.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.AND);
+            List<CriteriaCondition> conditions = criteriaCondition.element().get(new TypeReference<List<CriteriaCondition>>() {});
+            soft.assertThat(conditions).hasSize(2);
+            soft.assertThat(selectQuery.sorts()).hasSize(2);
+            soft.assertThat(selectQuery.sorts().get(0).property()).isEqualTo("name");
+            soft.assertThat(selectQuery.sorts().get(0).isAscending()).isTrue();
+            soft.assertThat(selectQuery.sorts().get(1).property()).isEqualTo("year");
+            soft.assertThat(selectQuery.sorts().get(1).isAscending()).isFalse();
         });
     }
 
