@@ -12,27 +12,19 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.semistructured.repository.entities;
+package org.eclipse.jnosql.mapping.semistructured.repository;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class SemistructuredReturnTypeTest {
 
 
-import jakarta.data.repository.Repository;
+    @Test
+    void shouldCreateInstance() {
+        SemistructuredReturnType semistructuredReturnType = new SemistructuredReturnType();
+        assertNotNull(semistructuredReturnType);
+    }
 
-import java.util.List;
-
-@Repository
-public interface ComicBookBookStore {
-
-    List<ComicBook> findAll();
-
-    List<ComicBook> findByName(String name);
-
-    long countAll();
-
-    long countByName(String name);
-
-    boolean existsByName(String name);
-
-    void deleteByName(String name);
-
-    int deleteByYear(int year);
 }

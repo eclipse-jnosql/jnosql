@@ -12,27 +12,13 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.semistructured.repository.entities;
+package org.eclipse.jnosql.mapping.reflection.entities;
 
+import jakarta.nosql.Column;
+import jakarta.nosql.Projection;
 
-import jakarta.data.repository.Repository;
+import java.time.Year;
 
-import java.util.List;
-
-@Repository
-public interface ComicBookBookStore {
-
-    List<ComicBook> findAll();
-
-    List<ComicBook> findByName(String name);
-
-    long countAll();
-
-    long countByName(String name);
-
-    boolean existsByName(String name);
-
-    void deleteByName(String name);
-
-    int deleteByYear(int year);
+@Projection
+public record BookSummary(@Column String name, @Column Year release) {
 }

@@ -19,6 +19,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import jakarta.nosql.Entity;
 import org.eclipse.jnosql.mapping.metadata.ClassConverter;
 import org.eclipse.jnosql.mapping.metadata.ClassInformationNotFoundException;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
@@ -137,9 +138,14 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
 
     void projectionFound(@Observes ProjectionFound projectionFound) {
         LOGGER.fine(() -> "Adding projection: " + projectionFound);
+        Class<?> type = projectionFound.type();
+        if(type.getAnnotation(Entity.class) != null) {
+            LOGGER.fine(() -> "Ignoring projection, because it is an entity: " + type);
+            return;
+        }
         Function<Class<?>, ProjectionMetadata> projectionConverter = new ProjectionConverter();
-        ProjectionMetadata apply = projectionConverter.apply(projectionFound.type());
-        this.projections.put(projectionFound.type(), apply);
+        ProjectionMetadata apply = projectionConverter.apply(type);
+        this.projections.put(type, apply);
     }
 
 

@@ -129,7 +129,7 @@ class ReflectionClassScannerTest {
     @Test
     void shouldFindProjections() {
         Set<Class<?>> projections = classScanner.projections();
-        assertThat(projections).hasSize(2)
+        assertThat(projections).hasSize(3)
                 .contains(ComputerView.class, PCView.class);
     }
 }

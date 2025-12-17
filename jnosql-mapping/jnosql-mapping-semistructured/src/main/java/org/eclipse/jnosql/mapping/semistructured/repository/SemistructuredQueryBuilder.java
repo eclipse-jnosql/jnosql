@@ -55,14 +55,14 @@ class SemistructuredQueryBuilder {
         this.paramsBinderMap = new ConcurrentHashMap<>();
     }
 
-    public SemistructuredQueryBuilder() {
+    SemistructuredQueryBuilder() {
         this.converters = null;
         this.parsers = new ConcurrentHashMap<>();
         this.paramsBinderMap = new ConcurrentHashMap<>();
     }
 
 
-    public SelectQuery selectQuery(RepositoryInvocationContext context) {
+    SelectQuery selectQuery(RepositoryInvocationContext context) {
         var method = context.method();
         var entityMetadata = context.entityMetadata();
         var parameters = context.parameters();
@@ -77,7 +77,7 @@ class SemistructuredQueryBuilder {
         return includeInheritance(query, entityMetadata);
     }
 
-    public DeleteQuery deleteQuery(RepositoryInvocationContext context) {
+    DeleteQuery deleteQuery(RepositoryInvocationContext context) {
         var entityMetadata = context.entityMetadata();
         var provider = DeleteMethodProvider.INSTANCE;
         var method = context.method();
@@ -88,6 +88,11 @@ class SemistructuredQueryBuilder {
         var query = queryParams.query();
         var paramsBinder = this.paramsBinder(entityMetadata);
         paramsBinder.bind(params, parameters, method.name());
+        return includeInheritance(query, entityMetadata);
+    }
+
+    SelectQuery applyInheritance(SelectQuery query, RepositoryInvocationContext context) {
+        var entityMetadata = context.entityMetadata();
         return includeInheritance(query, entityMetadata);
     }
 
@@ -137,7 +142,6 @@ class SemistructuredQueryBuilder {
         }
         return null;
     }
-
 
 
 }

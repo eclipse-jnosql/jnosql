@@ -24,11 +24,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 public class ProjectionConverter implements Function<Class<?>, ProjectionMetadata> {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectionConverter.class.getName());
+    private static final Predicate<String> IS_BLANK = String::isBlank;
+    private static final Predicate<String> IS_NOT_BLANK = IS_BLANK.negate();
 
     @Override
     public ProjectionMetadata apply(Class<?> type) {
@@ -67,8 +70,11 @@ public class ProjectionConverter implements Function<Class<?>, ProjectionMetadat
     }
 
     private static String getName(Parameter parameter, RecordComponent recordComponent) {
-        Optional<String> nameFromColumn = Optional.ofNullable(parameter.getAnnotation(Column.class)).map(Column::value);
-        Optional<String> nameFromSelect = Optional.ofNullable(recordComponent.getAnnotation(Select.class)).map(Select::value);
+        Optional<String> nameFromColumn = Optional.ofNullable(parameter.getAnnotation(Column.class)).map(Column::value)
+                .filter(IS_NOT_BLANK);
+        Optional<String> nameFromSelect = Optional.ofNullable(recordComponent.getAnnotation(Select.class))
+                .map(Select::value)
+                .filter(IS_NOT_BLANK);
 
         return nameFromColumn
                 .or(() -> nameFromSelect)
