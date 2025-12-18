@@ -30,7 +30,6 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationCo
 import org.eclipse.jnosql.mapping.semistructured.ProjectorConverter;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
