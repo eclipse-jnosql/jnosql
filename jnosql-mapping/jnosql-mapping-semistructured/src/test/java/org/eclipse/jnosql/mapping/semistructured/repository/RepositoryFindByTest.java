@@ -99,7 +99,7 @@ public class RepositoryFindByTest extends AbstractRepositoryTest {
             soft.assertThat(selectQuery.condition()).isNotEmpty();
             CriteriaCondition criteriaCondition = selectQuery.condition().orElseThrow();
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.AND);
-            List<CriteriaCondition> conditions = criteriaCondition.element().get(new TypeReference<List<CriteriaCondition>>() {});
+            var conditions = criteriaCondition.element().get(new TypeReference<List<CriteriaCondition>>() {});
             soft.assertThat(conditions).hasSize(2);
             soft.assertThat(selectQuery.sorts()).hasSize(2);
             soft.assertThat(selectQuery.sorts().get(0).property()).isEqualTo("name");

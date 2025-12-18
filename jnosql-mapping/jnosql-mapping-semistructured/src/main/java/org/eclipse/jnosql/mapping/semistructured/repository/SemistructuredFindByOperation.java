@@ -65,6 +65,6 @@ class SemistructuredFindByOperation implements FindByOperation {
         var query = queryParams.query();
         var params = queryParams.params();
         paramsBinder.bind(params, parameters, method.name());
-        return semistructuredQueryBuilder.applyInheritance(query, context);
+        return semistructuredQueryBuilder.updateDynamicQuery(query, context);
     }
 }
