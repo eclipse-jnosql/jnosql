@@ -42,6 +42,7 @@ import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.query.RepositorySemiStructuredObserverParser;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBook;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBookCustomRepository;
+import org.eclipse.jnosql.mapping.semistructured.repository.entities.PhotoSocialMedia;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -328,6 +329,31 @@ class DynamicSelectQueryBuilderTest {
             softly.assertThat(updatedQuery.columns()).isNotEmpty();
             softly.assertThat(updatedQuery.sorts()).isEmpty();
             softly.assertThat(updatedQuery.columns()).contains("name");
+        });
+    }
+
+    @Test
+    @DisplayName("Should include inheritance type condition")
+    void shouldIncludeInheritanceTypeCondition() {
+        var query = select().from(PhotoSocialMedia.class.getSimpleName()).build();
+        var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
+        var parameters = new Object[]{};
+        this.entityMetadata = entitiesMetadata.findByClassName(PhotoSocialMedia.class.getName()).orElseThrow();
+        var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
+
+        var updatedQuery = DynamicSelectQueryBuilder.INSTANCE.updateDynamicQuery(query, context, parser, converters);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(updatedQuery).isNotNull();
+            softly.assertThat(updatedQuery.name()).isEqualTo(PhotoSocialMedia.class.getSimpleName());
+            softly.assertThat(updatedQuery.columns()).isEmpty();
+            softly.assertThat(updatedQuery.sorts()).isEmpty();
+            softly.assertThat(updatedQuery.limit()).isEqualTo(0);
+            softly.assertThat(updatedQuery.skip()).isEqualTo(0);
+            softly.assertThat(updatedQuery.condition()).isNotEmpty();
+            var condition = updatedQuery.condition().orElseThrow();
+            softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of("dtype", "photo"));
         });
     }
 
