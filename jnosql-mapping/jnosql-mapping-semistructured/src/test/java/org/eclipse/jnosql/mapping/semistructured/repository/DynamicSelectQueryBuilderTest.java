@@ -312,4 +312,23 @@ class DynamicSelectQueryBuilderTest {
         });
     }
 
+    @Test
+    @DisplayName("Should select field by select annotation")
+    void shouldSelectFieldBySelectAnnotation() {
+        var query = select().from(ComicBook.class.getSimpleName()).build();
+        var method = repositoryMetadata.find(new NameKey("findByName4")).orElseThrow();
+
+        var parameters = new Object[]{};
+        var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
+        var updatedQuery = DynamicSelectQueryBuilder.INSTANCE.updateDynamicQuery(query, context, parser, converters);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(updatedQuery).isNotNull();
+            softly.assertThat(updatedQuery.name()).isEqualTo(ComicBook.class.getSimpleName());
+            softly.assertThat(updatedQuery.columns()).isNotEmpty();
+            softly.assertThat(updatedQuery.sorts()).isEmpty();
+            softly.assertThat(updatedQuery.columns()).contains("name");
+        });
+    }
+
 }
