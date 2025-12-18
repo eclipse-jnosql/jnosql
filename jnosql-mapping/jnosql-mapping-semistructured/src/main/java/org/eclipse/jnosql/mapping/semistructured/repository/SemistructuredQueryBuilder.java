@@ -22,16 +22,13 @@ import org.eclipse.jnosql.communication.semistructured.CommunicationObserverPars
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.DeleteQueryParser;
-import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.communication.semistructured.SelectQueryParser;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.util.ParamsBinder;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
-import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.semistructured.MappingDeleteQuery;
-import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 import org.eclipse.jnosql.mapping.semistructured.query.RepositorySemiStructuredObserverParser;
 
 import java.util.Map;
@@ -41,7 +38,6 @@ import java.util.concurrent.ConcurrentHashMap;
 class SemistructuredQueryBuilder {
 
     private static final SelectQueryParser SELECT_PARSER = new SelectQueryParser();
-
     private static final DeleteQueryParser DELETE_PARSER = new DeleteQueryParser();
     private final Map<Class<?>, CommunicationObserverParser> parsers;
     private final Map<Class<?>, ParamsBinder> paramsBinderMap;
@@ -74,7 +70,7 @@ class SemistructuredQueryBuilder {
         var params = queryParams.params();
         var paramsBinder = this.paramsBinder(entityMetadata);
         paramsBinder.bind(params, parameters, method.name());
-        return includeInheritance(query, entityMetadata);
+        return DynamicSelectQueryBuilder.includeInheritance(query, entityMetadata);
     }
 
     DeleteQuery deleteQuery(RepositoryInvocationContext context) {
@@ -92,36 +88,28 @@ class SemistructuredQueryBuilder {
     }
 
     SelectQuery applyInheritance(SelectQuery query, RepositoryInvocationContext context) {
-        var entityMetadata = context.entityMetadata();
-        return includeInheritance(query, entityMetadata);
+        return DynamicSelectQueryBuilder.applyInheritance(query, context);
+    }
+
+    SelectQuery updateDynamicQuery(SelectQuery query, RepositoryInvocationContext context) {
+        return DynamicSelectQueryBuilder.INSTANCE.updateDynamicQuery(query, context,
+                observer(context.entityMetadata()),
+                converters);
     }
 
 
-    private CommunicationObserverParser observer(EntityMetadata entityMetadata) {
+    CommunicationObserverParser observer(EntityMetadata entityMetadata) {
         Class<?> entityType = entityMetadata.type();
         return parsers.computeIfAbsent(entityType,key -> new RepositorySemiStructuredObserverParser(entityMetadata));
     }
 
-    private ParamsBinder paramsBinder(EntityMetadata entityMetadata) {
+    ParamsBinder paramsBinder(EntityMetadata entityMetadata) {
         Class<?> entityType = entityMetadata.type();
         return paramsBinderMap.computeIfAbsent(entityType,key -> new ParamsBinder(entityMetadata, converters));
     }
 
-    private SelectQuery includeInheritance(SelectQuery query, EntityMetadata metadata) {
-        var condition = includeInheritance(metadata);
-        if (condition == null) {
-            return query;
-        }
-        if (query.condition().isPresent()) {
-            CriteriaCondition columnCondition = query.condition().orElseThrow();
-            condition = condition.and(columnCondition);
-        }
-        return new MappingQuery(query.sorts(), query.limit(), query.skip(),
-                condition, query.name(), query.columns());
-    }
-
     private DeleteQuery includeInheritance(DeleteQuery query, EntityMetadata metadata) {
-        var condition = includeInheritance(metadata);
+        var condition = DynamicSelectQueryBuilder.includeInheritance(metadata);
         if (condition == null) {
             return query;
         }
@@ -131,17 +119,5 @@ class SemistructuredQueryBuilder {
         }
         return new MappingDeleteQuery( query.name(), condition);
     }
-
-    private CriteriaCondition includeInheritance(EntityMetadata metadata) {
-        if (metadata.inheritance().isPresent()) {
-            InheritanceMetadata inheritanceMetadata = metadata.inheritance().orElseThrow();
-            if (!inheritanceMetadata.parent().equals(metadata.type())) {
-                return CriteriaCondition.eq(Element.of(inheritanceMetadata.discriminatorColumn(),
-                        inheritanceMetadata.discriminatorValue()));
-            }
-        }
-        return null;
-    }
-
 
 }

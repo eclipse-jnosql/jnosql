@@ -14,30 +14,26 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository.entities;
 
-import jakarta.data.repository.BasicRepository;
+import jakarta.data.repository.First;
+import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Repository;
+import jakarta.data.repository.Select;
 
 import java.util.List;
 
 @Repository
-public interface PhotoSocialMediaRepository extends BasicRepository<PhotoSocialMedia, Long> {
+public interface ComicBookCustomRepository {
 
     List<ComicBook> findByName(String name);
 
-    long countAll();
+    @First(20)
+    List<ComicBook> findByName2(String name);
 
-    long countByName(String name);
 
-    boolean existsByName(String name);
+    @OrderBy(value = "name", descending = true)
+    @OrderBy(value = "year")
+    List<ComicBook> findByName3(String name);
 
-    boolean existsBy();
-
-    long countBy();
-
-    void deleteByName(String name);
-
-    void deleteBy();
-
-    List<SocialMediaSummary> findByNameAndPhotoId(String name, String photoId);
-
+    @Select("name")
+    List<String> findByName4(String name);
 }

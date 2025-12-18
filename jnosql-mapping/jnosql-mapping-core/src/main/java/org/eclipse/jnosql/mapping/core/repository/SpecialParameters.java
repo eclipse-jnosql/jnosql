@@ -141,7 +141,7 @@ public final class SpecialParameters {
                 '}';
     }
 
-    static SpecialParameters of(Object[] parameters, Function<String, String> sortParser) {
+    public static SpecialParameters of(Object[] parameters, Function<String, String> sortParser) {
         List<Sort<?>> sorts = new ArrayList<>();
         PageRequest pageRequest = null;
         Limit limit = null;

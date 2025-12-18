@@ -14,30 +14,8 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository.entities;
 
-import jakarta.data.repository.BasicRepository;
-import jakarta.data.repository.Repository;
+import jakarta.nosql.Projection;
 
-import java.util.List;
-
-@Repository
-public interface PhotoSocialMediaRepository extends BasicRepository<PhotoSocialMedia, Long> {
-
-    List<ComicBook> findByName(String name);
-
-    long countAll();
-
-    long countByName(String name);
-
-    boolean existsByName(String name);
-
-    boolean existsBy();
-
-    long countBy();
-
-    void deleteByName(String name);
-
-    void deleteBy();
-
-    List<SocialMediaSummary> findByNameAndPhotoId(String name, String photoId);
-
+@Projection
+public record SocialMediaSummary(String id, String name) {
 }

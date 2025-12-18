@@ -15,9 +15,15 @@
 package org.eclipse.jnosql.mapping.semistructured.repository.entities;
 
 
+import jakarta.data.page.Page;
+import jakarta.data.page.PageRequest;
+import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Repository;
+import jakarta.data.repository.Select;
+import org.junit.jupiter.api.Order;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ComicBookBookStore {
@@ -25,6 +31,16 @@ public interface ComicBookBookStore {
     List<ComicBook> findAll();
 
     List<ComicBook> findByName(String name);
+
+
+    @Select("name")
+    @OrderBy("name")
+    @OrderBy(value = "year", descending = true)
+    List<String> findByNameAndYear(String name, int year);
+
+    Optional<ComicBook> findById(String id);
+
+    Page<ComicBook> findByName(String name, PageRequest pageRequest);
 
     long countAll();
 

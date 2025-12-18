@@ -30,7 +30,6 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationCo
 import org.eclipse.jnosql.mapping.semistructured.ProjectorConverter;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -80,28 +79,6 @@ class SemistructuredReturnType {
                 .page(getPage(query, method, template))
                 .build();
         return dynamicReturn.execute();
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <E> Function<Object, E> mapper(RepositoryInvocationContext context) {
-        return value -> {
-            RepositoryMethod method = context.method();
-            var returnType = method.elementType().orElseThrow();
-            Optional<ProjectionMetadata> projection = this.entitiesMetadata.projection(returnType);
-            if (projection.isPresent()) {
-                ProjectionMetadata projectionMetadata = projection.orElseThrow();
-                return projectorConverter.map(value, projectionMetadata);
-            }
-            List<String> select = method.select();
-            if (select.size() == 1) {
-                String fieldReturn = select.getFirst();
-                Optional<EntityMetadata> valueEntityMetadata = entitiesMetadata.findByClassName(value.getClass().getName());
-                return (E) valueEntityMetadata
-                        .map(entityMetadata -> value(entityMetadata, fieldReturn, value))
-                        .orElse(value);
-            }
-            return (E) value;
-        };
     }
 
     protected <T> Function<PageRequest, Stream<T>> streamPagination(SelectQuery query,
