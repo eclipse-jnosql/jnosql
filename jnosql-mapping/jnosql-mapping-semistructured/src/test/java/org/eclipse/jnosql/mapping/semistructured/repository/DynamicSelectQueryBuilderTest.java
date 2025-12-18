@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.data.Limit;
+import jakarta.data.page.PageRequest;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CommunicationObserverParser;
@@ -122,6 +123,26 @@ class DynamicSelectQueryBuilderTest {
             softly.assertThat(updatedQuery.sorts()).isEmpty();
             softly.assertThat(updatedQuery.limit()).isEqualTo(15);
             softly.assertThat(updatedQuery.skip()).isEqualTo(0);
+        });
+    }
+
+    @Test
+    @DisplayName("Should include pageRequest parameter")
+    void shouldIncludePageRequestParameter() {
+        var query = SelectQuery.select().from(ComicBook.class.getSimpleName()).build();
+        var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
+        var parameters = new Object[]{PageRequest.ofSize(10).page(2)};
+        var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
+
+        var updatedQuery = DynamicSelectQueryBuilder.INSTANCE.updateDynamicQuery(query, context, parser, converters);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(updatedQuery).isNotNull();
+            softly.assertThat(updatedQuery.name()).isEqualTo(ComicBook.class.getSimpleName());
+            softly.assertThat(updatedQuery.columns()).isEmpty();
+            softly.assertThat(updatedQuery.sorts()).isEmpty();
+            softly.assertThat(updatedQuery.limit()).isEqualTo(10);
+            softly.assertThat(updatedQuery.skip()).isEqualTo(10);
         });
     }
 
