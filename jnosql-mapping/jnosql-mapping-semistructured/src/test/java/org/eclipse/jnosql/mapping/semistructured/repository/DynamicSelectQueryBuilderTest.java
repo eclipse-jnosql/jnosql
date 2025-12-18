@@ -163,6 +163,7 @@ class DynamicSelectQueryBuilderTest {
             softly.assertThat(updatedQuery.name()).isEqualTo(ComicBook.class.getSimpleName());
             softly.assertThat(updatedQuery.columns()).isEmpty();
             softly.assertThat(updatedQuery.sorts()).hasSize(2);
+            softly.assertThat(updatedQuery.sorts()).contains(Sort.asc("name"), Sort.desc("year"));
             softly.assertThat(updatedQuery.limit()).isEqualTo(0);
             softly.assertThat(updatedQuery.skip()).isEqualTo(0);
         });
