@@ -17,8 +17,6 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 import jakarta.data.Limit;
 import jakarta.data.Order;
 import jakarta.data.Sort;
-import jakarta.data.constraint.EqualTo;
-import jakarta.data.expression.Expression;
 import jakarta.data.metamodel.BasicAttribute;
 import jakarta.data.page.PageRequest;
 import jakarta.data.restrict.Restriction;
@@ -29,7 +27,6 @@ import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CommunicationObserverParser;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
-import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
@@ -54,6 +51,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+
+import static org.eclipse.jnosql.communication.semistructured.SelectQuery.select;
 
 
 @DisplayName("The scenarios to test the dynamic query builder")
@@ -101,7 +100,7 @@ class DynamicSelectQueryBuilderTest {
     @Test
     @DisplayName("Should test without any dynamic changes")
     void shouldTestWithoutAnyDynamicChanges() {
-        var query = SelectQuery.select().from(ComicBook.class.getSimpleName()).build();
+        var query = select().from(ComicBook.class.getSimpleName()).build();
         var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
         var parameters = new Object[]{};
         var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
@@ -121,7 +120,7 @@ class DynamicSelectQueryBuilderTest {
     @Test
     @DisplayName("Should include limit parameter")
     void shouldIncludeLimitParameter() {
-        var query = SelectQuery.select().from(ComicBook.class.getSimpleName()).build();
+        var query = select().from(ComicBook.class.getSimpleName()).build();
         var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
         var parameters = new Object[]{Limit.range(1, 15)};
         var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
@@ -141,7 +140,7 @@ class DynamicSelectQueryBuilderTest {
     @Test
     @DisplayName("Should include pageRequest parameter")
     void shouldIncludePageRequestParameter() {
-        var query = SelectQuery.select().from(ComicBook.class.getSimpleName()).build();
+        var query = select().from(ComicBook.class.getSimpleName()).build();
         var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
         var parameters = new Object[]{PageRequest.ofSize(10).page(2)};
         var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
@@ -161,7 +160,7 @@ class DynamicSelectQueryBuilderTest {
     @Test
     @DisplayName("Should include order parameter")
     void shouldIncludeOrderParameter() {
-        var query = SelectQuery.select().from(ComicBook.class.getSimpleName()).build();
+        var query = select().from(ComicBook.class.getSimpleName()).build();
         var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
         var parameters = new Object[]{Order.by(Sort.asc("name"), Sort.desc("year"))};
         var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
@@ -182,7 +181,7 @@ class DynamicSelectQueryBuilderTest {
     @Test
     @DisplayName("Should include sort parameter")
     void shouldIncludeSortParameter() {
-        var query = SelectQuery.select().from(ComicBook.class.getSimpleName()).build();
+        var query = select().from(ComicBook.class.getSimpleName()).build();
         var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
         var parameters = new Object[]{Sort.asc("name")};
         var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
@@ -203,7 +202,7 @@ class DynamicSelectQueryBuilderTest {
     @Test
     @DisplayName("Should include first annotation")
     void shouldIncludeFirstAnnotation() {
-        var query = SelectQuery.select().from(ComicBook.class.getSimpleName()).build();
+        var query = select().from(ComicBook.class.getSimpleName()).build();
         var method = repositoryMetadata.find(new NameKey("findByName2")).orElseThrow();
         var parameters = new Object[]{};
         var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
@@ -223,7 +222,7 @@ class DynamicSelectQueryBuilderTest {
     @Test
     @DisplayName("Should include restriction parameter")
     void shouldIncludeRestrictionParameter() {
-        var query = SelectQuery.select().from(ComicBook.class.getSimpleName()).build();
+        var query = select().from(ComicBook.class.getSimpleName()).build();
         var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
         BasicAttribute<ComicBook, Integer> age = BasicAttribute.of(ComicBook.class, "age", Integer.class);
         Restriction<ComicBook> comicBookRestriction = age.equalTo(10);
@@ -249,8 +248,7 @@ class DynamicSelectQueryBuilderTest {
     @Test
     @DisplayName("Should append new condition at restriction parameter")
     void shouldAppendNewConditionATRestrictionParameter() {
-        var query =
-                SelectQuery.select().from(ComicBook.class.getSimpleName()).where("name")
+        var query = select().from(ComicBook.class.getSimpleName()).where("name")
                         .eq("Sample Magazine").build();
         var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
 
