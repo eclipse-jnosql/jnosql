@@ -273,5 +273,23 @@ class DynamicSelectQueryBuilderTest {
         });
     }
 
+    @Test
+    @DisplayName("Should add order by annotation")
+    void shouldAddOrderByAnnotation() {
+        var query = select().from(ComicBook.class.getSimpleName()).build();
+        var method = repositoryMetadata.find(new NameKey("findByName3")).orElseThrow();
+
+        var parameters = new Object[]{};
+        var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
+        var updatedQuery = DynamicSelectQueryBuilder.INSTANCE.updateDynamicQuery(query, context, parser, converters);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(updatedQuery).isNotNull();
+            softly.assertThat(updatedQuery.name()).isEqualTo(ComicBook.class.getSimpleName());
+            softly.assertThat(updatedQuery.columns()).isEmpty();
+            softly.assertThat(updatedQuery.sorts()).isNotEmpty();
+            softly.assertThat(updatedQuery.sorts()).contains(Sort.asc("year"), Sort.desc("name"));
+        });
+    }
 
 }

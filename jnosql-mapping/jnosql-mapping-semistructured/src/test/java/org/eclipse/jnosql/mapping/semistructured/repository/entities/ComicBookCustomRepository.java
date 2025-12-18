@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.semistructured.repository.entities;
 
 import jakarta.data.repository.First;
+import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Repository;
 
 import java.util.List;
@@ -26,4 +27,9 @@ public interface ComicBookCustomRepository {
 
     @First(20)
     List<ComicBook> findByName2(String name);
+
+
+    @OrderBy(value = "name", descending = true)
+    @OrderBy(value = "year")
+    List<ComicBook> findByName3(String name);
 }
