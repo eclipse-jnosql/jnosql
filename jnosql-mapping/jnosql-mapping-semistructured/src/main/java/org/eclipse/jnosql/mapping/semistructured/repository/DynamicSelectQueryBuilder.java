@@ -89,11 +89,10 @@ enum DynamicSelectQueryBuilder {
 
     private static CriteriaCondition appendCriteriaCondition(CriteriaCondition condition, CriteriaCondition newCondition) {
         if (condition != null) {
-            condition = CriteriaCondition.and(condition, newCondition);
+            return CriteriaCondition.and(condition, newCondition);
         } else {
-            condition = newCondition;
+            return newCondition;
         }
-        return condition;
     }
 
     private static List<String> columns(SelectQuery query,
