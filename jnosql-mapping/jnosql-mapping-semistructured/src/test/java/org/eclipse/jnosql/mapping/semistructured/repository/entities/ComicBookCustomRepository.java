@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository.entities;
 
+import jakarta.data.repository.First;
 import jakarta.data.repository.Repository;
 
 import java.util.List;
@@ -22,4 +23,7 @@ import java.util.List;
 public interface ComicBookCustomRepository {
 
     List<ComicBook> findByName(String name);
+
+    @First(20)
+    List<ComicBook> findByName2(String name);
 }

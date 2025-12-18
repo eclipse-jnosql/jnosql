@@ -173,7 +173,7 @@ class DynamicSelectQueryBuilderTest {
     @DisplayName("Should include sort parameter")
     void shouldIncludeSortParameter() {
         var query = SelectQuery.select().from(ComicBook.class.getSimpleName()).build();
-        var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
+        var method = repositoryMetadata.find(new NameKey("findByNam")).orElseThrow();
         var parameters = new Object[]{Sort.asc("name")};
         var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
 
@@ -189,5 +189,26 @@ class DynamicSelectQueryBuilderTest {
             softly.assertThat(updatedQuery.skip()).isEqualTo(0);
         });
     }
+
+    @Test
+    @DisplayName("Should include first annotation")
+    void shouldIncludeFirstAnnotation() {
+        var query = SelectQuery.select().from(ComicBook.class.getSimpleName()).build();
+        var method = repositoryMetadata.find(new NameKey("findByName2")).orElseThrow();
+        var parameters = new Object[]{};
+        var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
+
+        var updatedQuery = DynamicSelectQueryBuilder.INSTANCE.updateDynamicQuery(query, context, parser, converters);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(updatedQuery).isNotNull();
+            softly.assertThat(updatedQuery.name()).isEqualTo(ComicBook.class.getSimpleName());
+            softly.assertThat(updatedQuery.columns()).isEmpty();
+            softly.assertThat(updatedQuery.sorts()).isEmpty();
+            softly.assertThat(updatedQuery.limit()).isEqualTo(20);
+            softly.assertThat(updatedQuery.skip()).isEqualTo(0);
+        });
+    }
+
 
 }
