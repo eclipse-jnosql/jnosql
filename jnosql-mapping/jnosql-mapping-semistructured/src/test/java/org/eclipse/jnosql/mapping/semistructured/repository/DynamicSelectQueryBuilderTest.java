@@ -357,4 +357,32 @@ class DynamicSelectQueryBuilderTest {
         });
     }
 
+    @Test
+    @DisplayName("Should Append inheritance type condition")
+    void shouldIncludeAppendInheritanceTypeCondition() {
+        var query = select().from(PhotoSocialMedia.class.getSimpleName()).where("name").eq("Photo").build();
+        var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
+        var parameters = new Object[]{};
+        this.entityMetadata = entitiesMetadata.findByClassName(PhotoSocialMedia.class.getName()).orElseThrow();
+        var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
+
+        var updatedQuery = DynamicSelectQueryBuilder.INSTANCE.updateDynamicQuery(query, context, parser, converters);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(updatedQuery).isNotNull();
+            softly.assertThat(updatedQuery.name()).isEqualTo(PhotoSocialMedia.class.getSimpleName());
+            softly.assertThat(updatedQuery.columns()).isEmpty();
+            softly.assertThat(updatedQuery.sorts()).isEmpty();
+            softly.assertThat(updatedQuery.limit()).isEqualTo(0);
+            softly.assertThat(updatedQuery.skip()).isEqualTo(0);
+            softly.assertThat(updatedQuery.condition()).isNotEmpty();
+            var condition = updatedQuery.condition().orElseThrow();
+            softly.assertThat(condition.condition()).isEqualTo(Condition.AND);
+            var conditions = condition.element().get(new TypeReference<List<CriteriaCondition>>() {
+            });
+            softly.assertThat(conditions.getFirst().element()).isEqualTo(Element.of("name", "Photo"));
+            softly.assertThat(conditions.get(1).element()).isEqualTo(Element.of("dtype", "photo"));
+        });
+    }
+
 }
