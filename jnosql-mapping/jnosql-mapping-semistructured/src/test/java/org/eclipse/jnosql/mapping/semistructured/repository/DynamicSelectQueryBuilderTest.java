@@ -25,7 +25,9 @@ import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CommunicationObserverParser;
+import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -50,6 +52,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import java.util.List;
 
 
 @DisplayName("The scenarios to test the dynamic query builder")
@@ -238,6 +242,37 @@ class DynamicSelectQueryBuilderTest {
             softly.assertThat(updatedQuery.condition()).isNotEmpty();
             var condition = updatedQuery.condition().orElseThrow();
             softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of("age", 10));
+        });
+    }
+
+    @Test
+    @DisplayName("Should append new condition at restriction parameter")
+    void shouldAppendNewConditionATRestrictionParameter() {
+        var query =
+                SelectQuery.select().from(ComicBook.class.getSimpleName()).where("name")
+                        .eq("Sample Magazine").build();
+        var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
+
+        BasicAttribute<ComicBook, Integer> age = BasicAttribute.of(ComicBook.class, "age", Integer.class);
+        Restriction<ComicBook> comicBookRestriction = age.equalTo(10);
+
+        var parameters = new Object[]{comicBookRestriction};
+        var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
+        var updatedQuery = DynamicSelectQueryBuilder.INSTANCE.updateDynamicQuery(query, context, parser, converters);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(updatedQuery).isNotNull();
+            softly.assertThat(updatedQuery.name()).isEqualTo(ComicBook.class.getSimpleName());
+            softly.assertThat(updatedQuery.columns()).isEmpty();
+            softly.assertThat(updatedQuery.sorts()).isEmpty();
+            softly.assertThat(updatedQuery.limit()).isEqualTo(0);
+            softly.assertThat(updatedQuery.skip()).isEqualTo(0);
+            softly.assertThat(updatedQuery.condition()).isNotEmpty();
+            var condition = updatedQuery.condition().orElseThrow();
+            softly.assertThat(condition.condition()).isEqualTo(Condition.AND);
+            var conditions = condition.element().get(new TypeReference<List<CriteriaCondition>>() {
+            });
             softly.assertThat(condition.element()).isEqualTo(Element.of("age", 10));
         });
     }
