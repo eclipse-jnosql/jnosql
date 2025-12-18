@@ -46,7 +46,7 @@ enum DynamicSelectQueryBuilder {
         var specialParameters = SpecialParameters.of(context.parameters(), Function.identity());
         var pagination = resolvePagination(query, context.method(), specialParameters);
         var condition = condition(query, converters, context.entityMetadata(), specialParameters);
-        var sorts = sorts(query, parser, context);
+        var sorts = sorts(query, parser, context, specialParameters);
         var columns = columns(query, parser, context);
 
         return new MappingQuery(sorts,
@@ -113,13 +113,14 @@ enum DynamicSelectQueryBuilder {
 
     private static List<Sort<?>> sorts(SelectQuery query,
                                        CommunicationObserverParser parser,
-                                       RepositoryInvocationContext context) {
+                                       RepositoryInvocationContext context,
+                                       SpecialParameters specialParameters) {
 
         var entityMetadata = context.entityMetadata();
         var method = context.method();
         var sorts = new ArrayList<>(query.sorts());
         sorts.addAll(method.sorts());
-
+        sorts.addAll(specialParameters.sorts());
         if (sorts.isEmpty()) {
             return sorts;
         }
