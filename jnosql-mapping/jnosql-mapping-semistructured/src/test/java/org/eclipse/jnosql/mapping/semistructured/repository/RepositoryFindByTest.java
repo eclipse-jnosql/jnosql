@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 
+import jakarta.data.page.PageRequest;
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
@@ -121,6 +122,28 @@ public class RepositoryFindByTest extends AbstractRepositoryTest {
         var result = bookStore.findById("The Lord of the Rings");
         Mockito.verify(template).singleResult(selectQueryCaptor.capture());
         Assertions.assertThat(result).isNotEmpty();
+
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(selectQuery.name()).isEqualTo("ComicBook");
+            soft.assertThat(selectQuery.columns()).isEmpty();
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            CriteriaCondition criteriaCondition = selectQuery.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
+        });
+    }
+
+    @Test
+    @DisplayName("Should find using pagination")
+    void shouldFindUsingPagination() {
+        ComicBook comicBook = new ComicBook("1", "The Lord of the Rings", 1954);
+        Mockito.when(template.select(Mockito.any(SelectQuery.class)))
+                .thenReturn(Stream.of(comicBook));
+
+        var result = bookStore.findByName("The Lord of the Rings", PageRequest.ofSize(10));
+        Mockito.verify(template).select(selectQueryCaptor.capture());
+        Assertions.assertThat(result).isNotNull();
 
         SelectQuery selectQuery = selectQueryCaptor.getValue();
 

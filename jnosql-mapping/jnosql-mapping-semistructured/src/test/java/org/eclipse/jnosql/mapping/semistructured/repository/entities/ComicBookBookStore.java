@@ -15,6 +15,8 @@
 package org.eclipse.jnosql.mapping.semistructured.repository.entities;
 
 
+import jakarta.data.page.Page;
+import jakarta.data.page.PageRequest;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Repository;
 import jakarta.data.repository.Select;
@@ -38,6 +40,7 @@ public interface ComicBookBookStore {
 
     Optional<ComicBook> findById(String id);
 
+    Page<ComicBook> findByName(String name, PageRequest pageRequest);
 
     long countAll();
 
