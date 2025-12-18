@@ -88,12 +88,8 @@ class DynamicSelectQueryBuilderTest {
         this.repositoryMetadata = repositoriesMetadata.get(ComicBookCustomRepository.class).orElseThrow();
     }
 
- // Test cases would go here
  // should include dynamic select columns
  // should include dynamic sorts
- // should include first parameter
- //should include as limit parameter
- //should include pageRequest parameter
  //should include inheritance type condition
  //should include restriction
 
