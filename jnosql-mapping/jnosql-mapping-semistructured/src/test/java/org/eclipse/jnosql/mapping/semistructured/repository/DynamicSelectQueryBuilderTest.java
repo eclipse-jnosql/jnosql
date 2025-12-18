@@ -273,7 +273,9 @@ class DynamicSelectQueryBuilderTest {
             softly.assertThat(condition.condition()).isEqualTo(Condition.AND);
             var conditions = condition.element().get(new TypeReference<List<CriteriaCondition>>() {
             });
-            softly.assertThat(condition.element()).isEqualTo(Element.of("age", 10));
+            softly.assertThat(conditions.getFirst()).isEqualTo(CriteriaCondition.eq(Element.of("name", "Sample " +
+                    "Magazine")));
+            softly.assertThat(conditions.get(1)).isEqualTo(CriteriaCondition.eq(Element.of("age", 10)));
         });
     }
 
