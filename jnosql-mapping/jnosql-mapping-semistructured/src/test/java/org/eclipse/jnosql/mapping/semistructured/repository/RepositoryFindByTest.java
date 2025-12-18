@@ -30,7 +30,9 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBook;
+import org.eclipse.jnosql.mapping.semistructured.repository.entities.PhotoSocialMedia;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.SocialMedia;
+import org.eclipse.jnosql.mapping.semistructured.repository.entities.SocialMediaSummary;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -153,6 +155,30 @@ public class RepositoryFindByTest extends AbstractRepositoryTest {
             soft.assertThat(selectQuery.condition()).isNotEmpty();
             CriteriaCondition criteriaCondition = selectQuery.condition().orElseThrow();
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
+        });
+    }
+
+    @Test
+    @DisplayName("Should find using projection")
+    void shouldFindUsingProjection() {
+        PhotoSocialMedia socialMedia = PhotoSocialMedia.of("1", "Twitter", "http://twitter.com/jnosql");
+        Mockito.when(template.select(Mockito.any(SelectQuery.class)))
+                .thenReturn(Stream.of(socialMedia));
+
+        var result = photoSocialMediaRepository.findByNameAndPhotoId("Twitter", "http://twitter.com/jnosql");
+        Mockito.verify(template).select(selectQueryCaptor.capture());
+        Assertions.assertThat(result).isNotNull().containsExactly(new SocialMediaSummary("1", "Twitter"));
+
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(selectQuery.name()).isEqualTo("SocialMedia");
+            soft.assertThat(selectQuery.columns()).isEmpty();
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            CriteriaCondition criteriaCondition = selectQuery.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.AND);
+            var conditions = criteriaCondition.element().get(new TypeReference<List<CriteriaCondition>>() {});
+            soft.assertThat(conditions).hasSize(2);
         });
     }
 
