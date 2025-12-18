@@ -17,10 +17,16 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 import jakarta.data.Limit;
 import jakarta.data.Order;
 import jakarta.data.Sort;
+import jakarta.data.constraint.EqualTo;
+import jakarta.data.expression.Expression;
+import jakarta.data.metamodel.BasicAttribute;
 import jakarta.data.page.PageRequest;
+import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.semistructured.CommunicationObserverParser;
+import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
@@ -173,7 +179,7 @@ class DynamicSelectQueryBuilderTest {
     @DisplayName("Should include sort parameter")
     void shouldIncludeSortParameter() {
         var query = SelectQuery.select().from(ComicBook.class.getSimpleName()).build();
-        var method = repositoryMetadata.find(new NameKey("findByNam")).orElseThrow();
+        var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
         var parameters = new Object[]{Sort.asc("name")};
         var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
 
@@ -209,6 +215,33 @@ class DynamicSelectQueryBuilderTest {
             softly.assertThat(updatedQuery.skip()).isEqualTo(0);
         });
     }
+
+    @Test
+    @DisplayName("Should include restriction parameter")
+    void shouldIncludeRestrictionParameter() {
+        var query = SelectQuery.select().from(ComicBook.class.getSimpleName()).build();
+        var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
+        BasicAttribute<ComicBook, Integer> age = BasicAttribute.of(ComicBook.class, "age", Integer.class);
+        Restriction<ComicBook> comicBookRestriction = age.equalTo(10);
+
+        var parameters = new Object[]{comicBookRestriction};
+        var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
+        var updatedQuery = DynamicSelectQueryBuilder.INSTANCE.updateDynamicQuery(query, context, parser, converters);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(updatedQuery).isNotNull();
+            softly.assertThat(updatedQuery.name()).isEqualTo(ComicBook.class.getSimpleName());
+            softly.assertThat(updatedQuery.columns()).isEmpty();
+            softly.assertThat(updatedQuery.sorts()).isEmpty();
+            softly.assertThat(updatedQuery.limit()).isEqualTo(0);
+            softly.assertThat(updatedQuery.skip()).isEqualTo(0);
+            softly.assertThat(updatedQuery.condition()).isNotEmpty();
+            var condition = updatedQuery.condition().orElseThrow();
+            softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            softly.assertThat(condition.element()).isEqualTo(Element.of("age", 10));
+        });
+    }
+
 
 
 }
