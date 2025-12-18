@@ -140,7 +140,7 @@ enum DynamicSelectQueryBuilder {
         long skip = query.skip();
 
         if (method.first().isPresent()) {
-            return new Pagination(0, method.first().orElseThrow());
+            return new Pagination(method.first().orElseThrow(), 0);
         }
 
         if (specialParameters.limit().isPresent()) {
