@@ -169,4 +169,25 @@ class DynamicSelectQueryBuilderTest {
         });
     }
 
+    @Test
+    @DisplayName("Should include sort parameter")
+    void shouldIncludeSortParameter() {
+        var query = SelectQuery.select().from(ComicBook.class.getSimpleName()).build();
+        var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
+        var parameters = new Object[]{Sort.asc("name")};
+        var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
+
+        var updatedQuery = DynamicSelectQueryBuilder.INSTANCE.updateDynamicQuery(query, context, parser, converters);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(updatedQuery).isNotNull();
+            softly.assertThat(updatedQuery.name()).isEqualTo(ComicBook.class.getSimpleName());
+            softly.assertThat(updatedQuery.columns()).isEmpty();
+            softly.assertThat(updatedQuery.sorts()).hasSize(1);
+            softly.assertThat(updatedQuery.sorts()).contains(Sort.asc("name"));
+            softly.assertThat(updatedQuery.limit()).isEqualTo(0);
+            softly.assertThat(updatedQuery.skip()).isEqualTo(0);
+        });
+    }
+
 }
