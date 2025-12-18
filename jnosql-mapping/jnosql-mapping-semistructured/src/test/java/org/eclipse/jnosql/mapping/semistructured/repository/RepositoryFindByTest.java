@@ -38,6 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @DisplayName("The scenarios to test the feature find by")
@@ -107,6 +108,28 @@ public class RepositoryFindByTest extends AbstractRepositoryTest {
             soft.assertThat(selectQuery.sorts().get(0).isAscending()).isTrue();
             soft.assertThat(selectQuery.sorts().get(1).property()).isEqualTo("year");
             soft.assertThat(selectQuery.sorts().get(1).isAscending()).isFalse();
+        });
+    }
+
+    @Test
+    @DisplayName("Should find single result by id")
+    void shouldFindSingleResult() {
+        ComicBook comicBook = new ComicBook("1", "The Lord of the Rings", 1954);
+        Mockito.when(template.singleResult(Mockito.any(SelectQuery.class)))
+                .thenReturn(Optional.of(comicBook));
+
+        var result = bookStore.findById("The Lord of the Rings");
+        Mockito.verify(template).singleResult(selectQueryCaptor.capture());
+        Assertions.assertThat(result).isNotEmpty();
+
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(selectQuery.name()).isEqualTo("ComicBook");
+            soft.assertThat(selectQuery.columns()).isEmpty();
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            CriteriaCondition criteriaCondition = selectQuery.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
         });
     }
 
