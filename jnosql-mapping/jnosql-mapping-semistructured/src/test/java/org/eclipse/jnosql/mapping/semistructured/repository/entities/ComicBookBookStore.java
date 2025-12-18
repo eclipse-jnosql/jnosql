@@ -21,6 +21,7 @@ import jakarta.data.repository.Select;
 import org.junit.jupiter.api.Order;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ComicBookBookStore {
@@ -34,6 +35,8 @@ public interface ComicBookBookStore {
     @OrderBy("name")
     @OrderBy(value = "year", descending = true)
     List<String> findByNameAndYear(String name, int year);
+
+    Optional<ComicBook> findById(String id);
 
 
     long countAll();

@@ -69,7 +69,7 @@ public class RepositoryFindByTest extends AbstractRepositoryTest {
 
         SelectQuery selectQuery = selectQueryCaptor.getValue();
 
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.name()).isEqualTo("ComicBook");
             soft.assertThat(selectQuery.condition()).isNotEmpty();
             soft.assertThat(selectQuery.sorts()).isEmpty();
@@ -82,7 +82,7 @@ public class RepositoryFindByTest extends AbstractRepositoryTest {
 
     @Test
     @DisplayName("Should order by sort annotations")
-    void shouldOrderBySortAnnotations(){
+    void shouldOrderBySortAnnotations() {
         ComicBook comicBook = new ComicBook("1", "The Lord of the Rings", 1954);
         Mockito.when(template.select(Mockito.any(SelectQuery.class)))
                 .thenReturn(Stream.of(comicBook));
@@ -93,13 +93,14 @@ public class RepositoryFindByTest extends AbstractRepositoryTest {
 
         SelectQuery selectQuery = selectQueryCaptor.getValue();
 
-        SoftAssertions.assertSoftly(soft ->{
+        SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.name()).isEqualTo("ComicBook");
             soft.assertThat(selectQuery.columns()).containsExactly("name");
             soft.assertThat(selectQuery.condition()).isNotEmpty();
             CriteriaCondition criteriaCondition = selectQuery.condition().orElseThrow();
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.AND);
-            var conditions = criteriaCondition.element().get(new TypeReference<List<CriteriaCondition>>() {});
+            var conditions = criteriaCondition.element().get(new TypeReference<List<CriteriaCondition>>() {
+            });
             soft.assertThat(conditions).hasSize(2);
             soft.assertThat(selectQuery.sorts()).hasSize(2);
             soft.assertThat(selectQuery.sorts().get(0).property()).isEqualTo("name");
@@ -108,7 +109,6 @@ public class RepositoryFindByTest extends AbstractRepositoryTest {
             soft.assertThat(selectQuery.sorts().get(1).isAscending()).isFalse();
         });
     }
-
 
 
 }
