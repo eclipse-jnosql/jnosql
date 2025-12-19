@@ -14,8 +14,15 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
-import static org.junit.jupiter.api.Assertions.*;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class SemistructuredQueryOperationTest {
 
+    @Test
+    void shouldCreateInstanceWithDefaultConstructor() {
+        SemistructuredQueryOperation semistructuredQueryOperation = new SemistructuredQueryOperation();
+        Assertions.assertThat(semistructuredQueryOperation).isNotNull();
+    }
 }
