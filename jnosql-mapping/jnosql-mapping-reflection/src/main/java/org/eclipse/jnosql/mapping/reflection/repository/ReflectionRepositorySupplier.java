@@ -194,9 +194,10 @@ enum ReflectionRepositorySupplier {
                             .getAnnotation(Is.class))
                     .map(Is::value)
                     .orElse(null);
-            String name = ofNullable(parameter.getAnnotation(Param.class))
+            String param = ofNullable(parameter.getAnnotation(Param.class))
                     .map(Param::value)
                     .orElse(parameter.getName());
+            String name = parameter.getName();
             String by = ofNullable(parameter.getAnnotation(By.class))
                     .map(By::value)
                     .orElse(parameter.getName());
@@ -208,7 +209,7 @@ enum ReflectionRepositorySupplier {
             if (parameter.getType().isArray()) {
                 elementType = parameter.getType().getComponentType();
             }
-            params.add(new ReflectionRepositoryParam(isValue, name, by, type, elementType));
+            params.add(new ReflectionRepositoryParam(isValue, name, param, by, type, elementType));
         }
         return params;
     }
