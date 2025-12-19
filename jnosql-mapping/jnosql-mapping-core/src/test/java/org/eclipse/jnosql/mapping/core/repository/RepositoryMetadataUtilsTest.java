@@ -17,6 +17,19 @@ package org.eclipse.jnosql.mapping.core.repository;
 import jakarta.data.Limit;
 import jakarta.data.Order;
 import jakarta.data.Sort;
+import jakarta.data.constraint.AtLeast;
+import jakarta.data.constraint.AtMost;
+import jakarta.data.constraint.Between;
+import jakarta.data.constraint.Constraint;
+import jakarta.data.constraint.EqualTo;
+import jakarta.data.constraint.GreaterThan;
+import jakarta.data.constraint.In;
+import jakarta.data.constraint.LessThan;
+import jakarta.data.constraint.Like;
+import jakarta.data.constraint.NotBetween;
+import jakarta.data.constraint.NotEqualTo;
+import jakarta.data.constraint.NotIn;
+import jakarta.data.constraint.NotLike;
 import jakarta.data.page.PageRequest;
 import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
@@ -40,11 +53,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
+import org.mockito.internal.matchers.Equals;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @EnableAutoWeld
 @AddPackages(value = Converters.class)
@@ -164,6 +182,42 @@ class RepositoryMetadataUtilsTest {
             Assertions.assertThat(valueMap)
                     .hasSize(1)
                     .containsEntry("age", new ParamValue(Condition.EQUALS, 10, false));
+        }
+
+
+        @ParameterizedTest
+        @MethodSource("isMappingProvider")
+        void shouldMapUsingIsAnnotation(Class<? extends Constraint<?>> constraintType, Condition condition, boolean negate) {
+            RepositoryMethod method = Mockito.mock(RepositoryMethod.class);
+            RepositoryParam param = Mockito.mock(RepositoryParam.class);
+            Mockito.when(param.by()).thenReturn("age");
+            Mockito.doReturn(Integer.class).when(param).type();
+            Mockito.doReturn(Optional.of(constraintType)).when(param).is();
+            Mockito.when(method.params()).thenReturn(Collections.singletonList(param));
+            Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{10});
+
+            Assertions.assertThat(valueMap)
+                    .hasSize(1)
+                    .containsEntry("age", new ParamValue(condition, 10, negate));
+        }
+
+
+        private static Stream<Arguments> isMappingProvider() {
+            return Stream.of(
+                    Arguments.of(EqualTo.class, Condition.EQUALS, false),
+                    Arguments.of(AtLeast.class, Condition.GREATER_EQUALS_THAN, false),
+                    Arguments.of(AtMost.class, Condition.LESSER_EQUALS_THAN, false),
+                    Arguments.of(Between.class, Condition.BETWEEN, false),
+                    Arguments.of(GreaterThan.class, Condition.GREATER_THAN, false),
+                    Arguments.of(In.class, Condition.IN, false),
+                    Arguments.of(LessThan.class, Condition.LESSER_THAN, false),
+                    Arguments.of(Like.class, Condition.LIKE, false),
+
+                    Arguments.of(NotBetween.class, Condition.BETWEEN, true),
+                    Arguments.of(NotEqualTo.class, Condition.EQUALS, true),
+                    Arguments.of(NotIn.class, Condition.IN, true),
+                    Arguments.of(NotLike.class, Condition.LIKE, true)
+            );
         }
     }
 
