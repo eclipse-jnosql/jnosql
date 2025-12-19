@@ -71,13 +71,50 @@ class RepositoryMetadataUtilsTest {
         Assertions.assertThat(params).isEmpty();
     }
 
+    @Test
+    @DisplayName("should map params by name")
+    void shouldMapParamsByName() {
+        RepositoryMethod method = repositoryMetadata.find(new NameKey("query1")).orElseThrow();
+        var params = RepositoryMetadataUtils.INSTANCE.getParams(method, new Object[]{
+                "John",
+                PageRequest.ofSize(10)});
+
+        Assertions.assertThat(params)
+                .hasSize(2)
+                .containsEntry("native", "John")
+                .containsEntry("?1", "John");
+    }
 
 
 
-    //should map empty
-    //should map params by name
-    //should skip when there is special parameter
-    //should map params by position
+    @Test
+    @DisplayName("should map params by name")
+    void shouldMapParamsByName2() {
+        RepositoryMethod method = repositoryMetadata.find(new NameKey("query2")).orElseThrow();
+        var params = RepositoryMetadataUtils.INSTANCE.getParams(method, new Object[]{
+                "John",
+                PageRequest.ofSize(10)});
 
+        Assertions.assertThat(params)
+                .hasSize(2)
+                .containsEntry("arg0", "John")
+                .containsEntry("?1", "John");
+    }
+
+    @Test
+    @DisplayName("should map params with multiple params")
+    void shouldMapParamsMultipleParams() {
+        RepositoryMethod method = repositoryMetadata.find(new NameKey("query3")).orElseThrow();
+        var params = RepositoryMetadataUtils.INSTANCE.getParams(method, new Object[]{
+                "John",
+                25,
+                PageRequest.ofSize(10)});
+
+        Assertions.assertThat(params)
+                .hasSize(4)
+                .containsEntry("name", "John")
+                .containsEntry("?1", "John")
+                .containsEntry("?2", 25);
+    }
 
 }
