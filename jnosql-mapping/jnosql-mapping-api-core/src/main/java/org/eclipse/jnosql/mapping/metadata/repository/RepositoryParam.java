@@ -42,12 +42,24 @@ public interface RepositoryParam {
 
     /**
      * Returns the name of the parameter as it should appear in the query.
-     * If the parameter is annotated with {@link jakarta.data.repository.Param}, the value provided by that annotation
-     * overrides the default parameter name derived from the method signature.
-     *
      * @return the effective name of the repository method parameter, never {@code null}.
      */
     String name();
+
+    /**
+     * Returns the value specified by {@link jakarta.data.repository.Param#value()} for this parameter.
+     * <p>
+     * The {@link jakarta.data.repository.Param} annotation allows explicit naming of parameters in repository
+     * methods, which can be used to bind method parameters to query parameters.
+     * <pre>{@code
+     *     @Query("SELECT p FROM Person p WHERE p.address.city = :address.city")
+     *     List<Person> findByAddressCity(@Param("address.city") String city);
+     *     }
+     * </pre>
+     * @return the value defined by {@link jakarta.data.repository.Param#value()}, or an empty string if no
+     * {@link jakarta.data.repository.Param} annotation is present.
+     */
+    String param();
 
     /**
      * Returns the property path specified by {@link jakarta.data.repository.By#value()} for this parameter.
