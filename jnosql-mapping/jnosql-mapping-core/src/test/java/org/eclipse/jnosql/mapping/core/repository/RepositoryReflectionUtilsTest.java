@@ -34,9 +34,18 @@ import jakarta.data.repository.By;
 import jakarta.data.repository.Is;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
+import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.core.VetedConverter;
 import org.eclipse.jnosql.mapping.core.entities.Person;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
+import org.eclipse.jnosql.mapping.reflection.Reflections;
+import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.jboss.weld.junit5.auto.AddExtensions;
+import org.jboss.weld.junit5.auto.AddPackages;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -54,6 +63,11 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@EnableAutoWeld
+@AddPackages(value = Converters.class)
+@AddPackages(value = VetedConverter.class)
+@AddPackages(value = Reflections.class)
+@AddExtensions(ReflectionEntityMetadataExtension.class)
 class RepositoryReflectionUtilsTest {
 
     final Class<?> PERSON_REPOSITORY_COMPILED_WITH_PARAMETERS_CLASS;
@@ -66,6 +80,9 @@ class RepositoryReflectionUtilsTest {
             throw new RuntimeException(ex);
         }
     }
+
+    @Inject
+    private RepositoriesMetadata repositoriesMetadata;
 
     @Nested
     @DisplayName("Repository query and @By reflection tests")
