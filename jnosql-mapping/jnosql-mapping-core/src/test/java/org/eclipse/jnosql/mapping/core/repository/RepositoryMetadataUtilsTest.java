@@ -60,6 +60,7 @@ import org.mockito.Mockito;
 import org.mockito.internal.matchers.Equals;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -150,9 +151,6 @@ class RepositoryMetadataUtilsTest {
 
     @Nested
     class WhenGetBy {
-        //should ignore special parameters
-        //should ignore parameters without @By
-        //should map with default condition
 
         @ParameterizedTest
         @DisplayName("should ignore special parameters")
@@ -201,6 +199,21 @@ class RepositoryMetadataUtilsTest {
                     .containsEntry("age", new ParamValue(condition, 10, negate));
         }
 
+        @ParameterizedTest
+        @MethodSource("constraintProvider")
+        void shouldMapUsingConstraintInstance(Constraint<?> constraint, Condition condition, boolean negate, Object expected) {
+            RepositoryMethod method = Mockito.mock(RepositoryMethod.class);
+            RepositoryParam param = Mockito.mock(RepositoryParam.class);
+            Mockito.when(param.by()).thenReturn("age");
+            Mockito.doReturn(Constraint.class).when(param).type();
+            Mockito.when(method.params()).thenReturn(Collections.singletonList(param));
+            Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{constraint});
+
+            Assertions.assertThat(valueMap)
+                    .hasSize(1)
+                    .containsEntry("age", new ParamValue(condition, expected, negate));
+        }
+
 
         private static Stream<Arguments> isMappingProvider() {
             return Stream.of(
@@ -217,6 +230,24 @@ class RepositoryMetadataUtilsTest {
                     Arguments.of(NotEqualTo.class, Condition.EQUALS, true),
                     Arguments.of(NotIn.class, Condition.IN, true),
                     Arguments.of(NotLike.class, Condition.LIKE, true)
+            );
+        }
+
+        public static Stream<Arguments> constraintProvider() {
+            return Stream.of(
+                    Arguments.of(EqualTo.value(10), Condition.EQUALS, false, 10),
+                    Arguments.of(AtLeast.min(10), Condition.GREATER_EQUALS_THAN, false, 10),
+                    Arguments.of(AtMost.max(10), Condition.LESSER_EQUALS_THAN, false, 10),
+                    Arguments.of(Between.bounds(10, 10), Condition.BETWEEN, false, List.of(10, 10)),
+                    Arguments.of(GreaterThan.bound(10), Condition.GREATER_THAN, false, 10),
+                    Arguments.of(In.values(Collections.singletonList(10)), Condition.IN, false, Collections.singletonList(10)),
+                    Arguments.of(LessThan.bound(10), Condition.LESSER_THAN, false, 10),
+                    Arguments.of(Like.literal("ada"), Condition.LIKE, false, "ada"),
+
+                    Arguments.of(NotBetween.bounds(10,10), Condition.BETWEEN, true, List.of(10, 10)),
+                    Arguments.of(NotEqualTo.value(10), Condition.EQUALS, true, 10),
+                    Arguments.of(NotIn.values(Collections.singletonList(10)), Condition.IN, true, Collections.singletonList(10)),
+                    Arguments.of(NotLike.literal("ada"), Condition.LIKE, true, "ada")
             );
         }
     }
