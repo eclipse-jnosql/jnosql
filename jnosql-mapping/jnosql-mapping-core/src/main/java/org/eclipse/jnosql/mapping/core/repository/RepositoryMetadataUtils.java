@@ -14,10 +14,18 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+import jakarta.data.constraint.Constraint;
+import jakarta.data.repository.By;
+import jakarta.data.repository.Is;
+import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 public enum RepositoryMetadataUtils {
 
@@ -38,5 +46,30 @@ public enum RepositoryMetadataUtils {
             }
         }
         return params;
+    }
+
+    public Map<String, ParamValue> getBy(RepositoryMethod method, Object[] arguments) {
+        Map<String, ParamValue> params = new HashMap<>();
+
+        var parameters = method.params();
+        for (int index = 0; index < parameters.size(); index++) {
+            var parameter = parameters.get(index);
+            boolean isNotSpecialParameter = SpecialParameters.isNotSpecialParameter(parameter.type());
+            var by = parameter.by();
+            var is = parameter.is();
+            if (isNotSpecialParameter) {
+                params.put(by, condition(is.orElse(null), arguments[index]));
+            }
+        }
+        return params;
+    }
+
+    private ParamValue condition(Class<? extends Constraint<?>> isType, Object value) {
+        if (Objects.isNull(isType) && !(value instanceof Constraint<?>)) {
+            return new ParamValue(Condition.EQUALS, value, false);
+        } else if (value instanceof Constraint<?> constraint) {
+            return ParamValueUtils.valueFromConstraintInstance(constraint);
+        }
+        return ParamValueUtils.getParamValue(value, isType);
     }
 }
