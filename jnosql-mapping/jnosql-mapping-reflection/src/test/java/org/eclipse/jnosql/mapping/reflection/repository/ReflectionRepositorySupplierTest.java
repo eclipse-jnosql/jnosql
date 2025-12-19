@@ -164,7 +164,7 @@ class ReflectionRepositorySupplierTest {
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
-            soft.assertThat(method.query()).isPresent().get().isEqualTo("From Person where name = :name");
+            soft.assertThat(method.query()).isPresent().get().isEqualTo("From Person where name = :native_query");
             soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.QUERY);
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isNotEmpty().hasSize(1);
@@ -486,12 +486,13 @@ class ReflectionRepositorySupplierTest {
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(query).isPresent();
             var method = query.orElseThrow();
-            soft.assertThat(method.query()).isPresent().get().isEqualTo("From Person where name = :name");
+            soft.assertThat(method.query()).isPresent().get().isEqualTo("From Person where name = :native_query");
             soft.assertThat(method.type()).isEqualTo(RepositoryMethodType.QUERY);
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isNotEmpty().hasSize(1);
             RepositoryParam repositoryParam = params.getFirst();
             soft.assertThat(repositoryParam.name()).isNotNull();
+            soft.assertThat(repositoryParam.param()).isEqualTo("native_query");
             soft.assertThat(repositoryParam.is()).isEmpty();
             soft.assertThat(repositoryParam.by()).isNotNull();
             soft.assertThat(repositoryParam.type()).isEqualTo(String.class);
