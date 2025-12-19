@@ -15,9 +15,13 @@
 package org.eclipse.jnosql.mapping.core.repository;
 
 import jakarta.data.Limit;
+import jakarta.data.Order;
+import jakarta.data.Sort;
 import jakarta.data.page.PageRequest;
+import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
+import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.VetedConverter;
 import org.eclipse.jnosql.mapping.core.entities.People;
@@ -25,6 +29,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.NameKey;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.jboss.weld.junit5.auto.AddExtensions;
@@ -32,7 +37,14 @@ import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
+
+import java.util.Collections;
+import java.util.Map;
 
 @EnableAutoWeld
 @AddPackages(value = Converters.class)
@@ -116,5 +128,45 @@ class RepositoryMetadataUtilsTest {
                 .containsEntry("?1", "John")
                 .containsEntry("?2", 25);
     }
+
+
+    @Nested
+    class WhenGetBy {
+        //should ignore special parameters
+        //should ignore parameters without @By
+        //should map with default condition
+
+        @ParameterizedTest
+        @DisplayName("should ignore special parameters")
+        @ValueSource(classes = {Limit.class, PageRequest.class, Order.class, Restriction.class,
+                Sort.class})
+        void shouldIgnoreSpecialParameters(Class<?> specialParameter) {
+            RepositoryMethod method = Mockito.mock(RepositoryMethod.class);
+            RepositoryParam param = Mockito.mock(RepositoryParam.class);
+            Mockito.when(param.by()).thenReturn("limit");
+            Mockito.doReturn(specialParameter).when(param).type();
+            Mockito.when(method.params()).thenReturn(Collections.singletonList(param));
+
+            Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{"value"});
+            Assertions.assertThat(valueMap).isEmpty();
+        }
+
+        @Test
+        @DisplayName("should map equals as default")
+        void shouldMapEqualsAsDefault() {
+            RepositoryMethod method = Mockito.mock(RepositoryMethod.class);
+            RepositoryParam param = Mockito.mock(RepositoryParam.class);
+            Mockito.when(param.by()).thenReturn("age");
+            Mockito.doReturn(Integer.class).when(param).type();
+            Mockito.when(method.params()).thenReturn(Collections.singletonList(param));
+            Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{10});
+
+            Assertions.assertThat(valueMap)
+                    .hasSize(1)
+                    .containsEntry("age", new ParamValue(Condition.EQUALS, 10, false));
+        }
+    }
+
+
 
 }
