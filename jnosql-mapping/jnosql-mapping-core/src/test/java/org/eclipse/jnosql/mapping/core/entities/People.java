@@ -26,13 +26,13 @@ import java.util.List;
 @Repository
 public interface People extends BasicRepository<Person, Long> {
 
-    @Query("Person p WHERE p.name = :native")
+    @Query("Person WHERE name = :native")
     Page<Person> query(@Param("native") String name, PageRequest request);
 
 
-    @Query("Person p WHERE p.name = :arg0")
+    @Query("Person WHERE name = :arg0")
     Page<Person> query2(String name, PageRequest request);
 
-    @Query("Person p WHERE p.name = :name AND p.age = ?1")
+    @Query("Person WHERE name = :name AND p.age = ?1")
     Page<Person> query3(@Param("name") String name, int age, PageRequest request);
 }
