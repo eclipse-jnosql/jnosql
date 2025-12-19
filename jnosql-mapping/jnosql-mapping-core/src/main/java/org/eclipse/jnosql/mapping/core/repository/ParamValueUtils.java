@@ -64,7 +64,7 @@ enum ParamValueUtils {
         throw new UnsupportedOperationException("On NoSQL database this is not supported: " + expression.getClass());
     }
 
-    private static ParamValue valueFromConstraintClass(Object value, Class<? extends Constraint> constraint) {
+    static ParamValue valueFromConstraintClass(Object value, Class<? extends Constraint> constraint) {
         return switch (constraint.getName()) {
             case "jakarta.data.constraint.AtLeast" -> new ParamValue(Condition.GREATER_EQUALS_THAN, value, false);
             case "jakarta.data.constraint.AtMost" -> new ParamValue(Condition.LESSER_EQUALS_THAN, value, false);
@@ -88,8 +88,10 @@ enum ParamValueUtils {
 
     static ParamValue getParamValue(Object value, Class<? extends Constraint> type) {
         if (value instanceof Constraint<?> constraint){
-            return ParamValueUtils.valueFromConstraintInstance(constraint);
+            return valueFromConstraintInstance(constraint);
         }
         return valueFromConstraintClass(value, type);
     }
+
+
 }

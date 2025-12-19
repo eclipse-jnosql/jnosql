@@ -15,17 +15,12 @@
 package org.eclipse.jnosql.mapping.core.repository;
 
 import jakarta.data.constraint.Constraint;
-import jakarta.data.repository.By;
-import jakarta.data.repository.Is;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 public enum RepositoryMetadataUtils {
 
