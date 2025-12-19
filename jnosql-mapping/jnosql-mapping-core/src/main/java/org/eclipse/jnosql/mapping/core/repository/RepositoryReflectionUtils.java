@@ -29,6 +29,7 @@ import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import jakarta.data.spi.expression.literal.Literal;
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -60,6 +61,27 @@ public enum RepositoryReflectionUtils {
             Parameter parameter = parameters[index];
             boolean isNotSpecialParameter = SpecialParameters.isNotSpecialParameter(parameter.getType());
             Param param = parameter.getAnnotation(Param.class);
+            if (Objects.nonNull(param)) {
+                params.put(param.value(), args[index]);
+            } else if (isNotSpecialParameter) {
+                if (parameter.isNamePresent()) {
+                    params.put(parameter.getName(), args[index]);
+                }
+                params.put("?" + queryIndex++, args[index]);
+            }
+        }
+        return params;
+    }
+
+    public Map<String, Object> getParams(RepositoryMethod method, Object[] args) {
+        Map<String, Object> params = new HashMap<>();
+
+        var parameters = method.params();
+        int queryIndex = 1;
+        for (int index = 0; index < parameters.size(); index++) {
+            var parameter = parameters.get(index);
+            boolean isNotSpecialParameter = SpecialParameters.isNotSpecialParameter(parameter.type());
+            var param = parameter.param();
             if (Objects.nonNull(param)) {
                 params.put(param.value(), args[index]);
             } else if (isNotSpecialParameter) {
