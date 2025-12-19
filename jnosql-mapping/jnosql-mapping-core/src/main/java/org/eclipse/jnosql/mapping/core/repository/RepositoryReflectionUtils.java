@@ -81,13 +81,9 @@ public enum RepositoryReflectionUtils {
         for (int index = 0; index < parameters.size(); index++) {
             var parameter = parameters.get(index);
             boolean isNotSpecialParameter = SpecialParameters.isNotSpecialParameter(parameter.type());
-            var param = parameter.param();
-            if (Objects.nonNull(param)) {
-                params.put(param.value(), args[index]);
-            } else if (isNotSpecialParameter) {
-                if (parameter.isNamePresent()) {
-                    params.put(parameter.getName(), args[index]);
-                }
+            if (isNotSpecialParameter) {
+                var param = parameter.param();
+                params.put(param, args[index]);
                 params.put("?" + queryIndex++, args[index]);
             }
         }
