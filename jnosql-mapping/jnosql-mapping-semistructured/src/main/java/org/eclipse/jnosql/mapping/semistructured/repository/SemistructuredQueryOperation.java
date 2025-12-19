@@ -14,23 +14,16 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
-import jakarta.data.Sort;
-import jakarta.data.repository.Query;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.query.data.QueryType;
-import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.repository.DynamicQueryMethodReturn;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
-import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
-import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.QueryOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
-import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
-import org.eclipse.jnosql.mapping.semistructured.query.AbstractSemiStructuredRepositoryProxy;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 @ApplicationScoped
@@ -38,12 +31,21 @@ class SemistructuredQueryOperation implements QueryOperation {
 
     private static final Logger LOGGER = Logger.getLogger(SemistructuredQueryOperation.class.getName());
 
-    private Converters converters;
 
-    private SemistructuredQueryBuilder queryBuilder;
+    private final  SemistructuredQueryBuilder queryBuilder;
 
-    private SemistructuredReturnType semistructuredReturnType;
+    private final  SemistructuredReturnType semistructuredReturnType;
 
+    @Inject
+    SemistructuredQueryOperation(SemistructuredQueryBuilder queryBuilder, SemistructuredReturnType semistructuredReturnType) {
+        this.queryBuilder = queryBuilder;
+        this.semistructuredReturnType = semistructuredReturnType;
+    }
+
+    SemistructuredQueryOperation() {
+        this.queryBuilder = null;
+        this.semistructuredReturnType = null;
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -67,7 +69,7 @@ class SemistructuredQueryOperation implements QueryOperation {
                 .methodName(method.name())
                 .returnType(method.returnType().orElseThrow())
                 .querySupplier(() -> queryValue)
-                .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, params))
+                .paramsSupplier(() -> RepositoryMetadataUtils.INSTANCE.getParams(method, params))
                 .typeClass(type)
                 .pageRequest(pageRequest)
                 .mapper(semistructuredReturnType.mapper(method))
