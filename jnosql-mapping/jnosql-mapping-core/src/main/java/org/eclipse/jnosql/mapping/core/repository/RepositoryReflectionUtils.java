@@ -98,8 +98,9 @@ public enum RepositoryReflectionUtils {
         Class<? extends Constraint<?>> constraint = (Class<? extends Constraint<?>>) is.value();
         return getParamValue(value, constraint);
     }
+
     static ParamValue getParamValue(Object value, Class<? extends Constraint> type) {
-        if (value instanceof Constraint<?> constraint){
+        if (value instanceof Constraint<?> constraint) {
             return ParamValueUtils.valueFromConstraintInstance(constraint);
         }
         return ParamValueUtils.valueFromConstraintClass(value, type);
