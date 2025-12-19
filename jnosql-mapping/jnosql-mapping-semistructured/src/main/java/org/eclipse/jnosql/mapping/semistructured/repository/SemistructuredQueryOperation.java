@@ -14,7 +14,11 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
+import jakarta.data.repository.Query;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.eclipse.jnosql.communication.query.data.QueryType;
+import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.QueryOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
@@ -23,6 +27,15 @@ class SemistructuredQueryOperation implements QueryOperation {
 
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
+
+        var entityMetadata = context.entityMetadata();
+        var method = context.method();
+        Class<?> type = entityMetadata.type();
+        var entity = entityMetadata.name();
+        var pageRequest = DynamicReturn.findPageRequest(params);
+        var queryValue = method.query().orElseThrow();
+        var queryType = QueryType.parse(queryValue);
+        var returnType = method.getReturnType();
         return null;
     }
 }
