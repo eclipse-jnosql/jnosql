@@ -21,6 +21,7 @@ import java.util.Optional;
 
 record ReflectionRepositoryParam(Class<? extends Constraint<?>> isValue,
                                  String name,
+                                 String param,
                                  String by,
                                  Class<?> type,
                                  Class<?> elementTypeValue) implements RepositoryParam {
