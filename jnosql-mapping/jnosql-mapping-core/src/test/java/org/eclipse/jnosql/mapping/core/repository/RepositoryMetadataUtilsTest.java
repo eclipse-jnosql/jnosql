@@ -14,15 +14,25 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+import jakarta.data.Limit;
+import jakarta.data.page.PageRequest;
 import jakarta.inject.Inject;
+import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.VetedConverter;
+import org.eclipse.jnosql.mapping.core.entities.People;
+import org.eclipse.jnosql.mapping.metadata.repository.NameKey;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 @EnableAutoWeld
 @AddPackages(value = Converters.class)
@@ -33,5 +43,41 @@ class RepositoryMetadataUtilsTest {
 
     @Inject
     private RepositoriesMetadata repositoriesMetadata;
+
+    private RepositoryMetadata repositoryMetadata;
+
+    @BeforeEach
+    void setUp() {
+        repositoryMetadata = repositoriesMetadata.get(People.class)
+                .orElseThrow();
+    }
+
+    @Test
+    @DisplayName("should map param empty")
+    void shouldMapParamEmpty() {
+        RepositoryMethod method = repositoryMetadata.find(new NameKey("query")).orElseThrow();
+        var params = RepositoryMetadataUtils.INSTANCE.getParams(method, new Object[]{});
+        Assertions.assertThat(params).isEmpty();
+    }
+
+    @Test
+    @DisplayName("should map param empty with special parameter")
+    void shouldMapParamEmptyWithParameter() {
+        RepositoryMethod method = repositoryMetadata.find(new NameKey("query0")).orElseThrow();
+        var params = RepositoryMetadataUtils.INSTANCE.getParams(method, new Object[]{
+                Limit.of(10),
+                PageRequest.ofSize(10)});
+
+        Assertions.assertThat(params).isEmpty();
+    }
+
+
+
+
+    //should map empty
+    //should map params by name
+    //should skip when there is special parameter
+    //should map params by position
+
 
 }

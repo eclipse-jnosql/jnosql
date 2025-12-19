@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.entities;
 
+import jakarta.data.Limit;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import jakarta.data.repository.BasicRepository;
@@ -26,8 +27,14 @@ import java.util.List;
 @Repository
 public interface People extends BasicRepository<Person, Long> {
 
+    @Query("FROM Person")
+    Page<Person> query();
+
+    @Query("FROM Person")
+    Page<Person> query0(Limit limit, PageRequest page);
+
     @Query("Person WHERE name = :native")
-    Page<Person> query(@Param("native") String name, PageRequest request);
+    Page<Person> query1(@Param("native") String name, PageRequest request);
 
 
     @Query("Person WHERE name = :arg0")
