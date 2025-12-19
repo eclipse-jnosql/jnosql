@@ -73,23 +73,6 @@ public enum RepositoryReflectionUtils {
         return params;
     }
 
-    public Map<String, Object> getParams(RepositoryMethod method, Object[] args) {
-        Map<String, Object> params = new HashMap<>();
-
-        var parameters = method.params();
-        int queryIndex = 1;
-        for (int index = 0; index < parameters.size(); index++) {
-            var parameter = parameters.get(index);
-            boolean isNotSpecialParameter = SpecialParameters.isNotSpecialParameter(parameter.type());
-            if (isNotSpecialParameter) {
-                var param = parameter.param();
-                params.put(param, args[index]);
-                params.put("?" + queryIndex++, args[index]);
-            }
-        }
-        return params;
-    }
-
     /**
      * Converts values at arg at a {@link Map}
      *
