@@ -15,9 +15,15 @@
 package org.eclipse.jnosql.mapping.semistructured.repository.entities;
 
 
+import jakarta.data.constraint.EqualTo;
+import jakarta.data.constraint.GreaterThan;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import jakarta.data.repository.By;
+import jakarta.data.repository.Find;
+import jakarta.data.repository.Is;
 import jakarta.data.repository.OrderBy;
+import jakarta.data.repository.Query;
 import jakarta.data.repository.Repository;
 import jakarta.data.repository.Select;
 import org.junit.jupiter.api.Order;
@@ -32,6 +38,14 @@ public interface ComicBookBookStore {
 
     List<ComicBook> findByName(String name);
 
+    @Query("FROM ComicBook WHERE year > 2000")
+    List<ComicBook> query();
+
+    @Query("FROM ComicBook WHERE year > ?1")
+    List<ComicBook> query(int year);
+
+    @Query("FROM ComicBook WHERE year > ?1")
+    Page<ComicBook> query(int year, PageRequest request);
 
     @Select("name")
     @OrderBy("name")
@@ -51,4 +65,17 @@ public interface ComicBookBookStore {
     void deleteByName(String name);
 
     int deleteByYear(int year);
+
+
+    @Find
+    List<ComicBook> find(@By("name") String name);
+
+    @Find
+    List<ComicBook> findAge(@By("age") @Is(GreaterThan.class) int age);
+
+    @Find
+    Page<ComicBook> find(@By("name") String name, PageRequest pageRequest);
+
+    @Find
+    List<ComicBook> find(@By("name") EqualTo<String> name);
 }

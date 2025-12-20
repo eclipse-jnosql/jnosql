@@ -41,8 +41,8 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
     @OrderBy(value = "name", descending = true, ignoreCase = true)
     @OrderBy(value = "age", ignoreCase = true)
     List<Person> findByNameAndAge(String name, int age);
-    @Query("From Person where name = :name")
-    List<Person> query(@Param("name") String name);
+    @Query("From Person where name = :native_query")
+    List<Person> query(@Param("native_query") String name);
 
     void deleteByName(String name);
 

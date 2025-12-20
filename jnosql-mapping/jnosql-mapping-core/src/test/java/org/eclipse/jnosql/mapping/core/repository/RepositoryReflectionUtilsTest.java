@@ -54,6 +54,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+
 class RepositoryReflectionUtilsTest {
 
     final Class<?> PERSON_REPOSITORY_COMPILED_WITH_PARAMETERS_CLASS;
@@ -66,6 +67,8 @@ class RepositoryReflectionUtilsTest {
             throw new RuntimeException(ex);
         }
     }
+
+
 
     @Nested
     @DisplayName("Repository query and @By reflection tests")

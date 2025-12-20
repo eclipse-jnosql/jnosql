@@ -15,14 +15,69 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import org.eclipse.jnosql.communication.query.data.QueryType;
+import org.eclipse.jnosql.mapping.core.repository.DynamicQueryMethodReturn;
+import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
+import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.QueryOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
+import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
+
+import java.util.logging.Logger;
 
 @ApplicationScoped
 class SemistructuredQueryOperation implements QueryOperation {
 
+    private static final Logger LOGGER = Logger.getLogger(SemistructuredQueryOperation.class.getName());
+
+
+    private final  SemistructuredQueryBuilder queryBuilder;
+
+    private final  SemistructuredReturnType semistructuredReturnType;
+
+    @Inject
+    SemistructuredQueryOperation(SemistructuredQueryBuilder queryBuilder, SemistructuredReturnType semistructuredReturnType) {
+        this.queryBuilder = queryBuilder;
+        this.semistructuredReturnType = semistructuredReturnType;
+    }
+
+    SemistructuredQueryOperation() {
+        this.queryBuilder = null;
+        this.semistructuredReturnType = null;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
-        return null;
+
+        var entityMetadata = context.entityMetadata();
+        var method = context.method();
+        var params = context.parameters();
+        var template = (SemiStructuredTemplate) context.template();
+        Class<?> type = entityMetadata.type();
+        var entity = entityMetadata.name();
+        var pageRequest = DynamicReturn.findPageRequest(params);
+        var queryValue = method.query().orElseThrow();
+        var queryType = QueryType.parse(queryValue);
+        var returnType = method.returnType().orElseThrow();
+        LOGGER.finest("Query: " + queryValue + " with type: " + queryType + " and return type: " + returnType);
+        queryType.checkValidReturn(returnType, queryValue);
+
+        var methodReturn = DynamicQueryMethodReturn.builder()
+                .args(params)
+                .methodName(method.name())
+                .returnType(method.returnType().orElseThrow())
+                .querySupplier(() -> queryValue)
+                .paramsSupplier(() -> RepositoryMetadataUtils.INSTANCE.getParams(method, params))
+                .typeClass(type)
+                .pageRequest(pageRequest)
+                .mapper(semistructuredReturnType.mapper(method))
+                .prepareConverter(textQuery -> {
+                    var prepare = (org.eclipse.jnosql.mapping.semistructured.PreparedStatement) template.prepare(textQuery, entity);
+                        prepare.setSelectMapper(query -> queryBuilder.updateDynamicQuery(query, context));
+                    return prepare;
+                }).build();
+        return (T) methodReturn.execute();
     }
 }
