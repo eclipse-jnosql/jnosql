@@ -39,6 +39,9 @@ public interface ComicBookBookStore {
     @Query("FROM ComicBook WHERE year > ?1")
     List<ComicBook> query(int year);
 
+    @Query("FROM ComicBook WHERE year > ?1")
+    Page<ComicBook> query(int year, PageRequest request);
+
     @Select("name")
     @OrderBy("name")
     @OrderBy(value = "year", descending = true)

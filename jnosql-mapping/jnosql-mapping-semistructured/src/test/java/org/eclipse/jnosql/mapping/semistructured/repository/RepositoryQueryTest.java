@@ -90,6 +90,23 @@ public class RepositoryQueryTest extends AbstractRepositoryTest {
         Mockito.verify(preparedStatement).bind(Mockito.anyString(), Mockito.any(Integer.class));
     }
 
+    @Test
+    @DisplayName("should execute query with parameter and pagination")
+    void shouldExecuteQueryWithParameterAndPagination(){
+        ComicBook comicBook = new ComicBook("1", "The Lord of the Rings", 1954);
+        var preparedStatement =
+                Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
+
+        Mockito.when(preparedStatement.result()).thenReturn(Stream.of(comicBook));
+
+        Mockito.when(template.prepare(Mockito.anyString(), Mockito.anyString())).thenReturn(preparedStatement);
+
+        var result = bookStore.query(2025, PageRequest.ofSize(10));
+        Mockito.verify(template).prepare("FROM ComicBook WHERE year > ?1", "ComicBook");
+        Assertions.assertThat(result).isNotNull().containsExactly(comicBook);
+        Mockito.verify(preparedStatement).bind(Mockito.anyString(), Mockito.any(Integer.class));
+    }
+
 
 
 }
