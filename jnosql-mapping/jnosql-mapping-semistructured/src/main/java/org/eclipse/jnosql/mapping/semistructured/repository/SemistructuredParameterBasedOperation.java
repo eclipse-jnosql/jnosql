@@ -16,10 +16,8 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.repository.ParamValue;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
-import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.ParameterBasedOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
