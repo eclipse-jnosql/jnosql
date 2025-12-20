@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-@DisplayName("The scenarios to test the feature find by")
+@DisplayName("The scenarios to test the feature query")
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
 @AddPackages(MockProducer.class)
