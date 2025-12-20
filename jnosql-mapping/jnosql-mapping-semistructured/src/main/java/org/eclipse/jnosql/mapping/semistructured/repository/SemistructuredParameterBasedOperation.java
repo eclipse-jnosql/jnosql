@@ -15,13 +15,34 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.core.repository.ParamValue;
+import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
+import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.ParameterBasedOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
+import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredParameterBasedQuery;
+
+import java.util.Collections;
+import java.util.Map;
 
 @ApplicationScoped
 class SemistructuredParameterBasedOperation implements ParameterBasedOperation {
+
+    private SemistructuredQueryBuilder semistructuredQueryBuilder;
+
+    private SemistructuredReturnType semistructuredReturnType;
+
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
-        return null;
+        RepositoryMethod method = context.method();
+        var entityMetadata = context.entityMetadata();
+        var parameters = context.parameters();
+        Map<String, ParamValue> paramValueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, parameters);
+        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(paramValueMap, Collections.emptyList(), entityMetadata);
+        var updateDynamicQuery = semistructuredQueryBuilder.updateDynamicQuery(query, context);
+        return (T) semistructuredReturnType.executeFindByQuery(context, updateDynamicQuery);
     }
 }
