@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.repository.ParamValue;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
@@ -30,9 +31,21 @@ import java.util.Map;
 @ApplicationScoped
 class SemistructuredParameterBasedOperation implements ParameterBasedOperation {
 
-    private SemistructuredQueryBuilder semistructuredQueryBuilder;
+    private final SemistructuredQueryBuilder semistructuredQueryBuilder;
 
-    private SemistructuredReturnType semistructuredReturnType;
+    private final SemistructuredReturnType semistructuredReturnType;
+
+    @Inject
+    SemistructuredParameterBasedOperation(SemistructuredQueryBuilder semistructuredQueryBuilder,
+                                                 SemistructuredReturnType semistructuredReturnType) {
+        this.semistructuredQueryBuilder = semistructuredQueryBuilder;
+        this.semistructuredReturnType = semistructuredReturnType;
+    }
+
+    SemistructuredParameterBasedOperation() {
+        this.semistructuredQueryBuilder = null;
+        this.semistructuredReturnType = null;
+    }
 
     @SuppressWarnings("unchecked")
     @Override
