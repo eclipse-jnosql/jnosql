@@ -69,7 +69,7 @@ public class RepositoryQueryTest extends AbstractRepositoryTest {
         Mockito.when(template.prepare(Mockito.anyString(), Mockito.anyString())).thenReturn(preparedStatement);
 
         var result = bookStore.query();
-        Mockito.verify(template).prepare("FROM ComicBook WHERE year > ?1", "ComicBook");
+        Mockito.verify(template).prepare("FROM ComicBook WHERE year > 2000", "ComicBook");
         Assertions.assertThat(result).isNotNull().containsExactly(comicBook);
         Mockito.verify(preparedStatement, Mockito.never()).bind(Mockito.anyString(), Mockito.anyString());
     }
