@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
+import jakarta.data.repository.Find;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.CursorPaginationOperation;
@@ -27,12 +28,11 @@ class SemistructuredCursorPaginationOperation implements CursorPaginationOperati
         RepositoryMethod method = context.method();
         if(method.query().isPresent()) {
             //query
-        } else if(method.isFind()){
+        } else if(method.find().isPresent()){
             //find
         } else {
          //method by name
         }
-
         return null;
     }
 }
