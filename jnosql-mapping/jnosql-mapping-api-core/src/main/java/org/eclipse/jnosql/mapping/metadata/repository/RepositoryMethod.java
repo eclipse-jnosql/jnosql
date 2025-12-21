@@ -103,7 +103,7 @@ public interface RepositoryMethod {
      * The representation of the {@link jakarta.data.repository.Find#value()} annotation at the method.
      * @return the attributes at the find annotation
      */
-    Optional<Class<?>> find();
+    Class<?> find();
     /**
      * This method return the list of annotations present at the repository method.
      * @return the list of annotations
