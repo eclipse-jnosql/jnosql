@@ -14,7 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.reflection.repository;
 
-import jakarta.data.page.CursoredPage;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 
 public interface PersonFindByNameInstanceCustomRepository {
