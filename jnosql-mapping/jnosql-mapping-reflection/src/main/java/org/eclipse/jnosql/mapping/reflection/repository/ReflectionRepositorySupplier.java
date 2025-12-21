@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import jakarta.data.Sort;
 import jakarta.data.constraint.Constraint;
 import jakarta.data.repository.By;
+import jakarta.data.repository.Find;
 import jakarta.data.repository.First;
 import jakarta.data.repository.Is;
 import jakarta.data.repository.OrderBy;
@@ -116,6 +117,8 @@ enum ReflectionRepositorySupplier {
                 .map(Query::value).orElse(null);
         Integer firstValue = ofNullable(method.getAnnotation(First.class))
                 .map(First::value).orElse(null);
+        Class<?> findValue = ofNullable(method.getAnnotation(Find.class))
+                .map(Find::value).orElse(null);
         Class<?> returnTypeValue = method.getReturnType();
         Class<?> elementTypeValue = getElementTypeValue(method);
         if (projectionFoundEvent != null) {
@@ -133,6 +136,7 @@ enum ReflectionRepositorySupplier {
                 .map(this::toAnnotation)
                 .distinct()
                 .toList();
+
         boolean isProviderQuery = annotations.stream()
                 .anyMatch(RepositoryAnnotation::isProviderAnnotation);
         RepositoryMethodType type = getRepositoryMethodType(method, isProviderQuery);
@@ -143,6 +147,7 @@ enum ReflectionRepositorySupplier {
                 firstValue,
                 returnTypeValue,
                 elementTypeValue,
+                findValue,
                 params,
                 sorts,
                 select,
