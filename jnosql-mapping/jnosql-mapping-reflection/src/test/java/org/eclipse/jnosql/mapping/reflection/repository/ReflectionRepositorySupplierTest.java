@@ -611,4 +611,27 @@ class ReflectionRepositorySupplierTest {
         });
     }
 
+    @Test
+    @DisplayName("should not find annotation")
+    void shouldNotFindAnnotation() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        var method = metadata.find(new NameKey("savePerson")).orElseThrow();
+        Assertions.assertThat(method.find()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("should find annotation with default value")
+    void shouldFindAnnotationWithDefaultValue() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        var method = metadata.find(new NameKey("find")).orElseThrow();
+        Assertions.assertThat(method.find()).isPresent().get().isEqualTo(void.class);
+    }
+
+    @Test
+    @DisplayName("should find annotation with custom value")
+    void shouldFindAnnotationWithCustomValue() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        var method = metadata.find(new NameKey("stream")).orElseThrow();
+        Assertions.assertThat(method.find()).isPresent().get().isEqualTo(Person.class);
+    }
 }
