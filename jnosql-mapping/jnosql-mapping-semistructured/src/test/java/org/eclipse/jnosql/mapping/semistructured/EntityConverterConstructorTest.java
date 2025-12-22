@@ -259,6 +259,24 @@ class EntityConverterConstructorTest {
     }
 
     @Test
+    void shouldIgnoreNullEmbeddable() {
+        CommunicationEntity entity = CommunicationEntity.of("Beer");
+        entity.add("_id", "id");
+        entity.add("name", "Vin Blanc");
+        entity.add("factory", null);
+
+        Beer beer = converter.toEntity(entity);
+
+        SoftAssertions.assertSoftly(soft -> {
+            var factory = beer.factory();
+            soft.assertThat(beer).isNotNull();
+            soft.assertThat(beer.id()).isEqualTo("id");
+            soft.assertThat(beer.name()).isEqualTo("Vin Blanc");
+            soft.assertThat(factory).isNull();
+        });
+    }
+
+    @Test
     void shouldConvertGroupEmbeddableToCommunication() {
 
         var wine = Beer.of("id", "Vin Blanc", BeerFactory.of("Napa Valley Factory", "Napa Valley"));
