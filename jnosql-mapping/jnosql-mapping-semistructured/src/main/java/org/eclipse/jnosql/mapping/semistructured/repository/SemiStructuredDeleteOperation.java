@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.data.restrict.Restriction;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
 import org.eclipse.jnosql.mapping.core.repository.operations.CoreDeleteOperation;
@@ -24,9 +25,9 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationCo
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredParameterBasedQuery;
 
-import java.util.Map;
 
 @ApplicationScoped
+@Typed({SemiStructuredDeleteOperation.class, CoreDeleteOperation.class})
 public class SemiStructuredDeleteOperation extends CoreDeleteOperation {
 
     private final SemistructuredQueryBuilder queryBuilder;
