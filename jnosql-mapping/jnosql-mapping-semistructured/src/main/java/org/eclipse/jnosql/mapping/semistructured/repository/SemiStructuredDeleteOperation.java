@@ -21,13 +21,14 @@ import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
 import org.eclipse.jnosql.mapping.core.repository.operations.CoreDeleteOperation;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredParameterBasedQuery;
 
 
 @ApplicationScoped
-@Typed({SemiStructuredDeleteOperation.class, CoreDeleteOperation.class})
+@Typed({SemiStructuredDeleteOperation.class, DeleteOperation.class})
 public class SemiStructuredDeleteOperation extends CoreDeleteOperation {
 
     private final SemistructuredQueryBuilder queryBuilder;
