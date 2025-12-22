@@ -47,5 +47,6 @@ public interface ComicBookRepository extends NoSQLRepository<ComicBook, String> 
     @Query("FROM ComicBook WHERE name = :name")
     CursoredPage<ComicBook> query(@Param("name") String name, PageRequest page);
 
-    CursoredPage<ComicBook> invalidCursor(String name);
+    @Find
+    CursoredPage<ComicBook> invalidCursor(@By("name") String name);
 }

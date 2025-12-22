@@ -102,6 +102,69 @@ public class RepositoryCursorPaginationTest extends AbstractRepositoryTest {
         });
     }
 
+    @Test
+    @DisplayName("should find cursor using Find annotation")
+    void shouldCursorUsingFindAnnotation() {
+        var comicBook = new ComicBook("1", "Batman", 2020);
+
+        CursoredPage<Object> cursor = new CursoredPageRecord<>(List.of(comicBook),
+                Collections.singletonList(PageRequest.Cursor.forKey("id")),
+                1L, PageRequest.ofSize(10),
+                false, false
+        );
+
+        Mockito.when(template.selectCursor(Mockito.any(SelectQuery.class), Mockito.any(PageRequest.class)))
+                .thenReturn(cursor);
+        CursoredPage<ComicBook> comicBooks = comicBookRepository.findByNameUsingFind("Batman", PageRequest.ofSize(10));
+
+        Mockito.verify(template).selectCursor(selectQueryCaptor.capture(), Mockito.eq(PageRequest.ofSize(10)));
+
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
+
+        SoftAssertions.assertSoftly( softly -> {
+            softly.assertThat(comicBooks).isNotNull();
+            softly.assertThat(comicBooks.content()).hasSize(1);
+            softly.assertThat(selectQuery.name()).isEqualTo(ComicBook.class.getSimpleName());
+            softly.assertThat(selectQuery.condition()).isNotEmpty();
+            CriteriaCondition condition = selectQuery.condition().orElseThrow();
+            softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            softly.assertThat(condition.element().name()).isEqualTo("name");
+            softly.assertThat(condition.element().get()).isEqualTo("Batman");
+
+        });
+    }
+
+    @Test
+    @DisplayName("should find cursor using query annotation")
+    void shouldFindUsingQuery() {
+        var comicBook = new ComicBook("1", "Batman", 2020);
+
+        CursoredPage<Object> cursor = new CursoredPageRecord<>(List.of(comicBook),
+                Collections.singletonList(PageRequest.Cursor.forKey("id")),
+                1L, PageRequest.ofSize(10),
+                false, false
+        );
+
+        Mockito.when(template.selectCursor(Mockito.any(SelectQuery.class), Mockito.any(PageRequest.class)))
+                .thenReturn(cursor);
+        CursoredPage<ComicBook> comicBooks = comicBookRepository.query("Batman", PageRequest.ofSize(10));
+
+        Mockito.verify(template).selectCursor(selectQueryCaptor.capture(), Mockito.eq(PageRequest.ofSize(10)));
+
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
+
+        SoftAssertions.assertSoftly( softly -> {
+            softly.assertThat(comicBooks).isNotNull();
+            softly.assertThat(comicBooks.content()).hasSize(1);
+            softly.assertThat(selectQuery.name()).isEqualTo(ComicBook.class.getSimpleName());
+            softly.assertThat(selectQuery.condition()).isNotEmpty();
+            CriteriaCondition condition = selectQuery.condition().orElseThrow();
+            softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            softly.assertThat(condition.element().name()).isEqualTo("name");
+            softly.assertThat(condition.element().get()).isEqualTo("Batman");
+
+        });
+    }
 
 
 
