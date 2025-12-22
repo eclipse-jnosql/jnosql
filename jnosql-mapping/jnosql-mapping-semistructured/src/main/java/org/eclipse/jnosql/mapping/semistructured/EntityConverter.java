@@ -210,6 +210,8 @@ public abstract class EntityConverter {
                 var converter = ParameterConverter.of(parameter, entities());
                 if (isFlatEmbedded) {
                     converter.convert(this, Element.of("_", elements), parameter, builder);
+                } else if (c.value().isNull()) {
+                    builder.addEmptyParameter();
                 } else {
                     converter.convert(this, c, parameter, builder);
                 }
