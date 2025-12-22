@@ -18,6 +18,7 @@ import jakarta.data.page.CursoredPage;
 import jakarta.data.page.PageRequest;
 import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
@@ -36,9 +37,20 @@ import java.util.function.Function;
 @ApplicationScoped
 class SemistructuredCursorPaginationOperation implements CursorPaginationOperation {
 
-    private SemistructuredQueryBuilder queryBuilder;
+    private final SemistructuredQueryBuilder queryBuilder;
 
-    private SemistructuredReturnType returnType;
+    private final SemistructuredReturnType returnType;
+
+    @Inject
+    SemistructuredCursorPaginationOperation(SemistructuredQueryBuilder queryBuilder, SemistructuredReturnType returnType) {
+        this.queryBuilder = queryBuilder;
+        this.returnType = returnType;
+    }
+
+    SemistructuredCursorPaginationOperation() {
+        this.queryBuilder = null;
+        this.returnType = null;
+    }
 
 
     @Override
