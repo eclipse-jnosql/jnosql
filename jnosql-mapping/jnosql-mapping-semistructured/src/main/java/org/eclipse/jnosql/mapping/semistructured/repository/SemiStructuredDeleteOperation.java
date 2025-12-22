@@ -18,13 +18,17 @@ import jakarta.data.restrict.Restriction;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
-import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
+import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
+import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.repository.operations.CoreDeleteOperation;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
+import org.eclipse.jnosql.mapping.semistructured.MappingDeleteQuery;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
-import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredParameterBasedQuery;
+import org.eclipse.jnosql.mapping.semistructured.query.RestrictionConverter;
+
+import java.util.Optional;
 
 
 @ApplicationScoped
@@ -33,24 +37,26 @@ public class SemiStructuredDeleteOperation extends CoreDeleteOperation {
 
     private final SemistructuredQueryBuilder queryBuilder;
 
+    private final Converters converters;
+
     @Inject
-    SemiStructuredDeleteOperation(SemistructuredQueryBuilder queryBuilder) {
+    SemiStructuredDeleteOperation(SemistructuredQueryBuilder queryBuilder, Converters converters) {
         this.queryBuilder = queryBuilder;
+        this.converters = converters;
     }
 
     SemiStructuredDeleteOperation() {
         this.queryBuilder = null;
+        this.converters = null;
     }
 
     @Override
     protected void deleteByRestriction(RepositoryInvocationContext context, Restriction<?> restriction) {
 
         var template = (SemiStructuredTemplate) context.template();
-        var method = context.method();
         EntityMetadata entityMetadata = context.entityMetadata();
-        var parameters = context.parameters();
-        var paramValueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, parameters);
-        var deleteQuery = SemiStructuredParameterBasedQuery.INSTANCE.toDeleteQuery(paramValueMap, entityMetadata);
+        Optional<CriteriaCondition> condition = RestrictionConverter.INSTANCE.parser(restriction, entityMetadata, converters);
+        var deleteQuery = new MappingDeleteQuery(entityMetadata.name(), condition.orElse(null));
         var updateDeleteQuery = queryBuilder.includeInheritance(deleteQuery, entityMetadata);
         template.delete(updateDeleteQuery);
     }
