@@ -94,13 +94,16 @@ enum ReflectionRepositorySupplier {
                         }
                     }
                 }
-                case FIND_BY, FIND_ALL, CURSOR_PAGINATION -> {
+                case FIND_BY, FIND_ALL, CURSOR_PAGINATION, PARAMETER_BASED -> {
                     var returnType = method.returnType().filter(m -> m.getAnnotation(Entity.class) != null);
                     var elementType = method.elementType().filter(m -> m.getAnnotation(Entity.class) != null);
+                    var findType = method.find().filter(m -> m.getAnnotation(Entity.class) != null);
                     if (returnType.isPresent()) {
                         return returnType.orElseThrow();
                     } else if (elementType.isPresent()) {
                         return elementType.orElseThrow();
+                    } else if (findType.isPresent()) {
+                        return findType.orElseThrow();
                     }
                 }
                 default -> LOGGER.finest(() -> "The repository method " + method.name() + " could you not be used to find the entity");
