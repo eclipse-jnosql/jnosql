@@ -57,8 +57,11 @@ class DeleteOperationRepositoryInvocationHandlerTest {
 
     @Inject
     private CoreBaseRepositoryOperationProvider repositoryOperationProvider;
+
     private TestRepositoryExecutor executor;
+
     private CoreRepositoryInvocationHandler<?, ?> repositoryHandler;
+
     private ComicBookRepository comicBookRepository;
 
     @BeforeEach

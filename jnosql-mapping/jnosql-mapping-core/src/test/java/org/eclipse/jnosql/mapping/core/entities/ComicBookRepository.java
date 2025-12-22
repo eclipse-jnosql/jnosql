@@ -21,6 +21,7 @@ import jakarta.data.repository.Insert;
 import jakarta.data.repository.Repository;
 import jakarta.data.repository.Save;
 import jakarta.data.repository.Update;
+import jakarta.data.restrict.Restriction;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.core.repository.operations.NoVendorSampleQueryProvider;
 import org.eclipse.jnosql.mapping.core.repository.operations.SampleQueryProvider;
@@ -123,4 +124,7 @@ public interface ComicBookRepository extends NoSQLRepository<ComicBook, String>,
 
     @NoVendorSampleQueryProvider("Sample of query using provider")
     String invalidProvider(String name);
+
+    @Delete
+    void delete(Restriction<ComicBook> restriction);
 }
