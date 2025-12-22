@@ -61,9 +61,9 @@ class SemistructuredCursorPaginationOperation implements CursorPaginationOperati
         if (method.query().isPresent()) {
             return mapper(context, executePatinationToQueryAnnotation(context, entityMetadata, method, template));
         } else if (method.find().isPresent()) {
-            return mapper(context, executeMethodByQuery(context, method, template));
-        } else {
             return mapper(context, executeFindAnnotation(context, method, entityMetadata, template));
+        } else {
+            return mapper(context, executeMethodByQuery(context, method, template));
         }
     }
 
@@ -115,7 +115,7 @@ class SemistructuredCursorPaginationOperation implements CursorPaginationOperati
     private static PageRequest pageRequest(RepositoryMethod method, SpecialParameters special) {
         return special.pageRequest()
                 .orElseThrow(() -> new IllegalArgumentException("Pageable is required in the method signature" +
-                        " as parameter at " + method));
+                        " as parameter at " + method.name()));
     }
 
 }
