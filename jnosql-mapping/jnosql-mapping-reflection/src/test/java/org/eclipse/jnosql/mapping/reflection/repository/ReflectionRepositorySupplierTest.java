@@ -640,5 +640,5 @@ class ReflectionRepositorySupplierTest {
     void shouldDefineEntityFromFindAnnotation() {
         RepositoryMetadata metadata = supplier.apply(PersonCustomFindRepository.class);
         Assertions.assertThat(metadata.entity()).isPresent().get().isEqualTo(Person.class);
-    }}
+    }
 }

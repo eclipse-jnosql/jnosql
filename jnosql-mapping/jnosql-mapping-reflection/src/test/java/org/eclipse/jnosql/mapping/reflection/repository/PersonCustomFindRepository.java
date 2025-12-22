@@ -18,6 +18,7 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import jakarta.data.repository.By;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.Repository;
+import jakarta.data.repository.Select;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.List;
 @Repository
 public interface PersonCustomFindRepository {
 
+    @Select("name")
     @Find(Person.class)
-    List<Person> findByName(@By("name") String name);
+    List<String> findByName(@By("name") String name);
 }
