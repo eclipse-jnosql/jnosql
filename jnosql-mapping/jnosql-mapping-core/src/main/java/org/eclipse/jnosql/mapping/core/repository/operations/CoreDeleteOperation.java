@@ -21,7 +21,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationCo
 import java.util.Arrays;
 
 @ApplicationScoped
-class CoreDeleteOperation implements DeleteOperation {
+public class CoreDeleteOperation implements DeleteOperation {
 
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
