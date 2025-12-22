@@ -14,12 +14,14 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
+import jakarta.data.page.CursoredPage;
+import jakarta.data.page.PageRequest;
 import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
-import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
+import org.eclipse.jnosql.mapping.core.repository.SpecialParameters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.CursorPaginationOperation;
@@ -45,46 +47,31 @@ class SemistructuredCursorPaginationOperation implements CursorPaginationOperati
         var entityMetadata = context.entityMetadata();
         var template = (SemiStructuredTemplate) context.template();
         if (method.query().isPresent()) {
-            return executePatinationToQueryAnnotation(context, entityMetadata, method, template);
+            return mapper(context, executePatinationToQueryAnnotation(context, entityMetadata, method, template));
         } else if (method.find().isPresent()) {
-            return executeMethodByQuery(context, method, template);
+            return mapper(context, executeMethodByQuery(context, method, template));
         } else {
-            return executeFindAnnotation(context, method, entityMetadata, template);
+            return mapper(context, executeFindAnnotation(context, method, entityMetadata, template));
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T executeFindAnnotation(RepositoryInvocationContext context, RepositoryMethod method, EntityMetadata entityMetadata, SemiStructuredTemplate template) {
+    private CursoredPage<?> executeFindAnnotation(RepositoryInvocationContext context, RepositoryMethod method, EntityMetadata entityMetadata, SemiStructuredTemplate template) {
         var paramValueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, context.parameters());
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(paramValueMap, Collections.emptyList(), entityMetadata);
         var updateDynamicQuery = queryBuilder.updateDynamicQuery(query, context);
         var special = DynamicReturn.findSpecialParameters(context.parameters(), Function.identity());
-        var pageRequest = special.pageRequest()
-                .orElseThrow(() -> new IllegalArgumentException("Pageable is required in the method signature as parameter at " + method));
-        var cursoredPage = template.selectCursor(updateDynamicQuery, pageRequest);
-        if(!method.select().isEmpty()) {
-            var mappedResult = cursoredPage.content().stream().map(returnType.mapper(method)).toList();
-            var cursorPage = (CursoredPageRecord<?>) cursoredPage;
-            return (T) new CursoredPageRecord<>(mappedResult, cursorPage.cursors(),
-                    cursorPage.totalPages(),
-                    cursorPage.pageRequest(),
-                    cursorPage.nextPageRequest(),
-                    cursorPage.previousPageRequest());
-        }
-        return (T) cursoredPage;
+        var pageRequest = pageRequest(method, special);
+        return template.selectCursor(updateDynamicQuery, pageRequest);
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T executeMethodByQuery(RepositoryInvocationContext context, RepositoryMethod method, SemiStructuredTemplate template) {
+    private CursoredPage<?> executeMethodByQuery(RepositoryInvocationContext context, RepositoryMethod method, SemiStructuredTemplate template) {
         SelectQuery query = queryBuilder.updateDynamicQuery(queryBuilder.selectQuery(context), context);
         var special = DynamicReturn.findSpecialParameters(context.parameters(), Function.identity());
-        var pageRequest = special.pageRequest()
-                .orElseThrow(() -> new IllegalArgumentException("Pageable is required in the method signature as parameter at " + method));
-        return (T) template.selectCursor(query, pageRequest);
+        var pageRequest = pageRequest(method, special);
+        return template.selectCursor(query, pageRequest);
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T executePatinationToQueryAnnotation(RepositoryInvocationContext context,
+    private CursoredPage<?> executePatinationToQueryAnnotation(RepositoryInvocationContext context,
                                                      EntityMetadata entityMetadata,
                                                      RepositoryMethod method,
                                                      SemiStructuredTemplate template) {
@@ -96,9 +83,27 @@ class SemistructuredCursorPaginationOperation implements CursorPaginationOperati
         argsParams.forEach(prepare::bind);
         var query = queryBuilder.updateDynamicQuery(prepare.selectQuery().orElseThrow(), context);
         var special = DynamicReturn.findSpecialParameters(context.parameters(), Function.identity());
-        var pageRequest = special.pageRequest()
-                .orElseThrow(() -> new IllegalArgumentException("Pageable is required in the method signature as parameter at " + method));
-        return (T) template.selectCursor(query, pageRequest);
+        var pageRequest = pageRequest(method, special);
+        return template.selectCursor(query, pageRequest);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private <T> T mapper(RepositoryInvocationContext context, CursoredPage<?> cursoredPage) {
+        RepositoryMethod method = context.method();
+        var mappedResult = cursoredPage.content().stream().map(returnType.mapper(method)).toList();
+        var cursorPage = (CursoredPageRecord<?>) cursoredPage;
+        return (T) new CursoredPageRecord<>(mappedResult, cursorPage.cursors(),
+                cursorPage.totalPages(),
+                cursorPage.pageRequest(),
+                cursorPage.nextPageRequest(),
+                cursorPage.previousPageRequest());
+    }
+
+    private static PageRequest pageRequest(RepositoryMethod method, SpecialParameters special) {
+        return special.pageRequest()
+                .orElseThrow(() -> new IllegalArgumentException("Pageable is required in the method signature" +
+                        " as parameter at " + method));
     }
 
 }
