@@ -19,12 +19,14 @@ import jakarta.data.page.PageRequest;
 import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
+import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
 import org.eclipse.jnosql.mapping.core.repository.ParamValue;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
+import org.eclipse.jnosql.mapping.semistructured.MappingDeleteQuery;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 
 import java.lang.reflect.Array;
@@ -68,6 +70,26 @@ public enum SemiStructuredParameterBasedQuery {
         var condition = condition(conditions);
         var entity = entityMetadata.name();
         return new MappingQuery(updateSorter, 0L, 0L, condition, entity, List.of());
+    }
+
+    /**
+     * Constructs a DeleteQuery based on the provided parameters and entity metadata.
+     *
+     * @param params          The map of parameters used for filtering columns.
+     * @param entityMetadata  Metadata describing the structure of the entity.
+     * @return                 A DeleteQuery instance tailored for the specified entity.
+     */
+    public DeleteQuery toDeleteQuery(Map<String, ParamValue> params, EntityMetadata entityMetadata) {
+
+        var convert = CDI.current().select(Converters.class).get();
+        List<CriteriaCondition> conditions = new ArrayList<>();
+        for (Map.Entry<String, ParamValue> entry : params.entrySet()) {
+            conditions.add(condition(convert, entityMetadata, entry));
+        }
+
+        var condition = condition(conditions);
+        var entity = entityMetadata.name();
+        return new MappingDeleteQuery(entity, condition);
     }
 
     /**
