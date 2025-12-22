@@ -103,7 +103,7 @@ class ReflectionClassScannerTest {
     @Test
     void shouldReturnCustomRepositories() {
         Set<Class<?>> repositories = classScanner.customRepositories();
-        assertThat(repositories).hasSize(2)
+        assertThat(repositories).hasSize(3)
                 .contains(Library.class, Garage.class);
     }
 
@@ -116,7 +116,7 @@ class ReflectionClassScannerTest {
     @Test
     void shouldReturnCustomRepository() {
         Set<Class<?>> repositories = classScanner.customRepositories();
-        assertThat(repositories).hasSize(2)
+        assertThat(repositories).hasSize(3)
                 .contains(Library.class, Garage.class);
     }
 

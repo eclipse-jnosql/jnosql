@@ -31,6 +31,7 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -84,5 +85,12 @@ class ReflectionRepositoriesMetadataTest {
             soft.assertThat(projection).isPresent();
             soft.assertThat(projection.orElseThrow().type()).isEqualTo(CarResult.class);
         });
+    }
+
+    @Test
+    @DisplayName("should initialize Repositories Metadata using default constructor")
+    void shouldCreateWithDefaultConstructor() {
+        var repositoriesMetadata = new ReflectionRepositoriesMetadata();
+        Assertions.assertThat(repositoriesMetadata).isNotNull();
     }
 }
