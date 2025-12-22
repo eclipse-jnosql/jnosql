@@ -12,11 +12,17 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.reflection.repository;
+package org.eclipse.jnosql.mapping.semistructured.repository;
 
-import org.eclipse.jnosql.mapping.reflection.entities.Person;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public interface PersonFindByNameInstanceCustomRepository {
 
-    Person findByName(String name);
+class SemistructuredParameterBasedOperationTest {
+
+    @Test
+    void shouldCreateInstance() {
+        SemistructuredParameterBasedOperation operation = new SemistructuredParameterBasedOperation();
+        Assertions.assertThat(operation).isNotNull();
+    }
 }

@@ -32,6 +32,7 @@ import jakarta.data.repository.Update;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public interface PersonRepository extends CrudRepository<Person, Long> {
 
@@ -96,5 +97,8 @@ public interface PersonRepository extends CrudRepository<Person, Long> {
 
     @SampleQuery("sample query")
     List<Person> sampleQuery();
+
+    @Find(Person.class)
+    Stream<Person> stream();
 
 }

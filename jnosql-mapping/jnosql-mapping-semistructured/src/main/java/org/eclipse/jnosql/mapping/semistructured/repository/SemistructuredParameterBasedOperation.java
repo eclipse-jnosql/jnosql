@@ -18,6 +18,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.core.repository.ParamValue;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.ParameterBasedOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
@@ -33,23 +34,31 @@ class SemistructuredParameterBasedOperation implements ParameterBasedOperation {
 
     private final SemistructuredReturnType semistructuredReturnType;
 
+    private final EntitiesMetadata entitiesMetadata;
+
     @Inject
     SemistructuredParameterBasedOperation(SemistructuredQueryBuilder semistructuredQueryBuilder,
-                                                 SemistructuredReturnType semistructuredReturnType) {
+                                                 SemistructuredReturnType semistructuredReturnType,
+                                          EntitiesMetadata entitiesMetadata) {
         this.semistructuredQueryBuilder = semistructuredQueryBuilder;
         this.semistructuredReturnType = semistructuredReturnType;
+        this.entitiesMetadata = entitiesMetadata;
     }
 
     SemistructuredParameterBasedOperation() {
         this.semistructuredQueryBuilder = null;
         this.semistructuredReturnType = null;
+        this.entitiesMetadata = null;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
         RepositoryMethod method = context.method();
-        var entityMetadata = context.entityMetadata();
+
+        var entityMetadata = method.find().filter(r -> !void.class.equals(r))
+                .flatMap(r -> entitiesMetadata.findBySimpleName(r.getSimpleName()))
+                .orElse(context.entityMetadata());
         var parameters = context.parameters();
         Map<String, ParamValue> paramValueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, parameters);
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(paramValueMap, Collections.emptyList(), entityMetadata);

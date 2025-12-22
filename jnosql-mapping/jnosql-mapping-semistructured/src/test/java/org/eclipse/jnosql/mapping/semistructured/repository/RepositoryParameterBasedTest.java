@@ -29,6 +29,7 @@ import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
+import org.eclipse.jnosql.mapping.semistructured.entities.Person;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBook;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.PhotoSocialMedia;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.SocialMediaSummary;
@@ -153,6 +154,29 @@ public class RepositoryParameterBasedTest extends AbstractRepositoryTest {
             soft.assertThat(selectQuery.sorts()).isEmpty();
             CriteriaCondition criteriaCondition = selectQuery.condition().orElseThrow();
             soft.assertThat(criteriaCondition.element().get()).isEqualTo("The Lord of the Rings");
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(criteriaCondition.element().name()).isEqualTo("name");
+        });
+    }
+
+    @Test
+    @DisplayName("Should overwrite by using Find annotation")
+    void shouldOverwriteByUsingFindAnnotation() {
+        Person person = Person.builder().build();
+        Mockito.when(template.select(Mockito.any(SelectQuery.class)))
+                .thenReturn(Stream.of(person));
+
+        var result = bookStore.findPerson("Ada");
+        Mockito.verify(template).select(selectQueryCaptor.capture());
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(result).isNotNull().containsExactly(person);
+            soft.assertThat(selectQuery.name()).isEqualTo("Person");
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            soft.assertThat(selectQuery.sorts()).isEmpty();
+            CriteriaCondition criteriaCondition = selectQuery.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.element().get()).isEqualTo("Ada");
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(criteriaCondition.element().name()).isEqualTo("name");
         });

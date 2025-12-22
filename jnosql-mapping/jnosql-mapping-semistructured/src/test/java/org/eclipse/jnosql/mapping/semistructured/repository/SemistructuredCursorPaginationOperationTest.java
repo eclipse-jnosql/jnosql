@@ -12,11 +12,17 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.reflection.repository;
+package org.eclipse.jnosql.mapping.semistructured.repository;
 
-import org.eclipse.jnosql.mapping.reflection.entities.Person;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public interface PersonFindByNameInstanceCustomRepository {
 
-    Person findByName(String name);
+class SemistructuredCursorPaginationOperationTest {
+
+    @Test
+    void shouldCreatePaginationDefaultInstance() {
+        SemistructuredCursorPaginationOperation operation = new SemistructuredCursorPaginationOperation();
+        Assertions.assertThat(operation).isNotNull();
+    }
 }

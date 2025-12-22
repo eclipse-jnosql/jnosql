@@ -21,6 +21,6 @@ import java.util.List;
 
 public interface PersonListCustomRepository {
 
-    @Delete
+   @Delete
    void findByName(List<Person> person);
 }

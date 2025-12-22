@@ -15,6 +15,12 @@
 package org.eclipse.jnosql.mapping.semistructured.repository.entities;
 
 
+import jakarta.data.page.CursoredPage;
+import jakarta.data.page.PageRequest;
+import jakarta.data.repository.By;
+import jakarta.data.repository.Find;
+import jakarta.data.repository.Param;
+import jakarta.data.repository.Query;
 import jakarta.data.repository.Repository;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
 
@@ -31,4 +37,16 @@ public interface ComicBookRepository extends NoSQLRepository<ComicBook, String> 
     void deleteByName(String name);
 
     int deleteByYear(int year);
+
+
+    CursoredPage<ComicBook> findByName(String name, PageRequest page);
+
+    @Find
+    CursoredPage<ComicBook> findByNameUsingFind(@By("name") String name, PageRequest page);
+
+    @Query("FROM ComicBook WHERE name = :name")
+    CursoredPage<ComicBook> query(@Param("name") String name, PageRequest page);
+
+    @Find
+    CursoredPage<ComicBook> invalidCursor(@By("name") String name);
 }

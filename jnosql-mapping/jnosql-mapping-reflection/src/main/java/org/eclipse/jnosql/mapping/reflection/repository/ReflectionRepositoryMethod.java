@@ -30,6 +30,7 @@ record ReflectionRepositoryMethod(String name,
                                   Integer firstValue,
                                   Class<?> returnTypeValue,
                                   Class<?> elementTypeValue,
+                                  Class<?> findValue,
                                   List<RepositoryParam> params,
                                   List<Sort<?>> sorts,
                                   List<String> select,
@@ -56,4 +57,10 @@ record ReflectionRepositoryMethod(String name,
     public Optional<Class<?>> elementType() {
         return Optional.ofNullable(elementTypeValue);
     }
+
+    @Override
+    public Optional<Class<?>> find() {
+        return Optional.ofNullable(findValue);
+    }
+
 }
