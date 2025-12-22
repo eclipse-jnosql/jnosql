@@ -171,6 +171,7 @@ public class RepositoryParameterBasedTest extends AbstractRepositoryTest {
         SelectQuery selectQuery = selectQueryCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(result).isNotNull().containsExactly(person);
             soft.assertThat(selectQuery.name()).isEqualTo("Person");
             soft.assertThat(selectQuery.condition()).isNotEmpty();
             soft.assertThat(selectQuery.sorts()).isEmpty();
