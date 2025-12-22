@@ -634,4 +634,11 @@ class ReflectionRepositorySupplierTest {
         var method = metadata.find(new NameKey("stream")).orElseThrow();
         Assertions.assertThat(method.find()).isPresent().get().isEqualTo(Person.class);
     }
+
+    @Test
+    @DisplayName("should define entity from find annotation")
+    void shouldDefineEntityFromFindAnnotation() {
+        RepositoryMetadata metadata = supplier.apply(PersonCustomFindRepository.class);
+        Assertions.assertThat(metadata.entity()).isPresent().get().isEqualTo(Person.class);
+    }}
 }
