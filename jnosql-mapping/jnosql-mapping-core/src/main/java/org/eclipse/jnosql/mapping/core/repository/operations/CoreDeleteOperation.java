@@ -40,10 +40,9 @@ public class CoreDeleteOperation implements DeleteOperation {
                     " it supports void as return");
         }
         var entity = parameters[0];
-        if(entity instanceof Restriction<?> restriction) {
+        if (entity instanceof Restriction<?> restriction) {
             deleteByRestriction(context, restriction);
-        }
-        if (entity instanceof Iterable<?> entities) {
+        } else if (entity instanceof Iterable<?> entities) {
             template.delete(entities);
         } else if (entity.getClass().isArray()) {
             template.delete(Arrays.asList((Object[]) entity));
