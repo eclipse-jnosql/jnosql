@@ -14,7 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.operations;
 
+import jakarta.data.restrict.Restriction;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.nosql.Template;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
@@ -37,6 +39,9 @@ public class CoreDeleteOperation implements DeleteOperation {
                     " it supports void as return");
         }
         var entity = parameters[0];
+        if(entity instanceof Restriction<?> restriction) {
+            deleteByRestriction(context, restriction);
+        }
         if (entity instanceof Iterable<?> entities) {
             template.delete(entities);
         } else if (entity.getClass().isArray()) {
@@ -45,6 +50,10 @@ public class CoreDeleteOperation implements DeleteOperation {
             template.delete(entity);
         }
         return null;
+    }
+
+    protected void deleteByRestriction(RepositoryInvocationContext context, Restriction<?> restriction) {
+        throw  new UnsupportedOperationException("Delete by restriction is not supported by default");
     }
 
     private boolean isNotVoidReturn(Class<?> returnType) {
