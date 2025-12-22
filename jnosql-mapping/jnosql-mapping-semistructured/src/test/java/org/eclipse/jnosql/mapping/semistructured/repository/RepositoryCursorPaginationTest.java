@@ -30,6 +30,7 @@ import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
+import org.eclipse.jnosql.mapping.semistructured.PreparedStatement;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBook;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBookRepository;
 import org.jboss.weld.junit5.auto.AddExtensions;
@@ -41,6 +42,7 @@ import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @DisplayName("The scenarios to test the feature cursor pagination")
@@ -144,6 +146,12 @@ public class RepositoryCursorPaginationTest extends AbstractRepositoryTest {
                 1L, PageRequest.ofSize(10),
                 false, false
         );
+        PreparedStatement preparedStatement = Mockito.mock(PreparedStatement.class);
+        Mockito.when(preparedStatement.selectQuery())
+                .thenReturn(Optional.of(SelectQuery.select().from(ComicBook.class.getSimpleName()).where("name").eq("Batman").build()));
+
+        Mockito.when(template.prepare(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(preparedStatement);
 
         Mockito.when(template.selectCursor(Mockito.any(SelectQuery.class), Mockito.any(PageRequest.class)))
                 .thenReturn(cursor);
