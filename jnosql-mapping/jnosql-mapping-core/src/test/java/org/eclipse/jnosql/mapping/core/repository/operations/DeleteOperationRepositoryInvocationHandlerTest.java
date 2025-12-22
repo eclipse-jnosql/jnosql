@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.operations;
 
+import jakarta.data.metamodel.TextAttribute;
 import jakarta.inject.Inject;
 import jakarta.nosql.Convert;
 import jakarta.nosql.Template;
@@ -57,8 +58,11 @@ class DeleteOperationRepositoryInvocationHandlerTest {
 
     @Inject
     private CoreBaseRepositoryOperationProvider repositoryOperationProvider;
+
     private TestRepositoryExecutor executor;
+
     private CoreRepositoryInvocationHandler<?, ?> repositoryHandler;
+
     private ComicBookRepository comicBookRepository;
 
     @BeforeEach
@@ -110,5 +114,12 @@ class DeleteOperationRepositoryInvocationHandlerTest {
     @Test
     void shouldExecuteEqualsToString() {
         Assertions.assertThat(comicBookRepository.toString()).isNotNull();
+    }
+
+
+    @Test
+    void shouldReturnErrorWhenDeleteByRestriction() {
+        TextAttribute<ComicBook> name = TextAttribute.of(ComicBook.class, "name");
+        Assertions.assertThatThrownBy(() -> comicBookRepository.delete(name.contains("Marvel"))).isInstanceOf(UnsupportedOperationException.class);
     }
 }

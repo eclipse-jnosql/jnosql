@@ -108,7 +108,7 @@ class SemistructuredQueryBuilder {
         return paramsBinderMap.computeIfAbsent(entityType,key -> new ParamsBinder(entityMetadata, converters));
     }
 
-    private DeleteQuery includeInheritance(DeleteQuery query, EntityMetadata metadata) {
+    DeleteQuery includeInheritance(DeleteQuery query, EntityMetadata metadata) {
         var condition = DynamicSelectQueryBuilder.includeInheritance(metadata);
         if (condition == null) {
             return query;
@@ -117,7 +117,7 @@ class SemistructuredQueryBuilder {
             CriteriaCondition columnCondition = query.condition().orElseThrow();
             condition = condition.and(columnCondition);
         }
-        return new MappingDeleteQuery( query.name(), condition);
+        return new MappingDeleteQuery(query.name(), condition);
     }
 
 }
