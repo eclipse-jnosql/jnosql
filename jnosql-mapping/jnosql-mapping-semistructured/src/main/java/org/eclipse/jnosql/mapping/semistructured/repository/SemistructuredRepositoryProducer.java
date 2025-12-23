@@ -72,6 +72,7 @@ public class SemistructuredRepositoryProducer {
                 infrastructureOperatorProvider,
                 semistructuredRepositoryOperationProvider,
                 template);
+
         return (R) Proxy.newProxyInstance(repositoryClass.getClassLoader(),
                 new Class[]{repositoryClass},
                 repositoryHandler);
