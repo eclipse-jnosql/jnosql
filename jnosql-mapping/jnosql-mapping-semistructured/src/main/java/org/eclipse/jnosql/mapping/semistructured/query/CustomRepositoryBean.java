@@ -15,11 +15,7 @@
 package org.eclipse.jnosql.mapping.semistructured.query;
 
 import org.eclipse.jnosql.mapping.DatabaseType;
-import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
-
-import java.lang.reflect.InvocationHandler;
 
 public abstract class CustomRepositoryBean<T> extends BaseRepositoryBean<T> {
 
@@ -32,13 +28,4 @@ public abstract class CustomRepositoryBean<T> extends BaseRepositoryBean<T> {
         return SemiStructuredTemplate.class;
     }
 
-    @Override
-    protected InvocationHandler createHandler(EntitiesMetadata entities, SemiStructuredTemplate template, Converters converters) {
-        return CustomRepositoryHandler.builder()
-                .entitiesMetadata(entities)
-                .template(template)
-                .customRepositoryType(getBeanClass())
-                .converters(converters)
-                .build();
-    }
 }
