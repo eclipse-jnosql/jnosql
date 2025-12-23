@@ -22,6 +22,7 @@ import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
 import org.eclipse.jnosql.mapping.core.util.AnnotationLiteralUtil;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
+import org.eclipse.jnosql.mapping.semistructured.repository.SemistructuredRepositoryProducer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
@@ -45,6 +46,7 @@ abstract class BaseRepositoryBean<T> extends AbstractBean<T> {
     private final Set<Annotation> qualifiers;
     private final DatabaseType databaseType;
 
+    @SuppressWarnings("unchecked")
     protected BaseRepositoryBean(Class<?> type, String provider, DatabaseType databaseType) {
         this.type = (Class<T>) type;
         this.types = Collections.singleton(type);
@@ -84,10 +86,6 @@ abstract class BaseRepositoryBean<T> extends AbstractBean<T> {
         };
     }
 
-    /**
-     * Subclasses define how the repository handler is created.
-     */
-    protected abstract InvocationHandler createHandler(EntitiesMetadata entities, SemiStructuredTemplate template, Converters converters);
 
     @Override
     public Class<?> getBeanClass() {
@@ -97,15 +95,13 @@ abstract class BaseRepositoryBean<T> extends AbstractBean<T> {
     @SuppressWarnings("unchecked")
     @Override
     public T create(CreationalContext<T> context) {
-        var entities = getInstance(EntitiesMetadata.class);
+        var producer = getInstance(SemistructuredRepositoryProducer.class);
         var template = provider.isEmpty()
                 ? getInstance(getTemplateClass())
                 : getInstance(getTemplateClass(), getDatabaseQualifier(provider));
 
-        var converters = getInstance(Converters.class);
-        InvocationHandler handler = createHandler(entities, template, converters);
 
-        return (T) Proxy.newProxyInstance(type.getClassLoader(), new Class[]{type}, handler);
+        return (T) producer.get(type, template);
     }
 
     @Override
