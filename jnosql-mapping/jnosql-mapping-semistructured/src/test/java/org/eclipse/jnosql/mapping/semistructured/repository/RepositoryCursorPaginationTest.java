@@ -23,7 +23,6 @@ import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
-import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -32,7 +31,6 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.PreparedStatement;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBook;
-import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBookRepository;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -43,7 +41,6 @@ import org.mockito.Mockito;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @DisplayName("The scenarios to test the feature cursor pagination")
 @EnableAutoWeld
