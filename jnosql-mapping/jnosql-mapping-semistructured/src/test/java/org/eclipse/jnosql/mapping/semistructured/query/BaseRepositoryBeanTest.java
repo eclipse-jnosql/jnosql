@@ -24,7 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.Set;
@@ -62,7 +61,6 @@ class BaseRepositoryBeanTest {
         doReturn(mock(EntitiesMetadata.class)).when(spyBean).getInstance(EntitiesMetadata.class);
         doReturn(mock(SemiStructuredTemplate.class)).when(spyBean).getInstance(eq(SemiStructuredTemplate.class), any());
         doReturn(mock(Converters.class)).when(spyBean).getInstance(Converters.class);
-        doReturn(mock(InvocationHandler.class)).when(spyBean).createHandler(any(), any(), any());
 
         MockRepository proxyInstance = spyBean.create(context);
 
@@ -100,10 +98,6 @@ class BaseRepositoryBeanTest {
             return SemiStructuredTemplate.class;
         }
 
-        @Override
-        protected InvocationHandler createHandler(EntitiesMetadata entities, SemiStructuredTemplate template, Converters converters) {
-            return mock(InvocationHandler.class);
-        }
     }
 
     interface MockRepository {}
