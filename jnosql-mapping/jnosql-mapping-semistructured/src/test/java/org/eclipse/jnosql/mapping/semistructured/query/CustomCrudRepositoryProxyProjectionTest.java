@@ -374,11 +374,10 @@ class CustomCrudRepositoryProxyProjectionTest {
         var summaries = productRepository.findProductPrice(_Product.name.equalTo("Mac"));
 
 
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(summaries).contains(new ProductPriceSummary("Mac", new Money("USD", BigDecimal.valueOf(1000))),
-                    new ProductPriceSummary("Sofa", new Money("USD", BigDecimal.valueOf(100))),
-                    new ProductPriceSummary("T-Shirt", new Money("USD", BigDecimal.valueOf(20))));
-        });
+        SoftAssertions.assertSoftly(softly -> softly.assertThat(summaries)
+                .contains(new ProductPriceSummary("Mac", new Money("USD", BigDecimal.valueOf(1000))),
+                new ProductPriceSummary("Sofa", new Money("USD", BigDecimal.valueOf(100))),
+                new ProductPriceSummary("T-Shirt", new Money("USD", BigDecimal.valueOf(20)))));
 
     }
 
