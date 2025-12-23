@@ -62,8 +62,8 @@ class BaseRepositoryBeanTest {
         SemistructuredRepositoryProducer producer = mock(SemistructuredRepositoryProducer.class);
         Mockito.when(producer.get(eq(MockRepository.class), Mockito.any())).thenReturn(Mockito.mock(MockRepository.class));
 
-        doReturn(mock(EntitiesMetadata.class)).when(spyBean).getInstance(EntitiesMetadata.class);
         doReturn(mock(SemiStructuredTemplate.class)).when(spyBean).getInstance(eq(SemiStructuredTemplate.class), any());
+        doReturn(mock(EntitiesMetadata.class)).when(spyBean).getInstance(EntitiesMetadata.class);
         doReturn(mock(Converters.class)).when(spyBean).getInstance(Converters.class);
         doReturn(producer).when(spyBean).getInstance(SemistructuredRepositoryProducer.class);
 
