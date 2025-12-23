@@ -86,7 +86,6 @@ abstract class BaseRepositoryBean<T> extends AbstractBean<T> {
         };
     }
 
-
     @Override
     public Class<?> getBeanClass() {
         return type;
