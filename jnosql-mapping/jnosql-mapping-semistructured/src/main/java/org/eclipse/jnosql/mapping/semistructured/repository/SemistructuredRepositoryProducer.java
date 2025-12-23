@@ -28,9 +28,7 @@ import java.lang.reflect.Proxy;
 import java.util.Objects;
 
 /**
- * CDI producer responsible for creating runtime implementations of
- * semistructured Jakarta Data repositories.
- *
+ * CDI producer responsible for creating runtime implementations of semistructured Jakarta Data repositories.
  */
 @ApplicationScoped
 public class SemistructuredRepositoryProducer {
