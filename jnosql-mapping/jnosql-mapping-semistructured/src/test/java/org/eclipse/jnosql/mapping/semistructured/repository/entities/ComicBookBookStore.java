@@ -27,7 +27,6 @@ import jakarta.data.repository.Query;
 import jakarta.data.repository.Repository;
 import jakarta.data.repository.Select;
 import org.eclipse.jnosql.mapping.semistructured.entities.Person;
-import org.junit.jupiter.api.Order;
 
 import java.util.List;
 import java.util.Optional;

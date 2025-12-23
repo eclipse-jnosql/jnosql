@@ -43,34 +43,24 @@ class SemistructuredRepositoryOperationProvider implements RepositoryOperationPr
     private DeleteOperation deleteOperation;
     @Inject
     private SaveOperation saveOperation;
-
     @Inject
     private FindByOperation findByOperation;
-
     @Inject
     private FindAllOperation findAllOperation;
-
     @Inject
     private CountByOperation countByOperation;
-
     @Inject
     private CountAllOperation countAllOperation;
-
     @Inject
     private ExistsByOperation existsByOperation;
-
     @Inject
     private DeleteByOperation deleteByOperation;
-
     @Inject
     private ParameterBasedOperation parameterBasedOperation;
-
     @Inject
     private CursorPaginationOperation cursorPaginationOperation;
-
     @Inject
     private QueryOperation queryOperation;
-
     @Inject
     private ProviderOperation providerOperation;
 

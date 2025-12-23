@@ -31,6 +31,24 @@ import org.eclipse.jnosql.mapping.semistructured.query.RestrictionConverter;
 import java.util.Optional;
 
 
+/**
+ * Semistructured-specific extension of the core {@link DeleteOperation}.
+ *
+ * <p>This implementation adds support for delete operations based on
+ * {@link Restriction} parameters when using a semistructured data model.
+ * Repository methods that declare a delete operation with a restriction
+ * argument are translated into a semistructured delete query and executed
+ * against the underlying {@link SemiStructuredTemplate}.</p>
+ *
+ * <p>In addition to the core delete semantics (single entity, collections, or
+ * arrays), this implementation supports restriction-based deletes and applies
+ * inheritance rules defined in the entity metadata when building the delete
+ * query.</p>
+ *
+ * <p>This class is selected automatically by the execution engine when a
+ * semistructured repository is in use, replacing the default behavior provided
+ * by {@link CoreDeleteOperation}.</p>
+ */
 @ApplicationScoped
 @Typed({SemiStructuredDeleteOperation.class, DeleteOperation.class})
 public class SemiStructuredDeleteOperation extends CoreDeleteOperation {

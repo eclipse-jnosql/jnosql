@@ -22,6 +22,19 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationCo
 
 import java.util.Arrays;
 
+/**
+ * Default implementation of the {@link DeleteOperation} used by the core
+ * execution engine.
+ *
+ * <p>This operation executes a repository {@code delete} method whose
+ * signature accepts exactly one argument and returns {@code void}.
+ *
+ * <p>Delete-by-restriction is not supported by default. Providers that support
+ * restriction-based deletes must override {@link #deleteByRestriction}.</p>
+ *
+ * <p>If the repository method declares an unsupported return type or an
+ * invalid number of parameters, an {@link IllegalArgumentException} is thrown.</p>
+ */
 @ApplicationScoped
 @Typed(CoreDeleteOperation.class)
 public class CoreDeleteOperation implements DeleteOperation {
@@ -52,6 +65,17 @@ public class CoreDeleteOperation implements DeleteOperation {
         return null;
     }
 
+    /**
+     * Executes a delete operation based on a {@link Restriction}.
+     *
+     * <p>This method is not supported by the core engine and must be overridden
+     * by provider-specific implementations that support restriction-based
+     * deletion.</p>
+     *
+     * @param context the repository invocation context
+     * @param restriction the deletion restriction
+     * @throws UnsupportedOperationException if not overridden by a provider
+     */
     protected void deleteByRestriction(RepositoryInvocationContext context, Restriction<?> restriction) {
         throw  new UnsupportedOperationException("Delete by restriction is not supported by default");
     }

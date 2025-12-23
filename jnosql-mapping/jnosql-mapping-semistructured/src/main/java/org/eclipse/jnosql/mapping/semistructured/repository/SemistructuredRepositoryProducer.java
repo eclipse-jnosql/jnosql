@@ -27,8 +27,11 @@ import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import java.lang.reflect.Proxy;
 import java.util.Objects;
 
+/**
+ * CDI producer responsible for creating runtime implementations of semistructured Jakarta Data repositories.
+ */
 @ApplicationScoped
-class SemistructuredRepositoryProducer {
+public class SemistructuredRepositoryProducer {
 
     @Inject
     private EntitiesMetadata entities;
@@ -42,6 +45,18 @@ class SemistructuredRepositoryProducer {
     @Inject
     private RepositoriesMetadata repositoriesMetadata;
 
+    /**
+     * Returns a fully functional repository implementation for the given
+     * repository interface.
+     *
+     * @param repositoryClass the repository interface to implement
+     * @param template the semistructured template used by the repository
+     * @param <R> the repository type
+     * @return an instance implementing the given repository interface
+     * @throws NullPointerException if any argument is {@code null}
+     * @throws java.util.NoSuchElementException if required repository or entity
+     *         metadata cannot be resolved
+     */
     @SuppressWarnings("unchecked")
     public <R> R get(Class<?> repositoryClass, SemiStructuredTemplate template) {
         Objects.requireNonNull(repositoryClass, "repository class is required");
