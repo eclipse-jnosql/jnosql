@@ -91,7 +91,6 @@ abstract class BaseRepositoryBean<T> extends AbstractBean<T> {
         return type;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T create(CreationalContext<T> context) {
         var producer = getInstance(SemistructuredRepositoryProducer.class);
@@ -99,8 +98,7 @@ abstract class BaseRepositoryBean<T> extends AbstractBean<T> {
                 ? getInstance(getTemplateClass())
                 : getInstance(getTemplateClass(), getDatabaseQualifier(provider));
 
-
-        return (T) producer.get(type, template);
+        return producer.get(type, template);
     }
 
     @Override
