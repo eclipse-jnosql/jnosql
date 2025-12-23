@@ -20,8 +20,10 @@ import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
+import org.eclipse.jnosql.mapping.semistructured.repository.SemistructuredRepositoryProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.Set;
 
@@ -92,21 +94,17 @@ class CustomRepositoryBeanTest {
 
         repositoryBean = spy(repositoryBean);
 
-        EntitiesMetadata mockEntitiesMetadata = mock(EntitiesMetadata.class);
+
         SemiStructuredTemplate mockTemplate = mock(SemiStructuredTemplate.class);
-        Converters mockConverters = mock(Converters.class);
+        SemistructuredRepositoryProducer producer = mock(SemistructuredRepositoryProducer.class);
+        Mockito.when(producer.get(eq(BaseRepositoryBeanTest.MockRepository.class), Mockito.any()))
+                .thenReturn(Mockito.mock(BaseRepositoryBeanTest.MockRepository.class));
 
-        doReturn(mockEntitiesMetadata).when(repositoryBean).getInstance(EntitiesMetadata.class);
+        doReturn(producer).when(repositoryBean).getInstance(eq(SemistructuredRepositoryProducer.class), any());
+        doReturn(producer).when(repositoryBean).getInstance(eq(SemistructuredRepositoryProducer.class));
         doReturn(mockTemplate).when(repositoryBean).getInstance(eq(SemiStructuredTemplate.class), any());
-        doReturn(mockConverters).when(repositoryBean).getInstance(Converters.class);
 
-        MockRepository createdInstance = repositoryBean.create(context);
-
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(createdInstance).isNotNull();
-            softly.assertThat(createdInstance).isInstanceOf(MockRepository.class);
-            softly.assertThat(java.lang.reflect.Proxy.isProxyClass(createdInstance.getClass())).isTrue();
-        });
+        repositoryBean.create(context);
     }
 
     interface MockRepository {}

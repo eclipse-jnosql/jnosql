@@ -20,6 +20,7 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 - Include Cache on queries
 - Update Jakarta Data to version 1.1.0-M1
 - Allow to provider define the id name, overriding the value from Id annotation
+- Deprecated old engine to Jakarta NoSQL Repositories
 
 === Added
 
@@ -27,6 +28,7 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 - Include support to record projector
 - Include Is annotation support to the Repository
 - Add support to Mapper on Key-value databases
+- Include new engine to Jakarta Data Repositories
 
 === Removed
 

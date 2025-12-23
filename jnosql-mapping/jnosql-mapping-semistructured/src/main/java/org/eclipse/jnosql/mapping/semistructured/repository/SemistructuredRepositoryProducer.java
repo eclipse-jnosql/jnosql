@@ -66,12 +66,13 @@ public class SemistructuredRepositoryProducer {
 
         var executor = SemistructuredRepository.of(template, entityMetadata);
 
-        var repositoryHandler =  CoreRepositoryInvocationHandler.of(executor
-                , entityMetadata,
+        var repositoryHandler = CoreRepositoryInvocationHandler.of(executor,
+                entityMetadata,
                 repositoryMetadata,
                 infrastructureOperatorProvider,
                 semistructuredRepositoryOperationProvider,
                 template);
+
         return (R) Proxy.newProxyInstance(repositoryClass.getClassLoader(),
                 new Class[]{repositoryClass},
                 repositoryHandler);
