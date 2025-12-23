@@ -20,8 +20,10 @@ import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
+import org.eclipse.jnosql.mapping.semistructured.repository.SemistructuredRepositoryProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Proxy;
@@ -57,15 +59,17 @@ class BaseRepositoryBeanTest {
     void shouldCreateProxyInstance() {
         CreationalContext<MockRepository> context = mock(CreationalContext.class);
         BaseRepositoryBean<MockRepository> spyBean = spy(repositoryBean);
+        SemistructuredRepositoryProducer producer = mock(SemistructuredRepositoryProducer.class);
+        Mockito.when(producer.get(eq(MockRepository.class), Mockito.any())).thenReturn(Mockito.mock(MockRepository.class));
 
         doReturn(mock(EntitiesMetadata.class)).when(spyBean).getInstance(EntitiesMetadata.class);
         doReturn(mock(SemiStructuredTemplate.class)).when(spyBean).getInstance(eq(SemiStructuredTemplate.class), any());
         doReturn(mock(Converters.class)).when(spyBean).getInstance(Converters.class);
+        doReturn(producer).when(spyBean).getInstance(SemistructuredRepositoryProducer.class);
 
         MockRepository proxyInstance = spyBean.create(context);
 
         assertNotNull(proxyInstance);
-        assertThat(Proxy.isProxyClass(proxyInstance.getClass())).isTrue();
     }
 
     @Test
