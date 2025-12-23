@@ -28,7 +28,7 @@ import java.lang.reflect.Proxy;
 import java.util.Objects;
 
 @ApplicationScoped
-class SemistructuredRepositoryProducer {
+public class SemistructuredRepositoryProducer {
 
     @Inject
     private EntitiesMetadata entities;
