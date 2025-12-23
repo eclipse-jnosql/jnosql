@@ -105,8 +105,6 @@ class CustomRepositoryBeanTest {
         doReturn(mockTemplate).when(repositoryBean).getInstance(eq(SemiStructuredTemplate.class), any());
 
         repositoryBean.create(context);
-
-
     }
 
     interface MockRepository {}
