@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.data.Sort;
 import jakarta.data.page.PageRequest;
+import jakarta.data.repository.By;
 import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
@@ -120,6 +121,9 @@ public enum SemiStructuredParameterBasedQuery {
     }
 
     private String resolveFieldName(EntityMetadata metadata, String key) {
+        if (By.ID.equals(key)) {
+            return metadata.id().orElseThrow().name();
+        }
         return metadata.fieldMapping(key).map(FieldMetadata::name).orElse(key);
     }
 
