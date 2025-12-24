@@ -12,7 +12,6 @@ package org.eclipse.jnosql.communication.semistructured;
 
 
 import org.eclipse.jnosql.communication.Params;
-import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.Where;
@@ -64,7 +63,7 @@ public final class Conditions {
                     .get()
                     .stream().map(v -> getCondition(v, parameters, observer, entity))
                     .toArray(CriteriaCondition[]::new));
-            default -> throw new QueryException("There is not support the type: " + condition.condition());
+            default -> throw new UnsupportedOperationException("There is not support the type: " + condition.condition());
         };
     }
 
