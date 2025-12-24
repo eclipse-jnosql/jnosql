@@ -42,7 +42,6 @@ public class ArrayRepositoryReturn extends AbstractRepositoryReturn {
         return toArray(entities, dynamicReturn.returnType());
     }
 
-    @SuppressWarnings("unchecked")
     private Object toArray(List<?> entities, Class<?> returnType) {
         Class<?> componentType = returnType.getComponentType();
         if (entities.isEmpty()) {
