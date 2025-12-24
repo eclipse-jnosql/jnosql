@@ -92,7 +92,7 @@ enum_literal : IDENTIFIER (DOT IDENTIFIER)* | FULLY_QUALIFIED_IDENTIFIER; // amb
 
 input_parameter : COLON IDENTIFIER | QUESTION INTEGER;
 
-literal : STRING | INTEGER | DOUBLE;
+literal : STRING | INTEGER | DOUBLE | FUNCTION_ID;
 
 // Tokens defined to be case-insensitive using character classes
 SELECT          : [sS][eE][lL][eE][cC][tT];
@@ -124,7 +124,7 @@ LOCAL           : [lL][oO][cC][aA][lL];
 DATE            : [dD][aA][tT][eE];
 DATETIME        : [dD][aA][tT][eE][tT][iI][mM][eE];
 TIME            : [tT][iI][mM][eE];
-
+FUNCTION_ID     : [iI][dD]LPAREN[tT][hH][iI][sS]RPAREN;
 // Operators
 EQ              : '=';
 GT              : '>';
