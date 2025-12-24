@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.data.Sort;
+import jakarta.data.exceptions.EmptyResultException;
 import jakarta.data.repository.BasicRepository;
 import jakarta.data.repository.By;
 import jakarta.data.repository.Delete;
@@ -203,9 +204,7 @@ class RepositoryProxyTest {
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
                 .empty());
 
-        assertNull(personRepository.findByName("name"));
-
-
+        Assertions.assertThrows(EmptyResultException.class, () -> personRepository.findByName("name"));
     }
 
     @Test
@@ -789,7 +788,7 @@ class RepositoryProxyTest {
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
                 .empty());
 
-        assertNull(personRepository.findByName("name"));
+        Assertions.assertThrows(EmptyResultException.class, () -> personRepository.findByName("name"));
     }
 
     @Test
@@ -814,17 +813,16 @@ class RepositoryProxyTest {
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
                 .empty());
 
-        assertNull(personRepository.findByName("name"));
+        Assertions.assertThrows(EmptyResultException.class, () -> personRepository.findByName("name"));
     }
 
     @Test
     void shouldExecuteDefaultMethod() {
-        personRepository.partcionate("name");
-
+        Assertions.assertThrows(EmptyResultException.class, () -> personRepository.partcionate("name"));
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
-        verify(template, Mockito.times(2)).singleResult(captor.capture());
+        verify(template, Mockito.times(1)).singleResult(captor.capture());
         List<SelectQuery> values = captor.getAllValues();
-        assertThat(values).isNotNull().hasSize(2);
+        assertThat(values).isNotNull().hasSize(1);
     }
 
     @Test
@@ -1101,9 +1099,9 @@ class RepositoryProxyTest {
 
     public interface VendorRepository extends BasicRepository<Vendor, String> {
 
-        Vendor findByPrefixes(String prefix);
+        Optional<Vendor> findByPrefixes(String prefix);
 
-        Vendor findByPrefixesIn(List<String> prefix);
+        Optional<Vendor> findByPrefixesIn(List<String> prefix);
 
     }
 }
