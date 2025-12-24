@@ -103,7 +103,8 @@ class SemistructuredCursorPaginationOperation implements CursorPaginationOperati
     @SuppressWarnings("unchecked")
     private <T> T mapper(RepositoryInvocationContext context, CursoredPage<?> cursoredPage) {
         RepositoryMethod method = context.method();
-        var mappedResult = cursoredPage.content().stream().map(returnType.mapper(method)).toList();
+        EntityMetadata entityMetadata = context.entityMetadata();
+        var mappedResult = cursoredPage.content().stream().map(returnType.mapper(method, entityMetadata)).toList();
         var cursorPage = (CursoredPageRecord<?>) cursoredPage;
         return (T) new CursoredPageRecord<>(mappedResult, cursorPage.cursors(),
                 -1,
