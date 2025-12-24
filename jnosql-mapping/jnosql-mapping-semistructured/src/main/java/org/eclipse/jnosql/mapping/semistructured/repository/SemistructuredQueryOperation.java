@@ -20,6 +20,9 @@ import org.eclipse.jnosql.communication.query.data.QueryType;
 import org.eclipse.jnosql.mapping.core.repository.DynamicQueryMethodReturn;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.QueryOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
@@ -36,15 +39,21 @@ class SemistructuredQueryOperation implements QueryOperation {
 
     private final  SemistructuredReturnType semistructuredReturnType;
 
+    private final EntitiesMetadata entitiesMetadata;
+
     @Inject
-    SemistructuredQueryOperation(SemistructuredQueryBuilder queryBuilder, SemistructuredReturnType semistructuredReturnType) {
+    SemistructuredQueryOperation(SemistructuredQueryBuilder queryBuilder,
+                                 SemistructuredReturnType semistructuredReturnType,
+                                 EntitiesMetadata entitiesMetadata) {
         this.queryBuilder = queryBuilder;
         this.semistructuredReturnType = semistructuredReturnType;
+        this.entitiesMetadata = entitiesMetadata;
     }
 
     SemistructuredQueryOperation() {
         this.queryBuilder = null;
         this.semistructuredReturnType = null;
+        this.entitiesMetadata = null;
     }
 
     @SuppressWarnings("unchecked")
@@ -56,7 +65,7 @@ class SemistructuredQueryOperation implements QueryOperation {
         var params = context.parameters();
         var template = (SemiStructuredTemplate) context.template();
         Class<?> type = entityMetadata.type();
-        var entity = entityMetadata.name();
+        var entity = getEntity(entityMetadata, method);
         var pageRequest = DynamicReturn.findPageRequest(params);
         var queryValue = method.query().orElseThrow();
         var queryType = QueryType.parse(queryValue);
@@ -79,5 +88,12 @@ class SemistructuredQueryOperation implements QueryOperation {
                     return prepare;
                 }).build();
         return (T) methodReturn.execute();
+    }
+
+    private String getEntity(EntityMetadata entityMetadata, RepositoryMethod method) {
+       var elementType = method.elementType();
+
+       return elementType.flatMap(type -> entitiesMetadata.findByClassName(type.getName()))
+               .map(EntityMetadata::name).orElse(entityMetadata.name());
     }
 }
