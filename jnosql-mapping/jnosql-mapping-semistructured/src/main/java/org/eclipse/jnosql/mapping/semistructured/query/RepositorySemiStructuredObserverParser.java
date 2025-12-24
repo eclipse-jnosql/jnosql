@@ -59,7 +59,7 @@ public final class RepositorySemiStructuredObserverParser implements Communicati
     }
 
     private String attribute(String field) {
-        if (ID.equals(field)) {
+        if (ID.equalsIgnoreCase(field)) {
             return executeIdAttribute();
         }
         return parser.field(field);
