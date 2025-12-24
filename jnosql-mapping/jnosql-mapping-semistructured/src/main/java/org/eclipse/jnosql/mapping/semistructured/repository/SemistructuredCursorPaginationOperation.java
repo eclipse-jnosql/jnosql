@@ -108,8 +108,8 @@ class SemistructuredCursorPaginationOperation implements CursorPaginationOperati
         return (T) new CursoredPageRecord<>(mappedResult, cursorPage.cursors(),
                 -1,
                 cursorPage.pageRequest(),
-                cursorPage.nextPageRequest(),
-                cursorPage.previousPageRequest());
+                cursorPage.hasNext() ? cursorPage.nextPageRequest() : null,
+                cursorPage.hasPrevious() ? cursorPage.previousPageRequest(): null);
     }
 
     private static PageRequest pageRequest(RepositoryMethod method, SpecialParameters special) {
