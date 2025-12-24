@@ -58,7 +58,7 @@ class ArrayRepositoryReturnTest {
                 .classSource(Person.class)
                 .result(() -> Stream.of(ada))
                 .methodName(method.getName())
-                .returnType(method.getReturnType())
+                .returnType(Person[].class)
                 .build();
         Person[] person = (Person[]) repositoryReturn.convert(dynamic);
         SoftAssertions.assertSoftly(s -> {
@@ -80,7 +80,7 @@ class ArrayRepositoryReturnTest {
                 .singleResultPagination(p -> Optional.empty())
                 .streamPagination(p -> Stream.of(ada))
                 .methodName(method.getName())
-                .returnType(method.getReturnType())
+                .returnType(Person[].class)
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();
@@ -89,6 +89,26 @@ class ArrayRepositoryReturnTest {
             s.assertThat(person).isNotNull();
             s.assertThat(person).hasSize(1);
             s.assertThat(person[0]).isEqualTo(ada);
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void shouldReturnArrayPrimitive() {
+        Method method = Person.class.getDeclaredMethods()[0];
+        DynamicReturn<long[]> dynamic = DynamicReturn.builder()
+                .singleResult(Optional::empty)
+                .classSource(Person.class)
+                .result(() -> Stream.of(1L, 2L, 3L))
+                .methodName(method.getName())
+                .returnType(long[].class)
+                .build();
+
+        long[] values = (long[]) repositoryReturn.convert(dynamic);
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(values).isNotNull();
+            soft.assertThat(values).hasSize(3);
+            soft.assertThat(values).containsExactly(1L, 2L, 3L);
         });
     }
 
