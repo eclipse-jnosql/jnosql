@@ -108,4 +108,17 @@ class SelectJakartaDataQueryCountTest {
         });
     }
 
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"select id(this) FROM entity"})
+    void shouldReturnValidIdFunction(String query){
+        var selectQuery = selectParser.apply(query, null);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(selectQuery.fields()).isNotEmpty().contains("id(this)");
+            soft.assertThat(selectQuery.entity()).isEqualTo("entity");
+            soft.assertThat(selectQuery.where()).isEmpty();
+        });
+    }
+
 }

@@ -84,7 +84,7 @@ special_expression
     | FALSE
     ;
 
-state_field_path_expression : IDENTIFIER (DOT IDENTIFIER)* | FULLY_QUALIFIED_IDENTIFIER;
+state_field_path_expression : IDENTIFIER (DOT IDENTIFIER)* | FULLY_QUALIFIED_IDENTIFIER | FUNCTION_ID;
 
 entity_name : IDENTIFIER; // no ambiguity
 
@@ -92,7 +92,7 @@ enum_literal : IDENTIFIER (DOT IDENTIFIER)* | FULLY_QUALIFIED_IDENTIFIER; // amb
 
 input_parameter : COLON IDENTIFIER | QUESTION INTEGER;
 
-literal : STRING | INTEGER | DOUBLE | FUNCTION_ID;
+literal : STRING | INTEGER | DOUBLE;
 
 // Tokens defined to be case-insensitive using character classes
 SELECT          : [sS][eE][lL][eE][cC][tT];
