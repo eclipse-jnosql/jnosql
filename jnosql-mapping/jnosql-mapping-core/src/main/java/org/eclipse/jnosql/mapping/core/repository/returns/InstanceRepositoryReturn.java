@@ -40,38 +40,12 @@ public class InstanceRepositoryReturn implements RepositoryReturn {
     @Override
     public <T> Object convert(DynamicReturn<T> dynamic) {
         Optional<T> optional = dynamic.singleResult();
-        return optional.orElseGet(() -> {
-            checkIsPrimitiveAndNull(dynamic.returnType());
-            return null;
-        });
+        return optional.orElseThrow(() -> new EmptyResultException("No value present"));
     }
 
     @Override
     public <T> Object convertPageRequest(DynamicReturn<T> dynamic) {
         Optional<T> optional = dynamic.singleResultPagination();
-        checkIsPrimitiveAndNull(dynamic.returnType());
-        return optional.orElseGet(() -> {
-            checkIsPrimitiveAndNull(dynamic.returnType());
-            return null;
-        });
+        return optional.orElseThrow(() -> new EmptyResultException("No value present"));
     }
-
-
-    private void checkIsPrimitiveAndNull(Class<?> returnType) {
-        if (isPrimitive(returnType)) {
-            throw new EmptyResultException("The return type of " + returnType + " is empty");
-        }
-    }
-
-    private boolean isPrimitive(Class<?> returnType) {
-        return Boolean.TYPE.equals(returnType) ||
-                Character.TYPE.equals(returnType) ||
-                Byte.TYPE.equals(returnType) ||
-                Short.TYPE.equals(returnType) ||
-                Integer.TYPE.equals(returnType) ||
-                Long.TYPE.equals(returnType) ||
-                Float.TYPE.equals(returnType) ||
-                Double.TYPE.equals(returnType);
-    }
-
 }

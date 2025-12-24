@@ -84,7 +84,7 @@ class InstanceRepositoryReturnTest {
     }
 
     @Test
-    void shouldReturnNullAsInstancePage() {
+    void shouldReturnEmptyResultException() {
         Method method = Person.class.getDeclaredMethods()[0];
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
@@ -97,8 +97,7 @@ class InstanceRepositoryReturnTest {
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();
-        Person person = (Person) repositoryReturn.convertPageRequest(dynamic);
-        Assertions.assertNull(person);
+        Assertions.assertThrows(EmptyResultException.class, () -> repositoryReturn.convertPageRequest(dynamic));
     }
 
     @Test
@@ -118,7 +117,7 @@ class InstanceRepositoryReturnTest {
     }
 
     @Test
-    void shouldReturnNullAsInstance() {
+    void shouldReturnNotNullAsInstance() {
         Method method = Person.class.getDeclaredMethods()[0];
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .singleResult(Optional::empty)
@@ -127,8 +126,7 @@ class InstanceRepositoryReturnTest {
                 .returnType(Person.class)
                 .methodName(method.getName())
                 .build();
-        Person person = (Person) repositoryReturn.convert(dynamic);
-        Assertions.assertNull(person);
+        Assertions.assertThrows(EmptyResultException.class, () -> repositoryReturn.convert(dynamic));
     }
 
     @ParameterizedTest
