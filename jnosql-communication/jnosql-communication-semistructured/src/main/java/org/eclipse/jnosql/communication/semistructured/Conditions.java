@@ -39,6 +39,12 @@ public final class Conditions {
                     Values.get(condition.value(), parameters)));
             case LESSER_EQUALS_THAN -> CriteriaCondition.lte(Element.of(getName(condition, observer, entity),
                     Values.get(condition.value(), parameters)));
+            case CONTAINS -> CriteriaCondition.contains(Element.of(getName(condition, observer, entity),
+                    Values.get(condition.value(), parameters)));
+            case ENDS_WITH -> CriteriaCondition.endsWith(Element.of(getName(condition, observer, entity),
+                    Values.get(condition.value(), parameters)));
+            case STARTS_WITH -> CriteriaCondition.startsWith(Element.of(getName(condition, observer, entity),
+                    Values.get(condition.value(), parameters)));
             case IN -> CriteriaCondition.in(Element.of(getName(condition, observer, entity),
                     Values.get(condition.value(), parameters)));
             case LIKE -> CriteriaCondition.like(Element.of(getName(condition, observer, entity),
