@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.data.repository.By;
-import jakarta.data.repository.Find;
 import org.eclipse.jnosql.communication.semistructured.CommunicationObserverParser;
 import org.eclipse.jnosql.mapping.metadata.ClassInformationNotFoundException;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
