@@ -105,8 +105,19 @@ class ProjectorConverterTest {
     void shouldReturnErrorWhenListIsDifferent() {
         var projection = entitiesMetadata.projection(CitizenGeographySummary.class).orElseThrow();
         Citizen citizen = Citizen.of("1", "Ada Lovelace");
-
         assertThrows(IllegalArgumentException.class, () -> converter.map(citizen, projection, Collections.singletonList("name")));
+    }
+
+    @Test
+    void shouldReturnErrorWhenEntityIsInvalid() {
+        var projection = entitiesMetadata.projection(BookView.class).orElseThrow();
+        assertThrows(IllegalArgumentException.class, () -> converter.map("citizen", projection, Collections.singletonList("name")));
+    }
+
+    @Test
+    void shouldReturnErrorWhenEntityIsInvalid2() {
+        var projection = entitiesMetadata.projection(BookView.class).orElseThrow();
+        assertThrows(IllegalArgumentException.class, () -> converter.map("citizen", projection));
     }
 
 }

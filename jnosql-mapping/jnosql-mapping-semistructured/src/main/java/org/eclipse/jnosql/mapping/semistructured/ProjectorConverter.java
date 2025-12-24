@@ -67,14 +67,11 @@ public class ProjectorConverter {
         Objects.requireNonNull(entity, "entity is required");
         Objects.requireNonNull(metadata, "metadata is required");
         LOGGER.fine(() -> "Converting entity " + entity + " to " + metadata);
-        var entityMetadata = entitiesMetadata.get(entity.getClass());
-        if (entityMetadata == null) {
-            throw new IllegalArgumentException("Entity metadata not found for " + entity.getClass());
-        }
+
+        var entityMetadata = entityMetadata(entity);
 
         var constructor = metadata.constructor();
         var builder = ProjectionBuilder.of(constructor);
-
         for (var parameter : constructor.parameters()) {
             String name = parameter.name();
             Optional<Object> value = value(entityMetadata, name, entity);
@@ -96,10 +93,8 @@ public class ProjectorConverter {
         Objects.requireNonNull(metadata, "metadata is required");
         Objects.requireNonNull(fields, "fields is required");
         LOGGER.fine(() -> "Converting entity " + entity + " to " + metadata + " with fields " + fields);
-        var entityMetadata = entitiesMetadata.get(entity.getClass());
-        if (entityMetadata == null) {
-            throw new IllegalArgumentException("Entity metadata not found for " + entity.getClass());
-        }
+        var entityMetadata = entityMetadata(entity);
+
         var constructor = metadata.constructor();
         var builder = ProjectionBuilder.of(constructor);
         if (constructor.parameters().size() != fields.size()) {
@@ -124,6 +119,8 @@ public class ProjectorConverter {
 
         return builder.build();
     }
+
+
 
     private <T> Optional<Object> value(EntityMetadata entityMetadata, String name, T entity) {
         String[] names = name.split("\\.");
@@ -150,6 +147,11 @@ public class ProjectorConverter {
             return value(embeddedField, embeddedName, read);
 
         }
+    }
+
+    private <T> EntityMetadata entityMetadata(T entity) {
+        return entitiesMetadata.findByClassName(entity.getClass().getName())
+                .orElseThrow(() -> new IllegalArgumentException("Entity metadata not found for " + entity.getClass()));
     }
 
 }
