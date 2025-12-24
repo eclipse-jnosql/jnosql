@@ -24,6 +24,7 @@ import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionBuilder;
 import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -87,6 +88,40 @@ public class ProjectorConverter {
                 builder.add(converted);
             }
         }
+        return builder.build();
+    }
+
+    public <T, P> P map(T entity, ProjectionMetadata metadata, List<String> fields) {
+        Objects.requireNonNull(entity, "entity is required");
+        Objects.requireNonNull(metadata, "metadata is required");
+        Objects.requireNonNull(fields, "fields is required");
+        LOGGER.fine(() -> "Converting entity " + entity + " to " + metadata + " with fields " + fields);
+        var entityMetadata = entitiesMetadata.get(entity.getClass());
+        if (entityMetadata == null) {
+            throw new IllegalArgumentException("Entity metadata not found for " + entity.getClass());
+        }
+        var constructor = metadata.constructor();
+        var builder = ProjectionBuilder.of(constructor);
+        if (constructor.parameters().size() != fields.size()) {
+            throw new IllegalArgumentException("The number of parameters for " + entity.getClass() + " is invalid by the fields size:" +
+                    " " + fields);
+        }
+
+        for (int index = 0; index < fields.size(); index++) {
+            var name = fields.get(index);
+            var parameter = constructor.parameters().get(index);
+            Optional<Object> value = value(entityMetadata, name, entity);
+            if (value.isEmpty()) {
+                LOGGER.warning(() -> "Field metadata not found for parameter: " + name);
+                builder.addEmptyParameter();
+            } else {
+                var parameterValue = value.orElseThrow();
+                Class<?> parameterType = parameter.type();
+                var converted = Value.of(parameterValue).get(parameterType);
+                builder.add(converted);
+            }
+        }
+
         return builder.build();
     }
 
