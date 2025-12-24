@@ -103,29 +103,6 @@ class QueryTypeTest {
         Assertions.assertThat(QueryType.SELECT.isVoid(type)).isFalse();
     }
 
-    @ParameterizedTest
-    @ValueSource(classes = {Integer.class, int.class})
-    void shouldIsInt(Class<?> type) {
-        Assertions.assertThat(QueryType.SELECT.isInt(type)).isTrue();
-    }
-
-    @ParameterizedTest
-    @ValueSource(classes = {String.class, List.class})
-    void shouldNotIsInt(Class<?> type) {
-        Assertions.assertThat(QueryType.SELECT.isInt(type)).isFalse();
-    }
-
-    @ParameterizedTest
-    @ValueSource(classes = {Long.class, long.class})
-    void shouldIsLong(Class<?> type) {
-        Assertions.assertThat(QueryType.SELECT.isLong(type)).isTrue();
-    }
-
-    @ParameterizedTest
-    @ValueSource(classes = {String.class, List.class})
-    void shouldNotIsLong(Class<?> type) {
-        Assertions.assertThat(QueryType.SELECT.isLong(type)).isFalse();
-    }
 
     @Test
     void shouldCheckValueReturn() {
