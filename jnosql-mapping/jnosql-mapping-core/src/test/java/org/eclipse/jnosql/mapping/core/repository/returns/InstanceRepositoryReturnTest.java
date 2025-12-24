@@ -57,7 +57,8 @@ class InstanceRepositoryReturnTest {
     }
 
     @ParameterizedTest
-    @ValueSource(classes = {List.class, Set.class, Map.class, Iterable.class, Queue.class, Optional.class, Page.class})
+    @ValueSource(classes = {List.class, Set.class, Map.class, Iterable.class, Queue.class, Optional.class, Page.class,
+    void.class, Void.class})
     void shouldReturnIsNotCompatible(Class<?> returnType) {
         assertThat(repositoryReturn.isCompatible(Person.class, returnType)).isFalse();
     }
