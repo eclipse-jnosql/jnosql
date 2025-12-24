@@ -79,6 +79,31 @@ public class RepositoryParameterBasedTest extends AbstractRepositoryTest {
         });
     }
 
+    @Test
+    @DisplayName("Should id function using built-in Repository")
+    void shouldFindSpecialId() {
+        ComicBook comicBook = new ComicBook("1", "The Lord of the Rings", 1954);
+        Mockito.when(template.select(Mockito.any(SelectQuery.class)))
+                .thenReturn(Stream.of(comicBook));
+
+        var result = bookStore.findIdSpecial("The Lord of the Rings");
+        Mockito.verify(template).select(selectQueryCaptor.capture());
+        Assertions.assertThat(result).isNotNull().containsExactly(comicBook);
+
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(selectQuery.name()).isEqualTo("ComicBook");
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            soft.assertThat(selectQuery.sorts()).isEmpty();
+            CriteriaCondition criteriaCondition = selectQuery.condition().orElseThrow();
+            soft.assertThat(criteriaCondition.element().get()).isEqualTo("The Lord of the Rings");
+            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(criteriaCondition.element().name()).isEqualTo("_id");
+        });
+    }
+
+
 
     @Test
     @DisplayName("Should findByAge using built-in Repository")
