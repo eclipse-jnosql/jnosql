@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
+import jakarta.data.exceptions.EmptyResultException;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
@@ -56,7 +57,8 @@ class InstanceRepositoryReturnTest {
     }
 
     @ParameterizedTest
-    @ValueSource(classes = {List.class, Set.class, Map.class, Iterable.class, Queue.class, Optional.class, Page.class})
+    @ValueSource(classes = {List.class, Set.class, Map.class, Iterable.class, Queue.class, Optional.class, Page.class,
+    void.class, Void.class})
     void shouldReturnIsNotCompatible(Class<?> returnType) {
         assertThat(repositoryReturn.isCompatible(Person.class, returnType)).isFalse();
     }
@@ -72,7 +74,7 @@ class InstanceRepositoryReturnTest {
                 .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.of(ada))
                 .streamPagination(p -> Stream.empty())
-                .returnType(method.getReturnType())
+                .returnType(Person.class)
                 .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
@@ -83,7 +85,7 @@ class InstanceRepositoryReturnTest {
     }
 
     @Test
-    void shouldReturnNullAsInstancePage() {
+    void shouldReturnEmptyResultException() {
         Method method = Person.class.getDeclaredMethods()[0];
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
@@ -91,13 +93,12 @@ class InstanceRepositoryReturnTest {
                 .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.empty())
                 .streamPagination(p -> Stream.empty())
-                .returnType(method.getReturnType())
+                .returnType(Person.class)
                 .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();
-        Person person = (Person) repositoryReturn.convertPageRequest(dynamic);
-        Assertions.assertNull(person);
+        Assertions.assertThrows(EmptyResultException.class, () -> repositoryReturn.convertPageRequest(dynamic));
     }
 
     @Test
@@ -108,7 +109,7 @@ class InstanceRepositoryReturnTest {
                 .singleResult(() -> Optional.of(ada))
                 .classSource(Person.class)
                 .result(Collections::emptyList)
-                .returnType(method.getReturnType())
+                .returnType(Person.class)
                 .methodName(method.getName())
                 .build();
         Person person = (Person) repositoryReturn.convert(dynamic);
@@ -117,19 +118,48 @@ class InstanceRepositoryReturnTest {
     }
 
     @Test
-    void shouldReturnNullAsInstance() {
+    void shouldReturnNotNullAsInstance() {
         Method method = Person.class.getDeclaredMethods()[0];
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .singleResult(Optional::empty)
                 .classSource(Person.class)
                 .result(Collections::emptyList)
-                .returnType(method.getReturnType())
+                .returnType(Person.class)
                 .methodName(method.getName())
                 .build();
-        Person person = (Person) repositoryReturn.convert(dynamic);
-        Assertions.assertNull(person);
+        Assertions.assertThrows(EmptyResultException.class, () -> repositoryReturn.convert(dynamic));
     }
 
+    @ParameterizedTest
+    @ValueSource(classes = {boolean.class, char.class, byte.class, short.class,
+            int.class, long.class, float.class, double.class})
+    void shouldReturnErrorWhenIsPrimitive(Class<?> primitiveClass) {
+        Method method = Person.class.getDeclaredMethods()[0];
+        DynamicReturn<Integer> dynamic = DynamicReturn.builder()
+                .singleResult(Optional::empty)
+                .classSource(int.class)
+                .result(Collections::emptyList)
+                .returnType(primitiveClass)
+                .methodName(method.getName())
+                .build();
+        Assertions.assertThrows(EmptyResultException.class, () -> repositoryReturn.convert(dynamic));
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = {boolean.class, char.class, byte.class, short.class,
+            int.class, long.class, float.class, double.class})
+    void shouldReturnErrorWhenIsPrimitiveInPagination(Class<?> primitiveClass) {
+        Method method = Person.class.getDeclaredMethods()[0];
+        DynamicReturn<Integer> dynamic = DynamicReturn.builder()
+                .singleResult(Optional::empty)
+                .classSource(int.class)
+                .result(Collections::emptyList)
+                .singleResultPagination(p -> Optional.empty())
+                .returnType(primitiveClass)
+                .methodName(method.getName())
+                .build();
+        Assertions.assertThrows(EmptyResultException.class, () -> repositoryReturn.convertPageRequest(dynamic));
+    }
 
     private static class Person implements Comparable<Person> {
 

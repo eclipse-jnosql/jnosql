@@ -14,40 +14,27 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
-import jakarta.data.exceptions.EmptyResultException;
-import jakarta.data.page.Page;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
-public class InstanceRepositoryReturn implements RepositoryReturn {
+public class VoidRepositoryReturn implements RepositoryReturn {
 
     @Override
     public boolean isCompatible(Class<?> entity, Class<?> returnType) {
-        return  !Collection.class.isAssignableFrom(returnType)
-                && !Iterable.class.equals(returnType)
-                && !Map.class.isAssignableFrom(returnType)
-                && !Stream.class.isAssignableFrom(returnType)
-                && !Optional.class.isAssignableFrom(returnType)
-                && !Page.class.isAssignableFrom(returnType)
-                && !returnType.isArray()
-                && !Void.TYPE.equals(returnType)
-                && !Void.class.equals(returnType);
+        return   Void.TYPE.equals(returnType) || Void.class.equals(returnType);
     }
 
     @Override
     public <T> Object convert(DynamicReturn<T> dynamic) {
         Optional<T> optional = dynamic.singleResult();
-        return optional.orElseThrow(() -> new EmptyResultException("No value present"));
+        return optional.orElse(null);
     }
 
     @Override
     public <T> Object convertPageRequest(DynamicReturn<T> dynamic) {
         Optional<T> optional = dynamic.singleResultPagination();
-        return optional.orElseThrow(() -> new EmptyResultException("No value present"));
+        return optional.orElse(null);
     }
 }

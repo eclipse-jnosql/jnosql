@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+import jakarta.data.exceptions.EmptyResultException;
 import jakarta.data.exceptions.NonUniqueResultException;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
@@ -125,7 +126,7 @@ class DynamicQueryMethodReturnTest {
     }
 
     @Test
-    void shouldReturnNull() throws NoSuchMethodException {
+    void shouldReturnEmptyResultException() throws NoSuchMethodException {
 
         PreparedStatement preparedStatement = Mockito.mock(PreparedStatement.class);
         Method method = getMethod(PersonRepository.class, "getInstance");
@@ -139,8 +140,9 @@ class DynamicQueryMethodReturnTest {
                 .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
                 .build();
-        Object execute = dynamicReturn.execute();
-        Assertions.assertNull(execute);
+
+        Assertions.assertThrows(EmptyResultException.class, dynamicReturn::execute);
+
     }
 
     @Test

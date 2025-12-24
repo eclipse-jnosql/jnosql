@@ -14,13 +14,10 @@
  */
 package org.eclipse.jnosql.mapping.reflection.repository;
 
-import jakarta.data.repository.Delete;
+import jakarta.data.repository.DataRepository;
+import jakarta.data.repository.Repository;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 
-import java.util.List;
-
-public interface PersonDeleteCustomRepository {
-
-   @Delete
-   void findByName(Person person);
+@Repository
+public interface PersonExtendsRepository extends DataRepository<Person, Long>, IdOperations {
 }

@@ -16,7 +16,10 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 
 import jakarta.data.Sort;
 import jakarta.data.constraint.Constraint;
+import jakarta.data.repository.BasicRepository;
 import jakarta.data.repository.By;
+import jakarta.data.repository.CrudRepository;
+import jakarta.data.repository.DataRepository;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.First;
 import jakarta.data.repository.Is;
@@ -27,6 +30,7 @@ import jakarta.data.repository.Select;
 import jakarta.enterprise.event.Event;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Projection;
+import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.ProviderQuery;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryAnnotation;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
@@ -41,11 +45,14 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import static java.util.Optional.ofNullable;
@@ -65,9 +72,10 @@ enum ReflectionRepositorySupplier {
             throw new IllegalArgumentException("The repository type " + type.getName() + " is not an interface");
         }
         Class<?> entity = findEntity(type.getGenericInterfaces());
-        List<RepositoryMethod> methods = new ArrayList<>(type.getDeclaredMethods().length);
-        Map<Method, RepositoryMethod> methodByMethodReflection = new HashMap<>(type.getDeclaredMethods().length);
-        for (Method method : type.getDeclaredMethods()) {
+        var declaredMethods = declaredRepositoryMethods(type);
+        List<RepositoryMethod> methods = new ArrayList<>(declaredMethods.size());
+        Map<Method, RepositoryMethod> methodByMethodReflection = new HashMap<>(declaredMethods.size());
+        for (Method method : declaredMethods) {
             RepositoryMethod repositoryMethod = to(method, projectionFoundEvent);
             methods.add(repositoryMethod);
             methodByMethodReflection.put(method, repositoryMethod);
@@ -106,7 +114,8 @@ enum ReflectionRepositorySupplier {
                         return findType.orElseThrow();
                     }
                 }
-                default -> LOGGER.finest(() -> "The repository method " + method.name() + " could you not be used to find the entity");
+                default ->
+                        LOGGER.finest(() -> "The repository method " + method.name() + " could you not be used to find the entity");
             }
         }
         return null;
@@ -174,7 +183,7 @@ enum ReflectionRepositorySupplier {
     private static Class<?> getElementTypeValue(Method method) {
         if (method.getGenericReturnType() instanceof ParameterizedType parameterizedType) {
             Type[] arguments = parameterizedType.getActualTypeArguments();
-            if (arguments.length > 0) {
+            if (arguments.length > 0 && arguments[0] instanceof Class<?>) {
                 return (Class<?>) arguments[0];
             }
         }
@@ -199,7 +208,7 @@ enum ReflectionRepositorySupplier {
         List<RepositoryParam> params = new ArrayList<>(parameters.length);
         for (Parameter parameter : parameters) {
             Class<? extends Constraint<?>> isValue = (Class<? extends Constraint<?>>) ofNullable(parameter
-                            .getAnnotation(Is.class))
+                    .getAnnotation(Is.class))
                     .map(Is::value)
                     .orElse(null);
             String param = ofNullable(parameter.getAnnotation(Param.class))
@@ -265,4 +274,44 @@ enum ReflectionRepositorySupplier {
         }
         return type;
     }
+
+    private static List<Method> declaredRepositoryMethods(Class<?> repositoryType) {
+
+        List<Method> methods = new ArrayList<>();
+        Collections.addAll(methods, repositoryType.getDeclaredMethods());
+
+        for (var component : collectUserInterfaces(repositoryType)) {
+            Collections.addAll(methods, component.getDeclaredMethods());
+        }
+
+        methods.removeIf(method -> method.getDeclaringClass() == Object.class);
+        return methods;
+    }
+
+    private static Set<Class<?>> collectUserInterfaces(Class<?> type) {
+        Set<Class<?>> result = new HashSet<>();
+        collect(type, result);
+        return result;
+    }
+
+    private static void collect(Class<?> type, Set<Class<?>> result) {
+        for (Class<?> componentType : type.getInterfaces()) {
+
+            if (isFrameworkRepositoryInterface(componentType)) {
+                continue;
+            }
+
+            if (result.add(componentType)) {
+                collect(componentType, result);
+            }
+        }
+    }
+
+    private static boolean isFrameworkRepositoryInterface(Class<?> type) {
+        return type == CrudRepository.class
+                || type == BasicRepository.class
+                || type == DataRepository.class
+                || type == NoSQLRepository.class;
+    }
+
 }

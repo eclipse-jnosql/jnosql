@@ -62,7 +62,7 @@ class ClassGraphClassScannerTest {
         Set<Class<?>> reepositores = classScanner.repositories();
         Assertions.assertNotNull(reepositores);
 
-        assertThat(reepositores).hasSize(4)
+        assertThat(reepositores).hasSize(5)
                 .contains(Persons.class,
                         AnimalRepository.class,
                         PersonRepository.class,
@@ -98,7 +98,7 @@ class ClassGraphClassScannerTest {
     @Test
     void shouldReturnStandardRepositories() {
         Set<Class<?>> repositories = classScanner.repositoriesStandard();
-        assertThat(repositories).hasSize(3)
+        assertThat(repositories).hasSize(4)
                 .contains(Persons.class, PersonRepository.class, MovieRepository.class);
     }
 
@@ -112,7 +112,7 @@ class ClassGraphClassScannerTest {
     @Test
     void shouldReturnRepositoriesStandard() {
         Set<Class<?>> repositories = classScanner.repositoriesStandard();
-        assertThat(repositories).hasSize(3);
+        assertThat(repositories).hasSize(4);
     }
 
     @Test

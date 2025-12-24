@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
+import jakarta.data.repository.By;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
@@ -27,6 +28,8 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -82,4 +85,31 @@ class RepositorySemiStructuredObserverParserTest {
         String field = "id";
         assertEquals("_id", parser.fireConditionField("entity", field));
     }
+
+
+    @Nested
+    @DisplayName("When Id function is used")
+    class WhenIdFunctionUsed {
+
+        @Test
+        void shouldFireSelectField() {
+            String field = By.ID;
+            assertEquals("_id", parser.fireSelectField("entity", field));
+        }
+
+        @Test
+        void shouldFireSortProperty() {
+            String field = By.ID;
+            assertEquals("_id", parser.fireSortProperty("entity", field));
+        }
+
+
+        @Test
+        void shouldFireConditionField() {
+            String field = By.ID;
+            assertEquals("_id", parser.fireConditionField("entity", field));
+        }
+    }
+
+
 }

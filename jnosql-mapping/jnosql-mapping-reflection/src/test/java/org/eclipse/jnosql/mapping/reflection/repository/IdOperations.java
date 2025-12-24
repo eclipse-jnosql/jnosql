@@ -14,13 +14,18 @@
  */
 package org.eclipse.jnosql.mapping.reflection.repository;
 
-import jakarta.data.repository.Delete;
-import org.eclipse.jnosql.mapping.reflection.entities.Person;
+import jakarta.data.Limit;
+import jakarta.data.repository.Query;
 
 import java.util.List;
 
-public interface PersonDeleteCustomRepository {
+public interface IdOperations {
 
-   @Delete
-   void findByName(Person person);
+    long countByIdBetween(long minimum, long maximum);
+
+    boolean existsById(long id);
+
+    @Query("SELECT id WHERE id >= :inclusiveMin ORDER BY id ASC")
+    List<Long> withIdEqualOrAbove(long inclusiveMin, Limit limit);
+
 }

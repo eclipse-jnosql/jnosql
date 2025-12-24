@@ -106,10 +106,10 @@ class SemistructuredCursorPaginationOperation implements CursorPaginationOperati
         var mappedResult = cursoredPage.content().stream().map(returnType.mapper(method)).toList();
         var cursorPage = (CursoredPageRecord<?>) cursoredPage;
         return (T) new CursoredPageRecord<>(mappedResult, cursorPage.cursors(),
-                cursorPage.totalPages(),
+                -1,
                 cursorPage.pageRequest(),
-                cursorPage.nextPageRequest(),
-                cursorPage.previousPageRequest());
+                cursorPage.hasNext() ? cursorPage.nextPageRequest() : null,
+                cursorPage.hasPrevious() ? cursorPage.previousPageRequest(): null);
     }
 
     private static PageRequest pageRequest(RepositoryMethod method, SpecialParameters special) {

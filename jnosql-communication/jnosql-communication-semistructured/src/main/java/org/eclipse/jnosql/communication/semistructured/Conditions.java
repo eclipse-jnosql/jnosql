@@ -12,7 +12,6 @@ package org.eclipse.jnosql.communication.semistructured;
 
 
 import org.eclipse.jnosql.communication.Params;
-import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.Where;
@@ -39,6 +38,12 @@ public final class Conditions {
                     Values.get(condition.value(), parameters)));
             case LESSER_EQUALS_THAN -> CriteriaCondition.lte(Element.of(getName(condition, observer, entity),
                     Values.get(condition.value(), parameters)));
+            case CONTAINS -> CriteriaCondition.contains(Element.of(getName(condition, observer, entity),
+                    Values.get(condition.value(), parameters)));
+            case ENDS_WITH -> CriteriaCondition.endsWith(Element.of(getName(condition, observer, entity),
+                    Values.get(condition.value(), parameters)));
+            case STARTS_WITH -> CriteriaCondition.startsWith(Element.of(getName(condition, observer, entity),
+                    Values.get(condition.value(), parameters)));
             case IN -> CriteriaCondition.in(Element.of(getName(condition, observer, entity),
                     Values.get(condition.value(), parameters)));
             case LIKE -> CriteriaCondition.like(Element.of(getName(condition, observer, entity),
@@ -58,7 +63,7 @@ public final class Conditions {
                     .get()
                     .stream().map(v -> getCondition(v, parameters, observer, entity))
                     .toArray(CriteriaCondition[]::new));
-            default -> throw new QueryException("There is not support the type: " + condition.condition());
+            default -> throw new UnsupportedOperationException("There is not support the type: " + condition.condition());
         };
     }
 

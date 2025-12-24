@@ -526,7 +526,7 @@ class CustomRepositoryHandlerTest {
                 .thenReturn(false);
         Mockito.when(preparedStatement.singleResult())
                 .thenReturn(Optional.of(1L));
-        Assertions.assertThat(people.deleteByNameReturnLong("Ada")).isEqualTo(1L);
+        people.deleteByNameReturnLong("Ada");
     }
 
     @Test
@@ -537,7 +537,7 @@ class CustomRepositoryHandlerTest {
                 .thenReturn(false);
         Mockito.when(preparedStatement.singleResult())
                 .thenReturn(Optional.of(1L));
-        Assertions.assertThat(people.updateReturnLong("Ada")).isEqualTo(1L);
+        people.updateReturnLong("Ada");
     }
 
     @Test

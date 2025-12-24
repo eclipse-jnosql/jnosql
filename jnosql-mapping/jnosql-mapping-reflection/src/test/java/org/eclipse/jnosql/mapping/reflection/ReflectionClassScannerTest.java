@@ -60,7 +60,7 @@ class ReflectionClassScannerTest {
         Set<Class<?>> reepositores = classScanner.repositories();
         Assertions.assertNotNull(reepositores);
 
-        assertThat(reepositores).hasSize(4)
+        assertThat(reepositores).hasSize(5)
                 .contains(RepositoryFilterTest.Persons.class,
                         AnimalRepository.class,
                         PersonRepository.class,
@@ -96,7 +96,7 @@ class ReflectionClassScannerTest {
     @Test
     void shouldReturnStandardRepositories() {
         Set<Class<?>> repositories = classScanner.repositoriesStandard();
-        assertThat(repositories).hasSize(3)
+        assertThat(repositories).hasSize(4)
                 .contains(RepositoryFilterTest.Persons.class, PersonRepository.class, MovieRepository.class);
     }
 
@@ -110,7 +110,7 @@ class ReflectionClassScannerTest {
     @Test
     void shouldReturnRepositoriesStandard() {
         Set<Class<?>> repositories = classScanner.repositoriesStandard();
-        assertThat(repositories).hasSize(3);
+        assertThat(repositories).hasSize(4);
     }
 
     @Test

@@ -84,7 +84,7 @@ special_expression
     | FALSE
     ;
 
-state_field_path_expression : IDENTIFIER (DOT IDENTIFIER)* | FULLY_QUALIFIED_IDENTIFIER;
+state_field_path_expression : IDENTIFIER (DOT IDENTIFIER)* | FULLY_QUALIFIED_IDENTIFIER | FUNCTION_ID;
 
 entity_name : IDENTIFIER; // no ambiguity
 
@@ -124,7 +124,7 @@ LOCAL           : [lL][oO][cC][aA][lL];
 DATE            : [dD][aA][tT][eE];
 DATETIME        : [dD][aA][tT][eE][tT][iI][mM][eE];
 TIME            : [tT][iI][mM][eE];
-
+FUNCTION_ID     : [iI][dD]LPAREN[tT][hH][iI][sS]RPAREN;
 // Operators
 EQ              : '=';
 GT              : '>';

@@ -34,6 +34,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -65,7 +69,9 @@ class SemiStructuredRepositoryProxyTest {
                 PersonRepository.class,
                 converters);
 
-        proxy.executeFindAll(proxy, SemiStructuredRepositoryProxyTest.class.getMethods()[0], new Object[0]);
+        Method findAll = Arrays.stream(SemiStructuredRepositoryProxyTest.class.getDeclaredMethods())
+                .filter(method -> method.getName().equals("findAll")).findFirst().orElseThrow();
+        proxy.executeFindAll(proxy, findAll, new Object[0]);
     }
 
     @Test
@@ -79,5 +85,9 @@ class SemiStructuredRepositoryProxyTest {
 
         Assertions.assertThatThrownBy(() -> proxy.restriction(new Object[] {new Object(), new Object()})
         ).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    List<Person> findAll() {
+        return List.of();
     }
 }

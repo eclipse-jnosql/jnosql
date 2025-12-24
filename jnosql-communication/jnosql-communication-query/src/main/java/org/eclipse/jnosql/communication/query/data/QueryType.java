@@ -93,7 +93,7 @@ public enum QueryType {
      * Validates the return type of method based on the type of query being executed.
      * <p>
      * This method checks whether the specified query is a {@code DELETE} or {@code UPDATE} operation
-     * and ensures that the return type is {@code Void} or {@code int} or {@code long}.
+     * and ensures that the return type is {@code Void}
      * If the query is not a {@code SELECT} operation
      * and the return type is not supporte, an {@code UnsupportedOperationException} is thrown.
      * <p>
@@ -107,7 +107,7 @@ public enum QueryType {
      *                                       and the return type is not supported
      */
     public void checkValidReturn(Class<?> returnType, String query) {
-        if (isNotSelect() && !isVoid(returnType) && !isInt(returnType) && !isLong(returnType)) {
+        if (isNotSelect() && !isVoid(returnType)) {
             throw new UnsupportedOperationException("The return type must be Void when the query is not a SELECT operation, due to the nature" +
                     " of DELETE and UPDATE operations. The query: " + query);
         }
@@ -115,14 +115,6 @@ public enum QueryType {
 
     boolean isVoid(Class<?> returnType) {
         return returnType == Void.class || returnType == Void.TYPE;
-    }
-
-    boolean isInt(Class<?> returnType) {
-        return returnType == Integer.class || returnType == int.class;
-    }
-
-    boolean isLong(Class<?> returnType) {
-        return returnType == Long.class || returnType == long.class;
     }
 
     private static String extractQueryCommand(String query){

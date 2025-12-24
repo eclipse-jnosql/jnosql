@@ -14,9 +14,11 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
+import jakarta.data.repository.By;
 import org.eclipse.jnosql.communication.semistructured.CommunicationObserverParser;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryObserverParser;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
 import java.util.Objects;
 
@@ -25,9 +27,14 @@ import java.util.Objects;
  */
 public final class RepositorySemiStructuredObserverParser implements CommunicationObserverParser {
 
+    private static final String ID =By.ID;
+
     private final RepositoryObserverParser parser;
 
+    private EntityMetadata entityMetadata;
+
     public RepositorySemiStructuredObserverParser(EntityMetadata entityMetadata) {
+        this.entityMetadata = entityMetadata;
         this.parser = RepositoryObserverParser.of(entityMetadata);
     }
 
@@ -38,17 +45,29 @@ public final class RepositorySemiStructuredObserverParser implements Communicati
 
     @Override
     public String fireSelectField(String entity, String field) {
-        return parser.field(field);
+        return attribute(field);
     }
 
     @Override
     public String fireSortProperty(String entity, String field) {
-        return parser.field(field);
+        return attribute(field);
     }
 
     @Override
     public String fireConditionField(String entity, String field) {
+        return attribute(field);
+    }
+
+    private String attribute(String field) {
+        if (ID.equalsIgnoreCase(field)) {
+            return executeIdAttribute();
+        }
         return parser.field(field);
+    }
+
+    private String executeIdAttribute() {
+        FieldMetadata fieldMetadata = entityMetadata.id().orElseThrow();
+        return fieldMetadata.name();
     }
 
     /**

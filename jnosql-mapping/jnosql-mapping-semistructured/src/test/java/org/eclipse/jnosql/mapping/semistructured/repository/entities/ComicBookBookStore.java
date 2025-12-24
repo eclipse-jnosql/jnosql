@@ -68,6 +68,9 @@ public interface ComicBookBookStore {
 
 
     @Find
+    List<ComicBook> findIdSpecial(@By(By.ID) String id);
+
+    @Find
     List<ComicBook> find(@By("name") String name);
 
     @Find

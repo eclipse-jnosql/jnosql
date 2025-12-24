@@ -102,8 +102,8 @@ public interface People {
     }
 
     @Query("delete from Person where name = :name")
-    long deleteByNameReturnLong(@Param("name") String name);
+    void deleteByNameReturnLong(@Param("name") String name);
 
     @Query("update Person where name = :name")
-    long updateReturnLong(@Param("name") String name);
+    void updateReturnLong(@Param("name") String name);
 }
