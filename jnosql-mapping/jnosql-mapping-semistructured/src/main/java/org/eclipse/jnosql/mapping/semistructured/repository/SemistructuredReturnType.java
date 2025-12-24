@@ -30,6 +30,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationCo
 import org.eclipse.jnosql.mapping.semistructured.ProjectorConverter;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -107,12 +108,11 @@ class SemistructuredReturnType {
     protected <E> Function<Object, E> mapper(RepositoryMethod method) {
         return value -> {
             var returnType = method.elementType().orElse(method.returnType().orElseThrow());
+            var attributes = method.select();
             var projection = this.entitiesMetadata.projection(returnType);
             if (projection.isPresent()) {
-                ProjectionMetadata projectionMetadata = projection.orElseThrow();
-                return projectorConverter.map(value, projectionMetadata);
+                return projectionMapper(value, projection, attributes);
             }
-            var attributes = method.select();
             if (attributes.size() == 1) {
                 String fieldReturn = attributes.getFirst();
                 Optional<EntityMetadata> valueEntityMetadata = entitiesMetadata.findByClassName(value.getClass().getName());
@@ -122,6 +122,15 @@ class SemistructuredReturnType {
             }
             return (E) value;
         };
+    }
+
+    private <E> E projectionMapper(Object value, Optional<ProjectionMetadata> projection, List<String> attributes) {
+        ProjectionMetadata projectionMetadata = projection.orElseThrow();
+        if (!attributes.isEmpty()) {
+            return projectorConverter.map(value, projectionMetadata, attributes);
+        } else{
+            return projectorConverter.map(value, projectionMetadata);
+        }
     }
 
     private Object value(EntityMetadata entityMetadata, String returnName, Object value) {
