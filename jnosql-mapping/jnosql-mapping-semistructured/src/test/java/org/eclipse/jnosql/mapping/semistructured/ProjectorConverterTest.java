@@ -28,10 +28,14 @@ import org.eclipse.jnosql.mapping.semistructured.entities.City;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @EnableAutoWeld
@@ -95,6 +99,14 @@ class ProjectorConverterTest {
             softly.assertThat(summary.name()).isNull();
             softly.assertThat(summary.city()).isNull();
         });
+    }
+
+    @Test
+    void shouldReturnErrorWhenListIsDifferent() {
+        var projection = entitiesMetadata.projection(CitizenGeographySummary.class).orElseThrow();
+        Citizen citizen = Citizen.of("1", "Ada Lovelace");
+
+        assertThrows(IllegalArgumentException.class, () -> converter.map(citizen, projection, Collections.singletonList("name")));
     }
 
 }
