@@ -645,7 +645,7 @@ class ReflectionRepositorySupplierTest {
 
     @Test
     void shouldIgnoreMethodsFromDefaultInterface() {
-        RepositoryMetadata metadata = supplier.apply(PersonExtendsRepository.class);
+        RepositoryMetadata metadata = supplier.apply(EmptyPersonRepository.class);
         Assertions.assertThat(metadata.methods()).isEmpty();
     }
 
