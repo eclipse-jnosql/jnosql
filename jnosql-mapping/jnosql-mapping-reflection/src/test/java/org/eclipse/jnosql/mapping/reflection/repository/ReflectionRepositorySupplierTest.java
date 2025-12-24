@@ -641,4 +641,17 @@ class ReflectionRepositorySupplierTest {
         RepositoryMetadata metadata = supplier.apply(PersonCustomFindRepository.class);
         Assertions.assertThat(metadata.entity()).isPresent().get().isEqualTo(Person.class);
     }
+
+
+    @Test
+    void shouldIgnoreMethodsFromDefaultInterface() {
+        RepositoryMetadata metadata = supplier.apply(PersonExtendsRepository.class);
+        Assertions.assertThat(metadata.methods()).isEmpty();
+    }
+
+    @Test
+    void shouldSupportComponents() {
+        RepositoryMetadata metadata = supplier.apply(PersonExtendsRepository.class);
+        Assertions.assertThat(metadata.methods()).hasSize(3);
+    }
 }
