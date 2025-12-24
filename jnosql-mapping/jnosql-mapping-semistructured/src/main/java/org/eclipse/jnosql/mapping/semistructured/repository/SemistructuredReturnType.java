@@ -69,11 +69,11 @@ class SemistructuredReturnType {
 
                 .result(() -> {
                     Stream<Object> select = template.select(query);
-                    return select.map(mapper(method));
+                    return select.map(mapper(method, entityMetadata));
                 })
                 .singleResult(() -> {
                     Optional<Object> object = template.singleResult(query);
-                    return object.map(mapper(method));
+                    return object.map(mapper(method, entityMetadata));
                 })
                 .pagination(DynamicReturn.findPageRequest(context.parameters()))
                 .streamPagination(streamPagination(query, method, entityMetadata, template))
@@ -121,7 +121,7 @@ class SemistructuredReturnType {
                 String fieldReturn = attributes.getFirst();
                 Optional<EntityMetadata> valueEntityMetadata = entitiesMetadata.findByClassName(value.getClass().getName());
                 return (E) valueEntityMetadata
-                        .map(entityMetadata -> value(entityMetadata, fieldReturn, value))
+                        .map(e -> value(e, fieldReturn, value))
                         .orElse(value);
             }
             return (E) value;
@@ -137,8 +137,11 @@ class SemistructuredReturnType {
         }
         Optional<String> query = method.query();
         if(query.isPresent()) {
-            SelectProvider.valueOf(query.get());
-            return null;
+            var selectQuery = SelectProvider.INSTANCE.apply(query.get(), entityMetadata.name());
+            List<String> fields = selectQuery.fields();
+            if(!fields.isEmpty()) {
+                return projectorConverter.map(value, projectionMetadata, fields);
+            }
         }
         return projectorConverter.map(value, projectionMetadata);
     }
