@@ -15,6 +15,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.query.BooleanQueryValue;
 import org.eclipse.jnosql.communication.query.NullQueryValue;
+import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.junit.jupiter.api.BeforeEach;
@@ -118,6 +119,23 @@ class SelectJakartaDataQueryCountTest {
             soft.assertThat(selectQuery.fields()).isNotEmpty().contains("id(this)");
             soft.assertThat(selectQuery.entity()).isEqualTo("entity");
             soft.assertThat(selectQuery.where()).isEmpty();
+        });
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"select id(this) FROM entity WHERE id(this) = 10"})
+    void shouldAllowIdFunctionInQuery(String query) {
+        var selectQuery = selectParser.apply(query, null);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(selectQuery.fields()).isNotEmpty().contains("id(this)");
+            soft.assertThat(selectQuery.entity()).isEqualTo("entity");
+            soft.assertThat(selectQuery.where()).isNotEmpty();
+            var where = selectQuery.where().orElseThrow();
+            var condition = where.condition();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(condition.name()).isEqualTo("id(this)");
+            soft.assertThat(condition.value()).isEqualTo(NumberQueryValue.of(10));
         });
     }
 
