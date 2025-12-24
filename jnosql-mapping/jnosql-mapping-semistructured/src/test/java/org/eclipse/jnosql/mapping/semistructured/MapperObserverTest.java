@@ -137,4 +137,16 @@ class MapperObserverTest {
         var field = parser.fireSortProperty(Vendor.class.getSimpleName(), "name");
         Assertions.assertEquals("_id", field);
     }
+
+    @Test
+    void shouldSortIdFunction() {
+        var field = parser.fireSortProperty(Vendor.class.getSimpleName(), "id(this)");
+        Assertions.assertEquals("_id", field);
+    }
+
+    @Test
+    void shouldSelectIdFunction() {
+        var field = parser.fireSelectField(Vendor.class.getSimpleName(), "id(this)");
+        Assertions.assertEquals("_id", field);
+    }
 }

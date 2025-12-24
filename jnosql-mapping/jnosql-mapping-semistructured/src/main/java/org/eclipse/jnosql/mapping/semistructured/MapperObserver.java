@@ -14,10 +14,13 @@
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
+import jakarta.data.repository.By;
+import jakarta.data.repository.Find;
 import org.eclipse.jnosql.communication.semistructured.CommunicationObserverParser;
 import org.eclipse.jnosql.mapping.metadata.ClassInformationNotFoundException;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldParameterMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +71,9 @@ final class MapperObserver implements CommunicationObserverParser {
 
     private String mapField(String entity, String field) {
         Optional<EntityMetadata> mapping = getEntityMetadata(entity);
+        if(By.ID.equalsIgnoreCase(field)) {
+            return mapping.flatMap(EntityMetadata::id).map(FieldParameterMetadata::name).orElse(field);
+        }
         return mapping.map(c -> c.columnField(field)).orElse(field);
     }
 
