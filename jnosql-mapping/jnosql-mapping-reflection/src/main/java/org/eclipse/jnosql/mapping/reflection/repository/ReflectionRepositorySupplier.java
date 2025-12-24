@@ -183,7 +183,7 @@ enum ReflectionRepositorySupplier {
     private static Class<?> getElementTypeValue(Method method) {
         if (method.getGenericReturnType() instanceof ParameterizedType parameterizedType) {
             Type[] arguments = parameterizedType.getActualTypeArguments();
-            if (arguments.length > 0) {
+            if (arguments.length > 0 && arguments[0] instanceof Class<?>) {
                 return (Class<?>) arguments[0];
             }
         }
