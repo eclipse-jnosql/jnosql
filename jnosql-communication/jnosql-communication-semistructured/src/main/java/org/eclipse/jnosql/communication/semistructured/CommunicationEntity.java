@@ -327,15 +327,13 @@ public class CommunicationEntity {
         return communicationEntity;
     }
 
-    @SuppressWarnings("unchecked")
     private Object convert(Object value) {
-        if (value instanceof Element) {
-            Element element = Element.class.cast(value);
+        if (value instanceof Element element) {
             return Collections.singletonMap(element.name(), convert(element.get()));
-        } else if (value instanceof Iterable) {
-            List<Object> list = new ArrayList<>();
-            Iterable.class.cast(value).forEach(e -> list.add(convert(e)));
-            return list;
+        } else if (value instanceof Iterable<?> iterable) {
+            List<Object> elements = new ArrayList<>();
+            iterable.forEach(e -> elements.add(convert(e)));
+            return elements;
         }
         return value;
     }
