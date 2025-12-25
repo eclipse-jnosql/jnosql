@@ -132,9 +132,11 @@ class SemistructuredReturnType {
                                    List<String> attributes,
                                    RepositoryMethod method,
                                    EntityMetadata entityMetadata) {
+
         if(!attributes.isEmpty()) {
            return projectorConverter.map(value, projectionMetadata, attributes);
         }
+
         Optional<String> query = method.query();
         if(query.isPresent()) {
             var selectQuery = SelectProvider.INSTANCE.apply(query.get(), entityMetadata.name());
