@@ -18,6 +18,7 @@ import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.jnosql.communication.query.data.SelectProvider;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
@@ -30,6 +31,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationCo
 import org.eclipse.jnosql.mapping.semistructured.ProjectorConverter;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -67,61 +69,83 @@ class SemistructuredReturnType {
 
                 .result(() -> {
                     Stream<Object> select = template.select(query);
-                    return select.map(mapper(method));
+                    return select.map(mapper(method, entityMetadata));
                 })
                 .singleResult(() -> {
                     Optional<Object> object = template.singleResult(query);
-                    return object.map(mapper(method));
+                    return object.map(mapper(method, entityMetadata));
                 })
                 .pagination(DynamicReturn.findPageRequest(context.parameters()))
-                .streamPagination(streamPagination(query, method, template))
-                .singleResultPagination(getSingleResult(query, method, template))
-                .page(getPage(query, method, template))
+                .streamPagination(streamPagination(query, method, entityMetadata, template))
+                .singleResultPagination(getSingleResult(query, method, entityMetadata, template))
+                .page(getPage(query, method, entityMetadata, template))
                 .build();
         return dynamicReturn.execute();
     }
 
     protected <T> Function<PageRequest, Stream<T>> streamPagination(SelectQuery query,
                                                                     RepositoryMethod method,
+                                                                    EntityMetadata entityMetadata,
                                                                     SemiStructuredTemplate template) {
-        return p -> template.select(query).map(mapper(method));
+        return p -> template.select(query).map(mapper(method, entityMetadata));
     }
 
     protected <T> Function<PageRequest, Optional<T>> getSingleResult(SelectQuery query,
                                                                      RepositoryMethod method,
+                                                                     EntityMetadata entityMetadata,
                                                                  SemiStructuredTemplate template) {
-        return p -> template.singleResult(query).map(mapper(method));
+        return p -> template.singleResult(query).map(mapper(method, entityMetadata));
     }
 
     protected <T>  Function<PageRequest, Page<T>> getPage(SelectQuery query,
                                                           RepositoryMethod method,
+                                                          EntityMetadata entityMetadata,
                                                           SemiStructuredTemplate template) {
         return p -> {
-            Stream<T> entities = template.select(query).map(mapper(method));
+            Stream<T> entities = template.select(query).map(mapper(method, entityMetadata));
             return NoSQLPage.of(entities.toList(), p);
         };
     }
 
 
     @SuppressWarnings("unchecked")
-    protected <E> Function<Object, E> mapper(RepositoryMethod method) {
+    protected <E> Function<Object, E> mapper(RepositoryMethod method, EntityMetadata entityMetadata) {
         return value -> {
             var returnType = method.elementType().orElse(method.returnType().orElseThrow());
+            var attributes = method.select();
             var projection = this.entitiesMetadata.projection(returnType);
             if (projection.isPresent()) {
-                ProjectionMetadata projectionMetadata = projection.orElseThrow();
-                return projectorConverter.map(value, projectionMetadata);
+                return projectionMapper(value, projection.orElseThrow(), attributes, method, entityMetadata);
             }
-            var attributes = method.select();
             if (attributes.size() == 1) {
                 String fieldReturn = attributes.getFirst();
                 Optional<EntityMetadata> valueEntityMetadata = entitiesMetadata.findByClassName(value.getClass().getName());
                 return (E) valueEntityMetadata
-                        .map(entityMetadata -> value(entityMetadata, fieldReturn, value))
+                        .map(e -> value(e, fieldReturn, value))
                         .orElse(value);
             }
             return (E) value;
         };
+    }
+
+    private <E> E projectionMapper(Object value, ProjectionMetadata projectionMetadata,
+                                   List<String> attributes,
+                                   RepositoryMethod method,
+                                   EntityMetadata entityMetadata) {
+
+        if(!attributes.isEmpty()) {
+           return projectorConverter.map(value, projectionMetadata, attributes);
+        }
+
+        Optional<String> query = method.query();
+        if(query.isPresent()) {
+            var selectQuery = SelectProvider.INSTANCE.apply(query.get(), entityMetadata.name());
+            List<String> fields = selectQuery.fields();
+            if(!fields.isEmpty()) {
+                return projectorConverter.map(value, projectionMetadata, fields);
+            }
+        }
+        return projectorConverter.map(value, projectionMetadata);
     }
 
     private Object value(EntityMetadata entityMetadata, String returnName, Object value) {

@@ -24,6 +24,7 @@ import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionBuilder;
 import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -66,14 +67,11 @@ public class ProjectorConverter {
         Objects.requireNonNull(entity, "entity is required");
         Objects.requireNonNull(metadata, "metadata is required");
         LOGGER.fine(() -> "Converting entity " + entity + " to " + metadata);
-        var entityMetadata = entitiesMetadata.get(entity.getClass());
-        if (entityMetadata == null) {
-            throw new IllegalArgumentException("Entity metadata not found for " + entity.getClass());
-        }
+
+        var entityMetadata = entityMetadata(entity);
 
         var constructor = metadata.constructor();
         var builder = ProjectionBuilder.of(constructor);
-
         for (var parameter : constructor.parameters()) {
             String name = parameter.name();
             Optional<Object> value = value(entityMetadata, name, entity);
@@ -86,6 +84,65 @@ public class ProjectorConverter {
                 var converted = Value.of(parameterValue).get(parameterType);
                 builder.add(converted);
             }
+        }
+        return builder.build();
+    }
+
+    /**
+     * Converts the given entity to a projection based on the provided metadata.
+     *
+     * @param entity   the entity to be converted, must not be null
+     * @param metadata the metadata defining the projection, must not be null
+     * @param fields   the list of fields to be mapped, must not be null
+     * @param <T>      the type of the entity
+     * @param <P>      the type of the projection
+     * @return a projection of type P based on the entity and metadata
+     * @throws NullPointerException if either entity or metadata is null
+     */
+    public <T, P> P map(T entity, ProjectionMetadata metadata, List<String> fields) {
+        Objects.requireNonNull(entity, "entity is required");
+        Objects.requireNonNull(metadata, "metadata is required");
+        Objects.requireNonNull(fields, "fields is required");
+        LOGGER.fine(() -> "Converting entity " + entity + " to " + metadata + " with fields " + fields);
+        if(entity instanceof Object[] array) {
+            return map(array, metadata);
+        }
+        var entityMetadata = entityMetadata(entity);
+
+        var constructor = metadata.constructor();
+        var builder = ProjectionBuilder.of(constructor);
+        if (constructor.parameters().size() != fields.size()) {
+            throw new IllegalArgumentException("The number of parameters for " + entity.getClass() + " is invalid by the fields size:" +
+                    " " + fields);
+        }
+
+        for (int index = 0; index < fields.size(); index++) {
+            var name = fields.get(index);
+            var parameter = constructor.parameters().get(index);
+            Optional<Object> value = value(entityMetadata, name, entity);
+            if (value.isEmpty()) {
+                LOGGER.warning(() -> "Field metadata not found for parameter: " + name);
+                builder.addEmptyParameter();
+            } else {
+                var parameterValue = value.orElseThrow();
+                Class<?> parameterType = parameter.type();
+                var converted = Value.of(parameterValue).get(parameterType);
+                builder.add(converted);
+            }
+        }
+
+        return builder.build();
+    }
+
+    private <P> P map(Object[] elements, ProjectionMetadata metadata) {
+        var constructor = metadata.constructor();
+        var builder = ProjectionBuilder.of(constructor);
+        for (int index = 0; index < elements.length; index++) {
+            var parameter = constructor.parameters().get(index);
+            Object element = elements[index];
+            Class<?> parameterType = parameter.type();
+            var converted = Value.of(element).get(parameterType);
+            builder.add(converted);
         }
         return builder.build();
     }
@@ -115,6 +172,11 @@ public class ProjectorConverter {
             return value(embeddedField, embeddedName, read);
 
         }
+    }
+
+    private <T> EntityMetadata entityMetadata(T entity) {
+        return entitiesMetadata.findByClassName(entity.getClass().getName())
+                .orElseThrow(() -> new IllegalArgumentException("Entity metadata not found for " + entity.getClass()));
     }
 
 }

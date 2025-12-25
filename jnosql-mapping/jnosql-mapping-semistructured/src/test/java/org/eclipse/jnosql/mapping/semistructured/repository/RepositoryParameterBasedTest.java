@@ -30,6 +30,8 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.entities.Person;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBook;
+import org.eclipse.jnosql.mapping.semistructured.repository.entities.PhotoSocialMedia;
+import org.eclipse.jnosql.mapping.semistructured.repository.entities.SocialMediaSummary;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -202,5 +204,25 @@ public class RepositoryParameterBasedTest extends AbstractRepositoryTest {
         });
     }
 
+    @Test
+    @DisplayName("Should mapper by Select annotation")
+    void shouldMapperBySelectAnnotation() {
+        var photoSocialMedia = PhotoSocialMedia.of("1", "The Lord of the Rings", "http://image.com/1");
 
+        Mockito.when(template.select(Mockito.any(SelectQuery.class)))
+                .thenReturn(Stream.of(photoSocialMedia));
+
+        var result = photoSocialMediaRepository.find("The Lord of the Rings");
+        Mockito.verify(template).select(selectQueryCaptor.capture());
+
+        Assertions.assertThat(result).isNotNull().containsExactly(new SocialMediaSummary("1", "The Lord of the Rings"));
+
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(selectQuery.name()).isEqualTo("SocialMedia");
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            soft.assertThat(selectQuery.sorts()).isEmpty();
+        });
+    }
 }

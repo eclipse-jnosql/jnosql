@@ -11,6 +11,7 @@
 package org.eclipse.jnosql.communication.semistructured;
 
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.query.ArrayQueryValue;
@@ -110,7 +111,7 @@ class ValuesTest {
 
         assertThat(result)
                 .isInstanceOf(List.class)
-                .asList()
+                .asInstanceOf(InstanceOfAssertFactories.LIST)
                 .contains(7, Value.of("added-p1"), null);
 
         verify(params).add("p1");

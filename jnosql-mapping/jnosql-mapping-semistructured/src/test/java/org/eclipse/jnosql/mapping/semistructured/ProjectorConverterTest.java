@@ -28,10 +28,15 @@ import org.eclipse.jnosql.mapping.semistructured.entities.City;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @EnableAutoWeld
@@ -94,6 +99,52 @@ class ProjectorConverterTest {
             softly.assertThat(summary).isNotNull();
             softly.assertThat(summary.name()).isNull();
             softly.assertThat(summary.city()).isNull();
+        });
+    }
+
+    @Test
+    void shouldReturnErrorWhenListIsDifferent() {
+        var projection = entitiesMetadata.projection(CitizenGeographySummary.class).orElseThrow();
+        Citizen citizen = Citizen.of("1", "Ada Lovelace");
+        assertThrows(IllegalArgumentException.class, () -> converter.map(citizen, projection, Collections.singletonList("name")));
+    }
+
+    @Test
+    void shouldReturnErrorWhenEntityIsInvalid() {
+        var projection = entitiesMetadata.projection(BookView.class).orElseThrow();
+        assertThrows(IllegalArgumentException.class, () -> converter.map("citizen", projection, Collections.singletonList("name")));
+    }
+
+    @Test
+    void shouldReturnErrorWhenEntityIsInvalid2() {
+        var projection = entitiesMetadata.projection(BookView.class).orElseThrow();
+        assertThrows(IllegalArgumentException.class, () -> converter.map("citizen", projection));
+    }
+
+    @Test
+    void shouldConvertEntityToProjectionUsingList() {
+        var projection = entitiesMetadata.projection(BookView.class).orElseThrow();
+        Book book = Book.builder().withId(1L).withName("Effective Java").withAge(20).build();
+
+        BookView bookView = converter.map(book, projection, List.of("name", "age"));
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(bookView).isNotNull();
+            softly.assertThat(bookView.name()).isEqualTo("Effective Java");
+            softly.assertThat(bookView.edition()).isEqualTo(20);
+        });
+    }
+
+    @Test
+    void shouldConvertFromArray() {
+        var projection = entitiesMetadata.projection(BookView.class).orElseThrow();
+        Object[] elements = new Object[]{"Effective Java", 20};
+
+        BookView bookView = converter.map(elements, projection, List.of("name", "age"));
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(bookView).isNotNull();
+            softly.assertThat(bookView.name()).isEqualTo("Effective Java");
+            softly.assertThat(bookView.edition()).isEqualTo(20);
         });
     }
 

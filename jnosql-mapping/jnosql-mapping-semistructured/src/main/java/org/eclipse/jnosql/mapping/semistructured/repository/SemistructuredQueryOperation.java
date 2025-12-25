@@ -81,7 +81,7 @@ class SemistructuredQueryOperation implements QueryOperation {
                 .paramsSupplier(() -> RepositoryMetadataUtils.INSTANCE.getParams(method, params))
                 .typeClass(type)
                 .pageRequest(pageRequest)
-                .mapper(semistructuredReturnType.mapper(method))
+                .mapper(semistructuredReturnType.mapper(method, entityMetadata))
                 .prepareConverter(textQuery -> {
                     var prepare = (org.eclipse.jnosql.mapping.semistructured.PreparedStatement) template.prepare(textQuery, entity);
                         prepare.setSelectMapper(query -> queryBuilder.updateDynamicQuery(query, context));

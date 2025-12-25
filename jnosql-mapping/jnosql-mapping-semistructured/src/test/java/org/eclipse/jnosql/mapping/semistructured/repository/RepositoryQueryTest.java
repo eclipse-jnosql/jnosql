@@ -24,6 +24,7 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBook;
+import org.eclipse.jnosql.mapping.semistructured.repository.entities.SocialMediaSummary;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -98,6 +99,18 @@ public class RepositoryQueryTest extends AbstractRepositoryTest {
         Mockito.verify(preparedStatement).bind(Mockito.anyString(), Mockito.any(Integer.class));
     }
 
+    @Test
+    @DisplayName("should execute query mapper")
+    void shouldExecuteQueryMapper() {
+        org.eclipse.jnosql.mapping.semistructured.PreparedStatement preparedStatement =
+                Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
+        Mockito.when(preparedStatement.result()).thenReturn(Stream.of(new Object[]{new Object[]{"id", "name"}}));
 
+        Mockito.when(template.prepare(Mockito.anyString(), Mockito.anyString())).thenReturn(preparedStatement);
+
+        var result = photoSocialMediaRepository.query("name");
+        Mockito.verify(template).prepare("SELECT id, name from PhotoSocialMedia where name = :name", "SocialMedia");
+        Assertions.assertThat(result).isNotNull().containsExactly(new SocialMediaSummary("id", "name"));
+    }
 
 }
