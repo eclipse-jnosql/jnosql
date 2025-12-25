@@ -88,6 +88,17 @@ public class ProjectorConverter {
         return builder.build();
     }
 
+    /**
+     * Converts the given entity to a projection based on the provided metadata.
+     *
+     * @param entity   the entity to be converted, must not be null
+     * @param metadata the metadata defining the projection, must not be null
+     * @param fields   the list of fields to be mapped, must not be null
+     * @param <T>      the type of the entity
+     * @param <P>      the type of the projection
+     * @return a projection of type P based on the entity and metadata
+     * @throws NullPointerException if either entity or metadata is null
+     */
     public <T, P> P map(T entity, ProjectionMetadata metadata, List<String> fields) {
         Objects.requireNonNull(entity, "entity is required");
         Objects.requireNonNull(metadata, "metadata is required");
