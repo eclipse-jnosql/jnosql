@@ -250,7 +250,7 @@ public interface DeleteQuery {
 
     /**
      * The last step to the build of {@link DeleteQuery}.
-     * It either can return a new {@link DeleteQuery} instance or execute a query with
+     * It can return a new {@link DeleteQuery} instance or execute a query with
      * {@link DatabaseManager}.
      */
     interface DeleteQueryBuild {
