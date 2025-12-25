@@ -41,7 +41,7 @@ enum CursorExecutor {
                         null, null);
             } else {
                 PageRequest.Cursor cursor = getCursor(query.sorts(), last);
-                PageRequest afterCursor = PageRequest.<CommunicationEntity>ofSize(pageRequest.size()).afterCursor(cursor);
+                PageRequest afterCursor = PageRequest.ofSize(pageRequest.size()).afterCursor(cursor);
 
                 return new CursoredPageRecord<>(entities, List.of(cursor), -1, pageRequest, afterCursor, null);
             }
@@ -106,7 +106,7 @@ enum CursorExecutor {
                         null, null);
             } else {
                 var beforeCursor = getCursor(query.sorts(), last);
-                var beforeRequest = PageRequest.<CommunicationEntity>ofSize(pageRequest.size()).beforeCursor(beforeCursor);
+                var beforeRequest = PageRequest.ofSize(pageRequest.size()).beforeCursor(beforeCursor);
 
                 return new CursoredPageRecord<>(entities, List.of(beforeCursor, cursor), -1, pageRequest, null, beforeRequest);
             }
