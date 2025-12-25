@@ -104,6 +104,9 @@ public class ProjectorConverter {
         Objects.requireNonNull(metadata, "metadata is required");
         Objects.requireNonNull(fields, "fields is required");
         LOGGER.fine(() -> "Converting entity " + entity + " to " + metadata + " with fields " + fields);
+        if(entity instanceof Object[] array) {
+            return map(array, metadata);
+        }
         var entityMetadata = entityMetadata(entity);
 
         var constructor = metadata.constructor();
@@ -131,7 +134,18 @@ public class ProjectorConverter {
         return builder.build();
     }
 
-
+    private <P> P map(Object[] elements, ProjectionMetadata metadata) {
+        var constructor = metadata.constructor();
+        var builder = ProjectionBuilder.of(constructor);
+        for (int index = 0; index < elements.length; index++) {
+            var parameter = constructor.parameters().get(index);
+            Object element = elements[index];
+            Class<?> parameterType = parameter.type();
+            var converted = Value.of(element).get(parameterType);
+            builder.add(converted);
+        }
+        return builder.build();
+    }
 
     private <T> Optional<Object> value(EntityMetadata entityMetadata, String name, T entity) {
         String[] names = name.split("\\.");

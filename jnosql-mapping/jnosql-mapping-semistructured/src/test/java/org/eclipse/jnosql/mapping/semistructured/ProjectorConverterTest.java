@@ -135,4 +135,17 @@ class ProjectorConverterTest {
         });
     }
 
+    @Test
+    void shouldConvertFromArray() {
+        var projection = entitiesMetadata.projection(BookView.class).orElseThrow();
+        Object[] elements = new Object[]{"Effective Java", 20};
+
+        BookView bookView = converter.map(elements, projection, List.of("name", "age"));
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(bookView).isNotNull();
+            softly.assertThat(bookView.name()).isEqualTo("Effective Java");
+            softly.assertThat(bookView.edition()).isEqualTo(20);
+        });
+    }
+
 }
