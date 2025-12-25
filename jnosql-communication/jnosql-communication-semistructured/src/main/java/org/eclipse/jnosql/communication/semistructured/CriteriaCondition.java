@@ -521,9 +521,9 @@ public final class CriteriaCondition {
     }
 
     private static void checkBetweenClause(Object value) {
-        if (Iterable.class.isInstance(value)) {
+        if (value instanceof Iterable<?> iterable) {
 
-            long count = StreamSupport.stream(Iterable.class.cast(value).spliterator(), false).count();
+            long count = StreamSupport.stream(iterable.spliterator(), false).count();
             if (count != 2) {
                 throw new IllegalArgumentException("On CriteriaCondition#between, you must use an iterable" +
                         " with two elements");
