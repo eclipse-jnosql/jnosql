@@ -49,10 +49,8 @@ class ColumnManagerSupplier implements Supplier<DatabaseManager> {
 
         DatabaseConfiguration configuration = settings.get(COLUMN_PROVIDER, Class.class)
                 .filter(DatabaseConfiguration.class::isAssignableFrom)
-                .map(c -> {
-                    final Reflections reflections = CDI.current().select(Reflections.class).get();
-                    return (DatabaseConfiguration) reflections.newInstance(c);
-                }).orElseGet(DatabaseConfiguration::getConfiguration);
+                .map(c -> (DatabaseConfiguration) Reflections.newInstance(c))
+                .orElseGet(DatabaseConfiguration::getConfiguration);
 
         var managerFactory = configuration.apply(settings);
 

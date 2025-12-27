@@ -48,10 +48,8 @@ class BucketManagerSupplier implements Supplier<BucketManager> {
 
         KeyValueConfiguration configuration = settings.get(KEY_VALUE_PROVIDER, Class.class)
                 .filter(KeyValueConfiguration.class::isAssignableFrom)
-                .map(c -> {
-                    final Reflections reflections = CDI.current().select(Reflections.class).get();
-                    return (KeyValueConfiguration) reflections.newInstance(c);
-                }).orElseGet(KeyValueConfiguration::getConfiguration);
+                .map(c -> (KeyValueConfiguration) Reflections.newInstance(c))
+                .orElseGet(KeyValueConfiguration::getConfiguration);
 
         BucketManagerFactory managerFactory = configuration.apply(settings);
 
