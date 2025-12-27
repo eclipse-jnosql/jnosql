@@ -147,23 +147,20 @@ public final class SpecialParameters {
         Limit limit = null;
         Restriction<?> restriction = null;
         for (Object parameter : parameters) {
-            if (parameter instanceof Sort<?> sort) {
-                sorts.add(mapper(sort, sortParser));
-            } else if (parameter instanceof Limit limitInstance) {
-                limit = limitInstance;
-            } else if (parameter instanceof Order<?> order) {
-                order.sorts().stream().map(s -> mapper(s, sortParser)).forEach(sorts::add);
-            } else if(parameter instanceof Sort<?>[] sortArray){
-                Arrays.stream(sortArray).map(s -> mapper(s, sortParser)).forEach(sorts::add);
-            } else if (parameter instanceof PageRequest request) {
-               pageRequest = request;
-            } else if (parameter instanceof Restriction<?> restrictionParameter) {
-                restriction = restrictionParameter;
-            }else {
-                if (parameter instanceof Iterable<?> iterable) {
-                    for (Object value : iterable) {
-                        if (value instanceof Sort<?> sortValue) {
-                            sorts.add(mapper(sortValue, sortParser));
+            switch (parameter) {
+                case Sort<?> sort -> sorts.add(mapper(sort, sortParser));
+                case Limit limitInstance -> limit = limitInstance;
+                case Order<?> order -> order.sorts().stream().map(s -> mapper(s, sortParser)).forEach(sorts::add);
+                case Sort<?>[] sortArray ->
+                        Arrays.stream(sortArray).map(s -> mapper(s, sortParser)).forEach(sorts::add);
+                case PageRequest request -> pageRequest = request;
+                case Restriction<?> restrictionParameter -> restriction = restrictionParameter;
+                case null, default -> {
+                    if (parameter instanceof Iterable<?> iterable) {
+                        for (Object value : iterable) {
+                            if (value instanceof Sort<?> sortValue) {
+                                sorts.add(mapper(sortValue, sortParser));
+                            }
                         }
                     }
                 }
