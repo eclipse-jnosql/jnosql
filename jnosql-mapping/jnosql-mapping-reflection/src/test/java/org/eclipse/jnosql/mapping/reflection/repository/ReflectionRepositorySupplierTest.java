@@ -26,7 +26,6 @@ import org.eclipse.jnosql.mapping.metadata.repository.ReflectionMethodKey;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryAnnotation;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
-import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;

@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.Set;
 

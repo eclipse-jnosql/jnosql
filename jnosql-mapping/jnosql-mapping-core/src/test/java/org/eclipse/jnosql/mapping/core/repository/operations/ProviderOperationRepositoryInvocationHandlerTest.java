@@ -22,8 +22,6 @@ import org.eclipse.jnosql.mapping.DynamicQueryException;
 import org.eclipse.jnosql.mapping.core.VetedConverter;
 import org.eclipse.jnosql.mapping.core.entities.ComicBook;
 import org.eclipse.jnosql.mapping.core.entities.ComicBookRepository;
-import org.eclipse.jnosql.mapping.core.entities.InvalidEntity;
-import org.eclipse.jnosql.mapping.core.entities.InvalidEntityRepository;
 import org.eclipse.jnosql.mapping.core.repository.CoreRepositoryInvocationHandler;
 import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
@@ -39,8 +37,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Proxy;
-import java.util.List;
-import java.util.Optional;
 
 @EnableAutoWeld
 @AddPackages(value = Convert.class)
