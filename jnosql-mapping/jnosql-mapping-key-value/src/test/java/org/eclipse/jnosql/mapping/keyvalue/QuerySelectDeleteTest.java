@@ -103,9 +103,9 @@ public class QuerySelectDeleteTest {
     @ValueSource(strings = { "DELETE FROM User WHERE nickname = 'Otavio'"})
     void shouldReturnErrorWhenSelectCallResult(String text) {
         Query query = template.query(text);
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> query.singleResult());
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> query.result());
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> query.stream());
+        Assertions.assertThrows(UnsupportedOperationException.class, query::singleResult);
+        Assertions.assertThrows(UnsupportedOperationException.class, query::result);
+        Assertions.assertThrows(UnsupportedOperationException.class, query::stream);
     }
 
     @ParameterizedTest
@@ -143,14 +143,14 @@ public class QuerySelectDeleteTest {
     void shouldErrorWhenParameterIsMissingOnEquals(String text){
         Query query = template.query(text);
 
-        Assertions.assertThrows(QueryException.class, () -> query.executeUpdate());
+        Assertions.assertThrows(QueryException.class, query::executeUpdate);
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "DELETE FROM User WHERE nickname in (:param)"})
     void shouldErrorWhenParameterIsMissingOnIn(String text){
         Query query = template.query(text);
-        Assertions.assertThrows(QueryException.class, () -> query.executeUpdate());
+        Assertions.assertThrows(QueryException.class, query::executeUpdate);
     }
 
     @ParameterizedTest

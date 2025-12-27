@@ -14,7 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.reflection;
 
-import jakarta.inject.Inject;
 import jakarta.nosql.Convert;
 import org.eclipse.jnosql.mapping.metadata.ConstructorMetadata;
 import org.eclipse.jnosql.mapping.metadata.ParameterMetaData;
@@ -43,14 +42,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @AddExtensions(ReflectionEntityMetadataExtension.class)
 class ConstructorMetadataBuilderTest {
 
-    @Inject
-    private Reflections reflections;
-
     private ConstructorMetadataBuilder builder;
 
     @BeforeEach
     void setUp() {
-        this.builder = new ConstructorMetadataBuilder(reflections);
+        this.builder = new ConstructorMetadataBuilder();
     }
 
     @Test

@@ -17,8 +17,6 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import jakarta.data.repository.Delete;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 
-import java.util.List;
-
 public interface PersonDeleteCustomRepository {
 
    @Delete

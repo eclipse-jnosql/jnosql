@@ -18,7 +18,6 @@ import jakarta.inject.Inject;
 import jakarta.nosql.Convert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
-import org.awaitility.Awaitility;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.ProjectionMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
@@ -34,7 +33,6 @@ import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.Optional;
 
 @EnableAutoWeld

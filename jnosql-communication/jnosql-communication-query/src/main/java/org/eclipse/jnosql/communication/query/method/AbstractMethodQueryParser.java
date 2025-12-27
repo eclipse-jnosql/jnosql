@@ -161,9 +161,8 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
         boolean hasNot = Objects.nonNull(ctx.not());
         boolean ignoreCase = Objects.nonNull(ctx.ignoreCase());
         String variable = getVariable(ctx.variable());
-        Condition operator = BETWEEN;
         ArrayQueryValue value = MethodArrayValue.of(variable);
-        checkCondition(new MethodCondition(variable, operator, value), hasNot, ignoreCase);
+        checkCondition(new MethodCondition(variable, BETWEEN, value), hasNot, ignoreCase);
     }
 
     @Override

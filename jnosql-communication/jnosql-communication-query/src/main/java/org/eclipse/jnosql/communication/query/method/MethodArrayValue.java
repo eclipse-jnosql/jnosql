@@ -34,10 +34,10 @@ record MethodArrayValue(QueryValue<?>[] values) implements ArrayQueryValue {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof MethodArrayValue that)) {
+        if (!(o instanceof MethodArrayValue(QueryValue<?>[] values1))) {
             return false;
         }
-        return Arrays.equals(this.values, that.values);
+        return Arrays.equals(this.values, values1);
     }
 
     @Override

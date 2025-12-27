@@ -80,19 +80,19 @@ class ReflectionsTest {
     void shouldReturnsConstructor() {
         assertSoftly(softly -> {
 
-            Constructor<Person> personConstructor = reflections.getConstructor(Person.class);
+            Constructor<Person> personConstructor = Reflections.getConstructor(Person.class);
             softly.assertThat(personConstructor)
                     .as("getting an non-args constructor from annotated class " +
                             "with @Entity")
                     .isNotNull();
 
-            Constructor<Smartphone> smartphoneConstructor = reflections.getConstructor(Smartphone.class);
+            Constructor<Smartphone> smartphoneConstructor = Reflections.getConstructor(Smartphone.class);
             softly.assertThat(smartphoneConstructor)
                     .as("getting constructor from annotated entity record class " +
                             "with @Entity with all field annotated or @Id or @Column")
                     .isNotNull();
 
-            Constructor<Tablet> tableConstructor = reflections.getConstructor(Tablet.class);
+            Constructor<Tablet> tableConstructor = Reflections.getConstructor(Tablet.class);
             softly.assertThat(tableConstructor)
                     .as("getting constructor from annotated entity record class " +
                             "with @Entity with field not annotated with @Column")

@@ -14,16 +14,10 @@
  */
 package org.eclipse.jnosql.mapping.keyvalue.query;
 
-import jakarta.data.repository.CrudRepository;
-import jakarta.data.repository.Delete;
-import jakarta.data.repository.Insert;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
-import jakarta.data.repository.Save;
-import jakarta.data.repository.Update;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
-import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.keyvalue.KeyValueEntityConverter;
 import org.eclipse.jnosql.mapping.keyvalue.KeyValueTemplate;
@@ -31,7 +25,6 @@ import org.eclipse.jnosql.mapping.keyvalue.MockProducer;
 import org.eclipse.jnosql.mapping.keyvalue.entities.PersonStatisticRepository;
 import org.eclipse.jnosql.mapping.keyvalue.entities.User;
 import org.eclipse.jnosql.mapping.keyvalue.spi.KeyValueExtension;
-import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.jboss.weld.junit5.auto.AddExtensions;
@@ -43,7 +36,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

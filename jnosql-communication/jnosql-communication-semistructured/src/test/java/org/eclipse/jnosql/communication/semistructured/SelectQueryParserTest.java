@@ -456,7 +456,7 @@ class SelectQueryParserTest {
     @ValueSource(strings = {"select count(this) FROM entity WHERE age = ?1 AND name = ?2"})
     void shouldGetIssueWhenCount(String query) {
         CommunicationPreparedStatement prepare = parser.prepare(query, null, manager, observer);
-        Assertions.assertThatThrownBy(() -> prepare.count());
+        Assertions.assertThatThrownBy(prepare::count);
 
     }
 

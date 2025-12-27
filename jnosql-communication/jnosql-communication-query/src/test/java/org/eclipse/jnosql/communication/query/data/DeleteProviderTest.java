@@ -23,8 +23,6 @@ class DeleteProviderTest {
         String query = "DELETE FROM users WHERE id = 1";
         var deleteQuery = provider.apply(query);
 
-        SoftAssertions.assertSoftly(soft-> {
-            soft.assertThat(deleteQuery.entity()).isEqualTo("users");
-        });
+        SoftAssertions.assertSoftly(soft-> soft.assertThat(deleteQuery.entity()).isEqualTo("users"));
     }
 }

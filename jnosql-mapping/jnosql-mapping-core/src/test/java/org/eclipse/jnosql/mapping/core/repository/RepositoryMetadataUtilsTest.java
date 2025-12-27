@@ -57,7 +57,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
-import org.mockito.internal.matchers.Equals;
 
 import java.util.Collections;
 import java.util.List;

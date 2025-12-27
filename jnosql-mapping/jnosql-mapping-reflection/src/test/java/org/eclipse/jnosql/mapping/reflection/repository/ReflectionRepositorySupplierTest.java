@@ -26,7 +26,6 @@ import org.eclipse.jnosql.mapping.metadata.repository.ReflectionMethodKey;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryAnnotation;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
-import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
@@ -120,7 +119,7 @@ class ReflectionRepositorySupplierTest {
             var method = findByName.orElseThrow();
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isNotEmpty().hasSize(1);
-            RepositoryParam repositoryParam = params.get(0);
+            RepositoryParam repositoryParam = params.getFirst();
             soft.assertThat(repositoryParam.name()).isNotNull();
             soft.assertThat(repositoryParam.is()).isEmpty();
             soft.assertThat(repositoryParam.by()).isNotNull();

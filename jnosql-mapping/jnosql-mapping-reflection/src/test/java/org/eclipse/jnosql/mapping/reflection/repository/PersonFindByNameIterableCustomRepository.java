@@ -17,8 +17,6 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 import jakarta.data.page.CursoredPage;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 
-import java.util.List;
-
 public interface PersonFindByNameIterableCustomRepository {
 
     CursoredPage<Person> findByName(String name);

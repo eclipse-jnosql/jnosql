@@ -17,8 +17,6 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 import jakarta.enterprise.context.spi.CreationalContext;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.DatabaseType;
-import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.repository.SemistructuredRepositoryProducer;
 import org.junit.jupiter.api.BeforeEach;

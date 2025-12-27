@@ -17,7 +17,6 @@ package org.eclipse.jnosql.mapping.keyvalue.configuration;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Disposes;
 import jakarta.enterprise.inject.Produces;
-import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.communication.Settings;
 import org.eclipse.jnosql.communication.keyvalue.BucketManagerFactory;
 import org.eclipse.jnosql.communication.keyvalue.KeyValueConfiguration;
@@ -44,10 +43,8 @@ class BucketManagerFactorySupplier implements Supplier<BucketManagerFactory> {
 
         KeyValueConfiguration configuration = settings.get(KEY_VALUE_PROVIDER, Class.class)
                 .filter(KeyValueConfiguration.class::isAssignableFrom)
-                .map(c -> {
-                    final Reflections reflections = CDI.current().select(Reflections.class).get();
-                    return (KeyValueConfiguration) reflections.newInstance(c);
-                }).orElseGet(KeyValueConfiguration::getConfiguration);
+                .map(c -> (KeyValueConfiguration) Reflections.newInstance(c))
+                .orElseGet(KeyValueConfiguration::getConfiguration);
 
         return configuration.apply(settings);
     }

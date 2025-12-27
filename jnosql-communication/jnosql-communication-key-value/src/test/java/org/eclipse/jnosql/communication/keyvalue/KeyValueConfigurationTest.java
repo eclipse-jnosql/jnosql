@@ -21,7 +21,7 @@ class KeyValueConfigurationTest {
 
     @Test
     void shouldErrorWhenConfiguration() {
-        Assertions.assertThrows(CommunicationException.class, () -> KeyValueConfiguration.getConfiguration());
+        Assertions.assertThrows(CommunicationException.class, KeyValueConfiguration::getConfiguration);
     }
 
     @Test

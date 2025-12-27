@@ -18,7 +18,6 @@ import jakarta.data.exceptions.MappingException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Disposes;
 import jakarta.enterprise.inject.Produces;
-import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.communication.Settings;
 import org.eclipse.jnosql.communication.semistructured.DatabaseConfiguration;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
@@ -49,10 +48,7 @@ class DocumentManagerSupplier implements Supplier<DatabaseManager> {
 
         DatabaseConfiguration configuration = settings.get(DOCUMENT_PROVIDER, Class.class)
                 .filter(DatabaseConfiguration.class::isAssignableFrom)
-                .map(c -> {
-                    final Reflections reflections = CDI.current().select(Reflections.class).get();
-                    return (DatabaseConfiguration) reflections.newInstance(c);
-                }).orElseGet(DatabaseConfiguration::getConfiguration);
+                .map(c -> (DatabaseConfiguration) Reflections.newInstance(c)).orElseGet(DatabaseConfiguration::getConfiguration);
 
         var managerFactory = configuration.apply(settings);
 

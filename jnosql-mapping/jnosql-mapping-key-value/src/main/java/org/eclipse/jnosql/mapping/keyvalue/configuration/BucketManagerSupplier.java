@@ -18,7 +18,6 @@ import jakarta.data.exceptions.MappingException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Disposes;
 import jakarta.enterprise.inject.Produces;
-import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.communication.Settings;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.communication.keyvalue.BucketManagerFactory;
@@ -48,10 +47,8 @@ class BucketManagerSupplier implements Supplier<BucketManager> {
 
         KeyValueConfiguration configuration = settings.get(KEY_VALUE_PROVIDER, Class.class)
                 .filter(KeyValueConfiguration.class::isAssignableFrom)
-                .map(c -> {
-                    final Reflections reflections = CDI.current().select(Reflections.class).get();
-                    return (KeyValueConfiguration) reflections.newInstance(c);
-                }).orElseGet(KeyValueConfiguration::getConfiguration);
+                .map(c -> (KeyValueConfiguration) Reflections.newInstance(c))
+                .orElseGet(KeyValueConfiguration::getConfiguration);
 
         BucketManagerFactory managerFactory = configuration.apply(settings);
 

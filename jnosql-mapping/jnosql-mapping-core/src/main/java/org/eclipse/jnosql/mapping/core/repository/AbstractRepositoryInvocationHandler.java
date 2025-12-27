@@ -49,7 +49,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
             .or(Predicate.isEqual(NoSQLRepository.class));
     private static final Object[] EMPTY = new Object[0];
 
-    protected Map<Method, RepositoryMethodDescriptor> methodRepositoryTypeMap = new HashMap<>();
+    protected final Map<Method, RepositoryMethodDescriptor> methodRepositoryTypeMap = new HashMap<>();
 
     /**
      * Retrieves the underlying repository associated with this proxy.

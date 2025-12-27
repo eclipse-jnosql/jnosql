@@ -25,7 +25,6 @@ import jakarta.data.restrict.Restriction;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.core.repository.operations.NoVendorSampleQueryProvider;
 import org.eclipse.jnosql.mapping.core.repository.operations.SampleQueryProvider;
-import org.eclipse.jnosql.mapping.metadata.repository.spi.CursorPaginationOperation;
 
 import java.util.List;
 import java.util.stream.Stream;
