@@ -83,7 +83,6 @@ These annotations from the Mapping API will look familiar to the Jakarta Persist
 |`@jakarta.nosql.DiscriminatorValue`
 |Specifies the value of the discriminator column for entities of the given type.
 
-
 |===
 
 IMPORTANT: Although similar to JPA, Jakarta NoSQL defines persistable fields with either the ```@Id``` or ```@Column``` annotation.
@@ -132,7 +131,6 @@ repository.save(ferrari);
 Optional<Car> idResult = repository.findById(1L);
 Optional<Car> nameResult = repository.findByName("Ferrari");
 ----
-
 
 == Getting Started
 
