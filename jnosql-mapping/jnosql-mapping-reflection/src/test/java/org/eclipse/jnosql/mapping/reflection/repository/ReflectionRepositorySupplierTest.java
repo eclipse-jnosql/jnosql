@@ -119,7 +119,7 @@ class ReflectionRepositorySupplierTest {
             var method = findByName.orElseThrow();
             List<RepositoryParam> params = method.params();
             soft.assertThat(params).isNotEmpty().hasSize(1);
-            RepositoryParam repositoryParam = params.get(0);
+            RepositoryParam repositoryParam = params.getFirst();
             soft.assertThat(repositoryParam.name()).isNotNull();
             soft.assertThat(repositoryParam.is()).isEmpty();
             soft.assertThat(repositoryParam.by()).isNotNull();

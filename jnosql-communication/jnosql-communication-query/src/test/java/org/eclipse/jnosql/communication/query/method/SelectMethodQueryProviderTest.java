@@ -372,7 +372,7 @@ class SelectMethodQueryProviderTest {
         QueryCondition condition = where.get().condition();
         QueryValue<?> value = condition.value();
         assertEquals(Condition.NOT, condition.condition());
-        QueryCondition notCondition = ConditionQueryValue.class.cast(value).get().get(0);
+        QueryCondition notCondition = ConditionQueryValue.class.cast(value).get().getFirst();
         assertEquals(Condition.BETWEEN, notCondition.condition());
 
         QueryValue<?>[] values = MethodArrayValue.class.cast(notCondition.value()).get();
@@ -465,7 +465,7 @@ class SelectMethodQueryProviderTest {
         Assertions.assertEquals(Condition.EQUALS, condition.condition());
         assertEquals("salary.currency", condition.name());
 
-        final Sort sort = selectQuery.orderBy().get(0);
+        final Sort sort = selectQuery.orderBy().getFirst();
         Assertions.assertEquals("salary.value", sort.property());
     }
 
@@ -533,7 +533,7 @@ class SelectMethodQueryProviderTest {
 
         assertEquals("_NOT", condition.name());
         assertTrue(value instanceof ConditionQueryValue);
-        QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().get(0);
+        QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().getFirst();
 
         assertEquals("name", condition1.name());
         assertEquals(Condition.EQUALS, condition1.condition());
@@ -673,7 +673,7 @@ class SelectMethodQueryProviderTest {
         List<Sort<?>> sorts = selectQuery.orderBy();
 
         assertEquals(2, sorts.size());
-        Sort<?> sort = sorts.get(0);
+        Sort<?> sort = sorts.getFirst();
         assertEquals("name", sort.property());
         assertEquals(direction, sort.isAscending() ? Direction.ASC : Direction.DESC);
         Sort<?> sort2 = sorts.get(1);
@@ -689,7 +689,7 @@ class SelectMethodQueryProviderTest {
         List<Sort<?>> sorts = selectQuery.orderBy();
 
         assertEquals(1, sorts.size());
-        Sort<?> sort = sorts.get(0);
+        Sort<?> sort = sorts.getFirst();
         assertEquals("name", sort.property());
         assertEquals(type, sort.isAscending() ? Direction.ASC : Direction.DESC);
     }
@@ -766,7 +766,7 @@ class SelectMethodQueryProviderTest {
         assertEquals(expectedConditionName, condition.name());
         QueryValue<?> value = condition.value();
         assertTrue(value instanceof ConditionQueryValue);
-        condition = ConditionQueryValue.class.cast(value).get().get(0);
+        condition = ConditionQueryValue.class.cast(value).get().getFirst();
         return condition;
     }
 
