@@ -24,14 +24,9 @@ import java.util.stream.Stream;
 
 final class ConstructorMetadataBuilder {
 
-    private final Reflections reflections;
-
-    ConstructorMetadataBuilder(Reflections reflections) {
-        this.reflections = reflections;
-    }
 
     <T> ConstructorMetadata build(Class<T> entity) {
-        Constructor<T> constructor = reflections.getConstructor(entity);
+        Constructor<T> constructor = Reflections.getConstructor(entity);
         if (constructor.getParameterCount() == 0) {
             return new DefaultConstructorMetadata(constructor, Collections.emptyList());
         }
