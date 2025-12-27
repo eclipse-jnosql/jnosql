@@ -146,27 +146,22 @@ public final class SpecialParameters {
         PageRequest pageRequest = null;
         Limit limit = null;
         Restriction<?> restriction = null;
+
+        // local helper captures sorts + sortParser
+        java.util.function.Consumer<Sort<?>> addSort = sort -> sorts.add(mapper(sort, sortParser));
+
         for (Object parameter : parameters) {
-            if (parameter instanceof Sort<?> sort) {
-                sorts.add(mapper(sort, sortParser));
-            } else if (parameter instanceof Limit limitInstance) {
-                limit = limitInstance;
-            } else if (parameter instanceof Order<?> order) {
-                order.sorts().stream().map(s -> mapper(s, sortParser)).forEach(sorts::add);
-            } else if(parameter instanceof Sort<?>[] sortArray){
-                Arrays.stream(sortArray).map(s -> mapper(s, sortParser)).forEach(sorts::add);
-            } else if (parameter instanceof PageRequest request) {
-               pageRequest = request;
-            } else if (parameter instanceof Restriction<?> restrictionParameter) {
-                restriction = restrictionParameter;
-            }else {
-                if (parameter instanceof Iterable<?> iterable) {
-                    for (Object value : iterable) {
-                        if (value instanceof Sort<?> sortValue) {
-                            sorts.add(mapper(sortValue, sortParser));
-                        }
-                    }
-                }
+            switch (parameter) {
+                case Sort<?> sort -> addSort.accept(sort);
+                case Sort<?>[] sortArray -> Arrays.stream(sortArray).forEach(addSort);
+                case Order<?> order -> order.sorts().forEach(addSort);
+                case Limit limitInstance -> limit = limitInstance;
+                case PageRequest request -> pageRequest = request;
+                case Restriction<?> restrictionParameter -> restriction = restrictionParameter;
+                case Iterable<?> iterable -> iterable.forEach(value -> {
+                    if (value instanceof Sort<?> s) addSort.accept(s);
+                });
+                default -> { /* ignore */ }
             }
         }
         return new SpecialParameters(pageRequest, limit, sorts, restriction);
