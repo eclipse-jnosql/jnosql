@@ -135,8 +135,6 @@ class ParamValueTest {
         ParamValue params = new ParamValue("name");
         params.setValue("123");
 
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(params.get(new TypeReference<List<String>>(){})).isEqualTo(List.of("123"));
-        });
+        SoftAssertions.assertSoftly(softly -> softly.assertThat(params.get(new TypeReference<List<String>>(){})).isEqualTo(List.of("123")));
     }
 }

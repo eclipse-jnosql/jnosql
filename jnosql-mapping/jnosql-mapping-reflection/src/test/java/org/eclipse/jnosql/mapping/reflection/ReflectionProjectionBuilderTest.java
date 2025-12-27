@@ -39,9 +39,7 @@ class ReflectionProjectionBuilderTest {
         Class<?> type = ComputerView.class;
         var metadata = converter.apply(type);
         var reflectionProjectionBuilder = new ReflectionProjectionBuilder(metadata.constructor());
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(reflectionProjectionBuilder.parameters()).hasSize(2);
-        });
+        SoftAssertions.assertSoftly(softly -> softly.assertThat(reflectionProjectionBuilder.parameters()).hasSize(2));
     }
 
     @Test

@@ -24,8 +24,6 @@ class UpdateProviderTest {
         String query = "UPDATE users SET name = 'John' WHERE id = 1";
         var updateQuery = provider.apply(query);
 
-        SoftAssertions.assertSoftly(softAssertions -> {
-            softAssertions.assertThat(updateQuery.entity()).isEqualTo("users");
-        });
+        SoftAssertions.assertSoftly(softAssertions -> softAssertions.assertThat(updateQuery.entity()).isEqualTo("users"));
     }
 }
