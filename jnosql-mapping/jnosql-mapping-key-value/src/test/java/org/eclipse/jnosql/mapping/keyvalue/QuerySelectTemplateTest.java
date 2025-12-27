@@ -121,7 +121,7 @@ public class QuerySelectTemplateTest {
     @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
     void shouldReturnErrorWhenSelectCallUpdate(String text) {
         Query query = template.query(text);
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> query.executeUpdate());
+        Assertions.assertThrows(UnsupportedOperationException.class, query::executeUpdate);
     }
 
     @ParameterizedTest
@@ -262,9 +262,9 @@ public class QuerySelectTemplateTest {
     void shouldErrorWhenParameterIsMissingOnEquals(String text){
         Query query = template.query(text);
 
-        Assertions.assertThrows(QueryException.class, () -> query.singleResult());
-        Assertions.assertThrows(QueryException.class, () -> query.result());
-        Assertions.assertThrows(QueryException.class, () -> query.stream());
+        Assertions.assertThrows(QueryException.class, query::singleResult);
+        Assertions.assertThrows(QueryException.class, query::result);
+        Assertions.assertThrows(QueryException.class, query::stream);
     }
 
     @ParameterizedTest
@@ -272,9 +272,9 @@ public class QuerySelectTemplateTest {
     void shouldErrorWhenParameterIsMissingOnIn(String text){
         Query query = template.query(text);
 
-        Assertions.assertThrows(QueryException.class, () -> query.singleResult());
-        Assertions.assertThrows(QueryException.class, () -> query.result());
-        Assertions.assertThrows(QueryException.class, () -> query.stream());
+        Assertions.assertThrows(QueryException.class, query::singleResult);
+        Assertions.assertThrows(QueryException.class, query::result);
+        Assertions.assertThrows(QueryException.class, query::stream);
     }
 
     @ParameterizedTest
