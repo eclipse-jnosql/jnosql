@@ -172,6 +172,7 @@ public final class SpecialParameters {
      * @return a {@code SpecialParameters} instance populated with the recognized
      *         parameters
      */
+    @SuppressWarnings("rawtypes")
     public static SpecialParameters of(Object[] parameters, Function<String, String> sortParser) {
         List<Sort<?>> sorts = new ArrayList<>();
         PageRequest pageRequest = null;
