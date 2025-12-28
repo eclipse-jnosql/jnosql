@@ -82,7 +82,7 @@
 
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
-        <checkstyle.version>12.1.1</checkstyle.version>
+        <checkstyle.version>12.3.0</checkstyle.version>
         <!-- testing libraries -->
         <junit.version>6.0.1</junit.version>
         <mockito.verson>5.20.0</mockito.verson>
