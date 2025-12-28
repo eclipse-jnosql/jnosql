@@ -244,7 +244,7 @@ class ValueUtilTest {
         ParamValue paramValue = new ParamValue("test");
         paramValue.setValue(234);
         Value value = Value.of(List.of(paramValue));
-        assertEquals(Arrays.asList("Custom-234"),
+        assertEquals(List.of("Custom-234"),
                 ValueUtil.convertToList(value, writer));
     }
 
@@ -257,7 +257,7 @@ class ValueUtilTest {
         ParamValue paramValue = new ParamValue("test");
         paramValue.setValue(List.of(234));
         Value value = Value.of(List.of(paramValue));
-        assertEquals(Arrays.asList("Custom-234"),
+        assertEquals(List.of("Custom-234"),
                 ValueUtil.convertToList(value, writer));
     }
 }

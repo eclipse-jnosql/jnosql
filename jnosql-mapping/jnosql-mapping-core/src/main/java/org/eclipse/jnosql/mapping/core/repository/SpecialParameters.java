@@ -141,29 +141,64 @@ public final class SpecialParameters {
                 '}';
     }
 
+    /**
+     * Creates a {@link SpecialParameters} instance by inspecting the provided
+     * parameter array and extracting supported query-related elements.
+     * The method processes each element in the {@code parameters} array and
+     * recognizes the following types:
+     * <ul>
+     *   <li>{@link Sort} instances, including:
+     *     <ul>
+     *       <li>single {@code Sort} values</li>
+     *       <li>{@link Order} containers</li>
+     *       <li>arrays of {@code Sort}</li>
+     *       <li>{@link Iterable}s containing {@code Sort} elements</li>
+     *     </ul>
+     *   </li>
+     *   <li>{@link PageRequest} for pagination configuration</li>
+     *   <li>{@link Limit} to restrict the maximum number of results</li>
+     *   <li>{@link Restriction} to define filtering constraints</li>
+     * </ul>
+     *
+     * Parameters of unsupported types, including {@code null} values, are ignored.
+     *
+     * @param parameters
+     *        an array containing heterogeneous query parameters such as sorting,
+     *        pagination, limits, and restrictions
+     * @param sortParser
+     *        a function used to normalize or transform sort property names before
+     *        they are applied
+     * @return a {@code SpecialParameters} instance populated with the recognized
+     *         parameters
+     */
+    @SuppressWarnings("rawtypes")
     public static SpecialParameters of(Object[] parameters, Function<String, String> sortParser) {
         List<Sort<?>> sorts = new ArrayList<>();
         PageRequest pageRequest = null;
         Limit limit = null;
         Restriction<?> restriction = null;
+
         for (Object parameter : parameters) {
-            if (parameter instanceof Sort<?> sort) {
-                sorts.add(mapper(sort, sortParser));
-            } else if (parameter instanceof Limit limitInstance) {
-                limit = limitInstance;
-            } else if (parameter instanceof Order<?> order) {
-                order.sorts().stream().map(s -> mapper(s, sortParser)).forEach(sorts::add);
-            } else if(parameter instanceof Sort<?>[] sortArray){
-                Arrays.stream(sortArray).map(s -> mapper(s, sortParser)).forEach(sorts::add);
-            } else if (parameter instanceof PageRequest request) {
-               pageRequest = request;
-            } else if (parameter instanceof Restriction<?> restrictionParameter) {
-                restriction = restrictionParameter;
-            }else {
-                if (parameter instanceof Iterable<?> iterable) {
-                    for (Object value : iterable) {
-                        if (value instanceof Sort<?> sortValue) {
-                            sorts.add(mapper(sortValue, sortParser));
+            switch (parameter) {
+                case Sort<?> sort -> sorts.add(mapper(sort, sortParser));
+                case Limit limitInstance -> limit = limitInstance;
+                case Order<?> order ->
+                        order.sorts()
+                                .stream()
+                                .map(s -> mapper(s, sortParser))
+                                .forEach(sorts::add);
+                case Sort[] sortArray ->
+                        Arrays.stream(sortArray)
+                                .map(s -> mapper((Sort<?>) s, sortParser))
+                                .forEach(sorts::add);
+                case PageRequest request -> pageRequest = request;
+                case Restriction<?> restrictionParameter -> restriction = restrictionParameter;
+                case null, default -> {
+                    if (parameter instanceof Iterable<?> iterable) {
+                        for (Object value : iterable) {
+                            if (value instanceof Sort<?> sortValue) {
+                                sorts.add(mapper(sortValue, sortParser));
+                            }
                         }
                     }
                 }
