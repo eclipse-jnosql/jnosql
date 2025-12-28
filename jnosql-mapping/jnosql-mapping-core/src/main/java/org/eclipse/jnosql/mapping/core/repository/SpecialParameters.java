@@ -144,7 +144,6 @@ public final class SpecialParameters {
     /**
      * Creates a {@link SpecialParameters} instance by inspecting the provided
      * parameter array and extracting supported query-related elements.
-     *
      * The method processes each element in the {@code parameters} array and
      * recognizes the following types:
      * <ul>
