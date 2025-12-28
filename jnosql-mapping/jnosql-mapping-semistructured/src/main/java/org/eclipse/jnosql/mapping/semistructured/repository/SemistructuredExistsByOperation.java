@@ -16,7 +16,6 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.ExistsByOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
@@ -39,9 +38,8 @@ class SemistructuredExistsByOperation implements ExistsByOperation {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
-        SelectQuery selectQuery = this.semistructuredQueryBuilder.selectQuery(context);
+        var selectQuery = this.semistructuredQueryBuilder.selectQuery(context);
         var template = (SemiStructuredTemplate) context.template();
-        Boolean exists = template.exists(selectQuery);
-        return (T) exists;
+        return (T) (Boolean) template.exists(selectQuery);
     }
 }
