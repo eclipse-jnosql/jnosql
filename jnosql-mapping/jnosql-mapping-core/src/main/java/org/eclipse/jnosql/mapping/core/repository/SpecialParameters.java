@@ -141,6 +141,37 @@ public final class SpecialParameters {
                 '}';
     }
 
+    /**
+     * Creates a {@link SpecialParameters} instance by inspecting the provided
+     * parameter array and extracting supported query-related elements.
+     *
+     * The method processes each element in the {@code parameters} array and
+     * recognizes the following types:
+     * <ul>
+     *   <li>{@link Sort} instances, including:
+     *     <ul>
+     *       <li>single {@code Sort} values</li>
+     *       <li>{@link Order} containers</li>
+     *       <li>arrays of {@code Sort}</li>
+     *       <li>{@link Iterable}s containing {@code Sort} elements</li>
+     *     </ul>
+     *   </li>
+     *   <li>{@link PageRequest} for pagination configuration</li>
+     *   <li>{@link Limit} to restrict the maximum number of results</li>
+     *   <li>{@link Restriction} to define filtering constraints</li>
+     * </ul>
+     *
+     * Parameters of unsupported types, including {@code null} values, are ignored.
+     *
+     * @param parameters
+     *        an array containing heterogeneous query parameters such as sorting,
+     *        pagination, limits, and restrictions
+     * @param sortParser
+     *        a function used to normalize or transform sort property names before
+     *        they are applied
+     * @return a {@code SpecialParameters} instance populated with the recognized
+     *         parameters
+     */
     public static SpecialParameters of(Object[] parameters, Function<String, String> sortParser) {
         List<Sort<?>> sorts = new ArrayList<>();
         PageRequest pageRequest = null;
