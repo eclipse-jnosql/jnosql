@@ -78,6 +78,21 @@ public enum RepositoryMetadataUtils {
         return params;
     }
 
+    public Map<String, Object> getParamsByName(RepositoryMethod method, Object[] args) {
+        Map<String, Object> params = new HashMap<>();
+
+        var parameters = method.params();
+        for (int index = 0; index < parameters.size(); index++) {
+            var parameter = parameters.get(index);
+            boolean isNotSpecialParameter = SpecialParameters.isNotSpecialParameter(parameter.type());
+            if (isNotSpecialParameter) {
+                var param = parameter.param();
+                params.put(param, args[index]);
+            }
+        }
+        return params;
+    }
+
     /**
      * Resolves {@code by}/{@code is} parameter semantics into structured condition values.
      *
