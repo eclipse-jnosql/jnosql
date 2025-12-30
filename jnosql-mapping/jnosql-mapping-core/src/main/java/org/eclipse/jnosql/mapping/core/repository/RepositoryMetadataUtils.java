@@ -16,11 +16,16 @@ package org.eclipse.jnosql.mapping.core.repository;
 
 import jakarta.data.constraint.Constraint;
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
+import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
+
+import static org.eclipse.jnosql.mapping.core.repository.DynamicReturn.toSingleResult;
 
 /**
  * Utility component for extracting and normalizing parameter metadata from
@@ -111,6 +116,22 @@ public enum RepositoryMetadataUtils {
             }
         }
         return params;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T execute(RepositoryInvocationContext context, Stream<T> result) {
+        var method = context.method();
+        var parameters = context.parameters();
+        RepositoryMetadata metadata = context.metadata();
+        Map<String, Object> params = getParams(method, parameters);
+        return (T) DynamicReturn.builder()
+                .methodName(method.name())
+                .classSource(metadata.type())
+                .returnType(method.returnType().orElseThrow())
+                .result(() -> (Stream<Object>) result)
+                .singleResult(toSingleResult(method.name()).apply(() -> result))
+                .build()
+                .execute();
     }
 
     private ParamValue condition(Class<? extends Constraint<?>> isType, Object value) {
