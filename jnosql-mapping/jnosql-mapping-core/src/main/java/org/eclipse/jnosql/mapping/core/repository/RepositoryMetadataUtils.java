@@ -91,7 +91,7 @@ public enum RepositoryMetadataUtils {
      * @param args the invocation arguments passed to the method
      * @return a map containing named and positional query parameters
      */
-    public Map<String, Object> getParamsFromParamsNamee(RepositoryMethod method, Object[] args) {
+    public Map<String, Object> getParamsFromName(RepositoryMethod method, Object[] args) {
         Map<String, Object> params = new HashMap<>();
 
         var parameters = method.params();

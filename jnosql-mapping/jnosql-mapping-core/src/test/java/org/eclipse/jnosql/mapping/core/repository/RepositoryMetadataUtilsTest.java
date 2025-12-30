@@ -156,6 +156,20 @@ class RepositoryMetadataUtilsTest {
     }
 
     @Test
+    @DisplayName("should map params with multiple params")
+    void shouldMapParamsMultipleParamsFromName() {
+        RepositoryMethod method = repositoryMetadata.find(new NameKey("query1")).orElseThrow();
+        var params = RepositoryMetadataUtils.INSTANCE.getParamsFromName(method, new Object[]{
+                "John",
+                25,
+                PageRequest.ofSize(10)});
+
+        Assertions.assertThat(params)
+                .hasSize(1)
+                .containsEntry("native", "John");
+    }
+
+    @Test
     @DisplayName("should execute")
     void shouldExecute() {
         var  method = repositoryMetadata.find(new NameKey("people")).orElseThrow();
