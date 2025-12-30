@@ -19,7 +19,7 @@ import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.core.repository.ParamValue;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
-import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.ParameterBasedOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredParameterBasedQuery;
@@ -54,15 +54,24 @@ class SemistructuredParameterBasedOperation implements ParameterBasedOperation {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
-        RepositoryMethod method = context.method();
-
+        var method = context.method();
         var entityMetadata = method.find().filter(r -> !void.class.equals(r))
-                .flatMap(r -> entitiesMetadata.findBySimpleName(r.getSimpleName()))
+                .flatMap(r -> entitiesMetadata.findByClassName(r.getName()))
                 .orElse(context.entityMetadata());
         var parameters = context.parameters();
         Map<String, ParamValue> paramValueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, parameters);
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(paramValueMap, Collections.emptyList(), entityMetadata);
-        var updateDynamicQuery = semistructuredQueryBuilder.updateDynamicQuery(query, context);
+        var updateDynamicQuery = semistructuredQueryBuilder.updateDynamicQuery(query, context(context, entityMetadata));
         return (T) semistructuredReturnType.executeFindByQuery(context, updateDynamicQuery);
+    }
+
+    private static RepositoryInvocationContext context(RepositoryInvocationContext context, EntityMetadata entityMetadata) {
+        if (context.entityMetadata().equals(entityMetadata)) {
+            return context;
+        }
+        return new RepositoryInvocationContext(context.method(),
+                context.metadata(),
+                entityMetadata,
+                context.template(), context.parameters());
     }
 }
