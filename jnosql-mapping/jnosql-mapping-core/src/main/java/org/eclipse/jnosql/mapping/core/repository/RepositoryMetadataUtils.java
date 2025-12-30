@@ -41,6 +41,22 @@ public enum RepositoryMetadataUtils {
 
     INSTANCE;
 
+    /**
+     * Extracts query parameters from a repository method invocation.
+     *
+     * This method maps repository method parameters to both:
+     * <ul>
+     *   <li>Named parameters, using the parameter name</li>
+     *   <li>Positional parameters, using {@code ?1}, {@code ?2}, …</li>
+     * </ul>
+     *
+     * Only non-special parameters are included. Pagination, sorting, and other
+     * infrastructural parameters are ignored.
+     *
+     * @param method the repository method metadata
+     * @param args the invocation arguments passed to the method
+     * @return a map containing named and positional query parameters
+     */
     public Map<String, Object> getParams(RepositoryMethod method, Object[] args) {
         Map<String, Object> params = new HashMap<>();
 
@@ -58,6 +74,29 @@ public enum RepositoryMetadataUtils {
         return params;
     }
 
+    /**
+     * Resolves {@code by}/{@code is} parameter semantics into structured condition values.
+     *
+     * <p>
+     * This method interprets repository method parameters used in derived queries
+     * (for example {@code findByAgeGreaterThan}) and converts them into
+     * {@link ParamValue} instances describing:
+     * </p>
+     * <ul>
+     *   <li>The comparison operation</li>
+     *   <li>The argument value</li>
+     *   <li>Whether the condition is negated</li>
+     * </ul>
+     *
+     * <p>
+     * Constraints may be provided either explicitly via {@link Constraint} instances
+     * or implicitly through the parameter metadata.
+     * </p>
+     *
+     * @param method the repository method metadata
+     * @param arguments the invocation arguments passed to the method
+     * @return a map of property names to resolved condition values
+     */
     public Map<String, ParamValue> getBy(RepositoryMethod method, Object[] arguments) {
         Map<String, ParamValue> params = new HashMap<>();
 
