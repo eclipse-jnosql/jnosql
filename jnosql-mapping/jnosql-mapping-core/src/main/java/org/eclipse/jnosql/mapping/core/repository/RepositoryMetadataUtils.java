@@ -22,6 +22,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Utility component for extracting and normalizing parameter metadata from
+ * {@link RepositoryMethod} definitions at runtime.
+ * This helper bridges repository method metadata and invocation-time arguments,
+ * producing structured representations that can be consumed by query builders,
+ * criteria resolvers, and provider-specific execution engines.
+ * <p>The utility focuses on two complementary concerns:</p>
+ * <ul>
+ *   <li>Resolving method parameters into named and positional query parameters</li>
+ *   <li>Interpreting {@code by}/{@code is} semantics into executable conditions</li>
+ * </ul>
+ *
+ * Special parameters (such as pagination, sorting, or limits) are automatically
+ * ignored, ensuring only semantic query parameters are processed.
+ */
 public enum RepositoryMetadataUtils {
 
     INSTANCE;
