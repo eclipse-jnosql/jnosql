@@ -121,15 +121,6 @@ public enum RepositoryMetadataUtils {
     /**
      * Executes a repository method using the provided result stream and adapts it
      * to the method’s declared return type.
-     *
-     * This method applies Jakarta Data return semantics—such as single result,
-     * optional result, or collection handling—based on the repository method
-     * metadata. The supplied {@link Stream} represents the raw query result and
-     * is converted into the expected return shape automatically.
-     * The conversion rules are derived from the repository method signature,
-     * ensuring consistent behavior across derived queries, provider-based queries,
-     * and dynamically constructed executions.
-     *
      * @param context the repository invocation context containing method metadata
      * @param result the stream of query results to be adapted
      * @param <T> the expected return type of the repository method
