@@ -72,7 +72,7 @@ import java.util.stream.Stream;
 @EnableAutoWeld
 @AddPackages(value = Converters.class)
 @AddPackages(value = VetedConverter.class)
-@AddPackages(value = Reflections.class)
+@AddPackages(value = {Reflections.class, Person.class})
 @AddExtensions(ReflectionEntityMetadataExtension.class)
 class RepositoryMetadataUtilsTest {
 
@@ -159,14 +159,13 @@ class RepositoryMetadataUtilsTest {
     @DisplayName("should execute")
     void shouldExecute() {
         var  method = repositoryMetadata.find(new NameKey("people")).orElseThrow();
-        var entityMetadata = entitiesMetadata.findBySimpleName(Person.class.getName()).orElseThrow();
+        var entityMetadata = entitiesMetadata.findBySimpleName(Person.class.getSimpleName()).orElseThrow();
         var template = Mockito.mock(Template.class);
         var context = new RepositoryInvocationContext(method, repositoryMetadata,
                 entityMetadata, template, new Object[]{});
-
-
-
-
+        Stream<Person> people = Stream.of(Person.builder().build());
+        List<Person> execute = RepositoryMetadataUtils.INSTANCE.execute(context, people);
+        Assertions.assertThat(execute).isNotEmpty().hasSize(1);
     }
 
 

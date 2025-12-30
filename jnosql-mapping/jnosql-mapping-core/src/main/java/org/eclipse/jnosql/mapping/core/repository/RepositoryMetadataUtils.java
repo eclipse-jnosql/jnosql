@@ -128,7 +128,7 @@ public enum RepositoryMetadataUtils {
      * @throws IllegalStateException if the method return type cannot be resolved
      */
     @SuppressWarnings("unchecked")
-    public <T> T execute(RepositoryInvocationContext context, Stream<T> result) {
+    public <T> T execute(RepositoryInvocationContext context, Stream<?> result) {
         var method = context.method();
         var parameters = context.parameters();
         RepositoryMetadata metadata = context.metadata();
@@ -137,7 +137,7 @@ public enum RepositoryMetadataUtils {
                 .methodName(method.name())
                 .classSource(metadata.type())
                 .returnType(method.returnType().orElseThrow())
-                .result(() -> (Stream<Object>) result)
+                .result(() ->  result)
                 .singleResult(toSingleResult(method.name()).apply(() -> result))
                 .build()
                 .execute();
