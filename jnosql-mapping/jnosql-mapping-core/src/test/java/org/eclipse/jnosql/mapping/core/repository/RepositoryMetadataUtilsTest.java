@@ -33,16 +33,21 @@ import jakarta.data.constraint.NotLike;
 import jakarta.data.page.PageRequest;
 import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
+import jakarta.nosql.Template;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.VetedConverter;
 import org.eclipse.jnosql.mapping.core.entities.People;
+import org.eclipse.jnosql.mapping.core.entities.Person;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.NameKey;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
+import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.jboss.weld.junit5.auto.AddExtensions;
@@ -73,6 +78,9 @@ class RepositoryMetadataUtilsTest {
 
     @Inject
     private RepositoriesMetadata repositoriesMetadata;
+
+    @Inject
+    private EntitiesMetadata entitiesMetadata;
 
     private RepositoryMetadata repositoryMetadata;
 
@@ -145,6 +153,20 @@ class RepositoryMetadataUtilsTest {
                 .containsEntry("name", "John")
                 .containsEntry("?1", "John")
                 .containsEntry("?2", 25);
+    }
+
+    @Test
+    @DisplayName("should execute")
+    void shouldExecute() {
+        var  method = repositoryMetadata.find(new NameKey("people")).orElseThrow();
+        var entityMetadata = entitiesMetadata.findBySimpleName(Person.class.getName()).orElseThrow();
+        var template = Mockito.mock(Template.class);
+        var context = new RepositoryInvocationContext(method, repositoryMetadata,
+                entityMetadata, template, new Object[]{});
+
+
+
+
     }
 
 
