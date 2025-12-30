@@ -22,6 +22,8 @@ import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Repository;
 
+import java.util.List;
+
 @Repository
 public interface People extends BasicRepository<Person, Long> {
 
@@ -40,4 +42,7 @@ public interface People extends BasicRepository<Person, Long> {
 
     @Query("Person WHERE name = :name AND p.age = ?1")
     Page<Person> query3(@Param("name") String name, int age, PageRequest request);
+
+    @Query("FROM Person")
+    List<Person> people();
 }
