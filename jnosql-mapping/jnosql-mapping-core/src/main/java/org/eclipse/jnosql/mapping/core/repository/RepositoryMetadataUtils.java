@@ -16,7 +16,6 @@ package org.eclipse.jnosql.mapping.core.repository;
 
 import jakarta.data.constraint.Constraint;
 import org.eclipse.jnosql.communication.Condition;
-import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
@@ -130,9 +129,7 @@ public enum RepositoryMetadataUtils {
     @SuppressWarnings("unchecked")
     public <T> T execute(RepositoryInvocationContext context, Stream<?> result) {
         var method = context.method();
-        var parameters = context.parameters();
-        RepositoryMetadata metadata = context.metadata();
-        Map<String, Object> params = getParams(method, parameters);
+        var metadata = context.metadata();
         return (T) DynamicReturn.builder()
                 .methodName(method.name())
                 .classSource(metadata.type())
