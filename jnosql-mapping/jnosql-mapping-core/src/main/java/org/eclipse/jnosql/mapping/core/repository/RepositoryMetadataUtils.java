@@ -47,7 +47,6 @@ public enum RepositoryMetadataUtils {
 
     /**
      * Extracts query parameters from a repository method invocation.
-     *
      * This method maps repository method parameters to both:
      * <ul>
      *   <li>Named parameters, using the parameter name</li>
@@ -78,7 +77,21 @@ public enum RepositoryMetadataUtils {
         return params;
     }
 
-    public Map<String, Object> getParamsByName(RepositoryMethod method, Object[] args) {
+    /**
+     * Extracts query parameters from a repository method invocation.
+     * This method maps repository method parameters to:
+     * <ul>
+     *   <li>Named parameters, using the parameter name</li>
+     * </ul>
+     *
+     * Only non-special parameters are included. Pagination, sorting, and other
+     * infrastructural parameters are ignored.
+     *
+     * @param method the repository method metadata
+     * @param args the invocation arguments passed to the method
+     * @return a map containing named and positional query parameters
+     */
+    public Map<String, Object> getParamsFromParamsNamee(RepositoryMethod method, Object[] args) {
         Map<String, Object> params = new HashMap<>();
 
         var parameters = method.params();
