@@ -360,12 +360,12 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private <T> String entityName(Class<T> type, Optional<ProjectionMetadata> projection, Optional<EntityMetadata> entityData) {
-        if(projection.isPresent()){
+        if (projection.isPresent()) {
             return projection.map(ProjectionMetadata::from)
                     .map(e -> entities().findByClassName(e.getName()))
                     .flatMap(Function.identity()).map(EntityMetadata::name).orElse(null);
 
-        } else{
+        } else {
             return entityData.map(EntityMetadata::name).orElseThrow(() -> new IllegalArgumentException("There " +
                     "is no entity " + type.getName()));
         }
