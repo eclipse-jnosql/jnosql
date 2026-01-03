@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.SequencedCollection;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -115,6 +116,8 @@ class ListTypeReferenceReaderTest {
                 arguments(new TypeReference<Collection<String>>() {
                 }),
                 arguments(new TypeReference<Iterable<String>>() {
+                }),
+                arguments(new TypeReference<SequencedCollection<String>>() {
                 }),
                 arguments(new TypeReference<Iterable<Long>>() {
                 })
