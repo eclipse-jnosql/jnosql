@@ -275,9 +275,7 @@ class TemplateInheritanceTest {
         var captor = ArgumentCaptor.forClass(SelectQuery.class);
         Mockito.verify(this.managerMock).select(captor.capture());
         var query = captor.getValue();
-        assertSoftly(soft -> {
-            soft.assertThat(query.name()).isEqualTo("Notification");
-        });
+        assertSoftly(soft -> soft.assertThat(query.name()).isEqualTo("Notification"));
     }
 
     @Test
