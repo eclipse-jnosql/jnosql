@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.metadata;
 
+import jakarta.nosql.Entity;
 import jakarta.nosql.Id;
 
 import java.util.List;
@@ -28,9 +29,12 @@ public interface EntityMetadata {
 
 
     /**
-     * @return the Entity name
+     * @return the {@link jakarta.nosql.Entity#name()} name
      */
     String name();
+
+
+    String dataStructure();
 
     /**
      * Returns the {@link Class#getSimpleName()} of the entity
