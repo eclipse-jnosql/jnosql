@@ -76,6 +76,15 @@ public interface EntitiesMetadata {
     Optional<EntityMetadata> findByClassName(String name);
 
     /**
+     * Returns the {@link EntityMetadata} instance from mapping name
+     *
+     * @param mappingName the mapping name of {@link EntityMetadata#mappingName()} instance
+     * @return the {@link EntityMetadata} from mapping name otherwise {@link Optional#empty()}
+     * @throws NullPointerException when the mapping name is null
+     */
+    Optional<EntityMetadata> findByMappingName(String mappingName);
+
+    /**
      * Returns the {@link ProjectionMetadata} for the given projector class.
      *
      * @param projection the projector class
