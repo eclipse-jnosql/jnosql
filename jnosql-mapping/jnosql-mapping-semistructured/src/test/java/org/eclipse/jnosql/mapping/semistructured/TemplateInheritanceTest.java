@@ -295,4 +295,27 @@ class TemplateInheritanceTest {
         });
     }
 
+    @Test
+    void shouldQueryWithSpecializationWithConditionAppend() {
+        var prepare = template.prepare("FROM EmailNotification WHERE email = 'email@email'");
+        prepare.result();
+
+        var captor = ArgumentCaptor.forClass(SelectQuery.class);
+        Mockito.verify(this.managerMock).select(captor.capture());
+        var query = captor.getValue();
+        assertSoftly(soft -> {
+            soft.assertThat(query.name()).isEqualTo("Notification");
+            soft.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
+            var conditions = condition.element().get(new TypeReference<List<CriteriaCondition>>() {
+            });
+            soft.assertThat(conditions.getFirst().condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(conditions.getFirst().element()).isEqualTo(Element.of("email", "email@email"));
+
+            soft.assertThat(conditions.get(1).condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(conditions.get(1).element()).isEqualTo(Element.of("dtype", "Email"));
+        });
+    }
+
 }
