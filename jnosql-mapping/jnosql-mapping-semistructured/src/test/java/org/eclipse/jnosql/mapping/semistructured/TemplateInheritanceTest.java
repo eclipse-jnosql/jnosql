@@ -277,6 +277,19 @@ class TemplateInheritanceTest {
         var query = captor.getValue();
         assertSoftly(soft -> {
             soft.assertThat(query.name()).isEqualTo("Notification");
+        });
+    }
+
+    @Test
+    void shouldQueryWithSpecializationWithCondition() {
+        PreparedStatement prepare = template.prepare("FROM EmailNotification");
+        prepare.result();
+
+        var captor = ArgumentCaptor.forClass(SelectQuery.class);
+        Mockito.verify(this.managerMock).select(captor.capture());
+        var query = captor.getValue();
+        assertSoftly(soft -> {
+            soft.assertThat(query.name()).isEqualTo("Notification");
             soft.assertThat(query.condition()).isPresent();
             CriteriaCondition condition = query.condition().orElseThrow();
             soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
