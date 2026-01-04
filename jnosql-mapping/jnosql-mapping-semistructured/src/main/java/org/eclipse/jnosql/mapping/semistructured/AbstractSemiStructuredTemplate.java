@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 
-import jakarta.annotation.PostConstruct;
 import jakarta.data.exceptions.NonUniqueResultException;
 import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
