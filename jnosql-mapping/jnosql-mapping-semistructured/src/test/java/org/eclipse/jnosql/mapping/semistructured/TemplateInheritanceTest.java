@@ -23,6 +23,7 @@ import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.PreparedStatement;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -38,6 +39,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Mockito.when;
@@ -246,6 +248,20 @@ class TemplateInheritanceTest {
         var query = captor.getValue();
 
         assertSoftly(soft ->{
+            soft.assertThat(query.name()).isEqualTo("Notification");
+            soft.assertThat(query.condition()).isEmpty();
+        });
+    }
+
+    @Test
+    void shouldQueryGenerically() {
+        PreparedStatement prepare = template.prepare("FROM Notification");
+        prepare.result();
+
+        var captor = ArgumentCaptor.forClass(SelectQuery.class);
+        Mockito.verify(this.managerMock).select(captor.capture());
+        var query = captor.getValue();
+        assertSoftly(soft -> {
             soft.assertThat(query.name()).isEqualTo("Notification");
             soft.assertThat(query.condition()).isEmpty();
         });
