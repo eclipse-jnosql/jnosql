@@ -222,13 +222,20 @@ public class Reflections {
         return readEntity(entity);
     }
 
+    /**
+     * Returns the mapping name of the entity. So it tries to read the {@link Entity#name()}
+     * otherwise {@link Class#getSimpleName()}
+     *
+     * @param entity the class to read
+     * @return the {@link Entity#name()} when is not blank otherwise {@link Class#getSimpleName()}
+     * @throws NullPointerException when entity is null
+     */
     String getMappingName(Class<?> entity) {
         requireNonNull(entity, "class entity is required");
-
-        if (isInheritance(entity)) {
-            return readEntity(entity.getSuperclass());
-        }
-        return readEntity(entity);
+        return Optional.ofNullable(entity.getAnnotation(Entity.class))
+                .map(Entity::name)
+                .filter(StringUtils::isNotBlank)
+                .orElse(entity.getSimpleName());
     }
 
     /**
