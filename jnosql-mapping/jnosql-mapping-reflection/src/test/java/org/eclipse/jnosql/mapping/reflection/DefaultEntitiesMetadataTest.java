@@ -192,4 +192,17 @@ class DefaultEntitiesMetadataTest {
         Assertions.assertNotNull(toString);
         Assertions.assertTrue(toString.contains("DefaultEntitiesMetadata"));
     }
+
+    @Test
+    void shouldFindByMappingName() {
+        this.mappings.load(Person.class);
+        this.mappings.load(Vendor.class);
+
+        EntityMetadata mapping = this.mappings
+                .findByMappingName("Person")
+                .orElseThrow();
+
+        Assertions.assertNotNull(mapping);
+        Assertions.assertEquals(Person.class, mapping.type());
+    }
 }
