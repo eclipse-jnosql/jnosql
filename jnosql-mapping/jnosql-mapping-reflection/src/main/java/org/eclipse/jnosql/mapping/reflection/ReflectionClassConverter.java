@@ -74,7 +74,8 @@ public final class ReflectionClassConverter implements ClassConverter {
         InheritanceMetadata inheritance = reflections.getInheritance(entity).orElse(null);
         boolean hasInheritanceAnnotation = reflections.hasInheritanceAnnotation(entity);
 
-        EntityMetadata mapping = DefaultEntityMetadata.builder().name(entityName)
+        EntityMetadata mapping = DefaultEntityMetadata.builder()
+                .name(entityName)
                 .type(entity)
                 .fields(fields)
                 .fieldsName(fieldsName)
