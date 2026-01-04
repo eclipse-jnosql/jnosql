@@ -71,7 +71,7 @@ public class ReflectionEntityMetadataExtension implements Extension {
                 .forEach(entity -> {
                     EntityMetadata entityMetadata = converter.apply(entity);
                     if (entityMetadata.hasEntityName()) {
-                        ENTITY_METADATA_BY_ENTITY_NAME.put(entityMetadata.mappingName(), entityMetadata);
+                        ENTITY_METADATA_BY_ENTITY_NAME.put(entityMetadata.name(), entityMetadata);
                     }
                     ENTITY_METADATA_BY_CLASS.put(entity, entityMetadata);
                 });
