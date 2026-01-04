@@ -27,7 +27,7 @@ import java.util.Objects;
  */
 public final class RepositorySemiStructuredObserverParser implements CommunicationObserverParser {
 
-    private static final String ID =By.ID;
+    private static final String ID = By.ID;
 
     private final RepositoryObserverParser parser;
 
