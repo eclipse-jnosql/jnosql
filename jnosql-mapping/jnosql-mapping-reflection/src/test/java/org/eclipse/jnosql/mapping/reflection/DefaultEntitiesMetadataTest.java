@@ -231,12 +231,13 @@ class DefaultEntitiesMetadataTest {
         this.mappings.load(SocialMediaNotification.class);
 
         EntityMetadata mapping = this.mappings
-                .findByMappingName("Notification")
+                .findByMappingName("EmailNotification")
                 .orElseThrow();
 
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(mapping).isNotNull();
-            softly.assertThat(mapping.type()).isEqualTo(Notification.class);
+            softly.assertThat(mapping.type()).isEqualTo(EmailNotification.class);
+            softly.assertThat(mapping.name()).isEqualTo("Notification");
         });
     }
 }
