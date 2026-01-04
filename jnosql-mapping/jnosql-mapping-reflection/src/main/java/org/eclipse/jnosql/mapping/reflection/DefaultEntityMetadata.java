@@ -30,8 +30,9 @@ import static java.util.Optional.ofNullable;
 
 class DefaultEntityMetadata implements EntityMetadata {
 
-
     private final String name;
+
+    private final String dataStructure;
 
     private final String simpleName;
 
@@ -57,7 +58,10 @@ class DefaultEntityMetadata implements EntityMetadata {
 
     private final ConstructorMetadata constructor;
 
-    DefaultEntityMetadata(String name, List<String> fieldsName, Class<?> type,
+    DefaultEntityMetadata(String name,
+                          String dataStructure,
+                          List<String> fieldsName,
+                          Class<?> type,
                           List<FieldMetadata> fields,
                           Map<String, NativeMapping> javaFieldGroupedByColumn,
                           Map<String, FieldMetadata> fieldsGroupedByName,
@@ -66,6 +70,7 @@ class DefaultEntityMetadata implements EntityMetadata {
                           ConstructorMetadata constructor,
                           boolean hasInheritanceAnnotation) {
         this.name = name;
+        this.dataStructure = dataStructure;
         this.simpleName = type.getSimpleName();
         this.className = type.getName();
         this.fieldsName = fieldsName;
@@ -83,6 +88,11 @@ class DefaultEntityMetadata implements EntityMetadata {
     @Override
     public String name() {
         return name;
+    }
+
+    @Override
+    public String dataStructure() {
+        return dataStructure;
     }
 
     @Override
