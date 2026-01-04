@@ -28,14 +28,14 @@ public interface EntityMetadata {
 
 
     /**
-     * @return the {@link jakarta.nosql.Entity#name()} name
+     * @return the {@link jakarta.nosql.Entity#value()} name
      */
     String name();
 
     /**
-     * @return the data structure type {@link jakarta.nosql.Entity#value()}
+     * @return the data structure type {@link jakarta.nosql.Entity#name()}
      */
-    String dataStructure();
+    String mappingName();
 
     /**
      * Returns the {@link Class#getSimpleName()} of the entity
