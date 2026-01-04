@@ -266,4 +266,22 @@ class TemplateInheritanceTest {
             soft.assertThat(query.condition()).isEmpty();
         });
     }
+
+    @Test
+    void shouldQueryWithSpecialization() {
+        PreparedStatement prepare = template.prepare("FROM EmailNotification");
+        prepare.result();
+
+        var captor = ArgumentCaptor.forClass(SelectQuery.class);
+        Mockito.verify(this.managerMock).select(captor.capture());
+        var query = captor.getValue();
+        assertSoftly(soft -> {
+            soft.assertThat(query.name()).isEqualTo("Notification");
+            soft.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(condition.element()).isEqualTo(Element.of("dtype", "Email"));
+        });
+    }
+
 }
