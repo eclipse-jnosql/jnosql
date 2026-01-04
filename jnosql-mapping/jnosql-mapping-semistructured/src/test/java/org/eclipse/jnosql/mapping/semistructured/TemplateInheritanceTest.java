@@ -269,7 +269,7 @@ class TemplateInheritanceTest {
 
     @Test
     void shouldQueryWithSpecialization() {
-        PreparedStatement prepare = template.prepare("FROM EmailNotification");
+        var prepare = template.prepare("FROM EmailNotification WHERE email = 'email@gmail.com'");
         prepare.result();
 
         var captor = ArgumentCaptor.forClass(SelectQuery.class);
