@@ -106,8 +106,6 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
      */
     protected abstract Converters converters();
 
-    private MapperObserver observer;
-
     @Override
     public <T> T insert(T entity) {
         requireNonNull(entity, "entity is required");
@@ -405,9 +403,6 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
     }
 
     private MapperObserver observer() {
-        if (this.observer == null) {
-            this.observer = new MapperObserver(entities());
-        }
-        return this.observer;
+        return new MapperObserver(entities());
     }
 }
