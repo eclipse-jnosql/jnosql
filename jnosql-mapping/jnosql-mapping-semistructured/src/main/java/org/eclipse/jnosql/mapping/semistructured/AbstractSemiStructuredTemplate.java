@@ -411,6 +411,4 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         }
         return this.observer;
     }
-
-
 }
