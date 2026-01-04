@@ -230,7 +230,7 @@ class DefaultEntitiesMetadataTest {
         this.mappings.load(SmsNotification.class);
         this.mappings.load(SocialMediaNotification.class);
 
-        EntityMetadata mapping = this.mappings
+        var mapping = this.mappings
                 .findByMappingName("EmailNotification")
                 .orElseThrow();
 
