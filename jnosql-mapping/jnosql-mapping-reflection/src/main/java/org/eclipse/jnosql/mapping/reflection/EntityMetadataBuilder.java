@@ -30,6 +30,8 @@ class EntityMetadataBuilder {
 
     private String name;
 
+    private String dataStructure;
+
     private List<String> fieldsName = Collections.emptyList();
 
     private Class<?> type;
@@ -51,6 +53,11 @@ class EntityMetadataBuilder {
 
     public EntityMetadataBuilder name(String name) {
         this.name = name;
+        return this;
+    }
+
+    public EntityMetadataBuilder dataStructure(String dataStructure) {
+        this.dataStructure = dataStructure;
         return this;
     }
 
@@ -101,7 +108,7 @@ class EntityMetadataBuilder {
 
 
     public EntityMetadata build() {
-        return new DefaultEntityMetadata(name, fieldsName, type, fields,
+        return new DefaultEntityMetadata(name, dataStructure, fieldsName, type, fields,
                 javaFieldGroupedByColumn, fieldsGroupedByName, instanceSupplier, inheritance,
                 constructor, hasInheritanceAnnotation);
     }
