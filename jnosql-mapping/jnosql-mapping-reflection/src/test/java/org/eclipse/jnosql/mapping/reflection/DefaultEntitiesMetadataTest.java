@@ -192,4 +192,52 @@ class DefaultEntitiesMetadataTest {
         Assertions.assertNotNull(toString);
         Assertions.assertTrue(toString.contains("DefaultEntitiesMetadata"));
     }
+
+    @Test
+    void shouldFindByMappingName() {
+        this.mappings.load(Person.class);
+        this.mappings.load(Vendor.class);
+
+        EntityMetadata mapping = this.mappings
+                .findByMappingName("Person")
+                .orElseThrow();
+
+        Assertions.assertNotNull(mapping);
+        Assertions.assertEquals(Person.class, mapping.type());
+    }
+
+    @Test
+    void shouldFindByMappingNameFromInheritance() {
+        this.mappings.load(Notification.class);
+        this.mappings.load(EmailNotification.class);
+        this.mappings.load(SmsNotification.class);
+        this.mappings.load(SocialMediaNotification.class);
+
+        EntityMetadata mapping = this.mappings
+                .findByMappingName("Notification")
+                .orElseThrow();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(mapping).isNotNull();
+            softly.assertThat(mapping.type()).isEqualTo(Notification.class);
+        });
+    }
+
+    @Test
+    void shouldFindByMappingNameFromInheritanceSpecialization() {
+        this.mappings.load(Notification.class);
+        this.mappings.load(EmailNotification.class);
+        this.mappings.load(SmsNotification.class);
+        this.mappings.load(SocialMediaNotification.class);
+
+        var mapping = this.mappings
+                .findByMappingName("EmailNotification")
+                .orElseThrow();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(mapping).isNotNull();
+            softly.assertThat(mapping.type()).isEqualTo(EmailNotification.class);
+            softly.assertThat(mapping.name()).isEqualTo("Notification");
+        });
+    }
 }

@@ -23,6 +23,7 @@ import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.PreparedStatement;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -38,6 +39,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Mockito.when;
@@ -250,4 +252,70 @@ class TemplateInheritanceTest {
             soft.assertThat(query.condition()).isEmpty();
         });
     }
+
+    @Test
+    void shouldQueryGenerically() {
+        PreparedStatement prepare = template.prepare("FROM Notification");
+        prepare.result();
+
+        var captor = ArgumentCaptor.forClass(SelectQuery.class);
+        Mockito.verify(this.managerMock).select(captor.capture());
+        var query = captor.getValue();
+        assertSoftly(soft -> {
+            soft.assertThat(query.name()).isEqualTo("Notification");
+            soft.assertThat(query.condition()).isEmpty();
+        });
+    }
+
+    @Test
+    void shouldQueryWithSpecialization() {
+        var prepare = template.prepare("FROM EmailNotification WHERE email = 'email@gmail.com'");
+        prepare.result();
+
+        var captor = ArgumentCaptor.forClass(SelectQuery.class);
+        Mockito.verify(this.managerMock).select(captor.capture());
+        var query = captor.getValue();
+        assertSoftly(soft -> soft.assertThat(query.name()).isEqualTo("Notification"));
+    }
+
+    @Test
+    void shouldQueryWithSpecializationWithCondition() {
+        PreparedStatement prepare = template.prepare("FROM EmailNotification");
+        prepare.result();
+
+        var captor = ArgumentCaptor.forClass(SelectQuery.class);
+        Mockito.verify(this.managerMock).select(captor.capture());
+        var query = captor.getValue();
+        assertSoftly(soft -> {
+            soft.assertThat(query.name()).isEqualTo("Notification");
+            soft.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(condition.element()).isEqualTo(Element.of("dtype", "Email"));
+        });
+    }
+
+    @Test
+    void shouldQueryWithSpecializationWithConditionAppend() {
+        var prepare = template.prepare("FROM EmailNotification WHERE email = 'email@email'");
+        prepare.result();
+
+        var captor = ArgumentCaptor.forClass(SelectQuery.class);
+        Mockito.verify(this.managerMock).select(captor.capture());
+        var query = captor.getValue();
+        assertSoftly(soft -> {
+            soft.assertThat(query.name()).isEqualTo("Notification");
+            soft.assertThat(query.condition()).isPresent();
+            CriteriaCondition condition = query.condition().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
+            var conditions = condition.element().get(new TypeReference<List<CriteriaCondition>>() {
+            });
+            soft.assertThat(conditions.getFirst().condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(conditions.getFirst().element()).isEqualTo(Element.of("email", "email@email"));
+
+            soft.assertThat(conditions.get(1).condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(conditions.get(1).element()).isEqualTo(Element.of("dtype", "Email"));
+        });
+    }
+
 }

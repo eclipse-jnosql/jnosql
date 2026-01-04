@@ -55,6 +55,7 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
 
     private final Map<Class<?>, ProjectionMetadata> projections;
 
+    private final  Map<String, EntityMetadata> findByMappingName;
 
     private final ClassConverter converter;
 
@@ -68,12 +69,14 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
         this.findByClassName = new ConcurrentHashMap<>();
         this.converter = new ReflectionClassConverter();
         this.projections = new ConcurrentHashMap<>();
+        this.findByMappingName = new ConcurrentHashMap<>();
     }
 
     @PostConstruct
     public void init() {
         LOGGER.fine(() -> "Init DefaultEntitiesMetadata");
         classes.putAll(extension.classes());
+        extension.classes().values().forEach(e -> findByMappingName.put(e.mappingName(), e));
         classes.values().forEach(r -> findByClassName.put(r.className(), r));
         extension.mappings().forEach((k, v) -> mappings.put(k.toUpperCase(Locale.US), v));
         mappings.values().forEach(r -> {
@@ -87,10 +90,11 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
     EntityMetadata load(Class<?> type) {
         EntityMetadata metadata = converter.apply(type);
         if (metadata.hasEntityName()) {
-            mappings.put(type.getName().toUpperCase(Locale.US), metadata);
+            mappings.put(metadata.name().toUpperCase(Locale.US), metadata);
         }
         this.findBySimpleName.put(type.getSimpleName(), metadata);
         this.findByClassName.put(type.getName(), metadata);
+        this.findByMappingName.put(metadata.mappingName(), metadata);
         return metadata;
     }
 
@@ -126,6 +130,12 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
     public Optional<EntityMetadata> findByClassName(String name) {
         Objects.requireNonNull(name, "name is required");
         return Optional.ofNullable(findByClassName.get(name));
+    }
+
+    @Override
+    public Optional<EntityMetadata> findByMappingName(String mappingName) {
+        Objects.requireNonNull(mappingName, "mappingName is required");
+        return Optional.ofNullable(findByMappingName.get(mappingName));
     }
 
     @Override

@@ -405,6 +405,4 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
     private MapperObserver observer() {
         return new MapperObserver(entities());
     }
-
-
 }

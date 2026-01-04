@@ -155,7 +155,11 @@ enum DynamicSelectQueryBuilder {
         return new Pagination(limit, skip);
     }
 
-    private static CriteriaCondition condition(SelectQuery query, Converters converters, EntityMetadata entityMetadata, SpecialParameters specialParameters) {
+    private static CriteriaCondition condition(SelectQuery query,
+                                               Converters converters,
+                                               EntityMetadata entityMetadata,
+                                               SpecialParameters specialParameters) {
+
         var condition = query.condition().orElse(null);
         var conditionInheritance = includeInheritance(entityMetadata);
         if (conditionInheritance != null) {

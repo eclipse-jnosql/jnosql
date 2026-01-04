@@ -34,6 +34,8 @@ final class MapperObserver implements CommunicationObserverParser {
 
     private String entity;
 
+    private EntityMetadata entityMetadata;
+
     MapperObserver(EntitiesMetadata mappings) {
         this.mappings = mappings;
     }
@@ -41,6 +43,7 @@ final class MapperObserver implements CommunicationObserverParser {
     @Override
     public String fireEntity(String entity) {
         Optional<EntityMetadata> mapping = getEntityMetadata(entity);
+        this.entityMetadata = mapping.orElse(null);
         return mapping.map(EntityMetadata::name).orElse(entity);
     }
 
@@ -69,7 +72,7 @@ final class MapperObserver implements CommunicationObserverParser {
     }
 
     private String mapField(String entity, String field) {
-        Optional<EntityMetadata> mapping = getEntityMetadata(entity);
+        Optional<EntityMetadata> mapping = Optional.ofNullable(entityMetadata).or(() -> getEntityMetadata(entity));
         if(By.ID.equalsIgnoreCase(field)) {
             return mapping.flatMap(EntityMetadata::id).map(FieldParameterMetadata::name).orElse(field);
         }
@@ -81,9 +84,17 @@ final class MapperObserver implements CommunicationObserverParser {
             this.entity = entity;
             return Optional.of(this.mappings.findByName(entity));
         } catch (ClassInformationNotFoundException e) {
-            return this.mappings.findBySimpleName(entity)
-                    .or(() -> this.mappings.findByClassName(entity));
+            return this.mappings.findByMappingName(entity)
+                    .or(() -> this.mappings.findByClassName(entity))
+                    .or(() -> this.mappings.findBySimpleName(entity));
         }
     }
 
+    boolean isInherited() {
+        return entityMetadata != null && entityMetadata.inheritance().isPresent();
+    }
+
+    EntityMetadata entityMetadata() {
+        return entityMetadata;
+    }
 }

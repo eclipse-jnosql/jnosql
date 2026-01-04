@@ -18,6 +18,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.ClassConverter;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
+import org.eclipse.jnosql.mapping.reflection.entities.Magazine;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.eclipse.jnosql.mapping.reflection.entities.inheritance.Notification;
 import org.junit.jupiter.api.BeforeEach;
@@ -121,6 +122,24 @@ class DefaultEntityMetadataTest {
         EntityMetadata entityMetadata = converter.apply(Person.class);
         assertThat(entityMetadata).isEqualTo(converter.apply(Person.class));
         assertThat(entityMetadata).hasSameHashCodeAs(entityMetadata);
+    }
+
+    @Test
+    void shouldMappingName(){
+        EntityMetadata entityMetadata = converter.apply(Person.class);
+        assertThat(entityMetadata.mappingName()).isEqualTo("Person");
+    }
+
+    @Test
+    void shouldMappingInheritance(){
+        EntityMetadata entityMetadata = converter.apply(Notification.class);
+        assertThat(entityMetadata.mappingName()).isEqualTo("Notification");
+    }
+
+    @Test
+    void shouldOverwriteMappingName(){
+        EntityMetadata entityMetadata = converter.apply(Magazine.class);
+        assertThat(entityMetadata.mappingName()).isEqualTo("legacyMagazine");
     }
 
 }

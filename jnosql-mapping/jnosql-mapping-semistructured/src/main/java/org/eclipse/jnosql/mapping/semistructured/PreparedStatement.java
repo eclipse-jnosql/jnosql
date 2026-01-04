@@ -16,8 +16,12 @@ package org.eclipse.jnosql.mapping.semistructured;
 
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement;
+import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
+import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -44,6 +48,8 @@ public final class PreparedStatement implements org.eclipse.jnosql.mapping.Prepa
 
     private final EntitiesMetadata entitiesMetadata;
 
+    private boolean updated;
+
     PreparedStatement(CommunicationPreparedStatement preparedStatement,
                       EntityConverter converter, MapperObserver observer, EntitiesMetadata entitiesMetadata) {
         this.preparedStatement = preparedStatement;
@@ -69,12 +75,14 @@ public final class PreparedStatement implements org.eclipse.jnosql.mapping.Prepa
 
     @Override
     public <T> Stream<T> result() {
+        updateQuery();
         Function<T, T> fieldMapper = SelectFieldMapper.INSTANCE.map(observer, entitiesMetadata);
         return preparedStatement.result().<T>map(converter::toEntity).map(fieldMapper);
     }
 
     @Override
     public <T> Optional<T> singleResult() {
+        updateQuery();
         Optional<CommunicationEntity> singleResult = preparedStatement.singleResult();
         Optional<T> result = singleResult.map(converter::toEntity);
         return result.map(SelectFieldMapper.INSTANCE.map(observer, entitiesMetadata));
@@ -82,6 +90,7 @@ public final class PreparedStatement implements org.eclipse.jnosql.mapping.Prepa
 
     @Override
     public long count() {
+        updateQuery();
         return preparedStatement.count();
     }
 
@@ -107,7 +116,38 @@ public final class PreparedStatement implements org.eclipse.jnosql.mapping.Prepa
      */
     public void setSelectMapper(UnaryOperator<SelectQuery> selectMapper) {
         Objects.requireNonNull(selectMapper, "selectMapper is required");
+        this.updated = true;
         this.preparedStatement.setSelectMapper(selectMapper);
     }
 
+    private void updateQuery() {
+        if (this.observer.isInherited() && !this.updated) {
+            this.preparedStatement.setSelectMapper(selectQuery ->
+                    new MappingQuery(selectQuery.sorts(), selectQuery.limit(), selectQuery.skip(),
+                            appendCriteriaCondition(selectQuery.condition().orElse(null),
+                                    createInheritance(observer.entityMetadata())),
+                            selectQuery.name(),
+                            selectQuery.columns()));
+        }
+    }
+
+
+    private static CriteriaCondition appendCriteriaCondition(CriteriaCondition condition, CriteriaCondition newCondition) {
+        if (condition != null) {
+            return CriteriaCondition.and(condition, newCondition);
+        } else {
+            return newCondition;
+        }
+    }
+
+    private static CriteriaCondition createInheritance(EntityMetadata metadata) {
+        if (metadata.inheritance().isPresent()) {
+            InheritanceMetadata inheritanceMetadata = metadata.inheritance().orElseThrow();
+            if (!inheritanceMetadata.parent().equals(metadata.type())) {
+                return CriteriaCondition.eq(Element.of(inheritanceMetadata.discriminatorColumn(),
+                        inheritanceMetadata.discriminatorValue()));
+            }
+        }
+        return null;
+    }
 }
