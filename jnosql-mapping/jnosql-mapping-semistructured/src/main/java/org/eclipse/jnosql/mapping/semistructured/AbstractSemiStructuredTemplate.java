@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 
+import jakarta.annotation.PostConstruct;
 import jakarta.data.exceptions.NonUniqueResultException;
 import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
@@ -105,6 +106,13 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
      * @return the converters
      */
     protected abstract Converters converters();
+
+    private MapperObserver observer;
+
+    @PostConstruct
+    void init() {
+        this.observer = new MapperObserver(entities());
+    }
 
     @Override
     public <T> T insert(T entity) {
@@ -403,7 +411,7 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
     }
 
     private MapperObserver observer() {
-        return new MapperObserver(entities());
+        return this.observer;
     }
 
 
