@@ -33,7 +33,9 @@ public interface EntityMetadata {
      */
     String name();
 
-
+    /**
+     * @return the data structure type {@link jakarta.nosql.Entity#value()}
+     */
     String dataStructure();
 
     /**
