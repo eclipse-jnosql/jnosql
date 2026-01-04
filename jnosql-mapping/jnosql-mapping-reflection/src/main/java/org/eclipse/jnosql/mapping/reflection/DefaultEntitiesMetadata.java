@@ -87,7 +87,7 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
     EntityMetadata load(Class<?> type) {
         EntityMetadata metadata = converter.apply(type);
         if (metadata.hasEntityName()) {
-            mappings.put(type.getName().toUpperCase(Locale.US), metadata);
+            mappings.put(metadata.name().toUpperCase(Locale.US), metadata);
         }
         this.findBySimpleName.put(type.getSimpleName(), metadata);
         this.findByClassName.put(type.getName(), metadata);
