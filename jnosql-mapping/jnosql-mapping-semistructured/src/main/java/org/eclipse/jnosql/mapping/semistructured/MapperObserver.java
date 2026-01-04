@@ -91,7 +91,7 @@ final class MapperObserver implements CommunicationObserverParser {
     }
 
     boolean isInherited() {
-        return entityMetadata != null && entityMetadata.isInheritance();
+        return entityMetadata != null && entityMetadata.inheritance().isPresent();
     }
 
     EntityMetadata entityMetadata() {
