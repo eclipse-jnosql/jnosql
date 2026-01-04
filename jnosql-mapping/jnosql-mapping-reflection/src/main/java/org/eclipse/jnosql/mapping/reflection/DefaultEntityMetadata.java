@@ -32,7 +32,7 @@ class DefaultEntityMetadata implements EntityMetadata {
 
     private final String name;
 
-    private final String dataStructure;
+    private final String mappingName;
 
     private final String simpleName;
 
@@ -59,7 +59,7 @@ class DefaultEntityMetadata implements EntityMetadata {
     private final ConstructorMetadata constructor;
 
     DefaultEntityMetadata(String name,
-                          String dataStructure,
+                          String mappingName,
                           List<String> fieldsName,
                           Class<?> type,
                           List<FieldMetadata> fields,
@@ -70,7 +70,7 @@ class DefaultEntityMetadata implements EntityMetadata {
                           ConstructorMetadata constructor,
                           boolean hasInheritanceAnnotation) {
         this.name = name;
-        this.dataStructure = dataStructure;
+        this.mappingName = mappingName;
         this.simpleName = type.getSimpleName();
         this.className = type.getName();
         this.fieldsName = fieldsName;
@@ -91,8 +91,8 @@ class DefaultEntityMetadata implements EntityMetadata {
     }
 
     @Override
-    public String dataStructure() {
-        return dataStructure;
+    public String mappingName() {
+        return mappingName;
     }
 
     @Override

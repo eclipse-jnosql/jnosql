@@ -54,7 +54,8 @@ public final class ReflectionClassConverter implements ClassConverter {
     public EntityMetadata apply(Class<?> entity) {
 
         long start = System.currentTimeMillis();
-        String entityName = reflections.getEntityName(entity);
+        var entityName = reflections.getEntityName(entity);
+        var mappingName = reflections.getMappingName(entity);
 
         List<FieldMetadata> fields = reflections.getFields(entity)
                 .stream().map(this::to).collect(toList());
@@ -76,6 +77,7 @@ public final class ReflectionClassConverter implements ClassConverter {
 
         EntityMetadata mapping = DefaultEntityMetadata.builder()
                 .name(entityName)
+                .mappingName(mappingName)
                 .type(entity)
                 .fields(fields)
                 .fieldsName(fieldsName)

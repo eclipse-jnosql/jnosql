@@ -222,6 +222,15 @@ public class Reflections {
         return readEntity(entity);
     }
 
+    String getMappingName(Class<?> entity) {
+        requireNonNull(entity, "class entity is required");
+
+        if (isInheritance(entity)) {
+            return readEntity(entity.getSuperclass());
+        }
+        return readEntity(entity);
+    }
+
     /**
      * Returns the fields from the entity class
      *
