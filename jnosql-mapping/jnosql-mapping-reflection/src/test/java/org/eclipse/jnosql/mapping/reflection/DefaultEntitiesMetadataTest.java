@@ -205,4 +205,38 @@ class DefaultEntitiesMetadataTest {
         Assertions.assertNotNull(mapping);
         Assertions.assertEquals(Person.class, mapping.type());
     }
+
+    @Test
+    void shouldFindByMappingNameFromInheritance() {
+        this.mappings.load(Notification.class);
+        this.mappings.load(EmailNotification.class);
+        this.mappings.load(SmsNotification.class);
+        this.mappings.load(SocialMediaNotification.class);
+
+        EntityMetadata mapping = this.mappings
+                .findByMappingName("Notification")
+                .orElseThrow();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(mapping).isNotNull();
+            softly.assertThat(mapping.type()).isEqualTo(Notification.class);
+        });
+    }
+
+    @Test
+    void shouldFindByMappingNameFromInheritanceSpecialization() {
+        this.mappings.load(Notification.class);
+        this.mappings.load(EmailNotification.class);
+        this.mappings.load(SmsNotification.class);
+        this.mappings.load(SocialMediaNotification.class);
+
+        EntityMetadata mapping = this.mappings
+                .findByMappingName("Notification")
+                .orElseThrow();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(mapping).isNotNull();
+            softly.assertThat(mapping.type()).isEqualTo(Notification.class);
+        });
+    }
 }

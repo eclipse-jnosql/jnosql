@@ -94,6 +94,7 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
         }
         this.findBySimpleName.put(type.getSimpleName(), metadata);
         this.findByClassName.put(type.getName(), metadata);
+        this.findByMappingName.put(metadata.mappingName(), metadata);
         return metadata;
     }
 
