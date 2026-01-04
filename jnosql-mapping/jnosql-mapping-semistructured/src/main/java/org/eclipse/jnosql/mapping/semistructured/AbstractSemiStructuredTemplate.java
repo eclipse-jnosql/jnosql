@@ -109,11 +109,6 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
 
     private MapperObserver observer;
 
-    @PostConstruct
-    void init() {
-        this.observer = new MapperObserver(entities());
-    }
-
     @Override
     public <T> T insert(T entity) {
         requireNonNull(entity, "entity is required");
@@ -411,6 +406,9 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
     }
 
     private MapperObserver observer() {
+        if (this.observer == null) {
+            this.observer = new MapperObserver(entities());
+        }
         return this.observer;
     }
 
