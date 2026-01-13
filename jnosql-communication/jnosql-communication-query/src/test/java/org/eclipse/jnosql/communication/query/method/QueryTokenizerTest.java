@@ -43,7 +43,7 @@ class QueryTokenizerTest {
     void shouldRunQuery(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy Age", queryTokenizer.get());
+        assertEquals("find By  Age", queryTokenizer.get());
     }
 
 
@@ -52,7 +52,7 @@ class QueryTokenizerTest {
     void shouldRunQuery1(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy Name And Age", queryTokenizer.get());
+        assertEquals("find By Name And Age", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -60,7 +60,7 @@ class QueryTokenizerTest {
     void shouldRunQuery2(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy Name Or Age", queryTokenizer.get());
+        assertEquals("find By Name Or Age", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -68,7 +68,7 @@ class QueryTokenizerTest {
     void shouldRunQuery3(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy Name Or Age OrderBy Name", queryTokenizer.get());
+        assertEquals("find By Name Or Age OrderBy Name", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -76,15 +76,15 @@ class QueryTokenizerTest {
     void shouldRunQuery4(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy Name Or Age OrderBy Name Asc", queryTokenizer.get());
+        assertEquals("find By Name Or Age OrderBy Name Asc", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"findByNameOrAgeOrderByNameDesc"})
+    @ValueSource(strings = {"find ByNameOrAgeOrderByNameDesc"})
     void shouldRunQuery5(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy Name Or Age OrderBy Name Desc", queryTokenizer.get());
+        assertEquals("find By Name Or Age OrderBy Name Desc", queryTokenizer.get());
     }
 
 
@@ -93,7 +93,7 @@ class QueryTokenizerTest {
     void shouldRunQuery6(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy LastName And FirstName", queryTokenizer.get());
+        assertEquals("find By LastName And FirstName", queryTokenizer.get());
     }
 
 
@@ -102,7 +102,7 @@ class QueryTokenizerTest {
     void shouldRunQuery7(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy LastName Or FirstName", queryTokenizer.get());
+        assertEquals("find By LastName Or FirstName", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -110,7 +110,7 @@ class QueryTokenizerTest {
     void shouldRunQuery8(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy StartDate Between", queryTokenizer.get());
+        assertEquals("find By StartDate Between", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -118,7 +118,7 @@ class QueryTokenizerTest {
     void shouldRunQuery9(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy Age LessThan", queryTokenizer.get());
+        assertEquals("find By Age LessThan", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -126,7 +126,7 @@ class QueryTokenizerTest {
     void shouldRunQuery10(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy Age LessThanEqual", queryTokenizer.get());
+        assertEquals("find By Age LessThanEqual", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -134,7 +134,7 @@ class QueryTokenizerTest {
     void shouldRunQuery11(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy Age GreaterThan", queryTokenizer.get());
+        assertEquals("find By Age GreaterThan", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -142,7 +142,7 @@ class QueryTokenizerTest {
     void shouldRunQuery12(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy Age GreaterThanEqual", queryTokenizer.get());
+        assertEquals("find By Age GreaterThanEqual", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -150,7 +150,7 @@ class QueryTokenizerTest {
     void shouldRunQuery13(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy FirstName Like", queryTokenizer.get());
+        assertEquals("find By FirstName Like", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -158,7 +158,7 @@ class QueryTokenizerTest {
     void shouldRunQuery14(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy FirstName Not Like", queryTokenizer.get());
+        assertEquals("find By FirstName Not Like", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -166,7 +166,7 @@ class QueryTokenizerTest {
     void shouldRunQuery15(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy FirstName Like OrderBy Name Asc Age Desc", queryTokenizer.get());
+        assertEquals("find By FirstName Like OrderBy Name Asc Age Desc", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -174,7 +174,7 @@ class QueryTokenizerTest {
     void shouldRunQuery16(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy FirstName Like OrderBy Name Asc Age", queryTokenizer.get());
+        assertEquals("find By FirstName Like OrderBy Name Asc Age", queryTokenizer.get());
     }
 
 
@@ -183,7 +183,7 @@ class QueryTokenizerTest {
     void shouldRunQuery17(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("deleteBy Age", queryTokenizer.get());
+        assertEquals("delete By Age", queryTokenizer.get());
     }
 
 
@@ -192,7 +192,7 @@ class QueryTokenizerTest {
     void shouldRunQuery18(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("deleteBy Name And Age", queryTokenizer.get());
+        assertEquals("delete By Name And Age", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -200,7 +200,7 @@ class QueryTokenizerTest {
     void shouldRunQuery19(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("deleteBy Name Or Age", queryTokenizer.get());
+        assertEquals("delete By Name Or Age", queryTokenizer.get());
     }
 
 
@@ -209,7 +209,7 @@ class QueryTokenizerTest {
     void shouldRunQuery20(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("deleteBy LastName And FirstName", queryTokenizer.get());
+        assertEquals("delete By LastName And FirstName", queryTokenizer.get());
     }
 
 
@@ -218,7 +218,7 @@ class QueryTokenizerTest {
     void shouldRunQuery21(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("deleteBy LastName Or FirstName", queryTokenizer.get());
+        assertEquals("delete By LastName Or FirstName", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -226,7 +226,7 @@ class QueryTokenizerTest {
     void shouldRunQuery22(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("deleteBy StartDate Between", queryTokenizer.get());
+        assertEquals("delete By StartDate Between", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -234,7 +234,7 @@ class QueryTokenizerTest {
     void shouldRunQuery23(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("deleteBy Age LessThan", queryTokenizer.get());
+        assertEquals("delete By Age LessThan", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -242,7 +242,7 @@ class QueryTokenizerTest {
     void shouldRunQuery24(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy Age LessThanEqual", queryTokenizer.get());
+        assertEquals("find By Age LessThanEqual", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -250,7 +250,7 @@ class QueryTokenizerTest {
     void shouldRunQuery25(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("deleteBy Age GreaterThan", queryTokenizer.get());
+        assertEquals("delete By Age GreaterThan", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -258,7 +258,7 @@ class QueryTokenizerTest {
     void shouldRunQuery26(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("deleteBy Age GreaterThanEqual", queryTokenizer.get());
+        assertEquals("delete By Age GreaterThanEqual", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -266,7 +266,7 @@ class QueryTokenizerTest {
     void shouldRunQuery27(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("deleteBy FirstName Like", queryTokenizer.get());
+        assertEquals("delete By FirstName Like", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -274,7 +274,7 @@ class QueryTokenizerTest {
     void shouldRunQuery28(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("deleteBy FirstName Not Like", queryTokenizer.get());
+        assertEquals("delete By FirstName Not Like", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -282,7 +282,7 @@ class QueryTokenizerTest {
     void shouldRunQuery29(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("deleteBy Salary_Currency", queryTokenizer.get());
+        assertEquals("delete By Salary_Currency", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -290,7 +290,7 @@ class QueryTokenizerTest {
     void shouldRunQuery30(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("deleteBy Salary_Currency And Credential_Role", queryTokenizer.get());
+        assertEquals("delete By Salary_Currency And Credential_Role", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -298,7 +298,7 @@ class QueryTokenizerTest {
     void shouldRunQuery31(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("deleteBy Salary_Currency And Name", queryTokenizer.get());
+        assertEquals("delete By Salary_Currency And Name", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -306,7 +306,7 @@ class QueryTokenizerTest {
     void shouldRunQuery32(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy Salary_Currency", queryTokenizer.get());
+        assertEquals("find By  Salary_Currency", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -314,7 +314,7 @@ class QueryTokenizerTest {
     void shouldRunQuery33(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy Salary_Currency And Credential_Role", queryTokenizer.get());
+        assertEquals("find By  Salary_Currency And Credential_Role", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -322,7 +322,7 @@ class QueryTokenizerTest {
     void shouldRunQuery34(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy Salary_Currency And Name", queryTokenizer.get());
+        assertEquals("find By  Salary_Currency And Name", queryTokenizer.get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -338,7 +338,7 @@ class QueryTokenizerTest {
     void shouldRunQuery36(String query) {
         QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
         assertNotNull(queryTokenizer);
-        assertEquals("findBy FirstName And LastName", queryTokenizer.get());
+        assertEquals("find By  FirstName And LastName", queryTokenizer.get());
     }
 
 
