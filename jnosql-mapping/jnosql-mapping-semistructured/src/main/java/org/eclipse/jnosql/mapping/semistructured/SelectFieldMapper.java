@@ -14,8 +14,12 @@
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
+import jakarta.data.repository.By;
+import jakarta.data.repository.Find;
+import org.eclipse.jnosql.mapping.metadata.ClassInformationNotFoundException;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +54,12 @@ enum SelectFieldMapper {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T field(T entity, EntityMetadata metadata, String field) {
+     <T> T field(T entity, EntityMetadata metadata, String field) {
+        if(By.ID.equals(field)) {
+            var id = metadata.id().orElseThrow(() -> new ClassInformationNotFoundException(
+                    "The entity " + metadata.name() + " does not have id mapping"));
+            return (T) id.read(entity);
+        }
         var fieldMetadata = metadata.fieldMapping(field).orElseThrow();
         var value = fieldMetadata.read(entity);
         return (T) value;
