@@ -16,10 +16,7 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 
 import jakarta.data.Sort;
 import jakarta.data.constraint.Constraint;
-import jakarta.data.repository.BasicRepository;
 import jakarta.data.repository.By;
-import jakarta.data.repository.CrudRepository;
-import jakarta.data.repository.DataRepository;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.First;
 import jakarta.data.repository.Is;
@@ -30,13 +27,12 @@ import jakarta.data.repository.Select;
 import jakarta.enterprise.event.Event;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Projection;
-import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.ProviderQuery;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryAnnotation;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
-import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
 import org.eclipse.jnosql.mapping.reflection.ProjectionFound;
 
 import java.lang.reflect.Method;
