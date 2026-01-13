@@ -36,12 +36,21 @@ public final class QueryTokenizer implements Supplier<String> {
     private final String value;
 
     private static final Pattern TOKENIZER_PATTERN = Pattern.compile(
-            "findBy|deleteBy|countAll|countBy|existsBy|OrderBy|"
-                    + "First(?=\\d*By)|First(?=By)|(?<=First\\d{1,})By|(?<=First)By|(?<!First)By|IgnoreCase|"
-                    + "And|Or(?!der)|Null|Not|Equals|GreaterThanEqual|True|False|Contains|EndsWith|StartsWith|"
-                    + "LessThanEqual|GreaterThan|LessThan|Between|In|Like|Asc|Desc"
+            "countAll|"
+                    + "find|delete|count|exists|"
+                    + "By(?=[A-Z]|$)|"
+                    + "OrderBy|"
+                    + "First(?=\\d*By)|First|"
+                    + "And|Or(?!der)|"
+                    + "IgnoreCase|"
+                    + "Null|Not|Equals|"
+                    + "GreaterThanEqual|LessThanEqual|"
+                    + "GreaterThan|LessThan|"
+                    + "Between|In|Like|"
+                    + "Contains|StartsWith|EndsWith|"
+                    + "True|False|"
+                    + "Asc|Desc"
     );
-
     private static final Map<String, String> CACHE = Collections.synchronizedMap(new WeakHashMap<>());
 
     private QueryTokenizer(String value) {
