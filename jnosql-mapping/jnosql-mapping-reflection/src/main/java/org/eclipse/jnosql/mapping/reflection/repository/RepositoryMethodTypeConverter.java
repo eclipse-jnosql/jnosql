@@ -34,7 +34,6 @@ import java.util.function.Predicate;
 enum RepositoryMethodTypeConverter {
     INSTANCE;
 
-
     private static final MethodPattern FIND_BY =
             MethodPattern.of("find", RepositoryMethodType.FIND_BY);
 
