@@ -73,7 +73,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(metadata).isInstanceOf(ReflectionRepositoryMetadata.class);
             soft.assertThat(metadata.entity()).get().isEqualTo(Person.class);
             soft.assertThat(metadata.type()).isEqualTo(type);
-            soft.assertThat(metadata.methods()).isNotNull().isEmpty();
+            soft.assertThat(metadata.methods()).isNotNull().isNotEmpty();
         });
     }
 
