@@ -38,9 +38,9 @@ public final class QueryTokenizer implements Supplier<String> {
     private static final Pattern TOKENIZER_PATTERN = Pattern.compile(
             "countAll|"
                     + "find|delete|count|exists|"
+                    + "First(?=\\d*By)|"
                     + "By(?=[A-Z]|$)|"
                     + "OrderBy|"
-                    + "First(?=\\d*By)|First|"
                     + "And|Or(?!der)|"
                     + "IgnoreCase|"
                     + "Null|Not|Equals|"
