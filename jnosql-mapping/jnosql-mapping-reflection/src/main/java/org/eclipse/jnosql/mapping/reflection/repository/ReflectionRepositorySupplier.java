@@ -144,6 +144,7 @@ enum ReflectionRepositorySupplier {
         List<String> select = Arrays.stream(method.getDeclaredAnnotationsByType(Select.class))
                 .map(Select::value)
                 .toList();
+
         List<RepositoryAnnotation> annotations = Arrays.stream(method.getAnnotations())
                 .map(this::toAnnotation)
                 .distinct()
@@ -220,7 +221,8 @@ enum ReflectionRepositorySupplier {
                     .orElse(parameter.getName());
             Class<?> type = parameter.getType();
             Class<?> elementType = null;
-            if (parameter.getParameterizedType() instanceof ParameterizedType parameterizedType) {
+            if (parameter.getParameterizedType() instanceof ParameterizedType parameterizedType
+            && parameterizedType.getActualTypeArguments()[0] instanceof Class<?>) {
                 elementType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
             }
             if (parameter.getType().isArray()) {
@@ -297,21 +299,9 @@ enum ReflectionRepositorySupplier {
     private static void collect(Class<?> type, Set<Class<?>> result) {
         for (Class<?> componentType : type.getInterfaces()) {
 
-            if (isFrameworkRepositoryInterface(componentType)) {
-                continue;
-            }
-
             if (result.add(componentType)) {
                 collect(componentType, result);
             }
         }
     }
-
-    private static boolean isFrameworkRepositoryInterface(Class<?> type) {
-        return type == CrudRepository.class
-                || type == BasicRepository.class
-                || type == DataRepository.class
-                || type == NoSQLRepository.class;
-    }
-
 }
