@@ -38,16 +38,16 @@ enum RepositoryMethodTypeConverter {
             MethodPattern.of("find", RepositoryMethodType.FIND_BY);
 
     private static final MethodPattern DELETE_BY =
-            MethodPattern.of("deleteBy", RepositoryMethodType.DELETE_BY);
+            MethodPattern.of("delete", RepositoryMethodType.DELETE_BY);
 
     private static final MethodPattern COUNT_ALL =
             MethodPattern.of("countAll", RepositoryMethodType.COUNT_ALL);
 
     private static final MethodPattern COUNT_BY =
-            MethodPattern.of("countBy", RepositoryMethodType.COUNT_BY);
+            MethodPattern.of("count", RepositoryMethodType.COUNT_BY);
 
     private static final MethodPattern EXISTS_BY =
-            MethodPattern.of("existsBy", RepositoryMethodType.EXISTS_BY);
+            MethodPattern.of("exists", RepositoryMethodType.EXISTS_BY);
 
     private static final Set<MethodPattern> METHOD_PATTERNS =
             Set.of(FIND_BY, DELETE_BY, COUNT_ALL, COUNT_BY, EXISTS_BY);
