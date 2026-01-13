@@ -23,13 +23,16 @@ import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.entities.Person;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -123,6 +126,16 @@ class SelectFieldMapperTest {
             s.assertThat(result).isNotNull();
             s.assertThat(result).hasSize(1).contains(new Object[]{10, "Name"});
         });
+    }
+
+    @Test
+    @DisplayName("should find using id keyword: id(this)")
+    void shouldFindUsingIdKeyWorld() {
+        EntityMetadata entityMetadata = entities.get(Person.class);
+        Person person = Person.builder().id(1L).name("Name").age(10).build();
+        long id = SelectFieldMapper.INSTANCE.field(person, entityMetadata, "id(this)");
+        Assertions.assertEquals(1L, id);
+
     }
 
 
