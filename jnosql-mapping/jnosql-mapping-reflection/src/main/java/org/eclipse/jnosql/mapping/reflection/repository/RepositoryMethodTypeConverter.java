@@ -15,12 +15,16 @@
 package org.eclipse.jnosql.mapping.reflection.repository;
 
 import jakarta.data.page.CursoredPage;
+import jakarta.data.repository.BasicRepository;
+import jakarta.data.repository.CrudRepository;
+import jakarta.data.repository.DataRepository;
 import jakarta.data.repository.Delete;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.Insert;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Save;
 import jakarta.data.repository.Update;
+import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 
 import java.lang.annotation.Annotation;
@@ -84,6 +88,10 @@ enum RepositoryMethodTypeConverter {
             return RepositoryMethodType.DEFAULT_METHOD;
         }
 
+        if(method.getDeclaringClass().isInterface() && isFrameworkRepositoryInterface(method.getDeclaringClass())) {
+            return RepositoryMethodType.BUILT_IN_METHOD;
+        }
+
         if (method.getReturnType().equals(CursoredPage.class)) {
             return RepositoryMethodType.CURSOR_PAGINATION;
         }
@@ -124,4 +132,12 @@ enum RepositoryMethodTypeConverter {
             return new MethodOperation(annotation, type);
         }
     }
+
+    private static boolean isFrameworkRepositoryInterface(Class<?> type) {
+        return type == CrudRepository.class
+                || type == BasicRepository.class
+                || type == DataRepository.class
+                || type == NoSQLRepository.class;
+    }
+
 }
