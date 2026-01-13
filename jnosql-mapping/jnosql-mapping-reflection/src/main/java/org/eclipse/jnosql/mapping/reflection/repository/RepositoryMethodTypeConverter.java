@@ -25,6 +25,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -49,8 +50,8 @@ enum RepositoryMethodTypeConverter {
     private static final MethodPattern EXISTS_BY =
             MethodPattern.of("exists", RepositoryMethodType.EXISTS_BY);
 
-    private static final Set<MethodPattern> METHOD_PATTERNS =
-            Set.of(FIND_BY, DELETE_BY, COUNT_ALL, COUNT_BY, EXISTS_BY);
+    private static final List<MethodPattern> METHOD_PATTERNS =
+            List.of(FIND_BY, DELETE_BY, COUNT_ALL, COUNT_BY, EXISTS_BY);
 
     private static final MethodOperation INSERT =
             MethodOperation.of(Insert.class, RepositoryMethodType.INSERT);
