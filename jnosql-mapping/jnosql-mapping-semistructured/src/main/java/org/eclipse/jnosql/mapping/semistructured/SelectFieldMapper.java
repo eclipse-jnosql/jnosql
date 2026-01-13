@@ -45,23 +45,23 @@ enum SelectFieldMapper {
 
 
     @SuppressWarnings("unchecked")
-    private <T> T fields(T e, List<String> fields, EntityMetadata metadata) {
+    private <T> T fields(T entity, List<String> fields, EntityMetadata metadata) {
         List<Object> values = new ArrayList<>();
         for (String field : fields) {
-            values.add(field(e, metadata, field));
+            values.add(field(entity, metadata, field));
         }
         return (T) values.toArray();
     }
 
     @SuppressWarnings("unchecked")
-     <T> T field(T entity, EntityMetadata metadata, String field) {
+    <T, E> E field(T entity, EntityMetadata metadata, String field) {
         if(By.ID.equals(field)) {
             var id = metadata.id().orElseThrow(() -> new ClassInformationNotFoundException(
                     "The entity " + metadata.name() + " does not have id mapping"));
-            return (T) id.read(entity);
+            return (E) id.read(entity);
         }
         var fieldMetadata = metadata.fieldMapping(field).orElseThrow();
         var value = fieldMetadata.read(entity);
-        return (T) value;
+        return (E) value;
     }
 }
