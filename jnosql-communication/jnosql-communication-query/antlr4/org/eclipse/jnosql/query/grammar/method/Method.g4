@@ -1,8 +1,9 @@
 grammar Method;
-select: selectStart where? order? EOF;
-deleteBy: 'deleteBy' where? EOF;
+select: selectStart restriction? order? EOF;
+deleteBy: 'delete' restriction? EOF;
 
-selectStart: 'find' limit 'By' | 'findBy' | 'countAll' | 'countBy' | 'existsBy';
+selectStart: 'find' limit 'By'  | 'countAll' | 'count' | 'exists' | 'find';
+restriction: 'By' where;
 where: condition (and condition| or condition)* ;
 condition: eq | gt | gte | lt | lte | between | in | like | truth | untruth | nullable | contains | endsWith | startsWith;
 order: 'OrderBy' orderName (orderName)*;
