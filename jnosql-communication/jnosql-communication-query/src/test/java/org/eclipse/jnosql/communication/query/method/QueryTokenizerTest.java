@@ -341,5 +341,21 @@ class QueryTokenizerTest {
         assertEquals("find By FirstName And LastName", queryTokenizer.get());
     }
 
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"existByFirstNameAndLastName"})
+    void shouldRunQuery37(String query) {
+        QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
+        assertNotNull(queryTokenizer);
+        assertEquals("exist By FirstName And LastName", queryTokenizer.get());
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"countByFirstNameAndLastName"})
+    void shouldRunQuery38(String query) {
+        QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
+        assertNotNull(queryTokenizer);
+        assertEquals("count By FirstName And LastName", queryTokenizer.get());
+    }
+
 
 }
