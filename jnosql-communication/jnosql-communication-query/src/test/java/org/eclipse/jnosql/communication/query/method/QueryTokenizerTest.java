@@ -357,5 +357,13 @@ class QueryTokenizerTest {
         assertEquals("count By FirstName And LastName", queryTokenizer.get());
     }
 
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"findFirst10ByAge"})
+    void shouldRunQuery39(String query) {
+        QueryTokenizer queryTokenizer = QueryTokenizer.of(query);
+        assertNotNull(queryTokenizer);
+        assertEquals("find First 10 By Age", queryTokenizer.get());
+    }
+
 
 }
