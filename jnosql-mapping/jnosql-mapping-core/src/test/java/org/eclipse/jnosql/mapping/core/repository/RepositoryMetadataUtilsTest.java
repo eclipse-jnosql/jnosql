@@ -41,7 +41,6 @@ import org.eclipse.jnosql.mapping.core.VetedConverter;
 import org.eclipse.jnosql.mapping.core.entities.People;
 import org.eclipse.jnosql.mapping.core.entities.Person;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
-import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.NameKey;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
@@ -84,13 +83,10 @@ class RepositoryMetadataUtilsTest {
 
     private RepositoryMetadata repositoryMetadata;
 
-    private EntityMetadata entityMetadata;
-
     @BeforeEach
     void setUp() {
         repositoryMetadata = repositoriesMetadata.get(People.class)
                 .orElseThrow();
-        this.entityMetadata = entitiesMetadata.get(Person.class);
     }
 
     @Test
@@ -200,7 +196,7 @@ class RepositoryMetadataUtilsTest {
             Mockito.doReturn(specialParameter).when(param).type();
             Mockito.when(method.params()).thenReturn(Collections.singletonList(param));
 
-            Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{"value"}, entityMetadata);
+            Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{"value"});
             Assertions.assertThat(valueMap).isEmpty();
         }
 
@@ -212,7 +208,7 @@ class RepositoryMetadataUtilsTest {
             Mockito.when(param.by()).thenReturn("age");
             Mockito.doReturn(Integer.class).when(param).type();
             Mockito.when(method.params()).thenReturn(Collections.singletonList(param));
-            Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{10}, entityMetadata);
+            Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{10});
 
             Assertions.assertThat(valueMap)
                     .hasSize(1)
@@ -229,7 +225,7 @@ class RepositoryMetadataUtilsTest {
             Mockito.doReturn(Integer.class).when(param).type();
             Mockito.doReturn(Optional.of(constraintType)).when(param).is();
             Mockito.when(method.params()).thenReturn(Collections.singletonList(param));
-            Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{10}, entityMetadata);
+            Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{10});
 
             Assertions.assertThat(valueMap)
                     .hasSize(1)
@@ -244,7 +240,7 @@ class RepositoryMetadataUtilsTest {
             Mockito.when(param.by()).thenReturn("age");
             Mockito.doReturn(Constraint.class).when(param).type();
             Mockito.when(method.params()).thenReturn(Collections.singletonList(param));
-            Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{constraint}, entityMetadata);
+            Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{constraint});
 
             Assertions.assertThat(valueMap)
                     .hasSize(1)

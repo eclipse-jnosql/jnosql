@@ -130,10 +130,9 @@ public enum RepositoryMetadataUtils {
      *
      * @param method the repository method metadata
      * @param arguments the invocation arguments passed to the method
-     * @param entityMetadata the entity metadata
      * @return a map of property names to resolved condition values
      */
-    public Map<String, ParamValue> getBy(RepositoryMethod method, Object[] arguments, EntityMetadata entityMetadata) {
+    public Map<String, ParamValue> getBy(RepositoryMethod method, Object[] arguments) {
         Map<String, ParamValue> params = new HashMap<>();
 
         var parameters = method.params();
@@ -142,15 +141,9 @@ public enum RepositoryMetadataUtils {
             var value = arguments[index];
             boolean isNotSpecialParameter = SpecialParameters.isNotSpecialParameter(parameter.type());
             var by = parameter.by();
-            String attribute = entityMetadata.columnField(by);
-            if (value instanceof BasicRestriction<?, ?> basicRestriction &&
-                basicRestriction.expression() instanceof TextAttribute<?> textAttribute) {
-                attribute = entityMetadata.columnField(textAttribute.name());
-            }
-
             var is = parameter.is();
             if (isNotSpecialParameter) {
-                params.put(attribute, condition(is.orElse(null), value));
+                params.put(by, condition(is.orElse(null), value));
             }
         }
         return params;
