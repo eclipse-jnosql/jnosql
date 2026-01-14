@@ -364,6 +364,4 @@ class QueryTokenizerTest {
         assertNotNull(queryTokenizer);
         assertEquals("find First 10 By Age", queryTokenizer.get());
     }
-
-
 }
