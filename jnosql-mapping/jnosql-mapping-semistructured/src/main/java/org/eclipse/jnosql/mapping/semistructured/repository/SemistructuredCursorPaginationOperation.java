@@ -68,7 +68,7 @@ class SemistructuredCursorPaginationOperation implements CursorPaginationOperati
     }
 
     private CursoredPage<?> executeFindAnnotation(RepositoryInvocationContext context, RepositoryMethod method, EntityMetadata entityMetadata, SemiStructuredTemplate template) {
-        var paramValueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, context.parameters(), entityMetadata);
+        var paramValueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, context.parameters());
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(paramValueMap, Collections.emptyList(), entityMetadata);
         var updateDynamicQuery = queryBuilder.updateDynamicQuery(query, context);
         var special = DynamicReturn.findSpecialParameters(context.parameters(), Function.identity());
