@@ -59,7 +59,7 @@ class SemistructuredParameterBasedOperation implements ParameterBasedOperation {
                 .flatMap(r -> entitiesMetadata.findByClassName(r.getName()))
                 .orElse(context.entityMetadata());
         var parameters = context.parameters();
-        Map<String, ParamValue> paramValueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, parameters);
+        Map<String, ParamValue> paramValueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, parameters, entityMetadata);
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(paramValueMap, Collections.emptyList(), entityMetadata);
         var updateDynamicQuery = semistructuredQueryBuilder.updateDynamicQuery(query, context(context, entityMetadata));
         return (T) semistructuredReturnType.executeFindByQuery(context, updateDynamicQuery);
