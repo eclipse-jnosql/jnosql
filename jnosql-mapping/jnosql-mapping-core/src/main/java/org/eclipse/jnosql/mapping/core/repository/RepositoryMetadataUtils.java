@@ -15,6 +15,8 @@
 package org.eclipse.jnosql.mapping.core.repository;
 
 import jakarta.data.constraint.Constraint;
+import jakarta.data.metamodel.TextAttribute;
+import jakarta.data.restrict.BasicRestriction;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
@@ -137,12 +139,18 @@ public enum RepositoryMetadataUtils {
         var parameters = method.params();
         for (int index = 0; index < parameters.size(); index++) {
             var parameter = parameters.get(index);
+            var value = arguments[index];
             boolean isNotSpecialParameter = SpecialParameters.isNotSpecialParameter(parameter.type());
             var by = parameter.by();
-            var attribute = entityMetadata.columnField(by);
+            String attribute = entityMetadata.columnField(by);
+            if (value instanceof BasicRestriction<?, ?> basicRestriction &&
+                basicRestriction.expression() instanceof TextAttribute<?> textAttribute) {
+                attribute = entityMetadata.columnField(textAttribute.name());
+            }
+
             var is = parameter.is();
             if (isNotSpecialParameter) {
-                params.put(attribute, condition(is.orElse(null), arguments[index]));
+                params.put(attribute, condition(is.orElse(null), value));
             }
         }
         return params;
