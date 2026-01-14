@@ -148,6 +148,23 @@ class SelectMethodQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"findFirst10ByAge"})
+    void shouldQueryFirstFirstByAge(String query){
+        String entity = "entity";
+        SelectQuery selectQuery = queryProvider.apply(query, entity);
+
+        SoftAssertions.assertSoftly( soft ->{
+            soft.assertThat(selectQuery).isNotNull();
+            soft.assertThat(selectQuery.limit()).isEqualTo(10);
+            soft.assertThat(selectQuery.skip()).isEqualTo(0);
+            soft.assertThat(selectQuery.orderBy()).isEmpty();
+            soft.assertThat(selectQuery.fields()).isEmpty();
+            soft.assertThat(selectQuery.where()).isPresent();
+            soft.assertThat(selectQuery.where().get().condition().condition()).isEqualTo(Condition.EQUALS);
+        });
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"findByName", "countByName", "existsByName"})
     void shouldParseNameQueries(String query) {
         checkCondition(query, Condition.EQUALS, "name");
