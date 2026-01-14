@@ -139,9 +139,10 @@ public enum RepositoryMetadataUtils {
             var parameter = parameters.get(index);
             boolean isNotSpecialParameter = SpecialParameters.isNotSpecialParameter(parameter.type());
             var by = parameter.by();
+            var attribute = entityMetadata.columnField(by);
             var is = parameter.is();
             if (isNotSpecialParameter) {
-                params.put(by, condition(is.orElse(null), arguments[index]));
+                params.put(attribute, condition(is.orElse(null), arguments[index]));
             }
         }
         return params;
