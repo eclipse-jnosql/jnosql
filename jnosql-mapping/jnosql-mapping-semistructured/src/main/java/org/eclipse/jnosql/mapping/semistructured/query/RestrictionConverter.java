@@ -37,6 +37,7 @@ import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldParameterMetadata;
 
 import java.util.List;
 import java.util.Objects;
@@ -127,41 +128,45 @@ public enum RestrictionConverter {
                                         EntityMetadata entityMetadata, Converters converters) {
         var name = basicAttribute.name();
         var fieldMetadata = entityMetadata.fieldMapping(name);
+        var nativeColumn = fieldMetadata.map(FieldParameterMetadata::name).orElse(name);
         var converter = fieldMetadata.stream().flatMap(f -> f.converter().stream()).findFirst();
 
         switch (constraint) {
+
             case EqualTo<?> equalTo -> {
                 var value = ValueConverter.of(equalTo::expression, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return eq(name, value);
+                return eq(nativeColumn, value);
             }
+
             case NotEqualTo<?> notEqualTo -> {
                 var value = ValueConverter.of(notEqualTo::expression, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return eq(name, value).negate();
+                return eq(nativeColumn, value).negate();
             }
+
             case LessThan<?> lessThan -> {
                 var value = ValueConverter.of(lessThan::bound, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return lt(name, value);
+                return lt(nativeColumn, value);
             }
 
             case GreaterThan<?> greaterThan -> {
                 var value = ValueConverter.of(greaterThan::bound, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return gt(name, value);
+                return gt(nativeColumn, value);
             }
 
             case AtLeast<?> greaterThanOrEqual -> {
                 var value = ValueConverter.of(greaterThanOrEqual::bound, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return gte(name, value);
+                return gte(nativeColumn, value);
             }
 
             case AtMost<?> lesserThanOrEqual -> {
                 var value = ValueConverter.of(lesserThanOrEqual::bound, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return lte(name, value);
+                return lte(nativeColumn, value);
             }
 
             case Between<?> between -> {
@@ -169,7 +174,7 @@ public enum RestrictionConverter {
                         converter.orElse(null), fieldMetadata.orElse(null));
                 var upperBound = ValueConverter.of(between::upperBound, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return between(name, List.of(lowerBound, upperBound));
+                return between(nativeColumn, List.of(lowerBound, upperBound));
             }
 
             case NotBetween<?> between -> {
@@ -177,39 +182,39 @@ public enum RestrictionConverter {
                         converter.orElse(null), fieldMetadata.orElse(null));
                 var upperBound = ValueConverter.of(between::upperBound, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return between(name, List.of(lowerBound, upperBound)).negate();
+                return between(nativeColumn, List.of(lowerBound, upperBound)).negate();
             }
 
             case Like like -> {
                 var value = ValueConverter.of(like::pattern, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return like(name, value);
+                return like(nativeColumn, value);
             }
 
             case NotLike like -> {
                 var value = ValueConverter.of(like::pattern, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null));
-                return like(name, value).negate();
+                return like(nativeColumn, value).negate();
             }
 
             case Null<?> isNull -> {
-                return eq(name, Value.ofNull());
+                return eq(nativeColumn, Value.ofNull());
             }
 
             case NotNull<?> isNull -> {
-                return eq(name, Value.ofNull()).negate();
+                return eq(nativeColumn, Value.ofNull()).negate();
             }
 
             case In<?> in -> {
                 var values = in.expressions().stream().map(expression -> ValueConverter.of(() -> expression, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null))).toList();
-                return in(name, values);
+                return in(nativeColumn, values);
             }
 
             case NotIn<?> in -> {
                 var values = in.expressions().stream().map(expression -> ValueConverter.of(() -> expression, basicAttribute, converters,
                         converter.orElse(null), fieldMetadata.orElse(null))).toList();
-                return in(name, values).negate();
+                return in(nativeColumn, values).negate();
             }
 
             default -> throw new UnsupportedOperationException("Unexpected value: " + constraint);

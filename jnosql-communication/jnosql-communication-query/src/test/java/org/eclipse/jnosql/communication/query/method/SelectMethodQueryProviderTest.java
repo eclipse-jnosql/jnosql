@@ -68,8 +68,41 @@ class SelectMethodQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"find", "exists"})
+    void shouldQueryUsingWithoutBy(String query) {
+        String entity = "entity";
+        SelectQuery selectQuery = queryProvider.apply(query, entity);
+        assertNotNull(selectQuery);
+        assertEquals(entity, selectQuery.entity());
+        assertTrue(selectQuery.fields().isEmpty());
+        assertTrue(selectQuery.orderBy().isEmpty());
+        assertFalse(selectQuery.isCount());
+        assertEquals(0, selectQuery.limit());
+        assertEquals(0, selectQuery.skip());
+        Optional<Where> where = selectQuery.where();
+        assertFalse(where.isPresent());
+    }
+
+
+    @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"countBy", "countAll"})
     void shouldReturnParsedCountableQuery(String query) {
+        String entity = "entity";
+        SelectQuery selectQuery = queryProvider.apply(query, entity);
+        assertNotNull(selectQuery);
+        assertEquals(entity, selectQuery.entity());
+        assertTrue(selectQuery.fields().isEmpty());
+        assertTrue(selectQuery.orderBy().isEmpty());
+        assertTrue(selectQuery.isCount());
+        assertEquals(0, selectQuery.limit());
+        assertEquals(0, selectQuery.skip());
+        Optional<Where> where = selectQuery.where();
+        assertFalse(where.isPresent());
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"count"})
+    void shouldCountWithoutBy(String query) {
         String entity = "entity";
         SelectQuery selectQuery = queryProvider.apply(query, entity);
         assertNotNull(selectQuery);
@@ -112,6 +145,23 @@ class SelectMethodQueryProviderTest {
         assertEquals(0, selectQuery.skip());
         Optional<Where> where = selectQuery.where();
         assertFalse(where.isPresent());
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"findFirst10ByAge"})
+    void shouldQueryFirstFirstByAge(String query){
+        String entity = "entity";
+        SelectQuery selectQuery = queryProvider.apply(query, entity);
+
+        SoftAssertions.assertSoftly( soft ->{
+            soft.assertThat(selectQuery).isNotNull();
+            soft.assertThat(selectQuery.limit()).isEqualTo(10);
+            soft.assertThat(selectQuery.skip()).isEqualTo(0);
+            soft.assertThat(selectQuery.orderBy()).isEmpty();
+            soft.assertThat(selectQuery.fields()).isEmpty();
+            soft.assertThat(selectQuery.where()).isPresent();
+            soft.assertThat(selectQuery.where().get().condition().condition()).isEqualTo(Condition.EQUALS);
+        });
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")

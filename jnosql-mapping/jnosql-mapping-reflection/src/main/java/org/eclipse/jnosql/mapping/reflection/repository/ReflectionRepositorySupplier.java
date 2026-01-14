@@ -16,10 +16,7 @@ package org.eclipse.jnosql.mapping.reflection.repository;
 
 import jakarta.data.Sort;
 import jakarta.data.constraint.Constraint;
-import jakarta.data.repository.BasicRepository;
 import jakarta.data.repository.By;
-import jakarta.data.repository.CrudRepository;
-import jakarta.data.repository.DataRepository;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.First;
 import jakarta.data.repository.Is;
@@ -30,13 +27,12 @@ import jakarta.data.repository.Select;
 import jakarta.enterprise.event.Event;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Projection;
-import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.ProviderQuery;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryAnnotation;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
-import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
 import org.eclipse.jnosql.mapping.reflection.ProjectionFound;
 
 import java.lang.reflect.Method;
@@ -144,6 +140,7 @@ enum ReflectionRepositorySupplier {
         List<String> select = Arrays.stream(method.getDeclaredAnnotationsByType(Select.class))
                 .map(Select::value)
                 .toList();
+
         List<RepositoryAnnotation> annotations = Arrays.stream(method.getAnnotations())
                 .map(this::toAnnotation)
                 .distinct()
@@ -220,7 +217,8 @@ enum ReflectionRepositorySupplier {
                     .orElse(parameter.getName());
             Class<?> type = parameter.getType();
             Class<?> elementType = null;
-            if (parameter.getParameterizedType() instanceof ParameterizedType parameterizedType) {
+            if (parameter.getParameterizedType() instanceof ParameterizedType parameterizedType
+            && parameterizedType.getActualTypeArguments()[0] instanceof Class<?>) {
                 elementType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
             }
             if (parameter.getType().isArray()) {
@@ -297,21 +295,9 @@ enum ReflectionRepositorySupplier {
     private static void collect(Class<?> type, Set<Class<?>> result) {
         for (Class<?> componentType : type.getInterfaces()) {
 
-            if (isFrameworkRepositoryInterface(componentType)) {
-                continue;
-            }
-
             if (result.add(componentType)) {
                 collect(componentType, result);
             }
         }
     }
-
-    private static boolean isFrameworkRepositoryInterface(Class<?> type) {
-        return type == CrudRepository.class
-                || type == BasicRepository.class
-                || type == DataRepository.class
-                || type == NoSQLRepository.class;
-    }
-
 }

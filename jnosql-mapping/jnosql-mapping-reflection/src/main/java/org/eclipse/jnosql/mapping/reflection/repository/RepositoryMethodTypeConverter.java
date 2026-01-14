@@ -15,16 +15,21 @@
 package org.eclipse.jnosql.mapping.reflection.repository;
 
 import jakarta.data.page.CursoredPage;
+import jakarta.data.repository.BasicRepository;
+import jakarta.data.repository.CrudRepository;
+import jakarta.data.repository.DataRepository;
 import jakarta.data.repository.Delete;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.Insert;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Save;
 import jakarta.data.repository.Update;
+import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -33,24 +38,23 @@ import java.util.function.Predicate;
 enum RepositoryMethodTypeConverter {
     INSTANCE;
 
-
     private static final MethodPattern FIND_BY =
             MethodPattern.of("find", RepositoryMethodType.FIND_BY);
 
     private static final MethodPattern DELETE_BY =
-            MethodPattern.of("deleteBy", RepositoryMethodType.DELETE_BY);
+            MethodPattern.of("delete", RepositoryMethodType.DELETE_BY);
 
     private static final MethodPattern COUNT_ALL =
             MethodPattern.of("countAll", RepositoryMethodType.COUNT_ALL);
 
     private static final MethodPattern COUNT_BY =
-            MethodPattern.of("countBy", RepositoryMethodType.COUNT_BY);
+            MethodPattern.of("count", RepositoryMethodType.COUNT_BY);
 
     private static final MethodPattern EXISTS_BY =
-            MethodPattern.of("existsBy", RepositoryMethodType.EXISTS_BY);
+            MethodPattern.of("exists", RepositoryMethodType.EXISTS_BY);
 
-    private static final Set<MethodPattern> METHOD_PATTERNS =
-            Set.of(FIND_BY, DELETE_BY, COUNT_ALL, COUNT_BY, EXISTS_BY);
+    private static final List<MethodPattern> METHOD_PATTERNS =
+            List.of(FIND_BY, DELETE_BY, COUNT_ALL, COUNT_BY, EXISTS_BY);
 
     private static final MethodOperation INSERT =
             MethodOperation.of(Insert.class, RepositoryMethodType.INSERT);
@@ -82,6 +86,10 @@ enum RepositoryMethodTypeConverter {
 
         if (method.isDefault()) {
             return RepositoryMethodType.DEFAULT_METHOD;
+        }
+
+        if(method.getDeclaringClass().isInterface() && isFrameworkRepositoryInterface(method.getDeclaringClass())) {
+            return RepositoryMethodType.BUILT_IN_METHOD;
         }
 
         if (method.getReturnType().equals(CursoredPage.class)) {
@@ -124,4 +132,12 @@ enum RepositoryMethodTypeConverter {
             return new MethodOperation(annotation, type);
         }
     }
+
+    private static boolean isFrameworkRepositoryInterface(Class<?> type) {
+        return type == CrudRepository.class
+                || type == BasicRepository.class
+                || type == DataRepository.class
+                || type == NoSQLRepository.class;
+    }
+
 }

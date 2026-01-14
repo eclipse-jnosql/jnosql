@@ -73,7 +73,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(metadata).isInstanceOf(ReflectionRepositoryMetadata.class);
             soft.assertThat(metadata.entity()).get().isEqualTo(Person.class);
             soft.assertThat(metadata.type()).isEqualTo(type);
-            soft.assertThat(metadata.methods()).isNotNull().isEmpty();
+            soft.assertThat(metadata.methods()).isNotNull().isNotEmpty();
         });
     }
 
@@ -641,16 +641,17 @@ class ReflectionRepositorySupplierTest {
         Assertions.assertThat(metadata.entity()).isPresent().get().isEqualTo(Person.class);
     }
 
-
-    @Test
-    void shouldIgnoreMethodsFromDefaultInterface() {
-        RepositoryMetadata metadata = supplier.apply(EmptyPersonRepository.class);
-        Assertions.assertThat(metadata.methods()).isEmpty();
-    }
-
     @Test
     void shouldSupportComponents() {
         RepositoryMetadata metadata = supplier.apply(PersonExtendsRepository.class);
         Assertions.assertThat(metadata.methods()).hasSize(3);
+    }
+
+    @Test
+    @DisplayName("should find method from CrudRepository")
+    void shouldFindMethodFromCrudRepository() {
+        RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
+        var method = metadata.find(new NameKey("insertAll")).orElseThrow();
+        Assertions.assertThat(method.type()).isEqualTo(RepositoryMethodType.BUILT_IN_METHOD);
     }
 }

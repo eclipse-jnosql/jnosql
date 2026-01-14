@@ -135,11 +135,12 @@ public enum RepositoryMetadataUtils {
         var parameters = method.params();
         for (int index = 0; index < parameters.size(); index++) {
             var parameter = parameters.get(index);
+            var value = arguments[index];
             boolean isNotSpecialParameter = SpecialParameters.isNotSpecialParameter(parameter.type());
             var by = parameter.by();
             var is = parameter.is();
             if (isNotSpecialParameter) {
-                params.put(by, condition(is.orElse(null), arguments[index]));
+                params.put(by, condition(is.orElse(null), value));
             }
         }
         return params;

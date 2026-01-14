@@ -99,7 +99,6 @@ class RepositoryMethodTypeConverterTest {
         assertEquals(RepositoryMethodType.PARAMETER_BASED, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "find2")));
     }
 
-
     @Test
     void shouldReturnCountBy() throws NoSuchMethodException {
         assertEquals(RepositoryMethodType.COUNT_BY, RepositoryMethodTypeConverter.of(getMethod(DevRepository.class, "countByName")));

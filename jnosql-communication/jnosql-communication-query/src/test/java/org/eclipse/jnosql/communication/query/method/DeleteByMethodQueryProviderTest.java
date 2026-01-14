@@ -54,6 +54,18 @@ class DeleteByMethodQueryProviderTest {
         assertFalse(where.isPresent());
     }
 
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"delete"})
+    void shouldParseDefaultDelete(String query) {
+        String entity = "entity";
+        DeleteQuery deleteQuery = queryProvider.apply(query, entity);
+        assertNotNull(deleteQuery);
+        assertEquals(entity, deleteQuery.entity());
+        assertTrue(deleteQuery.fields().isEmpty());
+        Optional<Where> where = deleteQuery.where();
+        assertFalse(where.isPresent());
+    }
+
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"deleteByName"})
