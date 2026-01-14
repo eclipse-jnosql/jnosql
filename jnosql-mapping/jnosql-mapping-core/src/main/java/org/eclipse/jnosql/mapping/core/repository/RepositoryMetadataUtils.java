@@ -15,10 +15,7 @@
 package org.eclipse.jnosql.mapping.core.repository;
 
 import jakarta.data.constraint.Constraint;
-import jakarta.data.metamodel.TextAttribute;
-import jakarta.data.restrict.BasicRestriction;
 import org.eclipse.jnosql.communication.Condition;
-import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
