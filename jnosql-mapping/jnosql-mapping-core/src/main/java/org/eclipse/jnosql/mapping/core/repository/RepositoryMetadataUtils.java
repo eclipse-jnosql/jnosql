@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.core.repository;
 
 import jakarta.data.constraint.Constraint;
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
@@ -127,9 +128,10 @@ public enum RepositoryMetadataUtils {
      *
      * @param method the repository method metadata
      * @param arguments the invocation arguments passed to the method
+     * @param entityMetadata the entity metadata
      * @return a map of property names to resolved condition values
      */
-    public Map<String, ParamValue> getBy(RepositoryMethod method, Object[] arguments) {
+    public Map<String, ParamValue> getBy(RepositoryMethod method, Object[] arguments, EntityMetadata entityMetadata) {
         Map<String, ParamValue> params = new HashMap<>();
 
         var parameters = method.params();
