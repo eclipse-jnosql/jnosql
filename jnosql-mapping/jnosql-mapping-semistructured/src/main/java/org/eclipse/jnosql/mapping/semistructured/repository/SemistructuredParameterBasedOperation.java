@@ -23,6 +23,7 @@ import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.ParameterBasedOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredParameterBasedQuery;
+import org.eclipse.jnosql.mapping.semistructured.query.UnsatisfiableQueryException;
 
 import java.util.Collections;
 import java.util.Map;
@@ -61,8 +62,13 @@ class SemistructuredParameterBasedOperation implements ParameterBasedOperation {
         var parameters = context.parameters();
         Map<String, ParamValue> paramValueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, parameters);
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(paramValueMap, Collections.emptyList(), entityMetadata);
-        var updateDynamicQuery = semistructuredQueryBuilder.updateDynamicQuery(query, context(context, entityMetadata));
-        return (T) semistructuredReturnType.executeFindByQuery(context, updateDynamicQuery);
+        try {
+            var updateDynamicQuery = semistructuredQueryBuilder.updateDynamicQuery(query, context(context, entityMetadata));
+            return (T) semistructuredReturnType.executeFindByQuery(context, updateDynamicQuery);
+        } catch (UnsatisfiableQueryException exception) {
+            return (T) semistructuredReturnType.executeEmptyResult(context);
+        }
+
     }
 
     private static RepositoryInvocationContext context(RepositoryInvocationContext context, EntityMetadata entityMetadata) {
