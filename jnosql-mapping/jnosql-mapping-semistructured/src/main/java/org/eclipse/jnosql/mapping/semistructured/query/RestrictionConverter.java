@@ -91,10 +91,12 @@ public enum RestrictionConverter {
         Objects.requireNonNull(converters, "converters is required");
 
         LOGGER.fine(() -> "Converter is invoked for restriction " + restriction);
-        if(restriction.toString().equals("UNMATCHABLE")) {
+
+        if("UNMATCHABLE".equals(restriction.toString())) {
             throw new UnsatisfiableQueryException("NoSQL databases cannot satity the always false query: " + restriction
             + ". Please revise the query restrictions.");
         }
+
         CriteriaCondition criteriaCondition;
         switch (restriction) {
             case BasicRestriction<?, ?> basicRestriction -> {
