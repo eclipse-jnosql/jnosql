@@ -12,6 +12,39 @@
 package org.eclipse.jnosql.communication.query;
 
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DisplayName("QueryPath")
 class QueryPathTest {
 
+    @Test
+    @DisplayName("should store and expose the path expression")
+    void shouldExposePathExpression() {
+        QueryPath path = QueryPath.of("floorOfSquareRoot");
+
+        assertThat(path.get())
+                .isEqualTo("floorOfSquareRoot");
+    }
+
+    @Test
+    @DisplayName("should implement the QueryOperand contract")
+    void shouldImplementQueryOperandContract() {
+        QueryPath path = QueryPath.of("numBitsRequired");
+
+        assertThat(path)
+                .isInstanceOf(QueryValue.class);
+    }
+
+    @Test
+    @DisplayName("factory method should create an equivalent instance")
+    void factoryMethodShouldCreateEquivalentInstance() {
+        QueryPath fromFactory = QueryPath.of("id");
+        QueryPath fromConstructor = new QueryPath("id");
+
+        assertThat(fromFactory)
+                .isEqualTo(fromConstructor);
+    }
 }
