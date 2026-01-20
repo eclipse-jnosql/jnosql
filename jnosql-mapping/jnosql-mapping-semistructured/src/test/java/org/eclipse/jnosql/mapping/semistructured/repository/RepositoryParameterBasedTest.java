@@ -244,7 +244,7 @@ public class RepositoryParameterBasedTest extends AbstractRepositoryTest {
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(selectQuery.name()).isEqualTo("ComicBook");
-            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            soft.assertThat(selectQuery.condition()).isEmpty();
             soft.assertThat(selectQuery.sorts()).isEmpty();
         });
     }
