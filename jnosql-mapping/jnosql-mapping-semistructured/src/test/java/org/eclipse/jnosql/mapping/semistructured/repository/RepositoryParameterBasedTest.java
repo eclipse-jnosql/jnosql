@@ -17,6 +17,8 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.data.constraint.EqualTo;
 import jakarta.data.page.PageRequest;
+import jakarta.data.restrict.Restrict;
+import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
@@ -39,6 +41,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 @DisplayName("The scenarios to test the feature parameter based")
@@ -217,6 +220,25 @@ public class RepositoryParameterBasedTest extends AbstractRepositoryTest {
 
         Assertions.assertThat(result).isNotNull().containsExactly(new SocialMediaSummary("1", "The Lord of the Rings"));
 
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(selectQuery.name()).isEqualTo("SocialMedia");
+            soft.assertThat(selectQuery.condition()).isNotEmpty();
+            soft.assertThat(selectQuery.sorts()).isEmpty();
+        });
+    }
+
+    @Test
+    @DisplayName("Should return all elements from unrestricted filter restriction")
+    void shouldReturnAllElementsFromUnrestrictedFilterRestriction() {
+        var photoSocialMedia = PhotoSocialMedia.of("1", "The Lord of the Rings", "http://image.com/1");
+
+        Mockito.when(template.select(Mockito.any(SelectQuery.class)))
+                .thenReturn(Stream.of(photoSocialMedia));
+
+        List<ComicBook> comicBooks = bookStore.filter(Restrict.unrestricted());
+        Assertions.assertThat(comicBooks).isNotNull().hasSize(1);
         SelectQuery selectQuery = selectQueryCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
