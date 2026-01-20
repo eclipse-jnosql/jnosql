@@ -11,8 +11,67 @@
  */
 package org.eclipse.jnosql.communication.query;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DisplayName("BooleanQueryValue")
 class BooleanQueryValueTest {
 
+    @Test
+    @DisplayName("should expose true as a Boolean query value")
+    void shouldExposeTrueValue() {
+        BooleanQueryValue queryValue = BooleanQueryValue.TRUE;
+
+        assertThat(queryValue.get())
+                .isTrue();
+    }
+
+    @Test
+    @DisplayName("should expose false as a Boolean query value")
+    void shouldExposeFalseValue() {
+        BooleanQueryValue queryValue = BooleanQueryValue.FALSE;
+
+        assertThat(queryValue.get())
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("should report BOOLEAN as its ValueType")
+    void shouldExposeBooleanValueType() {
+        BooleanQueryValue queryValue = BooleanQueryValue.TRUE;
+
+        assertThat(queryValue.type())
+                .isEqualTo(ValueType.BOOLEAN);
+    }
+
+    @Test
+    @DisplayName("should implement the QueryValue contract")
+    void shouldImplementQueryValueContract() {
+        BooleanQueryValue queryValue = BooleanQueryValue.FALSE;
+
+        assertThat(queryValue)
+                .isInstanceOf(QueryValue.class);
+    }
+
+    @Test
+    @DisplayName("static TRUE instance should be equivalent to a true value")
+    void staticTrueInstanceShouldBeEquivalent() {
+        BooleanQueryValue fromConstant = BooleanQueryValue.TRUE;
+        BooleanQueryValue fromConstructor = new BooleanQueryValue(true);
+
+        assertThat(fromConstant)
+                .isEqualTo(fromConstructor);
+    }
+
+    @Test
+    @DisplayName("static FALSE instance should be equivalent to a false value")
+    void staticFalseInstanceShouldBeEquivalent() {
+        BooleanQueryValue fromConstant = BooleanQueryValue.FALSE;
+        BooleanQueryValue fromConstructor = new BooleanQueryValue(false);
+
+        assertThat(fromConstant)
+                .isEqualTo(fromConstructor);
+    }
 }
