@@ -77,5 +77,25 @@ public enum ValueType {
      * indicates the absence of a value. Used in queries to handle missing or
      * unknown data, or to represent the absence of a value in a specific context.
      */
-    NULL
+    NULL,
+    /**
+     * Represents a state field path expression used in a query.
+     * <p>
+     * A {@code PATH} does <strong>not</strong> represent a literal value. Instead, it
+     * identifies a reference to a field or attribute of the query source, typically
+     * appearing in comparisons where one field is evaluated against another, for example:
+     *
+     * <pre>{@code
+     * numBitsRequired = floorOfSquareRoot
+     * order.total &gt; order.discount
+     * }
+     * </pre>
+     *
+     * Path operands are resolved against the query model and evaluated at runtime.
+     * They must not be quoted, bound as parameters, or treated as constants by
+     * query engines.
+     *
+     * @see QueryPath
+     */
+    PATH;
 }
