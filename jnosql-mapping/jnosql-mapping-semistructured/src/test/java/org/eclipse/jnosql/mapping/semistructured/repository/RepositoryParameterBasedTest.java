@@ -257,7 +257,7 @@ public class RepositoryParameterBasedTest extends AbstractRepositoryTest {
         Mockito.when(template.select(Mockito.any(SelectQuery.class)))
                 .thenReturn(Stream.of(comicBook));
 
-        List<ComicBook> comicBooks = bookStore.filter(Restrict.unrestricted());
+        List<ComicBook> comicBooks = bookStore.filter(Restrict.not(Restrict.unrestricted()));
         Mockito.verify(template, Mockito.never()).select(selectQueryCaptor.capture());
         Assertions.assertThat(comicBooks).isNotNull().isEmpty();
 
