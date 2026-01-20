@@ -92,11 +92,6 @@ public enum RestrictionConverter {
 
         LOGGER.fine(() -> "Converter is invoked for restriction " + restriction);
 
-        if("UNMATCHABLE".equals(restriction.toString())) {
-            throw new UnsatisfiableQueryException("NoSQL databases cannot satity the always false query: " + restriction
-            + ". Please revise the query restrictions.");
-        }
-
         CriteriaCondition criteriaCondition;
         switch (restriction) {
             case BasicRestriction<?, ?> basicRestriction -> {
@@ -108,6 +103,13 @@ public enum RestrictionConverter {
                 }
             }
             case CompositeRestriction<?> compositeRestriction -> {
+
+                if ("UNMATCHABLE".equals(restriction.toString())) {
+                    throw new UnsatisfiableQueryException("NoSQL databases cannot satity the always false query: " + restriction
+                            + ". Please revise the query restrictions.");
+                } else if ("UNRESTRICTED".equals(restriction.toString())) {
+                    return Optional.empty();
+                }
                 var negated = compositeRestriction.isNegated();
                 var conditions = compositeRestriction.restrictions()
                         .stream()
