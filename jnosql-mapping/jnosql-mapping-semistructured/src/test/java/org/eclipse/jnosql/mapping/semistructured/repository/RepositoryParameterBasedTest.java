@@ -248,4 +248,20 @@ public class RepositoryParameterBasedTest extends AbstractRepositoryTest {
             soft.assertThat(selectQuery.sorts()).isEmpty();
         });
     }
+
+    @Test
+    @DisplayName("Should return all elements from restricted filter restriction")
+    void shouldCaptureAlwaysEmptyWhenTheQueryIsAlwaysFalse() {
+        var comicBook = new ComicBook("1", "The Lord of the Rings", 1954);
+
+        Mockito.when(template.select(Mockito.any(SelectQuery.class)))
+                .thenReturn(Stream.of(comicBook));
+
+        List<ComicBook> comicBooks = bookStore.filter(Restrict.unrestricted());
+        Mockito.verify(template, Mockito.never()).select(selectQueryCaptor.capture());
+        Assertions.assertThat(comicBooks).isNotNull().isEmpty();
+
+
+
+    }
 }
