@@ -105,8 +105,11 @@ public enum RestrictionConverter {
             case CompositeRestriction<?> compositeRestriction -> {
 
                 if ("UNMATCHABLE".equals(restriction.toString())) {
-                    throw new UnsatisfiableQueryException("NoSQL databases cannot satity the always false query: " + restriction
-                            + ". Please revise the query restrictions.");
+                    throw new UnsatisfiableQueryException(
+                            "The query restrictions evaluate to an always-false predicate and cannot be "
+                                    + "satisfied by NoSQL databases. The query execution was short-circuited: "
+                                    + restriction
+                    );
                 } else if ("UNRESTRICTED".equals(restriction.toString())) {
                     return Optional.empty();
                 }
