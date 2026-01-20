@@ -41,4 +41,14 @@ public record QueryPath(String value) implements QueryValue<String>  {
     public String get() {
         return value;
     }
+
+    /**
+     * Creates a {@code QueryPath} for the given path expression.
+     *
+     * @param path the state field path
+     * @return a new {@code QueryPath}
+     */
+    public static QueryPath of(String path) {
+        return new QueryPath(path);
+    }
 }
