@@ -11,6 +11,25 @@
  */
 package org.eclipse.jnosql.communication.query;
 
+/**
+ * Represents a state field path expression used as an operand in a query condition.
+ * <p>
+ * A {@code QueryPath} does <strong>not</strong> represent a literal value. Instead,
+ * it refers to a field or attribute of the query source and is typically used when
+ * comparing one field against another.
+ *
+ * <p>Examples:</p>
+ *
+ * <pre>{@code
+ * numBitsRequired = floorOfSquareRoot
+ * order.total > order.discount
+ * }</pre>
+ *
+ * Path expressions are resolved against the query model and evaluated at runtime.
+ * They must not be quoted, bound as parameters, or treated as constant values.
+ *
+ * @see ValueType#PATH
+ */
 public record QueryPath(String value) implements QueryValue<String>  {
 
     @Override
