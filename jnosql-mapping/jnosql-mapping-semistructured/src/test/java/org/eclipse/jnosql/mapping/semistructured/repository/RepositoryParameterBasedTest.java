@@ -232,17 +232,18 @@ public class RepositoryParameterBasedTest extends AbstractRepositoryTest {
     @Test
     @DisplayName("Should return all elements from unrestricted filter restriction")
     void shouldReturnAllElementsFromUnrestrictedFilterRestriction() {
-        var photoSocialMedia = PhotoSocialMedia.of("1", "The Lord of the Rings", "http://image.com/1");
+        var comicBook = new ComicBook("1", "The Lord of the Rings", 1954);
 
         Mockito.when(template.select(Mockito.any(SelectQuery.class)))
-                .thenReturn(Stream.of(photoSocialMedia));
+                .thenReturn(Stream.of(comicBook));
 
         List<ComicBook> comicBooks = bookStore.filter(Restrict.unrestricted());
+        Mockito.verify(template).select(selectQueryCaptor.capture());
         Assertions.assertThat(comicBooks).isNotNull().hasSize(1);
         SelectQuery selectQuery = selectQueryCaptor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(selectQuery.name()).isEqualTo("SocialMedia");
+            soft.assertThat(selectQuery.name()).isEqualTo("ComicBook");
             soft.assertThat(selectQuery.condition()).isNotEmpty();
             soft.assertThat(selectQuery.sorts()).isEmpty();
         });
