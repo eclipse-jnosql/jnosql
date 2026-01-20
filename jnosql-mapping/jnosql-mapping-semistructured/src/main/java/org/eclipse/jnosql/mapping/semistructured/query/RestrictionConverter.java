@@ -91,7 +91,9 @@ public enum RestrictionConverter {
         Objects.requireNonNull(converters, "converters is required");
 
         LOGGER.fine(() -> "Converter is invoked for restriction " + restriction);
-
+        if(restriction.toString().equals("UNMATCHABLE")) {
+            throw new
+        }
         CriteriaCondition criteriaCondition;
         switch (restriction) {
             case BasicRestriction<?, ?> basicRestriction -> {
