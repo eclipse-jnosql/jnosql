@@ -87,9 +87,8 @@ public enum ValueType {
      *
      * <pre>{@code
      * numBitsRequired = floorOfSquareRoot
-     * order.total &gt; order.discount
-     * }
-     * </pre>
+     * order.total > order.discount
+     * }</pre>
      *
      * Path operands are resolved against the query model and evaluated at runtime.
      * They must not be quoted, bound as parameters, or treated as constants by
