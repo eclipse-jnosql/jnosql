@@ -71,6 +71,8 @@ public enum RestrictionConverter {
     INSTANCE;
 
     private static final Logger LOGGER = Logger.getLogger(RestrictionConverter.class.getName());
+    private static final String RESTRICTION_UNMATCHABLE = "UNMATCHABLE";
+    private static final String RESTRICTION_UNRESTRICTED = "UNRESTRICTED";
 
     /**
      * Parses a {@link jakarta.data.restrict.Restriction} and attempts to convert it
@@ -103,6 +105,16 @@ public enum RestrictionConverter {
                 }
             }
             case CompositeRestriction<?> compositeRestriction -> {
+
+                if (isUnmatchable(restriction)) {
+                    throw new UnsatisfiableQueryException(
+                            "The query restrictions evaluate to an always-false predicate and cannot be "
+                                    + "satisfied by NoSQL databases. The query execution was short-circuited: "
+                                    + restriction
+                    );
+                } else if (isUnrestricted(restriction)) {
+                    return Optional.empty();
+                }
                 var negated = compositeRestriction.isNegated();
                 var conditions = compositeRestriction.restrictions()
                         .stream()
@@ -221,4 +233,13 @@ public enum RestrictionConverter {
         }
 
     }
+
+    private static boolean isUnrestricted(Restriction<?> r) {
+        return RESTRICTION_UNRESTRICTED.equals(r.toString());
+    }
+
+    private static boolean isUnmatchable(Restriction<?> r) {
+        return RESTRICTION_UNMATCHABLE.equals(r.toString());
+    }
+
 }

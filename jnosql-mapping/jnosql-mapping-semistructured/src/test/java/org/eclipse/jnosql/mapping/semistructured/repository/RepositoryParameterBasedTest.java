@@ -17,6 +17,8 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.data.constraint.EqualTo;
 import jakarta.data.page.PageRequest;
+import jakarta.data.restrict.Restrict;
+import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
@@ -39,6 +41,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 @DisplayName("The scenarios to test the feature parameter based")
@@ -224,5 +227,41 @@ public class RepositoryParameterBasedTest extends AbstractRepositoryTest {
             soft.assertThat(selectQuery.condition()).isNotEmpty();
             soft.assertThat(selectQuery.sorts()).isEmpty();
         });
+    }
+
+    @Test
+    @DisplayName("Should return all elements from unrestricted filter restriction")
+    void shouldReturnAllElementsFromUnrestrictedFilterRestriction() {
+        var comicBook = new ComicBook("1", "The Lord of the Rings", 1954);
+
+        Mockito.when(template.select(Mockito.any(SelectQuery.class)))
+                .thenReturn(Stream.of(comicBook));
+
+        List<ComicBook> comicBooks = bookStore.filter(Restrict.unrestricted());
+        Mockito.verify(template).select(selectQueryCaptor.capture());
+        Assertions.assertThat(comicBooks).isNotNull().hasSize(1);
+        SelectQuery selectQuery = selectQueryCaptor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(selectQuery.name()).isEqualTo("ComicBook");
+            soft.assertThat(selectQuery.condition()).isEmpty();
+            soft.assertThat(selectQuery.sorts()).isEmpty();
+        });
+    }
+
+    @Test
+    @DisplayName("Should return all elements from restricted filter restriction")
+    void shouldCaptureAlwaysEmptyWhenTheQueryIsAlwaysFalse() {
+        var comicBook = new ComicBook("1", "The Lord of the Rings", 1954);
+
+        Mockito.when(template.select(Mockito.any(SelectQuery.class)))
+                .thenReturn(Stream.of(comicBook));
+
+        List<ComicBook> comicBooks = bookStore.filter(Restrict.not(Restrict.unrestricted()));
+        Mockito.verify(template, Mockito.never()).select(selectQueryCaptor.capture());
+        Assertions.assertThat(comicBooks).isNotNull().isEmpty();
+
+
+
     }
 }

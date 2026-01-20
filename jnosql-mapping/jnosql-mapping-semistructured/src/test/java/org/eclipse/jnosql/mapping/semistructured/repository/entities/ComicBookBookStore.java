@@ -26,6 +26,7 @@ import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Repository;
 import jakarta.data.repository.Select;
+import jakarta.data.restrict.Restriction;
 import org.eclipse.jnosql.mapping.semistructured.entities.Person;
 
 import java.util.List;
@@ -78,6 +79,9 @@ public interface ComicBookBookStore {
 
     @Find
     Page<ComicBook> find(@By("name") String name, PageRequest pageRequest);
+
+    @Find
+    List<ComicBook> filter(Restriction<ComicBook> filter);
 
     @Find
     List<ComicBook> find(@By("name") EqualTo<String> name);

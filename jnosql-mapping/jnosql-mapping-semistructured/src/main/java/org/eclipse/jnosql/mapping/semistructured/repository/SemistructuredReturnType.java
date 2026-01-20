@@ -31,6 +31,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationCo
 import org.eclipse.jnosql.mapping.semistructured.ProjectorConverter;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -40,6 +41,7 @@ import java.util.stream.Stream;
 @ApplicationScoped
 class SemistructuredReturnType {
 
+    private static final Page<Object> EMPTY_PAGINATION = NoSQLPage.of(Collections.emptyList(), PageRequest.ofSize(1));
     private final EntitiesMetadata entitiesMetadata;
 
     private final  ProjectorConverter projectorConverter;
@@ -79,6 +81,28 @@ class SemistructuredReturnType {
                 .streamPagination(streamPagination(query, method, entityMetadata, template))
                 .singleResultPagination(getSingleResult(query, method, entityMetadata, template))
                 .page(getPage(query, method, entityMetadata, template))
+                .build();
+        return dynamicReturn.execute();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Object executeEmptyResult(RepositoryInvocationContext context) {
+        var method = context.method();
+        var entityMetadata = context.entityMetadata();
+        var typeClass = entityMetadata.type();
+        DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
+                .classSource(typeClass)
+                .methodName(method.name())
+                .returnType(method.returnType().orElseThrow())
+
+                .result(() -> Stream.empty().map(mapper(method, entityMetadata)))
+                .singleResult(() -> {
+                    return Optional.empty().map(mapper(method, entityMetadata));
+                })
+                .pagination(DynamicReturn.findPageRequest(context.parameters()))
+                .streamPagination(p -> Stream.empty())
+                .singleResultPagination(p -> Optional.empty())
+                .page(p -> EMPTY_PAGINATION)
                 .build();
         return dynamicReturn.execute();
     }
