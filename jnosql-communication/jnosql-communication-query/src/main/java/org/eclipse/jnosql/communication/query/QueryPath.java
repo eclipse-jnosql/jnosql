@@ -11,5 +11,15 @@
  */
 package org.eclipse.jnosql.communication.query;
 
-public interface QueryPath {
+public record QueryPath(String value) implements QueryValue<String>  {
+
+    @Override
+    public ValueType type() {
+        return ValueType.PATH;
+    }
+
+    @Override
+    public String get() {
+        return value;
+    }
 }
