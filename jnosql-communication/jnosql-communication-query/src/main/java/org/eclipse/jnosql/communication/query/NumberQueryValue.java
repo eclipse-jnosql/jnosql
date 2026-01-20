@@ -14,8 +14,18 @@ package org.eclipse.jnosql.communication.query;
 import java.util.Objects;
 
 /**
- * A number is a mathematical object used to count, measure and also label where if it is a decimal, will become
- * {@link Double}, otherwise, {@link Long}
+ * Represents a numeric literal used as a {@link QueryValue} in a query condition.
+ * <p>
+ * This type models numbers as <em>values</em>, not expressions or paths. It is typically
+ * used on the right-hand side of a conditional operator, for example:
+ *
+ * <pre>
+ * age &gt; 18
+ * price = 9.99
+ * </pre>
+ *
+ * The actual numeric type is preserved via {@link Number}, allowing query engines
+ * to adapt precision and representation according to the underlying data store.
  */
 public final class NumberQueryValue implements QueryValue<Number> {
 
