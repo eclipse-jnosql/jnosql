@@ -92,7 +92,8 @@ public enum RestrictionConverter {
 
         LOGGER.fine(() -> "Converter is invoked for restriction " + restriction);
         if(restriction.toString().equals("UNMATCHABLE")) {
-            throw new
+            throw new UnsatisfiableQueryException("NoSQL dastabases cannot satity the always false query: " + restriction
+            + ". Please revise the query restrictions.");
         }
         CriteriaCondition criteriaCondition;
         switch (restriction) {
