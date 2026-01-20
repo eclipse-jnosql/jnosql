@@ -21,7 +21,7 @@ public record EnumQueryValue(Enum<?> value) implements QueryValue<Enum<?>> {
 
     @Override
     public ValueType type() {
-        return ValueType.STRING;
+        return ValueType.ENUM;
     }
 
     public static EnumQueryValue of(Enum<?> value) {
