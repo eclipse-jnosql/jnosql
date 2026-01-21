@@ -516,7 +516,7 @@ class SelectMethodQueryProviderTest {
         Assertions.assertEquals(Condition.EQUALS, condition.condition());
         assertEquals("salary.currency", condition.name());
 
-        final Sort sort = selectQuery.orderBy().getFirst();
+        final Sort<?> sort = selectQuery.orderBy().getFirst();
         Assertions.assertEquals("salary.value", sort.property());
     }
 
