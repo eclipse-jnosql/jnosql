@@ -12,6 +12,7 @@ package org.eclipse.jnosql.communication.semistructured;
 
 import java.util.Objects;
 
+
 /**
  * Represents a provider-defined reference token used to identify
  * an addressable element within a database structure.
@@ -23,33 +24,12 @@ import java.util.Objects;
  *
  * <p>This type is an opaque value object. The specification does
  * not impose validation rules or structural guarantees.</p>
+ *
+ * @param value provider-defined reference expression
  */
-public final class ReferenceToken {
+public record ReferenceToken(String value) {
 
-    private final String value;
-
-    public ReferenceToken(String value) {
-        this.value = Objects.requireNonNull(value, "value must not be null");
-    }
-
-    public String value() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return value;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ReferenceToken)) return false;
-        return value.equals(((ReferenceToken) o).value);
-    }
-
-    @Override
-    public int hashCode() {
-        return value.hashCode();
+    public ReferenceToken {
+        Objects.requireNonNull(value, "value must not be null");
     }
 }
