@@ -32,4 +32,15 @@ public record ReferenceToken(String value) {
     public ReferenceToken {
         Objects.requireNonNull(value, "value must not be null");
     }
+
+    /**
+     * Creates a new instance of {@code ReferenceToken} with the specified attribute.
+     *
+     * @param attribute the attribute used to construct the {@code ReferenceToken}; must not be null
+     * @return a new {@code ReferenceToken} instance containing the specified attribute
+     * @throws NullPointerException if the attribute is {@code null}
+     */
+    public static ReferenceToken of(String attribute) {
+        return new ReferenceToken(attribute);
+    }
 }
