@@ -41,6 +41,7 @@ import java.util.stream.Stream;
 import static org.eclipse.jnosql.communication.Condition.NOT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -582,7 +583,7 @@ class SelectMethodQueryProviderTest {
 
 
         assertEquals("_NOT", condition.name());
-        assertTrue(value instanceof ConditionQueryValue);
+        assertInstanceOf(ConditionQueryValue.class, value);
         QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().getFirst();
 
         assertEquals("name", condition1.name());
@@ -758,7 +759,7 @@ class SelectMethodQueryProviderTest {
         QueryCondition condition = where.get().condition();
         QueryValue<?> value = condition.value();
         assertEquals(operatorAppender, condition.condition());
-        assertTrue(value instanceof ConditionQueryValue);
+        assertInstanceOf(ConditionQueryValue.class, value);
         QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().get(0);
         QueryCondition condition2 = ConditionQueryValue.class.cast(value).get().get(1);
 
@@ -815,7 +816,7 @@ class SelectMethodQueryProviderTest {
         };
         assertEquals(expectedConditionName, condition.name());
         QueryValue<?> value = condition.value();
-        assertTrue(value instanceof ConditionQueryValue);
+        assertInstanceOf(ConditionQueryValue.class, value);
         condition = ConditionQueryValue.class.cast(value).get().getFirst();
         return condition;
     }
