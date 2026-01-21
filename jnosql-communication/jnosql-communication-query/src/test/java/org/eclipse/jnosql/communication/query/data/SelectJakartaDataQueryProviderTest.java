@@ -20,6 +20,7 @@ import org.eclipse.jnosql.communication.query.EnumQueryValue;
 import org.eclipse.jnosql.communication.query.NullQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
+import org.eclipse.jnosql.communication.query.QueryPath;
 import org.eclipse.jnosql.communication.query.SelectQuery;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
 import org.junit.jupiter.api.Assertions;
@@ -666,6 +667,7 @@ class SelectJakartaDataQueryProviderTest {
             var condition = where.condition();
             soft.assertThat(condition.condition()).isEqualTo(Condition.GREATER_EQUALS_THAN);
             soft.assertThat(condition.name()).isEqualTo("quantity");
+            soft.assertThat(condition.value()).isEqualTo(QueryPath.of("attribute"));
         });
     }
 }
