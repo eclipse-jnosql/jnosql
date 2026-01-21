@@ -15,6 +15,7 @@ import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.query.ArrayQueryValue;
 import org.eclipse.jnosql.communication.query.EnumQueryValue;
 import org.eclipse.jnosql.communication.query.ParamQueryValue;
+import org.eclipse.jnosql.communication.query.QueryPath;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.ValueType;
 
@@ -47,6 +48,8 @@ final class Values {
             }
             case NULL -> {
                 return null;
+            } case PATH -> {
+                return new ReferenceToken(((QueryPath) value).get());
             }
             default -> throw new QueryException("There is not support to the value: " + type);
         }
