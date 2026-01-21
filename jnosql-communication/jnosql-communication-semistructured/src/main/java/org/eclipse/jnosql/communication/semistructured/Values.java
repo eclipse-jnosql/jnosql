@@ -43,7 +43,7 @@ final class Values {
                         .collect(toList());
             }
             case ENUM -> {
-                return ((EnumQueryValue) value).get().name();
+                return ((EnumQueryValue) value).get();
             }
             case NULL -> {
                 return null;
