@@ -33,6 +33,7 @@ import static org.eclipse.jnosql.communication.query.method.SelectMethodQueryPro
 import static org.eclipse.jnosql.communication.query.method.SelectMethodQueryProviderTest.checkTerminalCondition;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -475,7 +476,7 @@ class DeleteByMethodQueryProviderTest {
         QueryCondition condition = where.get().condition();
         QueryValue<?> value = condition.value();
         assertEquals(operatorAppender, condition.condition());
-        assertTrue(value instanceof ConditionQueryValue);
+        assertInstanceOf(ConditionQueryValue.class, value);
         QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().get(0);
         QueryCondition condition2 = ConditionQueryValue.class.cast(value).get().get(1);
 
@@ -505,7 +506,7 @@ class DeleteByMethodQueryProviderTest {
 
 
         assertEquals("_NOT", condition.name());
-        assertTrue(value instanceof ConditionQueryValue);
+        assertInstanceOf(ConditionQueryValue.class, value);
         QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().getFirst();
         QueryValue<?> param = condition1.value();
         assertEquals(operator, condition1.condition());
@@ -523,7 +524,7 @@ class DeleteByMethodQueryProviderTest {
         QueryValue<?> value = condition.value();
         assertEquals(Condition.EQUALS, condition.condition());
         assertEquals("name", condition.name());
-        assertTrue(value instanceof ParamQueryValue);
+        assertInstanceOf(ParamQueryValue.class, value);
         assertTrue(ParamQueryValue.class.cast(value).get().contains("name"));
     }
 
