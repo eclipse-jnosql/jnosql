@@ -651,4 +651,10 @@ class SelectJakartaDataQueryProviderTest {
             soft.assertThat(queryCondition.value()).isEqualTo(DefaultQueryValue.of(":employeeName"));
         });
     }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = "where employeeName NOT LIKE :employeeName")
+    void shouldQueryReferencePath(String query) {
+
+    }
 }
