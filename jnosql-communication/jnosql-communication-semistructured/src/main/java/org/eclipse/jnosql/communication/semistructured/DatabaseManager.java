@@ -153,25 +153,37 @@ public interface DatabaseManager extends IdFieldNameSupplier, AutoCloseable {
     Iterable<CommunicationEntity> update(Iterable<CommunicationEntity> entities);
 
     /**
-     * Modifies an existing entity in the database based on the specified query.
+     * Modifies existing entities in the database based on the specified query.
      *
-     * <p>This default implementation of the update operation is executed in memory. It fetches the
-     * entities using a selection query, applies updates in memory, and then writes each updated entity
-     * back to the database. While this method provides a straightforward and universal approach, it may
-     * impact performance due to multiple database read and write operations.</p>
+     * <p>This default implementation executes the update operation in memory.
+     * It first selects the matching entities, applies the requested changes
+     * to each entity instance, and then persists the updated entities
+     * individually. This approach is intentionally generic and portable,
+     * but may result in multiple read and write operations.</p>
      *
-     * <p>To enhance performance, especially in production environments, it is recommended that this
-     * method is overridden by the database driver to perform the update operation directly in the database.
-     * Implementing direct database updates minimizes the overhead associated with in-memory operations
-     * and network latency.</p>
+     * <p>Because this method performs updates by materializing entities
+     * before persisting them, the overall execution time and the visibility
+     * of changes may vary depending on the underlying database and its
+     * consistency model. In databases with eventual consistency or
+     * asynchronous write behavior, updates performed by this method may
+     * not be immediately observable after the method returns.</p>
      *
-     * <p>For databases using an append model to write data or following the BASE model, this method behaves
-     * the same as the {@link #insert} method when not overridden.</p>
+     * <p>To improve performance and reduce latency, database drivers are
+     * strongly encouraged to override this method and execute update
+     * operations directly at the database level whenever possible.
+     * Provider-specific implementations may leverage native update
+     * mechanisms, batch operations, or server-side execution strategies.</p>
      *
-     * <p>Non-matching entities are ignored and do not cause an error.</p>
+     * <p>For databases that use an append-only storage model or follow
+     * BASE principles, and where direct update semantics are not available,
+     * this method behaves similarly to repeated insert operations when
+     * not overridden.</p>
+     *
+     * <p>Entities that do not match the selection criteria are ignored
+     * and do not result in an error.</p>
      *
      * @param query the query used to select entities to update
-     * @throws NullPointerException if the query is null
+     * @throws NullPointerException if {@code query} is {@code null}
      */
     default void update(UpdateQuery query) {
         Objects.requireNonNull(query, "query is required");
