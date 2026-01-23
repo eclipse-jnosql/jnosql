@@ -487,5 +487,27 @@ class RestrictionConverterTest {
         });
     }
 
+    @Test
+    void shouldExecuteCompositeAny() {
+        Restriction<Product> restriction =
+                Restrict.all(Restrict.any(_Product.name.equalTo("IS"),
+                                _Product.name.in("DO", "GD", "JM", "HT")),
+                        Restrict.any(_Product.name.notEqualTo("JM"),
+                                _Product.name.notIn("GD", "JM", "IS")));
+
+        Optional<CriteriaCondition> optional = RestrictionConverter.INSTANCE.parser(restriction, entityMetadata, converters);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(optional).isPresent();
+            var condition = optional.orElseThrow();
+            var element = condition.element();
+
+            soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
+            List<CriteriaCondition> andConditions = element.get(new TypeReference<>() {});
+            soft.assertThat(andConditions).hasSize(2);
+        });
+
+    }
+
 
 }

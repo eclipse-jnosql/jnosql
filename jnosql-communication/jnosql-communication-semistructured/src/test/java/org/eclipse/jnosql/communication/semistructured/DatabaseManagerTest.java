@@ -27,6 +27,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -557,10 +558,13 @@ class DatabaseManagerTest {
             soft.assertThat(communication.find("age").orElseThrow().get()).isEqualTo(10);
             soft.assertThat(communication.name()).isEqualTo("person");
         });
-
-
     }
 
+    @Test
+    void shouldReturnEmptyAteDefaultIdFieldName() {
+        Optional<String> defaultIdFieldName = databaseManager.defaultIdFieldName();
+        Assertions.assertThat(defaultIdFieldName).isEmpty();
+    }
 
     private Stream<CommunicationEntity> stream() {
         var entity = CommunicationEntity.of("name");

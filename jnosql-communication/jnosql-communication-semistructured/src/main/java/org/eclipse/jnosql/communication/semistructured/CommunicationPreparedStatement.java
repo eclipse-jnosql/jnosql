@@ -21,7 +21,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 
 /**
@@ -138,7 +137,8 @@ public final class CommunicationPreparedStatement {
                 return Stream.empty();
             }
             case UPDATE -> {
-                return StreamSupport.stream(manager.update(updateQuery).spliterator(), false);
+                manager.update(updateQuery);
+                return Stream.empty();
             }
             default -> throw new UnsupportedOperationException("there is not support to operation type: " + type);
         }

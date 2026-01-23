@@ -118,10 +118,21 @@ public enum RestrictionConverter {
                 var negated = compositeRestriction.isNegated();
                 var conditions = compositeRestriction.restrictions()
                         .stream()
-                        .filter(r -> r instanceof BasicRestriction<?, ?>)
-                        .map(r -> negated ? r.negate() : r)
-                        .map(r -> parser(r, entityMetadata,
-                                converters))
+                        .map(r -> {
+                            if(r instanceof CompositeRestriction<?>) {
+                                return parser(r, entityMetadata, converters)
+                                        .orElseThrow(() -> new UnsupportedOperationException(
+                                                "Cannot parse nested composite restriction: " + r));
+                            }
+                            return r;
+                        })
+                        .map(r ->{
+                            if(r instanceof BasicRestriction<?, ?> basicRestriction) {
+                             return parser(negated? basicRestriction.negate(): basicRestriction, entityMetadata,
+                                     converters);
+                            }
+                            return Optional.ofNullable((CriteriaCondition)r);
+                        })
                         .filter(Optional::isPresent)
                         .map(Optional::get)
                         .toArray(CriteriaCondition[]::new);
