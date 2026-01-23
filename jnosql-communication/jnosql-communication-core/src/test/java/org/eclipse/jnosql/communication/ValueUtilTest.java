@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -244,6 +245,16 @@ class ValueUtilTest {
 
         assertEquals(List.of("Custom-234"),
                 ValueUtil.convertToList(value, writer));
+    }
+
+    @Test
+    @DisplayName("Should throw UnsupportedOperationException when converting a ReferenceToken")
+    void shouldFailWhenConvertingReferenceToken() {
+        Value value = Value.of(new ReferenceToken("field"));
+
+        assertThatThrownBy(() -> ValueUtil.convert(value))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessage("By default, ReferenceToken is not supported");
     }
 
     private static ValueWriter<Integer, String> integerToCustomStringWriter() {
