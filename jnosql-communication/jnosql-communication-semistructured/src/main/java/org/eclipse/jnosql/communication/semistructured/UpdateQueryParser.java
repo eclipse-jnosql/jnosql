@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static java.util.Objects.requireNonNull;
 
@@ -30,13 +29,11 @@ import static java.util.Objects.requireNonNull;
  */
 public final class UpdateQueryParser implements BiFunction<org.eclipse.jnosql.communication.query.UpdateQuery, CommunicationObserverParser, UpdateQueryParams> {
 
-
-
     Stream<CommunicationEntity> query(String query, DatabaseManager manager, CommunicationObserverParser observer) {
         var updateQuery = getQuery(query, observer);
-        return StreamSupport.stream(manager.update(updateQuery).spliterator(), false);
+        manager.update(updateQuery);
+        return Stream.empty();
     }
-
 
     CommunicationPreparedStatement prepare(String query, DatabaseManager manager,
                                            CommunicationObserverParser observer) {
