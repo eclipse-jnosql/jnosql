@@ -49,7 +49,7 @@ final class Values {
             case NULL -> {
                 return null;
             } case PATH -> {
-                return new ReferenceToken(((QueryPath) value).get());
+                return new org.eclipse.jnosql.communication.ReferenceToken(((QueryPath) value).get());
             }
             default -> throw new QueryException("There is not support to the value: " + type);
         }

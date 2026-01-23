@@ -140,7 +140,7 @@ class ValuesTest {
     @Test
     void shouldReturnPath() {
         Object result = Values.get(QueryPath.of("attribute"), mock(Params.class));
-        assertThat(result).isEqualTo(ReferenceToken.of("attribute"));
+        assertThat(result).isEqualTo(org.eclipse.jnosql.communication.ReferenceToken.of("attribute"));
     }
 
 }
