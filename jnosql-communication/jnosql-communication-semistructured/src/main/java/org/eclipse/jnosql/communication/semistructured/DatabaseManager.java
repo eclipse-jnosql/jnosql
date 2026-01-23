@@ -171,13 +171,15 @@ public interface DatabaseManager extends IdFieldNameSupplier, AutoCloseable {
      * <p>Non-matching entities are ignored and do not cause an error.</p>
      *
      * @param query the query used to select entities to update
-     * @return the updated entities
      * @throws NullPointerException if the query is null
      */
-    default Iterable<CommunicationEntity> update(UpdateQuery query) {
+    default void update(UpdateQuery query) {
         Objects.requireNonNull(query, "query is required");
-        var entities = this.select(query.toSelectQuery());
-        return entities.peek(e -> e.addAll(query.set())).map(this::update).toList();
+        Stream<CommunicationEntity> entities = select(query.toSelectQuery());
+        entities.forEach(entity -> {
+                    entity.addAll(query.set());
+                    update(entity);
+        });
     }
 
     /**
