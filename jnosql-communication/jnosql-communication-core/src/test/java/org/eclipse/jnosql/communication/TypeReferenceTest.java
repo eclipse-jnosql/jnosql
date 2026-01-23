@@ -16,8 +16,77 @@
  */
 package org.eclipse.jnosql.communication;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.*;
 
 class TypeReferenceTest {
+    @Test
+    @DisplayName("Should capture generic type information")
+    void shouldCaptureGenericType() {
+        TypeReference<String> reference = new TypeReference<>() {};
 
+        Type type = reference.get();
+
+        assertThat(type)
+                .isEqualTo(String.class);
+    }
+
+    @Test
+    @DisplayName("Should capture parameterized generic type information")
+    void shouldCaptureParameterizedGenericType() {
+        TypeReference<List<String>> reference = new TypeReference<>() {};
+
+        Type type = reference.get();
+
+        assertThat(type)
+                .isInstanceOf(java.lang.reflect.ParameterizedType.class);
+
+        assertThat(type.getTypeName())
+                .isEqualTo("java.util.List<java.lang.String>");
+    }
+
+    @Test
+    @DisplayName("Should capture complex nested generic type information")
+    void shouldCaptureNestedGenericType() {
+        TypeReference<Map<String, List<Integer>>> reference =
+                new TypeReference<>() {};
+
+        Type type = reference.get();
+
+        assertThat(type.getTypeName())
+                .isEqualTo("java.util.Map<java.lang.String, java.util.List<java.lang.Integer>>");
+    }
+
+    @Test
+    @DisplayName("Should throw exception when constructed without generic type information")
+    void shouldFailWhenConstructedWithoutTypeInformation() {
+        assertThatThrownBy(() -> new RawTypeReference())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage(
+                        "Internal error: TypeReference constructed without actual type information"
+                );
+    }
+
+    @Test
+    @DisplayName("Should include type information in toString output")
+    void shouldIncludeTypeInToString() {
+        TypeReference<Integer> reference = new TypeReference<>() {};
+
+        assertThat(reference.toString())
+                .contains("TypeReference")
+                .contains("java.lang.Integer");
+    }
+
+    /**
+     * Helper class to simulate incorrect usage with raw type.
+     */
+    @SuppressWarnings("rawtypes")
+    static class RawTypeReference extends TypeReference {
+    }
 }
