@@ -502,9 +502,9 @@ class RestrictionConverterTest {
             var condition = optional.orElseThrow();
             var element = condition.element();
 
-            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-            soft.assertThat(element.name()).isEqualTo(_Product.NAME);
-            soft.assertThat(element.get()).isEqualTo("Macbook Pro");
+            soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
+            List<CriteriaCondition> andConditions = element.get(new TypeReference<>() {});
+            soft.assertThat(andConditions).hasSize(2);
         });
 
     }
