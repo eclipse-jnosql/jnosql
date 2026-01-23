@@ -12,7 +12,7 @@ package org.eclipse.jnosql.communication;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 class ReferenceTokenTest {
 
@@ -20,30 +20,28 @@ class ReferenceTokenTest {
     void shouldCreateReferenceTokenWithValue() {
         ReferenceToken token = new ReferenceToken("status");
 
-        assertEquals("status", token.value());
+        assertThat(token.value()).isEqualTo("status");
     }
 
     @Test
     void shouldCreateReferenceTokenUsingFactoryMethod() {
         ReferenceToken token = ReferenceToken.of("priority");
 
-        assertEquals("priority", token.value());
+        assertThat(token.value()).isEqualTo("priority");
     }
 
     @Test
     void shouldThrowNullPointerExceptionWhenValueIsNullInConstructor() {
-        NullPointerException exception =
-                assertThrows(NullPointerException.class, () -> new ReferenceToken(null));
-
-        assertEquals("value must not be null", exception.getMessage());
+        assertThatThrownBy(() -> new ReferenceToken(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("value must not be null");
     }
 
     @Test
     void shouldThrowNullPointerExceptionWhenValueIsNullInFactoryMethod() {
-        NullPointerException exception =
-                assertThrows(NullPointerException.class, () -> ReferenceToken.of(null));
-
-        assertEquals("value must not be null", exception.getMessage());
+        assertThatThrownBy(() -> ReferenceToken.of(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("value must not be null");
     }
 
     @Test
@@ -51,8 +49,9 @@ class ReferenceTokenTest {
         ReferenceToken first = new ReferenceToken("name");
         ReferenceToken second = new ReferenceToken("name");
 
-        assertEquals(first, second);
-        assertEquals(first.hashCode(), second.hashCode());
+        assertThat(first)
+                .isEqualTo(second)
+                .hasSameHashCodeAs(second);
     }
 
     @Test
@@ -60,6 +59,6 @@ class ReferenceTokenTest {
         ReferenceToken first = new ReferenceToken("name");
         ReferenceToken second = new ReferenceToken("other");
 
-        assertNotEquals(first, second);
+        assertThat(first).isNotEqualTo(second);
     }
 }
