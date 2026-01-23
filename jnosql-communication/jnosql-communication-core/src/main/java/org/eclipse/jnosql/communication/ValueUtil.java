@@ -55,6 +55,9 @@ public final class ValueUtil {
         Objects.requireNonNull(value, "value is required");
         Objects.requireNonNull(valueWriter, "valueWriter is required");
         Object val = value.get();
+        if(val instanceof  ReferenceToken){
+            throw new UnsupportedOperationException("By default, ReferenceToken is not supported");
+        }
         if (val instanceof Iterable) {
             return getObjects(val, valueWriter);
         }

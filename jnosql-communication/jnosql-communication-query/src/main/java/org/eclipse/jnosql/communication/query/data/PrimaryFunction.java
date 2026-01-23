@@ -15,12 +15,14 @@ import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.query.BooleanQueryValue;
 import org.eclipse.jnosql.communication.query.EnumQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
+import org.eclipse.jnosql.communication.query.QueryPath;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
 import org.eclipse.jnosql.query.grammar.data.JDQLParser;
 
 import java.util.Locale;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 enum PrimaryFunction implements Function<JDQLParser.Primary_expressionContext, QueryValue<?>> {
@@ -61,7 +63,8 @@ enum PrimaryFunction implements Function<JDQLParser.Primary_expressionContext, Q
                 Enum<?> value = EnumConverter.INSTANCE.apply(stateContextText);
                 return EnumQueryValue.of(value);
             } catch (QueryException exp) {
-                LOGGER.info("Ignoring the enum converter and trying to parse as a class: " + stateContextText);
+                LOGGER.log(Level.FINE, "define the enum converter and trying to parse as a path: " + stateContextText, exp);
+                return QueryPath.of(stateContextText);
             }
         }
        throw new UnsupportedOperationException("The primary expression is not supported yet: " + context.getText());

@@ -20,6 +20,7 @@ import org.eclipse.jnosql.communication.query.EnumQueryValue;
 import org.eclipse.jnosql.communication.query.NullQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
+import org.eclipse.jnosql.communication.query.QueryPath;
 import org.eclipse.jnosql.communication.query.SelectQuery;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
 import org.junit.jupiter.api.Assertions;
@@ -649,6 +650,24 @@ class SelectJakartaDataQueryProviderTest {
             soft.assertThat(queryCondition.condition()).isEqualTo(Condition.LIKE);
             soft.assertThat(queryCondition.name()).isEqualTo("employeeName");
             soft.assertThat(queryCondition.value()).isEqualTo(DefaultQueryValue.of(":employeeName"));
+        });
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = "WHERE quantity >= attribute")
+    void shouldQueryReferencePath(String query) {
+        var selectQuery = selectParser.apply(query, "entity");
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(selectQuery.fields()).isEmpty();
+            soft.assertThat(selectQuery.entity()).isEqualTo("entity");
+            soft.assertThat(selectQuery.orderBy()).isEmpty();
+            soft.assertThat(selectQuery.where()).isNotEmpty();
+            var where = selectQuery.where().orElseThrow();
+            var condition = where.condition();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.GREATER_EQUALS_THAN);
+            soft.assertThat(condition.name()).isEqualTo("quantity");
+            soft.assertThat(condition.value()).isEqualTo(QueryPath.of("attribute"));
         });
     }
 }

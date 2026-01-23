@@ -17,6 +17,7 @@ import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.query.ArrayQueryValue;
 import org.eclipse.jnosql.communication.query.EnumQueryValue;
 import org.eclipse.jnosql.communication.query.ParamQueryValue;
+import org.eclipse.jnosql.communication.query.QueryPath;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.ValueType;
 import org.junit.jupiter.api.Test;
@@ -134,6 +135,12 @@ class ValuesTest {
         Object result = Values.get(nullValue, mock(Params.class));
 
         assertThat(result).isNull();
+    }
+
+    @Test
+    void shouldReturnPath() {
+        Object result = Values.get(QueryPath.of("attribute"), mock(Params.class));
+        assertThat(result).isEqualTo(org.eclipse.jnosql.communication.ReferenceToken.of("attribute"));
     }
 
 }
