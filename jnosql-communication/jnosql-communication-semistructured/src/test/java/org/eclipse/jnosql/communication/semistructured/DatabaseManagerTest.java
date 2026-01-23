@@ -557,9 +557,9 @@ class DatabaseManagerTest {
             soft.assertThat(communication.find("age").orElseThrow().get()).isEqualTo(10);
             soft.assertThat(communication.name()).isEqualTo("person");
         });
-
-
     }
+
+
 
 
     private Stream<CommunicationEntity> stream() {
