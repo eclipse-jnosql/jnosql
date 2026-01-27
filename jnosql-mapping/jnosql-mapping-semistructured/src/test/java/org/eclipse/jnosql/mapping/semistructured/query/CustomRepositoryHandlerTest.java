@@ -183,7 +183,7 @@ class CustomRepositoryHandlerTest {
     void shouldUpdateArrayEntity() {
         Person ada = Person.builder().age(26).name("Ada").build();
         var persons = new Person[]{ada};
-        Mockito.when(template.update(Mockito.any())).thenReturn(List.of(ada));
+        Mockito.when(template.update(Mockito.anyList())).thenReturn(List.of(ada));
         Person[] result = people.update(persons);
 
         Mockito.verify(template).update(List.of(ada));
