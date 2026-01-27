@@ -20,6 +20,7 @@ import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.communication.keyvalue.KeyValueEntity;
 import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.keyvalue.entities.Person;
 import org.eclipse.jnosql.mapping.keyvalue.entities.User;
 import org.eclipse.jnosql.mapping.keyvalue.spi.KeyValueExtension;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -275,6 +276,11 @@ class DefaultKeyValueTemplateTest {
     void shouldRemoveIterable() {
         template.deleteByKeys(singletonList(KEY));
         Mockito.verify(manager).delete(singletonList(KEY));
+    }
+
+    @Test
+    void shouldReturnUnsupportedExceptionOnUpdate() {
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.update(Person.class));
     }
 
 }
