@@ -14,10 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
-import jakarta.data.repository.Update;
 import jakarta.nosql.QueryMapper;
-
-import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.UpdateQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -165,6 +162,4 @@ final class MapperUpdate extends AbstractMapperQuery implements
         var query = build();
         this.template.update(query);
     }
-
-
 }
