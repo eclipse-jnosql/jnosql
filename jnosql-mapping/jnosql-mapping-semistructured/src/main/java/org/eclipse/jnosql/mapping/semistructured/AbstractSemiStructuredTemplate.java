@@ -28,6 +28,7 @@ import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.QueryParser;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.communication.semistructured.UpdateQuery;
 import org.eclipse.jnosql.mapping.IdNotFoundException;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
@@ -176,6 +177,11 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
     public void delete(DeleteQuery query) {
         requireNonNull(query, "query is required");
         manager().delete(query);
+    }
+    @Override
+    public void update(UpdateQuery query) {
+        requireNonNull(query, "query is required");
+        manager().update(query);
     }
 
     @Override
