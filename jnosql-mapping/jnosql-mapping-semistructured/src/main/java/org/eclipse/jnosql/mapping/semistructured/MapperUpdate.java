@@ -75,7 +75,7 @@ final class MapperUpdate extends AbstractMapperQuery implements
 
     @Override
     public QueryMapper.MapperUpdateConditionStep contains(String value) {
-        likeImpl(value);
+        containsImpl(value);
         return this;
     }
 
