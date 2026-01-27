@@ -11,6 +11,7 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *   Maximillian Arruda
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
@@ -293,6 +294,7 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         EntityMetadata metadata = entities().get(type);
         return new MapperDelete(metadata, converters(), this);
     }
+
     @Override
     public <T> QueryMapper.MapperUpdateFrom update(Class<T> type) {
         requireNonNull(type, "type is required");
