@@ -21,10 +21,10 @@ import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 
-record SemistructureUpdateQuery(String name, List<Element> set, CriteriaCondition criteriaCondition) implements UpdateQuery {
+record SemistructureUpdateQuery(String name, List<Element> sets, CriteriaCondition criteriaCondition) implements UpdateQuery {
 
     @Override
-    public Optional<CriteriaCondition> condition() {
+    public Optional<CriteriaCondition> where() {
         return Optional.ofNullable(criteriaCondition);
     }
 
