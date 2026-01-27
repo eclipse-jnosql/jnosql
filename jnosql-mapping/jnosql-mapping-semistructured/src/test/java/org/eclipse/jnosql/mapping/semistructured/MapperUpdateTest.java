@@ -19,6 +19,7 @@ import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
+import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.UpdateQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
@@ -103,7 +104,8 @@ public class MapperUpdateTest {
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(update.where()).isPresent();
-            soft.assertThat(update.where().get())
+            soft.assertThat(update.sets()).contains(Element.of("name", "Ada"), Element.of("age", 30));
+            soft.assertThat(update.where().orElseThrow())
                     .isInstanceOf(CriteriaCondition.class);
         });
     }
