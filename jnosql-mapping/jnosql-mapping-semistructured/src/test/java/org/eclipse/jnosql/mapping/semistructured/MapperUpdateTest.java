@@ -18,6 +18,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -149,6 +150,13 @@ public class MapperUpdateTest {
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(update.where()).isPresent();
+            var condition = update.where().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
+            var conditions = condition.element().get(new TypeReference<List<CriteriaCondition>>() {
+            });
+            soft.assertThat(conditions).hasSize(2);
+            soft.assertThat(conditions.get(0)).isEqualTo(CriteriaCondition.eq(Element.of("age", 18)));
+            soft.assertThat(conditions.get(1)).isEqualTo(CriteriaCondition.eq(Element.of("name", "Ada")));
         });
     }
 
@@ -165,7 +173,13 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.where()).isPresent();
+            var condition = update.where().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.OR);
+            var conditions = condition.element().get(new TypeReference<List<CriteriaCondition>>() {
+            });
+            soft.assertThat(conditions).hasSize(2);
+            soft.assertThat(conditions.get(0)).isEqualTo(CriteriaCondition.eq(Element.of("age", 18)));
+            soft.assertThat(conditions.get(1)).isEqualTo(CriteriaCondition.eq(Element.of("name", "Ada")));
         });
     }
 
