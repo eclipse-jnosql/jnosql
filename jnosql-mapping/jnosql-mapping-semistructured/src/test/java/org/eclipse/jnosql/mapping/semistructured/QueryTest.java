@@ -307,7 +307,7 @@ public class QueryTest {
 
         SoftAssertions.assertSoftly(soft ->{
             soft.assertThat(updateQuery.name()).isEqualTo("Person");
-            soft.assertThat(updateQuery.condition()).isNotEmpty();
+            soft.assertThat(updateQuery.where()).isNotEmpty();
         });
     }
 

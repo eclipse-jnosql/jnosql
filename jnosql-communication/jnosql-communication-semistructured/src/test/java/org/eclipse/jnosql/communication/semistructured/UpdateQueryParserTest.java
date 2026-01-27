@@ -46,7 +46,7 @@ class UpdateQueryParserTest {
         var updateQuery = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(updateQuery.condition()).isEmpty();
+            soft.assertThat(updateQuery.where()).isEmpty();
             soft.assertThat(updateQuery.name()).isEqualTo("entity");
             soft.assertThat(updateQuery.set()).isNotNull().hasSize(1)
                     .contains(Element.of("name", "Ada"));
@@ -63,8 +63,8 @@ class UpdateQueryParserTest {
         var updateQuery = captor.getValue();
 
         checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.condition().isPresent());
-        CriteriaCondition condition = updateQuery.condition().get();
+        assertTrue(updateQuery.where().isPresent());
+        CriteriaCondition condition = updateQuery.where().get();
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(condition.condition()).isEqualTo(Condition.GREATER_THAN);
@@ -84,8 +84,8 @@ class UpdateQueryParserTest {
         var updateQuery = captor.getValue();
 
         checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.condition().isPresent());
-        var condition = updateQuery.condition().get();
+        assertTrue(updateQuery.where().isPresent());
+        var condition = updateQuery.where().get();
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(condition.condition()).isEqualTo(Condition.GREATER_EQUALS_THAN);
@@ -104,8 +104,8 @@ class UpdateQueryParserTest {
         var updateQuery = captor.getValue();
 
         checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.condition().isPresent());
-        CriteriaCondition condition = updateQuery.condition().get();
+        assertTrue(updateQuery.where().isPresent());
+        CriteriaCondition condition = updateQuery.where().get();
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(condition.condition()).isEqualTo(Condition.LESSER_EQUALS_THAN);
@@ -124,8 +124,8 @@ class UpdateQueryParserTest {
         UpdateQuery updateQuery = captor.getValue();
 
         checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.condition().isPresent());
-        CriteriaCondition condition = updateQuery.condition().get();
+        assertTrue(updateQuery.where().isPresent());
+        CriteriaCondition condition = updateQuery.where().get();
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(condition.condition()).isEqualTo(Condition.LESSER_THAN);
@@ -145,8 +145,8 @@ class UpdateQueryParserTest {
         var updateQuery = captor.getValue();
 
         checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.condition().isPresent());
-        CriteriaCondition condition = updateQuery.condition().get();
+        assertTrue(updateQuery.where().isPresent());
+        CriteriaCondition condition = updateQuery.where().get();
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(condition.condition()).isEqualTo(Condition.BETWEEN);
@@ -165,8 +165,8 @@ class UpdateQueryParserTest {
         UpdateQuery updateQuery = captor.getValue();
 
         checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.condition().isPresent());
-        CriteriaCondition condition = updateQuery.condition().get();
+        assertTrue(updateQuery.where().isPresent());
+        CriteriaCondition condition = updateQuery.where().get();
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
@@ -187,8 +187,8 @@ class UpdateQueryParserTest {
         var updateQuery = captor.getValue();
 
         checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.condition().isPresent());
-        CriteriaCondition condition = updateQuery.condition().get();
+        assertTrue(updateQuery.where().isPresent());
+        CriteriaCondition condition = updateQuery.where().get();
 
 
         SoftAssertions.assertSoftly(soft -> {
@@ -213,8 +213,8 @@ class UpdateQueryParserTest {
         var updateQuery = captor.getValue();
 
         checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.condition().isPresent());
-        CriteriaCondition condition = updateQuery.condition().get();
+        assertTrue(updateQuery.where().isPresent());
+        CriteriaCondition condition = updateQuery.where().get();
 
         SoftAssertions.assertSoftly(soft -> {
             Element element = condition.element();
@@ -235,8 +235,8 @@ class UpdateQueryParserTest {
         UpdateQuery updateQuery = captor.getValue();
 
         checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.condition().isPresent());
-        CriteriaCondition condition = updateQuery.condition().get();
+        assertTrue(updateQuery.where().isPresent());
+        CriteriaCondition condition = updateQuery.where().get();
 
         SoftAssertions.assertSoftly(soft -> {
             var element = condition.element();
@@ -262,8 +262,8 @@ class UpdateQueryParserTest {
         var updateQuery = captor.getValue();
 
         checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.condition().isPresent());
-        CriteriaCondition condition = updateQuery.condition().get();
+        assertTrue(updateQuery.where().isPresent());
+        CriteriaCondition condition = updateQuery.where().get();
 
         SoftAssertions.assertSoftly(soft ->{
             Element element = condition.element();
@@ -284,8 +284,8 @@ class UpdateQueryParserTest {
         var updateQuery = captor.getValue();
 
         checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.condition().isPresent());
-        CriteriaCondition condition = updateQuery.condition().get();
+        assertTrue(updateQuery.where().isPresent());
+        CriteriaCondition condition = updateQuery.where().get();
 
         SoftAssertions.assertSoftly(soft -> {
             Element element = condition.element();
@@ -345,7 +345,7 @@ class UpdateQueryParserTest {
         prepare.result();
         Mockito.verify(manager).update(captor.capture());
         var updateQuery = captor.getValue();
-        CriteriaCondition criteriaCondition = updateQuery.condition().orElseThrow();
+        CriteriaCondition criteriaCondition = updateQuery.where().orElseThrow();
         SoftAssertions.assertSoftly(soft -> {
             Element element = criteriaCondition.element();
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
@@ -364,7 +364,7 @@ class UpdateQueryParserTest {
         prepare.result();
         Mockito.verify(manager).update(captor.capture());
         var updateQuery = captor.getValue();
-        CriteriaCondition criteriaCondition = updateQuery.condition().orElseThrow();
+        CriteriaCondition criteriaCondition = updateQuery.where().orElseThrow();
         SoftAssertions.assertSoftly(soft -> {
             Element element = criteriaCondition.element();
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
@@ -384,7 +384,7 @@ class UpdateQueryParserTest {
         prepare.result();
         Mockito.verify(manager).update(captor.capture());
         var updateQuery = captor.getValue();
-        CriteriaCondition criteriaCondition = updateQuery.condition().orElseThrow();
+        CriteriaCondition criteriaCondition = updateQuery.where().orElseThrow();
         SoftAssertions.assertSoftly(soft -> {
             Element element = criteriaCondition.element();
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
@@ -406,7 +406,7 @@ class UpdateQueryParserTest {
         Mockito.verify(manager).update(captor.capture());
         var updateQuery = captor.getValue();
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(updateQuery.condition()).isEmpty();
+            soft.assertThat(updateQuery.where()).isEmpty();
             var items = updateQuery.set();
             soft.assertThat(items).isNotNull().hasSize(1);
             soft.assertThat(items).contains(Element.of("active", true));
@@ -422,7 +422,7 @@ class UpdateQueryParserTest {
         Mockito.verify(manager).update(captor.capture());
         var updateQuery = captor.getValue();
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(updateQuery.condition()).isEmpty();
+            soft.assertThat(updateQuery.where()).isEmpty();
             var items = updateQuery.set();
             soft.assertThat(items).isNotNull().hasSize(1);
             soft.assertThat(items).contains(Element.of("active", false));
@@ -437,7 +437,7 @@ class UpdateQueryParserTest {
         Mockito.verify(manager).update(captor.capture());
         var updateQuery = captor.getValue();
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(updateQuery.condition()).isEmpty();
+            soft.assertThat(updateQuery.where()).isEmpty();
             var items = updateQuery.set();
             soft.assertThat(items).isNotNull().hasSize(1);
             soft.assertThat(items).contains(Element.of("active", null));

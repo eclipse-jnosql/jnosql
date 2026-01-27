@@ -47,7 +47,7 @@ public interface UpdateQuery {
      * @return an {@link Optional} of {@link CriteriaCondition} that filters which records are updated;
      *         if empty, the update may be unrestricted or unsupported, depending on implementation.
      */
-    Optional<CriteriaCondition> condition();
+    Optional<CriteriaCondition> where();
 
     /**
      * Converts this update query into a {@link SelectQuery} that reflects the equivalent selection

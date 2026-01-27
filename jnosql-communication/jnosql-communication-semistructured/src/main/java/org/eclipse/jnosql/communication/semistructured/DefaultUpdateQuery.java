@@ -20,7 +20,7 @@ import static java.util.Collections.emptyList;
 record DefaultUpdateQuery(String name, List<Element> set, CriteriaCondition criteriaCondition) implements UpdateQuery {
 
     @Override
-    public Optional<CriteriaCondition> condition() {
+    public Optional<CriteriaCondition> where() {
         return Optional.ofNullable(criteriaCondition);
     }
 
