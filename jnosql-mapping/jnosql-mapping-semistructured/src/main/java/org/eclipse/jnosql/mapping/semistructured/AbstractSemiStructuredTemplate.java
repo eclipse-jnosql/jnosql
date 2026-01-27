@@ -178,6 +178,7 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         requireNonNull(query, "query is required");
         manager().delete(query);
     }
+
     @Override
     public void update(UpdateQuery query) {
         requireNonNull(query, "query is required");
