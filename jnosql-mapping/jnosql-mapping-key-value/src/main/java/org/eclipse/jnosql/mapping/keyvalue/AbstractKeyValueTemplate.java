@@ -169,6 +169,11 @@ public abstract class AbstractKeyValueTemplate implements KeyValueTemplate {
     }
 
     @Override
+    public <T> QueryMapper.MapperUpdateFrom update(Class<T> type) {
+        throw new UnsupportedOperationException("Key value does not support update operations by fluent-api");
+    }
+
+    @Override
     public <T> void delete(Iterable<? extends T> entities) {
         requireNonNull(entities, "entities is required");
         entities.forEach(this::delete);
