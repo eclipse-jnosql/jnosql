@@ -143,38 +143,6 @@ public class MapperUpdateTest {
     }
 
     @Test
-    @DisplayName("Should update with BETWEEN condition")
-    void shouldUpdateWithBetweenCondition() {
-        template.update(Person.class)
-                .set("active").to(true)
-                .where("age").between(18, 65)
-                .execute();
-
-        Mockito.verify(managerMock).update(captor.capture());
-        var update = captor.getValue();
-
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
-        });
-    }
-
-    @Test
-    @DisplayName("Should update with IN condition")
-    void shouldUpdateWithInCondition() {
-        template.update(Person.class)
-                .set("status").to("ACTIVE")
-                .where("role").in(List.of("ADMIN", "USER"))
-                .execute();
-
-        Mockito.verify(managerMock).update(captor.capture());
-        var update = captor.getValue();
-
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
-        });
-    }
-
-    @Test
     @DisplayName("Should update with NOT condition")
     void shouldUpdateWithNotCondition() {
         template.update(Person.class)
@@ -192,5 +160,164 @@ public class MapperUpdateTest {
         });
     }
 
+    @Test
+    @DisplayName("Should update with greater-than condition")
+    void shouldUpdateWithGtCondition() {
+        template.update(Person.class)
+                .set("age").to(30)
+                .where("age").gt(18)
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with greater-than-or-equal condition")
+    void shouldUpdateWithGteCondition() {
+        template.update(Person.class)
+                .set("age").to(30)
+                .where("age").gte(18)
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with less-than condition")
+    void shouldUpdateWithLtCondition() {
+        template.update(Person.class)
+                .set("age").to(30)
+                .where("age").lt(65)
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with less-than-or-equal condition")
+    void shouldUpdateWithLteCondition() {
+        template.update(Person.class)
+                .set("age").to(30)
+                .where("age").lte(65)
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with IN condition")
+    void shouldUpdateWithInCondition() {
+        template.update(Person.class)
+                .set("status").to("ACTIVE")
+                .where("status").in(List.of("ACTIVE", "PENDING"))
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with BETWEEN condition")
+    void shouldUpdateWithBetweenCondition() {
+        template.update(Person.class)
+                .set("age").to(30)
+                .where("age").between(18, 65)
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with LIKE condition")
+    void shouldUpdateWithLikeCondition() {
+        template.update(Person.class)
+                .set("name").to("Ada")
+                .where("name").like("Ad%")
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with CONTAINS condition")
+    void shouldUpdateWithContainsCondition() {
+        template.update(Person.class)
+                .set("name").to("Ada")
+                .where("name").contains("d")
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with STARTS WITH condition")
+    void shouldUpdateWithStartsWithCondition() {
+        template.update(Person.class)
+                .set("name").to("Ada")
+                .where("name").startsWith("A")
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with ENDS WITH condition")
+    void shouldUpdateWithEndsWithCondition() {
+        template.update(Person.class)
+                .set("name").to("Ada")
+                .where("name").endsWith("a")
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
+        });
+    }
 
 }
