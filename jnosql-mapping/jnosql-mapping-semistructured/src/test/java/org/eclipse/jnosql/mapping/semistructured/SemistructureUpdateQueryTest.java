@@ -12,6 +12,7 @@ package org.eclipse.jnosql.mapping.semistructured;
 
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DefaultSelectQuery;
+import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -78,5 +79,16 @@ class SemistructureUpdateQueryTest {
         SelectQuery selectQuery = query.toSelectQuery();
 
         assertThat(selectQuery.condition()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Should include set elements")
+    void shouldIncludeSetElements() {
+        CriteriaCondition condition = CriteriaCondition.eq("author", "Ada");
+        List<Element> elements = List.of(Element.of("name", "Effective Java"));
+        SemistructureUpdateQuery query =
+                new SemistructureUpdateQuery("Book", elements, condition);
+
+        assertThat(query.set()).isEqualTo(elements);
     }
 }
