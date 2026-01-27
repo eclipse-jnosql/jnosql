@@ -83,10 +83,10 @@ public class MapperUpdateTest {
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(update.name()).isEqualTo("Person");
-            soft.assertThat(update.set()).hasSize(1);
-            soft.assertThat(update.set().getFirst().name()).isEqualTo("name");
-            soft.assertThat(update.set().getFirst().get()).isEqualTo("Ada");
-            soft.assertThat(update.condition()).isEmpty();
+            soft.assertThat(update.sets()).hasSize(1);
+            soft.assertThat(update.sets().getFirst().name()).isEqualTo("name");
+            soft.assertThat(update.sets().getFirst().get()).isEqualTo("Ada");
+            soft.assertThat(update.where()).isEmpty();
         });
     }
 
@@ -102,8 +102,8 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
-            soft.assertThat(update.condition().get())
+            soft.assertThat(update.where()).isPresent();
+            soft.assertThat(update.where().get())
                     .isInstanceOf(CriteriaCondition.class);
         });
     }
@@ -121,7 +121,7 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
+            soft.assertThat(update.where()).isPresent();
         });
     }
 
@@ -138,7 +138,7 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
+            soft.assertThat(update.where()).isPresent();
         });
     }
 
@@ -156,7 +156,7 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
+            soft.assertThat(update.where()).isPresent();
         });
     }
 
@@ -172,7 +172,7 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
+            soft.assertThat(update.where()).isPresent();
         });
     }
 
@@ -188,7 +188,7 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
+            soft.assertThat(update.where()).isPresent();
         });
     }
 
@@ -204,7 +204,7 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
+            soft.assertThat(update.where()).isPresent();
         });
     }
 
@@ -220,7 +220,7 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
+            soft.assertThat(update.where()).isPresent();
         });
     }
 
@@ -236,7 +236,7 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
+            soft.assertThat(update.where()).isPresent();
         });
     }
 
@@ -252,7 +252,7 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
+            soft.assertThat(update.where()).isPresent();
         });
     }
 
@@ -268,7 +268,7 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
+            soft.assertThat(update.where()).isPresent();
         });
     }
 
@@ -284,7 +284,7 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
+            soft.assertThat(update.where()).isPresent();
         });
     }
 
@@ -300,7 +300,7 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
+            soft.assertThat(update.where()).isPresent();
         });
     }
 
@@ -316,7 +316,7 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.condition()).isPresent();
+            soft.assertThat(update.where()).isPresent();
         });
     }
 
