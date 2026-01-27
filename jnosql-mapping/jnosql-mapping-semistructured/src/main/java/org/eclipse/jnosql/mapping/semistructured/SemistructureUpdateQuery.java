@@ -8,7 +8,6 @@
  * You may elect to redistribute this code under either of these licenses.
  *
  */
-
 package org.eclipse.jnosql.mapping.semistructured;
 
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
