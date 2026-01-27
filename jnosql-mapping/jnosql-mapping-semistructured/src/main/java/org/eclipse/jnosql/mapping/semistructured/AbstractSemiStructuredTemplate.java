@@ -28,6 +28,7 @@ import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.QueryParser;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.communication.semistructured.UpdateQuery;
 import org.eclipse.jnosql.mapping.IdNotFoundException;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
@@ -179,6 +180,12 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
     }
 
     @Override
+    public void update(UpdateQuery query) {
+        requireNonNull(query, "query is required");
+        manager().update(query);
+    }
+
+    @Override
     public long count(SelectQuery query) {
         return manager().count(query);
     }
@@ -285,6 +292,12 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         requireNonNull(type, "type is required");
         EntityMetadata metadata = entities().get(type);
         return new MapperDelete(metadata, converters(), this);
+    }
+    @Override
+    public <T> QueryMapper.MapperUpdateFrom update(Class<T> type) {
+        requireNonNull(type, "type is required");
+        EntityMetadata metadata = entities().get(type);
+        return new MapperUpdate(metadata, converters(), this);
     }
 
     @Override

@@ -638,7 +638,15 @@ class DefaultSemiStructuredTemplateTest {
         assertEquals(CriteriaCondition.eq(Element.of("_id", 10L)), condition);
     }
 
+    @Test
+    void shouldUpdateQuery() {
+        var updateQuery = new SemistructureUpdateQuery("Person",
+                List.of(Element.of("name", "New Name")),
+                CriteriaCondition.eq(Element.of("id", 10L)));
+        template.update(updateQuery);
+        verify(managerMock).update(updateQuery);
 
+    }
 
     private List<CommunicationEntity> content() {
         CommunicationEntity columnEntity = CommunicationEntity.of("Person");
