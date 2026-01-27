@@ -189,7 +189,7 @@ public interface DatabaseManager extends IdFieldNameSupplier, AutoCloseable {
         Objects.requireNonNull(query, "query is required");
         Stream<CommunicationEntity> entities = select(query.toSelectQuery());
         entities.forEach(entity -> {
-                    entity.addAll(query.set());
+                    entity.addAll(query.sets());
                     update(entity);
         });
     }

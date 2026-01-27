@@ -28,7 +28,7 @@ class DefaultUpdateQueryTest {
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(updateQuery.where()).isPresent();
             soft.assertThat(updateQuery.name()).isEqualTo("person");
-            soft.assertThat(updateQuery.set()).hasSize(1)
+            soft.assertThat(updateQuery.sets()).hasSize(1)
                     .contains(Element.of("name", "Ada"));
 
             soft.assertThat(updateQuery.where().orElseThrow())

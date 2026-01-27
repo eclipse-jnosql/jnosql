@@ -35,7 +35,7 @@ public interface UpdateQuery {
      *
      * @return a list of {@link Element} objects that detail the fields to be updated and their new values.
      */
-    List<Element> set();
+    List<Element> sets();
 
     /**
      * Retrieves the condition under which the entity's records are to be updated. The condition defines
