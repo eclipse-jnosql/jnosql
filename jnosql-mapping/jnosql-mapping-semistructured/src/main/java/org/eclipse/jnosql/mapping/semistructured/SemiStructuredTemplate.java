@@ -16,6 +16,7 @@ import jakarta.data.page.PageRequest;
 import jakarta.nosql.Template;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.communication.semistructured.UpdateQuery;
 import org.eclipse.jnosql.mapping.PreparedStatement;
 
 import java.util.Optional;
@@ -80,12 +81,19 @@ public interface SemiStructuredTemplate extends Template {
      */
     PreparedStatement prepare(String query, String entity);
     /**
-     * Deletes an entity
+     * Deletes an query
      *
      * @param query query to delete an entity
      * @throws NullPointerException when query is null
      */
     void delete(DeleteQuery query);
+
+    /**
+     * Updates an entity
+     * @param query query to delete an entity
+     * @throws NullPointerException when query is null
+     */
+    void update(UpdateQuery query);
 
     /**
      * Finds entities from query
