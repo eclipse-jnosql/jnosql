@@ -11,6 +11,7 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *   Maximillian Arruda
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
@@ -19,7 +20,7 @@ import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
@@ -29,11 +30,12 @@ final class MapperUpdate extends AbstractMapperQuery implements
         QueryMapper.MapperUpdateFrom,
         QueryMapper.MapperUpdateSetTo,
         QueryMapper.MapperUpdateSetStep,
-        QueryMapper.MapperUpdateWhereStep,
-        QueryMapper.MapperUpdateQueryBuild,
-        QueryMapper.MapperUpdateConditionStep {
+        QueryMapper.MapperUpdateNameCondition,
+        QueryMapper.MapperUpdateWhere,
+        QueryMapper.MapperUpdateNotCondition,
+        QueryMapper.MapperUpdateQueryBuild {
 
-    private final List<Element> elements = new ArrayList<>();
+    private final List<Element> elements = new LinkedList<>();
 
     MapperUpdate(EntityMetadata mapping, Converters converters, SemiStructuredTemplate template) {
         super(mapping, converters, template);
@@ -47,88 +49,93 @@ final class MapperUpdate extends AbstractMapperQuery implements
     }
 
     @Override
-    public QueryMapper.MapperUpdateWhereStep where(String name) {
+    public <T> QueryMapper.MapperUpdateSetStep to(T value) {
+        requireNonNull(this.name, "name is required");
+        this.elements.add(Element.of(mapping.columnField(name), getValue(value)));
+        return this;
+    }
+
+    @Override
+    public QueryMapper.MapperUpdateNameCondition where(String name) {
         requireNonNull(name, "name is required");
         this.name = name;
         return this;
     }
 
     @Override
-    public <T> QueryMapper.MapperUpdateSetStep to(T value) {
-        requireNonNull(value, "value is required");
-        this.elements.add(Element.of(name, getValue(value)));
-        return this;
-    }
-
-
-    @Override
-    public <T> QueryMapper.MapperUpdateConditionStep eq(T value) {
+    public <T> QueryMapper.MapperUpdateWhere eq(T value) {
         eqImpl(value);
         return this;
     }
 
     @Override
-    public QueryMapper.MapperUpdateConditionStep like(String value) {
+    public QueryMapper.MapperUpdateWhere like(String value) {
         likeImpl(value);
         return this;
     }
 
     @Override
-    public QueryMapper.MapperUpdateConditionStep contains(String value) {
+    public QueryMapper.MapperUpdateWhere contains(String value) {
         containsImpl(value);
         return this;
     }
 
     @Override
-    public QueryMapper.MapperUpdateConditionStep startsWith(String value) {
+    public QueryMapper.MapperUpdateWhere startsWith(String value) {
         startWithImpl(value);
         return this;
     }
 
     @Override
-    public QueryMapper.MapperUpdateConditionStep endsWith(String value) {
+    public QueryMapper.MapperUpdateWhere endsWith(String value) {
         endsWithImpl(value);
         return this;
     }
 
     @Override
-    public <T> QueryMapper.MapperUpdateConditionStep gt(T value) {
+    public <T> QueryMapper.MapperUpdateWhere gt(T value) {
         gtImpl(value);
         return this;
     }
 
     @Override
-    public <T> QueryMapper.MapperUpdateConditionStep gte(T value) {
+    public <T> QueryMapper.MapperUpdateWhere gte(T value) {
         gteImpl(value);
         return this;
     }
 
     @Override
-    public <T> QueryMapper.MapperUpdateConditionStep lt(T value) {
+    public <T> QueryMapper.MapperUpdateWhere lt(T value) {
         ltImpl(value);
         return this;
     }
 
     @Override
-    public <T> QueryMapper.MapperUpdateConditionStep lte(T value) {
+    public <T> QueryMapper.MapperUpdateWhere lte(T value) {
         lteImpl(value);
         return this;
     }
 
     @Override
-    public <T> QueryMapper.MapperUpdateConditionStep between(T valueA, T valueB) {
+    public <T> QueryMapper.MapperUpdateWhere between(T valueA, T valueB) {
         betweenImpl(valueA, valueB);
         return this;
     }
 
     @Override
-    public <T> QueryMapper.MapperUpdateConditionStep in(Iterable<T> values) {
+    public <T> QueryMapper.MapperUpdateWhere in(Iterable<T> values) {
         inImpl(values);
         return this;
     }
 
     @Override
-    public QueryMapper.MapperUpdateWhereStep and(String name) {
+    public QueryMapper.MapperUpdateNotCondition not() {
+        this.negate = true;
+        return this;
+    }
+
+    @Override
+    public QueryMapper.MapperUpdateNameCondition and(String name) {
         requireNonNull(name, "name is required");
         this.name = name;
         this.and = true;
@@ -136,16 +143,10 @@ final class MapperUpdate extends AbstractMapperQuery implements
     }
 
     @Override
-    public QueryMapper.MapperUpdateWhereStep or(String name) {
+    public QueryMapper.MapperUpdateNameCondition or(String name) {
         requireNonNull(name, "name is required");
         this.name = name;
         this.and = false;
-        return this;
-    }
-
-    @Override
-    public QueryMapper.MapperUpdateWhereStep not() {
-        this.negate = true;
         return this;
     }
 
