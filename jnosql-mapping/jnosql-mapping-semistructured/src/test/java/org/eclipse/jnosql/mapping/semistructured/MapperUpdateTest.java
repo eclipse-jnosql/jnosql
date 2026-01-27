@@ -178,8 +178,8 @@ public class MapperUpdateTest {
             var conditions = condition.element().get(new TypeReference<List<CriteriaCondition>>() {
             });
             soft.assertThat(conditions).hasSize(2);
-            soft.assertThat(conditions.get(0)).isEqualTo(CriteriaCondition.eq(Element.of("age", 18)));
-            soft.assertThat(conditions.get(1)).isEqualTo(CriteriaCondition.eq(Element.of("name", "Ada")));
+            soft.assertThat(conditions.get(0)).isEqualTo(CriteriaCondition.eq(Element.of("role", "ADMIN")));
+            soft.assertThat(conditions.get(1)).isEqualTo(CriteriaCondition.eq(Element.of("role", "USER")));
         });
     }
 
