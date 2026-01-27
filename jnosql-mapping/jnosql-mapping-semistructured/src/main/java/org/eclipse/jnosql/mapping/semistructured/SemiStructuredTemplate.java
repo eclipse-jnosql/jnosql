@@ -7,7 +7,12 @@
  *   and the Apache License v2.0 is available at http://www.opensource.org/licenses/apache2.0.php.
  *
  *   You may elect to redistribute this code under either of these licenses.
- */
+ *
+ *   Contributors
+ *
+ *   Otavio Santana
+ *   Maximillian Arruda
+ * */
 package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.data.page.CursoredPage;
@@ -81,7 +86,7 @@ public interface SemiStructuredTemplate extends Template {
      */
     PreparedStatement prepare(String query, String entity);
     /**
-     * Deletes an query
+     * Deletes an entity
      *
      * @param query query to delete an entity
      * @throws NullPointerException when query is null
@@ -89,8 +94,9 @@ public interface SemiStructuredTemplate extends Template {
     void delete(DeleteQuery query);
 
     /**
-     * Updates an entity
-     * @param query query to delete an entity
+     * Updates entities from query
+     *
+     * @param query query to update entities
      * @throws NullPointerException when query is null
      */
     void update(UpdateQuery query);
