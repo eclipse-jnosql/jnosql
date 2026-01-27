@@ -14,11 +14,17 @@
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
+import jakarta.data.repository.Update;
 import jakarta.nosql.QueryMapper;
 
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
+import org.eclipse.jnosql.communication.semistructured.Element;
+import org.eclipse.jnosql.communication.semistructured.UpdateQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 
@@ -31,9 +37,9 @@ final class MapperUpdate extends AbstractMapperQuery implements
         QueryMapper.MapperUpdateQueryBuild,
         QueryMapper.MapperUpdateConditionStep {
 
-    private String set;
-
     private Object value;
+
+    private final List<Element> elements = new ArrayList<>();
 
     MapperUpdate(EntityMetadata mapping, Converters converters, SemiStructuredTemplate template) {
         super(mapping, converters, template);
@@ -42,7 +48,8 @@ final class MapperUpdate extends AbstractMapperQuery implements
     @Override
     public QueryMapper.MapperUpdateSetTo set(String name) {
         requireNonNull(name, "name is required");
-        this.set = set;
+        this.name = name;
+        this.elements.add(Element.of(name, getValue(value)));
         return this;
     }
 
@@ -69,7 +76,8 @@ final class MapperUpdate extends AbstractMapperQuery implements
 
     @Override
     public QueryMapper.MapperUpdateConditionStep like(String value) {
-        return null;
+        likeImpl(value);
+        return this;
     }
 
     @Override
@@ -110,12 +118,13 @@ final class MapperUpdate extends AbstractMapperQuery implements
 
     @Override
     public <T> QueryMapper.MapperUpdateConditionStep lte(T value) {
-        return null;
+        lteImpl(value);
+        return this;
     }
 
     @Override
     public <T> QueryMapper.MapperUpdateConditionStep between(T valueA, T valueB) {
-        lteImpl(value);
+        betweenImpl(valueA, valueB);
         return this;
     }
 
@@ -147,15 +156,14 @@ final class MapperUpdate extends AbstractMapperQuery implements
         return this;
     }
 
-
-    private DeleteQuery build() {
-        return new MappingDeleteQuery(entity, condition);
+    private UpdateQuery build() {
+        return new SemistructureUpdateQuery(entity, elements, condition);
     }
 
     @Override
     public void execute() {
-        DeleteQuery query = build();
-        this.template.delete(query);
+        var query = build();
+        this.template.update(query);
     }
 
 
