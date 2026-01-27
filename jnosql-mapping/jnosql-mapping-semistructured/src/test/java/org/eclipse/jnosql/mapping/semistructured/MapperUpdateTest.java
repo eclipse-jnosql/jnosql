@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.semistructured;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -92,6 +93,28 @@ public class MapperUpdateTest {
     }
 
     @Test
+    @DisplayName("Should update a multiple field")
+    void shouldUpdateMultipleFields() {
+        template.update(Person.class)
+                .set("name").to("Ada")
+                .set("age").to(30)
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.name()).isEqualTo("Person");
+            soft.assertThat(update.sets()).hasSize(2);
+            soft.assertThat(update.sets().getFirst().name()).isEqualTo("name");
+            soft.assertThat(update.sets().getFirst().get()).isEqualTo("Ada");
+            soft.assertThat(update.sets().get(1).name()).isEqualTo("age");
+            soft.assertThat(update.sets().get(1).get()).isEqualTo(30);
+            soft.assertThat(update.where()).isEmpty();
+        });
+    }
+
+    @Test
     @DisplayName("Should update with equality condition")
     void shouldUpdateWithEqCondition() {
         template.update(Person.class)
@@ -104,9 +127,11 @@ public class MapperUpdateTest {
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(update.where()).isPresent();
-            soft.assertThat(update.sets()).contains(Element.of("name", "Ada"), Element.of("age", 30));
+            soft.assertThat(update.sets()).contains(Element.of("name", "Ada"));
             soft.assertThat(update.where().orElseThrow())
                     .isInstanceOf(CriteriaCondition.class);
+            var condition = update.where().orElseThrow();
+            soft.assertThat(condition).isEqualTo(CriteriaCondition.eq(Element.of("age", 30)));
         });
     }
 
