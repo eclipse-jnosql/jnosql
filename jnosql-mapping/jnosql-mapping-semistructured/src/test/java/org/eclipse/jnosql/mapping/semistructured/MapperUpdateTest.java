@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.semistructured;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
+import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.UpdateQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -28,9 +29,12 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 
@@ -67,21 +71,124 @@ public class MapperUpdateTest {
                 converter, instance, persistManager, entities, converters);
     }
 
-
     @Test
+    @DisplayName("Should update a single field")
     void shouldUpdateSingleField() {
         template.update(Person.class)
                 .set("name").to("Ada")
                 .execute();
 
-        Mockito.verify(template).update(captor.capture());
+        Mockito.verify(managerMock).update(captor.capture());
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(update.name()).isEqualTo("Person");
             soft.assertThat(update.set()).hasSize(1);
             soft.assertThat(update.set().getFirst().name()).isEqualTo("name");
-            soft.assertThat(update.set().getFirst().value()).isEqualTo("Ada");
+            soft.assertThat(update.set().getFirst().get()).isEqualTo("Ada");
+            soft.assertThat(update.condition()).isEmpty();
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with equality condition")
+    void shouldUpdateWithEqCondition() {
+        template.update(Person.class)
+                .set("name").to("Ada")
+                .where("age").eq(30)
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
+            soft.assertThat(update.condition().get())
+                    .isInstanceOf(CriteriaCondition.class);
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with AND condition")
+    void shouldUpdateWithAndCondition() {
+        template.update(Person.class)
+                .set("active").to(true)
+                .where("age").gte(18)
+                .and("name").eq("Ada")
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with OR condition")
+    void shouldUpdateWithOrCondition() {
+        template.update(Person.class)
+                .set("active").to(true)
+                .where("role").eq("ADMIN")
+                .or("role").eq("USER")
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with BETWEEN condition")
+    void shouldUpdateWithBetweenCondition() {
+        template.update(Person.class)
+                .set("active").to(true)
+                .where("age").between(18, 65)
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with IN condition")
+    void shouldUpdateWithInCondition() {
+        template.update(Person.class)
+                .set("status").to("ACTIVE")
+                .where("role").in(List.of("ADMIN", "USER"))
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with NOT condition")
+    void shouldUpdateWithNotCondition() {
+        template.update(Person.class)
+                .set("active").to(false)
+                .where("status")
+                .not()
+                .eq("DELETED")
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(update.condition()).isPresent();
         });
     }
 
