@@ -300,7 +300,8 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.where()).isPresent();
+            var condition = update.where().orElseThrow();
+            soft.assertThat(condition).isEqualTo(CriteriaCondition.between(Element.of("age", List.of(18, 65))));
         });
     }
 
@@ -316,7 +317,8 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.where()).isPresent();
+            var condition = update.where().orElseThrow();
+            soft.assertThat(condition).isEqualTo(CriteriaCondition.like(Element.of("name", "Ad%")));
         });
     }
 
@@ -332,7 +334,8 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.where()).isPresent();
+            var condition = update.where().orElseThrow();
+            soft.assertThat(condition).isEqualTo(CriteriaCondition.contains(Element.of("name", "d")));
         });
     }
 
@@ -348,7 +351,8 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.where()).isPresent();
+            var condition = update.where().orElseThrow();
+            soft.assertThat(condition).isEqualTo(CriteriaCondition.startsWith(Element.of("name", "A")));
         });
     }
 
@@ -364,7 +368,8 @@ public class MapperUpdateTest {
         var update = captor.getValue();
 
         SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(update.where()).isPresent();
+            var condition = update.where().orElseThrow();
+            soft.assertThat(condition).isEqualTo(CriteriaCondition.endsWith(Element.of("name", "a")));
         });
     }
 
