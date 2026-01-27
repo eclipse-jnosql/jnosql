@@ -33,7 +33,7 @@ class SemistructureUpdateQueryTest {
         SemistructureUpdateQuery query =
                 new SemistructureUpdateQuery("Book", List.of(), condition);
 
-        Optional<CriteriaCondition> result = query.condition();
+        Optional<CriteriaCondition> result = query.where();
 
         assertThat(result)
                 .isPresent()
@@ -46,7 +46,7 @@ class SemistructureUpdateQueryTest {
         SemistructureUpdateQuery query =
                 new SemistructureUpdateQuery("Book", List.of(), null);
 
-        Optional<CriteriaCondition> result = query.condition();
+        Optional<CriteriaCondition> result = query.where();
 
         assertThat(result).isEmpty();
     }
@@ -89,6 +89,6 @@ class SemistructureUpdateQueryTest {
         SemistructureUpdateQuery query =
                 new SemistructureUpdateQuery("Book", elements, condition);
 
-        assertThat(query.set()).isEqualTo(elements);
+        assertThat(query.sets()).isEqualTo(elements);
     }
 }
