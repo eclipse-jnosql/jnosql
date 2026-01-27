@@ -34,8 +34,6 @@ final class MapperUpdate extends AbstractMapperQuery implements
         QueryMapper.MapperUpdateQueryBuild,
         QueryMapper.MapperUpdateConditionStep {
 
-    private Object value;
-
     private final List<Element> elements = new ArrayList<>();
 
     MapperUpdate(EntityMetadata mapping, Converters converters, SemiStructuredTemplate template) {
@@ -46,7 +44,6 @@ final class MapperUpdate extends AbstractMapperQuery implements
     public QueryMapper.MapperUpdateSetTo set(String name) {
         requireNonNull(name, "name is required");
         this.name = name;
-        this.elements.add(Element.of(name, getValue(value)));
         return this;
     }
 
@@ -60,7 +57,7 @@ final class MapperUpdate extends AbstractMapperQuery implements
     @Override
     public <T> QueryMapper.MapperUpdateSetStep to(T value) {
         requireNonNull(value, "value is required");
-        this.value = value;
+        this.elements.add(Element.of(name, getValue(value)));
         return this;
     }
 
@@ -153,13 +150,9 @@ final class MapperUpdate extends AbstractMapperQuery implements
         return this;
     }
 
-    private UpdateQuery build() {
-        return new SemistructureUpdateQuery(entity, elements, condition);
-    }
-
     @Override
     public void execute() {
-        var query = build();
+        var query = new SemistructureUpdateQuery(entity, elements, condition);
         this.template.update(query);
     }
 }
