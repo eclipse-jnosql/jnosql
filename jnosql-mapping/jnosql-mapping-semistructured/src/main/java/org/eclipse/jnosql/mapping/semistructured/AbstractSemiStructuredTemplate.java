@@ -286,6 +286,12 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         EntityMetadata metadata = entities().get(type);
         return new MapperDelete(metadata, converters(), this);
     }
+    @Override
+    public <T> QueryMapper.MapperUpdateFrom update(Class<T> type) {
+        requireNonNull(type, "type is required");
+        EntityMetadata metadata = entities().get(type);
+        return new MapperUpdate(metadata, converters(), this);
+    }
 
     @Override
     public <T> Stream<T> findAll(Class<T> type) {
