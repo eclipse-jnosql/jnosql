@@ -14,9 +14,11 @@
  */
 package org.eclipse.jnosql.mapping.metadata.repository;
 
+import java.util.List;
+
 /**
  * A {@link MethodKey} representing a method by its name and erased parameter types, providing
  * a stable, overload-safe identifier usable in both reflection-based and annotation-processor–
  * generated repository implementations.
  */
-public record MethodSignatureKey(String name, Class<?>[] parameters) implements MethodKey {}
+public record MethodSignatureKey(String name, List<Class<?>>[] parameters) implements MethodKey {}
