@@ -77,6 +77,11 @@ class RepositoryFilterTest {
         assertThat(supported.test(StringSupplier.class)).isFalse();
         assertThat(supported.test(Repository.class)).isFalse();
     }
+
+    @Test
+    void shouldReturnUnsupportedWhenAnnotatedWithRepositoryInvalidProvider() {
+        assertThat(supported.test(OtherServer.class)).isFalse();
+    }
     
     @Test
     void shouldReturnValidAndSupported() {
@@ -101,6 +106,10 @@ class RepositoryFilterTest {
 	
     @jakarta.data.repository.Repository(provider = "Eclipse_JNoSQL")
     private interface Server extends BasicRepository<Computer, String> {
+    }
+
+    @jakarta.data.repository.Repository(provider = "Other")
+    private interface OtherServer extends BasicRepository<Computer, String> {
     }
 
     private interface StringSupplier extends Supplier<String> {

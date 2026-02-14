@@ -51,7 +51,7 @@ enum RepositoryFilter implements Predicate<Class<?>> {
     public boolean isSupported(Class<?> type) {
         Optional<String> provider = getProvider(type);
         return provider.map(p -> Repository.ANY_PROVIDER.equals(p) || PROVIDER.equalsIgnoreCase(p))
-                .isPresent();
+                       .orElse(false);
     }
 
     /**
