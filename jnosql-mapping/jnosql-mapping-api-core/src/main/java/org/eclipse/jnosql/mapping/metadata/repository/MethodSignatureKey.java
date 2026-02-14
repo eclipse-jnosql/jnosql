@@ -21,4 +21,4 @@ import java.util.List;
  * a stable, overload-safe identifier usable in both reflection-based and annotation-processor–
  * generated repository implementations.
  */
-public record MethodSignatureKey(String name, List<Class<?>>[] parameters) implements MethodKey {}
+public record MethodSignatureKey(String name, List<Class<?>> parameters) implements MethodKey {}
