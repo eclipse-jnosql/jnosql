@@ -501,7 +501,7 @@ class ReflectionRepositorySupplierTest {
     @Test
     void shouldNotFindByMethodSignature() {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
-        MethodSignatureKey methodSignatureKey = new MethodSignatureKey("query", new Class[]{String.class});
+        MethodSignatureKey methodSignatureKey = new MethodSignatureKey("query", List.of(String.class));
         Optional<RepositoryMethod> query = metadata.find(methodSignatureKey);
         assertTrue(query.isEmpty());
     }
