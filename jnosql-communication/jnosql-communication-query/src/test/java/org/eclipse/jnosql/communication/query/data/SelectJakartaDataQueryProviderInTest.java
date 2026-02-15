@@ -240,7 +240,11 @@ class SelectJakartaDataQueryProviderInTest {
             var condition = where.condition();
             soft.assertThat(condition.condition()).isEqualTo(Condition.IN);
             var value = condition.value();
-            soft.assertThat(value).isInstanceOf(ParamQueryValue.class);
+            soft.assertThat(value).isInstanceOf(DataArrayQueryValue.class);
+            DataArrayQueryValue arrayQueryValue = DataArrayQueryValue.class.cast(value);
+            soft.assertThat(arrayQueryValue.get()[0]).isInstanceOf(ParamQueryValue.class);
+            ParamQueryValue paramQueryValue = ParamQueryValue.class.cast(arrayQueryValue.get()[0]);
+            soft.assertThat(paramQueryValue.get()).isEqualTo("ages");
         });
     }
 
