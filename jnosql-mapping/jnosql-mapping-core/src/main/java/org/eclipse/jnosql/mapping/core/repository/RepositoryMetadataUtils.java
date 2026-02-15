@@ -169,8 +169,9 @@ public enum RepositoryMetadataUtils {
                 .execute();
     }
 
-    private ParamValue condition(Class<? extends Constraint<?>> isType, Object value) {
-        if (Objects.isNull(isType) && !(value instanceof Constraint<?>)) {
+    @SuppressWarnings("rawtypes")
+    private ParamValue condition(Class<? extends Constraint> isType, Object value) {
+        if (Objects.isNull(isType) && !(value instanceof Constraint)) {
             return new ParamValue(Condition.EQUALS, value, false);
         } else if (value instanceof Constraint<?> constraint) {
             return ParamValueUtils.valueFromConstraintInstance(constraint);
