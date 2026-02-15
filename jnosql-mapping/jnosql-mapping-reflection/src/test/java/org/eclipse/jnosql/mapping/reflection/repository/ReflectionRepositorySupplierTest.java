@@ -285,7 +285,7 @@ class ReflectionRepositorySupplierTest {
             soft.assertThat(params).isNotEmpty().hasSize(1);
             RepositoryParam repositoryParam = params.getFirst();
             soft.assertThat(repositoryParam.is()).isNotEmpty();
-            Class<? extends Constraint<?>> type = repositoryParam.is().orElseThrow();
+            var type = repositoryParam.is().orElseThrow();
             soft.assertThat(type).isEqualTo(GreaterThan.class);
             soft.assertThat(repositoryParam.by()).isNotNull().isEqualTo("name");
             soft.assertThat(repositoryParam.type()).isEqualTo(String.class);
