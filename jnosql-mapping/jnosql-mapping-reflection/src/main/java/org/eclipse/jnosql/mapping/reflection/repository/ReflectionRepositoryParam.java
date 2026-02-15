@@ -26,8 +26,9 @@ record ReflectionRepositoryParam(Class<? extends Constraint<?>> isValue,
                                  Class<?> type,
                                  Class<?> elementTypeValue) implements RepositoryParam {
 
+    @SuppressWarnings("rawtypes")
     @Override
-    public Optional<Class<? extends Constraint<?>>> is() {
+    public Optional<Class<? extends Constraint>> is() {
         return Optional.ofNullable(isValue);
     }
 
