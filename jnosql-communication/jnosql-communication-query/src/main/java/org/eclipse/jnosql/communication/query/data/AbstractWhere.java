@@ -168,7 +168,11 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
 
         var name = ctx.state_field_path_expression().getText();
         var contextCondition = Condition.IN;
+
         List<QueryValue<?>> values = new ArrayList<>();
+        if (ctx.input_parameter() != null) {
+            values.add(DefaultQueryValue.of(ctx.input_parameter().getText()));
+        }
         for (JDQLParser.In_itemContext item : ctx.in_item()) {
             values.add(InItemFunction.INSTANCE.apply(item));
         }
