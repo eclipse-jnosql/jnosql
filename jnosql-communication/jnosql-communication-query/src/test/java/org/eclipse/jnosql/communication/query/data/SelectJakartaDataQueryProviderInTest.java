@@ -227,7 +227,7 @@ class SelectJakartaDataQueryProviderInTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"WHERE age IN :ages"})
+    @ValueSource(strings = {"WHERE age IN :ages", "FROM entity WHERE age IN :ages"})
     void shouldQueryInParameter(String query){
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
