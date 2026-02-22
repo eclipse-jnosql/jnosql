@@ -260,7 +260,7 @@ class SelectJakartaDataQueryProviderInTest {
             soft.assertThat(selectQuery.where()).isNotEmpty();
             var where = selectQuery.where().orElseThrow();
             var condition = where.condition();
-            soft.assertThat(condition.condition()).isEqualTo(Condition.NOT_IN);
+            soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
             var value = condition.value();
             soft.assertThat(value).isInstanceOf(DataArrayQueryValue.class);
             DataArrayQueryValue arrayQueryValue = DataArrayQueryValue.class.cast(value);
