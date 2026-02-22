@@ -27,6 +27,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.DayOfWeek;
+import java.util.List;
 
 class SelectJakartaDataQueryProviderInTest {
 
@@ -261,9 +262,9 @@ class SelectJakartaDataQueryProviderInTest {
             var where = selectQuery.where().orElseThrow();
             var condition = where.condition();
             soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
-            var value = condition.value();
-            soft.assertThat(value).isInstanceOf(DataArrayQueryValue.class);
-            DataArrayQueryValue arrayQueryValue = DataArrayQueryValue.class.cast(value);
+            var queryCondition = ((List<?>) condition.value().get()).getFirst();
+            soft.assertThat(queryCondition).isInstanceOf(QueryCondition.class);
+            DataArrayQueryValue arrayQueryValue = (DataArrayQueryValue) ((QueryCondition)queryCondition).value();
             soft.assertThat(arrayQueryValue.get()[0]).isInstanceOf(ParamQueryValue.class);
             ParamQueryValue paramQueryValue = ParamQueryValue.class.cast(arrayQueryValue.get()[0]);
             soft.assertThat(paramQueryValue.get()).isEqualTo("ages");
