@@ -17,6 +17,7 @@ import org.eclipse.jnosql.communication.query.ArrayQueryValue;
 import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.EnumQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
+import org.eclipse.jnosql.communication.query.ParamQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.SelectQuery;
@@ -26,6 +27,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.DayOfWeek;
+import java.util.List;
 
 class SelectJakartaDataQueryProviderInTest {
 
@@ -225,4 +227,47 @@ class SelectJakartaDataQueryProviderInTest {
         });
     }
 
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"WHERE age IN :ages", "FROM entity WHERE age IN :ages"})
+    void shouldQueryInParameter(String query){
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(selectQuery.fields()).isEmpty();
+            soft.assertThat(selectQuery.entity()).isEqualTo("entity");
+            soft.assertThat(selectQuery.orderBy()).isEmpty();
+            soft.assertThat(selectQuery.where()).isNotEmpty();
+            var where = selectQuery.where().orElseThrow();
+            var condition = where.condition();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.IN);
+            var value = condition.value();
+            soft.assertThat(value).isInstanceOf(DataArrayQueryValue.class);
+            DataArrayQueryValue arrayQueryValue = DataArrayQueryValue.class.cast(value);
+            soft.assertThat(arrayQueryValue.get()[0]).isInstanceOf(ParamQueryValue.class);
+            ParamQueryValue paramQueryValue = ParamQueryValue.class.cast(arrayQueryValue.get()[0]);
+            soft.assertThat(paramQueryValue.get()).isEqualTo("ages");
+        });
+    }
+
+    @ParameterizedTest(name = "Should parser the query {0}")
+    @ValueSource(strings = {"WHERE age NOT IN :ages"})
+    void shouldQueryNotInParameter(String query){
+        SelectQuery selectQuery = selectParser.apply(query, "entity");
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(selectQuery.fields()).isEmpty();
+            soft.assertThat(selectQuery.entity()).isEqualTo("entity");
+            soft.assertThat(selectQuery.orderBy()).isEmpty();
+            soft.assertThat(selectQuery.where()).isNotEmpty();
+            var where = selectQuery.where().orElseThrow();
+            var condition = where.condition();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
+            var queryCondition = ((List<?>) condition.value().get()).getFirst();
+            soft.assertThat(queryCondition).isInstanceOf(QueryCondition.class);
+            DataArrayQueryValue arrayQueryValue = (DataArrayQueryValue) ((QueryCondition)queryCondition).value();
+            soft.assertThat(arrayQueryValue.get()[0]).isInstanceOf(ParamQueryValue.class);
+            ParamQueryValue paramQueryValue = ParamQueryValue.class.cast(arrayQueryValue.get()[0]);
+            soft.assertThat(paramQueryValue.get()).isEqualTo("ages");
+        });
+    }
 }
