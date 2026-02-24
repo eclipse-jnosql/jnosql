@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2026 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -10,16 +10,29 @@
  *
  *   Contributors:
  *
- *   Otavio Santana
+ *   Mark Swatosh
  */
-package org.eclipse.jnosql.mapping.reflection.entities;
+package org.eclipse.jnosql.mapping.reflection.repository;
 
-import jakarta.data.repository.Insert;
+import java.util.stream.Stream;
+
+import jakarta.data.repository.Find;
 import jakarta.data.repository.Repository;
 
-@Repository
-public interface Library {
 
-    @Insert
-    void save(Book book);
+/*
+* An Custom Repository which only defines the entity through a method, and the Entity
+* is not a valid jnosql entity.
+*/
+@Repository
+public interface InvalidEntityCustomRepository {
+    public @interface Entity {
+    }
+    
+    @Entity
+    class OtherEntity {
+    }
+
+    @Find
+    Stream<OtherEntity> all();
 }
