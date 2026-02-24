@@ -14,5 +14,12 @@
  */
 package org.eclipse.jnosql.mapping.reflection.entities;
 
-public record CarResult(String model, String plate) {
+import jakarta.nosql.Column;
+import jakarta.nosql.Entity;
+import jakarta.nosql.Id;
+import jakarta.nosql.Projection;
+
+@Entity
+@Projection
+public record CarResult(@Id String model, @Column String plate) {
 }

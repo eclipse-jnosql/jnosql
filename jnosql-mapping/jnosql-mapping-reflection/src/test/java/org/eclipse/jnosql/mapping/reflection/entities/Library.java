@@ -14,8 +14,12 @@
  */
 package org.eclipse.jnosql.mapping.reflection.entities;
 
+import jakarta.data.repository.Insert;
 import jakarta.data.repository.Repository;
 
 @Repository
 public interface Library {
+
+    @Insert
+    void save(Book book);
 }
