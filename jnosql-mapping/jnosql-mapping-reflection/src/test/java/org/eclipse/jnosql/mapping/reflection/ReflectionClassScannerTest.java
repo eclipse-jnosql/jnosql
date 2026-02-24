@@ -42,7 +42,7 @@ class ReflectionClassScannerTest {
     void shouldReturnEntities() {
         Set<Class<?>> entities = classScanner.entities();
         Assertions.assertNotNull(entities);
-        assertThat(entities).hasSize(34)
+        assertThat(entities).hasSize(36)
                 .contains(Person.class);
     }
 
@@ -129,7 +129,7 @@ class ReflectionClassScannerTest {
     @Test
     void shouldFindProjections() {
         Set<Class<?>> projections = classScanner.projections();
-        assertThat(projections).hasSize(3)
+        assertThat(projections).hasSize(4)
                 .contains(ComputerView.class, PCView.class);
     }
 }
