@@ -19,11 +19,12 @@ import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.reflection.entities.AnimalRepository;
 import org.eclipse.jnosql.mapping.reflection.entities.Contact;
 import org.eclipse.jnosql.mapping.reflection.entities.Job;
-import org.eclipse.jnosql.mapping.reflection.entities.Library;
 import org.eclipse.jnosql.mapping.reflection.entities.MovieRepository;
 import org.eclipse.jnosql.mapping.reflection.entities.NoSQLVendor;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.eclipse.jnosql.mapping.reflection.entities.PersonRepository;
+import org.eclipse.jnosql.mapping.reflection.repository.MethodEntityCustomRepository;
+import org.eclipse.jnosql.mapping.reflection.repository.OtherProviderCustomRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +41,7 @@ class ReflectionClassScannerTest {
     void shouldReturnEntities() {
         Set<Class<?>> entities = classScanner.entities();
         Assertions.assertNotNull(entities);
-        assertThat(entities).hasSize(33)
+        assertThat(entities).hasSize(34)
                 .contains(Person.class);
     }
 
@@ -102,7 +103,7 @@ class ReflectionClassScannerTest {
     void shouldReturnCustomRepositories() {
         Set<Class<?>> repositories = classScanner.customRepositories();
         assertThat(repositories).hasSize(1)
-                .contains(Library.class);
+                .contains(MethodEntityCustomRepository.class);
     }
 
     @Test
@@ -115,7 +116,7 @@ class ReflectionClassScannerTest {
     void shouldReturnCustomRepository() {
         Set<Class<?>> repositories = classScanner.customRepositories();
         assertThat(repositories).hasSize(1)
-                .contains(Library.class);
+                .contains(MethodEntityCustomRepository.class);
     }
 
     @Test
