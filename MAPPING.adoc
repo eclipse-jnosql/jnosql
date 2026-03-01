@@ -562,6 +562,32 @@ DocumentTemplate template = // instance;
 Stream<Person> result = template.query("select * from Person where age > 10");
 ----
 
+===== Support for Functions in Text Queries
+
+Eclipse JNoSQL supports several built-in functions in string-based queries (JDQL). These functions can be used in the `WHERE` clause to manipulate values or perform calculations during query execution.
+
+Supported functions:
+
+* *ABS(n)*: Returns the absolute value of a number.
+* *LENGTH(s)*: Returns the number of characters in a string.
+* *LOWER(s)*: Converts a string to lowercase.
+* *UPPER(s)*: Converts a string to uppercase.
+* *LEFT(s, n)*: Returns the first `n` characters of a string.
+* *RIGHT(s, n)*: Returns the last `n` characters of a string.
+
+[source,java]
+----
+Stream<Person> result = template.query("FROM Person WHERE LENGTH(name) > 5");
+Stream<Person> electronics = template.query("FROM Product WHERE LOWER(category) = 'electronics'");
+
+Stream<Person> joes = template.query("FROM Customer WHERE LEFT(name, 2) = 'Jo'");
+
+PreparedStatement preparedStatement = template.prepare("FROM Customer WHERE LEFT(name, :len) = :prefix");
+preparedStatement.bind("len", 2);
+preparedStatement.bind("prefix", "Jo");
+Stream<Customer> customers = preparedStatement.result();
+----
+
 ===== Graph Database Types
 
 If an application needs a recommendation engine or a full detail about the relationship between two entities in your system, it requires a Graph database type. A graph database contains a vertex and an edge. The edge is an object that holds the relationship information about the edges and has direction and properties that make it perfect for maps or human relationship. For the Graph API, Eclipse JNoSQL uses the Apache Tinkerpop. Likewise, the `GraphTemplate` is a wrapper to convert a Java entity to a `Vertex` in TinkerPop.
