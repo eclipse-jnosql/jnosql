@@ -11,11 +11,13 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *  Matheus Oliveira
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import org.eclipse.jnosql.mapping.semistructured.Function;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -33,6 +35,7 @@ import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -43,6 +46,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.contains;
 import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.endsWith;
 import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.startsWith;
@@ -385,7 +389,101 @@ class MapperSelectTest {
 
     @Test
     void shouldReturnErrorSelectWhenOrderIsNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> template.select(Worker.class).orderBy(null));
+        Assertions.assertThrows(NullPointerException.class, () -> template.select(Worker.class).orderBy((String) null));
+    }
+
+    @Test
+    @DisplayName("Should select with UPPER function in where clause")
+    void shouldSelectWhereFunctionUpper() {
+        template.select(Person.class).where(Function.upper("name")).eq("ADA").result();
+        SelectQuery queryExpected = select().from("Person").where("UPPER(name)")
+                .eq("ADA").build();
+        Mockito.verify(managerMock).select(captor.capture());
+        SelectQuery query = captor.getValue();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    @DisplayName("Should select with LOWER function in where clause")
+    void shouldSelectWhereFunctionLower() {
+        template.select(Person.class).where(Function.lower("name")).eq("ada").result();
+        SelectQuery queryExpected = select().from("Person").where("LOWER(name)")
+                .eq("ada").build();
+        Mockito.verify(managerMock).select(captor.capture());
+        SelectQuery query = captor.getValue();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    @DisplayName("Should select with LEFT function in where clause")
+    void shouldSelectWhereFunctionLeft() {
+        template.select(Person.class).where(Function.left("name", 2)).eq("Ad").result();
+        SelectQuery queryExpected = select().from("Person").where("LEFT(name, 2)")
+                .eq("Ad").build();
+        Mockito.verify(managerMock).select(captor.capture());
+        SelectQuery query = captor.getValue();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    @DisplayName("Should select with LENGTH function in where clause")
+    void shouldSelectWhereFunctionLength() {
+        template.select(Person.class).where(Function.length("name")).gt(3).result();
+        SelectQuery queryExpected = select().from("Person").where("LENGTH(name)")
+                .gt(3).build();
+        Mockito.verify(managerMock).select(captor.capture());
+        SelectQuery query = captor.getValue();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    @DisplayName("Should select with ABS function in where clause")
+    void shouldSelectWhereFunctionAbs() {
+        template.select(Person.class).where(Function.abs("age")).gt(10).result();
+        SelectQuery queryExpected = select().from("Person").where("ABS(age)")
+                .gt(10).build();
+        Mockito.verify(managerMock).select(captor.capture());
+        SelectQuery query = captor.getValue();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    @DisplayName("Should select with UPPER function in AND condition")
+    void shouldSelectAndFunctionUpper() {
+        template.select(Person.class).where("age").gt(10).and(Function.upper("name")).eq("ADA").result();
+        SelectQuery queryExpected = select().from("Person").where("age").gt(10)
+                .and("UPPER(name)").eq("ADA").build();
+        Mockito.verify(managerMock).select(captor.capture());
+        SelectQuery query = captor.getValue();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    @DisplayName("Should select with LOWER function in OR condition")
+    void shouldSelectOrFunctionLower() {
+        template.select(Person.class).where("age").gt(10).or(Function.lower("name")).eq("ada").result();
+        SelectQuery queryExpected = select().from("Person").where("age").gt(10)
+                .or("LOWER(name)").eq("ada").build();
+        Mockito.verify(managerMock).select(captor.capture());
+        SelectQuery query = captor.getValue();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    @DisplayName("Should select with UPPER function in orderBy clause")
+    void shouldSelectOrderByFunctionUpper() {
+        template.select(Person.class).orderBy(Function.upper("name")).asc().result();
+        SelectQuery queryExpected = select().from("Person").orderBy("UPPER(name)").asc().build();
+        Mockito.verify(managerMock).select(captor.capture());
+        SelectQuery query = captor.getValue();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    @DisplayName("Should throw NullPointerException when function is null in where clause")
+    void shouldReturnErrorWhereFunctionIsNull() {
+        assertThatNullPointerException().isThrownBy(
+                () -> template.select(Person.class).where((Function) null));
     }
 
 }

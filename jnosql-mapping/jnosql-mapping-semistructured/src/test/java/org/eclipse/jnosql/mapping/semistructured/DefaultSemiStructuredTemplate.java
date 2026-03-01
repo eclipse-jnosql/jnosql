@@ -21,7 +21,6 @@ import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
-
 @Default
 @ApplicationScoped
 class DefaultSemiStructuredTemplate extends AbstractSemiStructuredTemplate {
@@ -73,5 +72,10 @@ class DefaultSemiStructuredTemplate extends AbstractSemiStructuredTemplate {
     @Override
     protected Converters converters() {
         return converters;
+    }
+
+    @Override
+    protected void checkFunctionSupport(Function function) {
+        // no-op: test template accepts all operations; real database behavior is mocked
     }
 }

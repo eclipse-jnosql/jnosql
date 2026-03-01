@@ -11,6 +11,7 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *  Matheus Oliveira
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
@@ -18,6 +19,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.mapping.semistructured.Function;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
@@ -370,6 +372,59 @@ public class MapperUpdateTest {
         SoftAssertions.assertSoftly(soft -> {
             var condition = update.where().orElseThrow();
             soft.assertThat(condition).isEqualTo(CriteriaCondition.endsWith(Element.of("name", "a")));
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with UPPER function in where clause")
+    void shouldUpdateWhereFunctionUpper() {
+        template.update(Person.class)
+                .set("name").to("Ada")
+                .where(Function.upper("name")).eq("ADA")
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            var condition = update.where().orElseThrow();
+            soft.assertThat(condition).as("condition matches UPPER(name) = ADA")
+                    .isEqualTo(CriteriaCondition.eq(Element.of("UPPER(name)", "ADA")));
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with LEFT function in where clause")
+    void shouldUpdateWhereFunctionLeft() {
+        template.update(Person.class)
+                .set("name").to("Ada")
+                .where(Function.left("name", 2)).eq("Ad")
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            var condition = update.where().orElseThrow();
+            soft.assertThat(condition).as("condition matches LEFT(name, 2) = Ad")
+                    .isEqualTo(CriteriaCondition.eq(Element.of("LEFT(name, 2)", "Ad")));
+        });
+    }
+
+    @Test
+    @DisplayName("Should update with LOWER function in AND condition")
+    void shouldUpdateAndFunctionLower() {
+        template.update(Person.class)
+                .set("name").to("Ada")
+                .where("age").gt(10).and(Function.lower("name")).eq("ada")
+                .execute();
+
+        Mockito.verify(managerMock).update(captor.capture());
+        var update = captor.getValue();
+
+        SoftAssertions.assertSoftly(soft -> {
+            var condition = update.where().orElseThrow();
+            soft.assertThat(condition.condition()).as("condition is AND").isEqualTo(Condition.AND);
         });
     }
 
