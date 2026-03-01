@@ -11,19 +11,12 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *  Matheus Oliveira
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.data.Direction;
 import jakarta.data.Sort;
-import jakarta.nosql.QueryMapper.MapperFrom;
-import jakarta.nosql.QueryMapper.MapperLimit;
-import jakarta.nosql.QueryMapper.MapperNameCondition;
-import jakarta.nosql.QueryMapper.MapperNameOrder;
-import jakarta.nosql.QueryMapper.MapperNotCondition;
-import jakarta.nosql.QueryMapper.MapperOrder;
-import jakarta.nosql.QueryMapper.MapperSkip;
-import jakarta.nosql.QueryMapper.MapperWhere;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
@@ -35,9 +28,7 @@ import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
-final class MapperSelect extends AbstractMapperQuery implements MapperFrom, MapperLimit,
-        MapperSkip, MapperOrder, MapperNameCondition,
-        MapperNotCondition, MapperNameOrder, MapperWhere {
+final class MapperSelect extends AbstractMapperQuery implements SemiStructuredMapperSelect {
 
     private final List<Sort<?>> sorts = new ArrayList<>();
 
@@ -46,132 +37,167 @@ final class MapperSelect extends AbstractMapperQuery implements MapperFrom, Mapp
     }
 
     @Override
-    public MapperNameCondition and(String name) {
+    public SemiStructuredMapperSelect and(String name) {
         requireNonNull(name, "name is required");
         this.name = name;
+        this.nameForCondition = null;
         this.and = true;
         return this;
     }
 
     @Override
-    public MapperNameCondition or(String name) {
+    public SemiStructuredMapperSelect or(String name) {
         requireNonNull(name, "name is required");
         this.name = name;
+        this.nameForCondition = null;
         this.and = false;
         return this;
     }
 
     @Override
-    public MapperNameCondition where(String name) {
+    public SemiStructuredMapperSelect where(String name) {
         requireNonNull(name, "name is required");
         this.name = name;
+        this.nameForCondition = null;
         return this;
     }
 
     @Override
-    public MapperSkip skip(long start) {
+    public SemiStructuredMapperSelect skip(long start) {
         this.start = start;
         return this;
     }
 
     @Override
-    public MapperLimit limit(long limit) {
+    public SemiStructuredMapperSelect limit(long limit) {
         this.limit = limit;
         return this;
     }
 
     @Override
-    public MapperOrder orderBy(String name) {
+    public SemiStructuredMapperSelect orderBy(String name) {
         requireNonNull(name, "name is required");
         this.name = name;
+        this.nameForCondition = null;
         return this;
     }
 
     @Override
-    public MapperNotCondition not() {
+    public SemiStructuredMapperSelect not() {
         this.negate = true;
         return this;
     }
 
     @Override
-    public <T> MapperWhere eq(T value) {
+    public <T> SemiStructuredMapperSelect eq(T value) {
         eqImpl(value);
         return this;
     }
 
-
     @Override
-    public MapperWhere like(String value) {
+    public SemiStructuredMapperSelect like(String value) {
         likeImpl(value);
         return this;
     }
 
     @Override
-    public MapperWhere contains(String value) {
+    public SemiStructuredMapperSelect contains(String value) {
         containsImpl(value);
         return this;
     }
 
     @Override
-    public MapperWhere startsWith(String value) {
+    public SemiStructuredMapperSelect startsWith(String value) {
         startWithImpl(value);
         return this;
     }
 
     @Override
-    public MapperWhere endsWith(String value) {
+    public SemiStructuredMapperSelect endsWith(String value) {
         endsWithImpl(value);
         return this;
     }
 
     @Override
-    public <T> MapperWhere gt(T value) {
+    public <T> SemiStructuredMapperSelect gt(T value) {
         gtImpl(value);
         return this;
     }
 
     @Override
-    public <T> MapperWhere gte(T value) {
+    public <T> SemiStructuredMapperSelect gte(T value) {
         gteImpl(value);
         return this;
     }
 
     @Override
-    public <T> MapperWhere lt(T value) {
+    public <T> SemiStructuredMapperSelect lt(T value) {
         ltImpl(value);
         return this;
     }
 
-
     @Override
-    public <T> MapperWhere lte(T value) {
+    public <T> SemiStructuredMapperSelect lte(T value) {
         lteImpl(value);
         return this;
     }
 
     @Override
-    public <T> MapperWhere between(T valueA, T valueB) {
+    public <T> SemiStructuredMapperSelect between(T valueA, T valueB) {
         betweenImpl(valueA, valueB);
         return this;
     }
 
     @Override
-    public <T> MapperWhere in(Iterable<T> values) {
+    public <T> SemiStructuredMapperSelect in(Iterable<T> values) {
         inImpl(values);
         return this;
     }
 
     @Override
-    public MapperNameOrder asc() {
-        this.sorts.add(Sort.of(mapping.columnField(name), Direction.ASC, false));
+    public SemiStructuredMapperSelect asc() {
+        this.sorts.add(Sort.of(resolveColumnName(), Direction.ASC, false));
+        this.nameForCondition = null;
         return this;
     }
 
     @Override
-    public MapperNameOrder desc() {
-        this.sorts.add(Sort.of(mapping.columnField(name), Direction.DESC, false));
+    public SemiStructuredMapperSelect desc() {
+        this.sorts.add(Sort.of(resolveColumnName(), Direction.DESC, false));
+        this.nameForCondition = null;
         return this;
     }
+
+    @Override
+    public SemiStructuredMapperSelect where(Function function) {
+        requireNonNull(function, "function is required");
+        setFunction(function);
+        return this;
+    }
+
+    @Override
+    public SemiStructuredMapperSelect and(Function function) {
+        requireNonNull(function, "function is required");
+        setFunction(function);
+        this.and = true;
+        return this;
+    }
+
+    @Override
+    public SemiStructuredMapperSelect or(Function function) {
+        requireNonNull(function, "function is required");
+        setFunction(function);
+        this.and = false;
+        return this;
+    }
+
+    @Override
+    public SemiStructuredMapperSelect orderBy(Function function) {
+        requireNonNull(function, "function is required");
+        this.nameForCondition = toFunctionExpression(function);
+        return this;
+    }
+
     private SelectQuery build() {
         return new MappingQuery(sorts, limit, start, condition, entity, List.of());
     }

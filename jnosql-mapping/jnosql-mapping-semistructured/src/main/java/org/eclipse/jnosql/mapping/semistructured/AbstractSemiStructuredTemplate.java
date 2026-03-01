@@ -11,6 +11,7 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *  Matheus Oliveira
  *   Maximillian Arruda
  */
 package org.eclipse.jnosql.mapping.semistructured;
@@ -22,7 +23,6 @@ import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.nosql.Query;
-import jakarta.nosql.QueryMapper;
 import jakarta.nosql.TypedQuery;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
@@ -282,21 +282,21 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
     }
 
     @Override
-    public <T> QueryMapper.MapperFrom select(Class<T> type) {
+    public <T> SemiStructuredMapperSelect select(Class<T> type) {
         requireNonNull(type, "type is required");
         EntityMetadata metadata = entities().get(type);
         return new MapperSelect(metadata, converters(), this);
     }
 
     @Override
-    public <T> QueryMapper.MapperDeleteFrom delete(Class<T> type) {
+    public <T> SemiStructuredMapperDelete delete(Class<T> type) {
         requireNonNull(type, "type is required");
         EntityMetadata metadata = entities().get(type);
         return new MapperDelete(metadata, converters(), this);
     }
 
     @Override
-    public <T> QueryMapper.MapperUpdateFrom update(Class<T> type) {
+    public <T> SemiStructuredMapperUpdate update(Class<T> type) {
         requireNonNull(type, "type is required");
         EntityMetadata metadata = entities().get(type);
         return new MapperUpdate(metadata, converters(), this);
@@ -395,6 +395,19 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
                 .map(toUnary(eventManager()::firePostEntity))
                 .findFirst()
                 .orElseThrow();
+    }
+
+    /**
+     * Checks whether this template's database supports the given function expression.
+     * Database drivers that support scalar functions should override this method and return normally.
+     * The default implementation always throws {@link UnsupportedFunctionException}.
+     *
+     * @param function the function expression to validate
+     * @throws UnsupportedFunctionException if the underlying database does not support the function
+     * @since 1.1.0
+     */
+    protected void checkFunctionSupport(org.eclipse.jnosql.mapping.semistructured.Function function) {
+        throw new UnsupportedFunctionException(function.name(), manager().getClass().getSimpleName());
     }
 
     private <T> UnaryOperator<T> toUnary(Consumer<T> consumer) {
