@@ -21,6 +21,8 @@ import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.EntityPostPersist;
 import org.eclipse.jnosql.mapping.EntityPrePersist;
 
+import java.util.function.Consumer;
+
 /**
  * This class represents the manager of events for entity persistence operations.
  * When an entity is either saved or updated, events will be fired in the following order:
@@ -32,12 +34,39 @@ import org.eclipse.jnosql.mapping.EntityPrePersist;
 @ApplicationScoped
 public class EventPersistManager {
 
+    private final Consumer<EntityPrePersist> entityPrePersistEvent;
+
+    private final Consumer<EntityPostPersist> entityPostPersistEvent;
 
     @Inject
-    private Event<EntityPrePersist> entityPrePersistEvent;
+    EventPersistManager(Event<EntityPrePersist> entityPrePersistEvent,
+                        Event<EntityPostPersist> entityPostPersistEvent) {
+        this.entityPrePersistEvent = entityPrePersistEvent::fire;
+        this.entityPostPersistEvent = entityPostPersistEvent::fire;
+    }
 
-    @Inject
-    private Event<EntityPostPersist> entityPostPersistEvent;
+    /**
+     * Package-private constructor for use outside a CDI container.
+     * Accepts {@link Consumer} instances as substitutes for CDI {@link Event} objects,
+     * enabling instantiation in non-CDI environments such as Spring, Guice, or plain unit tests.
+     *
+     * <p>The caller is responsible for the lifecycle of the created instance.</p>
+     *
+     * @param prePersistConsumer  consumer invoked before entity persistence; must not be null
+     * @param postPersistConsumer consumer invoked after entity persistence; must not be null
+     */
+    EventPersistManager(Consumer<EntityPrePersist> prePersistConsumer,
+                        Consumer<EntityPostPersist> postPersistConsumer) {
+        this.entityPrePersistEvent = prePersistConsumer;
+        this.entityPostPersistEvent = postPersistConsumer;
+    }
+
+    /**
+     * CDI no-arg constructor required for proxy creation.
+     */
+    EventPersistManager() {
+        this(e -> {}, e -> {});
+    }
 
     /**
      * Fires an event before an entity is persisted.
@@ -46,7 +75,7 @@ public class EventPersistManager {
      * @param <T>    the type of the entity
      */
     public <T> void firePreEntity(T entity) {
-        entityPrePersistEvent.fire(EntityPrePersist.of(entity));
+        entityPrePersistEvent.accept(EntityPrePersist.of(entity));
     }
 
     /**
@@ -56,7 +85,7 @@ public class EventPersistManager {
      * @param <T>    the type of the entity
      */
     public <T> void firePostEntity(T entity) {
-        entityPostPersistEvent.fire(EntityPostPersist.of(entity));
+        entityPostPersistEvent.accept(EntityPostPersist.of(entity));
     }
 
 }
