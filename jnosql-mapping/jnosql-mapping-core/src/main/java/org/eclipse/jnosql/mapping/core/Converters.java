@@ -16,18 +16,13 @@ package org.eclipse.jnosql.mapping.core;
 
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.spi.CreationalContext;
-import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.inject.Inject;
 import jakarta.nosql.AttributeConverter;
 import org.eclipse.jnosql.mapping.metadata.FieldParameterMetadata;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * The {@link jakarta.nosql.Convert} collection, this instance will generate/create an instance.
@@ -35,10 +30,31 @@ import java.util.logging.Logger;
 @ApplicationScoped
 public class Converters {
 
-    private static final Logger LOGGER = Logger.getLogger(Converters.class.getName());
+    private ConverterResolver resolver;
 
     @Inject
-    private BeanManager beanManager;
+    public Converters(BeanManager beanManager) {
+        this(new CDIConverterResolver(beanManager));
+    }
+
+    public Converters() {
+    }
+
+    private Converters(ConverterResolver resolver) {
+        this.resolver = Objects.requireNonNull(resolver, "The resolver is required");
+    }
+
+    public static Converters withResolver(ConverterResolver resolver) {
+        return new Converters(Objects.requireNonNull(resolver, "The resolver is required"));
+    }
+
+    public static Converters withResolvers(ConverterResolver... resolvers) {
+        return withResolver(new CompositeConverterResolver(resolvers));
+    }
+
+    public static Converters autoResolver() {
+        return withResolver(ConverterResolver.noOp());
+    }
 
     /**
      * Returns a converter instance where it might use scope from CDI.
@@ -55,31 +71,25 @@ public class Converters {
     }
 
 
-
     @SuppressWarnings("unchecked")
-    private <T> T getInstance(FieldParameterMetadata metadata) {
-        Class<T> type = (Class<T>) metadata.converter()
+    private <X, Y> AttributeConverter<X, Y> getInstance(FieldParameterMetadata metadata) {
+        var resolved = resolver().resolve(metadata);
+        if (resolved.isPresent()) {
+            return (AttributeConverter<X, Y>) resolved.get();
+        }
+        return (AttributeConverter<X, Y>) metadata.newConverter()
                 .orElseThrow(() -> new NoSuchElementException("There is not converter to the field: "
                         + metadata.name() + " in the Field: " + metadata.type()));
-
-        Iterator<Bean<?>> iterator = beanManager.getBeans(type).iterator();
-        if (iterator.hasNext()) {
-            Bean<T> bean = (Bean<T>) iterator.next();
-            CreationalContext<T> ctx = beanManager.createCreationalContext(bean);
-            return (T) beanManager.getReference(bean, type, ctx);
-        } else {
-            LOGGER.log(Level.FINE, "The converter type: " + type + " not found on CDI context, creating by constructor");
-            return (T) metadata.newConverter() .orElseThrow(() -> new NoSuchElementException("There is not converter to the field: "
-                    + metadata.name() + " in the Field: " + metadata.type()));
-        }
-
     }
 
+    private ConverterResolver resolver() {
+        return resolver == null ? ConverterResolver.noOp() : resolver;
+    }
 
     @Override
     public String toString() {
         return "DefaultConverters{" +
-                "beanManager=" + beanManager +
+                "resolver=" + resolver +
                 '}';
     }
 }

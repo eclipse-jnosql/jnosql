@@ -80,6 +80,24 @@ class SemiStructuredParameterBasedQueryTest {
     }
 
     @Test
+    void shouldCreateQuerySingleParameterWithExplicitConverters() {
+        Map<String, ParamValue> params = Map.of("name", new ParamValue(Condition.EQUALS, "Ada", false));
+        var query = SemiStructuredParameterBasedQuery.INSTANCE
+                .toQuery(params, Collections.emptyList(), metadata, Converters.autoResolver());
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.limit()).isEqualTo(0L);
+            soft.assertThat(query.skip()).isEqualTo(0L);
+            soft.assertThat(query.name()).isEqualTo("Person");
+            soft.assertThat(query.sorts()).isEmpty();
+            soft.assertThat(query.condition()).isNotEmpty();
+            var condition = query.condition().orElseThrow();
+            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            soft.assertThat(query.condition()).get().isEqualTo(CriteriaCondition.eq(Element.of("name", "Ada")));
+        });
+    }
+
+    @Test
     void shouldCreateQueryGreaterThan() {
         Map<String, ParamValue> params = Map.of("name", new ParamValue(Condition.GREATER_THAN, "Ada", false));
         var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(params, Collections.emptyList(), metadata);

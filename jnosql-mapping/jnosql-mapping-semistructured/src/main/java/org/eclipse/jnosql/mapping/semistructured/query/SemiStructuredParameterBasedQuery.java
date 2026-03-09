@@ -32,6 +32,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.IntFunction;
 
 import static org.eclipse.jnosql.mapping.core.util.ConverterUtil.getValue;
@@ -59,6 +60,24 @@ public enum SemiStructuredParameterBasedQuery {
                                                                                List<Sort<?>> sorts,
                                                                                EntityMetadata entityMetadata) {
         var convert = CDI.current().select(Converters.class).get();
+        return toQuery(params, sorts, entityMetadata, convert);
+    }
+
+    /**
+     * Constructs a ColumnQuery based on the provided parameters, PageRequest information, and entity metadata.
+     * This method avoids implicit CDI lookup by using a provided {@link Converters} instance.
+     *
+     * @param params          The map of parameters used for filtering columns.
+     * @param sorts           The list of sorting instructions to to sort the query results.
+     * @param entityMetadata  Metadata describing the structure of the entity.
+     * @param convert         Converters used to transform values according to entity metadata.
+     * @return                A ColumnQuery instance tailored for the specified entity.
+     */
+    public org.eclipse.jnosql.communication.semistructured.SelectQuery toQuery(Map<String, ParamValue> params,
+                                                                               List<Sort<?>> sorts,
+                                                                               EntityMetadata entityMetadata,
+                                                                               Converters convert) {
+        Objects.requireNonNull(convert, "The converters is required");
         List<CriteriaCondition> conditions = new ArrayList<>();
         for (Map.Entry<String, ParamValue> entry : params.entrySet()) {
             conditions.add(condition(convert, entityMetadata, entry));

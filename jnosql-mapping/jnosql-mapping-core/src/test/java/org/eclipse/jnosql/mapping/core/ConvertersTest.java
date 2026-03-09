@@ -22,13 +22,16 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @EnableAutoWeld
 @AddPackages(value = Convert.class)
@@ -38,9 +41,11 @@ class ConvertersTest {
 
     @Inject
     private Converters converters;
+
     @Test
     void shouldReturnNPEWhenClassIsNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> converters.get(null));
+        assertThatNullPointerException().isThrownBy(() -> converters.get(null))
+                .withMessage("The metadata is required");
     }
 
     @SuppressWarnings("unchecked")
@@ -56,7 +61,7 @@ class ConvertersTest {
                 .thenReturn((Optional<AttributeConverter<Object, Object>>) newInstance);
         AttributeConverter<String, String> attributeConverter = converters.get(fieldMetadata);
         Object text = attributeConverter.convertToDatabaseColumn("Text");
-        Assertions.assertNotNull(text);
+        assertThat(text).isNotNull();
     }
 
     @Test
@@ -74,13 +79,102 @@ class ConvertersTest {
 
         AttributeConverter<String, String> attributeConverter = converters.get(fieldMetadata);
         Object text = attributeConverter.convertToDatabaseColumn("Text");
-        Assertions.assertNotNull(text);
-        Assertions.assertEquals("Text", text);
+        assertThat(text).isNotNull();
+        assertThat(text).isEqualTo("Text");
     }
 
     @Test
-    void shouldGetToString(){
+    void shouldResolveUsingFactoryWithResolver() {
+        var metadata = metadata(MyConverter.class, new VetedConverter());
+        var custom = new VetedConverter();
+        var withResolver = Converters.withResolver(field -> Optional.of(custom));
+
+        var attributeConverter = withResolver.get(metadata);
+
+        assertThat(attributeConverter).isSameAs(custom);
+    }
+
+    @Test
+    void shouldResolveUsingFirstMatchWhenWithResolvers() {
+        var metadata = metadata(MyConverter.class, new VetedConverter());
+        var expected = new VetedConverter();
+        AtomicInteger secondResolverCalls = new AtomicInteger();
+        var converters = Converters.withResolvers(
+                field -> Optional.of(expected),
+                field -> {
+                    secondResolverCalls.incrementAndGet();
+                    return Optional.of(new VetedConverter());
+                });
+
+        var attributeConverter = converters.get(metadata);
+
+        assertThat(attributeConverter).isSameAs(expected);
+        assertThat(secondResolverCalls).hasValue(0);
+    }
+
+    @Test
+    void shouldFallbackToNewConverterWhenAutoResolverIsUsed() {
+        var metadata = metadata(VetedConverter.class, new VetedConverter());
+
+        var autoResolverConverters = Converters.autoResolver();
+        var attributeConverter = autoResolverConverters.get(metadata);
+
+        assertThat(attributeConverter).isInstanceOf(VetedConverter.class);
+    }
+
+    @Test
+    void shouldThrowWhenWithResolverReceivesNull() {
+        assertThatNullPointerException()
+                .isThrownBy(() -> Converters.withResolver(null))
+                .withMessage("The resolver is required");
+    }
+
+    @Test
+    void shouldThrowWhenWithResolversReceivesNullArray() {
+        assertThatNullPointerException()
+                .isThrownBy(() -> Converters.withResolvers((ConverterResolver[]) null))
+                .withMessage("The resolvers are required");
+    }
+
+    @Test
+    void shouldThrowWhenWithResolversReceivesEmptyArray() {
+        assertThatThrownBy(Converters::withResolvers)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("The resolvers are required");
+    }
+
+    @Test
+    void shouldThrowWhenWithResolversContainsNullItem() {
+        assertThatNullPointerException()
+                .isThrownBy(() -> Converters.withResolvers(ConverterResolver.noOp(), null))
+                .withMessage("The resolver is required");
+    }
+
+    @Test
+    void shouldThrowWhenResolverAndFallbackAreMissing() {
+        FieldMetadata metadata = Mockito.mock(FieldMetadata.class);
+        Mockito.when(metadata.converter()).thenReturn(Optional.empty());
+        Mockito.when(metadata.newConverter()).thenReturn(Optional.empty());
+        Mockito.when(metadata.name()).thenReturn("salary");
+        Mockito.when(metadata.type()).thenReturn((Class) String.class);
+
+        assertThatThrownBy(() -> Converters.autoResolver().get(metadata))
+                .isInstanceOf(NoSuchElementException.class)
+                .hasMessage("There is not converter to the field: salary in the Field: class java.lang.String");
+    }
+
+    @Test
+    void shouldGetToString() {
         assertThat(this.converters.toString()).isNotNull().isNotBlank().isNotEmpty();
     }
 
+    @SuppressWarnings("unchecked")
+    private static FieldMetadata metadata(Class<?> converterType, AttributeConverter<?, ?> newConverter) {
+        FieldMetadata fieldMetadata = Mockito.mock(FieldMetadata.class);
+        Mockito.when(fieldMetadata.converter())
+                .thenReturn((Optional<Class<AttributeConverter<Object, Object>>>) Optional.of((Class<AttributeConverter<Object, Object>>) converterType));
+        Mockito.when(fieldMetadata.newConverter())
+                .thenReturn((Optional<AttributeConverter<Object, Object>>) Optional.of((AttributeConverter<Object, Object>) newConverter));
+        return fieldMetadata;
+    }
 }
