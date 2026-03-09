@@ -22,14 +22,42 @@ import org.eclipse.jnosql.communication.keyvalue.KeyValueEntity;
 import org.eclipse.jnosql.mapping.EntityPostPersist;
 import org.eclipse.jnosql.mapping.EntityPrePersist;
 
+import java.util.function.Consumer;
+
 @ApplicationScoped
 public class KeyValueEventPersistManager {
 
-    @Inject
-    private Event<EntityPrePersist> entityPrePersistEvent;
+    private final Consumer<EntityPrePersist> entityPrePersistEvent;
+
+    private final Consumer<EntityPostPersist> entityPostPersistEvent;
 
     @Inject
-    private Event<EntityPostPersist> entityPostPersistEvent;
+    KeyValueEventPersistManager(Event<EntityPrePersist> entityPrePersistEvent,
+                                Event<EntityPostPersist> entityPostPersistEvent) {
+        this.entityPrePersistEvent = entityPrePersistEvent::fire;
+        this.entityPostPersistEvent = entityPostPersistEvent::fire;
+    }
+
+    /**
+     * Package-private constructor for non-CDI usage.
+     * Accepts {@link Consumer} instances as replacements for CDI {@link Event} instances,
+     * enabling instantiation without a CDI container.
+     *
+     * @param prePersistConsumer  the consumer to invoke before persistence; must not be {@code null}
+     * @param postPersistConsumer the consumer to invoke after persistence; must not be {@code null}
+     */
+    KeyValueEventPersistManager(Consumer<EntityPrePersist> prePersistConsumer,
+                                Consumer<EntityPostPersist> postPersistConsumer) {
+        this.entityPrePersistEvent = prePersistConsumer;
+        this.entityPostPersistEvent = postPersistConsumer;
+    }
+
+    /**
+     * CDI no-arg constructor required for proxy creation.
+     */
+    KeyValueEventPersistManager() {
+        this(e -> {}, e -> {});
+    }
 
     /**
      * Fire an event once the method is called
@@ -38,7 +66,7 @@ public class KeyValueEventPersistManager {
      * @param <T>    the entity type
      */
     public <T> void firePreEntity(T entity) {
-        entityPrePersistEvent.fire(EntityPrePersist.of(entity));
+        entityPrePersistEvent.accept(EntityPrePersist.of(entity));
     }
 
     /**
@@ -49,6 +77,6 @@ public class KeyValueEventPersistManager {
      * @param <T>    the entity kind
      */
     public <T> void firePostEntity(T entity) {
-        entityPostPersistEvent.fire(EntityPostPersist.of(entity));
+        entityPostPersistEvent.accept(EntityPostPersist.of(entity));
     }
 }
