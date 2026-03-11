@@ -181,8 +181,7 @@ public enum RepositoryType {
         return KEY_WORLD_METHODS.stream()
                 .filter(k -> methodName.startsWith(k.keyword))
                 .findFirst()
-                .orElseThrow(() -> new UnsupportedOperationException("The method " + method
-                        + " is not supported. At the class " + declaringClass));
+                .orElse(UNKNOWN);
     }
 
     private static boolean isCustomRepository(Class<?> type) {
