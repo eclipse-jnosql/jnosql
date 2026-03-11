@@ -157,10 +157,8 @@ class RepositoryTypeTest {
     @Test
     void shouldReturnOrder() throws NoSuchMethodException {
 
-        Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> RepositoryType.of(getMethod(DevRepository.class, "order"), CrudRepository.class));
-        Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> RepositoryType.of(getMethod(DevRepository.class, "order2"), CrudRepository.class));
+        assertEquals(RepositoryType.UNKNOWN, RepositoryType.of(getMethod(DevRepository.class, "order"), CrudRepository.class));
+        assertEquals(RepositoryType.UNKNOWN, RepositoryType.of(getMethod(DevRepository.class, "order2"), CrudRepository.class));
     }
 
     @Test
