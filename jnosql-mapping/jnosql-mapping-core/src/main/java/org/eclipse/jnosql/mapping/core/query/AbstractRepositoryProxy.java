@@ -224,6 +224,7 @@ public abstract class AbstractRepositoryProxy<T, K> implements InvocationHandler
             case CURSOR_PAGINATION -> {
                 return unwrapInvocationTargetException(() ->   executeCursorPagination(instance, method, params));
             }
+            case UNKNOWN -> throw new UnsupportedOperationException("Unsupported method: " + method);
             default -> {
                 return Void.class;
             }
