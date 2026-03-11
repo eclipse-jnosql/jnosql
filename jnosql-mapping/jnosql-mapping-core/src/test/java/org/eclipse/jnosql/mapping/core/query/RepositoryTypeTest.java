@@ -124,9 +124,8 @@ class RepositoryTypeTest {
     }
 
     @Test
-    void shouldReturnError() {
-        org.assertj.core.api.Assertions.assertThatThrownBy(() -> RepositoryType.of(getMethod(DevRepository.class, "nope"), CrudRepository.class))
-                .isInstanceOf(UnsupportedOperationException.class);
+    void shouldReturnUnknown() throws NoSuchMethodException {
+        assertEquals(RepositoryType.UNKNOWN, RepositoryType.of(getMethod(DevRepository.class, "nope"), CrudRepository.class));
     }
 
     @Test
