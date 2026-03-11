@@ -109,7 +109,13 @@ public enum RepositoryType {
     /**
      * This method is defined by the return type of {@link jakarta.data.page.CursoredPage}
      */
-    CURSOR_PAGINATION("");
+    CURSOR_PAGINATION(""),
+    /**
+     * Represents an unknown or unclassified repository operation type.
+     * This value is used as a fallback or default classification when the repository
+     * operation type cannot be determined or does not fit into any other predefined category.
+     */
+    UNKNOWN("");
 
     private static final Predicate<Class<?>> IS_REPOSITORY_METHOD = Predicate.<Class<?>>isEqual(CrudRepository.class)
             .or(Predicate.isEqual(BasicRepository.class))
