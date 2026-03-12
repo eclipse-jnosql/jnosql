@@ -113,86 +113,86 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
     private Object dispatchRepositoryMethod(Object proxy, Method method, Object[] params, RepositoryMethodDescriptor methodDescriptor) throws Throwable {
         switch (methodDescriptor.type()) {
             case BUILT_IN_METHOD -> {
-                return unwrapInvocationTargetException(() -> infrastructureOperatorProvider().buildInMethodOperator().invokeDefault(repository(), method, params));
+                return executeAndUnwrapInvocationException(() -> infrastructureOperatorProvider().buildInMethodOperator().invokeDefault(repository(), method, params));
             }
             case DEFAULT_METHOD -> {
-                return unwrapInvocationTargetException(() -> infrastructureOperatorProvider().defaultMethodOperator().invokeDefault(proxy, method, params));
+                return executeAndUnwrapInvocationException(() -> infrastructureOperatorProvider().defaultMethodOperator().invokeDefault(proxy, method, params));
             }
             case OBJECT_METHOD -> {
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() -> executeAndUnwrapInvocationException(() ->
                         infrastructureOperatorProvider().objectMethodOperator().invokeObjectMethod(this, method, params)));
             }
             case CUSTOM_REPOSITORY -> {
-                return unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() ->
                         infrastructureOperatorProvider().customRepositoryMethodOperator().invokeCustomRepository(method, params));
             }
             case INSERT -> {
                 var context = createInvocationContext(params, methodDescriptor);
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() -> executeAndUnwrapInvocationException(() ->
                         repositoryOperationProvider().insertOperation().execute(context)));
             }
             case UPDATE -> {
                 var context = createInvocationContext(params, methodDescriptor);
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() -> executeAndUnwrapInvocationException(() ->
                         repositoryOperationProvider().updateOperation().execute(context)));
             }
             case DELETE -> {
                 var context = createInvocationContext(params, methodDescriptor);
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() -> executeAndUnwrapInvocationException(() ->
                         repositoryOperationProvider().deleteOperation().execute(context)));
             }
             case SAVE -> {
                 var context = createInvocationContext(params, methodDescriptor);
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() -> executeAndUnwrapInvocationException(() ->
                         repositoryOperationProvider().saveOperation().execute(context)));
             }
             case DELETE_BY -> {
                 var context = createInvocationContext(params, methodDescriptor);
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() -> executeAndUnwrapInvocationException(() ->
                         repositoryOperationProvider().deleteByOperation().execute(context)));
             }
             case FIND_BY -> {
                 var context = createInvocationContext(params, methodDescriptor);
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() -> executeAndUnwrapInvocationException(() ->
                         repositoryOperationProvider().findByOperation().execute(context)));
             }
             case COUNT_ALL -> {
                 var context = createInvocationContext(params, methodDescriptor);
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() -> executeAndUnwrapInvocationException(() ->
                         repositoryOperationProvider().countAllOperation().execute(context)));
             }
             case COUNT_BY -> {
                 var context = createInvocationContext(params, methodDescriptor);
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() -> executeAndUnwrapInvocationException(() ->
                         repositoryOperationProvider().countByOperation().execute(context)));
             }
             case CURSOR_PAGINATION -> {
                 var context = createInvocationContext(params, methodDescriptor);
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() -> executeAndUnwrapInvocationException(() ->
                         repositoryOperationProvider().cursorPaginationOperation().execute(context)));
             }
             case PARAMETER_BASED -> {
                 var context = createInvocationContext(params, methodDescriptor);
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() -> executeAndUnwrapInvocationException(() ->
                         repositoryOperationProvider().parameterBasedOperation().execute(context)));
             }
             case EXISTS_BY -> {
                 var context = createInvocationContext(params, methodDescriptor);
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() -> executeAndUnwrapInvocationException(() ->
                         repositoryOperationProvider().existsByOperation().execute(context)));
             }
             case FIND_ALL -> {
                 var context = createInvocationContext(params, methodDescriptor);
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() -> executeAndUnwrapInvocationException(() ->
                         repositoryOperationProvider().findAllOperation().execute(context)));
             }
             case QUERY -> {
                 var context = createInvocationContext(params, methodDescriptor);
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() -> executeAndUnwrapInvocationException(() ->
                         repositoryOperationProvider().queryOperation().execute(context)));
             } case PROVIDER_OPERATION -> {
                 var context = createInvocationContext(params, methodDescriptor);
-                return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
+                return executeAndUnwrapInvocationException(() -> executeAndUnwrapInvocationException(() ->
                         repositoryOperationProvider().providerOperation().execute(context)));
             }
             default -> throw new UnsupportedOperationException("Method not supported: " + method);
@@ -243,7 +243,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         return CDI.current().select(type).isResolvable();
     }
 
-    protected Object unwrapInvocationTargetException(ThrowingSupplier<Object> supplier) throws Throwable {
+    protected Object executeAndUnwrapInvocationException(ThrowingSupplier<Object> supplier) throws Throwable {
         try {
             return supplier.get();
         } catch (InvocationTargetException ex) {
