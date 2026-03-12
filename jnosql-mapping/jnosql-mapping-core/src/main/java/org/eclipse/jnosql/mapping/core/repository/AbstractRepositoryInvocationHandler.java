@@ -105,7 +105,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
     @Override
     public Object invoke(Object proxy, Method method, Object[] params) throws Throwable {
 
-        RepositoryMethodDescriptor methodDescriptor = methodDescriptor(method);
+        RepositoryMethodDescriptor methodDescriptor = resolveMethodDescriptor(method);
 
         return dispatchRepositoryMethod(proxy, method, params, methodDescriptor);
     }
@@ -205,15 +205,15 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                 template(), params == null ? EMPTY : params);
     }
 
-    protected RepositoryMethodDescriptor methodDescriptor(Method method) {
+    protected RepositoryMethodDescriptor resolveMethodDescriptor(Method method) {
         var repositoryMethodType = this.methodRepositoryTypeMap.get(method);
         if (repositoryMethodType == null) {
-            repositoryMethodType = processingMethodDescriptor(method);
+            repositoryMethodType = computeMethodDescriptor(method);
         }
         return repositoryMethodType;
     }
 
-    protected RepositoryMethodDescriptor processingMethodDescriptor(Method method) {
+    protected RepositoryMethodDescriptor computeMethodDescriptor(Method method) {
         var repositoryMethod = repositoryMetadata().find(new ReflectionMethodKey(method));
         var type = repositoryMethod.map(RepositoryMethod::type).orElse(RepositoryMethodType.UNKNOWN);
         if (!RepositoryMethodType.UNKNOWN.equals(type)) {
