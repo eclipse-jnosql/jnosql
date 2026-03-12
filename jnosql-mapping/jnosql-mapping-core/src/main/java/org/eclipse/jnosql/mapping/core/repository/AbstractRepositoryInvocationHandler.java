@@ -119,6 +119,25 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         return dispatchRepositoryMethod(proxy, method, params, methodDescriptor);
     }
 
+    /**
+     * Dispatches the invocation of a repository method based on the resolved
+     * {@link RepositoryMethodType}.
+     * <p>
+     * This method routes the invocation to the appropriate infrastructure
+     * operator or repository operation depending on the method classification
+     * described by the provided {@link RepositoryMethodDescriptor}. The dispatch
+     * mechanism ensures that built-in methods, default interface methods,
+     * object methods, and repository operations are executed using their
+     * corresponding execution strategies.
+     *
+     * @param proxy the proxy instance that received the invocation
+     * @param method the method being invoked
+     * @param params the arguments supplied to the method invocation
+     * @param methodDescriptor the descriptor describing the repository method
+     *                         and its associated execution type
+     * @return the result of the executed repository operation
+     * @throws Throwable if the underlying operation throws an exception
+     */
     protected Object dispatchRepositoryMethod(Object proxy, Method method, Object[] params,
                                       RepositoryMethodDescriptor methodDescriptor) throws Throwable {
         switch (methodDescriptor.type()) {
