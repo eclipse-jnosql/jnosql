@@ -107,10 +107,10 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
 
         RepositoryMethodDescriptor methodDescriptor = methodDescriptor(method);
 
-        return executeMethod(proxy, method, params, methodDescriptor);
+        return dispatchRepositoryMethod(proxy, method, params, methodDescriptor);
     }
 
-    private Object executeMethod(Object proxy, Method method, Object[] params, RepositoryMethodDescriptor methodDescriptor) throws Throwable {
+    private Object dispatchRepositoryMethod(Object proxy, Method method, Object[] params, RepositoryMethodDescriptor methodDescriptor) throws Throwable {
         switch (methodDescriptor.type()) {
             case BUILT_IN_METHOD -> {
                 return unwrapInvocationTargetException(() -> infrastructureOperatorProvider().buildInMethodOperator().invokeDefault(repository(), method, params));
