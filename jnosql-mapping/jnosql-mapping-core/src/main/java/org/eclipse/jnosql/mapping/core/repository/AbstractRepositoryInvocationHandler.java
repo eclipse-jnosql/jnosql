@@ -223,23 +223,23 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         }
 
         RepositoryMethodDescriptor repositoryMethodType = null;
-        repositoryMethodType = populateWhenIsUnknown(method, repositoryMethodType);
+        repositoryMethodType = resolveUnknownMethodType(method, repositoryMethodType);
         this.methodRepositoryTypeMap.put(method, repositoryMethodType);
         return repositoryMethodType;
     }
 
-    protected RepositoryMethodDescriptor populateWhenIsUnknown(Method method, RepositoryMethodDescriptor repositoryMethodType) {
+    protected RepositoryMethodDescriptor resolveUnknownMethodType(Method method, RepositoryMethodDescriptor repositoryMethodType) {
         if (Object.class.equals(method.getDeclaringClass())) {
             repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.OBJECT_METHOD, null);
         } else if (IS_REPOSITORY_METHOD.test(method.getDeclaringClass())) {
             repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.BUILT_IN_METHOD, null);
-        } else if (isCDIComponent(method.getDeclaringClass())) {
+        } else if (isCdiManagedComponent(method.getDeclaringClass())) {
             repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.CUSTOM_REPOSITORY, null);
         }
         return repositoryMethodType;
     }
 
-    private boolean isCDIComponent(Class<?> type) {
+    private boolean isCdiManagedComponent(Class<?> type) {
         return CDI.current().select(type).isResolvable();
     }
 
