@@ -32,6 +32,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -235,7 +236,11 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         } else if (isCdiManagedComponent(method.getDeclaringClass())) {
             return new RepositoryMethodDescriptor(RepositoryMethodType.CUSTOM_REPOSITORY, null);
         }
-        return null;
+        return resolveCustomMethodType(method).orElse(null);
+    }
+
+    protected Optional<RepositoryMethodDescriptor> resolveCustomMethodType(Method method) {
+        return Optional.empty();
     }
 
     private boolean isCdiManagedComponent(Class<?> type) {
