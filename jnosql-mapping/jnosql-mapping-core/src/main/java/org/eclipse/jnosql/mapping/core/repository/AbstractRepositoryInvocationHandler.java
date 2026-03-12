@@ -53,23 +53,31 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
     protected final Map<Method, RepositoryMethodDescriptor> methodRepositoryTypeMap = new HashMap<>();
 
     /**
-     * Retrieves the underlying repository associated with this proxy.
+     * Returns the repository instance associated with this proxy.
+     * The returned repository is used as the execution target for built-in repository
+     * operations and may also be required by infrastructure operators when invoking
+     * repository methods.
      *
-     * @return The underlying repository.
+     * @return the repository instance handled by this invocation handler
      */
     protected abstract AbstractRepository<T, K> repository();
 
     /**
-     * Retrieves the metadata information about the entity managed by this repository.
+     * Returns metadata describing the entity managed by this repository.
+     * The metadata provides structural information such as entity attributes,
+     * identifiers, and mapping configuration used during repository operation
+     * execution.
      *
-     * @return The entity metadata information.
+     * @return the entity metadata associated with the repository
      */
     protected abstract EntityMetadata entityMetadata();
 
     /**
-     * Retrieves the metadata information about the repository.
+     * Returns metadata describing the repository definition.
+     * Repository metadata contains information about repository methods,
+     * including their classification and mapping to repository operations.
      *
-     * @return the metadata information
+     * @return the repository metadata
      */
     protected abstract RepositoryMetadata repositoryMetadata();
 
@@ -111,7 +119,8 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         return dispatchRepositoryMethod(proxy, method, params, methodDescriptor);
     }
 
-    private Object dispatchRepositoryMethod(Object proxy, Method method, Object[] params, RepositoryMethodDescriptor methodDescriptor) throws Throwable {
+    protected Object dispatchRepositoryMethod(Object proxy, Method method, Object[] params,
+                                      RepositoryMethodDescriptor methodDescriptor) throws Throwable {
         switch (methodDescriptor.type()) {
             case BUILT_IN_METHOD -> {
                 return executeAndUnwrapInvocationException(() -> infrastructureOperatorProvider().buildInMethodOperator().invokeDefault(repository(), method, params));
