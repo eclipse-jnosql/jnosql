@@ -52,7 +52,7 @@ public class CoreRepositoryInvocationHandler<T, K>  extends AbstractRepositoryIn
 
     private final Template template;
 
-    private CoreRepositoryInvocationHandler(
+    protected CoreRepositoryInvocationHandler(
             AbstractRepository<T, K> repository,
             EntityMetadata entityMetadata,
             RepositoryMetadata repositoryMetadata,
