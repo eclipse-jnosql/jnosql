@@ -209,7 +209,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         return repositoryMethodType;
     }
 
-    private RepositoryMethodDescriptor processingMethodDescriptor(Method method) {
+    protected RepositoryMethodDescriptor processingMethodDescriptor(Method method) {
         var repositoryMethod = repositoryMetadata().find(new ReflectionMethodKey(method));
         var type = repositoryMethod.map(RepositoryMethod::type).orElse(RepositoryMethodType.UNKNOWN);
         if (!RepositoryMethodType.UNKNOWN.equals(type)) {
@@ -219,6 +219,12 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         }
 
         RepositoryMethodDescriptor repositoryMethodType = null;
+        repositoryMethodType = populateWhenIsUnknown(method, repositoryMethodType);
+        this.methodRepositoryTypeMap.put(method, repositoryMethodType);
+        return repositoryMethodType;
+    }
+
+    protected RepositoryMethodDescriptor populateWhenIsUnknown(Method method, RepositoryMethodDescriptor repositoryMethodType) {
         if (Object.class.equals(method.getDeclaringClass())) {
             repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.OBJECT_METHOD, null);
         } else if (IS_REPOSITORY_METHOD.test(method.getDeclaringClass())) {
@@ -226,7 +232,6 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         } else if (isCDIComponent(method.getDeclaringClass())) {
             repositoryMethodType = new RepositoryMethodDescriptor(RepositoryMethodType.CUSTOM_REPOSITORY, null);
         }
-        this.methodRepositoryTypeMap.put(method, repositoryMethodType);
         return repositoryMethodType;
     }
 
