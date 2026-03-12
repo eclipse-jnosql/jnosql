@@ -215,6 +215,15 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                 template(), params == null ? EMPTY : params);
     }
 
+    /**
+     * Resolves the {@link RepositoryMethodDescriptor} associated with the given method.
+     * <p>
+     * The descriptor describes how the method should be handled by the repository
+     * proxy. Results are cached to avoid repeated metadata resolution.
+     *
+     * @param method the repository method being invoked
+     * @return the resolved method descriptor
+     */
     protected RepositoryMethodDescriptor resolveMethodDescriptor(Method method) {
         var repositoryMethodType = this.methodRepositoryTypeMap.get(method);
         if (repositoryMethodType == null) {
@@ -223,6 +232,17 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         return repositoryMethodType;
     }
 
+    /**
+     * Computes the {@link RepositoryMethodDescriptor} for the given method.
+     * <p>
+     * This method inspects repository metadata to determine the
+     * {@link RepositoryMethodType}. If the type cannot be resolved directly
+     * from metadata, the resolution is delegated to
+     * {@link #resolveUnknownMethodType(Method)}.
+     *
+     * @param method the repository method
+     * @return the computed method descriptor
+     */
     protected RepositoryMethodDescriptor computeMethodDescriptor(Method method) {
         var repositoryMethod = repositoryMetadata().find(new ReflectionMethodKey(method));
         var type = repositoryMethod.map(RepositoryMethod::type).orElse(RepositoryMethodType.UNKNOWN);
@@ -237,6 +257,20 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         return repositoryMethodType;
     }
 
+    /**
+     * Resolves the method descriptor when the method type cannot be determined
+     * from repository metadata.
+     * <p>
+     * This method identifies common infrastructure cases such as object methods,
+     * built-in repository methods, or CDI-managed custom repositories.
+     * <p>
+     * Subclasses may extend the resolution process by overriding
+     * {@link #resolveCustomMethodType(Method)}.
+     *
+     * @param method the repository method
+     * @return the resolved descriptor, or {@code null} if the method type
+     *         cannot be determined
+     */
     protected RepositoryMethodDescriptor resolveUnknownMethodType(Method method) {
         if (Object.class.equals(method.getDeclaringClass())) {
             return new RepositoryMethodDescriptor(RepositoryMethodType.OBJECT_METHOD, null);
@@ -248,19 +282,41 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         return resolveCustomMethodType(method).orElse(null);
     }
 
+    /**
+     * Resolves custom repository method types not handled by the default
+     * resolution logic.
+     * <p>
+     * Subclasses may override this method to support additional method
+     * classifications. Returning {@link Optional#empty()} indicates that
+     * the method could not be resolved.
+     *
+     * @param method the repository method
+     * @return an optional descriptor describing the method type
+     */
     protected Optional<RepositoryMethodDescriptor> resolveCustomMethodType(Method method) {
         return Optional.empty();
     }
 
-    private boolean isCdiManagedComponent(Class<?> type) {
-        return CDI.current().select(type).isResolvable();
-    }
-
+    /**
+     * Executes the given supplier and unwraps any {@link InvocationTargetException}
+     * thrown during invocation.
+     * <p>
+     * If the supplier throws an {@code InvocationTargetException}, the original
+     * cause is rethrown to preserve the underlying exception semantics.
+     *
+     * @param supplier the operation to execute
+     * @return the result produced by the supplier
+     * @throws Throwable if the supplier throws an exception
+     */
     protected Object executeAndUnwrapInvocationException(ThrowingSupplier<Object> supplier) throws Throwable {
         try {
             return supplier.get();
         } catch (InvocationTargetException ex) {
             throw ex.getCause();
         }
+    }
+
+    private boolean isCdiManagedComponent(Class<?> type) {
+        return CDI.current().select(type).isResolvable();
     }
 }
