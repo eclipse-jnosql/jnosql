@@ -127,71 +127,71 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
                         infrastructureOperatorProvider().customRepositoryMethodOperator().invokeCustomRepository(method, params));
             }
             case INSERT -> {
-                var context = repositoryInvocationContext(params, methodDescriptor);
+                var context = createInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().insertOperation().execute(context)));
             }
             case UPDATE -> {
-                var context = repositoryInvocationContext(params, methodDescriptor);
+                var context = createInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().updateOperation().execute(context)));
             }
             case DELETE -> {
-                var context = repositoryInvocationContext(params, methodDescriptor);
+                var context = createInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().deleteOperation().execute(context)));
             }
             case SAVE -> {
-                var context = repositoryInvocationContext(params, methodDescriptor);
+                var context = createInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().saveOperation().execute(context)));
             }
             case DELETE_BY -> {
-                var context = repositoryInvocationContext(params, methodDescriptor);
+                var context = createInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().deleteByOperation().execute(context)));
             }
             case FIND_BY -> {
-                var context = repositoryInvocationContext(params, methodDescriptor);
+                var context = createInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().findByOperation().execute(context)));
             }
             case COUNT_ALL -> {
-                var context = repositoryInvocationContext(params, methodDescriptor);
+                var context = createInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().countAllOperation().execute(context)));
             }
             case COUNT_BY -> {
-                var context = repositoryInvocationContext(params, methodDescriptor);
+                var context = createInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().countByOperation().execute(context)));
             }
             case CURSOR_PAGINATION -> {
-                var context = repositoryInvocationContext(params, methodDescriptor);
+                var context = createInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().cursorPaginationOperation().execute(context)));
             }
             case PARAMETER_BASED -> {
-                var context = repositoryInvocationContext(params, methodDescriptor);
+                var context = createInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().parameterBasedOperation().execute(context)));
             }
             case EXISTS_BY -> {
-                var context = repositoryInvocationContext(params, methodDescriptor);
+                var context = createInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().existsByOperation().execute(context)));
             }
             case FIND_ALL -> {
-                var context = repositoryInvocationContext(params, methodDescriptor);
+                var context = createInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().findAllOperation().execute(context)));
             }
             case QUERY -> {
-                var context = repositoryInvocationContext(params, methodDescriptor);
+                var context = createInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().queryOperation().execute(context)));
             } case PROVIDER_OPERATION -> {
-                var context = repositoryInvocationContext(params, methodDescriptor);
+                var context = createInvocationContext(params, methodDescriptor);
                 return unwrapInvocationTargetException(() -> unwrapInvocationTargetException(() ->
                         repositoryOperationProvider().providerOperation().execute(context)));
             }
@@ -199,7 +199,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         }
     }
 
-    private RepositoryInvocationContext repositoryInvocationContext(Object[] params, RepositoryMethodDescriptor methodDescriptor) {
+    private RepositoryInvocationContext createInvocationContext(Object[] params, RepositoryMethodDescriptor methodDescriptor) {
         return new RepositoryInvocationContext(methodDescriptor.method(),
                 repositoryMetadata(), entityMetadata(),
                 template(), params == null ? EMPTY : params);
