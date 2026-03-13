@@ -42,7 +42,6 @@ import java.util.Objects;
  * record with the updated value, leaving the original step unchanged.
  * </p>
  *
- * <p>
  * Required dependencies (in order):
  * <ol>
  *   <li>{@link EntitiesMetadata} — entity reflection metadata</li>
@@ -50,7 +49,6 @@ import java.util.Objects;
  *   <li>{@link InfrastructureOperatorProvider} — proxy infrastructure operators</li>
  *   <li>{@link RepositoryOperationProvider} — query and operation execution</li>
  * </ol>
- * </p>
  *
  * <p>
  * The {@code build()} method is available only from {@link OperationsStep}, once all
