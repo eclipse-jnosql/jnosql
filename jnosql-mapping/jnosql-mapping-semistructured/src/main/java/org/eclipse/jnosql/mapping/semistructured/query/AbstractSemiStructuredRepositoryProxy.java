@@ -187,7 +187,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
     }
 
     protected SelectQuery toQuery(Map<String, ParamValue> parameters, Method method) {
-        return SemiStructuredParameterBasedQuery.INSTANCE.toQuery(parameters, getSorts(method, entityMetadata()), entityMetadata());
+        return SemiStructuredParameterBasedQuery.INSTANCE.toQuery(parameters, getSorts(method, entityMetadata()), entityMetadata(), converters());
     }
 
     @Override

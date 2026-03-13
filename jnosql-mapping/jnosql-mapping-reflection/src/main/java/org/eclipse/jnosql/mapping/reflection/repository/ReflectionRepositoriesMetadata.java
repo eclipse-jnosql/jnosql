@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2025, 2026 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -11,6 +11,7 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *   Maximillian Arruda
  */
 package org.eclipse.jnosql.mapping.reflection.repository;
 
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 
@@ -39,15 +41,20 @@ class ReflectionRepositoriesMetadata implements RepositoriesMetadata {
     private final Map<Class<?>, RepositoryMetadata> repositories = new HashMap<>();
 
 
-    private final Event<ProjectionFound> projectionFoundEvent;
+    private final Consumer<ProjectionFound> projectionFoundConsumer;
 
     @Inject
     ReflectionRepositoriesMetadata(Event<ProjectionFound> projectionFoundEvent) {
-        this.projectionFoundEvent = projectionFoundEvent;
+        this.projectionFoundConsumer = projectionFoundEvent::fire;
+    }
+
+    ReflectionRepositoriesMetadata(Consumer<ProjectionFound> projectionFoundConsumer) {
+        this.projectionFoundConsumer = Objects.requireNonNull(projectionFoundConsumer, "projectionFoundConsumer is required");
+        this.init();
     }
 
     ReflectionRepositoriesMetadata() {
-        this(null);
+        this.projectionFoundConsumer = null;
     }
 
     @Inject
@@ -62,7 +69,7 @@ class ReflectionRepositoriesMetadata implements RepositoriesMetadata {
         LOGGER.fine("Found repositories: " + repositoriesType);
         var supplier = ReflectionRepositorySupplier.INSTANCE;
         for (Class<?> type : repositoriesType) {
-            RepositoryMetadata metadata = supplier.apply(type, projectionFoundEvent);
+            RepositoryMetadata metadata = supplier.apply(type, projectionFoundConsumer);
             repositories.put(type, metadata);
         }
 

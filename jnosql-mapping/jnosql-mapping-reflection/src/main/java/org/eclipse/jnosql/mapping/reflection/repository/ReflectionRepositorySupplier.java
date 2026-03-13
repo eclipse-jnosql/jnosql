@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2025, 2026 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -11,6 +11,7 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *   Maximillian Arruda
  */
 package org.eclipse.jnosql.mapping.reflection.repository;
 
@@ -24,7 +25,6 @@ import jakarta.data.repository.OrderBy;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Select;
-import jakarta.enterprise.event.Event;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Projection;
 import org.eclipse.jnosql.mapping.ProviderQuery;
@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import static java.util.Optional.ofNullable;
@@ -62,7 +63,7 @@ enum ReflectionRepositorySupplier {
         return apply(type, null);
     }
 
-    public RepositoryMetadata apply(Class<?> type, Event<ProjectionFound> projectionFoundEvent) {
+    public RepositoryMetadata apply(Class<?> type, Consumer<ProjectionFound> projectionFoundConsumer) {
         Objects.requireNonNull(type, "type is required");
         if (!type.isInterface()) {
             throw new IllegalArgumentException("The repository type " + type.getName() + " is not an interface");
@@ -72,7 +73,7 @@ enum ReflectionRepositorySupplier {
         List<RepositoryMethod> methods = new ArrayList<>(declaredMethods.size());
         Map<Method, RepositoryMethod> methodByMethodReflection = new HashMap<>(declaredMethods.size());
         for (Method method : declaredMethods) {
-            RepositoryMethod repositoryMethod = to(method, projectionFoundEvent);
+            RepositoryMethod repositoryMethod = to(method, projectionFoundConsumer);
             methods.add(repositoryMethod);
             methodByMethodReflection.put(method, repositoryMethod);
         }
@@ -118,7 +119,7 @@ enum ReflectionRepositorySupplier {
     }
 
 
-    private RepositoryMethod to(Method method, Event<ProjectionFound> projectionFoundEvent) {
+    private RepositoryMethod to(Method method, Consumer<ProjectionFound> projectionFoundConsumer) {
 
         String name = method.getName();
         String queryValue = ofNullable(method.getAnnotation(Query.class))
@@ -129,9 +130,9 @@ enum ReflectionRepositorySupplier {
                 .map(Find::value).orElse(null);
         Class<?> returnTypeValue = method.getReturnType();
         Class<?> elementTypeValue = getElementTypeValue(method);
-        if (projectionFoundEvent != null) {
-            checkProjectionFound(returnTypeValue, projectionFoundEvent);
-            checkProjectionFound(elementTypeValue, projectionFoundEvent);
+        if (projectionFoundConsumer != null) {
+            checkProjectionFound(returnTypeValue, projectionFoundConsumer);
+            checkProjectionFound(elementTypeValue, projectionFoundConsumer);
         }
 
         List<RepositoryParam> params = to(method.getParameters());
@@ -167,12 +168,12 @@ enum ReflectionRepositorySupplier {
      * Verifies if the record does not have the {@link Projection} annotation, in this case, it will accepted as
      * projection, because of the Jakarta Data spec
      *
-     * @param type                 the type
-     * @param projectionFoundEvent the event to be fired
+     * @param type                    the type
+     * @param projectionFoundConsumer the consumer to be called
      */
-    private void checkProjectionFound(Class<?> type, Event<ProjectionFound> projectionFoundEvent) {
+    private void checkProjectionFound(Class<?> type, Consumer<ProjectionFound> projectionFoundConsumer) {
         if (type != null && type.isRecord() && type.getAnnotation(Projection.class) == null) {
-            projectionFoundEvent.fire(new ProjectionFound(type));
+            projectionFoundConsumer.accept(new ProjectionFound(type));
         }
 
     }
