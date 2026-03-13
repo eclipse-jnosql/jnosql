@@ -19,6 +19,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.core.repository.CoreRepositoryInvocationHandler;
 import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
+import org.eclipse.jnosql.mapping.core.repository.RepositoryOperationProvider;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
@@ -33,17 +34,37 @@ import java.util.Objects;
 @ApplicationScoped
 public class SemistructuredRepositoryProducer {
 
-    @Inject
-    private EntitiesMetadata entities;
+    private final EntitiesMetadata entities;
+    private final RepositoriesMetadata repositoriesMetadata;
+    private final InfrastructureOperatorProvider infrastructureOperatorProvider;
+    private final RepositoryOperationProvider repositoryOperationProvider;
 
+    /**
+     * CDI constructor injection. All four dependencies are required.
+     *
+     * @param entities                    entity reflection metadata
+     * @param repositoriesMetadata        repository interface metadata
+     * @param infrastructureOperatorProvider proxy infrastructure operators
+     * @param repositoryOperationProvider semistructured repository operations
+     */
     @Inject
-    private InfrastructureOperatorProvider infrastructureOperatorProvider;
+    public SemistructuredRepositoryProducer(EntitiesMetadata entities,
+                                            RepositoriesMetadata repositoriesMetadata,
+                                            InfrastructureOperatorProvider infrastructureOperatorProvider,
+                                            RepositoryOperationProvider repositoryOperationProvider) {
+        this.entities = entities;
+        this.repositoriesMetadata = repositoriesMetadata;
+        this.infrastructureOperatorProvider = infrastructureOperatorProvider;
+        this.repositoryOperationProvider = repositoryOperationProvider;
+    }
 
-    @Inject
-    private SemistructuredRepositoryOperationProvider semistructuredRepositoryOperationProvider;
-
-    @Inject
-    private RepositoriesMetadata repositoriesMetadata;
+    /**
+     * Package-private no-arg constructor for CDI proxy compatibility.
+     * Do not use directly.
+     */
+    SemistructuredRepositoryProducer() {
+        this(null, null, null, null);
+    }
 
     /**
      * Returns a fully functional repository implementation for the given
@@ -70,7 +91,7 @@ public class SemistructuredRepositoryProducer {
                 entityMetadata,
                 repositoryMetadata,
                 infrastructureOperatorProvider,
-                semistructuredRepositoryOperationProvider,
+                repositoryOperationProvider,
                 template);
 
         return (R) Proxy.newProxyInstance(repositoryClass.getClassLoader(),
