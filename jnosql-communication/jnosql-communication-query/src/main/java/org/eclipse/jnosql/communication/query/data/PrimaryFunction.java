@@ -8,12 +8,14 @@
  *  You may elect to redistribute this code under either of these licenses.
  *  Contributors:
  *  Otavio Santana
+ *  Matheus Oliveira
  */
 package org.eclipse.jnosql.communication.query.data;
 
 import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.query.BooleanQueryValue;
 import org.eclipse.jnosql.communication.query.EnumQueryValue;
+import org.eclipse.jnosql.communication.query.FunctionQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.QueryPath;
 import org.eclipse.jnosql.communication.query.QueryValue;
@@ -53,10 +55,17 @@ enum PrimaryFunction implements Function<JDQLParser.Primary_expressionContext, Q
                 default ->
                         throw new UnsupportedOperationException("The special expression is not supported yet: " + specialExpression);
             };
-        } else if(context.enum_literal() != null) {
+        } else if (context.function_expression() != null) {
+            var functionExpression = context.function_expression();
+            var functionName = getFunctionName(functionExpression);
+            var params = functionExpression.scalar_expression().stream()
+                    .map(this::processScalar)
+                    .toArray();
+            return new FunctionQueryValue(new DefaultFunction(functionName, params));
+        } else if (context.enum_literal() != null) {
             Enum<?> value = EnumConverter.INSTANCE.apply(context.enum_literal().getText());
             return EnumQueryValue.of(value);
-        } else if(context.state_field_path_expression() != null) {
+        } else if (context.state_field_path_expression() != null) {
             var stateContext = context.state_field_path_expression();
             var stateContextText = stateContext.getText();
             try {
@@ -67,6 +76,33 @@ enum PrimaryFunction implements Function<JDQLParser.Primary_expressionContext, Q
                 return QueryPath.of(stateContextText);
             }
         }
-       throw new UnsupportedOperationException("The primary expression is not supported yet: " + context.getText());
+        throw new UnsupportedOperationException("The primary expression is not supported yet: " + context.getText());
+    }
+
+    private Object processScalar(JDQLParser.Scalar_expressionContext ctx) {
+        if (ctx.primary_expression() != null) {
+            return apply(ctx.primary_expression());
+        }
+        if (ctx.LPAREN() != null && ctx.scalar_expression().size() == 1) {
+            return processScalar(ctx.scalar_expression(0));
+        }
+        return ctx.getText();
+    }
+
+    private String getFunctionName(JDQLParser.Function_expressionContext ctx) {
+        if (ctx.ABS() != null) {
+            return "ABS";
+        } else if (ctx.LENGTH() != null) {
+            return "LENGTH";
+        } else if (ctx.LOWER() != null) {
+            return "LOWER";
+        } else if (ctx.UPPER() != null) {
+            return "UPPER";
+        } else if (ctx.LEFT() != null) {
+            return "LEFT";
+        } else if (ctx.RIGHT() != null) {
+            return "RIGHT";
+        }
+        throw new UnsupportedOperationException("The function is not supported yet: " + ctx.getText());
     }
 }
