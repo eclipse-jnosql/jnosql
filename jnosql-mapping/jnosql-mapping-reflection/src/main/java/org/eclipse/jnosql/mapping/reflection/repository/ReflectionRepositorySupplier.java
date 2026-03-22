@@ -67,6 +67,12 @@ public enum ReflectionRepositorySupplier {
         return apply(type, null);
     }
 
+    /**
+     * Applies reflection-based metadata discovery to the given repository type.
+     * @param type The repository interface type to analyze.
+     * @param projectionFoundEvent Optional event for projection handling.
+     * @return RepositoryMetadata representing the analyzed repository.
+     */
     public RepositoryMetadata apply(Class<?> type, Event<ProjectionFound> projectionFoundEvent) {
         Objects.requireNonNull(type, "type is required");
         if (!type.isInterface()) {
