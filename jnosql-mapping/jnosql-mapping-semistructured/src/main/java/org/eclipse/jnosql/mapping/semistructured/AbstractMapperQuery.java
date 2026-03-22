@@ -11,6 +11,7 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *  Matheus Oliveira
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
@@ -40,6 +41,8 @@ abstract class AbstractMapperQuery {
 
     protected String name;
 
+    protected String nameForCondition;
+
     protected final transient EntityMetadata mapping;
 
     protected final transient Converters converters;
@@ -64,6 +67,28 @@ abstract class AbstractMapperQuery {
         });
     }
 
+    protected String toFunctionExpression(Function function) {
+        String column = mapping.columnField(function.field());
+        var sb = new StringBuilder(function.name()).append('(').append(column);
+        for (Object arg : function.arguments()) {
+            sb.append(", ").append(arg);
+        }
+        return sb.append(')').toString();
+    }
+
+    protected void setFunction(Function function) {
+        requireNonNull(function, "function is required");
+        if (template instanceof AbstractSemiStructuredTemplate base) {
+            base.checkFunctionSupport(function);
+        }
+        this.name = function.field();
+        this.nameForCondition = toFunctionExpression(function);
+    }
+
+    protected String resolveColumnName() {
+        return nameForCondition != null ? nameForCondition : mapping.columnField(name);
+    }
+
     protected void appendCondition(CriteriaCondition incomingCondition) {
         CriteriaCondition columnCondition = getCondition(incomingCondition);
 
@@ -75,13 +100,14 @@ abstract class AbstractMapperQuery {
 
         this.negate = false;
         this.name = null;
+        this.nameForCondition = null;
     }
 
     protected <T> void betweenImpl(T valueA, T valueB) {
         requireNonNull(valueA, "valueA is required");
         requireNonNull(valueB, "valueB is required");
         CriteriaCondition newCondition = CriteriaCondition
-                .between(Element.of(mapping.columnField(name), asList(getValue(valueA), getValue(valueB))));
+                .between(Element.of(resolveColumnName(), asList(getValue(valueA), getValue(valueB))));
         appendCondition(newCondition);
     }
 
@@ -92,7 +118,7 @@ abstract class AbstractMapperQuery {
         List<Object> convertedValues = StreamSupport.stream(values.spliterator(), false)
                 .map(this::getValue).collect(toList());
         CriteriaCondition newCondition = CriteriaCondition
-                .in(Element.of(mapping.columnField(name), convertedValues));
+                .in(Element.of(resolveColumnName(), convertedValues));
         appendCondition(newCondition);
     }
 
@@ -100,68 +126,72 @@ abstract class AbstractMapperQuery {
         requireNonNull(value, "value is required");
 
         CriteriaCondition newCondition = CriteriaCondition
-                .eq(Element.of(mapping.columnField(name), getValue(value)));
+                .eq(Element.of(resolveColumnName(), getValue(value)));
         appendCondition(newCondition);
     }
 
     protected void likeImpl(String value) {
         requireNonNull(value, "value is required");
         CriteriaCondition newCondition = CriteriaCondition
-                .like(Element.of(mapping.columnField(name), getValue(value)));
+                .like(Element.of(resolveColumnName(), getValue(value)));
         appendCondition(newCondition);
     }
 
     protected <T> void gteImpl(T value) {
         requireNonNull(value, "value is required");
         CriteriaCondition newCondition = CriteriaCondition
-                .gte(Element.of(mapping.columnField(name), getValue(value)));
+                .gte(Element.of(resolveColumnName(), getValue(value)));
         appendCondition(newCondition);
     }
 
     protected <T> void gtImpl(T value) {
         requireNonNull(value, "value is required");
         CriteriaCondition newCondition = CriteriaCondition
-                .gt(Element.of(mapping.columnField(name), getValue(value)));
+                .gt(Element.of(resolveColumnName(), getValue(value)));
         appendCondition(newCondition);
     }
 
     protected <T> void ltImpl(T value) {
         requireNonNull(value, "value is required");
         CriteriaCondition newCondition = CriteriaCondition
-                .lt(Element.of(mapping.columnField(name), getValue(value)));
+                .lt(Element.of(resolveColumnName(), getValue(value)));
         appendCondition(newCondition);
     }
 
     protected <T> void lteImpl(T value) {
         requireNonNull(value, "value is required");
         CriteriaCondition newCondition = CriteriaCondition
-                .lte(Element.of(mapping.columnField(name), getValue(value)));
+                .lte(Element.of(resolveColumnName(), getValue(value)));
         appendCondition(newCondition);
     }
 
     protected void containsImpl(String value) {
         requireNonNull(value, "value is required");
         CriteriaCondition newCondition = CriteriaCondition
-                .contains(Element.of(mapping.columnField(name), getValue(value)));
+                .contains(Element.of(resolveColumnName(), getValue(value)));
         appendCondition(newCondition);
     }
 
     protected void startWithImpl(String value) {
         requireNonNull(value, "value is required");
         CriteriaCondition newCondition = CriteriaCondition
-                .startsWith(Element.of(mapping.columnField(name), getValue(value)));
+                .startsWith(Element.of(resolveColumnName(), getValue(value)));
         appendCondition(newCondition);
     }
 
     protected void endsWithImpl(String value) {
         requireNonNull(value, "value is required");
         CriteriaCondition newCondition = CriteriaCondition
-                .endsWith(Element.of(mapping.columnField(name), getValue(value)));
+                .endsWith(Element.of(resolveColumnName(), getValue(value)));
         appendCondition(newCondition);
     }
 
 
     protected Object getValue(Object value) {
+        // skip type conversion when a function is active; the value targets the function result type
+        if (nameForCondition != null) {
+            return value;
+        }
         return ConverterUtil.getValue(value, mapping, name, converters);
     }
 

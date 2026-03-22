@@ -30,6 +30,7 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 - Include Is annotation support to the Repository
 - Add support to Mapper on Key-value databases
 - Include new engine to Jakarta Data Repositories
+- Add support for scalar function expressions (ABS, LENGTH, LOWER, UPPER, LEFT, RIGHT) in JDQL string queries and in the fluent query API
 
 === Removed
 
