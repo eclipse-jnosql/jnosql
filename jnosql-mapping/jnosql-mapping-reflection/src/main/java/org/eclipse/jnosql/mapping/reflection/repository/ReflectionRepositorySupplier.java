@@ -53,7 +53,12 @@ import java.util.logging.Logger;
 
 import static java.util.Optional.ofNullable;
 
-enum ReflectionRepositorySupplier {
+/**
+ * ReflectionRepositorySupplier is a singleton enum that provides functionality for discovering repository
+ * metadata through reflection. It analyzes repository interface structures, methods, and annotations to
+ * generate metadata representations, primarily used for handling data-related operations.
+ */
+public enum ReflectionRepositorySupplier {
 
     INSTANCE;
     private static final Logger LOGGER = Logger.getLogger(ReflectionRepositorySupplier.class.getName());
