@@ -63,6 +63,14 @@ public enum ReflectionRepositorySupplier {
     INSTANCE;
     private static final Logger LOGGER = Logger.getLogger(ReflectionRepositorySupplier.class.getName());
 
+    /**
+     * Applies reflection-based metadata discovery to the given repository type.
+     *
+     * @param type The repository interface type to analyze. Must not be null and should represent
+     *             an interface; otherwise, an {@link IllegalArgumentException} will be thrown.
+     * @return RepositoryMetadata representing the analyzed repository, including its entity type,
+     *         declared methods, and metadata mappings.
+     */
     public RepositoryMetadata apply(Class<?> type) {
         return apply(type, null);
     }
