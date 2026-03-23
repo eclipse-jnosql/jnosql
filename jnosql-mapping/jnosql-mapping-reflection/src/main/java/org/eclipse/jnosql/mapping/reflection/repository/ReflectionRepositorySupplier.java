@@ -130,7 +130,7 @@ public enum ReflectionRepositorySupplier {
                     }
                 }
                 default ->
-                        LOGGER.finest(() -> "The repository method " + method.name() + " could you not be used to find the entity");
+                        LOGGER.finest(() -> "The repository method " + method.name() + " could not be used to find the entity");
             }
         }
         return null;

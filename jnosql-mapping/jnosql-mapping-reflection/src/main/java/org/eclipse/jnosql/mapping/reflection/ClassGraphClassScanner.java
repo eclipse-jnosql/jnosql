@@ -137,7 +137,9 @@ enum ClassGraphClassScanner implements ClassScanner {
         return scan.getClassesWithAnnotation(Repository.class)
                 .getInterfaces()
                 .filter(c -> !c.implementsInterface(DataRepository.class))
-                .loadClasses().stream().toList();
+                .loadClasses()
+                .stream().filter(RepositoryFilter.INSTANCE)
+                .toList();
     }
 
     private static List<Class<?>> loadProjection(ScanResult scan) {

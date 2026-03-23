@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.reflection;
 
 import jakarta.data.repository.CrudRepository;
+
 import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.reflection.RepositoryFilterTest.Persons;
 import org.eclipse.jnosql.mapping.reflection.entities.AnimalRepository;
@@ -29,6 +30,8 @@ import org.eclipse.jnosql.mapping.reflection.entities.NoSQLVendor;
 import org.eclipse.jnosql.mapping.reflection.entities.PCView;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.eclipse.jnosql.mapping.reflection.entities.PersonRepository;
+import org.eclipse.jnosql.mapping.reflection.repository.InvalidEntityCustomRepository;
+import org.eclipse.jnosql.mapping.reflection.repository.MethodEntityCustomRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +47,7 @@ class ClassGraphClassScannerTest {
     void shouldReturnEntities() {
         Set<Class<?>> entities = classScanner.entities();
         Assertions.assertNotNull(entities);
-        assertThat(entities).hasSize(34)
+        assertThat(entities).hasSize(36)
                 .contains(Person.class);
     }
 
@@ -56,13 +59,12 @@ class ClassGraphClassScannerTest {
                 .contains(Job.class, Contact.class);
     }
 
-
     @Test
     void shouldReturnRepositories() {
-        Set<Class<?>> reepositores = classScanner.repositories();
-        Assertions.assertNotNull(reepositores);
+        Set<Class<?>> repositories = classScanner.repositories();
+        Assertions.assertNotNull(repositories);
 
-        assertThat(reepositores).hasSize(5)
+        assertThat(repositories).hasSize(5)
                 .contains(Persons.class,
                         AnimalRepository.class,
                         PersonRepository.class,
@@ -106,20 +108,14 @@ class ClassGraphClassScannerTest {
     void shouldReturnCustomRepositories() {
         Set<Class<?>> repositories = classScanner.customRepositories();
         assertThat(repositories).hasSize(3)
-                .contains(Library.class, Garage.class);
+                .contains(Garage.class, MethodEntityCustomRepository.class);
     }
 
     @Test
-    void shouldReturnRepositoriesStandard() {
-        Set<Class<?>> repositories = classScanner.repositoriesStandard();
-        assertThat(repositories).hasSize(4);
-    }
-
-    @Test
-    void shouldReturnCustomRepository() {
+    void shouldIgnoreInvalidEntityRepositories() {
         Set<Class<?>> repositories = classScanner.customRepositories();
-        assertThat(repositories).hasSize(3)
-                .contains(Library.class,  Garage.class);
+        Assertions.assertNotNull(repositories);
+        assertThat(repositories).doesNotContain(InvalidEntityCustomRepository.class);
     }
 
     @Test
@@ -131,7 +127,7 @@ class ClassGraphClassScannerTest {
     @Test
     void shouldReturnProjections() {
         Set<Class<?>> projections = classScanner.projections();
-        assertThat(projections).hasSize(3)
+        assertThat(projections).hasSize(4)
                 .contains(ComputerView.class, PCView.class)
                 .doesNotContain(BookDTO.class);
     }
@@ -139,14 +135,14 @@ class ClassGraphClassScannerTest {
     @Test
     void shouldIgnoreProjectionClassesThatAreNotRecords() {
         Set<Class<?>> projections = classScanner.projections();
-        assertThat(projections).hasSize(3)
+        assertThat(projections).hasSize(4)
                 .doesNotContain(BookDTO.class);
     }
 
     @Test
     void shouldIgnoreProjectionClassesThatAreNotAnnotated() {
         Set<Class<?>> projections = classScanner.projections();
-        assertThat(projections).hasSize(3)
+        assertThat(projections).hasSize(4)
                 .doesNotContain(BookDTO.class);
     }
 
