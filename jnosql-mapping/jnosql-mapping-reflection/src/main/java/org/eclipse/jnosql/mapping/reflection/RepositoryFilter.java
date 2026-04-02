@@ -18,8 +18,11 @@ import jakarta.data.repository.Repository;
 import jakarta.nosql.Entity;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -56,13 +59,21 @@ enum RepositoryFilter implements Predicate<Class<?>> {
 
     /**
      * Invalid if the provided repository type is parameterized with
-     * an entity type that is not annotated with the {@link Entity} annotation
-     * 
+     * an entity type that is not annotated with the {@link Entity} annotation.
+     * If the entity cannot be determined from generic parameters, it will
+     * attempt to extract it from the repository method signatures.
+     *
      * @param type The repository type
      * @return if the repository is valid
      */
     public boolean isValid(Class<?> type) {
         Optional<Class<?>> entity = getEntity(type);
+        
+        // If entity not found from generic interface, try to extract from methods
+        if (entity.isEmpty()) {
+            entity = getEntityFromMethods(type);
+        }
+
         return entity.map(c -> c.getAnnotation(Entity.class))
                 .isPresent();
     }
@@ -89,6 +100,45 @@ enum RepositoryFilter implements Predicate<Class<?>> {
         Type argument = arguments[0];
         if (argument instanceof Class<?> entity) {
             return Optional.of(entity);
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Checks the repository methods to find the entity class, including the first level
+     * of parameterized types, as these can contain the entity class.
+     *
+     * @param repository The repository type
+     * @return The entity class if found
+     */
+    private Optional<Class<?>> getEntityFromMethods(Class<?> repository) {
+        List<Method> methods = Arrays.asList(repository.getDeclaredMethods());
+        for (Method method : methods) {
+            Optional<Class<?>> clazz = extractClass(method.getGenericReturnType());
+            if (clazz.filter(c -> c.isAnnotationPresent(Entity.class)).isPresent()) { 
+                return clazz; 
+            }
+            for (Type type : method.getGenericParameterTypes()) {
+                clazz = extractClass(type);
+                if (clazz.filter(c -> c.isAnnotationPresent(Entity.class)).isPresent()) { 
+                    return clazz; 
+                }
+            }
+        }
+        return Optional.empty();
+    }
+    
+    /**
+     * Extracts a concrete class from a Type, unwrapping parameterized types.
+     * Only unwraps one level of parameterized types, and only the first actual type argument.
+     */
+    private Optional<Class<?>> extractClass(Type type) {
+        Type classType = type;
+        if (classType instanceof ParameterizedType paramType) {
+            classType = paramType.getActualTypeArguments().length > 0 ? paramType.getActualTypeArguments()[0] : null;
+        }
+        if (classType != null && classType instanceof Class<?> clazz) {
+            return Optional.of(clazz);
         }
         return Optional.empty();
     }
