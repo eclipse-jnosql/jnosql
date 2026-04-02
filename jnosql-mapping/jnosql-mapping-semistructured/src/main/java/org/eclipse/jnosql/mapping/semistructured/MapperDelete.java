@@ -11,124 +11,142 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *  Matheus Oliveira
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
-import jakarta.nosql.QueryMapper.MapperDeleteFrom;
-import jakarta.nosql.QueryMapper.MapperDeleteNameCondition;
-import jakarta.nosql.QueryMapper.MapperDeleteNotCondition;
-import jakarta.nosql.QueryMapper.MapperDeleteWhere;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 
 import static java.util.Objects.requireNonNull;
 
-final class MapperDelete extends AbstractMapperQuery implements MapperDeleteFrom,
-        MapperDeleteWhere, MapperDeleteNameCondition, MapperDeleteNotCondition  {
-
+final class MapperDelete extends AbstractMapperQuery implements SemiStructuredMapperDelete {
 
     MapperDelete(EntityMetadata mapping, Converters converters, SemiStructuredTemplate template) {
         super(mapping, converters, template);
     }
 
     @Override
-    public MapperDeleteNameCondition where(String name) {
+    public SemiStructuredMapperDelete where(String name) {
         requireNonNull(name, "name is required");
         this.name = name;
+        this.nameForCondition = null;
         return this;
     }
 
-
     @Override
-    public MapperDeleteNameCondition and(String name) {
+    public SemiStructuredMapperDelete and(String name) {
         requireNonNull(name, "name is required");
         this.name = name;
+        this.nameForCondition = null;
         this.and = true;
         return this;
     }
 
     @Override
-    public MapperDeleteNameCondition or(String name) {
+    public SemiStructuredMapperDelete or(String name) {
         requireNonNull(name, "name is required");
         this.name = name;
+        this.nameForCondition = null;
         this.and = false;
         return this;
     }
 
-
     @Override
-    public MapperDeleteNotCondition not() {
+    public SemiStructuredMapperDelete not() {
         this.negate = true;
         return this;
     }
 
     @Override
-    public <T> MapperDeleteWhere eq(T value) {
+    public <T> SemiStructuredMapperDelete eq(T value) {
         eqImpl(value);
         return this;
     }
 
     @Override
-    public MapperDeleteWhere like(String value) {
+    public SemiStructuredMapperDelete like(String value) {
         likeImpl(value);
         return this;
     }
 
     @Override
-    public MapperDeleteWhere contains(String value) {
+    public SemiStructuredMapperDelete contains(String value) {
         containsImpl(value);
         return this;
     }
 
     @Override
-    public MapperDeleteWhere startsWith(String value) {
+    public SemiStructuredMapperDelete startsWith(String value) {
         startWithImpl(value);
         return this;
     }
 
     @Override
-    public MapperDeleteWhere endsWith(String value) {
+    public SemiStructuredMapperDelete endsWith(String value) {
         endsWithImpl(value);
         return this;
     }
 
     @Override
-    public <T> MapperDeleteWhere gt(T value) {
+    public <T> SemiStructuredMapperDelete gt(T value) {
         gtImpl(value);
         return this;
     }
 
     @Override
-    public <T> MapperDeleteWhere gte(T value) {
+    public <T> SemiStructuredMapperDelete gte(T value) {
         gteImpl(value);
         return this;
     }
 
     @Override
-    public <T> MapperDeleteWhere lt(T value) {
+    public <T> SemiStructuredMapperDelete lt(T value) {
         ltImpl(value);
         return this;
     }
 
     @Override
-    public <T> MapperDeleteWhere lte(T value) {
+    public <T> SemiStructuredMapperDelete lte(T value) {
         lteImpl(value);
         return this;
     }
 
     @Override
-    public <T> MapperDeleteWhere between(T valueA, T valueB) {
+    public <T> SemiStructuredMapperDelete between(T valueA, T valueB) {
         betweenImpl(valueA, valueB);
         return this;
     }
 
     @Override
-    public <T> MapperDeleteWhere in(Iterable<T> values) {
+    public <T> SemiStructuredMapperDelete in(Iterable<T> values) {
         inImpl(values);
         return this;
     }
 
+    @Override
+    public SemiStructuredMapperDelete where(Function function) {
+        requireNonNull(function, "function is required");
+        setFunction(function);
+        return this;
+    }
+
+    @Override
+    public SemiStructuredMapperDelete and(Function function) {
+        requireNonNull(function, "function is required");
+        setFunction(function);
+        this.and = true;
+        return this;
+    }
+
+    @Override
+    public SemiStructuredMapperDelete or(Function function) {
+        requireNonNull(function, "function is required");
+        setFunction(function);
+        this.and = false;
+        return this;
+    }
 
     private DeleteQuery build() {
         return new MappingDeleteQuery(entity, condition);

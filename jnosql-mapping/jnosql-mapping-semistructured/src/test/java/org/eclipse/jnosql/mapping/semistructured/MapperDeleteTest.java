@@ -11,11 +11,13 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *  Matheus Oliveira
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import org.eclipse.jnosql.mapping.semistructured.Function;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
@@ -32,6 +34,7 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -41,6 +44,7 @@ import java.util.List;
 
 import static org.eclipse.jnosql.communication.semistructured.DeleteQuery.delete;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.mockito.Mockito.when;
 
 @EnableAutoWeld
@@ -280,5 +284,54 @@ class MapperDeleteTest {
                 .build();
 
         assertEquals(queryExpected, query);
+    }
+
+    @Test
+    @DisplayName("Should delete with UPPER function in where clause")
+    void shouldDeleteWhereFunctionUpper() {
+        template.delete(Person.class).where(Function.upper("name")).eq("ADA").execute();
+        Mockito.verify(managerMock).delete(captor.capture());
+        var query = captor.getValue();
+        var queryExpected = delete().from("Person").where("UPPER(name)").eq("ADA").build();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    @DisplayName("Should delete with LEFT function in where clause")
+    void shouldDeleteWhereFunctionLeft() {
+        template.delete(Person.class).where(Function.left("name", 2)).eq("Ad").execute();
+        Mockito.verify(managerMock).delete(captor.capture());
+        var query = captor.getValue();
+        var queryExpected = delete().from("Person").where("LEFT(name, 2)").eq("Ad").build();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    @DisplayName("Should delete with LOWER function in AND condition")
+    void shouldDeleteAndFunctionLower() {
+        template.delete(Person.class).where("age").gt(10).and(Function.lower("name")).eq("ada").execute();
+        Mockito.verify(managerMock).delete(captor.capture());
+        var query = captor.getValue();
+        var queryExpected = delete().from("Person").where("age").gt(10)
+                .and("LOWER(name)").eq("ada").build();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    @DisplayName("Should delete with UPPER function in OR condition")
+    void shouldDeleteOrFunctionUpper() {
+        template.delete(Person.class).where("age").gt(10).or(Function.upper("name")).eq("ADA").execute();
+        Mockito.verify(managerMock).delete(captor.capture());
+        var query = captor.getValue();
+        var queryExpected = delete().from("Person").where("age").gt(10)
+                .or("UPPER(name)").eq("ADA").build();
+        assertEquals(queryExpected, query);
+    }
+
+    @Test
+    @DisplayName("Should throw NullPointerException when function is null in where clause")
+    void shouldReturnErrorWhereFunctionIsNull() {
+        assertThatNullPointerException().isThrownBy(
+                () -> template.delete(Person.class).where((Function) null));
     }
 }
