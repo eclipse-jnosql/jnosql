@@ -29,7 +29,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <classgraph.version>4.8.179</classgraph.version>
+        <classgraph.version>4.8.184</classgraph.version>
     </properties>
 
     <dependencies>
