@@ -23,12 +23,13 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
-final class Values {
+
+public final class Values {
 
     private Values() {
     }
 
-    static Object get(QueryValue<?> value, Params parameters) {
+    public static Object get(QueryValue<?> value, Params parameters) {
 
         ValueType type = value.type();
         switch (type) {
