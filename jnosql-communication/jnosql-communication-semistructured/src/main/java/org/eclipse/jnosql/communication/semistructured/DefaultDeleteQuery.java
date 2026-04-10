@@ -19,10 +19,9 @@ import java.util.Optional;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Optional.ofNullable;
 
-/**
- * The default implementation of {@link DeleteQuery}
- */
-record DefaultDeleteQuery(String name, CriteriaCondition criteriaCondition, List<String> columns)
+
+
+public record DefaultDeleteQuery(String name, CriteriaCondition criteriaCondition, List<String> columns)
         implements DeleteQuery {
 
 
