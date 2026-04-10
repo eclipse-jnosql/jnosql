@@ -23,7 +23,12 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
-
+/**
+ * Utility class that provides methods for working with query values and parameters.
+ * This class is not instantiable and serves as a container for static methods.
+ * Its primary purpose is to process {@link QueryValue} objects and return the
+ * appropriate values based on their types, as well as interact with {@link Params}.
+ */
 public final class Values {
 
     private Values() {
