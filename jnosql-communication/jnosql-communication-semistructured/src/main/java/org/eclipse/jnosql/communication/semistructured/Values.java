@@ -34,6 +34,15 @@ public final class Values {
     private Values() {
     }
 
+    /**
+     * Processes a {@link QueryValue} based on its type and returns the corresponding
+     * processed object, interacting with {@link Params} when necessary.
+     *
+     * @param value the query value to be processed, whose type determines the specific logic to apply
+     * @param parameters the parameter collection used to handle dynamic query parameters
+     * @return the processed value, which could be the original value, a transformed value, or a reference token
+     * @throws QueryException if the {@code value} type is unsupported
+     */
     public static Object get(QueryValue<?> value, Params parameters) {
 
         ValueType type = value.type();
