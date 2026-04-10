@@ -23,7 +23,12 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.Optional.ofNullable;
 
 /**
- * The default implementation of column query.
+ * A record implementation of the {@link SelectQuery} interface that represents
+ * a select query with defined behavior and constraints. It supports field-level
+ * properties such as limit, offset, column selection, sorting, conditions, and
+ * count flag.
+ * The {@code DefaultSelectQuery} is immutable and ensures safe handling of query
+ * data with unmodifiable collections and optional conditions.
  */
 public record DefaultSelectQuery(long limit, long skip, String name,
                           List<String> columns, List<Sort<?>> sorts, CriteriaCondition criteriaCondition, boolean count)
