@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2025,2026 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -11,11 +11,13 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *   Maximillian Arruda
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.repository.ParamValue;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
@@ -37,19 +39,23 @@ class SemistructuredParameterBasedOperation implements ParameterBasedOperation {
 
     private final EntitiesMetadata entitiesMetadata;
 
+    private final Converters converters;
+
     @Inject
     SemistructuredParameterBasedOperation(SemistructuredQueryBuilder semistructuredQueryBuilder,
-                                                 SemistructuredReturnType semistructuredReturnType,
-                                          EntitiesMetadata entitiesMetadata) {
+                                          SemistructuredReturnType semistructuredReturnType,
+                                          EntitiesMetadata entitiesMetadata, Converters converters) {
         this.semistructuredQueryBuilder = semistructuredQueryBuilder;
         this.semistructuredReturnType = semistructuredReturnType;
         this.entitiesMetadata = entitiesMetadata;
+        this.converters = converters;
     }
 
     SemistructuredParameterBasedOperation() {
         this.semistructuredQueryBuilder = null;
         this.semistructuredReturnType = null;
         this.entitiesMetadata = null;
+        this.converters = null;
     }
 
     @SuppressWarnings("unchecked")
@@ -61,7 +67,7 @@ class SemistructuredParameterBasedOperation implements ParameterBasedOperation {
                 .orElse(context.entityMetadata());
         var parameters = context.parameters();
         Map<String, ParamValue> paramValueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, parameters);
-        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(paramValueMap, Collections.emptyList(), entityMetadata);
+        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(paramValueMap, Collections.emptyList(), entityMetadata, converters);
         try {
             var updateDynamicQuery = semistructuredQueryBuilder.updateDynamicQuery(query, context(context, entityMetadata));
             return (T) semistructuredReturnType.executeFindByQuery(context, updateDynamicQuery);

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2025,2026 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -11,6 +11,7 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *   Maximillian Arruda
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
@@ -20,6 +21,7 @@ import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
 import org.eclipse.jnosql.mapping.core.repository.SpecialParameters;
@@ -41,15 +43,22 @@ class SemistructuredCursorPaginationOperation implements CursorPaginationOperati
 
     private final SemistructuredReturnType returnType;
 
+    private final Converters converters;
+
     @Inject
-    SemistructuredCursorPaginationOperation(SemistructuredQueryBuilder queryBuilder, SemistructuredReturnType returnType) {
+    SemistructuredCursorPaginationOperation(
+            SemistructuredQueryBuilder queryBuilder,
+            SemistructuredReturnType returnType,
+            Converters converters) {
         this.queryBuilder = queryBuilder;
         this.returnType = returnType;
+        this.converters = converters;
     }
 
     SemistructuredCursorPaginationOperation() {
         this.queryBuilder = null;
         this.returnType = null;
+        this.converters = null;
     }
 
 
@@ -69,7 +78,7 @@ class SemistructuredCursorPaginationOperation implements CursorPaginationOperati
 
     private CursoredPage<?> executeFindAnnotation(RepositoryInvocationContext context, RepositoryMethod method, EntityMetadata entityMetadata, SemiStructuredTemplate template) {
         var paramValueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, context.parameters());
-        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(paramValueMap, Collections.emptyList(), entityMetadata);
+        var query = SemiStructuredParameterBasedQuery.INSTANCE.toQuery(paramValueMap, Collections.emptyList(), entityMetadata, converters);
         var updateDynamicQuery = queryBuilder.updateDynamicQuery(query, context);
         var special = DynamicReturn.findSpecialParameters(context.parameters(), Function.identity());
         var pageRequest = pageRequest(method, special);

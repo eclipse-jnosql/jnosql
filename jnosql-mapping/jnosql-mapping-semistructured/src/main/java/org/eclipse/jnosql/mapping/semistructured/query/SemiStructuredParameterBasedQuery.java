@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023,2025 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2023,2025,2026 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -11,13 +11,13 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *   Maximillian Arruda
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.data.Sort;
 import jakarta.data.page.PageRequest;
 import jakarta.data.repository.By;
-import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -57,11 +57,11 @@ public enum SemiStructuredParameterBasedQuery {
      */
     public org.eclipse.jnosql.communication.semistructured.SelectQuery toQuery(Map<String, ParamValue> params,
                                                                                List<Sort<?>> sorts,
-                                                                               EntityMetadata entityMetadata) {
-        var convert = CDI.current().select(Converters.class).get();
+                                                                               EntityMetadata entityMetadata,
+                                                                               Converters converters) {
         List<CriteriaCondition> conditions = new ArrayList<>();
         for (Map.Entry<String, ParamValue> entry : params.entrySet()) {
-            conditions.add(condition(convert, entityMetadata, entry));
+            conditions.add(condition(converters, entityMetadata, entry));
         }
 
         List<Sort<?>> updateSorter = getSorts(sorts, entityMetadata);
