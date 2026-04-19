@@ -24,7 +24,6 @@ import static java.util.Optional.ofNullable;
  * A record implementation of the {@link DeleteQuery} interface. It encapsulates the necessary data
  * for representing a delete operation in a query, including the name of the entity, an optional
  * condition, and the list of columns involved in the operation.
- *
  * The class ensures immutability and overrides the default implementation of equals and hashCode
  * for proper equality checks and hash-based collections usage.
  */
