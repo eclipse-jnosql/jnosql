@@ -66,7 +66,7 @@ class TypeReferenceTest {
     @Test
     @DisplayName("Should throw exception when constructed without generic type information")
     void shouldFailWhenConstructedWithoutTypeInformation() {
-        assertThatThrownBy(() -> new RawTypeReference())
+        assertThatThrownBy(RawTypeReference::new)
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage(
                         "Internal error: TypeReference constructed without actual type information"
