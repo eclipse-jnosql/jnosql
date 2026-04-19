@@ -41,9 +41,7 @@ class AbstractAttributeFieldValueTest {
             }
         };
 
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(fieldValue.isNotEmpty()).isTrue();
-        });
+        SoftAssertions.assertSoftly(soft -> soft.assertThat(fieldValue.isNotEmpty()).isTrue());
     }
 
     @Test
