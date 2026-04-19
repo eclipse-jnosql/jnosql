@@ -8,6 +8,7 @@
  *  You may elect to redistribute this code under either of these licenses.
  *  Contributors:
  *  Otavio Santana
+ *  Matheus Oliveira
  */
 package org.eclipse.jnosql.communication.query.data;
 
@@ -53,10 +54,17 @@ enum PrimaryFunction implements Function<JDQLParser.Primary_expressionContext, Q
                 default ->
                         throw new UnsupportedOperationException("The special expression is not supported yet: " + specialExpression);
             };
-        } else if(context.enum_literal() != null) {
+        } else if (context.function_expression() != null) {
+            var functionExpression = context.function_expression();
+            var functionName = FunctionType.from(functionExpression);
+            var params = functionExpression.scalar_expression().stream()
+                    .map(this::processScalar)
+                    .toArray();
+            return new FunctionQueryValue(new DefaultFunction(functionName, params));
+        } else if (context.enum_literal() != null) {
             Enum<?> value = EnumConverter.INSTANCE.apply(context.enum_literal().getText());
             return EnumQueryValue.of(value);
-        } else if(context.state_field_path_expression() != null) {
+        } else if (context.state_field_path_expression() != null) {
             var stateContext = context.state_field_path_expression();
             var stateContextText = stateContext.getText();
             try {
@@ -67,6 +75,16 @@ enum PrimaryFunction implements Function<JDQLParser.Primary_expressionContext, Q
                 return QueryPath.of(stateContextText);
             }
         }
-       throw new UnsupportedOperationException("The primary expression is not supported yet: " + context.getText());
+        throw new UnsupportedOperationException("The primary expression is not supported yet: " + context.getText());
+    }
+
+    private Object processScalar(JDQLParser.Scalar_expressionContext context) {
+        if (context.primary_expression() != null) {
+            return apply(context.primary_expression());
+        }
+        if (context.LPAREN() != null && context.scalar_expression().size() == 1) {
+            return processScalar(context.scalar_expression(0));
+        }
+        throw new UnsupportedOperationException("Arithmetic expressions in function arguments are not supported yet: " + context.getText());
     }
 }

@@ -8,6 +8,7 @@
  *  You may elect to redistribute this code under either of these licenses.
  *  Contributors:
  *  Otavio Santana
+ *  Matheus Oliveira
  */
 package org.eclipse.jnosql.communication.query.data;
 
@@ -183,11 +184,6 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
         DataArrayQueryValue value = new DataArrayQueryValue(values);
         checkCondition(new DefaultQueryCondition(name, contextCondition, value), hasNot);
         and = andCondition;
-    }
-
-    @Override
-    public void exitFunction_expression(JDQLParser.Function_expressionContext ctx) {
-        throw new UnsupportedOperationException("The function is not supported in the query: " + ctx.getText());
     }
 
     private Condition getCondition(JDQLParser.Comparison_expressionContext ctx) {

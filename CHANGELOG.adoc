@@ -25,6 +25,7 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 === Added
 
+- Add support for scalar function expressions (UPPER, LOWER, LEFT, RIGHT, LENGTH, ABS) in JDQL string queries
 - Include support to Restriction interface
 - Include support to record projector
 - Include Is annotation support to the Repository
