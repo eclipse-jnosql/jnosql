@@ -60,9 +60,7 @@ class AbstractAttributeFieldValueTest {
                 return "Ada";
             }
         };
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(fieldValue.isNotEmpty()).isFalse();
-        });
+        SoftAssertions.assertSoftly(soft -> soft.assertThat(fieldValue.isNotEmpty()).isFalse());
     }
 
     @Test
@@ -82,9 +80,7 @@ class AbstractAttributeFieldValueTest {
             }
         };
 
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(fieldValue.toString())
-                    .contains("fieldValue");
-        });
+        SoftAssertions.assertSoftly(soft -> soft.assertThat(fieldValue.toString())
+                .contains("fieldValue"));
     }
 }
