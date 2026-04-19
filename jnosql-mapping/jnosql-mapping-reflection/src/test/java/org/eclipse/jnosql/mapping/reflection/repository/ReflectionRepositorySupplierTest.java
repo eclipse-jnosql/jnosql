@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.reflection.repository;
 
 import jakarta.data.Sort;
-import jakarta.data.constraint.Constraint;
 import jakarta.data.constraint.GreaterThan;
 import jakarta.data.repository.Query;
 import org.assertj.core.api.Assertions;

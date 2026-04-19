@@ -18,7 +18,6 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 import jakarta.data.constraint.EqualTo;
 import jakarta.data.page.PageRequest;
 import jakarta.data.restrict.Restrict;
-import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;

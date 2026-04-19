@@ -24,7 +24,6 @@ import org.eclipse.jnosql.mapping.reflection.entities.ComputerView;
 import org.eclipse.jnosql.mapping.reflection.entities.Contact;
 import org.eclipse.jnosql.mapping.reflection.entities.Garage;
 import org.eclipse.jnosql.mapping.reflection.entities.Job;
-import org.eclipse.jnosql.mapping.reflection.entities.Library;
 import org.eclipse.jnosql.mapping.reflection.entities.MovieRepository;
 import org.eclipse.jnosql.mapping.reflection.entities.NoSQLVendor;
 import org.eclipse.jnosql.mapping.reflection.entities.PCView;
