@@ -53,7 +53,7 @@ INSTANCE;
             var attributeConverter = converters.get(fieldMetadata);
             return attributeConverter.convertToDatabaseColumn(literal.value());
         } else {
-            return Value.of(literal.value()).get(basicAttribute.attributeType());
+            return Value.of(literal.value()).get(basicAttribute.type());
         }
     }
 }
