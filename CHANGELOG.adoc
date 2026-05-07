@@ -46,6 +46,10 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 == [1.1.12] - 2026-01-05
 
+=== Fixed
+
+* avoid NPE on enum mapping
+
 == [1.1.11] - 2025-11-16
 
 === Added
