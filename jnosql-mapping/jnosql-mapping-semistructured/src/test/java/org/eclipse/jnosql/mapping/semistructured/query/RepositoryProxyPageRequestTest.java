@@ -707,7 +707,7 @@ public class RepositoryProxyPageRequestTest {
         when(template.<Person>selectCursor(any(SelectQuery.class),
                 any(PageRequest.class))).thenReturn(mock);
 
-        when(template.<Person>prepare(any(String.class),
+        when(template.prepare(any(String.class),
                 any(String.class))).thenReturn(prepare);
 
         CursoredPage<Person> page = personRepository.cursorJQDL("name",
