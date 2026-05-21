@@ -108,7 +108,7 @@ public final class RepositoryObserverParser {
 
         char[] chars = text.toCharArray();
         chars[0] = updatedChar;
-        return new String(chars, 0, chars.length);
+        return new String(chars);
     }
 
     public static RepositoryObserverParser of(EntityMetadata metadata) {
