@@ -101,7 +101,7 @@ public final class ValueUtil {
                     }
                 }
             }
-            return (List<Object>) items.stream().map(o -> getObject(o, valueWriter)).collect(toList());
+            return items.stream().map(o -> getObject(o, valueWriter)).collect(toList());
         }
         return Collections.singletonList(getObject(val, valueWriter));
     }
