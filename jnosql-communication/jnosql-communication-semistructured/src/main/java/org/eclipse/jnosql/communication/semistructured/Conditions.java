@@ -70,7 +70,6 @@ public final class Conditions {
                     .get()
                     .stream().map(v -> getCondition(v, parameters, observer, entity))
                     .findAny().orElseThrow());
-            default -> throw new UnsupportedOperationException("There is not support the type: " + condition.condition());
         };
     }
 
