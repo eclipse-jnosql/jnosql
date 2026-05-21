@@ -84,7 +84,7 @@ public class MapTypeReferenceReader implements TypeReferenceReader {
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             } else if (collection.stream().allMatch(Entry.class::isInstance)) {
                 Map<K, V> map = new HashMap<>();
-                collection.stream().forEach(e -> convertEntryToMap(e, map));
+                collection.forEach(e -> convertEntryToMap(e, map));
                 return map;
             }
         }
