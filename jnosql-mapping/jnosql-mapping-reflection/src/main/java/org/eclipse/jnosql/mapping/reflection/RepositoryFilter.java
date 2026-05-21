@@ -112,8 +112,7 @@ enum RepositoryFilter implements Predicate<Class<?>> {
      * @return The entity class if found
      */
     private Optional<Class<?>> getEntityFromMethods(Class<?> repository) {
-        Method[] methods = repository.getDeclaredMethods();
-        for (Method method : methods) {
+        for (Method method : repository.getDeclaredMethods()) {
             Optional<Class<?>> clazz = extractClass(method.getGenericReturnType());
             if (clazz.filter(c -> c.isAnnotationPresent(Entity.class)).isPresent()) { 
                 return clazz; 
