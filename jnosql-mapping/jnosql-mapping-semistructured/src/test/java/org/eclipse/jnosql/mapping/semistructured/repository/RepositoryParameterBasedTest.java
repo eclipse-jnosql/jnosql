@@ -209,7 +209,7 @@ public class RepositoryParameterBasedTest extends AbstractRepositoryTest {
     @Test
     @DisplayName("Should mapper by Select annotation")
     void shouldMapperBySelectAnnotation() {
-        var photoSocialMedia = PhotoSocialMedia.of("1", "The Lord of the Rings", "http://image.com/1");
+        var photoSocialMedia = PhotoSocialMedia.of("1", "The Lord of the Rings", "https://image.com/1");
 
         Mockito.when(template.select(Mockito.any(SelectQuery.class)))
                 .thenReturn(Stream.of(photoSocialMedia));
