@@ -163,7 +163,7 @@ public class RepositoryFindByTest extends AbstractRepositoryTest {
         Mockito.when(template.select(Mockito.any(SelectQuery.class)))
                 .thenReturn(Stream.of(socialMedia));
 
-        var result = photoSocialMediaRepository.findByNameAndPhotoId("Twitter", "http://twitter.com/jnosql");
+        var result = photoSocialMediaRepository.findByNameAndPhotoId("Twitter", "https://twitter.com/jnosql");
         Mockito.verify(template).select(selectQueryCaptor.capture());
         Assertions.assertThat(result).isNotNull().containsExactly(new SocialMediaSummary("1", "Twitter"));
 
