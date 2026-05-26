@@ -159,7 +159,7 @@ public class RepositoryFindByTest extends AbstractRepositoryTest {
     @Test
     @DisplayName("Should find using projection")
     void shouldFindUsingProjection() {
-        PhotoSocialMedia socialMedia = PhotoSocialMedia.of("1", "Twitter", "http://twitter.com/jnosql");
+        PhotoSocialMedia socialMedia = PhotoSocialMedia.of("1", "Twitter", "https://twitter.com/jnosql");
         Mockito.when(template.select(Mockito.any(SelectQuery.class)))
                 .thenReturn(Stream.of(socialMedia));
 
