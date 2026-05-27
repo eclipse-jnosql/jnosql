@@ -95,7 +95,15 @@ public class NoSQLPage<T> implements Page<T> {
     public PageRequest nextPageRequest() {
 
         if (hasTotals() && !hasNext()) {
-            throw new NoSuchElementException("No next page available");
+            throw new NoSuchElementException(
+                    String.format(
+                            "Unable to navigate to next page. " +
+                                    "Current page: %d, page size: %d, total pages: %d",
+                            this.pageRequest.page(),
+                            this.pageRequest.size(),
+                            totalPages()
+                    )
+            );
         }
         return PageRequest.ofPage(this.pageRequest.page() + 1, this.pageRequest.size(), this.pageRequest.requestTotal());
     }
@@ -103,7 +111,24 @@ public class NoSQLPage<T> implements Page<T> {
 
     @Override
     public PageRequest previousPageRequest() {
-        return PageRequest.ofPage(this.pageRequest.page() - 1, this.pageRequest.size(), this.pageRequest.requestTotal());
+        if (!hasPrevious()) {
+
+            throw new NoSuchElementException(
+                    String.format(
+                            "Unable to navigate to previous page. " +
+                                    "Current page: %d, page size: %d. " +
+                                    "Page numbers start at 1.",
+                            this.pageRequest.page(),
+                            this.pageRequest.size()
+                    )
+            );
+        }
+
+        return PageRequest.ofPage(
+                this.pageRequest.page() - 1,
+                this.pageRequest.size(),
+                this.pageRequest.requestTotal()
+        );
     }
 
 
