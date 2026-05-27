@@ -151,6 +151,14 @@ public class NoSQLPage<T> implements Page<T> {
         return new NoSQLPage<>(entities, pageRequest, LazyLongSupplier.of(totalSupplier));
     }
 
+    public static <T> Page<T> of(List<T> entities, PageRequest pageRequest) {
+        Objects.requireNonNull(entities, "entities is required");
+        Objects.requireNonNull(pageRequest, "pageRequest is required");
+        return new NoSQLPage<>(entities, pageRequest, LazyLongSupplier.of(() -> {
+            throw new UnsupportedOperationException("JNoSQL has no support for this feature yet");
+        }));
+    }
+
     /**
      * Create skip formula from pageRequest instance
      * @param pageRequest the pageRequest
