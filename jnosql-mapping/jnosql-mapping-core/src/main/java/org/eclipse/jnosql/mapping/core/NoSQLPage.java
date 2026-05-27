@@ -21,6 +21,7 @@ import jakarta.data.page.PageRequest;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
@@ -92,6 +93,10 @@ public class NoSQLPage<T> implements Page<T> {
 
     @Override
     public PageRequest nextPageRequest() {
+
+        if (hasTotals() && !hasNext()) {
+            throw new NoSuchElementException("No next page available");
+        }
         return PageRequest.ofPage(this.pageRequest.page() + 1, this.pageRequest.size(), this.pageRequest.requestTotal());
     }
 
