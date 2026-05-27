@@ -46,7 +46,7 @@ public class NoSQLPage<T> implements Page<T> {
 
     @Override
     public long totalElements() {
-        throw new UnsupportedOperationException("JNoSQL has no support for this feature yet");
+        return totalSupplier.getAsLong();
     }
 
     @Override
