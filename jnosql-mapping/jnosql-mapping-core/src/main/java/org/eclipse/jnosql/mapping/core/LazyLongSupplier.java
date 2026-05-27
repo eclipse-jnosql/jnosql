@@ -14,5 +14,31 @@
  */
 package org.eclipse.jnosql.mapping.core;
 
-public class LazyLongSupplier {
+import java.util.function.LongSupplier;
+
+final class LazyLongSupplier implements LongSupplier {
+
+    private final LongSupplier delegate;
+
+    private volatile boolean loaded;
+    private long value;
+
+    public LazyLongSupplier(LongSupplier delegate) {
+        this.delegate = delegate;
+    }
+
+    @Override
+    public long getAsLong() {
+
+        if (!loaded) {
+            synchronized (this) {
+                if (!loaded) {
+                    value = delegate.getAsLong();
+                    loaded = true;
+                }
+            }
+        }
+
+        return value;
+    }
 }
