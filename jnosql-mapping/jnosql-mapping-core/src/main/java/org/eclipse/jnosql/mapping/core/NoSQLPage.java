@@ -151,6 +151,20 @@ public class NoSQLPage<T> implements Page<T> {
         return new NoSQLPage<>(entities, pageRequest, LazyLongSupplier.of(totalSupplier));
     }
 
+    /**
+     * Creates a {@link Page} instance based on the provided entities and page request.
+     * The created page does not support total elements calculation and will throw
+     * an {@link UnsupportedOperationException} if an attempt is made to access total elements.
+     *
+     * @param <T> the type of entity in the page
+     * @param entities the list of entities to populate the page; must not be null
+     * @param pageRequest the pagination details, including page number and size; must not be null
+     * @return a {@link Page} containing the provided entities and pagination details
+     * @throws NullPointerException if entities or pageRequest is null
+     * @deprecated This method is deprecated and may be removed in future versions,
+     * as it does not support total elements computation for NoSQL databases.
+     */
+    @Deprecated
     public static <T> Page<T> of(List<T> entities, PageRequest pageRequest) {
         Objects.requireNonNull(entities, "entities is required");
         Objects.requireNonNull(pageRequest, "pageRequest is required");
