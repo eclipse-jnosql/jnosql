@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class NoSQLPageTest {
 
+
     @Nested
     @DisplayName("When creating a page")
     class WhenCreatePage {
@@ -67,7 +68,8 @@ class NoSQLPageTest {
 
             Page<Person> page = pageWithTotals(20L, 10);
 
-            assertThat(page.totalElements()).isEqualTo(20L);
+            assertThat(page.totalElements())
+                    .isEqualTo(20L);
         }
 
         @Test
@@ -81,8 +83,8 @@ class NoSQLPageTest {
         }
 
         @Test
-        @DisplayName("should execute total supplier only once")
-        void shouldExecuteTotalSupplierOnlyOnce() {
+        @DisplayName("should execute supplier only once")
+        void shouldExecuteSupplierOnlyOnce() {
 
             AtomicInteger counter = new AtomicInteger();
 
@@ -112,7 +114,8 @@ class NoSQLPageTest {
 
             Page<Person> page = pageWithTotals(25L, 10);
 
-            assertThat(page.totalPages()).isEqualTo(3L);
+            assertThat(page.totalPages())
+                    .isEqualTo(3L);
         }
 
         @Test
@@ -121,7 +124,8 @@ class NoSQLPageTest {
 
             Page<Person> page = pageWithTotals(21L, 10);
 
-            assertThat(page.totalPages()).isEqualTo(3L);
+            assertThat(page.totalPages())
+                    .isEqualTo(3L);
         }
 
         @Test
@@ -130,7 +134,8 @@ class NoSQLPageTest {
 
             Page<Person> page = pageWithTotals(0L, 10);
 
-            assertThat(page.totalPages()).isZero();
+            assertThat(page.totalPages())
+                    .isZero();
         }
 
         @Test
@@ -172,8 +177,8 @@ class NoSQLPageTest {
     class WhenCheckNextPage {
 
         @Test
-        @DisplayName("should return true when next page exists")
-        void shouldReturnTrueWhenNextPageExists() {
+        @DisplayName("should return true when totals indicate another page")
+        void shouldReturnTrueWhenTotalsIndicateAnotherPage() {
 
             Page<Person> page = NoSQLPage.of(
                     people(),
@@ -198,10 +203,25 @@ class NoSQLPageTest {
         }
 
         @Test
-        @DisplayName("should return false when totals are unsupported")
-        void shouldReturnFalseWhenTotalsAreUnsupported() {
+        @DisplayName("should use heuristic navigation when totals are unsupported")
+        void shouldUseHeuristicNavigationWhenTotalsAreUnsupported() {
 
-            Page<Person> page = unsupportedTotalsPage();
+            Page<Person> page = NoSQLPage.of(
+                    people(),
+                    PageRequest.ofPage(1).size(1)
+            );
+
+            assertThat(page.hasNext()).isTrue();
+        }
+
+        @Test
+        @DisplayName("should return false when page content is smaller than requested size")
+        void shouldReturnFalseWhenPageContentIsSmallerThanRequestedSize() {
+
+            Page<Person> page = NoSQLPage.of(
+                    people(),
+                    PageRequest.ofPage(1).size(10)
+            );
 
             assertThat(page.hasNext()).isFalse();
         }
@@ -235,8 +255,8 @@ class NoSQLPageTest {
     class WhenRequestNextPage {
 
         @Test
-        @DisplayName("should return next page request")
-        void shouldReturnNextPageRequest() {
+        @DisplayName("should return next page request when totals support navigation")
+        void shouldReturnNextPageRequestWhenTotalsSupportNavigation() {
 
             Page<Person> page = NoSQLPage.of(
                     people(),
@@ -253,8 +273,8 @@ class NoSQLPageTest {
         }
 
         @Test
-        @DisplayName("should throw exception when next page does not exist")
-        void shouldThrowExceptionWhenNextPageDoesNotExist() {
+        @DisplayName("should throw exception when totals indicate there is no next page")
+        void shouldThrowExceptionWhenTotalsIndicateThereIsNoNextPage() {
 
             Page<Person> page = NoSQLPage.of(
                     people(),
@@ -263,7 +283,23 @@ class NoSQLPageTest {
             );
 
             assertThatThrownBy(page::nextPageRequest)
-                    .isInstanceOf(NoSuchElementException.class);
+                    .isInstanceOf(NoSuchElementException.class)
+                    .hasMessageContaining("Current page: 3")
+                    .hasMessageContaining("total pages: 3");
+        }
+
+        @Test
+        @DisplayName("should allow exploratory navigation when totals are unsupported")
+        void shouldAllowExploratoryNavigationWhenTotalsAreUnsupported() {
+
+            Page<Person> page = NoSQLPage.of(
+                    people(),
+                    PageRequest.ofPage(1).size(1)
+            );
+
+            PageRequest next = page.nextPageRequest();
+
+            assertThat(next.page()).isEqualTo(2);
         }
     }
 
@@ -292,7 +328,9 @@ class NoSQLPageTest {
             Page<Person> page = page(1);
 
             assertThatThrownBy(page::previousPageRequest)
-                    .isInstanceOf(NoSuchElementException.class);
+                    .isInstanceOf(NoSuchElementException.class)
+                    .hasMessageContaining("Current page: 1")
+                    .hasMessageContaining("Page numbers start at 1");
         }
     }
 
@@ -335,8 +373,8 @@ class NoSQLPageTest {
         }
 
         @Test
-        @DisplayName("should return immutable content")
-        void shouldReturnImmutableContent() {
+        @DisplayName("should expose immutable content")
+        void shouldExposeImmutableContent() {
 
             Page<Person> page = page(1);
 
@@ -451,5 +489,4 @@ class NoSQLPageTest {
                 .withName("Otavio")
                 .build();
     }
-
 }
