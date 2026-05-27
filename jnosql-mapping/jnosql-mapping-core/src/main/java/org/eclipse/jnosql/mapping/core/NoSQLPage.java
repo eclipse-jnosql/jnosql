@@ -38,9 +38,10 @@ public class NoSQLPage<T> implements Page<T> {
 
     private final LongSupplier totalSupplier;
 
-    private NoSQLPage(List<T> entities, PageRequest pageRequest) {
+    private NoSQLPage(List<T> entities, PageRequest pageRequest, LongSupplier totalSupplier) {
         this.entities = entities;
         this.pageRequest = pageRequest;
+        this.totalSupplier = totalSupplier;
     }
 
     @Override
@@ -135,13 +136,14 @@ public class NoSQLPage<T> implements Page<T> {
      * Creates a {@link  Page} implementation from entities and a PageRequest
      * @param entities the entities
      * @param pageRequest the PageRequest
+     * @param totalSupplier the total supplier
      * @return a {@link Page} instance
      * @param <T> the entity type
      */
-    public static <T> Page<T> of(List<T> entities, PageRequest pageRequest) {
+    public static <T> Page<T> of(List<T> entities, PageRequest pageRequest, LongSupplier totalSupplier) {
         Objects.requireNonNull(entities, "entities is required");
         Objects.requireNonNull(pageRequest, "pageRequest is required");
-        return new NoSQLPage<>(entities, pageRequest);
+        return new NoSQLPage<>(entities, pageRequest, LazyLongSupplier.of(totalSupplier));
     }
 
     /**
