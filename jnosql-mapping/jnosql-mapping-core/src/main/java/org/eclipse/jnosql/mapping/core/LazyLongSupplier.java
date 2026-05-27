@@ -43,8 +43,6 @@ import java.util.function.LongSupplier;
  * // Cached value reused
  * long cached = supplier.getAsLong();
  * }</pre>
- *
- * @since 1.0
  */
 final class LazyLongSupplier implements LongSupplier {
 
