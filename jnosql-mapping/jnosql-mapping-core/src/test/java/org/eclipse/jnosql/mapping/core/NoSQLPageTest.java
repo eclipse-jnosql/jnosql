@@ -24,12 +24,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class NoSQLPageTest {
-
 
     @Nested
     @DisplayName("When creating a page")
@@ -56,10 +57,105 @@ class NoSQLPageTest {
         }
     }
 
-
     @Nested
     @DisplayName("When getting total elements")
     class WhenGetTotalElements {
+
+        @Test
+        @DisplayName("should return total elements")
+        void shouldReturnTotalElements() {
+
+            Page<Person> page = pageWithTotals(20L, 10);
+
+            assertThat(page.totalElements()).isEqualTo(20L);
+        }
+
+        @Test
+        @DisplayName("should throw exception when totals are unsupported")
+        void shouldThrowExceptionWhenTotalsAreUnsupported() {
+
+            Page<Person> page = unsupportedTotalsPage();
+
+            assertThatThrownBy(page::totalElements)
+                    .isInstanceOf(UnsupportedOperationException.class);
+        }
+
+        @Test
+        @DisplayName("should execute total supplier only once")
+        void shouldExecuteTotalSupplierOnlyOnce() {
+
+            AtomicInteger counter = new AtomicInteger();
+
+            Page<Person> page = NoSQLPage.of(
+                    people(),
+                    PageRequest.ofPage(1),
+                    () -> {
+                        counter.incrementAndGet();
+                        return 100L;
+                    }
+            );
+
+            page.totalElements();
+            page.totalElements();
+
+            assertThat(counter.get()).isEqualTo(1);
+        }
+    }
+
+    @Nested
+    @DisplayName("When getting total pages")
+    class WhenGetTotalPages {
+
+        @Test
+        @DisplayName("should calculate total pages")
+        void shouldCalculateTotalPages() {
+
+            Page<Person> page = pageWithTotals(25L, 10);
+
+            assertThat(page.totalPages()).isEqualTo(3L);
+        }
+
+        @Test
+        @DisplayName("should round total pages")
+        void shouldRoundTotalPages() {
+
+            Page<Person> page = pageWithTotals(21L, 10);
+
+            assertThat(page.totalPages()).isEqualTo(3L);
+        }
+
+        @Test
+        @DisplayName("should return zero when there are no elements")
+        void shouldReturnZeroWhenThereAreNoElements() {
+
+            Page<Person> page = pageWithTotals(0L, 10);
+
+            assertThat(page.totalPages()).isZero();
+        }
+
+        @Test
+        @DisplayName("should throw exception when totals are unsupported")
+        void shouldThrowExceptionWhenTotalsAreUnsupported() {
+
+            Page<Person> page = unsupportedTotalsPage();
+
+            assertThatThrownBy(page::totalPages)
+                    .isInstanceOf(UnsupportedOperationException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("When checking totals availability")
+    class WhenCheckTotalsAvailability {
+
+        @Test
+        @DisplayName("should return true when totals are supported")
+        void shouldReturnTrueWhenTotalsAreSupported() {
+
+            Page<Person> page = pageWithTotals(10L, 10);
+
+            assertThat(page.hasTotals()).isTrue();
+        }
 
         @Test
         @DisplayName("should return false when totals are unsupported")
@@ -69,44 +165,28 @@ class NoSQLPageTest {
 
             assertThat(page.hasTotals()).isFalse();
         }
-
-        @Test
-        @DisplayName("should throw exception when total elements are unsupported")
-        void shouldThrowExceptionWhenTotalElementsAreUnsupported() {
-
-            Page<Person> page = unsupportedTotalsPage();
-
-            assertThatThrownBy(page::totalElements)
-                    .isInstanceOf(UnsupportedOperationException.class);
-        }
-
-        @Test
-        @DisplayName("should calculate total pages")
-        void shouldCalculateTotalPages() {
-
-            Page<Person> page = pageWithTotals(25L, 10);
-
-            assertThat(page.totalPages())
-                    .isEqualTo(3);
-        }
     }
 
     @Nested
-    @DisplayName("Navigation")
-    class Navigation {
+    @DisplayName("When checking next page")
+    class WhenCheckNextPage {
 
         @Test
-        @DisplayName("should identify next page")
-        void shouldIdentifyNextPage() {
+        @DisplayName("should return true when next page exists")
+        void shouldReturnTrueWhenNextPageExists() {
 
-            Page<Person> page = pageWithTotals(30L, 10);
+            Page<Person> page = NoSQLPage.of(
+                    people(),
+                    PageRequest.ofPage(1).size(10),
+                    () -> 30L
+            );
 
             assertThat(page.hasNext()).isTrue();
         }
 
         @Test
-        @DisplayName("should identify last page")
-        void shouldIdentifyLastPage() {
+        @DisplayName("should return false when current page is the last page")
+        void shouldReturnFalseWhenCurrentPageIsTheLastPage() {
 
             Page<Person> page = NoSQLPage.of(
                     people(),
@@ -118,8 +198,22 @@ class NoSQLPageTest {
         }
 
         @Test
-        @DisplayName("should identify previous page")
-        void shouldIdentifyPreviousPage() {
+        @DisplayName("should return false when totals are unsupported")
+        void shouldReturnFalseWhenTotalsAreUnsupported() {
+
+            Page<Person> page = unsupportedTotalsPage();
+
+            assertThat(page.hasNext()).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("When checking previous page")
+    class WhenCheckPreviousPage {
+
+        @Test
+        @DisplayName("should return true when current page is greater than one")
+        void shouldReturnTrueWhenCurrentPageIsGreaterThanOne() {
 
             Page<Person> page = page(2);
 
@@ -127,49 +221,102 @@ class NoSQLPageTest {
         }
 
         @Test
-        @DisplayName("should identify first page")
-        void shouldIdentifyFirstPage() {
+        @DisplayName("should return false when current page is the first page")
+        void shouldReturnFalseWhenCurrentPageIsTheFirstPage() {
 
             Page<Person> page = page(1);
 
             assertThat(page.hasPrevious()).isFalse();
         }
+    }
+
+    @Nested
+    @DisplayName("When requesting next page")
+    class WhenRequestNextPage {
 
         @Test
-        @DisplayName("should navigate to next page")
-        void shouldNavigateToNextPage() {
+        @DisplayName("should return next page request")
+        void shouldReturnNextPageRequest() {
 
-            Page<Person> page = page(2);
+            Page<Person> page = NoSQLPage.of(
+                    people(),
+                    PageRequest.ofPage(1).size(10),
+                    () -> 30L
+            );
 
             PageRequest next = page.nextPageRequest();
 
-            assertThat(next.page()).isEqualTo(3);
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(next.page()).isEqualTo(2);
+                softly.assertThat(next.size()).isEqualTo(10);
+            });
         }
 
         @Test
-        @DisplayName("should navigate to previous page")
-        void shouldNavigateToPreviousPage() {
+        @DisplayName("should throw exception when next page does not exist")
+        void shouldThrowExceptionWhenNextPageDoesNotExist() {
+
+            Page<Person> page = NoSQLPage.of(
+                    people(),
+                    PageRequest.ofPage(3).size(10),
+                    () -> 30L
+            );
+
+            assertThatThrownBy(page::nextPageRequest)
+                    .isInstanceOf(NoSuchElementException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("When requesting previous page")
+    class WhenRequestPreviousPage {
+
+        @Test
+        @DisplayName("should return previous page request")
+        void shouldReturnPreviousPageRequest() {
 
             Page<Person> page = page(2);
 
             PageRequest previous = page.previousPageRequest();
 
-            assertThat(previous.page()).isEqualTo(1);
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(previous.page()).isEqualTo(1);
+                softly.assertThat(previous.size()).isEqualTo(10);
+            });
+        }
+
+        @Test
+        @DisplayName("should throw exception when previous page does not exist")
+        void shouldThrowExceptionWhenPreviousPageDoesNotExist() {
+
+            Page<Person> page = page(1);
+
+            assertThatThrownBy(page::previousPageRequest)
+                    .isInstanceOf(NoSuchElementException.class);
         }
     }
 
     @Nested
-    @DisplayName("Content")
-    class Content {
+    @DisplayName("When reading content")
+    class WhenReadContent {
 
         @Test
-        @DisplayName("should contain entities")
-        void shouldContainEntities() {
+        @DisplayName("should return content")
+        void shouldReturnContent() {
+
+            Page<Person> page = page(1);
+
+            assertThat(page.content())
+                    .hasSize(1);
+        }
+
+        @Test
+        @DisplayName("should identify content existence")
+        void shouldIdentifyContentExistence() {
 
             Page<Person> page = page(1);
 
             assertThat(page.hasContent()).isTrue();
-            assertThat(page.numberOfElements()).isEqualTo(1);
         }
 
         @Test
@@ -181,24 +328,70 @@ class NoSQLPageTest {
                     PageRequest.ofPage(1)
             );
 
-            assertThat(page.hasContent()).isFalse();
-            assertThat(page.numberOfElements()).isZero();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(page.hasContent()).isFalse();
+                softly.assertThat(page.numberOfElements()).isZero();
+            });
         }
 
         @Test
-        @DisplayName("should expose immutable content")
-        void shouldExposeImmutableContent() {
+        @DisplayName("should return immutable content")
+        void shouldReturnImmutableContent() {
 
             Page<Person> page = page(1);
 
-            assertThatThrownBy(() -> page.content().add(person()))
+            assertThatThrownBy(() ->
+                    page.content().add(person()))
                     .isInstanceOf(UnsupportedOperationException.class);
+        }
+
+        @Test
+        @DisplayName("should expose iterator")
+        void shouldExposeIterator() {
+
+            Page<Person> page = page(1);
+
+            assertThat(page.iterator()).isNotNull();
         }
     }
 
     @Nested
-    @DisplayName("Identity")
-    class Identity {
+    @DisplayName("When calculating skip")
+    class WhenCalculateSkip {
+
+        @Test
+        @DisplayName("should calculate skip")
+        void shouldCalculateSkip() {
+
+            long skip = NoSQLPage.skip(
+                    PageRequest.ofPage(2).size(10));
+
+            assertThat(skip).isEqualTo(10);
+        }
+
+        @Test
+        @DisplayName("should calculate zero for first page")
+        void shouldCalculateZeroForFirstPage() {
+
+            long skip = NoSQLPage.skip(
+                    PageRequest.ofPage(1).size(10));
+
+            assertThat(skip).isZero();
+        }
+
+        @Test
+        @DisplayName("should reject null page request")
+        void shouldRejectNullPageRequest() {
+
+            assertThatThrownBy(() -> NoSQLPage.skip(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("pageRequest is required");
+        }
+    }
+
+    @Nested
+    @DisplayName("When comparing pages")
+    class WhenComparePages {
 
         @Test
         @DisplayName("should implement equals and hashcode")
@@ -221,30 +414,6 @@ class NoSQLPageTest {
             Page<Person> page = page(1);
 
             assertThat(page.toString()).isNotBlank();
-        }
-    }
-
-    @Nested
-    @DisplayName("Skip")
-    class Skip {
-
-        @Test
-        @DisplayName("should calculate skip")
-        void shouldCalculateSkip() {
-
-            long skip = NoSQLPage.skip(
-                    PageRequest.ofPage(2).size(10));
-
-            assertThat(skip).isEqualTo(10);
-        }
-
-        @Test
-        @DisplayName("should reject null page request")
-        void shouldRejectNullPageRequest() {
-
-            assertThatThrownBy(() -> NoSQLPage.skip(null))
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessage("pageRequest is required");
         }
     }
 
