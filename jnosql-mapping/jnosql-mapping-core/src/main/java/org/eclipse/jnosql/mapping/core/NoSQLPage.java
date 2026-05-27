@@ -99,7 +99,12 @@ public class NoSQLPage<T> implements Page<T> {
 
     @Override
     public boolean hasTotals() {
-        throw new UnsupportedOperationException("Eclipse JNoSQL has no support for this feature hasTotals");
+        try {
+            totalSupplier.getAsLong();
+            return true;
+        } catch (UnsupportedOperationException exception) {
+            return false;
+        }
     }
 
     @Override
