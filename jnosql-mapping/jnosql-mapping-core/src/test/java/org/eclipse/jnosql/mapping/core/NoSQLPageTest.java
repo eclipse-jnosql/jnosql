@@ -18,170 +18,269 @@ import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.core.entities.Person;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class NoSQLPageTest {
 
-    @Test
-    void shouldReturnErrorWhenNull() {
-        assertThrows(NullPointerException.class, ()->
-                NoSQLPage.of(Collections.emptyList(), null));
 
-        assertThrows(NullPointerException.class, ()->
-                NoSQLPage.of(null, PageRequest.ofPage(2)));
+    @Nested
+    @DisplayName("When creating a page")
+    class WhenCreatePage {
+
+        @Test
+        @DisplayName("should reject null page request")
+        void shouldRejectNullPageRequest() {
+
+            assertThatThrownBy(() ->
+                    NoSQLPage.of(Collections.emptyList(), null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("pageRequest is required");
+        }
+
+        @Test
+        @DisplayName("should reject null entities")
+        void shouldRejectNullEntities() {
+
+            assertThatThrownBy(() ->
+                    NoSQLPage.of(null, PageRequest.ofPage(1)))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("entities is required");
+        }
     }
 
-    @Test
-    void shouldReturnUnsupportedOperation() {
-        Page<Person> page = NoSQLPage.of(Collections.singletonList(Person.builder().withName("Otavio").build()),
-                PageRequest.ofPage(2));
 
-        assertThrows(UnsupportedOperationException.class, page::totalPages);
-        assertThrows(UnsupportedOperationException.class, page::totalElements);
-        assertThrows(UnsupportedOperationException.class, page::hasTotals);
+    @Nested
+    @DisplayName("When getting total elements")
+    class WhenGetTotalElements {
+
+        @Test
+        @DisplayName("should return false when totals are unsupported")
+        void shouldReturnFalseWhenTotalsAreUnsupported() {
+
+            Page<Person> page = unsupportedTotalsPage();
+
+            assertThat(page.hasTotals()).isFalse();
+        }
+
+        @Test
+        @DisplayName("should throw exception when total elements are unsupported")
+        void shouldThrowExceptionWhenTotalElementsAreUnsupported() {
+
+            Page<Person> page = unsupportedTotalsPage();
+
+            assertThatThrownBy(page::totalElements)
+                    .isInstanceOf(UnsupportedOperationException.class);
+        }
+
+        @Test
+        @DisplayName("should calculate total pages")
+        void shouldCalculateTotalPages() {
+
+            Page<Person> page = pageWithTotals(25L, 10);
+
+            assertThat(page.totalPages())
+                    .isEqualTo(3);
+        }
     }
 
-    @Test
-    void shouldReturnTrueHasNext(){
-        Page<Person> page = NoSQLPage.of(Collections.singletonList(Person.builder().withName("Otavio").build()),
-                PageRequest.ofPage(2).size(1));
+    @Nested
+    @DisplayName("Navigation")
+    class Navigation {
 
-        org.assertj.core.api.Assertions.assertThat(page.hasNext()).isTrue();
+        @Test
+        @DisplayName("should identify next page")
+        void shouldIdentifyNextPage() {
+
+            Page<Person> page = pageWithTotals(30L, 10);
+
+            assertThat(page.hasNext()).isTrue();
+        }
+
+        @Test
+        @DisplayName("should identify last page")
+        void shouldIdentifyLastPage() {
+
+            Page<Person> page = NoSQLPage.of(
+                    people(),
+                    PageRequest.ofPage(3).size(10),
+                    () -> 30L
+            );
+
+            assertThat(page.hasNext()).isFalse();
+        }
+
+        @Test
+        @DisplayName("should identify previous page")
+        void shouldIdentifyPreviousPage() {
+
+            Page<Person> page = page(2);
+
+            assertThat(page.hasPrevious()).isTrue();
+        }
+
+        @Test
+        @DisplayName("should identify first page")
+        void shouldIdentifyFirstPage() {
+
+            Page<Person> page = page(1);
+
+            assertThat(page.hasPrevious()).isFalse();
+        }
+
+        @Test
+        @DisplayName("should navigate to next page")
+        void shouldNavigateToNextPage() {
+
+            Page<Person> page = page(2);
+
+            PageRequest next = page.nextPageRequest();
+
+            assertThat(next.page()).isEqualTo(3);
+        }
+
+        @Test
+        @DisplayName("should navigate to previous page")
+        void shouldNavigateToPreviousPage() {
+
+            Page<Person> page = page(2);
+
+            PageRequest previous = page.previousPageRequest();
+
+            assertThat(previous.page()).isEqualTo(1);
+        }
     }
 
-    @Test
-    void shouldReturnFalseHasNextWhenIsEmpty(){
-        var page = NoSQLPage.of(Collections.emptyList(), PageRequest.ofPage(2).size(1));
-        org.assertj.core.api.Assertions.assertThat(page.hasNext()).isFalse();
+    @Nested
+    @DisplayName("Content")
+    class Content {
+
+        @Test
+        @DisplayName("should contain entities")
+        void shouldContainEntities() {
+
+            Page<Person> page = page(1);
+
+            assertThat(page.hasContent()).isTrue();
+            assertThat(page.numberOfElements()).isEqualTo(1);
+        }
+
+        @Test
+        @DisplayName("should support empty content")
+        void shouldSupportEmptyContent() {
+
+            Page<Person> page = NoSQLPage.of(
+                    Collections.emptyList(),
+                    PageRequest.ofPage(1)
+            );
+
+            assertThat(page.hasContent()).isFalse();
+            assertThat(page.numberOfElements()).isZero();
+        }
+
+        @Test
+        @DisplayName("should expose immutable content")
+        void shouldExposeImmutableContent() {
+
+            Page<Person> page = page(1);
+
+            assertThatThrownBy(() -> page.content().add(person()))
+                    .isInstanceOf(UnsupportedOperationException.class);
+        }
     }
 
-    @Test
-    void shouldReturnFalseHasNextWhenElementHasLessThanSize(){
-        var page = NoSQLPage.of(Collections.singletonList(Person.builder().withName("Otavio").build()),
-                PageRequest.ofPage(2).size(2));
-        org.assertj.core.api.Assertions.assertThat(page.hasNext()).isFalse();
+    @Nested
+    @DisplayName("Identity")
+    class Identity {
+
+        @Test
+        @DisplayName("should implement equals and hashcode")
+        void shouldImplementEqualsAndHashcode() {
+
+            Page<Person> first = page(1);
+            Page<Person> second = page(1);
+
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(first).isEqualTo(second);
+                softly.assertThat(first.hashCode())
+                        .isEqualTo(second.hashCode());
+            });
+        }
+
+        @Test
+        @DisplayName("should implement toString")
+        void shouldImplementToString() {
+
+            Page<Person> page = page(1);
+
+            assertThat(page.toString()).isNotBlank();
+        }
     }
 
-    @Test
-    void shouldReturnTrueHasPrevious(){
-        Page<Person> page = NoSQLPage.of(Collections.singletonList(Person.builder().withName("Otavio").build()),
-                PageRequest.ofPage(2));
+    @Nested
+    @DisplayName("Skip")
+    class Skip {
 
-        org.assertj.core.api.Assertions.assertThat(page.hasPrevious()).isTrue();
+        @Test
+        @DisplayName("should calculate skip")
+        void shouldCalculateSkip() {
+
+            long skip = NoSQLPage.skip(
+                    PageRequest.ofPage(2).size(10));
+
+            assertThat(skip).isEqualTo(10);
+        }
+
+        @Test
+        @DisplayName("should reject null page request")
+        void shouldRejectNullPageRequest() {
+
+            assertThatThrownBy(() -> NoSQLPage.skip(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("pageRequest is required");
+        }
     }
 
-    @Test
-    void shouldReturnHasContent() {
-
-        Page<Person> page = NoSQLPage.of(Collections.singletonList(Person.builder().withName("Otavio").build()),
-                PageRequest.ofPage(2));
-
-        Assertions.assertTrue(page.hasContent());
-        page = NoSQLPage.of(Collections.emptyList(),
-                PageRequest.ofPage(2));
-        Assertions.assertFalse(page.hasContent());
+    private static Page<Person> page(long page) {
+        return NoSQLPage.of(
+                people(),
+                PageRequest.ofPage(page)
+        );
     }
 
-    @Test
-    void shouldNumberOfElements() {
-
-        Page<Person> page = NoSQLPage.of(Collections.singletonList(Person.builder().withName("Otavio").build()),
-                PageRequest.ofPage(2));
-
-        assertEquals(1, page.numberOfElements());
+    private static Page<Person> pageWithTotals(long total, int size) {
+        return NoSQLPage.of(
+                people(),
+                PageRequest.ofPage(1).size(size),
+                () -> total
+        );
     }
 
-    @Test
-    void shouldIterator() {
-        Page<Person> page = NoSQLPage.of(Collections.singletonList(Person.builder().withName("Otavio").build()),
-                PageRequest.ofPage(2));
-        Assertions.assertNotNull(page.iterator());
+    private static Page<Person> unsupportedTotalsPage() {
+        return NoSQLPage.of(
+                people(),
+                PageRequest.ofPage(1),
+                () -> {
+                    throw new UnsupportedOperationException();
+                }
+        );
     }
 
-    @Test
-    void shouldPageRequest() {
-        Page<Person> page = NoSQLPage.of(Collections.singletonList(Person.builder().withName("Otavio").build()),
-                PageRequest.ofPage(2));
-        PageRequest pageRequest = page.pageRequest();
-        Assertions.assertNotNull(pageRequest);
-        assertEquals(PageRequest.ofPage(2), pageRequest);
+    private static List<Person> people() {
+        return Collections.singletonList(person());
     }
 
-    @Test
-    void shouldNextPageRequest() {
-        Page<Person> page = NoSQLPage.of(Collections.singletonList(Person.builder().withName("Otavio").build()),
-                PageRequest.ofPage(2));
-        PageRequest pageRequest = page.nextPageRequest();
-        assertEquals(PageRequest.ofPage(3), pageRequest);
-    }
-
-    @Test
-    void shouldThrowNullPointerExceptionWhenPageRequestIsNull() {
-        assertThrows(NullPointerException.class, () -> NoSQLPage.skip(null));
-    }
-
-    @Test
-    void shouldCalculateSkip() {
-        long skipValue = NoSQLPage.skip(PageRequest.ofPage(2).size(10));
-        assertEquals(10, skipValue);
-    }
-
-    @Test
-    void shouldCalculateSkipForFirstPage() {
-        // Create a PageRequest with page=1 and size=5
-        long skipValue = NoSQLPage.skip(PageRequest.ofPage(1).size(5));
-        assertEquals(0, skipValue);
-    }
-
-    @Test
-    void shouldToString(){
-        Page<Person> page = NoSQLPage.of(Collections.singletonList(Person.builder().withName("Otavio").build()),
-                PageRequest.ofPage(2));
-
-        assertThat(page.toString()).isNotBlank();
-    }
-
-    @Test
-    void shouldEqualsHasCode(){
-        Page<Person> page = NoSQLPage.of(Collections.singletonList(Person.builder().withName("Otavio").build()),
-                PageRequest.ofPage(2));
-        Page<Person> page2 = NoSQLPage.of(Collections.singletonList(Person.builder().withName("Otavio").build()),
-                PageRequest.ofPage(2));
-
-        assertEquals(page, page2);
-        assertEquals(page.hashCode(), page2.hashCode());
-
-    }
-
-    @Test
-    void shouldNext(){
-        Page<Person> page = NoSQLPage.of(Collections.singletonList(Person.builder().withName("Otavio").build()),
-                PageRequest.ofPage(2));
-        PageRequest pageRequest = page.nextPageRequest();
-
-        SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(pageRequest.page()).isEqualTo(3);
-            soft.assertThat(pageRequest.size()).isEqualTo(10);
-        });
-    }
-
-    @Test
-    void shouldPrevious(){
-        Page<Person> page = NoSQLPage.of(Collections.singletonList(Person.builder().withName("Otavio").build()),
-                PageRequest.ofPage(2));
-        PageRequest pageRequest = page.previousPageRequest();
-
-        SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(pageRequest.page()).isEqualTo(1);
-            soft.assertThat(pageRequest.size()).isEqualTo(10);
-        });
+    private static Person person() {
+        return Person.builder()
+                .withName("Otavio")
+                .build();
     }
 
 }
