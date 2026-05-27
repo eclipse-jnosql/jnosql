@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.LongSupplier;
+import java.util.function.Supplier;
 
 /**
  * A JNoSQL implementation of {@link  Page}
@@ -33,6 +35,8 @@ public class NoSQLPage<T> implements Page<T> {
     private final List<T> entities;
 
     private final PageRequest pageRequest;
+
+    private final LongSupplier totalSupplier;
 
     private NoSQLPage(List<T> entities, PageRequest pageRequest) {
         this.entities = entities;
