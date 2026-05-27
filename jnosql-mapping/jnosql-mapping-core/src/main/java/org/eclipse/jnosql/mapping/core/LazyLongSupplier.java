@@ -49,7 +49,10 @@ final class LazyLongSupplier implements LongSupplier {
     private final LongSupplier delegate;
 
     private volatile boolean loaded;
+
     private long value;
+
+    private RuntimeException failure;
 
     private LazyLongSupplier(LongSupplier delegate) {
         this.delegate = delegate;
@@ -61,10 +64,19 @@ final class LazyLongSupplier implements LongSupplier {
         if (!loaded) {
             synchronized (this) {
                 if (!loaded) {
-                    value = delegate.getAsLong();
-                    loaded = true;
+                    try {
+                        value = delegate.getAsLong();
+                    } catch (RuntimeException exception) {
+                        failure = exception;
+                    } finally {
+                        loaded = true;
+                    }
                 }
             }
+        }
+
+        if (failure != null) {
+            throw failure;
         }
 
         return value;
