@@ -70,7 +70,7 @@ class LazyLongSupplierTest {
                 return 10L;
             };
 
-            new LazyLongSupplier(delegate);
+            LazyLongSupplier.of(delegate);
 
             // then
             assertThat(counter.get()).isZero();
@@ -88,7 +88,7 @@ class LazyLongSupplierTest {
                 return counter.get();
             };
 
-            LazyLongSupplier supplier = new LazyLongSupplier(delegate);
+            LazyLongSupplier supplier = LazyLongSupplier.of(delegate);
 
             // when
             long first = supplier.getAsLong();
@@ -118,7 +118,7 @@ class LazyLongSupplierTest {
                 return 99L;
             };
 
-            LazyLongSupplier supplier = new LazyLongSupplier(delegate);
+            LazyLongSupplier supplier = LazyLongSupplier.of(delegate);
 
             var executor = Executors.newFixedThreadPool(10);
             CountDownLatch latch = new CountDownLatch(1);
