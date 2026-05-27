@@ -16,6 +16,36 @@ package org.eclipse.jnosql.mapping.core;
 
 import java.util.function.LongSupplier;
 
+
+/**
+ * A {@link LongSupplier} implementation that lazily computes a {@code long}
+ * value once and caches the result for subsequent accesses.
+ *
+ * <p>The wrapped supplier is only invoked during the first call to
+ * {@link #getAsLong()}. After the value is computed, the cached value is
+ * returned for all future invocations.</p>
+ *
+ * <p>This implementation is thread-safe and guarantees that the delegate
+ * supplier is executed at most once.</p>
+ *
+ * <p>This utility is useful for expensive operations such as database
+ * aggregation queries, count operations, or remote service calls that should
+ * be deferred until explicitly needed.</p>
+ *
+ * <pre>{@code
+ * LongSupplier supplier = new LazyLongSupplier(
+ *         () -> repository.count()
+ * );
+ *
+ * // Count query executes here
+ * long total = supplier.getAsLong();
+ *
+ * // Cached value reused
+ * long cached = supplier.getAsLong();
+ * }</pre>
+ *
+ * @since 1.0
+ */
 final class LazyLongSupplier implements LongSupplier {
 
     private final LongSupplier delegate;
@@ -23,7 +53,7 @@ final class LazyLongSupplier implements LongSupplier {
     private volatile boolean loaded;
     private long value;
 
-    public LazyLongSupplier(LongSupplier delegate) {
+    private LazyLongSupplier(LongSupplier delegate) {
         this.delegate = delegate;
     }
 
@@ -40,5 +70,9 @@ final class LazyLongSupplier implements LongSupplier {
         }
 
         return value;
+    }
+
+    static LongSupplier of(LongSupplier delegate) {
+        return new LazyLongSupplier(delegate);
     }
 }
