@@ -70,7 +70,7 @@ final class LazyLongSupplier implements LongSupplier {
         return value;
     }
 
-    static LongSupplier of(LongSupplier delegate) {
+    static LazyLongSupplier of(LongSupplier delegate) {
         return new LazyLongSupplier(delegate);
     }
 }
