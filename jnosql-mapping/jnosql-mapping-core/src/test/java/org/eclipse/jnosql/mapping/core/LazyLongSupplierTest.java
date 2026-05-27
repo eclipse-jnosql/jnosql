@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.LongSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
 class LazyLongSupplierTest {
 
@@ -139,6 +140,124 @@ class LazyLongSupplierTest {
             // then
             for (Future<Long> future : futures) {
                 assertThat(future.get()).isEqualTo(99L);
+            }
+
+            assertThat(counter.get()).isEqualTo(1);
+
+            executor.shutdown();
+        }
+    }
+
+    @Nested
+    @DisplayName("error handling")
+    class ErrorHandling {
+
+        @Test
+        @DisplayName("should cache unsupported operation exception")
+        void shouldCacheUnsupportedOperationException() {
+
+            // given
+            AtomicInteger counter = new AtomicInteger();
+
+            LongSupplier delegate = () -> {
+                counter.incrementAndGet();
+                throw new UnsupportedOperationException("Totals are not supported");
+            };
+
+            LazyLongSupplier supplier = (LazyLongSupplier)
+                    LazyLongSupplier.of(delegate);
+
+            // when
+            Throwable first = catchThrowable(supplier::getAsLong);
+            Throwable second = catchThrowable(supplier::getAsLong);
+
+            // then
+            assertThat(first)
+                    .isInstanceOf(UnsupportedOperationException.class)
+                    .hasMessage("Totals are not supported");
+
+            assertThat(second)
+                    .isInstanceOf(UnsupportedOperationException.class)
+                    .hasMessage("Totals are not supported");
+
+            assertThat(counter.get()).isEqualTo(1);
+        }
+
+        @Test
+        @DisplayName("should cache runtime exception")
+        void shouldCacheRuntimeException() {
+
+            // given
+            AtomicInteger counter = new AtomicInteger();
+
+            LongSupplier delegate = () -> {
+                counter.incrementAndGet();
+                throw new IllegalStateException("Database failure");
+            };
+
+            LazyLongSupplier supplier = (LazyLongSupplier)
+                    LazyLongSupplier.of(delegate);
+
+            // when
+            Throwable first = catchThrowable(supplier::getAsLong);
+            Throwable second = catchThrowable(supplier::getAsLong);
+
+            // then
+            assertThat(first)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Database failure");
+
+            assertThat(second)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Database failure");
+
+            assertThat(counter.get()).isEqualTo(1);
+        }
+
+        @Test
+        @DisplayName("should execute supplier only once when exception happens concurrently")
+        void shouldExecuteSupplierOnlyOnceWhenExceptionHappensConcurrently() throws Exception {
+
+            // given
+            AtomicInteger counter = new AtomicInteger();
+
+            LongSupplier delegate = () -> {
+                counter.incrementAndGet();
+
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ignored) {
+                }
+
+                throw new UnsupportedOperationException("Totals unsupported");
+            };
+
+            LazyLongSupplier supplier = (LazyLongSupplier)
+                    LazyLongSupplier.of(delegate);
+
+            var executor = Executors.newFixedThreadPool(10);
+
+            CountDownLatch latch = new CountDownLatch(1);
+
+            Future<Throwable>[] futures = new Future[10];
+
+            // when
+            for (int index = 0; index < futures.length; index++) {
+
+                futures[index] = executor.submit(() -> {
+                    latch.await();
+                    return catchThrowable(supplier::getAsLong);
+                });
+            }
+
+            latch.countDown();
+
+            // then
+            for (Future<Throwable> future : futures) {
+
+                assertThat(future.get())
+                        .isInstanceOf(UnsupportedOperationException.class)
+                        .hasMessage("Totals unsupported");
             }
 
             assertThat(counter.get()).isEqualTo(1);
