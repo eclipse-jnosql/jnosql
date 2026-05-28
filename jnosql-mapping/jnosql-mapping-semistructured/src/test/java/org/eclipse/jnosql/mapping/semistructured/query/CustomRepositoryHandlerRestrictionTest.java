@@ -111,6 +111,8 @@ class CustomRepositoryHandlerRestrictionTest {
         when(template.select(any(SelectQuery.class)))
                 .thenReturn(Stream.of(new Product()));
 
+        when(template.count(any(SelectQuery.class))).thenReturn(19L);
+
         Page<Product> products = repository.restriction(_Product.name.equalTo("Mac"), PageRequest.ofSize(2));
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
