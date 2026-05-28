@@ -42,7 +42,11 @@ class NoSQLPageTest {
         void shouldRejectNullPageRequest() {
 
             assertThatThrownBy(() ->
-                    NoSQLPage.of(Collections.emptyList(), null))
+                    NoSQLPage.of(Collections.emptyList(), null,
+                            () -> {
+                                throw new UnsupportedOperationException(
+                                        "JNoSQL has no support for this feature yet");
+                            }))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("pageRequest is required");
         }
@@ -52,7 +56,7 @@ class NoSQLPageTest {
         void shouldRejectNullEntities() {
 
             assertThatThrownBy(() ->
-                    NoSQLPage.of(null, PageRequest.ofPage(1)))
+                    NoSQLPage.of(null, PageRequest.ofPage(1), () -> 10))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("entities is required");
         }
@@ -224,7 +228,11 @@ class NoSQLPageTest {
 
             Page<Person> page = NoSQLPage.of(
                     people(),
-                    PageRequest.ofPage(1).size(10)
+                    PageRequest.ofPage(1).size(10),
+                    () -> {
+                        throw new UnsupportedOperationException(
+                                "JNoSQL has no support for this feature yet");
+                    }
             );
 
             assertThat(page.hasNext()).isFalse();
@@ -298,7 +306,11 @@ class NoSQLPageTest {
 
             Page<Person> page = NoSQLPage.of(
                     people(),
-                    PageRequest.ofPage(1).size(1)
+                    PageRequest.ofPage(1).size(1),
+                    () -> {
+                        throw new UnsupportedOperationException(
+                                "JNoSQL has no support for this feature yet");
+                    }
             );
 
             PageRequest next = page.nextPageRequest();
@@ -367,7 +379,11 @@ class NoSQLPageTest {
 
             Page<Person> page = NoSQLPage.of(
                     Collections.emptyList(),
-                    PageRequest.ofPage(1)
+                    PageRequest.ofPage(1),
+                    () -> {
+                    throw new UnsupportedOperationException(
+                            "JNoSQL has no support for this feature yet");
+                    }
             );
 
             SoftAssertions.assertSoftly(softly -> {
