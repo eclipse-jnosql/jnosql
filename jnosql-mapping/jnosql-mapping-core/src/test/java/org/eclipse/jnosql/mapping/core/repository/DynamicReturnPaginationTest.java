@@ -34,7 +34,9 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -51,7 +53,7 @@ class DynamicReturnPaginationTest {
     private Function<PageRequest, Optional<Person>> singlePagination;
 
     @Mock
-    private Function<PageRequest, Page<Person>> page;
+    private BiFunction<PageRequest, LongSupplier, Page<Person>> page;
 
     @SuppressWarnings("unchecked")
     @Test
@@ -456,6 +458,7 @@ class DynamicReturnPaginationTest {
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
         PageRequest pageRequest = getPagination();
+        LongSupplier supplier = () -> 1L;
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
                 .returnType(method.getReturnType())
@@ -466,12 +469,13 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(supplier)
                 .build();
 
         dynamicReturn.execute();
         Mockito.verify(singlePagination, Mockito.never()).apply(pageRequest);
         Mockito.verify(streamPagination, Mockito.never()).apply(pageRequest);
-        Mockito.verify(page).apply(pageRequest);
+        Mockito.verify(page).apply(pageRequest, supplier);
     }
 
     private Method method(Class<?> repository, String methodName) throws NoSuchMethodException {
