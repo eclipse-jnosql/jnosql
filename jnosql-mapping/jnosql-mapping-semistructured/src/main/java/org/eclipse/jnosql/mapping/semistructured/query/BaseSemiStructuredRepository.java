@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -258,7 +259,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
     protected Function<PageRequest, Page<T>> getPage(SelectQuery query, Method method) {
         return p -> {
             Stream<T> entities = template().select(query).map(mapper(method));
-            return NoSQLPage.of(entities.toList(), p);
+            return NoSQLPage.of(entities.toList(), p, () -> this.template().count(query));
         };
     }
 
