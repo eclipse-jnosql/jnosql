@@ -82,6 +82,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
                 .typeClass(type)
                 .pageRequest(pageRequest)
                 .mapper(mapper(method))
+                .totalSupplier(() -> template().count(entity))
                 .prepareConverter(textQuery -> {
                     var prepare = (org.eclipse.jnosql.mapping.semistructured.PreparedStatement) template().prepare(textQuery, entity);
                     List<Sort<?>> sortsFromAnnotation = getSorts(method, entityMetadata());
