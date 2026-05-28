@@ -50,11 +50,13 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
 
     private final Function<PageRequest, Stream<T>> streamPagination;
 
-    private final Function<PageRequest, Page<T>> page;
+    private final BiFunction<PageRequest, LongSupplier, Page<T>> page;
 
     private final String methodName;
 
     private final Class<?> returnType;
+
+    private final LongSupplier totalSupplier;
 
     /**
      * A predicate to check it the object is instance of {@link PageRequest}
@@ -140,9 +142,10 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
                           Supplier<Stream<T>> result, PageRequest pageRequest,
                           Function<PageRequest, Optional<T>> singleResultPagination,
                           Function<PageRequest, Stream<T>> streamPagination,
-                          Function<PageRequest, Page<T>> page,
+                          BiFunction<PageRequest, LongSupplier, Page<T>> page,
                           String methodName,
-                          Class<?> returnType) {
+                          Class<?> returnType,
+                          LongSupplier totalSupplier) {
         this.classSource = classSource;
         this.singleResult = singleResult;
         this.result = result;
@@ -152,6 +155,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
         this.page = page;
         this.methodName = methodName;
         this.returnType = returnType;
+        this.totalSupplier = totalSupplier;
     }
 
     /**
@@ -206,7 +210,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
      * @return the page
      */
     public Page<T> getPage() {
-        return page.apply(pageRequest);
+        return page.apply(pageRequest, totalSupplier);
     }
 
     /**
@@ -251,6 +255,8 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
         private String methodName;
 
         private Class<?> returnType;
+
+        private LongSupplier totalSupplier;
 
         private DefaultDynamicReturnBuilder() {
         }
@@ -328,6 +334,11 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
             return this;
         }
 
+        public DefaultDynamicReturnBuilder totalSupplier(LongSupplier totalSupplier) {
+            this.totalSupplier = totalSupplier;
+            return this;
+        }
+
         /**
          * Creates a {@link DynamicReturn} from the parameters, all fields are required
          *
@@ -342,6 +353,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
             requireNonNull(methodName, "the method name is required");
             requireNonNull(returnType, "the return type is required");
 
+
             if (pageRequest != null) {
                 requireNonNull(singleResultPagination, "singleResultPagination is required when pagination is not null");
                 requireNonNull(streamPagination, "listPagination is required when pagination is not null");
@@ -349,7 +361,8 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
             }
 
             return new DynamicReturn(classSource, singleResult, result,
-                    pageRequest, singleResultPagination, streamPagination, page, methodName, returnType);
+                    pageRequest, singleResultPagination, streamPagination, page, methodName, returnType,
+                    totalSupplier);
         }
     }
 
