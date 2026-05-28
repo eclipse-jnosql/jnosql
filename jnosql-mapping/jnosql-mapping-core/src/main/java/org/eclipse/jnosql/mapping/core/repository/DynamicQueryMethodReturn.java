@@ -97,6 +97,10 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         return queryMapper;
     }
 
+    LongSupplier totalSupplier() {
+        return totalSupplier;
+    }
+
     boolean hasPagination() {
         return pageRequest != null;
     }
