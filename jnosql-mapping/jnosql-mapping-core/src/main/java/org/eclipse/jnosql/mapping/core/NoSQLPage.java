@@ -172,13 +172,16 @@ public class NoSQLPage<T> implements Page<T> {
                 '}';
     }
 
+
     /**
-     * Creates a {@link  Page} implementation from entities and a PageRequest
-     * @param entities the entities
-     * @param pageRequest the PageRequest
-     * @param totalSupplier the total supplier
-     * @return a {@link Page} instance
-     * @param <T> the entity type
+     * Creates a pageable representation of a given list of entities with the provided page request and total supplier.
+     *
+     * @param entities the list of entities to include in the page; must not be null
+     * @param pageRequest the page request specifying pagination details; must not be null
+     * @param totalSupplier a supplier to lazily calculate the total number of elements; must not be null
+     * @param <T> the type of the elements in the page
+     * @return a new {@code Page} instance containing the specified entities, page request, and total elements supplier
+     * @throws NullPointerException if any of the provided parameters is null
      */
     public static <T> Page<T> of(List<T> entities, PageRequest pageRequest, LongSupplier totalSupplier) {
         Objects.requireNonNull(entities, "entities is required");
