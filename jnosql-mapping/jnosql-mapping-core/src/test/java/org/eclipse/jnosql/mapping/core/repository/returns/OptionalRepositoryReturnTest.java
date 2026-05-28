@@ -97,7 +97,8 @@ class OptionalRepositoryReturnTest {
                 .returnType(method.getReturnType())
                 .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
-                .page(p -> page)
+                .page((p, l) -> page)
+                .totalSupplier(() -> 1L)
                 .build();
         Optional<Person> person = (Optional<Person>) repositoryReturn.convertPageRequest(dynamic);
         Assertions.assertNotNull(person);
@@ -118,7 +119,8 @@ class OptionalRepositoryReturnTest {
                 .returnType(method.getReturnType())
                 .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
-                .page(p -> page)
+                .page((p, l) -> page)
+                .totalSupplier(() -> 1L)
                 .build();
         Optional<Person> person = (Optional<Person>) repositoryReturn.convertPageRequest(dynamic);
         Assertions.assertNotNull(person);
