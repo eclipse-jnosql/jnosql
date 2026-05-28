@@ -51,6 +51,7 @@ class DynamicQueryMethodReturnTest {
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .prepareConverter(s -> preparedStatement)
                 .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
+                .totalSupplier(() -> 0L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Optional);
@@ -74,6 +75,7 @@ class DynamicQueryMethodReturnTest {
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
+                .totalSupplier(() -> 0L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertInstanceOf(Optional.class, execute);
@@ -98,6 +100,7 @@ class DynamicQueryMethodReturnTest {
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
+                .totalSupplier(() -> 0L)
                 .build();
 
         Assertions.assertThrows(NonUniqueResultException.class, dynamicReturn::execute);
@@ -118,6 +121,7 @@ class DynamicQueryMethodReturnTest {
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
+                .totalSupplier(() -> 0L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertInstanceOf(Person.class, execute);
@@ -139,6 +143,7 @@ class DynamicQueryMethodReturnTest {
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
+                .totalSupplier(() -> 0L)
                 .build();
 
         Assertions.assertThrows(EmptyResultException.class, dynamicReturn::execute);
@@ -159,6 +164,7 @@ class DynamicQueryMethodReturnTest {
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
+                .totalSupplier(() -> 0L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertInstanceOf(List.class, execute);
@@ -182,6 +188,7 @@ class DynamicQueryMethodReturnTest {
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
+                .totalSupplier(() -> 0L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertInstanceOf(Iterable.class, execute);
@@ -202,6 +209,7 @@ class DynamicQueryMethodReturnTest {
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
+                .totalSupplier(() -> 0L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertInstanceOf(Collection.class, execute);
@@ -224,6 +232,7 @@ class DynamicQueryMethodReturnTest {
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
+                .totalSupplier(() -> 0L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertInstanceOf(Queue.class, execute);
@@ -245,6 +254,7 @@ class DynamicQueryMethodReturnTest {
                 .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .returnType(method.getReturnType())
                 .prepareConverter(s -> preparedStatement)
+                .totalSupplier(() -> 0L)
                 .build();
 
         Object execute = dynamicReturn.execute();
@@ -270,6 +280,7 @@ class DynamicQueryMethodReturnTest {
                 .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .args(new Object[]{"Ada"})
                 .prepareConverter(s -> preparedStatement)
+                .totalSupplier(() -> 0L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertInstanceOf(Iterable.class, execute);
@@ -292,6 +303,7 @@ class DynamicQueryMethodReturnTest {
                 .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
                 .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[]{"Ada"}))
                 .prepareConverter(s -> preparedStatement)
+                .totalSupplier(() -> 0L)
                 .build();
 
         Object execute = dynamicReturn.execute();
@@ -320,6 +332,7 @@ class DynamicQueryMethodReturnTest {
                 .args(new Object[]{"Ada", PageRequest.ofPage(10)})
                 .prepareConverter(s -> preparedStatement)
                 .pageRequest(PageRequest.ofPage(10))
+                .totalSupplier(() -> 0L)
                 .build();
         Object execute = dynamicReturn.execute();
         SoftAssertions.assertSoftly(soft -> {
