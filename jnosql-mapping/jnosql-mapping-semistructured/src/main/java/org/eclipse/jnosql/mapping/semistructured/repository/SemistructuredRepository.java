@@ -94,7 +94,7 @@ public class SemistructuredRepository<T, K>  extends AbstractRepository<T, K> {
                 , null ,metadata.name(), List.of());
 
         List<T> entities = template().<T>select(query).toList();
-        return NoSQLPage.of(entities, pageRequest);
+        return NoSQLPage.of(entities, pageRequest, () -> this.template().count(query));
     }
 
     @Override
