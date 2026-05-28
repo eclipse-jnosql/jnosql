@@ -77,7 +77,8 @@ class InstanceRepositoryReturnTest {
                 .returnType(Person.class)
                 .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
-                .page(p -> page)
+                .page((p, l) -> page)
+                .totalSupplier(() -> 1L)
                 .build();
         Person person = (Person) repositoryReturn.convertPageRequest(dynamic);
         Assertions.assertNotNull(person);
@@ -96,7 +97,8 @@ class InstanceRepositoryReturnTest {
                 .returnType(Person.class)
                 .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
-                .page(p -> page)
+                .page((p, l) -> page)
+                .totalSupplier(() -> 1L)
                 .build();
         Assertions.assertThrows(EmptyResultException.class, () -> repositoryReturn.convertPageRequest(dynamic));
     }
