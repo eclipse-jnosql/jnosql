@@ -21,7 +21,9 @@ import jakarta.data.page.PageRequest;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.LongSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -244,7 +246,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
 
         private Function<PageRequest, Stream<T>> streamPagination;
 
-        private Function<PageRequest, Page<T>> page;
+        private BiFunction<PageRequest, LongSupplier, Page<T>> page;
 
         private String methodName;
 
@@ -321,7 +323,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
          * @param page the page
          * @return the builder instance
          */
-        public DefaultDynamicReturnBuilder page(Function<PageRequest, Page<T>> page) {
+        public DefaultDynamicReturnBuilder page(BiFunction<PageRequest, LongSupplier, Page<T>> page) {
             this.page = page;
             return this;
         }
