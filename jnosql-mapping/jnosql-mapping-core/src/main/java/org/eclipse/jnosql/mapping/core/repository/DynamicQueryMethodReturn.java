@@ -21,6 +21,7 @@ import org.eclipse.jnosql.mapping.PreparedStatement;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 /**
@@ -35,8 +36,8 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
     private final Supplier<String> querySupplier;
     private final Supplier<Map<String, Object>> paramsSupplier;
     private final Class<?> returnType;
-
     private final String methodName;
+    private final LongSupplier totalSupplier;
 
     private DynamicQueryMethodReturn(Object[] args, Class<?> typeClass,
                                      Function<String,
@@ -46,7 +47,8 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
                                      Supplier<String> querySupplier,
                                      Supplier<Map<String, Object>> paramsSupplier,
                                      Class<?> returnType,
-                                     String methodName) {
+                                     String methodName,
+                                     LongSupplier totalSupplier) {
         this.querySupplier = querySupplier;
         this.args = args;
         this.typeClass = typeClass;
@@ -56,6 +58,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         this.paramsSupplier = paramsSupplier;
         this.returnType = returnType;
         this.methodName = methodName;
+        this.totalSupplier = totalSupplier;
     }
 
     String querySupplier() {
@@ -124,6 +127,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         private Class<?> returnType;
 
         private String methodName;
+        private LongSupplier totalSupplier;
 
         private DynamicQueryMethodReturnBuilder() {
         }
@@ -175,6 +179,11 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
             return this;
         }
 
+        public DynamicQueryMethodReturnBuilder<T> totalSupplier(LongSupplier totalSupplier) {
+            this.totalSupplier = totalSupplier;
+            return this;
+        }
+
         public DynamicQueryMethodReturn<T> build() {
             Objects.requireNonNull(typeClass, "typeClass is required");
             Objects.requireNonNull(prepareConverter, "prepareConverter is required");
@@ -183,6 +192,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
             Objects.requireNonNull(queryMapper, "queryMapper is required");
             Objects.requireNonNull(returnType, "returnType is required");
             Objects.requireNonNull(methodName, "methodName is required");
+            Objects.requireNonNull(totalSupplier, "totalSupplier is required");
             return new DynamicQueryMethodReturn<>(args,
                     typeClass,
                     prepareConverter,
@@ -191,7 +201,8 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
                     querySupplier,
                     paramsSupplier,
                     returnType,
-                    methodName);
+                    methodName,
+                    totalSupplier);
         }
     }
 
