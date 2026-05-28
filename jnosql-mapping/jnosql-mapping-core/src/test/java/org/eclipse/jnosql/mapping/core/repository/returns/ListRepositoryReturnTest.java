@@ -84,7 +84,8 @@ class ListRepositoryReturnTest {
                 .methodName(method.getName())
                 .returnType(method.getReturnType())
                 .pagination(PageRequest.ofPage(2).size(2))
-                .page(p -> page)
+                .page((p, l) -> page)
+                .totalSupplier(() -> 1L)
                 .build();
         List<Person> person = (List<Person>) repositoryReturn.convertPageRequest(dynamic);
         Assertions.assertNotNull(person);
