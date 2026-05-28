@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.LongSupplier;
-import java.util.function.Supplier;
 
 /**
  * A JNoSQL implementation of {@link  Page}
