@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.query.data.QueryType;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.repository.DynamicQueryMethodReturn;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryMetadataUtils;
@@ -27,6 +28,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.QueryOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 @ApplicationScoped
@@ -73,6 +75,8 @@ class SemistructuredQueryOperation implements QueryOperation {
         LOGGER.finest("Query: " + queryValue + " with type: " + queryType + " and return type: " + returnType);
         queryType.checkValidReturn(returnType, queryValue);
 
+        var queryAtomic = new AtomicReference<SelectQuery>();
+
         var methodReturn = DynamicQueryMethodReturn.builder()
                 .args(params)
                 .methodName(method.name())
@@ -81,10 +85,15 @@ class SemistructuredQueryOperation implements QueryOperation {
                 .paramsSupplier(() -> RepositoryMetadataUtils.INSTANCE.getParams(method, params))
                 .typeClass(type)
                 .pageRequest(pageRequest)
+                .totalSupplier(() -> template.count(queryAtomic.get()))
                 .mapper(semistructuredReturnType.mapper(method, entityMetadata))
                 .prepareConverter(textQuery -> {
                     var prepare = (org.eclipse.jnosql.mapping.semistructured.PreparedStatement) template.prepare(textQuery, entity);
-                        prepare.setSelectMapper(query -> queryBuilder.updateDynamicQuery(query, context));
+                        prepare.setSelectMapper(query -> {
+                            var selectQuery = queryBuilder.updateDynamicQuery(query, context);
+                            queryAtomic.set(selectQuery);
+                            return selectQuery;
+                        });
                     return prepare;
                 }).build();
         return (T) methodReturn.execute();
