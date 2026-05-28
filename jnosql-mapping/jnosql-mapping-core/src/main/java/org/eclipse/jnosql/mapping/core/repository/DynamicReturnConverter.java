@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.function.Function;
+import java.util.function.LongSupplier;
 import java.util.stream.Stream;
 
 /**
@@ -101,7 +102,7 @@ public enum DynamicReturnConverter {
                 .singleResultPagination(p -> prepare.singleResult().map(dynamicQueryMethod.queryMapper()))
                 .page((p, l) -> {
                     Stream<?> entities = prepare.result().map(dynamicQueryMethod.queryMapper());
-                    return NoSQLPage.of(entities.toList(), (PageRequest) p, l);
+                    return NoSQLPage.of(entities.toList(), p, l);
                 }).build();
 
         return convert(dynamicReturn);
