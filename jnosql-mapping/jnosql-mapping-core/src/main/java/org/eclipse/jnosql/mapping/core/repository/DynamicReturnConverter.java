@@ -100,6 +100,7 @@ public enum DynamicReturnConverter {
                 .pagination(pageRequest)
                 .streamPagination(p -> prepare.result().map(dynamicQueryMethod.queryMapper()))
                 .singleResultPagination(p -> prepare.singleResult().map(dynamicQueryMethod.queryMapper()))
+                .totalSupplier(dynamicQueryMethod.totalSupplier())
                 .page((p, l) -> {
                     Stream<?> entities = prepare.result().map(dynamicQueryMethod.queryMapper());
                     return NoSQLPage.of(entities.toList(), (PageRequest) p, (LongSupplier) l);
