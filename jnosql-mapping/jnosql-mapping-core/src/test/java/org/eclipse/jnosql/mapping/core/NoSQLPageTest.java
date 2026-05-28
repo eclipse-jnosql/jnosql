@@ -208,7 +208,11 @@ class NoSQLPageTest {
 
             Page<Person> page = NoSQLPage.of(
                     people(),
-                    PageRequest.ofPage(1).size(1)
+                    PageRequest.ofPage(1).size(1),
+                    () -> {
+                        throw new UnsupportedOperationException(
+                                "JNoSQL has no support for this feature yet");
+                    }
             );
 
             assertThat(page.hasNext()).isTrue();
@@ -458,7 +462,11 @@ class NoSQLPageTest {
     private static Page<Person> page(long page) {
         return NoSQLPage.of(
                 people(),
-                PageRequest.ofPage(page)
+                PageRequest.ofPage(page),
+                () -> {
+                    throw new UnsupportedOperationException(
+                            "JNoSQL has no support for this feature yet");
+                }
         );
     }
 
