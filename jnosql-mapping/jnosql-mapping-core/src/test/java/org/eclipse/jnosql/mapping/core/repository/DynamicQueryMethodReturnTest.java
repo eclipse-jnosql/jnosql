@@ -54,7 +54,7 @@ class DynamicQueryMethodReturnTest {
                 .totalSupplier(() -> 0L)
                 .build();
         Object execute = dynamicReturn.execute();
-        Assertions.assertTrue(execute instanceof Optional);
+        Assertions.assertInstanceOf(Optional.class, execute);
         Optional<Person> optional = (Optional) execute;
         Assertions.assertFalse(optional.isPresent());
     }
