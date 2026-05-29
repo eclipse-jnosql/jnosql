@@ -21,7 +21,9 @@ import jakarta.data.page.PageRequest;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.LongSupplier;
 
 /**
  * A JNoSQL implementation of {@link  Page}
@@ -34,19 +36,23 @@ public class NoSQLPage<T> implements Page<T> {
 
     private final PageRequest pageRequest;
 
-    private NoSQLPage(List<T> entities, PageRequest pageRequest) {
+    private final LongSupplier totalSupplier;
+
+    private NoSQLPage(List<T> entities, PageRequest pageRequest, LongSupplier totalSupplier) {
         this.entities = entities;
         this.pageRequest = pageRequest;
+        this.totalSupplier = totalSupplier;
     }
 
     @Override
     public long totalElements() {
-        throw new UnsupportedOperationException("JNoSQL has no support for this feature yet");
+        return totalSupplier.getAsLong();
     }
 
     @Override
     public long totalPages() {
-        throw new UnsupportedOperationException("JNoSQL has no support for this feature yet");
+        long totalElements = totalElements();
+        return (long) Math.ceil((double) totalElements / pageRequest.size());
     }
 
     @Override
@@ -66,12 +72,16 @@ public class NoSQLPage<T> implements Page<T> {
 
     @Override
     public boolean hasNext() {
-      return hasContent() && this.entities.size() == this.pageRequest.size();
+        if (hasTotals()) {
+            return this.pageRequest.page() < totalPages();
+        }
+
+        return hasContent() && this.entities.size() == this.pageRequest.size();
     }
 
     @Override
     public boolean hasPrevious() {
-        return hasContent();
+        return this.pageRequest.page() > 1;
     }
 
     @Override
@@ -82,19 +92,53 @@ public class NoSQLPage<T> implements Page<T> {
 
     @Override
     public PageRequest nextPageRequest() {
+
+        if (hasTotals() && !hasNext()) {
+            throw new NoSuchElementException(
+                    String.format(
+                            "Unable to navigate to next page. " +
+                                    "Current page: %d, page size: %d, total pages: %d",
+                            this.pageRequest.page(),
+                            this.pageRequest.size(),
+                            totalPages()
+                    )
+            );
+        }
         return PageRequest.ofPage(this.pageRequest.page() + 1, this.pageRequest.size(), this.pageRequest.requestTotal());
     }
 
 
     @Override
     public PageRequest previousPageRequest() {
-        return PageRequest.ofPage(this.pageRequest.page() - 1, this.pageRequest.size(), this.pageRequest.requestTotal());
+        if (!hasPrevious()) {
+
+            throw new NoSuchElementException(
+                    String.format(
+                            "Unable to navigate to previous page. " +
+                                    "Current page: %d, page size: %d. " +
+                                    "Page numbers start at 1.",
+                            this.pageRequest.page(),
+                            this.pageRequest.size()
+                    )
+            );
+        }
+
+        return PageRequest.ofPage(
+                this.pageRequest.page() - 1,
+                this.pageRequest.size(),
+                this.pageRequest.requestTotal()
+        );
     }
 
 
     @Override
     public boolean hasTotals() {
-        throw new UnsupportedOperationException("Eclipse JNoSQL has no support for this feature hasTotals");
+        try {
+            totalSupplier.getAsLong();
+            return true;
+        } catch (UnsupportedOperationException exception) {
+            return false;
+        }
     }
 
     @Override
@@ -127,17 +171,21 @@ public class NoSQLPage<T> implements Page<T> {
                 '}';
     }
 
+
     /**
-     * Creates a {@link  Page} implementation from entities and a PageRequest
-     * @param entities the entities
-     * @param pageRequest the PageRequest
-     * @return a {@link Page} instance
-     * @param <T> the entity type
+     * Creates a pageable representation of a given list of entities with the provided page request and total supplier.
+     *
+     * @param entities the list of entities to include in the page; must not be null
+     * @param pageRequest the page request specifying pagination details; must not be null
+     * @param totalSupplier a supplier to lazily calculate the total number of elements; must not be null
+     * @param <T> the type of the elements in the page
+     * @return a new {@code Page} instance containing the specified entities, page request, and total elements supplier
+     * @throws NullPointerException if any of the provided parameters is null
      */
-    public static <T> Page<T> of(List<T> entities, PageRequest pageRequest) {
+    public static <T> Page<T> of(List<T> entities, PageRequest pageRequest, LongSupplier totalSupplier) {
         Objects.requireNonNull(entities, "entities is required");
         Objects.requireNonNull(pageRequest, "pageRequest is required");
-        return new NoSQLPage<>(entities, pageRequest);
+        return new NoSQLPage<>(entities, pageRequest, LazyLongSupplier.of(totalSupplier));
     }
 
     /**

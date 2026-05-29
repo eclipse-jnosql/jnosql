@@ -352,7 +352,7 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         var queryPage = new MappingQuery(query.sorts(), pageRequest.size(), NoSQLPage.skip(pageRequest),
                 query.condition().orElse(null), query.name(), query.columns());
         Stream<T> result = select(queryPage);
-        return NoSQLPage.of(result.toList(), pageRequest);
+        return NoSQLPage.of(result.toList(), pageRequest, () -> this.count(query));
     }
 
     @Override

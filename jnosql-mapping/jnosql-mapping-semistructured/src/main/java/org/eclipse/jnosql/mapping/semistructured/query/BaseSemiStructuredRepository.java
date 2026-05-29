@@ -53,7 +53,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -187,6 +189,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
                 .streamPagination(streamPagination(query, method))
                 .singleResultPagination(getSingleResult(query, method))
                 .page(getPage(query, method))
+                .totalSupplier(() -> this.template().count(query))
                 .build();
         return dynamicReturn.execute();
     }
@@ -255,10 +258,10 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
         return template().exists(query);
     }
 
-    protected Function<PageRequest, Page<T>> getPage(SelectQuery query, Method method) {
-        return p -> {
+    protected BiFunction<PageRequest, LongSupplier, Page<T>> getPage(SelectQuery query, Method method) {
+        return (p, l) -> {
             Stream<T> entities = template().select(query).map(mapper(method));
-            return NoSQLPage.of(entities.toList(), p);
+            return NoSQLPage.of(entities.toList(), p, l);
         };
     }
 

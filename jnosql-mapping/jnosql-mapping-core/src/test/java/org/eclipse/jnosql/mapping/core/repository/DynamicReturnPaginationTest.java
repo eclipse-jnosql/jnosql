@@ -34,7 +34,9 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -51,7 +53,7 @@ class DynamicReturnPaginationTest {
     private Function<PageRequest, Optional<Person>> singlePagination;
 
     @Mock
-    private Function<PageRequest, Page<Person>> page;
+    private BiFunction<PageRequest, LongSupplier, Page<Person>> page;
 
     @SuppressWarnings("unchecked")
     @Test
@@ -75,6 +77,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
 
@@ -107,7 +110,9 @@ class DynamicReturnPaginationTest {
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
-                .page(page).build();
+                .page(page)
+                .totalSupplier(() -> 1L)
+                .build();
 
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Optional);
@@ -138,7 +143,9 @@ class DynamicReturnPaginationTest {
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
-                .page(page).build();
+                .page(page)
+                .totalSupplier(() -> 1L)
+                .build();
 
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Person);
@@ -169,6 +176,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
 
         Assertions.assertThrows(EmptyResultException.class, dynamicReturn::execute);
@@ -197,6 +205,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof List);
@@ -228,6 +237,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
 
         Object execute = dynamicReturn.execute();
@@ -258,6 +268,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Collection);
@@ -288,6 +299,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Set);
@@ -318,6 +330,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Queue);
@@ -349,6 +362,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Stream);
@@ -378,6 +392,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof SortedSet);
@@ -408,6 +423,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof NavigableSet);
@@ -439,6 +455,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Deque);
@@ -456,6 +473,7 @@ class DynamicReturnPaginationTest {
         Supplier<Stream<?>> stream = Stream::empty;
         Supplier<Optional<?>> singleResult = DynamicReturn.toSingleResult(method.getName()).apply(stream);
         PageRequest pageRequest = getPagination();
+        LongSupplier supplier = () -> 1L;
         DynamicReturn<?> dynamicReturn = DynamicReturn.builder()
                 .classSource(Person.class)
                 .returnType(method.getReturnType())
@@ -466,12 +484,13 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(supplier)
                 .build();
 
         dynamicReturn.execute();
         Mockito.verify(singlePagination, Mockito.never()).apply(pageRequest);
         Mockito.verify(streamPagination, Mockito.never()).apply(pageRequest);
-        Mockito.verify(page).apply(pageRequest);
+        Mockito.verify(page).apply(pageRequest, supplier);
     }
 
     private Method method(Class<?> repository, String methodName) throws NoSuchMethodException {

@@ -34,14 +34,16 @@ import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @ApplicationScoped
 class SemistructuredReturnType {
 
-    private static final Page<Object> EMPTY_PAGINATION = NoSQLPage.of(Collections.emptyList(), PageRequest.ofSize(1));
+    private static final Page<Object> EMPTY_PAGINATION = NoSQLPage.of(Collections.emptyList(), PageRequest.ofSize(1), () -> 0L);
     private final EntitiesMetadata entitiesMetadata;
 
     private final  ProjectorConverter projectorConverter;
@@ -81,6 +83,7 @@ class SemistructuredReturnType {
                 .streamPagination(streamPagination(query, method, entityMetadata, template))
                 .singleResultPagination(getSingleResult(query, method, entityMetadata, template))
                 .page(getPage(query, method, entityMetadata, template))
+                .totalSupplier(() -> template.count(query))
                 .build();
         return dynamicReturn.execute();
     }
@@ -102,7 +105,8 @@ class SemistructuredReturnType {
                 .pagination(DynamicReturn.findPageRequest(context.parameters()))
                 .streamPagination(p -> Stream.empty())
                 .singleResultPagination(p -> Optional.empty())
-                .page(p -> EMPTY_PAGINATION)
+                .page((p, l) -> EMPTY_PAGINATION)
+                .totalSupplier(() -> 0L)
                 .build();
         return dynamicReturn.execute();
     }
@@ -121,13 +125,13 @@ class SemistructuredReturnType {
         return p -> template.singleResult(query).map(mapper(method, entityMetadata));
     }
 
-    protected <T>  Function<PageRequest, Page<T>> getPage(SelectQuery query,
-                                                          RepositoryMethod method,
-                                                          EntityMetadata entityMetadata,
-                                                          SemiStructuredTemplate template) {
-        return p -> {
+    protected <T> BiFunction<PageRequest, LongSupplier, Page<T>> getPage(SelectQuery query,
+                                                                         RepositoryMethod method,
+                                                                         EntityMetadata entityMetadata,
+                                                                         SemiStructuredTemplate template) {
+        return (p, l) -> {
             Stream<T> entities = template.select(query).map(mapper(method, entityMetadata));
-            return NoSQLPage.of(entities.toList(), p);
+            return NoSQLPage.of(entities.toList(), p, l);
         };
     }
 

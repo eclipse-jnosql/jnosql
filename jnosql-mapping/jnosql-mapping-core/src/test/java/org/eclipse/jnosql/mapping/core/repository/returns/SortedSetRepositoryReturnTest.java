@@ -68,7 +68,8 @@ class SortedSetRepositoryReturnTest {
                 .returnType(method.getReturnType())
                 .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
-                .page(p -> page)
+                .page((p, l) -> page)
+                .totalSupplier(() -> 1L)
                 .build();
         TreeSet<Person> person = (TreeSet<Person>) repositoryReturn.convertPageRequest(dynamic);
         Assertions.assertNotNull(person);
@@ -106,7 +107,8 @@ class SortedSetRepositoryReturnTest {
                 .returnType(method.getReturnType())
                 .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
-                .page(p -> page)
+                .page((p, l) -> page)
+                .totalSupplier(() -> 1L)
                 .build();
         Assertions.assertThrows(DynamicQueryException.class, () -> repositoryReturn.convertPageRequest(dynamic));
     }
@@ -124,7 +126,8 @@ class SortedSetRepositoryReturnTest {
                 .returnType(method.getReturnType())
                 .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
-                .page(p -> page)
+                .page((p, l) -> page)
+                .totalSupplier(() -> 1L)
                 .build();
         Assertions.assertThrows(DynamicQueryException.class, () -> repositoryReturn.convert(dynamic));
     }

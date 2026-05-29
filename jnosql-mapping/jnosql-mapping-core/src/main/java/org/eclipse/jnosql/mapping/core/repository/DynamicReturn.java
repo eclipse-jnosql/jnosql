@@ -21,7 +21,9 @@ import jakarta.data.page.PageRequest;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.LongSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -48,11 +50,13 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
 
     private final Function<PageRequest, Stream<T>> streamPagination;
 
-    private final Function<PageRequest, Page<T>> page;
+    private final BiFunction<PageRequest, LongSupplier, Page<T>> page;
 
     private final String methodName;
 
     private final Class<?> returnType;
+
+    private final LongSupplier totalSupplier;
 
     /**
      * A predicate to check it the object is instance of {@link PageRequest}
@@ -138,9 +142,10 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
                           Supplier<Stream<T>> result, PageRequest pageRequest,
                           Function<PageRequest, Optional<T>> singleResultPagination,
                           Function<PageRequest, Stream<T>> streamPagination,
-                          Function<PageRequest, Page<T>> page,
+                          BiFunction<PageRequest, LongSupplier, Page<T>> page,
                           String methodName,
-                          Class<?> returnType) {
+                          Class<?> returnType,
+                          LongSupplier totalSupplier) {
         this.classSource = classSource;
         this.singleResult = singleResult;
         this.result = result;
@@ -150,6 +155,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
         this.page = page;
         this.methodName = methodName;
         this.returnType = returnType;
+        this.totalSupplier = totalSupplier;
     }
 
     /**
@@ -204,7 +210,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
      * @return the page
      */
     public Page<T> getPage() {
-        return page.apply(pageRequest);
+        return page.apply(pageRequest, totalSupplier);
     }
 
     /**
@@ -244,11 +250,13 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
 
         private Function<PageRequest, Stream<T>> streamPagination;
 
-        private Function<PageRequest, Page<T>> page;
+        private BiFunction<PageRequest, LongSupplier, Page<T>> page;
 
         private String methodName;
 
         private Class<?> returnType;
+
+        private LongSupplier totalSupplier;
 
         private DefaultDynamicReturnBuilder() {
         }
@@ -321,8 +329,13 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
          * @param page the page
          * @return the builder instance
          */
-        public DefaultDynamicReturnBuilder page(Function<PageRequest, Page<T>> page) {
+        public DefaultDynamicReturnBuilder page(BiFunction<PageRequest, LongSupplier, Page<T>> page) {
             this.page = page;
+            return this;
+        }
+
+        public DefaultDynamicReturnBuilder totalSupplier(LongSupplier totalSupplier) {
+            this.totalSupplier = totalSupplier;
             return this;
         }
 
@@ -340,14 +353,17 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
             requireNonNull(methodName, "the method name is required");
             requireNonNull(returnType, "the return type is required");
 
+
             if (pageRequest != null) {
                 requireNonNull(singleResultPagination, "singleResultPagination is required when pagination is not null");
                 requireNonNull(streamPagination, "listPagination is required when pagination is not null");
                 requireNonNull(page, "page is required when pagination is not null");
+                requireNonNull(totalSupplier, "totalSupplier is required when pagination is not null");
             }
 
             return new DynamicReturn(classSource, singleResult, result,
-                    pageRequest, singleResultPagination, streamPagination, page, methodName, returnType);
+                    pageRequest, singleResultPagination, streamPagination, page, methodName, returnType,
+                    totalSupplier);
         }
     }
 

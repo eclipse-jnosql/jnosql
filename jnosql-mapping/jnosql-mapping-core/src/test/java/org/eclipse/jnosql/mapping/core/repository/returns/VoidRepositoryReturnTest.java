@@ -68,7 +68,8 @@ class VoidRepositoryReturnTest {
                 .returnType(Person.class)
                 .methodName(method.getName())
                 .pagination(PageRequest.ofPage(2).size(2))
-                .page(p -> page)
+                .page((p, l) -> page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object object = repositoryReturn.convertPageRequest(dynamic);
         assertNull(object);

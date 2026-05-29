@@ -82,7 +82,8 @@ class ArrayRepositoryReturnTest {
                 .methodName(method.getName())
                 .returnType(Person[].class)
                 .pagination(PageRequest.ofPage(2).size(2))
-                .page(p -> page)
+                .page((p, l) -> page)
+                .totalSupplier(() -> 1L)
                 .build();
         Person[] person = (Person[]) repositoryReturn.convertPageRequest(dynamic);
         SoftAssertions.assertSoftly(s -> {
