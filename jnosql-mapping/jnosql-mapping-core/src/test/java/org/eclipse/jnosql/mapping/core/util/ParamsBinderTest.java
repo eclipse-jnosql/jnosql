@@ -128,7 +128,7 @@ class ParamsBinderTest {
 
         Object param = value.get();
         Assertions.assertNotNull(param);
-        Assertions.assertTrue(param instanceof Iterable);
+        Assertions.assertInstanceOf(Iterable.class, param);
         Assertions.assertEquals(Arrays.asList("otavio", "poliana"), param);
     }
 
@@ -153,7 +153,7 @@ class ParamsBinderTest {
 
         Object param = value.get();
         Assertions.assertNotNull(param);
-        Assertions.assertTrue(param instanceof Iterable);
+        Assertions.assertInstanceOf(Iterable.class, param);
         Assertions.assertEquals(Arrays.asList(1, 2), param);
     }
 
