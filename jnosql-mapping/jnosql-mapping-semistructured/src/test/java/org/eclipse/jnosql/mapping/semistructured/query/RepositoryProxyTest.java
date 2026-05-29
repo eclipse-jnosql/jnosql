@@ -335,7 +335,7 @@ class RepositoryProxyTest {
         personRepository.findAll().toList();
         ArgumentCaptor<Class<?>> captor = ArgumentCaptor.forClass(Class.class);
         verify(template).findAll(captor.capture());
-        assertEquals(captor.getValue(), Person.class);
+        assertEquals(Person.class, captor.getValue());
 
     }
 
@@ -344,7 +344,7 @@ class RepositoryProxyTest {
         personRepository.deleteAll();
         ArgumentCaptor<Class<?>> captor = ArgumentCaptor.forClass(Class.class);
         verify(template).deleteAll(captor.capture());
-        assertEquals(captor.getValue(), Person.class);
+        assertEquals(Person.class, captor.getValue());
 
     }
 
