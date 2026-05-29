@@ -83,6 +83,7 @@ class SemistructuredReturnType {
                 .streamPagination(streamPagination(query, method, entityMetadata, template))
                 .singleResultPagination(getSingleResult(query, method, entityMetadata, template))
                 .page(getPage(query, method, entityMetadata, template))
+                .totalSupplier(() -> template.count(query))
                 .build();
         return dynamicReturn.execute();
     }
@@ -105,6 +106,7 @@ class SemistructuredReturnType {
                 .streamPagination(p -> Stream.empty())
                 .singleResultPagination(p -> Optional.empty())
                 .page((p, l) -> EMPTY_PAGINATION)
+                .totalSupplier(() -> 0L)
                 .build();
         return dynamicReturn.execute();
     }
