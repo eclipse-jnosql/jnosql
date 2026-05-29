@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -72,7 +73,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         var first = method.getAnnotation(First.class);
         LOGGER.finest("Query: " + queryValue + " with type: " + queryType + " and return type: " + returnType);
         queryType.checkValidReturn(returnType, queryValue);
-
+        var selectQuery = new AtomicReference<SelectQuery>();
         var methodReturn = DynamicQueryMethodReturn.builder()
                 .args(params)
                 .methodName(method.getName())
