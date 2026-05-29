@@ -358,6 +358,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
                 requireNonNull(singleResultPagination, "singleResultPagination is required when pagination is not null");
                 requireNonNull(streamPagination, "listPagination is required when pagination is not null");
                 requireNonNull(page, "page is required when pagination is not null");
+                requireNonNull(totalSupplier, "totalSupplier is required when pagination is not null");
             }
 
             return new DynamicReturn(classSource, singleResult, result,
