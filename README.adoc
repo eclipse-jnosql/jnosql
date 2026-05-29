@@ -591,7 +591,6 @@ You don’t need to build from source to use the project, but should you be inte
 mvn clean install
 ----
 
-
 == Contributing
 
 We are very happy you are interested in helping us and there are plenty ways you can do so.
