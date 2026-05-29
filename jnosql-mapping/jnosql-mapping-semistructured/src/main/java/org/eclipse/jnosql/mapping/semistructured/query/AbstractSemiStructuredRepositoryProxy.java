@@ -73,7 +73,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         var first = method.getAnnotation(First.class);
         LOGGER.finest("Query: " + queryValue + " with type: " + queryType + " and return type: " + returnType);
         queryType.checkValidReturn(returnType, queryValue);
-        var selectQuery = new AtomicReference<SelectQuery>();
+        var selectQueryAtomicReference = new AtomicReference<SelectQuery>();
         var methodReturn = DynamicQueryMethodReturn.builder()
                 .args(params)
                 .methodName(method.getName())
@@ -83,7 +83,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
                 .typeClass(type)
                 .pageRequest(pageRequest)
                 .mapper(mapper(method))
-                .totalSupplier(() -> template().count(entity))
+                .totalSupplier(() -> template().count(selectQueryAtomicReference.get()))
                 .prepareConverter(textQuery -> {
                     var prepare = (org.eclipse.jnosql.mapping.semistructured.PreparedStatement) template().prepare(textQuery, entity);
                     List<Sort<?>> sortsFromAnnotation = getSorts(method, entityMetadata());
@@ -94,9 +94,11 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
                             var selectQuery = updateQueryDynamically(params, query, first);
                             List<Sort<?>> sorts = new ArrayList<>(selectQuery.sorts());
                             sorts.addAll(sortsFromAnnotation);
-                            return new MappingQuery(sorts, selectQuery.limit(), selectQuery.skip(),
+                            var updateQuery = new MappingQuery(sorts, selectQuery.limit(), selectQuery.skip(),
                                     selectQuery.condition().orElse(null)
                                     , entity, selectQuery.columns());
+                            selectQueryAtomicReference.set(updateQuery);
+                            return updateQuery;
                         });
                     }
                     return prepare;
