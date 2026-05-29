@@ -46,6 +46,6 @@ class DequeSupplierTest {
     void shouldGet() {
         final Collection<?> collection = this.supplier.get();
         Assertions.assertNotNull(collection);
-        Assertions.assertTrue(collection instanceof LinkedList);
+        Assertions.assertInstanceOf(LinkedList.class, collection);
     }
 }
