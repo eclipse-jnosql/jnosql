@@ -53,7 +53,7 @@ class ConverterUtilTest {
         EntityMetadata mapping = mappings.get(Person.class);
         Object value = 10_000L;
         Object id = ConverterUtil.getValue(value, mapping, "id", converters);
-        assertEquals(id, value);
+        assertEquals(value, id);
     }
 
     @Test
