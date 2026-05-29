@@ -105,6 +105,6 @@ class DefaultElementQueryTest {
 
         Assertions.assertEquals(query, query2);
         Assertions.assertEquals(query, query);
-        Assertions.assertNotEquals(query, "query");
+        Assertions.assertNotEquals("query", query);
     }
 }
