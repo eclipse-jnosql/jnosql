@@ -81,7 +81,7 @@ class DynamicReturnPaginationTest {
                 .build();
         Object execute = dynamicReturn.execute();
 
-        Assertions.assertTrue(execute instanceof Optional);
+        Assertions.assertInstanceOf(Optional.class, execute);
         Optional<Person> optional = (Optional) execute;
         Assertions.assertFalse(optional.isPresent());
 
@@ -115,7 +115,7 @@ class DynamicReturnPaginationTest {
                 .build();
 
         Object execute = dynamicReturn.execute();
-        Assertions.assertTrue(execute instanceof Optional);
+        Assertions.assertInstanceOf(Optional.class, execute);
         Optional<Person> optional = (Optional) execute;
         Assertions.assertTrue(optional.isPresent());
         Assertions.assertEquals(new Person("Ada"), optional.get());
@@ -148,7 +148,7 @@ class DynamicReturnPaginationTest {
                 .build();
 
         Object execute = dynamicReturn.execute();
-        Assertions.assertTrue(execute instanceof Person);
+        Assertions.assertInstanceOf(Person.class, execute);
         Person person = (Person) execute;
         Assertions.assertEquals(new Person("Ada"), person);
         Mockito.verify(singlePagination).apply(pageRequest);
@@ -208,7 +208,7 @@ class DynamicReturnPaginationTest {
                 .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
-        Assertions.assertTrue(execute instanceof List);
+        Assertions.assertInstanceOf(List.class, execute);
         List<Person> persons = (List) execute;
         Assertions.assertFalse(persons.isEmpty());
         Assertions.assertEquals(new Person("Ada"), persons.getFirst());
@@ -241,7 +241,7 @@ class DynamicReturnPaginationTest {
                 .build();
 
         Object execute = dynamicReturn.execute();
-        Assertions.assertTrue(execute instanceof Iterable);
+        Assertions.assertInstanceOf(Iterable.class, execute);
         Iterable<Person> persons = (List) execute;
         Assertions.assertEquals(new Person("Ada"), persons.iterator().next());
         Mockito.verify(singlePagination, Mockito.never()).apply(pageRequest);
@@ -271,7 +271,7 @@ class DynamicReturnPaginationTest {
                 .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
-        Assertions.assertTrue(execute instanceof Collection);
+        Assertions.assertInstanceOf(Collection.class, execute);
         Collection<Person> persons = (Collection) execute;
         Assertions.assertFalse(persons.isEmpty());
         Assertions.assertEquals(new Person("Ada"), persons.iterator().next());
@@ -302,7 +302,7 @@ class DynamicReturnPaginationTest {
                 .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
-        Assertions.assertTrue(execute instanceof Set);
+        Assertions.assertInstanceOf(Set.class, execute);
         Set<Person> persons = (Set) execute;
         Assertions.assertFalse(persons.isEmpty());
         Assertions.assertEquals(new Person("Ada"), persons.iterator().next());
@@ -333,7 +333,7 @@ class DynamicReturnPaginationTest {
                 .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
-        Assertions.assertTrue(execute instanceof Queue);
+        Assertions.assertInstanceOf(Queue.class, execute);
         Queue<Person> persons = (Queue) execute;
         Assertions.assertFalse(persons.isEmpty());
         Assertions.assertEquals(new Person("Ada"), persons.iterator().next());
@@ -365,7 +365,7 @@ class DynamicReturnPaginationTest {
                 .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
-        Assertions.assertTrue(execute instanceof Stream);
+        Assertions.assertInstanceOf(Stream.class, execute);
         Stream<Person> persons = (Stream) execute;
         Assertions.assertEquals(new Person("Ada"), persons.iterator().next());
         Mockito.verify(singlePagination, Mockito.never()).apply(pageRequest);
@@ -395,7 +395,7 @@ class DynamicReturnPaginationTest {
                 .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
-        Assertions.assertTrue(execute instanceof SortedSet);
+        Assertions.assertInstanceOf(SortedSet.class, execute);
         SortedSet<Person> persons = (SortedSet) execute;
         Assertions.assertFalse(persons.isEmpty());
         Assertions.assertEquals(new Person("Ada"), persons.getFirst());
@@ -426,7 +426,7 @@ class DynamicReturnPaginationTest {
                 .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
-        Assertions.assertTrue(execute instanceof NavigableSet);
+        Assertions.assertInstanceOf(NavigableSet.class, execute);
         NavigableSet<Person> persons = (NavigableSet) execute;
         Assertions.assertFalse(persons.isEmpty());
         Assertions.assertEquals(new Person("Ada"), persons.getFirst());
@@ -458,7 +458,7 @@ class DynamicReturnPaginationTest {
                 .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
-        Assertions.assertTrue(execute instanceof Deque);
+        Assertions.assertInstanceOf(Deque.class, execute);
         Deque<Person> persons = (Deque) execute;
         Assertions.assertFalse(persons.isEmpty());
         Assertions.assertEquals(new Person("Ada"), persons.getFirst());
