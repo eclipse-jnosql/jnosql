@@ -45,6 +45,6 @@ class TreeSetSupplierTest {
     void shouldGet() {
         final Collection<?> collection = this.supplier.get();
         Assertions.assertNotNull(collection);
-        Assertions.assertTrue(collection instanceof TreeSet);
+        Assertions.assertInstanceOf(TreeSet.class, collection);
     }
 }
