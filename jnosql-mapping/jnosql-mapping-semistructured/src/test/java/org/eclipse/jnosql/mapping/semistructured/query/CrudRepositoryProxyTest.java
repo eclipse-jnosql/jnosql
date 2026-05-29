@@ -422,7 +422,7 @@ class CrudRepositoryProxyTest {
         personRepository.findAll().toList();
         ArgumentCaptor<Class<?>> captor = ArgumentCaptor.forClass(Class.class);
         verify(template).findAll(captor.capture());
-        assertEquals(captor.getValue(), Person.class);
+        assertEquals(Person.class, captor.getValue());
     }
 
     @Test
