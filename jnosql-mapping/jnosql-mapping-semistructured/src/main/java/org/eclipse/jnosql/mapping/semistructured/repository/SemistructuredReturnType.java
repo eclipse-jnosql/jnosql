@@ -99,9 +99,7 @@ class SemistructuredReturnType {
                 .returnType(method.returnType().orElseThrow())
 
                 .result(() -> Stream.empty().map(mapper(method, entityMetadata)))
-                .singleResult(() -> {
-                    return Optional.empty().map(mapper(method, entityMetadata));
-                })
+                .singleResult(() -> Optional.empty().map(mapper(method, entityMetadata)))
                 .pagination(DynamicReturn.findPageRequest(context.parameters()))
                 .streamPagination(p -> Stream.empty())
                 .singleResultPagination(p -> Optional.empty())
