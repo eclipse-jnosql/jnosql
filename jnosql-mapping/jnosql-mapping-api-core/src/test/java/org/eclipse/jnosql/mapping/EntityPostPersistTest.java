@@ -42,7 +42,7 @@ class EntityPostPersistTest {
         assertEquals(entity1, entity2);
         assertEquals(entity2, entity1);
         assertEquals(entity1, entity2);
-        assertNotEquals(entity1, null);
+        assertNotEquals(null, entity1);
     }
 
     @Test
