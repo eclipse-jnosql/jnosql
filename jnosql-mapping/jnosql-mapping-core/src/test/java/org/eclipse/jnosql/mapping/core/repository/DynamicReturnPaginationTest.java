@@ -77,6 +77,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
 
@@ -109,7 +110,9 @@ class DynamicReturnPaginationTest {
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
-                .page(page).build();
+                .page(page)
+                .totalSupplier(() -> 1L)
+                .build();
 
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Optional);
@@ -140,7 +143,9 @@ class DynamicReturnPaginationTest {
                 .pagination(pageRequest)
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
-                .page(page).build();
+                .page(page)
+                .totalSupplier(() -> 1L)
+                .build();
 
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Person);
@@ -171,6 +176,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
 
         Assertions.assertThrows(EmptyResultException.class, dynamicReturn::execute);
@@ -199,6 +205,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof List);
@@ -230,6 +237,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
 
         Object execute = dynamicReturn.execute();
@@ -260,6 +268,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Collection);
@@ -290,6 +299,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Set);
@@ -320,6 +330,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Queue);
@@ -351,6 +362,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Stream);
@@ -380,6 +392,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof SortedSet);
@@ -410,6 +423,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof NavigableSet);
@@ -441,6 +455,7 @@ class DynamicReturnPaginationTest {
                 .streamPagination(streamPagination)
                 .singleResultPagination(singlePagination)
                 .page(page)
+                .totalSupplier(() -> 1L)
                 .build();
         Object execute = dynamicReturn.execute();
         Assertions.assertTrue(execute instanceof Deque);
