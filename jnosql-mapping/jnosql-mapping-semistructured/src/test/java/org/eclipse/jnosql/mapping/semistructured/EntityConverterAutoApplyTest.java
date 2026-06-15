@@ -137,10 +137,6 @@ class EntityConverterAutoApplyTest {
             var communicationEntity = CommunicationEntity.of("TravelWishList");
             communicationEntity.add("_id", UUID.randomUUID());
             communicationEntity.add("wishCollection", "Salvador|Rio de Janeiro|Amor");
-            WishCollection wishCollection = new WishCollection();
-            wishCollection.addWish("Salvador");
-            wishCollection.addWish("Rio de Janeiro");
-            wishCollection.addWish("Amor");
             TravelWishList travelWishList = converter.toEntity(communicationEntity);
             SoftAssertions.assertSoftly(soft -> {
                 soft.assertThat(travelWishList.getUuid()).isEqualTo(communicationEntity.find("_id").orElseThrow().get());
@@ -154,10 +150,6 @@ class EntityConverterAutoApplyTest {
             var communicationEntity = CommunicationEntity.of("CarWishList");
             communicationEntity.add("_id", UUID.randomUUID());
             communicationEntity.add("wishCollection", "SUV|Sports Car|Truck");
-            WishCollection wishCollection = new WishCollection();
-            wishCollection.addWish("SUV");
-            wishCollection.addWish("Sports Car");
-            wishCollection.addWish("Truck");
             CarWishList carWishList = converter.toEntity(communicationEntity);
             SoftAssertions.assertSoftly(soft -> {
                 soft.assertThat(carWishList.uuid()).isEqualTo(communicationEntity.find("_id").orElseThrow().get());
