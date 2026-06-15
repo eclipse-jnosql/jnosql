@@ -20,6 +20,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.BookWishList;
+import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.TravelWishList;
 import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.WishCollection;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
@@ -67,6 +68,24 @@ class EntityConverterAutoApplyTest {
             var communicationEntity = converter.toCommunication(bookWishList);
             SoftAssertions.assertSoftly(soft -> {
                 soft.assertThat(communicationEntity.name()).isEqualTo("BookWishList");
+                soft.assertThat(communicationEntity.find("_id").orElseThrow().get()).isEqualTo(bookWishList.getUuid());
+                soft.assertThat(communicationEntity.find("wishCollection").orElseThrow().get()).isEqualTo(
+                        String.join("|", wishCollection.getWishes())
+                );
+            });
+        }
+
+        @Test
+        @DisplayName("Should overwrite by attribute converter")
+        void shouldOverWriteByAttributeConverterCustomConstructor() {
+            WishCollection wishCollection = new WishCollection();
+            wishCollection.addWish("Salvador");
+            wishCollection.addWish("Rio de Janeiro");
+            wishCollection.addWish("Amor");
+            var bookWishList = TravelWishList.of(wishCollection);
+            var communicationEntity = converter.toCommunication(bookWishList);
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(communicationEntity.name()).isEqualTo("TravelWishList");
                 soft.assertThat(communicationEntity.find("_id").orElseThrow().get()).isEqualTo(bookWishList.getUuid());
                 soft.assertThat(communicationEntity.find("wishCollection").orElseThrow().get()).isEqualTo(
                         String.join("|", wishCollection.getWishes())
