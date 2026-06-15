@@ -15,14 +15,18 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.inject.Inject;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.BookWishList;
+import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.WishCollection;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -50,6 +54,19 @@ class EntityConverterAutoApplyTest {
     @DisplayName("When an explicit converter overrides an auto-apply converter during entity-to-database conversion")
     class WhenOverwriteAutoApplyToCommunication {
 
+        @Test
+        @DisplayName("Should overwrite by attribute converter")
+        void shouldOverWriteByAttributeConverter() {
+            WishCollection wishCollection = new WishCollection();
+            wishCollection.addWish("Learn JNoSQL");
+            wishCollection.addWish("Clean Code");
+            wishCollection.addWish("Refactor Code");
+            var bookWishList = BookWishList.of(wishCollection);
+            var communicationEntity = converter.toCommunication(bookWishList);
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(communicationEntity.name()).isEqualTo("BookWishList");
+            });
+        }
     }
 
     @Nested
