@@ -16,12 +16,11 @@ package org.eclipse.jnosql.mapping.semistructured.entities.autoconverter;
 
 import jakarta.nosql.Column;
 import jakarta.nosql.Convert;
-import jakarta.nosql.Converter;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Id;
 
 import java.util.UUID;
 
 @Entity
-public record BirthdayWishList2(@Id UUID uuid, @Column @Convert(WishCollectionOverwriteConverter.class) WishCollection wishCollection) {
+public record CarWishList(@Id UUID uuid, @Column @Convert(WishCollectionOverwriteConverter.class) WishCollection wishCollection) {
 }
