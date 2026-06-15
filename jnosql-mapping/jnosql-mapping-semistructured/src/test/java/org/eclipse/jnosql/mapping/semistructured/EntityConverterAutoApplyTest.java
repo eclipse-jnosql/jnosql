@@ -43,6 +43,15 @@ class EntityConverterAutoApplyTest {
 
     }
 
+    @Nested
+    class WhenOverwriteAutoApplyToCommunication {
+
+    }
+
+    @Nested
+    class WhenOverwriteAutoApplyToEntity {
+
+    }
 
 
 }
