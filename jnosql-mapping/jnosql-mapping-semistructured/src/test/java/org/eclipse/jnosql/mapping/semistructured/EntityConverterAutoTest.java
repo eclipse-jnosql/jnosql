@@ -31,4 +31,6 @@ class EntityConverterAutoTest {
 
     @Inject
     private EntityConverter converter;
+
+
 }
