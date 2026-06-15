@@ -14,16 +14,35 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.entities.autoconverter;
 
+import jakarta.nosql.Column;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Id;
 
 import java.util.UUID;
 
 @Entity
-public class WishList {
+public class ChristmasWishList {
 
     @Id
     private UUID uuid;
 
+    @Column
     private WishCollection wishCollection;
+
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public WishCollection getWishCollection() {
+        return wishCollection;
+    }
+
+
+    public static ChristmasWishList of(WishCollection wishCollection) {
+        var christmasWishList = new ChristmasWishList();
+        christmasWishList.uuid = UUID.randomUUID();
+        christmasWishList.wishCollection = wishCollection;
+        return christmasWishList;
+    }
 }
