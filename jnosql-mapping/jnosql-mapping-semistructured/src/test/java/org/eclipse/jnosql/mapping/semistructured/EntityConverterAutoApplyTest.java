@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
