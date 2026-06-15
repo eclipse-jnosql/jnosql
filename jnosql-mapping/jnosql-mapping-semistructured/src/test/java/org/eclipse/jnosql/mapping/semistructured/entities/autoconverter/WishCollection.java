@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Dreams {
+public class WishCollection {
 
     private final List<String> wishes = new ArrayList<>();
 
@@ -31,10 +31,10 @@ public class Dreams {
         return String.join(",", this.wishes);
     }
 
-    public static Dreams parse(String value) {
-        Dreams dreams = new Dreams();
-        dreams.wishes.addAll(List.of(value.split(",")));
-        return dreams;
+    public static WishCollection parse(String value) {
+        var wishCollection = new WishCollection();
+        wishCollection.wishes.addAll(List.of(value.split(",")));
+        return wishCollection;
     }
 
      public void addWish(String wish) {
