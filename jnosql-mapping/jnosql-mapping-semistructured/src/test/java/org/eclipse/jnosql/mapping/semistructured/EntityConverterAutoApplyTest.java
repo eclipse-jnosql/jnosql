@@ -152,7 +152,7 @@ class EntityConverterAutoApplyTest {
         @Test
         @DisplayName("Should overwrite by record converter")
         void shouldOverwriteByRecord() {
-            var communicationEntity = CommunicationEntity.of("TravelWishList");
+            var communicationEntity = CommunicationEntity.of("CarWishList");
             communicationEntity.add("_id", UUID.randomUUID());
             communicationEntity.add("wishCollection", "SUV|Sports Car|Truck");
             WishCollection wishCollection = new WishCollection();
