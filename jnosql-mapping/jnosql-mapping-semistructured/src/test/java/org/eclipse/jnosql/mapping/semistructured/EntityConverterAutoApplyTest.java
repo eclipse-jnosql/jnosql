@@ -84,11 +84,11 @@ class EntityConverterAutoApplyTest {
             wishCollection.addWish("Salvador");
             wishCollection.addWish("Rio de Janeiro");
             wishCollection.addWish("Amor");
-            var bookWishList = TravelWishList.of(wishCollection);
-            var communicationEntity = converter.toCommunication(bookWishList);
+            var travelWishList = TravelWishList.of(wishCollection);
+            var communicationEntity = converter.toCommunication(travelWishList);
             SoftAssertions.assertSoftly(soft -> {
                 soft.assertThat(communicationEntity.name()).isEqualTo("TravelWishList");
-                soft.assertThat(communicationEntity.find("_id").orElseThrow().get()).isEqualTo(bookWishList.getUuid());
+                soft.assertThat(communicationEntity.find("_id").orElseThrow().get()).isEqualTo(travelWishList.getUuid());
                 soft.assertThat(communicationEntity.find("wishCollection").orElseThrow().get()).isEqualTo(
                         String.join("|", wishCollection.getWishes())
                 );
