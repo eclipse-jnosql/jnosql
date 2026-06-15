@@ -106,7 +106,7 @@ class EntityConverterAutoApplyTest {
             var carWishList = new CarWishList(UUID.randomUUID(), wishCollection);
             var communicationEntity = converter.toCommunication(carWishList);
             SoftAssertions.assertSoftly(soft -> {
-                soft.assertThat(communicationEntity.name()).isEqualTo("TravelWishList");
+                soft.assertThat(communicationEntity.name()).isEqualTo("CarWishList");
                 soft.assertThat(communicationEntity.find("_id").orElseThrow().get()).isEqualTo(carWishList.uuid());
                 soft.assertThat(communicationEntity.find("wishCollection").orElseThrow().get()).isEqualTo(
                         String.join("|", wishCollection.getWishes())
