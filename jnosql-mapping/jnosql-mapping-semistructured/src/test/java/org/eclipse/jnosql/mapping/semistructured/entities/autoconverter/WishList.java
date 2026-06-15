@@ -25,5 +25,5 @@ public class WishList {
     @Id
     private UUID uuid;
 
-    private Dreams dreams;
+    private WishCollection wishCollection;
 }
