@@ -21,6 +21,7 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 
 @EnableAutoWeld
@@ -34,21 +35,25 @@ class EntityConverterAutoApplyTest {
     private EntityConverter converter;
 
     @Nested
+    @DisplayName("When converting entity attributes to database values using auto-apply converters")
     class WhenAutoApplyToCommunication {
 
     }
 
     @Nested
+    @DisplayName("When converting database values to entity attributes using auto-apply converters")
     class WhenAutoApplyToEntity {
 
     }
 
     @Nested
+    @DisplayName("When an explicit converter overrides an auto-apply converter during entity-to-database conversion")
     class WhenOverwriteAutoApplyToCommunication {
 
     }
 
     @Nested
+    @DisplayName("When an explicit converter overrides an auto-apply converter during database-to-entity conversion")
     class WhenOverwriteAutoApplyToEntity {
 
     }
