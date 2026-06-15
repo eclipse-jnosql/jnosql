@@ -20,6 +20,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.BookWishList;
+import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.CarWishList;
 import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.TravelWishList;
 import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.WishCollection;
 import org.jboss.weld.junit5.auto.AddExtensions;
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @EnableAutoWeld
@@ -87,6 +89,24 @@ class EntityConverterAutoApplyTest {
             SoftAssertions.assertSoftly(soft -> {
                 soft.assertThat(communicationEntity.name()).isEqualTo("TravelWishList");
                 soft.assertThat(communicationEntity.find("_id").orElseThrow().get()).isEqualTo(bookWishList.getUuid());
+                soft.assertThat(communicationEntity.find("wishCollection").orElseThrow().get()).isEqualTo(
+                        String.join("|", wishCollection.getWishes())
+                );
+            });
+        }
+
+        @Test
+        @DisplayName("Should overwrite by record converter")
+        void shouldOverwriteByRecord() {
+            WishCollection wishCollection = new WishCollection();
+            wishCollection.addWish("SUV");
+            wishCollection.addWish("Sports Car");
+            wishCollection.addWish("Truck");
+            var carWishList = new CarWishList(UUID.randomUUID(), wishCollection);
+            var communicationEntity = converter.toCommunication(carWishList);
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(communicationEntity.name()).isEqualTo("TravelWishList");
+                soft.assertThat(communicationEntity.find("_id").orElseThrow().get()).isEqualTo(carWishList.uuid());
                 soft.assertThat(communicationEntity.find("wishCollection").orElseThrow().get()).isEqualTo(
                         String.join("|", wishCollection.getWishes())
                 );
