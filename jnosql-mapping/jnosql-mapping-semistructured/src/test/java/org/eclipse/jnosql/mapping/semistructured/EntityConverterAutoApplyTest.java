@@ -28,6 +28,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.stream.Collectors;
+
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
 @AddPackages(MockProducer.class)
@@ -65,6 +67,10 @@ class EntityConverterAutoApplyTest {
             var communicationEntity = converter.toCommunication(bookWishList);
             SoftAssertions.assertSoftly(soft -> {
                 soft.assertThat(communicationEntity.name()).isEqualTo("BookWishList");
+                soft.assertThat(communicationEntity.find("_id").orElseThrow().get()).isEqualTo(bookWishList.getUuid());
+                soft.assertThat(communicationEntity.find("wishCollection").orElseThrow().get()).isEqualTo(
+                        String.join("|", wishCollection.getWishes())
+                );
             });
         }
     }
