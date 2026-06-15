@@ -22,7 +22,7 @@ import jakarta.nosql.Id;
 import java.util.UUID;
 
 @Entity
-public class NewYearWishList2 {
+public class TravelWishList {
 
     @Id
     private UUID uuid;
@@ -41,12 +41,12 @@ public class NewYearWishList2 {
     }
 
 
-    public NewYearWishList2(@Id UUID uuid, @Column WishCollection wishCollection) {
+    public TravelWishList(@Id UUID uuid, @Column WishCollection wishCollection) {
         this.uuid = uuid;
         this.wishCollection = wishCollection;
     }
 
-    public static NewYearWishList2 of(WishCollection wishCollection) {
-        return new NewYearWishList2(UUID.randomUUID(), wishCollection);
+    public static TravelWishList of(WishCollection wishCollection) {
+        return new TravelWishList(UUID.randomUUID(), wishCollection);
     }
 }
