@@ -41,7 +41,7 @@ public class TravelWishList {
     }
 
 
-    public TravelWishList(@Id UUID uuid, @Column WishCollection wishCollection) {
+    public TravelWishList(@Id UUID uuid, @Column("wishCollection") @Convert(WishCollectionOverwriteConverter.class) WishCollection wishCollection) {
         this.uuid = uuid;
         this.wishCollection = wishCollection;
     }
