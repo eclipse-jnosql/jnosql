@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.inject.Inject;
+import jakarta.nosql.Converter;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
@@ -27,10 +28,9 @@ import org.jboss.weld.junit5.auto.EnableAutoWeld;
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class})
-class EntityConverterAutoTest {
+class EntityConverterAutoApplyTest {
 
     @Inject
     private EntityConverter converter;
-
 
 }
