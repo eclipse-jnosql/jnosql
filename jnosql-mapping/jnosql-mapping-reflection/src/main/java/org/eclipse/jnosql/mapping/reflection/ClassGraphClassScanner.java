@@ -53,7 +53,7 @@ enum ClassGraphClassScanner implements ClassScanner {
     private final Set<Class<?>> embeddables;
     private final Set<Class<?>> customRepositories;
     private final Set<Class<?>> projections;
-
+    private final Set<Class<? extends AttributeConverter<?,?>>> autoApplyConverters;
 
     ClassGraphClassScanner() {
         entities = new HashSet<>();
@@ -61,6 +61,7 @@ enum ClassGraphClassScanner implements ClassScanner {
         repositories = new HashSet<>();
         customRepositories = new HashSet<>();
         projections = new HashSet<>();
+        autoApplyConverters = new HashSet<>();
 
         Logger logger = Logger.getLogger(ClassGraphClassScanner.class.getName());
         logger.fine("Starting scan class to find entities, embeddable and repositories.");
@@ -72,6 +73,7 @@ enum ClassGraphClassScanner implements ClassScanner {
             this.repositories.addAll(loadRepositories(result));
             this.customRepositories.addAll(loadCustomRepositories(result));
             this.projections.addAll(loadProjection(result));
+            this.autoApplyConverters.addAll(loadAutoApplyConverters(result));
             notSupportedRepositories.forEach(this.repositories::remove);
         }
 
