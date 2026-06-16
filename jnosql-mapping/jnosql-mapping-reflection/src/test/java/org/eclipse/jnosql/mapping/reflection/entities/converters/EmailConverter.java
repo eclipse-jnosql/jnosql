@@ -15,8 +15,10 @@
 package org.eclipse.jnosql.mapping.reflection.entities.converters;
 
 import jakarta.nosql.AttributeConverter;
+import jakarta.nosql.Converter;
 import org.eclipse.jnosql.mapping.reflection.entities.Email;
 
+@Converter(autoApply = true)
 public class EmailConverter implements AttributeConverter<Email, String> {
 
     @Override
