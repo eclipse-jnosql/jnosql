@@ -30,7 +30,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The {@link jakarta.nosql.Convert} collection, this instance will generate/create an instance.
+ * Provides access to {@link AttributeConverter} instances used by the mapping layer.
+ *
+ * <p>This component is responsible for resolving converter instances declared
+ * through {@link jakarta.nosql.Convert}. Converters are obtained from the CDI
+ * container when available, allowing them to participate in dependency injection
+ * and lifecycle management. When no CDI-managed bean exists for a converter type,
+ * the converter is instantiated using its no-argument constructor.</p>
+ *
+ * <p>The converter resolution process is transparent to mapping implementations,
+ * providing a centralized mechanism for obtaining converter instances regardless
+ * of whether they are managed by CDI or created directly.</p>
  */
 @ApplicationScoped
 public class Converters {
