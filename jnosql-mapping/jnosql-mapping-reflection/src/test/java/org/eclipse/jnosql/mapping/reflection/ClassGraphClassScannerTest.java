@@ -145,4 +145,14 @@ class ClassGraphClassScannerTest {
                 .doesNotContain(BookDTO.class);
     }
 
+    @Test
+    void shouldLoadAutoApplyConverter() {
+
+    }
+
+    @Test
+    void shouldNotLoadWhenAutoApplyIsFalse() {
+
+    }
+
 }
