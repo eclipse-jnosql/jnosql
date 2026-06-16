@@ -31,6 +31,7 @@ import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.eclipse.jnosql.mapping.reflection.entities.PersonRepository;
 import org.eclipse.jnosql.mapping.reflection.entities.converters.EmailConverter;
 import org.eclipse.jnosql.mapping.reflection.entities.converters.UUIDConverter;
+import org.eclipse.jnosql.mapping.reflection.entities.converters.UUIDCustomConverter;
 import org.eclipse.jnosql.mapping.reflection.repository.InvalidEntityCustomRepository;
 import org.eclipse.jnosql.mapping.reflection.repository.MethodEntityCustomRepository;
 import org.junit.jupiter.api.Assertions;
@@ -156,7 +157,9 @@ class ClassGraphClassScannerTest {
 
     @Test
     void shouldNotLoadWhenAutoApplyIsFalse() {
-
+        var converters = classScanner.autoApplyConverters();
+        assertThat(converters).hasSize(2)
+                .doesNotContain(UUIDCustomConverter.class);
     }
 
 }
