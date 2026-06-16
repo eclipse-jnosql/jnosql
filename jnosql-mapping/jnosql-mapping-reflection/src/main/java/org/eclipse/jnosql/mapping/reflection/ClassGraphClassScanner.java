@@ -97,6 +97,10 @@ enum ClassGraphClassScanner implements ClassScanner {
         return unmodifiableSet(embeddables);
     }
 
+    public Set<Class<? extends AttributeConverter<?, ?>>> getAutoApplyConverters() {
+        return unmodifiableSet(autoApplyConverters);
+    }
+
     @Override
     public <T extends DataRepository<?, ?>> Set<Class<?>> repositories(Class<T> filter) {
         Objects.requireNonNull(filter, "filter is required");
