@@ -104,8 +104,8 @@ public class Converters {
 
     @Override
     public String toString() {
-        return "DefaultConverters{" +
-                "beanManager=" + beanManager +
+        return "Converters{" +
+                "cachedConverters=" + cache.size() +
                 '}';
     }
 }
