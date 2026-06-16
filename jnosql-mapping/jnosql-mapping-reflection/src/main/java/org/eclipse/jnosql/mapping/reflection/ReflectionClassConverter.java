@@ -37,7 +37,7 @@ import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
-final class ReflectionClassConverter implements ClassConverter {
+public final class ReflectionClassConverter implements ClassConverter {
 
     private static final Logger LOGGER = Logger.getLogger(ReflectionClassConverter.class.getName());
 
