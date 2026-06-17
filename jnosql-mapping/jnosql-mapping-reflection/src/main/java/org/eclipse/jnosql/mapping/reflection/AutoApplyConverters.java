@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.reflection;
 
 import jakarta.nosql.AttributeConverter;
+import jakarta.nosql.Convert;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -40,6 +41,13 @@ final class AutoApplyConverters {
         LOGGER.fine(() -> "Auto apply converters found, the auto apply quantity: " + converters.size());
     }
 
+
+    Class<? extends AttributeConverter<?, ?>> converter(Convert convert, Class<?> type) {
+        if (convert != null) {
+            return convert.value();
+        }
+        return converters.get(type);
+    }
 
     Optional<Class<? extends AttributeConverter<?, ?>>> getConverter(Class<?> type) {
         return Optional.ofNullable(converters.get(type));
