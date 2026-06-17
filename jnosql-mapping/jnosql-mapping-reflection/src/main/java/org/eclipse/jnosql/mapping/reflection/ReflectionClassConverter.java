@@ -179,8 +179,12 @@ public final class ReflectionClassConverter implements ClassConverter {
         boolean id = reflections.isIdField(field);
         String columnName = id ? reflections.getIdName(field) : reflections.getColumnName(field);
         String udt = reflections.getUDTName(field);
-        FieldMappingBuilder builder = new FieldMappingBuilder().name(columnName)
-                .field(field).type(mappingType).id(id).udt(udt)
+        FieldMappingBuilder builder = new FieldMappingBuilder()
+                .name(columnName)
+                .field(field)
+                .type(mappingType)
+                .id(id)
+                .udt(udt)
                 .reader(bean -> reflections.getValue(bean, field))
                 .writer((bean, value) -> reflections.setValue(bean, field, value));
 
