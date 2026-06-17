@@ -37,7 +37,7 @@ final class AutoApplyConverters {
             converters.put(attributeType(converter), converter);
         }
 
-        LOGGER.fine(() -> "Auto apply converters found, size: " + converters.size());
+        LOGGER.fine(() -> "Auto apply converters found, the auto apply quantity: " + converters.size());
     }
 
 
