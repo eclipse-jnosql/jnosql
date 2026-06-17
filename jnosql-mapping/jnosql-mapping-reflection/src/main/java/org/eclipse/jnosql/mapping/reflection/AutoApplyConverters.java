@@ -14,5 +14,50 @@
  */
 package org.eclipse.jnosql.mapping.reflection;
 
+import jakarta.nosql.AttributeConverter;
+
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
+
 final class AutoApplyConverters {
+
+    private static final Logger LOGGER = Logger.getLogger(AutoApplyConverters.class.getName());
+
+
+    private final Map<Class<?>, Class<? extends AttributeConverter<?,?>>> converters;
+
+    AutoApplyConverters() {
+        this.converters = new HashMap<>();
+
+        for (Class<? extends AttributeConverter<?, ?>> converter : ClassGraphClassScanner.INSTANCE.autoApplyConverters()) {
+            converters.put(attributeType(converter), converter);
+        }
+
+        LOGGER.fine(() -> "Auto apply converters found, size: " + converters.size());
+    }
+
+
+
+    private static Class<?> attributeType(Class<? extends AttributeConverter<?, ?>> converter) {
+
+        for (Type type : converter.getGenericInterfaces()) {
+            if (type instanceof ParameterizedType parameterizedType
+                    && parameterizedType.getRawType().equals(AttributeConverter.class)) {
+
+                Type argument = parameterizedType.getActualTypeArguments()[0];
+
+                if (argument instanceof Class<?> clazz) {
+                    return clazz;
+                }
+            }
+        }
+
+        throw new IllegalArgumentException(
+                "Unable to determine attribute type from converter: "
+                        + converter.getName());
+    }
+
 }
