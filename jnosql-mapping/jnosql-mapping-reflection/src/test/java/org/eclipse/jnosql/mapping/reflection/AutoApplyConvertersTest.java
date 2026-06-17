@@ -14,8 +14,40 @@
  */
 package org.eclipse.jnosql.mapping.reflection;
 
-import static org.junit.jupiter.api.Assertions.*;
+import jakarta.nosql.AttributeConverter;
+import org.eclipse.jnosql.mapping.reflection.entities.converters.UUIDConverter;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class AutoApplyConvertersTest {
+    private final AutoApplyConverters converters = new AutoApplyConverters();
 
+    @Nested
+    @DisplayName("When looking up auto-apply converters")
+    class WhenLookup {
+
+        @Test
+        @DisplayName("Should find UUID converter by attribute type")
+        void shouldFindUUIDConverter() {
+
+            Optional<Class<? extends AttributeConverter<?, ?>>> converter =
+                    converters.getConverter(UUID.class);
+
+            assertThat(converter).isPresent().contains(UUIDConverter.class);
+        }
+
+        @Test
+        @DisplayName("Should not find converter for String type")
+        void shouldNotFindConverterForString() {
+
+            var converter = converters.getConverter(String.class);
+            assertThat(converter).isEmpty();
+        }
+    }
 }
