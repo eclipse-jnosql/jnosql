@@ -1,4 +1,4 @@
 package org.eclipse.jnosql.mapping.reflection;
 
-public class AutoApplyConverters {
+final class AutoApplyConverters {
 }
