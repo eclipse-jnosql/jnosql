@@ -20,6 +20,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 final class AutoApplyConverters {
@@ -40,6 +41,9 @@ final class AutoApplyConverters {
     }
 
 
+    Optional<Class<? extends AttributeConverter<?, ?>>> getConverter(Class<?> type) {
+        return Optional.ofNullable(converters.get(type));
+    }
 
     private static Class<?> attributeType(Class<? extends AttributeConverter<?, ?>> converter) {
 
