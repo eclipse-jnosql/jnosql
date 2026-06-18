@@ -16,6 +16,8 @@ package org.eclipse.jnosql.mapping.reflection;
 
 import jakarta.nosql.AttributeConverter;
 import jakarta.nosql.Column;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.metadata.MappingType;
 import org.eclipse.jnosql.mapping.metadata.ParameterMetaData;
 import org.eclipse.jnosql.mapping.reflection.entities.Animal;
@@ -26,13 +28,20 @@ import org.eclipse.jnosql.mapping.reflection.entities.constructor.Computer;
 import org.eclipse.jnosql.mapping.reflection.entities.constructor.PetOwner;
 import org.eclipse.jnosql.mapping.reflection.entities.constructor.Smartphone;
 import org.eclipse.jnosql.mapping.reflection.entities.constructor.SuperHero;
+import org.eclipse.jnosql.mapping.reflection.entities.converters.Street;
+import org.eclipse.jnosql.mapping.reflection.entities.converters.UUIDConverter;
+import org.eclipse.jnosql.mapping.reflection.entities.converters.UUIDCustomConverter;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ParameterMetaDataBuilderTest {
@@ -126,9 +135,10 @@ class ParameterMetaDataBuilderTest {
         assertEquals(DefaultMapParameterMetaData.class, map.getClass());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldConvertListParameter() {
-        Constructor<Foo> constructor = (Constructor<Foo>) SuperHero.class.getDeclaredConstructors()[0];
+        Constructor<SuperHero> constructor = (Constructor<SuperHero>) SuperHero.class.getDeclaredConstructors()[0];
         ParameterMetaData powers = ParameterMetaDataBuilder.of(constructor.getParameters()[2]);
         Assertions.assertNotNull(powers);
         Assertions.assertFalse(powers.isId());
@@ -137,6 +147,35 @@ class ParameterMetaDataBuilderTest {
         Assertions.assertEquals(MappingType.COLLECTION, powers.mappingType());
         Assertions.assertTrue(powers.converter().isEmpty());
         assertEquals(DefaultCollectionParameterMetaData.class, powers.getClass());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Nested
+    class WhenAutoApplyConverter{
+
+        @DisplayName("Should use auto converter when apply")
+        @Test
+        void shouldApplyAutoConverter() {
+            Constructor<Street> constructor = (Constructor<Street>) Street.class.getDeclaredConstructors()[0];
+            ParameterMetaData id = ParameterMetaDataBuilder.of(constructor.getParameters()[0]);
+            assertThat(id.converter()).get().isNotNull().isEqualTo(UUIDConverter.class);
+        }
+
+        @Test
+        @DisplayName("Should use converter from annotation when apply")
+        void shouldUseConverterFromAnnotation() {
+            Constructor<Street> constructor = (Constructor<Street>) Street.class.getDeclaredConstructors()[0];
+            ParameterMetaData number = ParameterMetaDataBuilder.of(constructor.getParameters()[2]);
+            assertThat(number.converter()).get().isNotNull().isEqualTo(UUIDConverter.class);
+        }
+
+        @Test
+        @DisplayName("Should not apply converter when not found")
+        void shouldNotApplyConverter() {
+            Constructor<Street> constructor = (Constructor<Street>) Street.class.getDeclaredConstructors()[0];
+            ParameterMetaData name = ParameterMetaDataBuilder.of(constructor.getParameters()[1]);
+            assertThat(name.converter()).isEmpty();
+        }
     }
 
 
