@@ -36,32 +36,32 @@ class ParameterMetaDataBuilder {
         Id id = parameter.getAnnotation(Id.class);
         Column column = parameter.getAnnotation(Column.class);
         Convert convert = parameter.getAnnotation(Convert.class);
+        var applyConverters = AutoApplyConverters.INSTANCE;
         Class<?> type = parameter.getType();
         String name = Optional.ofNullable(id)
                 .map(Id::value)
                 .or(() -> Optional.ofNullable(column).map(Column::value))
                 .orElse(null);
-        if ((Objects.isNull(name) || name.isBlank())
-                && parameter.getDeclaringExecutable().getDeclaringClass().isRecord()) {
+        if ((Objects.isNull(name) || name.isBlank()) && parameter.getDeclaringExecutable().getDeclaringClass().isRecord()) {
             name = parameter.getName();
         }
         MappingType mappingType = MappingType.of(parameter.getType());
         return switch (mappingType) {
             case COLLECTION -> new DefaultCollectionParameterMetaData(name, type,
                     id != null,
-                    Optional.ofNullable(convert).map(Convert::value).orElse(null),
+                    applyConverters.converter(convert, type),
                     mappingType, parameter::getParameterizedType);
             case ARRAY -> new DefaultArrayParameterMetaData(name, type,
                     id != null,
-                    Optional.ofNullable(convert).map(Convert::value).orElse(null),
+                    applyConverters.converter(convert, type),
                     mappingType, parameter.getType().getComponentType());
             case MAP -> new DefaultMapParameterMetaData(name, type,
                     id != null,
-                    Optional.ofNullable(convert).map(Convert::value).orElse(null),
+                    applyConverters.converter(convert, type),
                     mappingType, parameter::getParameterizedType);
             default -> new DefaultParameterMetaData(name, type,
                     id != null,
-                    Optional.ofNullable(convert).map(Convert::value).orElse(null),
+                    applyConverters.converter(convert, type),
                     mappingType);
         };
 
