@@ -63,17 +63,11 @@ class AutoApplyConvertersTest {
         @DisplayName("Should use converter declared by @Convert annotation")
         void shouldUseConverterFromAnnotation() {
 
-            Convert convert = Mockito.mock(Convert.class);
+            var convert = Mockito.mock(Convert.class);
+            var value = UUIDCustomConverter.class;
 
-
-            Class<? extends AttributeConverter<?, ?>> value = UUIDCustomConverter.class;
-
-            Mockito.doReturn(value)
-.when(convert)
-                    .value();
-
-            Class<? extends AttributeConverter<?, ?>> converter = converters.converter(convert, String.class);
-
+            Mockito.doReturn(value).when(convert).value();
+            var converter = converters.converter(convert, String.class);
             assertThat(converter).isEqualTo(UUIDCustomConverter.class);
         }
 
