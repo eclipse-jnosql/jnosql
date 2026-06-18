@@ -166,7 +166,7 @@ class ParameterMetaDataBuilderTest {
         void shouldUseConverterFromAnnotation() {
             Constructor<Street> constructor = (Constructor<Street>) Street.class.getDeclaredConstructors()[0];
             ParameterMetaData number = ParameterMetaDataBuilder.of(constructor.getParameters()[2]);
-            assertThat(number.converter()).get().isNotNull().isEqualTo(UUIDConverter.class);
+            assertThat(number.converter()).get().isNotNull().isEqualTo(UUIDCustomConverter.class);
         }
 
         @Test
