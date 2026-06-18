@@ -86,9 +86,6 @@ class ParameterMetaDataBuilderTest {
         Class<? extends AttributeConverter<Object, Object>> converter = price.converter().orElseThrow();
         assertEquals(MoneyConverter.class, converter);
     }
-    //parameter wit collection
-    //parameter with EMBEDDED
-    //parameter with map
 
     @Test
     void shouldConvertEntityParameter() {
