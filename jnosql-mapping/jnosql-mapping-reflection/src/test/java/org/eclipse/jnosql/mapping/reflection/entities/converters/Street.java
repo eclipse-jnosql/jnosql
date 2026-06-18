@@ -22,5 +22,5 @@ import jakarta.nosql.Id;
 import java.util.UUID;
 
 @Entity
-public record Street(@Id UUID id, @Column String name, @Column @Convert(UUIDConverter.class) UUID number) {
+public record Street(@Id UUID id, @Column String name, @Column @Convert(UUIDCustomConverter.class) UUID number) {
 }
