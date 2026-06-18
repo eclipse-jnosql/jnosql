@@ -14,7 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.reflection;
 
-import jakarta.nosql.AttributeConverter;
 import jakarta.nosql.Convert;
 import org.eclipse.jnosql.mapping.reflection.entities.converters.UUIDConverter;
 import org.eclipse.jnosql.mapping.reflection.entities.converters.UUIDCustomConverter;
@@ -23,7 +22,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,9 +38,7 @@ class AutoApplyConvertersTest {
         @DisplayName("Should find UUID converter by attribute type")
         void shouldFindUUIDConverter() {
 
-            Optional<Class<? extends AttributeConverter<?, ?>>> converter =
-                    converters.getConverter(UUID.class);
-
+            var converter = converters.getConverter(UUID.class);
             assertThat(converter).isPresent().contains(UUIDConverter.class);
         }
 
@@ -75,8 +71,7 @@ class AutoApplyConvertersTest {
         @DisplayName("Should use auto-apply converter when annotation is absent")
         void shouldUseAutoApplyConverter() {
 
-            Class<? extends AttributeConverter<?, ?>> converter = converters.converter(null, UUID.class);
-
+            var converter = converters.converter(null, UUID.class);
             assertThat(converter).isEqualTo(UUIDConverter.class);
         }
 
@@ -84,8 +79,7 @@ class AutoApplyConvertersTest {
         @DisplayName("Should return null when no annotation and no auto-apply converter exist")
         void shouldReturnNullWhenConverterDoesNotExist() {
 
-            Class<? extends AttributeConverter<?, ?>> converter = converters.converter(null, String.class);
-
+            var converter = converters.converter(null, String.class);
             assertThat(converter).isNull();
         }
     }
