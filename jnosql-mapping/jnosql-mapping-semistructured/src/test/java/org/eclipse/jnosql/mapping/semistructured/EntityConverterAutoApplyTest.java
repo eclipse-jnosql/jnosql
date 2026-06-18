@@ -20,8 +20,11 @@ import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.BirthdayWishList;
 import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.BookWishList;
 import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.CarWishList;
+import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.ChristmasWishList;
+import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.NewYearWishList;
 import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.TravelWishList;
 import org.eclipse.jnosql.mapping.semistructured.entities.autoconverter.WishCollection;
 import org.jboss.weld.junit5.auto.AddExtensions;
@@ -52,16 +55,15 @@ class EntityConverterAutoApplyTest {
         void shouldOverWriteByAttributeConverter() {
 
             WishCollection wishCollection = new WishCollection();
-            wishCollection.addWish("Learn JNoSQL");
-            wishCollection.addWish("Clean Code");
-            wishCollection.addWish("Refactor Code");
-            var bookWishList = BookWishList.of(wishCollection);
-            var communicationEntity = converter.toCommunication(bookWishList);
+            wishCollection.addWish("Happy");
+            wishCollection.addWish("Peace");
+            var birthdayWishList = new BirthdayWishList(UUID.randomUUID(), wishCollection);
+            var communicationEntity = converter.toCommunication(birthdayWishList);
             SoftAssertions.assertSoftly(soft -> {
-                soft.assertThat(communicationEntity.name()).isEqualTo("BookWishList");
-                soft.assertThat(communicationEntity.find("_id").orElseThrow().get()).isEqualTo(bookWishList.getUuid());
+                soft.assertThat(communicationEntity.name()).isEqualTo("BirthdayWishList");
+                soft.assertThat(communicationEntity.find("_id").orElseThrow().get()).isEqualTo(birthdayWishList.uuid());
                 soft.assertThat(communicationEntity.find("wishCollection").orElseThrow().get()).isEqualTo(
-                        String.join("|", wishCollection.getWishes())
+                        String.join(",", wishCollection.getWishes())
                 );
             });
         }
@@ -71,16 +73,15 @@ class EntityConverterAutoApplyTest {
         void shouldOverWriteByAttributeConverterCustomConstructor() {
 
             WishCollection wishCollection = new WishCollection();
-            wishCollection.addWish("Salvador");
-            wishCollection.addWish("Rio de Janeiro");
-            wishCollection.addWish("Amor");
-            var travelWishList = TravelWishList.of(wishCollection);
-            var communicationEntity = converter.toCommunication(travelWishList);
+            wishCollection.addWish("Happy");
+            wishCollection.addWish("Peace");
+            var christmasWishList = ChristmasWishList.of(wishCollection);
+            var communicationEntity = converter.toCommunication(christmasWishList);
             SoftAssertions.assertSoftly(soft -> {
-                soft.assertThat(communicationEntity.name()).isEqualTo("TravelWishList");
-                soft.assertThat(communicationEntity.find("_id").orElseThrow().get()).isEqualTo(travelWishList.getUuid());
+                soft.assertThat(communicationEntity.name()).isEqualTo("ChristmasWishList");
+                soft.assertThat(communicationEntity.find("_id").orElseThrow().get()).isEqualTo(christmasWishList.getUuid());
                 soft.assertThat(communicationEntity.find("wishCollection").orElseThrow().get()).isEqualTo(
-                        String.join("|", wishCollection.getWishes())
+                        String.join(",", wishCollection.getWishes())
                 );
             });
         }
@@ -90,16 +91,15 @@ class EntityConverterAutoApplyTest {
         void shouldOverwriteByRecord() {
 
             WishCollection wishCollection = new WishCollection();
-            wishCollection.addWish("SUV");
-            wishCollection.addWish("Sports Car");
-            wishCollection.addWish("Truck");
-            var carWishList = new CarWishList(UUID.randomUUID(), wishCollection);
+            wishCollection.addWish("Happy");
+            wishCollection.addWish("Peace");
+            var carWishList = new NewYearWishList(UUID.randomUUID(), wishCollection);
             var communicationEntity = converter.toCommunication(carWishList);
             SoftAssertions.assertSoftly(soft -> {
-                soft.assertThat(communicationEntity.name()).isEqualTo("CarWishList");
-                soft.assertThat(communicationEntity.find("_id").orElseThrow().get()).isEqualTo(carWishList.uuid());
+                soft.assertThat(communicationEntity.name()).isEqualTo("NewYearWishList");
+                soft.assertThat(communicationEntity.find("_id").orElseThrow().get()).isEqualTo(carWishList.getUuid());
                 soft.assertThat(communicationEntity.find("wishCollection").orElseThrow().get()).isEqualTo(
-                        String.join("|", wishCollection.getWishes())
+                        String.join(",", wishCollection.getWishes())
                 );
             });
         }
