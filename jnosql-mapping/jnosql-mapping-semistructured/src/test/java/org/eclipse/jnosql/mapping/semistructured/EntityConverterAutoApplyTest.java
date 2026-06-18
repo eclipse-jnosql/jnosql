@@ -108,18 +108,18 @@ class EntityConverterAutoApplyTest {
     @Nested
     @DisplayName("When converting database values to entity attributes using auto-apply converters")
     class WhenAutoApplyToEntity {
-        
+
         @Test
         @DisplayName("Should overwrite by attribute converter")
         void shouldOverWriteByAttributeConverter() {
 
-            var communicationEntity = CommunicationEntity.of("BookWishList");
+            var communicationEntity = CommunicationEntity.of("NewYearWishList");
             communicationEntity.add("_id", UUID.randomUUID());
-            communicationEntity.add("wishCollection", "Learn JNoSQL|Clean Code|Refactor Code");
-            BookWishList bookWishList = converter.toEntity(communicationEntity);
+            communicationEntity.add("wishCollection", "Learn JNoSQL,Clean Code,Refactor Code");
+            NewYearWishList newYearWishList = converter.toEntity(communicationEntity);
             SoftAssertions.assertSoftly(soft -> {
-                soft.assertThat(bookWishList.getUuid()).isEqualTo(communicationEntity.find("_id").orElseThrow().get());
-                soft.assertThat(bookWishList.getWishCollection().getWishes()).contains("Learn JNoSQL", "Clean Code", "Refactor Code");
+                soft.assertThat(newYearWishList.getUuid()).isEqualTo(communicationEntity.find("_id").orElseThrow().get());
+                soft.assertThat(newYearWishList.getWishCollection().getWishes()).contains("Learn JNoSQL", "Clean Code", "Refactor Code");
             });
         }
 
@@ -127,26 +127,26 @@ class EntityConverterAutoApplyTest {
         @DisplayName("Should overwrite by attribute converter")
         void shouldOverWriteByAttributeConverterCustomConstructor() {
 
-            var communicationEntity = CommunicationEntity.of("TravelWishList");
+            var communicationEntity = CommunicationEntity.of("BirthdayWishList");
             communicationEntity.add("_id", UUID.randomUUID());
-            communicationEntity.add("wishCollection", "Salvador|Rio de Janeiro|Amor");
-            TravelWishList travelWishList = converter.toEntity(communicationEntity);
+            communicationEntity.add("wishCollection", "Salvador,Rio de Janeiro,Amor");
+            BirthdayWishList birthdayWishList = converter.toEntity(communicationEntity);
             SoftAssertions.assertSoftly(soft -> {
-                soft.assertThat(travelWishList.getUuid()).isEqualTo(communicationEntity.find("_id").orElseThrow().get());
-                soft.assertThat(travelWishList.getWishCollection().getWishes()).contains("Salvador", "Rio de Janeiro", "Amor");
+                soft.assertThat(birthdayWishList.uuid()).isEqualTo(communicationEntity.find("_id").orElseThrow().get());
+                soft.assertThat(birthdayWishList.wishCollection().getWishes()).contains("Salvador", "Rio de Janeiro", "Amor");
             });
         }
 
         @Test
         @DisplayName("Should overwrite by record converter")
         void shouldOverwriteByRecord() {
-            var communicationEntity = CommunicationEntity.of("CarWishList");
+            var communicationEntity = CommunicationEntity.of("ChristmasWishList");
             communicationEntity.add("_id", UUID.randomUUID());
-            communicationEntity.add("wishCollection", "SUV|Sports Car|Truck");
-            CarWishList carWishList = converter.toEntity(communicationEntity);
+            communicationEntity.add("wishCollection", "SUV,Sports Car,Truck");
+            ChristmasWishList christmasWishList = converter.toEntity(communicationEntity);
             SoftAssertions.assertSoftly(soft -> {
-                soft.assertThat(carWishList.uuid()).isEqualTo(communicationEntity.find("_id").orElseThrow().get());
-                soft.assertThat(carWishList.wishCollection().getWishes()).contains("SUV", "Sports Car", "Truck");
+                soft.assertThat(christmasWishList.getUuid()).isEqualTo(communicationEntity.find("_id").orElseThrow().get());
+                soft.assertThat(christmasWishList.getWishCollection().getWishes()).contains("SUV", "Sports Car", "Truck");
             });
         }
     }
