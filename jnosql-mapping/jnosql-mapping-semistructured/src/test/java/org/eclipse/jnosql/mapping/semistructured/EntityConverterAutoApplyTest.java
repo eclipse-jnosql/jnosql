@@ -108,6 +108,7 @@ class EntityConverterAutoApplyTest {
     @Nested
     @DisplayName("When converting database values to entity attributes using auto-apply converters")
     class WhenAutoApplyToEntity {
+        
         @Test
         @DisplayName("Should overwrite by attribute converter")
         void shouldOverWriteByAttributeConverter() {
