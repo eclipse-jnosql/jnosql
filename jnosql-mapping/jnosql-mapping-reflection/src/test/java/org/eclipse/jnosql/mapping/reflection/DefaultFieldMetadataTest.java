@@ -25,6 +25,7 @@ import org.eclipse.jnosql.mapping.reflection.entities.UDTEntity;
 import org.eclipse.jnosql.mapping.reflection.entities.Worker;
 import org.eclipse.jnosql.mapping.reflection.entities.converters.Street;
 import org.eclipse.jnosql.mapping.reflection.entities.converters.UUIDConverter;
+import org.eclipse.jnosql.mapping.reflection.entities.converters.UUIDCustomConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -106,7 +107,7 @@ class DefaultFieldMetadataTest {
             FieldMetadata name = entityMetadata.fieldMapping("id").orElseThrow();
             fieldMetadata = (DefaultFieldMetadata) name;
             Optional<Class<AttributeConverter<Object, Object>>> result = fieldMetadata.converter();
-            assertThat(result).get().isNotNull().isInstanceOf(UUIDConverter.class);
+            assertThat(result).get().isNotNull().isEqualTo(UUIDConverter.class);
         }
 
         @Test
@@ -116,7 +117,7 @@ class DefaultFieldMetadataTest {
             FieldMetadata name = entityMetadata.fieldMapping("number").orElseThrow();
             fieldMetadata = (DefaultFieldMetadata) name;
             Optional<Class<AttributeConverter<Object, Object>>> result = fieldMetadata.converter();
-            assertThat(result).get().isNotNull().isInstanceOf(UUIDConverter.class);
+            assertThat(result).get().isNotNull().isEqualTo(UUIDCustomConverter.class);
         }
 
         @Test
