@@ -108,7 +108,46 @@ class EntityConverterAutoApplyTest {
     @Nested
     @DisplayName("When converting database values to entity attributes using auto-apply converters")
     class WhenAutoApplyToEntity {
+        @Test
+        @DisplayName("Should overwrite by attribute converter")
+        void shouldOverWriteByAttributeConverter() {
 
+            var communicationEntity = CommunicationEntity.of("BookWishList");
+            communicationEntity.add("_id", UUID.randomUUID());
+            communicationEntity.add("wishCollection", "Learn JNoSQL|Clean Code|Refactor Code");
+            BookWishList bookWishList = converter.toEntity(communicationEntity);
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(bookWishList.getUuid()).isEqualTo(communicationEntity.find("_id").orElseThrow().get());
+                soft.assertThat(bookWishList.getWishCollection().getWishes()).contains("Learn JNoSQL", "Clean Code", "Refactor Code");
+            });
+        }
+
+        @Test
+        @DisplayName("Should overwrite by attribute converter")
+        void shouldOverWriteByAttributeConverterCustomConstructor() {
+
+            var communicationEntity = CommunicationEntity.of("TravelWishList");
+            communicationEntity.add("_id", UUID.randomUUID());
+            communicationEntity.add("wishCollection", "Salvador|Rio de Janeiro|Amor");
+            TravelWishList travelWishList = converter.toEntity(communicationEntity);
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(travelWishList.getUuid()).isEqualTo(communicationEntity.find("_id").orElseThrow().get());
+                soft.assertThat(travelWishList.getWishCollection().getWishes()).contains("Salvador", "Rio de Janeiro", "Amor");
+            });
+        }
+
+        @Test
+        @DisplayName("Should overwrite by record converter")
+        void shouldOverwriteByRecord() {
+            var communicationEntity = CommunicationEntity.of("CarWishList");
+            communicationEntity.add("_id", UUID.randomUUID());
+            communicationEntity.add("wishCollection", "SUV|Sports Car|Truck");
+            CarWishList carWishList = converter.toEntity(communicationEntity);
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(carWishList.uuid()).isEqualTo(communicationEntity.find("_id").orElseThrow().get());
+                soft.assertThat(carWishList.wishCollection().getWishes()).contains("SUV", "Sports Car", "Truck");
+            });
+        }
     }
 
     @Nested
