@@ -39,7 +39,7 @@ public class NewYearWishList {
     }
 
 
-    public NewYearWishList(@Id UUID uuid, @Column WishCollection wishCollection) {
+    public NewYearWishList(@Id UUID uuid, @Column("wishCollection") WishCollection wishCollection) {
         this.uuid = uuid;
         this.wishCollection = wishCollection;
     }
