@@ -28,6 +28,7 @@ final class AutoApplyConverters {
 
     private static final Logger LOGGER = Logger.getLogger(AutoApplyConverters.class.getName());
 
+    static final AutoApplyConverters INSTANCE = new AutoApplyConverters();
 
     private final Map<Class<?>, Class<? extends AttributeConverter<?,?>>> converters;
 
