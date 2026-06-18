@@ -32,7 +32,6 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -179,14 +178,18 @@ public final class ReflectionClassConverter implements ClassConverter {
         boolean id = reflections.isIdField(field);
         String columnName = id ? reflections.getIdName(field) : reflections.getColumnName(field);
         String udt = reflections.getUDTName(field);
-        FieldMappingBuilder builder = new FieldMappingBuilder().name(columnName)
-                .field(field).type(mappingType).id(id).udt(udt)
+        var type = field.getType();
+        var applyConverters = AutoApplyConverters.INSTANCE;
+        var builder = new FieldMappingBuilder()
+                .name(columnName)
+                .field(field)
+                .type(mappingType)
+                .id(id)
+                .udt(udt)
                 .reader(bean -> reflections.getValue(bean, field))
                 .writer((bean, value) -> reflections.setValue(bean, field, value));
 
-        if (nonNull(convert)) {
-            builder.converter(convert.value());
-        }
+       builder.converter(applyConverters.converter(convert, type));
         switch (mappingType) {
             case COLLECTION -> {
                 builder.typeSupplier(field::getGenericType);

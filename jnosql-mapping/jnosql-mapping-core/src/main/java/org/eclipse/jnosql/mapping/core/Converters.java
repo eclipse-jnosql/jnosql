@@ -24,13 +24,25 @@ import jakarta.nosql.AttributeConverter;
 import org.eclipse.jnosql.mapping.metadata.FieldParameterMetadata;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The {@link jakarta.nosql.Convert} collection, this instance will generate/create an instance.
+ * Provides access to {@link AttributeConverter} instances used by the mapping layer.
+ *
+ * <p>This component is responsible for resolving converter instances declared
+ * through {@link jakarta.nosql.Convert}. Converters are obtained from the CDI
+ * container when available, allowing them to participate in dependency injection
+ * and lifecycle management. When no CDI-managed bean exists for a converter type,
+ * the converter is instantiated using its no-argument constructor.</p>
+ *
+ * <p>The converter resolution process is transparent to mapping implementations,
+ * providing a centralized mechanism for obtaining converter instances regardless
+ * of whether they are managed by CDI or created directly.</p>
  */
 @ApplicationScoped
 public class Converters {
@@ -39,6 +51,8 @@ public class Converters {
 
     @Inject
     private BeanManager beanManager;
+
+    private final Map<Class<?>, Object> cache = new ConcurrentHashMap<>();
 
     /**
      * Returns a converter instance where it might use scope from CDI.
@@ -62,24 +76,36 @@ public class Converters {
                 .orElseThrow(() -> new NoSuchElementException("There is not converter to the field: "
                         + metadata.name() + " in the Field: " + metadata.type()));
 
-        Iterator<Bean<?>> iterator = beanManager.getBeans(type).iterator();
-        if (iterator.hasNext()) {
-            Bean<T> bean = (Bean<T>) iterator.next();
-            CreationalContext<T> ctx = beanManager.createCreationalContext(bean);
-            return (T) beanManager.getReference(bean, type, ctx);
-        } else {
-            LOGGER.log(Level.FINE, "The converter type: " + type + " not found on CDI context, creating by constructor");
-            return (T) metadata.newConverter() .orElseThrow(() -> new NoSuchElementException("There is not converter to the field: "
-                    + metadata.name() + " in the Field: " + metadata.type()));
-        }
-
+        return (T) cache.computeIfAbsent(type, t -> createConverter(type, metadata));
     }
 
+    @SuppressWarnings("unchecked")
+    private <T> T createConverter(Class<T> type,
+                                  FieldParameterMetadata metadata) {
+
+        Iterator<Bean<?>> iterator = beanManager.getBeans(type).iterator();
+
+        if (iterator.hasNext()) {
+            Bean<T> bean = (Bean<T>) iterator.next();
+            CreationalContext<T> ctx =
+                    beanManager.createCreationalContext(bean);
+
+            return (T) beanManager.getReference(bean, type, ctx);
+        }
+
+        LOGGER.log(Level.FINE,"The converter type: {0} not found on CDI context, creating by constructor", type);
+
+        return (T) metadata.newConverter()
+                .orElseThrow(() -> new NoSuchElementException(
+                        "There is not converter to the field: "
+                                + metadata.name() + " in the Field: "
+                                + metadata.type()));
+    }
 
     @Override
     public String toString() {
-        return "DefaultConverters{" +
-                "beanManager=" + beanManager +
+        return "Converters{" +
+                "cachedConverters=" + cache.size() +
                 '}';
     }
 }

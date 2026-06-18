@@ -281,8 +281,8 @@ public abstract class EntityConverter {
                 .orElseThrow(() -> new MappingException("There is no inheritance map to the discriminator" +
                         " column value " + discriminator));
 
-        EntityMetadata mapping = entities().get(inheritance.entity());
-        ConstructorMetadata constructor = mapping.constructor();
+        var mapping = entities().get(inheritance.entity());
+        var constructor = mapping.constructor();
         if (constructor.isDefault()) {
             T instance = mapping.newInstance();
             return convertEntity(entity.elements(), mapping, instance);

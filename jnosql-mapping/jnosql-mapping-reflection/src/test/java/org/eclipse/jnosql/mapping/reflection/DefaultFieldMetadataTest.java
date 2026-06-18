@@ -23,8 +23,15 @@ import org.eclipse.jnosql.mapping.reflection.entities.MoneyConverter;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.eclipse.jnosql.mapping.reflection.entities.UDTEntity;
 import org.eclipse.jnosql.mapping.reflection.entities.Worker;
+import org.eclipse.jnosql.mapping.reflection.entities.converters.Street;
+import org.eclipse.jnosql.mapping.reflection.entities.converters.UUIDConverter;
+import org.eclipse.jnosql.mapping.reflection.entities.converters.UUIDCustomConverter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -90,4 +97,37 @@ class DefaultFieldMetadataTest {
         });
     }
 
+    @Nested
+    class WhenConvertApplyAutoConverter{
+
+        @DisplayName("Should use auto converter when apply")
+        @Test
+        void shouldApplyAutoConverter() {
+            EntityMetadata entityMetadata = converter.apply(Street.class);
+            FieldMetadata name = entityMetadata.fieldMapping("id").orElseThrow();
+            fieldMetadata = (DefaultFieldMetadata) name;
+            Optional<Class<AttributeConverter<Object, Object>>> result = fieldMetadata.converter();
+            assertThat(result).get().isNotNull().isEqualTo(UUIDConverter.class);
+        }
+
+        @Test
+        @DisplayName("Should use converter from annotation when apply")
+        void shouldUseConverterFromAnnotation() {
+            EntityMetadata entityMetadata = converter.apply(Street.class);
+            FieldMetadata name = entityMetadata.fieldMapping("number").orElseThrow();
+            fieldMetadata = (DefaultFieldMetadata) name;
+            Optional<Class<AttributeConverter<Object, Object>>> result = fieldMetadata.converter();
+            assertThat(result).get().isNotNull().isEqualTo(UUIDCustomConverter.class);
+        }
+
+        @Test
+        @DisplayName("Should not apply converter when not found")
+        void shouldNotApplyConverter() {
+            EntityMetadata entityMetadata = converter.apply(Street.class);
+            FieldMetadata name = entityMetadata.fieldMapping("name").orElseThrow();
+            fieldMetadata = (DefaultFieldMetadata) name;
+            Optional<Class<AttributeConverter<Object, Object>>> result = fieldMetadata.converter();
+            assertThat(result).isEmpty();
+        }
+    }
 }

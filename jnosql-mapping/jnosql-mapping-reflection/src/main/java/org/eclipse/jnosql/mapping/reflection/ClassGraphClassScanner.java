@@ -20,6 +20,8 @@ import jakarta.data.repository.BasicRepository;
 import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.DataRepository;
 import jakarta.data.repository.Repository;
+import jakarta.nosql.AttributeConverter;
+import jakarta.nosql.Converter;
 import jakarta.nosql.Embeddable;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Projection;
@@ -50,8 +52,8 @@ enum ClassGraphClassScanner implements ClassScanner {
     private final Set<Class<?>> repositories;
     private final Set<Class<?>> embeddables;
     private final Set<Class<?>> customRepositories;
-
     private final Set<Class<?>> projections;
+    private final Set<Class<? extends AttributeConverter<?,?>>> autoApplyConverters;
 
     ClassGraphClassScanner() {
         entities = new HashSet<>();
@@ -59,6 +61,7 @@ enum ClassGraphClassScanner implements ClassScanner {
         repositories = new HashSet<>();
         customRepositories = new HashSet<>();
         projections = new HashSet<>();
+        autoApplyConverters = new HashSet<>();
 
         Logger logger = Logger.getLogger(ClassGraphClassScanner.class.getName());
         logger.fine("Starting scan class to find entities, embeddable and repositories.");
@@ -70,6 +73,7 @@ enum ClassGraphClassScanner implements ClassScanner {
             this.repositories.addAll(loadRepositories(result));
             this.customRepositories.addAll(loadCustomRepositories(result));
             this.projections.addAll(loadProjection(result));
+            this.autoApplyConverters.addAll(loadAutoApplyConverters(result));
             notSupportedRepositories.forEach(this.repositories::remove);
         }
 
@@ -91,6 +95,10 @@ enum ClassGraphClassScanner implements ClassScanner {
    @Override
     public Set<Class<?>> embeddables() {
         return unmodifiableSet(embeddables);
+    }
+
+    public Set<Class<? extends AttributeConverter<?, ?>>> autoApplyConverters() {
+        return unmodifiableSet(autoApplyConverters);
     }
 
     @Override
@@ -165,5 +173,16 @@ enum ClassGraphClassScanner implements ClassScanner {
 
     private static List<Class<?>> loadEntities(ScanResult scan) {
         return scan.getClassesWithAnnotation(Entity.class).loadClasses();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<? extends Class<? extends AttributeConverter<?,?>>> loadAutoApplyConverters(ScanResult scan) {
+        return scan.getClassesImplementing(AttributeConverter.class)
+                .loadClasses()
+                .stream()
+                .map(c -> (Class<? extends AttributeConverter<?, ?>>) c)
+                .filter(c -> c.isAnnotationPresent(Converter.class))
+                .filter(c -> c.getAnnotation(Converter.class).autoApply())
+                .toList();
     }
 }

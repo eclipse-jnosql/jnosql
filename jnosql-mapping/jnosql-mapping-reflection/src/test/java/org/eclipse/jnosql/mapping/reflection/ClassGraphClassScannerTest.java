@@ -29,6 +29,9 @@ import org.eclipse.jnosql.mapping.reflection.entities.NoSQLVendor;
 import org.eclipse.jnosql.mapping.reflection.entities.PCView;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.eclipse.jnosql.mapping.reflection.entities.PersonRepository;
+import org.eclipse.jnosql.mapping.reflection.entities.converters.EmailConverter;
+import org.eclipse.jnosql.mapping.reflection.entities.converters.UUIDConverter;
+import org.eclipse.jnosql.mapping.reflection.entities.converters.UUIDCustomConverter;
 import org.eclipse.jnosql.mapping.reflection.repository.InvalidEntityCustomRepository;
 import org.eclipse.jnosql.mapping.reflection.repository.MethodEntityCustomRepository;
 import org.junit.jupiter.api.Assertions;
@@ -46,7 +49,7 @@ class ClassGraphClassScannerTest {
     void shouldReturnEntities() {
         Set<Class<?>> entities = classScanner.entities();
         Assertions.assertNotNull(entities);
-        assertThat(entities).hasSize(36)
+        assertThat(entities).hasSize(37)
                 .contains(Person.class);
     }
 
@@ -143,6 +146,20 @@ class ClassGraphClassScannerTest {
         Set<Class<?>> projections = classScanner.projections();
         assertThat(projections).hasSize(4)
                 .doesNotContain(BookDTO.class);
+    }
+
+    @Test
+    void shouldLoadAutoApplyConverter() {
+        var converters = classScanner.autoApplyConverters();
+        assertThat(converters).hasSize(2)
+                .contains(UUIDConverter.class, EmailConverter.class);
+    }
+
+    @Test
+    void shouldNotLoadWhenAutoApplyIsFalse() {
+        var converters = classScanner.autoApplyConverters();
+        assertThat(converters).hasSize(2)
+                .doesNotContain(UUIDCustomConverter.class);
     }
 
 }
