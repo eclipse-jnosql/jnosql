@@ -72,7 +72,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sonar.jacoco.reportPath>../target/jacoco.exec</sonar.jacoco.reportPath>
         <sonar.maven.version>5.0.0.4389</sonar.maven.version>
-        <commons.io.version>2.19.0</commons.io.version>
+        <commons.io.version>2.20.0</commons.io.version>
         <checkstyle.excludes>**/jnosql/query/grammar/**,**/_*.java</checkstyle.excludes>
         <weld.se.core.version>6.0.3.Final</weld.se.core.version>
         <yasson.version>3.0.4</yasson.version>
@@ -81,13 +81,13 @@
 
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
-        <checkstyle.version>10.23.1</checkstyle.version>
+        <checkstyle.version>13.7.0</checkstyle.version>
         <!-- testing libraries -->
-        <junit.version>5.12.1</junit.version>
-        <mockito.verson>5.18.0</mockito.verson>
+        <junit.version>6.1.1</junit.version>
+        <mockito.verson>5.23.0</mockito.verson>
         <assertj.version>3.27.3</assertj.version>
         <awaitility.version>4.3.0</awaitility.version>
-        <datafaker.version>2.4.3</datafaker.version>
+        <datafaker.version>2.7.0</datafaker.version>
         <pi-test.version>1.16.1</pi-test.version>
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
         <apache.pdm.plugin.version>3.24.0</apache.pdm.plugin.version>
