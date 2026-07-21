@@ -14,8 +14,33 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.operations;
 
-import static org.junit.jupiter.api.Assertions.*;
+import jakarta.inject.Inject;
+import org.assertj.core.api.Assertions;
+import org.eclipse.jnosql.mapping.core.entities.Book;
+import org.jboss.weld.junit5.auto.AddPackages;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+@EnableAutoWeld
+@AddPackages(value = LifecycleEventHandler.class)
+@AddPackages(value = BookObserver.class)
 
 class DefaultLifecycleEventHandlerTest {
+
+    @Inject
+    private LifecycleEventHandler lifecycleEventHandler;
+
+    @Inject
+    private BookObserver bookObserver;
+
+    @Test
+    @DisplayName("Should fire pre insert event")
+    void shouldFirePreInsertEvent() {
+        var book = Book.builder().build();
+        lifecycleEventHandler.preInsert(book);
+        Assertions.assertThat(bookObserver.preInsert.get()).isEqualTo(book);
+    }
+
 
 }
