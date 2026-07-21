@@ -15,4 +15,9 @@
 package org.eclipse.jnosql.mapping.core.repository.events;
 
 public interface LifecycleEventHandler {
+
+    <T> void preDelete(T entity);
+    <T> void preInsert(T entity);
+    <T> void preUpdate(T entity);
+    <T> void preUpsert(T entity);
 }
