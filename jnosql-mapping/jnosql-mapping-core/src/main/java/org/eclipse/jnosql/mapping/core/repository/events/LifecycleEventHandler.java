@@ -20,4 +20,10 @@ public interface LifecycleEventHandler {
     <T> void preInsert(T entity);
     <T> void preUpdate(T entity);
     <T> void preUpsert(T entity);
+
+
+    <T> void postDelete(T entity);
+    <T> void postInsert(T entity);
+    <T> void postUpdate(T entity);
+    <T> void postUpsert(T entity);
 }
