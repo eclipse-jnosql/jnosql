@@ -12,7 +12,7 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.core.repository.events;
+package org.eclipse.jnosql.mapping.core.repository.operations;
 
 /**
  * Handles Jakarta Data entity lifecycle events triggered by Eclipse JNoSQL
