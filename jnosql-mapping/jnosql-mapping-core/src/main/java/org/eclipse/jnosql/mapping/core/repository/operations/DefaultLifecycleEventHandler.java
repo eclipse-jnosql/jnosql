@@ -39,6 +39,18 @@ class DefaultLifecycleEventHandler implements LifecycleEventHandler {
     private final Event<PostUpdateEvent<?>> postUpdateEvent;
     private final Event<PostUpsertEvent<?>> postUpsertEvent;
 
+
+    DefaultLifecycleEventHandler() {
+        this.preDeleteEvent = null;
+        this.preInsertEvent = null;
+        this.preUpdateEvent = null;
+        this.preUpsertEvent = null;
+        this.postDeleteEvent = null;
+        this.postInsertEvent = null;
+        this.postUpdateEvent = null;
+        this.postUpsertEvent = null;
+    }
+
     @Inject
     DefaultLifecycleEventHandler(
             Event<PreDeleteEvent<?>> preDeleteEvent,
