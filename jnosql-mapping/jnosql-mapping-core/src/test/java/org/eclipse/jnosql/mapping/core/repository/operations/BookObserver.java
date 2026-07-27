@@ -24,9 +24,13 @@ import java.util.concurrent.atomic.AtomicReference;
 @ApplicationScoped
 class BookObserver {
 
-    AtomicReference<Book> preInsert = new AtomicReference<>();
+    private AtomicReference<Book> preInsert = new AtomicReference<>();
 
     public void onPreInsert(@Observes PreInsertEvent<Book> event) {
         this.preInsert.set(event.entity());
+    }
+
+    public AtomicReference<Book> preInsert() {
+        return preInsert;
     }
 }
