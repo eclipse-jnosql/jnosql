@@ -45,6 +45,10 @@ class DefaultLifecycleEventHandler implements LifecycleEventHandler {
 
     private final Event<Object> events;
 
+    DefaultLifecycleEventHandler() {
+        this.events = null;
+    }
+
     @Inject
     DefaultLifecycleEventHandler(@Any Event<Object> events) {
         this.events = events;
