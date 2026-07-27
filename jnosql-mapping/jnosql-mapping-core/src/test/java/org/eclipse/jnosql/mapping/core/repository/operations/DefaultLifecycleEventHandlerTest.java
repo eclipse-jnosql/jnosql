@@ -39,7 +39,7 @@ class DefaultLifecycleEventHandlerTest {
     void shouldFirePreInsertEvent() {
         var book = Book.builder().build();
         lifecycleEventHandler.preInsert(book);
-        Assertions.assertThat(bookObserver.preInsert.get()).isEqualTo(book);
+        Assertions.assertThat(bookObserver.preInsert().get()).isEqualTo(book);
     }
 
 
