@@ -25,19 +25,15 @@ import jakarta.data.event.PreUpsertEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.inject.Any;
-import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.CDI;
-import jakarta.enterprise.inject.spi.ObserverMethod;
 import jakarta.enterprise.util.TypeLiteral;
 import jakarta.inject.Inject;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Set;
 
 
 @ApplicationScoped
