@@ -41,6 +41,13 @@ class DefaultLifecycleEventHandlerTest {
     private BookObserver bookObserver;
 
     @Test
+    @DisplayName("Should create instance using default constructor")
+    void shouldHaveDefaultConstructor() {
+        var handler = new DefaultLifecycleEventHandler();
+        Assertions.assertThat(handler).isNotNull();
+    }
+
+    @Test
     @DisplayName("Should fire pre delete event")
     void shouldFirePreDeleteEvent() {
         var book = Book.builder().build();
