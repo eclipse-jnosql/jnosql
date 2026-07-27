@@ -14,7 +14,14 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.operations;
 
+import jakarta.data.event.PostDeleteEvent;
+import jakarta.data.event.PostInsertEvent;
+import jakarta.data.event.PostUpdateEvent;
+import jakarta.data.event.PostUpsertEvent;
+import jakarta.data.event.PreDeleteEvent;
 import jakarta.data.event.PreInsertEvent;
+import jakarta.data.event.PreUpdateEvent;
+import jakarta.data.event.PreUpsertEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import org.eclipse.jnosql.mapping.core.entities.Book;
@@ -24,13 +31,83 @@ import java.util.concurrent.atomic.AtomicReference;
 @ApplicationScoped
 class BookObserver {
 
-    private AtomicReference<Book> preInsert = new AtomicReference<>();
+    private final AtomicReference<Book> preDelete = new AtomicReference<>();
+
+    private final AtomicReference<Book> preInsert = new AtomicReference<>();
+
+    private final AtomicReference<Book> preUpdate = new AtomicReference<>();
+
+    private final AtomicReference<Book> preUpsert = new AtomicReference<>();
+
+    private final AtomicReference<Book> postDelete = new AtomicReference<>();
+
+    private final AtomicReference<Book> postInsert = new AtomicReference<>();
+
+    private final AtomicReference<Book> postUpdate = new AtomicReference<>();
+
+    private final AtomicReference<Book> postUpsert = new AtomicReference<>();
+
+    public void onPreDelete(@Observes PreDeleteEvent<Book> event) {
+        this.preDelete.set(event.entity());
+    }
 
     public void onPreInsert(@Observes PreInsertEvent<Book> event) {
         this.preInsert.set(event.entity());
     }
 
+    public void onPreUpdate(@Observes PreUpdateEvent<Book> event) {
+        this.preUpdate.set(event.entity());
+    }
+
+    public void onPreUpsert(@Observes PreUpsertEvent<Book> event) {
+        this.preUpsert.set(event.entity());
+    }
+
+    public void onPostDelete(@Observes PostDeleteEvent<Book> event) {
+        this.postDelete.set(event.entity());
+    }
+
+    public void onPostInsert(@Observes PostInsertEvent<Book> event) {
+        this.postInsert.set(event.entity());
+    }
+
+    public void onPostUpdate(@Observes PostUpdateEvent<Book> event) {
+        this.postUpdate.set(event.entity());
+    }
+
+    public void onPostUpsert(@Observes PostUpsertEvent<Book> event) {
+        this.postUpsert.set(event.entity());
+    }
+
+    public AtomicReference<Book> preDelete() {
+        return preDelete;
+    }
+
     public AtomicReference<Book> preInsert() {
         return preInsert;
+    }
+
+    public AtomicReference<Book> preUpdate() {
+        return preUpdate;
+    }
+
+    public AtomicReference<Book> preUpsert() {
+        return preUpsert;
+    }
+
+    public AtomicReference<Book> postDelete() {
+        return postDelete;
+    }
+
+    public AtomicReference<Book> postInsert() {
+        return postInsert;
+    }
+
+    public AtomicReference<Book> postUpdate() {
+        return postUpdate;
+    }
+
+    public AtomicReference<Book> postUpsert() {
+        return postUpsert;
     }
 }
