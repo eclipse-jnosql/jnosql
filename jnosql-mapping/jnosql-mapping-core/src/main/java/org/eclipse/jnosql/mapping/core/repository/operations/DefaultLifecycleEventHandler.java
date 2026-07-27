@@ -24,91 +24,141 @@ import jakarta.data.event.PreUpdateEvent;
 import jakarta.data.event.PreUpsertEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.spi.ObserverMethod;
+import jakarta.enterprise.util.TypeLiteral;
 import jakarta.inject.Inject;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.lang.reflect.ParameterizedType;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Set;
 
 
 @ApplicationScoped
 class DefaultLifecycleEventHandler implements LifecycleEventHandler {
 
-    private final Event<PreDeleteEvent<?>> preDeleteEvent;
-    private final Event<PreInsertEvent<?>> preInsertEvent;
-    private final Event<PreUpdateEvent<?>> preUpdateEvent;
-    private final Event<PreUpsertEvent<?>> preUpsertEvent;
-    private final Event<PostDeleteEvent<?>> postDeleteEvent;
-    private final Event<PostInsertEvent<?>> postInsertEvent;
-    private final Event<PostUpdateEvent<?>> postUpdateEvent;
-    private final Event<PostUpsertEvent<?>> postUpsertEvent;
-
-
-    DefaultLifecycleEventHandler() {
-        this.preDeleteEvent = null;
-        this.preInsertEvent = null;
-        this.preUpdateEvent = null;
-        this.preUpsertEvent = null;
-        this.postDeleteEvent = null;
-        this.postInsertEvent = null;
-        this.postUpdateEvent = null;
-        this.postUpsertEvent = null;
-    }
+    private final Event<Object> events;
 
     @Inject
-    DefaultLifecycleEventHandler(
-            Event<PreDeleteEvent<?>> preDeleteEvent,
-            Event<PreInsertEvent<?>> preInsertEvent,
-            Event<PreUpdateEvent<?>> preUpdateEvent,
-            Event<PreUpsertEvent<?>> preUpsertEvent,
-            Event<PostDeleteEvent<?>> postDeleteEvent,
-            Event<PostInsertEvent<?>> postInsertEvent,
-            Event<PostUpdateEvent<?>> postUpdateEvent,
-            Event<PostUpsertEvent<?>> postUpsertEvent) {
-        this.preDeleteEvent = preDeleteEvent;
-        this.preInsertEvent = preInsertEvent;
-        this.preUpdateEvent = preUpdateEvent;
-        this.preUpsertEvent = preUpsertEvent;
-        this.postDeleteEvent = postDeleteEvent;
-        this.postInsertEvent = postInsertEvent;
-        this.postUpdateEvent = postUpdateEvent;
-        this.postUpsertEvent = postUpsertEvent;
+    DefaultLifecycleEventHandler(@Any Event<Object> events) {
+        this.events = events;
     }
 
     @Override
     public <T> void preDelete(T entity) {
-        preDeleteEvent.fire(new PreDeleteEvent<>(entity));
+        events.select(new TypeLiteral<PreDeleteEvent<T>>() {}).fire(new PreDeleteEvent<>(requireEntity(entity)));
     }
 
     @Override
     public <T> void preInsert(T entity) {
-        preInsertEvent.fire(new PreInsertEvent<>(entity));
+        T safeEntity = requireEntity(entity);
+        Class<?> entityClass = safeEntity.getClass(); // This resolves to Book.class
+
+        // 1. Build the dynamic runtime parameterized type structure: PreInsertEvent<Book>
+        Type dynamicType = new DynamicParameterizedType(PreInsertEvent.class, entityClass);
+
+        // 2. Instantiate a standard TypeLiteral via a specialized Reflection bypass anonymous block
+        TypeLiteral<PreInsertEvent<T>> typeLiteral = new TypeLiteral<PreInsertEvent<T>>() {};
+
+        try {
+            // 3. Weld / OpenWebBeans rely on an internal private field called "actualType" inside TypeLiteral.
+            // We override this field directly to bypass the final getType() restriction!
+            Field field = TypeLiteral.class.getDeclaredField("actualType");
+            field.setAccessible(true);
+            field.set(typeLiteral, dynamicType);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to inject dynamic type definition into CDI TypeLiteral context", e);
+        }
+
+        // 4. Build your concrete payload instance
+        PreInsertEvent<T> eventInstance = new PreInsertEvent<>(safeEntity);
+
+        // 5. This will compile flawlessly and successfully trigger @Observes PreInsertEvent<Book>
+        CDI.current().getBeanManager().getEvent()
+                .select(typeLiteral)
+                .fire(eventInstance);
     }
 
     @Override
     public <T> void preUpdate(T entity) {
-        preUpdateEvent.fire(new PreUpdateEvent<>(entity));
+        events.fire(new PreUpdateEvent<>(requireEntity(entity)));
     }
 
     @Override
     public <T> void preUpsert(T entity) {
-        preUpsertEvent.fire(new PreUpsertEvent<>(entity));
+        events.fire(new PreUpsertEvent<>(requireEntity(entity)));
     }
 
     @Override
     public <T> void postDelete(T entity) {
-        postDeleteEvent.fire(new PostDeleteEvent<>(entity));
+        events.fire(new PostDeleteEvent<>(requireEntity(entity)));
     }
 
     @Override
     public <T> void postInsert(T entity) {
-        postInsertEvent.fire(new PostInsertEvent<>(entity));
+        events.fire(new PostInsertEvent<>(requireEntity(entity)));
     }
 
     @Override
     public <T> void postUpdate(T entity) {
-        postUpdateEvent.fire(new PostUpdateEvent<>(entity));
+        events.fire(new PostUpdateEvent<>(requireEntity(entity)));
     }
 
     @Override
     public <T> void postUpsert(T entity) {
-        postUpsertEvent.fire(new PostUpsertEvent<>(entity));
+        events.fire(new PostUpsertEvent<>(requireEntity(entity)));
     }
+
+    private static <T> T requireEntity(T entity) {
+        return Objects.requireNonNull(entity, "entity must not be null");
+    }
+
+    static class DynamicParameterizedType implements ParameterizedType {
+        private final Class<?> rawType;
+        private final Type[] actualTypeArguments;
+
+        // Constructor accepts the raw class (e.g., PreDeleteEvent.class)
+        // and the type arguments (e.g., Book.class)
+        public DynamicParameterizedType(Class<?> rawType, Type... actualTypeArguments) {
+            this.rawType = rawType;
+            this.actualTypeArguments = actualTypeArguments;
+        }
+
+        @Override
+        public Type[] getActualTypeArguments() {
+            return actualTypeArguments;
+        }
+
+        @Override
+        public Class<?> getRawType() {
+            return rawType;
+        }
+
+        @Override
+        public Type getOwnerType() {
+            return null; // Nested classes would use this, but for events null is perfect
+        }
+
+        // Recommended: Good practice to implement equals and hashCode for CDI caching
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof ParameterizedType that)) return false;
+            return java.util.Objects.equals(rawType, that.getRawType()) &&
+                    Arrays.equals(actualTypeArguments, that.getActualTypeArguments());
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(actualTypeArguments) ^ java.util.Objects.hashCode(rawType);
+        }
+    }
+
 
 }
