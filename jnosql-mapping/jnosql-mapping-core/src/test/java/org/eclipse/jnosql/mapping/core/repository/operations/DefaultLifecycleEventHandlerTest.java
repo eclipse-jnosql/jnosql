@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.operations;
 
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.mapping.core.entities.Book;
@@ -27,6 +28,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+
+import static org.mockito.Mockito.mock;
 
 @EnableAutoWeld
 @AddPackages(value = LifecycleEventHandler.class)
@@ -44,6 +47,14 @@ class DefaultLifecycleEventHandlerTest {
     @DisplayName("Should create instance using default constructor")
     void shouldHaveDefaultConstructor() {
         var handler = new DefaultLifecycleEventHandler();
+        Assertions.assertThat(handler).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Should create instance using constructor with event parameter")
+    void shouldHaveConstructorWithEventParameter() {
+        Event<Object> events = mock(Event.class);
+        var handler = new DefaultLifecycleEventHandler(events);
         Assertions.assertThat(handler).isNotNull();
     }
 
