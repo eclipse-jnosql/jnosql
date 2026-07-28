@@ -27,6 +27,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.inject.Any;
 import jakarta.inject.Inject;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 
 import java.util.Objects;
 import java.util.function.Function;
