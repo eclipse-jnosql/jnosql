@@ -93,7 +93,7 @@ final class LifecycleEventTypeLiteral {
     }
 
     private static TypeLiteral<?> create(Key key) {
-        TypeLiteral<?> literal = new TypeLiteral<Object>() {
+        TypeLiteral<?> literal = new TypeLiteral<>() {
         };
         try {
             ACTUAL_TYPE_FIELD.set(literal, new EntityParameterizedType(key.eventType(), key.entityType()));
