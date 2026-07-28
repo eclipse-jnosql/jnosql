@@ -12,7 +12,7 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.core.repository.operations;
+package org.eclipse.jnosql.mapping.reflection.collection;
 
 import jakarta.data.event.PreInsertEvent;
 import jakarta.enterprise.context.ApplicationScoped;
