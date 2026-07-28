@@ -24,6 +24,7 @@ import jakarta.data.event.PreUpdateEvent;
 import jakarta.data.event.PreUpsertEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import org.eclipse.jnosql.mapping.reflection.entities.Book;
 
 import java.util.concurrent.atomic.AtomicReference;
 
