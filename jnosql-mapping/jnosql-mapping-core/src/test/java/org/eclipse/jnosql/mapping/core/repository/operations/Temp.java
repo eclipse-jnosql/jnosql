@@ -14,14 +14,14 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.operations;
 
-import jakarta.data.event.PostInsertEvent;
 import jakarta.data.event.PreInsertEvent;
-import jakarta.data.event.PreUpdateEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.util.TypeLiteral;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.core.entities.Book;
+
+import java.util.function.Function;
 
 @ApplicationScoped
 public class Temp {
@@ -29,9 +29,9 @@ public class Temp {
     @Inject
     private Event<Object> events;
 
-    void preInsert(Book book) {
+    void preInsert(Object book) {
         events.select(BookLifecycleEventTypes.PRE_INSERT)
-                .fire(new PreInsertEvent<>(book));
+                .fire(BookLifecycleEventTypes.PRE_INSERT_FUNCTION.apply(book));
     }
 
     final class BookLifecycleEventTypes {
@@ -39,11 +39,8 @@ public class Temp {
         static final TypeLiteral<PreInsertEvent<Book>> PRE_INSERT =
                 new TypeLiteral<>() {};
 
-        static final TypeLiteral<PostInsertEvent<Book>> POST_INSERT =
-                new TypeLiteral<>() {};
-
-        static final TypeLiteral<PreUpdateEvent<Book>> PRE_UPDATE =
-                new TypeLiteral<>() {};
+        static final Function<Object, PreInsertEvent<Book>> PRE_INSERT_FUNCTION =
+                entity -> new PreInsertEvent<>((Book) entity);
 
         // Remaining lifecycle types
     }
