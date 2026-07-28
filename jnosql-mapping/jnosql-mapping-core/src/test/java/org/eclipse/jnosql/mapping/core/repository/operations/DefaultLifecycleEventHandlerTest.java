@@ -34,7 +34,6 @@ import static org.mockito.Mockito.mock;
 @EnableAutoWeld
 @AddPackages(value = LifecycleEventHandler.class)
 @AddPackages(value = BookObserver.class)
-
 class DefaultLifecycleEventHandlerTest {
 
     @Inject
