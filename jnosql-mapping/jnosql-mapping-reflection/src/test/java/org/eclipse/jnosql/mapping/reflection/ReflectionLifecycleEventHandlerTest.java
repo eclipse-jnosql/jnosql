@@ -34,9 +34,9 @@ import java.util.stream.Stream;
 import static org.mockito.Mockito.mock;
 
 @EnableAutoWeld
-@AddBeanClasses(DefaultLifecycleEventHandler.class)
+@AddBeanClasses(ReflectionLifecycleEventHandler.class)
 @AddPackages(value = BookObserver.class)
-class DefaultLifecycleEventHandlerTest {
+class ReflectionLifecycleEventHandlerTest {
 
     @Inject
     private LifecycleEventHandler lifecycleEventHandler;
@@ -47,7 +47,7 @@ class DefaultLifecycleEventHandlerTest {
     @Test
     @DisplayName("Should create instance using default constructor")
     void shouldHaveDefaultConstructor() {
-        var handler = new org.eclipse.jnosql.mapping.reflection.DefaultLifecycleEventHandler();
+        var handler = new ReflectionLifecycleEventHandler();
         Assertions.assertThat(handler).isNotNull();
     }
 
@@ -55,7 +55,7 @@ class DefaultLifecycleEventHandlerTest {
     @DisplayName("Should create instance using constructor with event parameter")
     void shouldHaveConstructorWithEventParameter() {
         Event<Object> events = mock(Event.class);
-        var handler = new org.eclipse.jnosql.mapping.reflection.DefaultLifecycleEventHandler(events);
+        var handler = new ReflectionLifecycleEventHandler(events);
         Assertions.assertThat(handler).isNotNull();
     }
 
