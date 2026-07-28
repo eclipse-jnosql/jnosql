@@ -12,7 +12,7 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.core.repository.operations;
+package org.eclipse.jnosql.mapping.reflection;
 
 import jakarta.data.event.LifecycleEvent;
 import jakarta.data.event.PostDeleteEvent;
