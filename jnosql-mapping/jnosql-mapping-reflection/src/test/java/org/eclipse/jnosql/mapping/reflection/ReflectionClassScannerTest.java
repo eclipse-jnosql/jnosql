@@ -42,7 +42,7 @@ class ReflectionClassScannerTest {
     void shouldReturnEntities() {
         Set<Class<?>> entities = classScanner.entities();
         Assertions.assertNotNull(entities);
-        assertThat(entities).hasSize(37)
+        assertThat(entities).hasSize(38)
                 .contains(Person.class);
     }
 
