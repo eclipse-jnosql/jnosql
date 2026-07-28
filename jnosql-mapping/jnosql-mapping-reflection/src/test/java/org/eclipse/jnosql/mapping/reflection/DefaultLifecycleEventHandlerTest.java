@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.reflection;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
+import org.eclipse.jnosql.mapping.reflection.entities.Book;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.jboss.weld.junit5.auto.AddBeanClasses;
