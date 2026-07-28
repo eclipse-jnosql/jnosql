@@ -19,6 +19,7 @@ import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
+import org.jboss.weld.junit5.auto.AddBeanClasses;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.DisplayName;
@@ -32,7 +33,7 @@ import java.util.stream.Stream;
 import static org.mockito.Mockito.mock;
 
 @EnableAutoWeld
-@AddPackages(value = LifecycleEventHandler.class)
+@AddBeanClasses(DefaultLifecycleEventHandler.class)
 @AddPackages(value = BookObserver.class)
 class DefaultLifecycleEventHandlerTest {
 
