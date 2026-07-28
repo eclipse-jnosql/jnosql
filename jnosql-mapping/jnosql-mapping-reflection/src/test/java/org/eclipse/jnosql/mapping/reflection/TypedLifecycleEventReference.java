@@ -19,6 +19,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.util.TypeLiteral;
 import jakarta.inject.Inject;
+import org.eclipse.jnosql.mapping.reflection.entities.Book;
 
 import java.util.function.Function;
 
