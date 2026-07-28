@@ -12,7 +12,7 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.reflection.collection;
+package org.eclipse.jnosql.mapping.reflection;
 
 import jakarta.data.event.PostDeleteEvent;
 import jakarta.data.event.PostInsertEvent;
@@ -24,7 +24,6 @@ import jakarta.data.event.PreUpdateEvent;
 import jakarta.data.event.PreUpsertEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
-import org.eclipse.jnosql.mapping.core.entities.Book;
 
 import java.util.concurrent.atomic.AtomicReference;
 
