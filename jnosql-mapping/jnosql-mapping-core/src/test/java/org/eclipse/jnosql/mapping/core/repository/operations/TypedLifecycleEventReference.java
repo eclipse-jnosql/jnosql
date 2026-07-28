@@ -23,6 +23,14 @@ import org.eclipse.jnosql.mapping.core.entities.Book;
 
 import java.util.function.Function;
 
+/**
+ * Reference implementation for firing CDI lifecycle events with a typed event reference.
+ * <p>
+ * This class documents how repository operations can keep the CDI {@link TypeLiteral}
+ * for a Jakarta Data lifecycle event together with the function that creates the event
+ * instance. It is kept as a guide for projects that need strongly typed event selection
+ * before the same pattern is implemented elsewhere.
+ */
 @ApplicationScoped
 public class TypedLifecycleEventReference {
 
@@ -34,6 +42,9 @@ public class TypedLifecycleEventReference {
                 .fire(BookLifecycleEventTypes.PRE_INSERT_FUNCTION.apply(book));
     }
 
+    /**
+     * Groups typed lifecycle event metadata for {@link Book} events.
+     */
     final class BookLifecycleEventTypes {
 
         static final TypeLiteral<PreInsertEvent<Book>> PRE_INSERT =
