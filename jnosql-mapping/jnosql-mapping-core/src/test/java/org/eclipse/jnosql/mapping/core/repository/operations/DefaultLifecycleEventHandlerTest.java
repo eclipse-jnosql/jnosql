@@ -46,7 +46,7 @@ class DefaultLifecycleEventHandlerTest {
     @Test
     @DisplayName("Should create instance using default constructor")
     void shouldHaveDefaultConstructor() {
-        var handler = new DefaultLifecycleEventHandler();
+        var handler = new org.eclipse.jnosql.mapping.reflection.DefaultLifecycleEventHandler();
         Assertions.assertThat(handler).isNotNull();
     }
 
@@ -54,7 +54,7 @@ class DefaultLifecycleEventHandlerTest {
     @DisplayName("Should create instance using constructor with event parameter")
     void shouldHaveConstructorWithEventParameter() {
         Event<Object> events = mock(Event.class);
-        var handler = new DefaultLifecycleEventHandler(events);
+        var handler = new org.eclipse.jnosql.mapping.reflection.DefaultLifecycleEventHandler(events);
         Assertions.assertThat(handler).isNotNull();
     }
 
