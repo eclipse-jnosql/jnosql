@@ -19,6 +19,7 @@ import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.mapping.core.entities.Book;
 import org.eclipse.jnosql.mapping.core.entities.Person;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.DisplayName;
