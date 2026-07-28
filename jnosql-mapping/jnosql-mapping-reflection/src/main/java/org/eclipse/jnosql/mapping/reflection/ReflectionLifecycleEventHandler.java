@@ -42,16 +42,16 @@ import java.util.function.Function;
  * </p>
  */
 @ApplicationScoped
-class DefaultLifecycleEventHandler implements LifecycleEventHandler {
+class ReflectionLifecycleEventHandler implements LifecycleEventHandler {
 
     private final Event<Object> events;
 
-    DefaultLifecycleEventHandler() {
+    ReflectionLifecycleEventHandler() {
         this.events = null;
     }
 
     @Inject
-    DefaultLifecycleEventHandler(@Any Event<Object> events) {
+    ReflectionLifecycleEventHandler(@Any Event<Object> events) {
         this.events = events;
     }
 
