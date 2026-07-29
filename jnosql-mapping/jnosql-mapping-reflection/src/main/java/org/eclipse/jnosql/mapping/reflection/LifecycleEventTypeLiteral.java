@@ -89,8 +89,14 @@ final class LifecycleEventTypeLiteral {
             return Optional.empty();
         }
         var literal = CACHE.computeIfAbsent(new Key(eventType, entityType), LifecycleEventTypeLiteral::create);
-        return Optional.ofNullable((TypeLiteral<E>) literal);
+        if (literal == UNAVAILABLE_LITERAL) {
+            return Optional.empty();
+        }
+        return Optional.of((TypeLiteral<E>) literal);
     }
+
+    private static final TypeLiteral<?> UNAVAILABLE_LITERAL = new TypeLiteral<>() {
+    };
 
     private static TypeLiteral<?> create(Key key) {
         TypeLiteral<?> literal = new TypeLiteral<>() {
@@ -101,7 +107,7 @@ final class LifecycleEventTypeLiteral {
         } catch (ReflectiveOperationException | RuntimeException e) {
             LOGGER.log(Level.WARNING, e, () -> "Unable to resolve the lifecycle event type "
                     + key.eventType().getName() + '<' + key.entityType().getName() + '>');
-            return null;
+            return UNAVAILABLE_LITERAL;
         }
     }
 
