@@ -45,7 +45,7 @@ public class TypedLifecycleEventReference {
     /**
      * Groups typed lifecycle event metadata for {@link Book} events.
      */
-    final class BookLifecycleEventTypes {
+    static final class BookLifecycleEventTypes {
 
         static final TypeLiteral<PreInsertEvent<Book>> PRE_INSERT =
                 new TypeLiteral<>() {};
