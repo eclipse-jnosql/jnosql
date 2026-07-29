@@ -44,6 +44,10 @@ class ReflectionLifecycleEventHandlerTest {
     @Inject
     private BookObserver bookObserver;
 
+    @org.junit.jupiter.api.BeforeEach
+    void resetObserverReferences() {
+        references().forEach(reference -> reference.set(null));
+    }
     @Test
     @DisplayName("Should create instance using default constructor")
     void shouldHaveDefaultConstructor() {
