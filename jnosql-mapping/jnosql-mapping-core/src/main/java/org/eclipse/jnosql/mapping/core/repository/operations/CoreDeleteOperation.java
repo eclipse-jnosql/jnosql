@@ -83,28 +83,18 @@ public class CoreDeleteOperation implements DeleteOperation {
         return null;
     }
 
-    private void deleteEntity(
-            RepositoryInvocationContext context,
-            Object entity) {
-
+    private void deleteEntity(RepositoryInvocationContext context, Object entity) {
         lifecycleEventHandler.preDelete(entity);
-
         context.template().delete(entity);
-
         lifecycleEventHandler.postDelete(entity);
     }
 
-    private void deleteEntities(
-            RepositoryInvocationContext context,
-            Iterable<?> entities) {
+    private void deleteEntities(RepositoryInvocationContext context, Iterable<?> entities) {
 
         List<Object> materializedEntities = new ArrayList<>();
         entities.forEach(materializedEntities::add);
-
         materializedEntities.forEach(lifecycleEventHandler::preDelete);
-
         context.template().delete(materializedEntities);
-
         materializedEntities.forEach(lifecycleEventHandler::postDelete);
     }
 
@@ -134,12 +124,8 @@ public class CoreDeleteOperation implements DeleteOperation {
      * @param restriction the deletion restriction
      * @throws UnsupportedOperationException if not overridden by a provider
      */
-    protected void deleteByRestriction(
-            RepositoryInvocationContext context,
-            Restriction<?> restriction) {
-
-        throw new UnsupportedOperationException(
-                "Delete by restriction is not supported by default");
+    protected void deleteByRestriction(RepositoryInvocationContext context, Restriction<?> restriction) {
+        throw new UnsupportedOperationException("Delete by restriction is not supported by default");
     }
 
     private boolean isNotVoidReturn(Class<?> returnType) {
