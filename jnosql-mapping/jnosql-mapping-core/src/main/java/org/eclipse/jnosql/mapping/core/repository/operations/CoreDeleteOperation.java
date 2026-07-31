@@ -17,8 +17,10 @@ package org.eclipse.jnosql.mapping.core.repository.operations;
 import jakarta.data.restrict.Restriction;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Typed;
+import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 
 import java.util.Arrays;
 
@@ -38,6 +40,9 @@ import java.util.Arrays;
 @ApplicationScoped
 @Typed(CoreDeleteOperation.class)
 public class CoreDeleteOperation implements DeleteOperation {
+
+    @Inject
+    private LifecycleEventHandler lifecycleEventReference;
 
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
