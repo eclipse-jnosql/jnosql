@@ -23,6 +23,7 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.reflection.ReflectionClassConverter;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -171,6 +172,51 @@ class AbstractRepositoryTest {
         @Override
         protected EntityMetadata entityMetadata() {
             return entitiesMetadata.get(Person.class);
+        }
+
+        @Override
+        protected LifecycleEventHandler lifeCycle() {
+            return new LifecycleEventHandler() {
+                @Override
+                public <T> void preDelete(T entity) {
+
+                }
+
+                @Override
+                public <T> void preInsert(T entity) {
+
+                }
+
+                @Override
+                public <T> void preUpdate(T entity) {
+
+                }
+
+                @Override
+                public <T> void preUpsert(T entity) {
+
+                }
+
+                @Override
+                public <T> void postDelete(T entity) {
+
+                }
+
+                @Override
+                public <T> void postInsert(T entity) {
+
+                }
+
+                @Override
+                public <T> void postUpdate(T entity) {
+
+                }
+
+                @Override
+                public <T> void postUpsert(T entity) {
+
+                }
+            };
         }
     }
 
