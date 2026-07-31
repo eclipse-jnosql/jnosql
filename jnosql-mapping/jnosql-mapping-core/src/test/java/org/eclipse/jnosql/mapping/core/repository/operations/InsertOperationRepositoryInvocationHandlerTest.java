@@ -34,6 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
 import java.lang.reflect.Proxy;
@@ -70,9 +71,6 @@ class InsertOperationRepositoryInvocationHandlerTest {
     @Inject
     private InfrastructureOperatorProvider infrastructureOperatorProvider;
 
-    @Inject
-    private CoreBaseRepositoryOperationProvider repositoryOperationProvider;
-
     private ComicBookRepository comicBookRepository;
 
     @BeforeEach
@@ -84,6 +82,13 @@ class InsertOperationRepositoryInvocationHandlerTest {
                 template,
                 entitiesMetadata,
                 lifecycleEventHandler);
+
+        var repositoryOperationProvider = new CoreBaseRepositoryOperationProvider(
+                new CoreInsertOperation(lifecycleEventHandler),
+                null,
+                null,
+                null,
+                null);
 
         CoreRepositoryInvocationHandler<?, ?> repositoryHandler =
                 CoreRepositoryInvocationHandler.of(
@@ -124,7 +129,7 @@ class InsertOperationRepositoryInvocationHandlerTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
-            comicBookRepository.insert(book);
+            comicBookRepository.insertVoid(book);
 
             // then
             InOrder ordered = inOrder(lifecycleEventHandler, template);
@@ -180,10 +185,16 @@ class InsertOperationRepositoryInvocationHandlerTest {
                     .isNotNull()
                     .containsExactly(book);
 
+            ArgumentCaptor<Iterable<ComicBook>> captor =
+                    ArgumentCaptor.forClass(Iterable.class);
+
             InOrder ordered = inOrder(lifecycleEventHandler, template);
             ordered.verify(lifecycleEventHandler).preInsert(book);
-            ordered.verify(template).insert(books);
+            ordered.verify(template).insert(captor.capture());
             ordered.verify(lifecycleEventHandler).postInsert(book);
+
+            assertThat(captor.getValue())
+                    .containsExactly(book);
         }
 
         @SuppressWarnings("unchecked")
@@ -205,10 +216,16 @@ class InsertOperationRepositoryInvocationHandlerTest {
                     .isNotNull()
                     .containsExactly(book);
 
+            ArgumentCaptor<Iterable<ComicBook>> captor =
+                    ArgumentCaptor.forClass(Iterable.class);
+
             InOrder ordered = inOrder(lifecycleEventHandler, template);
             ordered.verify(lifecycleEventHandler).preInsert(book);
-            ordered.verify(template).insert(List.of(book));
+            ordered.verify(template).insert(captor.capture());
             ordered.verify(lifecycleEventHandler).postInsert(book);
+
+            assertThat(captor.getValue())
+                    .containsExactly(book);
         }
     }
 }
