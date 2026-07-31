@@ -45,7 +45,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -72,9 +71,6 @@ class UpdateOperationRepositoryInvocationHandlerTest {
     @Inject
     private InfrastructureOperatorProvider infrastructureOperatorProvider;
 
-    @Inject
-    private CoreBaseRepositoryOperationProvider repositoryOperationProvider;
-
     private ComicBookRepository comicBookRepository;
 
     @BeforeEach
@@ -86,6 +82,13 @@ class UpdateOperationRepositoryInvocationHandlerTest {
                 template,
                 entitiesMetadata,
                 lifecycleEventHandler);
+
+        var repositoryOperationProvider = new CoreBaseRepositoryOperationProvider(
+                null,
+                new CoreUpdateOperation(lifecycleEventHandler),
+                null,
+                null,
+                null);
 
         var repositoryHandler = CoreRepositoryInvocationHandler.of(
                 executor,
@@ -128,7 +131,7 @@ class UpdateOperationRepositoryInvocationHandlerTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
-            comicBookRepository.update(book);
+            comicBookRepository.updateVoid(book);
 
             // then
             InOrder ordered = inOrder(lifecycleEventHandler, template);
@@ -184,10 +187,16 @@ class UpdateOperationRepositoryInvocationHandlerTest {
                     .isNotNull()
                     .containsExactly(book);
 
+            ArgumentCaptor<Iterable<ComicBook>> captor =
+                    ArgumentCaptor.forClass(Iterable.class);
+
             InOrder ordered = inOrder(lifecycleEventHandler, template);
             ordered.verify(lifecycleEventHandler).preUpdate(book);
-            ordered.verify(template).update(books);
+            ordered.verify(template).update(captor.capture());
             ordered.verify(lifecycleEventHandler).postUpdate(book);
+
+            assertThat(captor.getValue())
+                    .containsExactly(book);
         }
 
         @SuppressWarnings("unchecked")
@@ -212,12 +221,13 @@ class UpdateOperationRepositoryInvocationHandlerTest {
                     .isNotNull()
                     .containsExactly(book);
 
-            verify(template).update(captor.capture());
+            InOrder ordered = inOrder(lifecycleEventHandler, template);
+            ordered.verify(lifecycleEventHandler).preUpdate(book);
+            ordered.verify(template).update(captor.capture());
+            ordered.verify(lifecycleEventHandler).postUpdate(book);
 
             assertThat(captor.getValue())
                     .containsExactly(book);
-
-            verifyNoInteractions(lifecycleEventHandler);
         }
     }
 }
