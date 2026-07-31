@@ -69,22 +69,16 @@ class CoreUpdateOperation implements UpdateOperation {
         return (T) updateEntity(context, element);
     }
 
-    private Object updateEntity(
-            RepositoryInvocationContext context,
-            Object entity) {
+    private Object updateEntity(RepositoryInvocationContext context, Object entity) {
 
         lifecycleEventHandler.preUpdate(entity);
-
         Object updatedEntity = context.template().update(entity);
-
         lifecycleEventHandler.postUpdate(updatedEntity);
 
         return updatedEntity;
     }
 
-    private Iterable<?> updateIterable(
-            RepositoryInvocationContext context,
-            Iterable<?> iterable) {
+    private Iterable<?> updateIterable(RepositoryInvocationContext context, Iterable<?> iterable) {
 
         List<Object> entities = materialize(iterable);
 
@@ -101,9 +95,7 @@ class CoreUpdateOperation implements UpdateOperation {
         return updatedEntities;
     }
 
-    private Object updateArray(
-            RepositoryInvocationContext context,
-            Object array) {
+    private Object updateArray(RepositoryInvocationContext context, Object array) {
 
         List<Object> entities = toList(array);
 
