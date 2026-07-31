@@ -35,6 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
 import java.lang.reflect.Proxy;
@@ -72,9 +73,6 @@ class DeleteOperationRepositoryInvocationHandlerTest {
     @Inject
     private InfrastructureOperatorProvider infrastructureOperatorProvider;
 
-    @Inject
-    private CoreBaseRepositoryOperationProvider repositoryOperationProvider;
-
     private ComicBookRepository comicBookRepository;
 
     @BeforeEach
@@ -86,6 +84,13 @@ class DeleteOperationRepositoryInvocationHandlerTest {
                 template,
                 entitiesMetadata,
                 lifecycleEventHandler);
+
+        var repositoryOperationProvider = new CoreBaseRepositoryOperationProvider(
+                null,
+                null,
+                new CoreDeleteOperation(lifecycleEventHandler),
+                null,
+                null);
 
         var repositoryHandler = CoreRepositoryInvocationHandler.of(
                 executor,
@@ -163,10 +168,16 @@ class DeleteOperationRepositoryInvocationHandlerTest {
             comicBookRepository.delete(books);
 
             // then
+            ArgumentCaptor<Iterable<ComicBook>> captor =
+                    ArgumentCaptor.forClass(Iterable.class);
+
             InOrder ordered = inOrder(lifecycleEventHandler, template);
             ordered.verify(lifecycleEventHandler).preDelete(book);
-            ordered.verify(template).delete(books);
+            ordered.verify(template).delete(captor.capture());
             ordered.verify(lifecycleEventHandler).postDelete(book);
+
+            assertThat(captor.getValue())
+                    .containsExactly(book);
         }
 
         @Test
@@ -179,10 +190,16 @@ class DeleteOperationRepositoryInvocationHandlerTest {
             comicBookRepository.delete(new ComicBook[]{book});
 
             // then
+            ArgumentCaptor<Iterable<ComicBook>> captor =
+                    ArgumentCaptor.forClass(Iterable.class);
+
             InOrder ordered = inOrder(lifecycleEventHandler, template);
             ordered.verify(lifecycleEventHandler).preDelete(book);
-            ordered.verify(template).delete(List.of(book));
+            ordered.verify(template).delete(captor.capture());
             ordered.verify(lifecycleEventHandler).postDelete(book);
+
+            assertThat(captor.getValue())
+                    .containsExactly(book);
         }
     }
 
