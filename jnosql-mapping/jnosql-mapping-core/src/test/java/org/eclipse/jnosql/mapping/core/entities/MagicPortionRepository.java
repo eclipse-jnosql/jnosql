@@ -15,8 +15,24 @@
 package org.eclipse.jnosql.mapping.core.entities;
 
 import jakarta.data.repository.BasicRepository;
+import jakarta.data.repository.Delete;
+import jakarta.data.repository.Insert;
 import jakarta.data.repository.Repository;
+import jakarta.data.repository.Save;
+import jakarta.data.repository.Update;
 
 @Repository
 public interface MagicPortionRepository extends BasicRepository<MagicPotion, Long> {
+
+    @Insert
+    MagicPotion insert(MagicPotion magicPotion);
+
+    @Update
+    MagicPotion update(MagicPotion magicPotion);
+
+    @Delete
+    void delete(MagicPotion magicPotion);
+
+    @Save
+    MagicPotion save(MagicPotion magicPotion);
 }
