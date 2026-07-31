@@ -19,6 +19,7 @@ import org.eclipse.jnosql.mapping.core.entities.ComicBook;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 
 class TestRepositoryExecutor extends AbstractRepository<ComicBook, Long> {
 
@@ -38,5 +39,50 @@ class TestRepositoryExecutor extends AbstractRepository<ComicBook, Long> {
     @Override
     protected EntityMetadata entityMetadata() {
         return entitiesMetadata.get(ComicBook.class);
+    }
+
+    @Override
+    protected LifecycleEventHandler lifeCycle() {
+        return new LifecycleEventHandler() {
+            @Override
+            public <T> void preDelete(T entity) {
+
+            }
+
+            @Override
+            public <T> void preInsert(T entity) {
+
+            }
+
+            @Override
+            public <T> void preUpdate(T entity) {
+
+            }
+
+            @Override
+            public <T> void preUpsert(T entity) {
+
+            }
+
+            @Override
+            public <T> void postDelete(T entity) {
+
+            }
+
+            @Override
+            public <T> void postInsert(T entity) {
+
+            }
+
+            @Override
+            public <T> void postUpdate(T entity) {
+
+            }
+
+            @Override
+            public <T> void postUpsert(T entity) {
+
+            }
+        };
     }
 }
