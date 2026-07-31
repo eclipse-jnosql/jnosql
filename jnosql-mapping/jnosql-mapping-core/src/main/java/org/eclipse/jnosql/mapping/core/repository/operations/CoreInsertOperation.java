@@ -65,14 +65,10 @@ class CoreInsertOperation implements InsertOperation {
         return (T) insertEntity(context, element);
     }
 
-    private Object insertEntity(
-            RepositoryInvocationContext context,
-            Object entity) {
+    private Object insertEntity(RepositoryInvocationContext context, Object entity) {
 
         lifecycleEventHandler.preInsert(entity);
-
-        Object insertedEntity = context.template().insert(entity);
-
+        var insertedEntity = context.template().insert(entity);
         lifecycleEventHandler.postInsert(insertedEntity);
 
         return insertedEntity;
@@ -85,22 +81,15 @@ class CoreInsertOperation implements InsertOperation {
         List<Object> entities = materialize(iterable);
 
         entities.forEach(lifecycleEventHandler::preInsert);
-
         Iterable<?> insertedEntities = context.template().insert(entities);
-
         insertedEntities.forEach(lifecycleEventHandler::postInsert);
-
         return insertedEntities;
     }
 
-    private Object insertArray(
-            RepositoryInvocationContext context,
-            Object array) {
+    private Object insertArray(RepositoryInvocationContext context, Object array) {
 
         List<Object> entities = toList(array);
-
         entities.forEach(lifecycleEventHandler::preInsert);
-
         List<Object> insertedEntities = new ArrayList<>();
         context.template()
                 .insert(entities)
