@@ -23,14 +23,22 @@ import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 
 class TestRepositoryExecutor extends AbstractRepository<ComicBook, Long> {
 
+
     private final Template template;
 
     private final EntitiesMetadata entitiesMetadata;
 
-    public TestRepositoryExecutor(Template template, EntitiesMetadata entitiesMetadata) {
+    private final LifecycleEventHandler lifecycleEventHandler;
+
+    TestRepositoryExecutor(
+            Template template,
+            EntitiesMetadata entitiesMetadata,
+            LifecycleEventHandler lifecycleEventHandler) {
         this.template = template;
         this.entitiesMetadata = entitiesMetadata;
+        this.lifecycleEventHandler = lifecycleEventHandler;
     }
+
     @Override
     protected Template template() {
         return template;
@@ -43,46 +51,6 @@ class TestRepositoryExecutor extends AbstractRepository<ComicBook, Long> {
 
     @Override
     protected LifecycleEventHandler lifeCycle() {
-        return new LifecycleEventHandler() {
-            @Override
-            public <T> void preDelete(T entity) {
-
-            }
-
-            @Override
-            public <T> void preInsert(T entity) {
-
-            }
-
-            @Override
-            public <T> void preUpdate(T entity) {
-
-            }
-
-            @Override
-            public <T> void preUpsert(T entity) {
-
-            }
-
-            @Override
-            public <T> void postDelete(T entity) {
-
-            }
-
-            @Override
-            public <T> void postInsert(T entity) {
-
-            }
-
-            @Override
-            public <T> void postUpdate(T entity) {
-
-            }
-
-            @Override
-            public <T> void postUpsert(T entity) {
-
-            }
-        };
+        return lifecycleEventHandler;
     }
 }
