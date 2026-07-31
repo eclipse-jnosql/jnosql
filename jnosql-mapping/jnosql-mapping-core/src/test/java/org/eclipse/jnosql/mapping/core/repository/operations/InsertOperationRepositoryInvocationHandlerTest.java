@@ -17,7 +17,6 @@ package org.eclipse.jnosql.mapping.core.repository.operations;
 import jakarta.inject.Inject;
 import jakarta.nosql.Convert;
 import jakarta.nosql.Template;
-import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.mapping.core.VetedConverter;
 import org.eclipse.jnosql.mapping.core.entities.ComicBook;
 import org.eclipse.jnosql.mapping.core.entities.ComicBookRepository;
@@ -27,94 +26,189 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.reflection.ReflectionClassConverter;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.InOrder;
 
 import java.lang.reflect.Proxy;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
 @EnableAutoWeld
-@AddPackages(value = Convert.class)
-@AddPackages(value = EntitiesMetadata.class)
-@AddPackages(value = VetedConverter.class)
-@AddPackages(value = InfrastructureOperatorProvider.class)
-@AddExtensions({ReflectionEntityMetadataExtension.class})
-@AddPackages(value = ReflectionClassConverter.class)
-@DisplayName("Test scenario where the handler goes on the insert provider")
+@AddPackages(Convert.class)
+@AddPackages(EntitiesMetadata.class)
+@AddPackages(VetedConverter.class)
+@AddPackages(InfrastructureOperatorProvider.class)
+@AddExtensions(ReflectionEntityMetadataExtension.class)
+@AddPackages(ReflectionClassConverter.class)
+@DisplayName("Insert repository invocation handler")
 class InsertOperationRepositoryInvocationHandlerTest {
+
     private Template template;
+
+    private LifecycleEventHandler lifecycleEventHandler;
+
     @Inject
     private EntitiesMetadata entitiesMetadata;
+
     @Inject
     private RepositoriesMetadata repositoriesMetadata;
+
     @Inject
     private InfrastructureOperatorProvider infrastructureOperatorProvider;
 
     @Inject
     private CoreBaseRepositoryOperationProvider repositoryOperationProvider;
-    private TestRepositoryExecutor executor;
-    private CoreRepositoryInvocationHandler<?, ?> repositoryHandler;
+
     private ComicBookRepository comicBookRepository;
 
     @BeforeEach
     void setUp() {
-        this.template = Mockito.mock(Template.class);
-        this.executor = new TestRepositoryExecutor(this.template, entitiesMetadata);
-        this.repositoryHandler = CoreRepositoryInvocationHandler.of(executor
-                , entitiesMetadata.get(ComicBook.class),
-                repositoriesMetadata.get(ComicBookRepository.class).orElseThrow(),
-                infrastructureOperatorProvider,
-                repositoryOperationProvider,
-                template);
-        comicBookRepository = (ComicBookRepository) Proxy.newProxyInstance(
+        this.template = mock(Template.class);
+        this.lifecycleEventHandler = mock(LifecycleEventHandler.class);
+
+        var executor = new TestRepositoryExecutor(
+                template,
+                entitiesMetadata,
+                lifecycleEventHandler);
+
+        CoreRepositoryInvocationHandler<?, ?> repositoryHandler =
+                CoreRepositoryInvocationHandler.of(
+                        executor,
+                        entitiesMetadata.get(ComicBook.class),
+                        repositoriesMetadata.get(ComicBookRepository.class)
+                                .orElseThrow(),
+                        infrastructureOperatorProvider,
+                        repositoryOperationProvider,
+                        template);
+
+        this.comicBookRepository = (ComicBookRepository) Proxy.newProxyInstance(
                 InsertOperationRepositoryInvocationHandlerTest.class.getClassLoader(),
-                new Class[]{ComicBookRepository.class}, repositoryHandler);
+                new Class[]{ComicBookRepository.class},
+                repositoryHandler);
     }
 
+    @Nested
+    @DisplayName("When inserting one entity")
+    class WhenInsertEntity {
 
-    @Test
-    void shouldInvalidWhenParameterIsInvalid() {
-        Assertions.assertThatThrownBy(() -> comicBookRepository.invalidInsert())
-                .isInstanceOf(IllegalArgumentException.class);
+        @Test
+        @DisplayName("Should reject an insert method without the required parameter")
+        void shouldRejectInsertWithoutRequiredParameter() {
+            assertThatThrownBy(comicBookRepository::invalidInsert)
+                    .isInstanceOf(IllegalArgumentException.class);
+
+            verifyNoInteractions(lifecycleEventHandler);
+        }
+
+        @Test
+        @DisplayName("Should insert an entity between pre-insert and post-insert events for a void method")
+        void shouldInsertEntityWithVoidReturnAndLifecycleEvents() {
+            // given
+            ComicBook book = new ComicBook("1234", "Book");
+
+            when(template.insert(any(ComicBook.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            // when
+            comicBookRepository.insert(book);
+
+            // then
+            InOrder ordered = inOrder(lifecycleEventHandler, template);
+            ordered.verify(lifecycleEventHandler).preInsert(book);
+            ordered.verify(template).insert(book);
+            ordered.verify(lifecycleEventHandler).postInsert(book);
+        }
+
+        @Test
+        @DisplayName("Should return the inserted entity after pre-insert and post-insert events")
+        void shouldReturnInsertedEntityWithLifecycleEvents() {
+            // given
+            ComicBook book = new ComicBook("1234", "Book");
+
+            when(template.insert(any(ComicBook.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            // when
+            ComicBook result = comicBookRepository.insert(book);
+
+            // then
+            assertThat(result)
+                    .isNotNull()
+                    .isSameAs(book);
+
+            InOrder ordered = inOrder(lifecycleEventHandler, template);
+            ordered.verify(lifecycleEventHandler).preInsert(book);
+            ordered.verify(template).insert(book);
+            ordered.verify(lifecycleEventHandler).postInsert(book);
+        }
     }
 
-    @Test
-    void shouldInsertVoid() {
-        Mockito.when(template.insert(Mockito.any(ComicBook.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        comicBookRepository.insert(new ComicBook("1234", "Book"));
-        Mockito.verify(template).insert(Mockito.any(ComicBook.class));
+    @Nested
+    @DisplayName("When inserting multiple entities")
+    class WhenInsertMultipleEntities {
+
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("Should return inserted iterable entities after firing lifecycle events for each entity")
+        void shouldInsertIterableWithLifecycleEvents() {
+            // given
+            ComicBook book = new ComicBook("1234", "Book");
+            List<ComicBook> books = List.of(book);
+
+            when(template.insert(any(Iterable.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            // when
+            List<ComicBook> result = comicBookRepository.insert(books);
+
+            // then
+            assertThat(result)
+                    .isNotNull()
+                    .containsExactly(book);
+
+            InOrder ordered = inOrder(lifecycleEventHandler, template);
+            ordered.verify(lifecycleEventHandler).preInsert(book);
+            ordered.verify(template).insert(books);
+            ordered.verify(lifecycleEventHandler).postInsert(book);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("Should return inserted array entities after firing lifecycle events for each entity")
+        void shouldInsertArrayWithLifecycleEvents() {
+            // given
+            ComicBook book = new ComicBook("1234", "Book");
+            ComicBook[] books = {book};
+
+            when(template.insert(any(Iterable.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            // when
+            ComicBook[] result = comicBookRepository.insert(books);
+
+            // then
+            assertThat(result)
+                    .isNotNull()
+                    .containsExactly(book);
+
+            InOrder ordered = inOrder(lifecycleEventHandler, template);
+            ordered.verify(lifecycleEventHandler).preInsert(book);
+            ordered.verify(template).insert(List.of(book));
+            ordered.verify(lifecycleEventHandler).postInsert(book);
+        }
     }
-
-    @Test
-    void shouldInsertReturn() {
-        Mockito.when(template.insert(Mockito.any(ComicBook.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        ComicBook book = comicBookRepository.insert(new ComicBook("1234", "Book"));
-        Assertions.assertThat(book).isNotNull().isInstanceOf(ComicBook.class);
-        Mockito.verify(template).insert(Mockito.any(ComicBook.class));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldInsertIterableReturn() {
-        Mockito.when(template.insert(Mockito.any(Iterable.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        List<ComicBook> books = comicBookRepository.insert(List.of(new ComicBook("1234", "Book")));
-        Assertions.assertThat(books).isNotNull().isNotEmpty().contains(new ComicBook("1234", "Book"));
-        Mockito.verify(template).insert(Mockito.any(Iterable.class));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldInsertArrayReturn() {
-        Mockito.when(template.insert(Mockito.any(Iterable.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        ComicBook[] books = comicBookRepository.insert(new ComicBook[]{new ComicBook("1234", "Book")});
-        Assertions.assertThat(books).isNotNull().isNotEmpty().contains(new ComicBook("1234", "Book"));
-        Mockito.verify(template).insert(Mockito.any(Iterable.class));
-    }
-
-
 }
