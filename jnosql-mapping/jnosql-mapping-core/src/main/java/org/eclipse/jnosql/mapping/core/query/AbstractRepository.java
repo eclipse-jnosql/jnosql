@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2023-2026 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -22,6 +22,7 @@ import jakarta.nosql.Template;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +60,8 @@ public abstract class AbstractRepository<T, K> implements NoSQLRepository<T, K> 
      * @return The entity metadata information.
      */
     protected abstract EntityMetadata entityMetadata();
+
+    protected abstract LifecycleEventHandler lifeCycle();
 
     /**
      * Retrieves the Class object representing the entity type managed by this repository.
