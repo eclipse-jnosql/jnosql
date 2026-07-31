@@ -51,6 +51,10 @@ public class CoreDeleteOperation implements DeleteOperation {
         this.lifecycleEventHandler = lifecycleEventHandler;
     }
 
+    CoreDeleteOperation() {
+        this.lifecycleEventHandler = null;
+    }
+
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
         var parameters = context.parameters();
