@@ -75,9 +75,6 @@ class SaveOperationRepositoryInvocationHandlerTest {
     @Inject
     private InfrastructureOperatorProvider infrastructureOperatorProvider;
 
-    @Inject
-    private CoreBaseRepositoryOperationProvider repositoryOperationProvider;
-
     private ComicBookRepository comicBookRepository;
 
     private InvalidEntityRepository invalidEntityRepository;
@@ -91,6 +88,13 @@ class SaveOperationRepositoryInvocationHandlerTest {
                 template,
                 entitiesMetadata,
                 lifecycleEventHandler);
+
+        var repositoryOperationProvider = new CoreBaseRepositoryOperationProvider(
+                null,
+                null,
+                null,
+                new CoreSaveOperation(lifecycleEventHandler),
+                null);
 
         var repositoryHandler = CoreRepositoryInvocationHandler.of(
                 executor,
