@@ -15,8 +15,10 @@
 package org.eclipse.jnosql.mapping.core.repository.operations;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.UpdateOperation;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -24,6 +26,18 @@ import java.util.Arrays;
 
 @ApplicationScoped
 class CoreUpdateOperation implements UpdateOperation {
+
+    private final LifecycleEventHandler lifecycleEventHandler;
+
+    @Inject
+    CoreUpdateOperation(LifecycleEventHandler lifecycleEventHandler) {
+        this.lifecycleEventHandler = lifecycleEventHandler;
+    }
+
+    CoreUpdateOperation() {
+        this.lifecycleEventHandler = null;
+    }
+
 
     @SuppressWarnings("unchecked")
     @Override
