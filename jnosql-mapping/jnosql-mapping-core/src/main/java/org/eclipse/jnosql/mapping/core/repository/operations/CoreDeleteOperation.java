@@ -22,7 +22,10 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Default implementation of the {@link DeleteOperation} used by the core
@@ -41,33 +44,79 @@ import java.util.Arrays;
 @Typed(CoreDeleteOperation.class)
 public class CoreDeleteOperation implements DeleteOperation {
 
+    private final LifecycleEventHandler lifecycleEventHandler;
+
     @Inject
-    private LifecycleEventHandler lifecycleEventReference;
+    public CoreDeleteOperation(LifecycleEventHandler lifecycleEventHandler) {
+        this.lifecycleEventHandler = lifecycleEventHandler;
+    }
 
     @Override
     public <T> T execute(RepositoryInvocationContext context) {
         var parameters = context.parameters();
         var returnType = context.method().returnType().orElse(void.class);
-        var template = context.template();
+
         if (parameters.length != 1) {
-            throw new IllegalArgumentException("Delete operation requires one parameter instead of: "
-                    + Arrays.asList(parameters));
+            throw new IllegalArgumentException(
+                    "Delete operation requires one parameter instead of: "
+                            + Arrays.asList(parameters));
         }
+
         if (isNotVoidReturn(returnType)) {
-            throw new IllegalArgumentException("Delete operation doesn't support return type: " + returnType +
-                    " it supports void as return");
+            throw new IllegalArgumentException(
+                    "Delete operation doesn't support return type: " + returnType
+                            + " it supports void as return");
         }
+
         var entity = parameters[0];
+
         if (entity instanceof Restriction<?> restriction) {
             deleteByRestriction(context, restriction);
         } else if (entity instanceof Iterable<?> entities) {
-            template.delete(entities);
+            deleteEntities(context, entities);
         } else if (entity.getClass().isArray()) {
-            template.delete(Arrays.asList((Object[]) entity));
+            deleteEntities(context, toList(entity));
         } else {
-            template.delete(entity);
+            deleteEntity(context, entity);
         }
+
         return null;
+    }
+
+    private void deleteEntity(
+            RepositoryInvocationContext context,
+            Object entity) {
+
+        lifecycleEventHandler.preDelete(entity);
+
+        context.template().delete(entity);
+
+        lifecycleEventHandler.postDelete(entity);
+    }
+
+    private void deleteEntities(
+            RepositoryInvocationContext context,
+            Iterable<?> entities) {
+
+        List<Object> materializedEntities = new ArrayList<>();
+        entities.forEach(materializedEntities::add);
+
+        materializedEntities.forEach(lifecycleEventHandler::preDelete);
+
+        context.template().delete(materializedEntities);
+
+        materializedEntities.forEach(lifecycleEventHandler::postDelete);
+    }
+
+    private List<Object> toList(Object array) {
+        int length = Array.getLength(array);
+        List<Object> entities = new ArrayList<>(length);
+
+        for (int index = 0; index < length; index++) {
+            entities.add(Array.get(array, index));
+        }
+
+        return entities;
     }
 
     /**
@@ -77,12 +126,20 @@ public class CoreDeleteOperation implements DeleteOperation {
      * by provider-specific implementations that support restriction-based
      * deletion.</p>
      *
+     * <p>A provider implementation must fire one pre-delete and one post-delete
+     * lifecycle event for each record deleted by the restriction. A post-delete
+     * event must only be fired after the corresponding deletion succeeds.</p>
+     *
      * @param context the repository invocation context
      * @param restriction the deletion restriction
      * @throws UnsupportedOperationException if not overridden by a provider
      */
-    protected void deleteByRestriction(RepositoryInvocationContext context, Restriction<?> restriction) {
-        throw  new UnsupportedOperationException("Delete by restriction is not supported by default");
+    protected void deleteByRestriction(
+            RepositoryInvocationContext context,
+            Restriction<?> restriction) {
+
+        throw new UnsupportedOperationException(
+                "Delete by restriction is not supported by default");
     }
 
     private boolean isNotVoidReturn(Class<?> returnType) {
