@@ -62,9 +62,7 @@ class CoreSaveOperation implements SaveOperation {
         if (entity instanceof Iterable<?> iterable) {
             List<Object> savedEntities = new ArrayList<>();
 
-            iterable.forEach(element ->
-                    savedEntities.add(save(element, context)));
-
+            iterable.forEach(element -> savedEntities.add(save(element, context)));
             return (T) savedEntities;
         }
 
@@ -75,26 +73,20 @@ class CoreSaveOperation implements SaveOperation {
         return (T) save(entity, context);
     }
 
-    private Object save(
-            Object entity,
-            RepositoryInvocationContext context) {
+    private Object save(Object entity, RepositoryInvocationContext context) {
 
         Object safeEntity = Objects.requireNonNull(
                 entity,
                 "The entity to save must not be null");
 
         lifecycleEventHandler.preUpsert(safeEntity);
-
         Object savedEntity = persist(safeEntity, context);
-
         lifecycleEventHandler.postUpsert(savedEntity);
 
         return savedEntity;
     }
 
-    private Object persist(
-            Object entity,
-            RepositoryInvocationContext context) {
+    private Object persist(Object entity, RepositoryInvocationContext context) {
 
         Template template = context.template();
         EntityMetadata entityMetadata = context.entityMetadata();
@@ -113,9 +105,7 @@ class CoreSaveOperation implements SaveOperation {
                 : template.insert(entity);
     }
 
-    private Object saveArray(
-            Object array,
-            RepositoryInvocationContext context) {
+    private Object saveArray(Object array, RepositoryInvocationContext context) {
 
         int length = Array.getLength(array);
         List<Object> savedEntities = new ArrayList<>(length);
