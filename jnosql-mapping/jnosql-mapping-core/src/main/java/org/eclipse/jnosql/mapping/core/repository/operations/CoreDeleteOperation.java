@@ -47,7 +47,7 @@ public class CoreDeleteOperation implements DeleteOperation {
     private final LifecycleEventHandler lifecycleEventHandler;
 
     @Inject
-    public CoreDeleteOperation(LifecycleEventHandler lifecycleEventHandler) {
+     CoreDeleteOperation(LifecycleEventHandler lifecycleEventHandler) {
         this.lifecycleEventHandler = lifecycleEventHandler;
     }
 
