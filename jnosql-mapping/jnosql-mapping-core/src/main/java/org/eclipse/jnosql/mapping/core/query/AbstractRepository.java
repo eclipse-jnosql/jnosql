@@ -144,31 +144,13 @@ public abstract class AbstractRepository<T, K> implements NoSQLRepository<T, K> 
     @Override
     public void deleteById(K id) {
         requireNonNull(id, "id is required");
-
-        Optional<T> entity = template().find(type(), id);
-
-        if (entity.isEmpty()) {
-            return;
-        }
-
-        T existingEntity = entity.orElseThrow();
-        LifecycleEventHandler events = lifeCycle();
-
-        events.preDelete(existingEntity);
-
         template().delete(type(), id);
-
-        events.postDelete(existingEntity);
     }
 
     @Override
     public void deleteByIdIn(Iterable<K> ids) {
         requireNonNull(ids, "ids is required");
-
-        ids.forEach(id -> {
-            requireNonNull(id, "id is required");
-            deleteById(id);
-        });
+        ids.forEach(this::deleteById);
     }
 
     @Override
