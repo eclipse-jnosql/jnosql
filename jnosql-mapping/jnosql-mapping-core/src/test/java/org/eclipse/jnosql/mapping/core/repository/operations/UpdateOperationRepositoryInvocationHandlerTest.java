@@ -34,6 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
 import java.lang.reflect.Proxy;
@@ -44,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -109,6 +111,7 @@ class UpdateOperationRepositoryInvocationHandlerTest {
         @Test
         @DisplayName("Should reject an update method without the required parameter")
         void shouldRejectUpdateWithoutRequiredParameter() {
+            // when, then
             assertThatThrownBy(comicBookRepository::invalidUpdate)
                     .isInstanceOf(IllegalArgumentException.class);
 
@@ -189,13 +192,16 @@ class UpdateOperationRepositoryInvocationHandlerTest {
 
         @SuppressWarnings("unchecked")
         @Test
-        @DisplayName("Should return updated array entities after firing lifecycle events for each entity")
-        void shouldUpdateArrayWithLifecycleEvents() {
+        @DisplayName("Should convert an array to an iterable and update its entities")
+        void shouldUpdateArrayAsIterable() {
             // given
             ComicBook book = new ComicBook("1234", "Book");
 
             when(template.update(any(Iterable.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
+
+            ArgumentCaptor<Iterable<ComicBook>> captor =
+                    ArgumentCaptor.forClass(Iterable.class);
 
             // when
             ComicBook[] result =
@@ -206,10 +212,12 @@ class UpdateOperationRepositoryInvocationHandlerTest {
                     .isNotNull()
                     .containsExactly(book);
 
-            InOrder ordered = inOrder(lifecycleEventHandler, template);
-            ordered.verify(lifecycleEventHandler).preUpdate(book);
-            ordered.verify(template).update(List.of(book));
-            ordered.verify(lifecycleEventHandler).postUpdate(book);
+            verify(template).update(captor.capture());
+
+            assertThat(captor.getValue())
+                    .containsExactly(book);
+
+            verifyNoInteractions(lifecycleEventHandler);
         }
     }
 }
