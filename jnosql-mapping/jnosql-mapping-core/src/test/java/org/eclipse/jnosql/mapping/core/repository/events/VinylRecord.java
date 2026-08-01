@@ -14,5 +14,17 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.events;
 
-public class VinylRecord {
+import jakarta.nosql.Column;
+import jakarta.nosql.Entity;
+import jakarta.nosql.Id;
+
+import java.time.Year;
+
+@Entity
+public record VinylRecord(
+        @Id String catalogNumber,
+        @Column String title,
+        @Column String artist,
+        @Column Year releaseYear
+) {
 }
