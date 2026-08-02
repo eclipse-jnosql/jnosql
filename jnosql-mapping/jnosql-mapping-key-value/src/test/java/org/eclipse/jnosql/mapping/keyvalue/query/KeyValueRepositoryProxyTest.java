@@ -74,6 +74,7 @@ class KeyValueRepositoryProxyTest {
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
 
         User user = new User("ada", "Ada", 10);
+        when(template.insert(user)).thenReturn(user);
         userRepository.save(user);
         Mockito.verify(template).insert(captor.capture());
         User value = captor.getValue();
@@ -85,6 +86,7 @@ class KeyValueRepositoryProxyTest {
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
 
         User user = new User("ada", "Ada", 10);
+        when(template.insert(user)).thenReturn(user);
         userRepository.saveAll(Collections.singletonList(user));
         Mockito.verify(template).insert(captor.capture());
         User value = captor.getValue();
@@ -96,6 +98,7 @@ class KeyValueRepositoryProxyTest {
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
 
         User user = new User("ada", "Ada", 10);
+        when(template.insert(user)).thenReturn(user);
         userRepository.insert(user);
         Mockito.verify(template).insert(captor.capture());
         User value = captor.getValue();
@@ -119,6 +122,7 @@ class KeyValueRepositoryProxyTest {
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
 
         User user = new User("ada", "Ada", 10);
+        when(template.update(user)).thenReturn(user);
         userRepository.update(user);
         Mockito.verify(template).update(captor.capture());
         User value = captor.getValue();
@@ -246,6 +250,7 @@ class KeyValueRepositoryProxyTest {
     @Test
     void shouldInsertUsingAnnotation(){
         User user = new User("12", "Poliana", 30);
+        when(template.insert(user)).thenReturn(user);
         userRepository.insertUser(user);
         Mockito.verify(template).insert(user);
     }
@@ -253,6 +258,7 @@ class KeyValueRepositoryProxyTest {
     @Test
     void shouldUpdateUsingAnnotation(){
         User user = new User("12", "Poliana", 30);
+        when(template.update(user)).thenReturn(user);
         userRepository.updateUser(user);
         Mockito.verify(template).update(user);
     }
@@ -267,6 +273,7 @@ class KeyValueRepositoryProxyTest {
     @Test
     void shouldSaveUsingAnnotation(){
         User user = new User("12", "Poliana", 30);
+        when(template.insert(user)).thenReturn(user);
         userRepository.saveUser(user);
         Mockito.verify(template).insert(user);
     }
