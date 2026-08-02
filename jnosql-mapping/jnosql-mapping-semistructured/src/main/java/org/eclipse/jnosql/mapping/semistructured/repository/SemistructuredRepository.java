@@ -43,7 +43,7 @@ import java.util.stream.Stream;
  * semi-structured type does not provide the requested method.</p>
  *
  * <p>Instances of this repository are created through the
- * {@link #of(SemiStructuredTemplate, EntityMetadata)} factory method, which
+ * {@link #of(SemiStructuredTemplate, EntityMetadata, LifecycleEventHandler)} factory method, which
  * validates all required components before construction.</p>
  *
  * @param <T> the entity type managed by this repository
@@ -134,7 +134,7 @@ public class SemistructuredRepository<T, K>  extends AbstractRepository<T, K> {
      * @param <T>       the entity type
      * @param <K>       the identifier type
      * @return a new {@code SemistructuredRepository} instance configured with the given template and metadata
-     * @throws NullPointerException if {@code template} or {@code metadata} is {@code null}
+     * @throws NullPointerException if any argument is {@code null}
      */
     public static <T, K> SemistructuredRepository<T, K> of(SemiStructuredTemplate template, EntityMetadata metadata, LifecycleEventHandler lifecycleEventHandler) {
         Objects.requireNonNull(template, "template is required");
