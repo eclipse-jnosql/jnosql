@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2023-2026 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -22,7 +22,9 @@ import jakarta.nosql.Template;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -59,6 +61,13 @@ public abstract class AbstractRepository<T, K> implements NoSQLRepository<T, K> 
      * @return The entity metadata information.
      */
     protected abstract EntityMetadata entityMetadata();
+
+    /**
+     * Retrieves the lifecycle-event handler associated with this repository.
+     *
+     * @return the lifecycle-event handler
+     */
+    protected abstract LifecycleEventHandler lifeCycle();
 
     /**
      * Retrieves the Class object representing the entity type managed by this repository.
@@ -102,26 +111,39 @@ public abstract class AbstractRepository<T, K> implements NoSQLRepository<T, K> 
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <S extends T> S save(S entity) {
         requireNonNull(entity, "Entity is required");
+
+        LifecycleEventHandler events = lifeCycle();
+        events.preUpsert(entity);
+
         Object id = getIdField().read(entity);
+
+        S savedEntity;
+
         if (nonNull(id) && existsById((K) id)) {
-            return template().update(entity);
+            savedEntity = template().update(entity);
         } else {
-            return template().insert(entity);
+            savedEntity = template().insert(entity);
         }
+
+        events.postUpsert(savedEntity);
+        return savedEntity;
     }
 
     @Override
     public <S extends T> List<S> saveAll(List<S> entities) {
-        requireNonNull(entities, "entities is required");
-        return entities.stream().map(this::save).collect(toList());
-    }
+        requireEntities(entities);
 
+        return entities.stream()
+                .map(this::save)
+                .collect(toList());
+    }
 
     @Override
     public void deleteById(K id) {
-        requireNonNull(id, "is is required");
+        requireNonNull(id, "id is required");
         template().delete(type(), id);
     }
 
@@ -137,57 +159,99 @@ public abstract class AbstractRepository<T, K> implements NoSQLRepository<T, K> 
         return template().find(type(), id);
     }
 
-
     @Override
     public Stream<T> findByIdIn(Iterable<K> ids) {
         requireNonNull(ids, "ids is required");
-        return stream(ids.spliterator(), false)
-                .flatMap(optionalToStream());
+
+        return stream(ids.spliterator(), false).flatMap(optionalToStream());
     }
 
     @Override
     public boolean existsById(K id) {
+        requireNonNull(id, "id is required");
         return findById(id).isPresent();
     }
 
     @Override
     public void delete(T entity) {
         requireNonNull(entity, "entity is required");
+
         EntityMetadata metadata = entityMetadata();
         FieldMetadata id = metadata.id().orElseThrow(KEY_NOT_FOUND_EXCEPTION_SUPPLIER);
+
+        LifecycleEventHandler events = lifeCycle();
+        events.preDelete(entity);
         template().delete(metadata.type(), id.read(entity));
+        events.postDelete(entity);
     }
 
     @Override
-    public void deleteAll(List<? extends T>  entities) {
-        requireNonNull(entities, "entities is required");
+    public void deleteAll(List<? extends T> entities) {
+        requireEntities(entities);
         entities.forEach(this::delete);
     }
 
     @Override
     public <S extends T> S insert(S entity) {
         requireNonNull(entity, "entity is required");
-        return template().insert(entity);
+
+        LifecycleEventHandler events = lifeCycle();
+        events.preInsert(entity);
+
+        S insertedEntity = template().insert(entity);
+
+        events.postInsert(insertedEntity);
+        return insertedEntity;
     }
 
     @Override
     public <S extends T> List<S> insertAll(List<S> entities) {
-        requireNonNull(entities, "entities is required");
-        return stream(template().insert(entities).spliterator(), false)
-                .toList();
+        requireEntities(entities);
+
+        LifecycleEventHandler events = lifeCycle();
+        entities.forEach(events::preInsert);
+
+        List<S> insertedEntities = new ArrayList<>();
+        template().insert(entities).forEach(entity -> {
+            @SuppressWarnings("unchecked")
+            S insertedEntity = (S) entity;
+
+            events.postInsert(insertedEntity);
+            insertedEntities.add(insertedEntity);
+        });
+
+        return insertedEntities;
     }
 
     @Override
     public <S extends T> S update(S entity) {
         requireNonNull(entity, "entity is required");
-        return template().update(entity);
+
+        LifecycleEventHandler events = lifeCycle();
+        events.preUpdate(entity);
+        S updatedEntity = template().update(entity);
+        events.postUpdate(updatedEntity);
+        return updatedEntity;
     }
 
     @Override
     public <S extends T> List<S> updateAll(List<S> entities) {
-        requireNonNull(entities, "entities is required");
-        return stream(template().update(entities).spliterator(), false)
-                .toList();
+        requireEntities(entities);
+
+        LifecycleEventHandler events = lifeCycle();
+        entities.forEach(events::preUpdate);
+
+        List<S> updatedEntities = new ArrayList<>();
+
+        template().update(entities).forEach(entity -> {
+            @SuppressWarnings("unchecked")
+            S updatedEntity = (S) entity;
+
+            events.postUpdate(updatedEntity);
+            updatedEntities.add(updatedEntity);
+        });
+
+        return updatedEntities;
     }
 
     @Override
@@ -208,6 +272,11 @@ public abstract class AbstractRepository<T, K> implements NoSQLRepository<T, K> 
     @Override
     public Stream<T> findAll() {
         throw new UnsupportedOperationException(String.format(getErrorMessage(), "findAll"));
+    }
+
+    private static void requireEntities(Iterable<?> entities) {
+        requireNonNull(entities, "entities is required");
+        entities.forEach(entity -> requireNonNull(entity, "entities must not contain null"));
     }
 
 

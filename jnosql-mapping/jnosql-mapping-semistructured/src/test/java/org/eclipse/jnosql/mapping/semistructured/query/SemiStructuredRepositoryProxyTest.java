@@ -21,6 +21,7 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
@@ -51,6 +52,8 @@ class SemiStructuredRepositoryProxyTest {
     private SemiStructuredTemplate template;
     @Inject
     private EntitiesMetadata entitiesMetadata;
+    @Inject
+    private LifecycleEventHandler lifecycleEventHandler;
 
     @Inject
     private Converters converters;
@@ -59,7 +62,8 @@ class SemiStructuredRepositoryProxyTest {
     void shouldCreateSemiStructuredRepositoryProxy() {
         EntityMetadata entityMetadata = entitiesMetadata.get(Person.class);
 
-        SemiStructuredRepositoryProxy.SemiStructuredRepository<Object, Object> repository = SemiStructuredRepositoryProxy.SemiStructuredRepository.of(template, entityMetadata);
+        SemiStructuredRepositoryProxy.SemiStructuredRepository<Object, Object> repository =
+                SemiStructuredRepositoryProxy.SemiStructuredRepository.of(template, entityMetadata, lifecycleEventHandler);
         Assertions.assertThat(repository).isNotNull();
     }
 
@@ -67,7 +71,7 @@ class SemiStructuredRepositoryProxyTest {
     void shouldExecuteFindAll() {
         SemiStructuredRepositoryProxy proxy = new SemiStructuredRepositoryProxy(template, entitiesMetadata,
                 PersonRepository.class,
-                converters);
+                converters, lifecycleEventHandler);
 
         Method findAll = Arrays.stream(SemiStructuredRepositoryProxyTest.class.getDeclaredMethods())
                 .filter(method -> method.getName().equals("findAll")).findFirst().orElseThrow();
@@ -78,12 +82,12 @@ class SemiStructuredRepositoryProxyTest {
     void shouldGetErrorOnFindRestriction() {
         var proxy = new SemiStructuredRepositoryProxy(template, entitiesMetadata,
                 PersonRepository.class,
-                converters);
+                converters, lifecycleEventHandler);
 
         Assertions.assertThatThrownBy(() -> proxy.restriction(new Object[0])
-                ).isInstanceOf(IllegalArgumentException.class);
+        ).isInstanceOf(IllegalArgumentException.class);
 
-        Assertions.assertThatThrownBy(() -> proxy.restriction(new Object[] {new Object(), new Object()})
+        Assertions.assertThatThrownBy(() -> proxy.restriction(new Object[]{new Object(), new Object()})
         ).isInstanceOf(IllegalArgumentException.class);
     }
 

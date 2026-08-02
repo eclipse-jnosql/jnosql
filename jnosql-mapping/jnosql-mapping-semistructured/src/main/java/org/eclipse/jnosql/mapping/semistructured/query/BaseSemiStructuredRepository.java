@@ -65,6 +65,7 @@ import java.util.stream.Stream;
  *
  * @param <T> The type of entities managed by the repository.
  */
+@SuppressWarnings("removal")
 public abstract class BaseSemiStructuredRepository<T, K> extends AbstractRepositoryProxy<T, K> {
 
     private static final SelectQueryParser SELECT_PARSER = new SelectQueryParser();

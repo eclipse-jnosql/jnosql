@@ -31,6 +31,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
@@ -71,6 +72,9 @@ class CustomRepositoryHandlerTest {
     @Inject
     private Converters converters;
 
+    @Inject
+    private LifecycleEventHandler lifecycleEventHandler;
+
     private People people;
 
     private Tasks tasks;
@@ -85,6 +89,7 @@ class CustomRepositoryHandlerTest {
         CustomRepositoryHandler customRepositoryHandlerForPeople = CustomRepositoryHandler.builder()
                 .entitiesMetadata(entitiesMetadata)
                 .template(template)
+                .lifecycleEventHandler(lifecycleEventHandler)
                 .customRepositoryType(People.class)
                 .converters(converters).build();
 
@@ -94,18 +99,21 @@ class CustomRepositoryHandlerTest {
         CustomRepositoryHandler customRepositoryHandlerForTasks = CustomRepositoryHandler.builder()
                 .entitiesMetadata(entitiesMetadata)
                 .template(template)
+                .lifecycleEventHandler(lifecycleEventHandler)
                 .customRepositoryType(Tasks.class)
                 .converters(converters).build();
 
         var updateHandler = CustomRepositoryHandler.builder()
                 .entitiesMetadata(entitiesMetadata)
                 .template(template)
+                .lifecycleEventHandler(lifecycleEventHandler)
                 .customRepositoryType(UpdatePersonRepository.class)
                 .converters(converters).build();
 
         var updateArrayHandler = CustomRepositoryHandler.builder()
                 .entitiesMetadata(entitiesMetadata)
                 .template(template)
+                .lifecycleEventHandler(lifecycleEventHandler)
                 .customRepositoryType(UpdateArrayPersonRepository.class)
                 .converters(converters).build();
 
@@ -555,6 +563,7 @@ class CustomRepositoryHandlerTest {
 
     @Test
     void shouldInsert(){
+        Mockito.when(template.insert(Mockito.any(Person.class))).thenReturn(Person.builder().age(26).name("Ada").build());
         updatePersonRepository.insert(Person.builder().age(26).name("Ada").build());
         updateArrayPersonRepository.insert(new Person[]{Person.builder().age(26).name("Ada").build()});
     }

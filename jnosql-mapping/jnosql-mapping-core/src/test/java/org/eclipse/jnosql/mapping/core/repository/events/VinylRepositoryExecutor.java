@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2026 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License v1.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -12,7 +12,7 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.core.repository.operations;
+package org.eclipse.jnosql.mapping.core.repository.events;
 
 import jakarta.nosql.Template;
 import org.eclipse.jnosql.mapping.core.entities.ComicBook;
@@ -21,7 +21,7 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 
-class TestRepositoryExecutor extends AbstractRepository<ComicBook, Long> {
+class VinylRepositoryExecutor extends AbstractRepository<VinylRecord, String> {
 
 
     private final Template template;
@@ -30,7 +30,7 @@ class TestRepositoryExecutor extends AbstractRepository<ComicBook, Long> {
 
     private final LifecycleEventHandler lifecycleEventHandler;
 
-    TestRepositoryExecutor(
+    VinylRepositoryExecutor(
             Template template,
             EntitiesMetadata entitiesMetadata,
             LifecycleEventHandler lifecycleEventHandler) {
@@ -46,7 +46,7 @@ class TestRepositoryExecutor extends AbstractRepository<ComicBook, Long> {
 
     @Override
     protected EntityMetadata entityMetadata() {
-        return entitiesMetadata.get(ComicBook.class);
+        return entitiesMetadata.get(VinylRecord.class);
     }
 
     @Override

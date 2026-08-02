@@ -18,6 +18,7 @@ package org.eclipse.jnosql.mapping.keyvalue.query;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.keyvalue.KeyValueTemplate;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 
 import java.util.Objects;
 
@@ -36,9 +37,12 @@ class DefaultKeyValueRepository<T, K>  extends AbstractRepository<T, K> {
 
     private final EntityMetadata metadata;
 
-    DefaultKeyValueRepository(EntityMetadata metadata, KeyValueTemplate repository) {
+    private final LifecycleEventHandler lifecycleEventHandler;
+
+    DefaultKeyValueRepository(EntityMetadata metadata, KeyValueTemplate repository, LifecycleEventHandler lifecycleEventHandler) {
         this.repository = repository;
         this.metadata = metadata;
+        this.lifecycleEventHandler = lifecycleEventHandler;
     }
 
     @Override
@@ -52,24 +56,33 @@ class DefaultKeyValueRepository<T, K>  extends AbstractRepository<T, K> {
     }
 
     @Override
+    protected LifecycleEventHandler lifeCycle() {
+        return lifecycleEventHandler;
+    }
+
+    @Override
     protected String getErrorMessage() {
         return "The key-value type does not support %s method";
     }
 
 
     /**
-     * Creates a new instance of DefaultKeyValueRepository with the provided KeyValueTemplate and EntityMetadata.
+     * Creates a new instance of DefaultKeyValueRepository with the provided KeyValueTemplate,
+     * EntityMetadata, and LifecycleEventHandler.
      *
-     * @param <T>      The type of entities managed by the repository.
-     * @param <K>      The type of the key used for key-value operations.
+     * @param <T> The type of entities managed by the repository.
+     * @param <K> The type of the key used for key-value operations.
      * @param template The KeyValueTemplate used for database operations. Must not be {@code null}.
      * @param metadata The metadata information about the entity. Must not be {@code null}.
+     * @param lifecycleEventHandler the lifecycle event handler for pre/post operation events
      * @return A new instance of DefaultKeyValueRepository.
-     * @throws NullPointerException If either the template or metadata is {@code null}.
+     * @throws NullPointerException If any argument is {@code null}.
      */
-    public static <T, K> DefaultKeyValueRepository<T, K> of(KeyValueTemplate template, EntityMetadata metadata) {
+    public static <T, K> DefaultKeyValueRepository<T, K> of(KeyValueTemplate template, EntityMetadata metadata,
+                                                           LifecycleEventHandler lifecycleEventHandler) {
         Objects.requireNonNull(template,"template is required");
         Objects.requireNonNull(metadata,"metadata is required");
-        return new DefaultKeyValueRepository<>(metadata, template);
+        Objects.requireNonNull(lifecycleEventHandler,"lifecycleEventHandler is required");
+        return new DefaultKeyValueRepository<>(metadata, template, lifecycleEventHandler);
     }
 }

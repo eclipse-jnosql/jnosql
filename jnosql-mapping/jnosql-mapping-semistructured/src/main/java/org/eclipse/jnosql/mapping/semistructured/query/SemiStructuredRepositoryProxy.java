@@ -19,6 +19,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 import java.lang.reflect.ParameterizedType;
@@ -57,12 +58,13 @@ public class SemiStructuredRepositoryProxy<T, K> extends AbstractSemiStructuredR
    @SuppressWarnings({"unchecked", "rawtypes"})
    public SemiStructuredRepositoryProxy(SemiStructuredTemplate template,
                                         EntitiesMetadata entities, Class<?> repositoryType,
-                                        Converters converters) {
+                                        Converters converters,
+                                        LifecycleEventHandler lifecycleEventHandler) {
         this.template = template;
         Class<T> typeClass = (Class) ((ParameterizedType) repositoryType.getGenericInterfaces()[0])
                 .getActualTypeArguments()[0];
         this.entityMetadata = entities.get(typeClass);
-        this.repository = new SemiStructuredRepository<>(template, entityMetadata);
+        this.repository = new SemiStructuredRepository<>(template, entityMetadata, lifecycleEventHandler);
         this.converters = converters;
         this.repositoryType =  repositoryType;
         this.entitiesMetadata = entities;
@@ -71,10 +73,11 @@ public class SemiStructuredRepositoryProxy<T, K> extends AbstractSemiStructuredR
     protected SemiStructuredRepositoryProxy(SemiStructuredTemplate template,
                                   EntityMetadata metadata, Class<?> typeClass,
                                   Converters converters,
-                                  EntitiesMetadata entities) {
+                                  EntitiesMetadata entities,
+                                            LifecycleEventHandler lifecycleEventHandler) {
         this.template = template;
         this.entityMetadata = metadata;
-        this.repository = new SemiStructuredRepository<>(template, entityMetadata);
+        this.repository = new SemiStructuredRepository<>(template, entityMetadata, lifecycleEventHandler);
         this.converters = converters;
         this.repositoryType =  typeClass;
         this.entitiesMetadata = entities;
@@ -123,9 +126,12 @@ public class SemiStructuredRepositoryProxy<T, K> extends AbstractSemiStructuredR
 
         private final EntityMetadata entityMetadata;
 
-        SemiStructuredRepository(SemiStructuredTemplate template, EntityMetadata entityMetadata) {
+        private final LifecycleEventHandler lifeCycle;
+
+        SemiStructuredRepository(SemiStructuredTemplate template, EntityMetadata entityMetadata, LifecycleEventHandler lifeCycle) {
             this.template = template;
             this.entityMetadata = entityMetadata;
+            this.lifeCycle = lifeCycle;
         }
 
         @Override
@@ -138,6 +144,11 @@ public class SemiStructuredRepositoryProxy<T, K> extends AbstractSemiStructuredR
             return entityMetadata;
         }
 
+        @Override
+        protected LifecycleEventHandler lifeCycle() {
+            return lifeCycle;
+        }
+
         /**
          * Creates a new instance of ColumnRepository.
          *
@@ -148,10 +159,11 @@ public class SemiStructuredRepositoryProxy<T, K> extends AbstractSemiStructuredR
          * @return A new instance of ColumnRepository.
          * @throws NullPointerException If either the template or metadata is {@code null}.
          */
-        public static <T, K> SemiStructuredRepository<T, K> of(SemiStructuredTemplate template, EntityMetadata metadata) {
+        public static <T, K> SemiStructuredRepository<T, K> of(SemiStructuredTemplate template, EntityMetadata metadata, LifecycleEventHandler lifecycleEventHandler) {
             Objects.requireNonNull(template,"template is required");
             Objects.requireNonNull(metadata,"metadata is required");
-            return new SemiStructuredRepository<>(template, metadata);
+            Objects.requireNonNull(lifecycleEventHandler,"lifecycleEventHandler is required");
+            return new SemiStructuredRepository<>(template, metadata, lifecycleEventHandler);
         }
     }
 }

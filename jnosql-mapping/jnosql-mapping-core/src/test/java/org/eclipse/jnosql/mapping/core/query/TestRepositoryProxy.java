@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
+@SuppressWarnings("removal")
 public class TestRepositoryProxy extends AbstractRepositoryProxy<TestEntity, UUID> {
 
     @Override

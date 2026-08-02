@@ -20,9 +20,9 @@
  * The new execution model is now provided in
  * {@code org.eclipse.jnosql.mapping.semistructured.repository}, which offers a
  * clearer and more consistent API aligned with Jakarta Data. Applications and
- * extensions should migrate to the new package, as this legacy structure will
- * not receive new features.
- * @deprecated migrate to {@link org.eclipse.jnosql.mapping.semistructured.repository}
+ * extensions should migrate to
+ * {@link org.eclipse.jnosql.mapping.semistructured.repository}, as this legacy
+ * structure will not receive new features.
  */
 @Deprecated
 package org.eclipse.jnosql.mapping.semistructured.query;

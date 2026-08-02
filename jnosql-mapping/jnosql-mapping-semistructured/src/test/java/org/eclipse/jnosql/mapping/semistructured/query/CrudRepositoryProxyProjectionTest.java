@@ -33,6 +33,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
@@ -76,6 +77,9 @@ class CrudRepositoryProxyProjectionTest {
     @Inject
     private Converters converters;
 
+    @Inject
+    private LifecycleEventHandler lifecycleEventHandler;
+
     private ProductRepository productRepository;
 
     private CitizenRepository citizenRepository;
@@ -86,10 +90,10 @@ class CrudRepositoryProxyProjectionTest {
         this.template = Mockito.mock(SemiStructuredTemplate.class);
 
         var productHandler = new SemiStructuredRepositoryProxy<>(template,
-                entities, ProductRepository.class, converters);
+                entities, ProductRepository.class, converters, lifecycleEventHandler);
 
         var cityHandler = new SemiStructuredRepositoryProxy<>(template,
-                entities, CitizenRepository.class, converters);
+                entities, CitizenRepository.class, converters, lifecycleEventHandler);
 
 
         productRepository = (ProductRepository) Proxy.newProxyInstance(ProductRepository.class.getClassLoader(),
