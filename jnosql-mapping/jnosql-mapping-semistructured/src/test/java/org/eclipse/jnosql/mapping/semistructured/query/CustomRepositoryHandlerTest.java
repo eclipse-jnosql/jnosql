@@ -563,6 +563,7 @@ class CustomRepositoryHandlerTest {
 
     @Test
     void shouldInsert(){
+        Mockito.when(template.insert(Mockito.any(Person.class))).thenReturn(Person.builder().age(26).name("Ada").build());
         updatePersonRepository.insert(Person.builder().age(26).name("Ada").build());
         updateArrayPersonRepository.insert(new Person[]{Person.builder().age(26).name("Ada").build()});
     }
