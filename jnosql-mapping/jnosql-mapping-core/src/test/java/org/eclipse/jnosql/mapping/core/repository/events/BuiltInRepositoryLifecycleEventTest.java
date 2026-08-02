@@ -207,13 +207,9 @@ class BuiltInRepositoryLifecycleEventTest {
             // given
             VinylRecord entity = entity();
 
-            when(template.find(
-                    VinylRecord.class,
-                    entity.catalogNumber()))
-                    .thenReturn(Optional.of(entity));
+            when(template.find(VinylRecord.class, entity.catalogNumber())).thenReturn(Optional.of(entity));
 
-            when(template.update(entity))
-                    .thenReturn(entity);
+            when(template.update(entity)).thenReturn(entity);
 
             // when
             VinylRecord result = repository.save(entity);
