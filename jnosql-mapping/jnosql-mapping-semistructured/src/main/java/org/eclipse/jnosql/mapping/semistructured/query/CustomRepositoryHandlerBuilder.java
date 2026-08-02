@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 import java.util.Objects;
@@ -35,6 +36,8 @@ public class CustomRepositoryHandlerBuilder {
     private Class<?> customRepositoryType;
 
     private Converters converters;
+
+    private LifecycleEventHandler lifecycleEventHandler;
 
     /**
      * Sets the entities metadata for the custom repository handler.
@@ -84,13 +87,24 @@ public class CustomRepositoryHandlerBuilder {
     }
 
     /**
+     * Sets the lifecycle event handler for the custom repository handler.
+     *
+     * @param lifecycleEventHandler the {@link LifecycleEventHandler} instance
+     * @return the current instance of {@link CustomRepositoryHandlerBuilder}
+     */
+    public CustomRepositoryHandlerBuilder lifecycleEventHandler(LifecycleEventHandler lifecycleEventHandler) {
+        this.lifecycleEventHandler = Objects.requireNonNull(lifecycleEventHandler, "lifecycleEventHandler is required");
+        return this;
+    }
+
+    /**
      * Builds and returns a {@link CustomRepositoryHandler} instance configured
      * with the provided components.
      *
      * @return a new instance of {@link CustomRepositoryHandler}
-     * @throws IllegalStateException if the entitiesMetadata, template, customRepositoryType, or converters are null
+     * @throws IllegalStateException if the entitiesMetadata, template, customRepositoryType, converters, or lifecycleEventHandler are null
      */
     public CustomRepositoryHandler build() {
-        return new CustomRepositoryHandler(entitiesMetadata, template, customRepositoryType, converters);
+        return new CustomRepositoryHandler(entitiesMetadata, template, lifecycleEventHandler, customRepositoryType, converters);
     }
 }
