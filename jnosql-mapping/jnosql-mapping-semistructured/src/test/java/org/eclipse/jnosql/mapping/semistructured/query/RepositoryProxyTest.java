@@ -41,6 +41,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
@@ -106,6 +107,9 @@ class RepositoryProxyTest {
     @Inject
     private Converters converters;
 
+    @Inject
+    private LifecycleEventHandler lifecycleEventHandler;
+
     private PersonRepository personRepository;
 
     private VendorRepository vendorRepository;
@@ -116,10 +120,10 @@ class RepositoryProxyTest {
         this.template = Mockito.mock(SemiStructuredTemplate.class);
 
         SemiStructuredRepositoryProxy personHandler = new SemiStructuredRepositoryProxy(template,
-                entities, PersonRepository.class, converters);
+                entities, PersonRepository.class, converters, lifecycleEventHandler);
 
         SemiStructuredRepositoryProxy vendorHandler = new SemiStructuredRepositoryProxy(template,
-                entities, VendorRepository.class, converters);
+                entities, VendorRepository.class, converters, lifecycleEventHandler);
 
         when(template.insert(any(Person.class))).thenReturn(Person.builder().build());
         when(template.insert(any(Person.class), any(Duration.class))).thenReturn(Person.builder().build());
