@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.keyvalue.query;
 
 import org.eclipse.jnosql.mapping.keyvalue.KeyValueTemplate;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -32,17 +33,20 @@ class DefaultKeyValueRepositoryTest {
     private KeyValueTemplate template;
     @Mock
     private EntityMetadata metadata;
+    @Mock
+    private LifecycleEventHandler lifecycleEventHandler;
 
     @Test
     void shouldReturnErrorWhenTemplateIsNull() {
-        assertThrows(NullPointerException.class, () -> DefaultKeyValueRepository.of(template, null));
-        assertThrows(NullPointerException.class, () -> DefaultKeyValueRepository.of(null, metadata));
-        assertThrows(NullPointerException.class, () -> DefaultKeyValueRepository.of(null, null));
+        assertThrows(NullPointerException.class, () -> DefaultKeyValueRepository.of(template, null, lifecycleEventHandler));
+        assertThrows(NullPointerException.class, () -> DefaultKeyValueRepository.of(null, metadata, lifecycleEventHandler));
+        assertThrows(NullPointerException.class, () -> DefaultKeyValueRepository.of(null, null, lifecycleEventHandler));
+        assertThrows(NullPointerException.class, () -> DefaultKeyValueRepository.of(template, metadata, null));
     }
 
     @Test
     void shouldCreateRepository() {
-        DefaultKeyValueRepository<Object, Object> repository = DefaultKeyValueRepository.of(template, metadata);
+        DefaultKeyValueRepository<Object, Object> repository = DefaultKeyValueRepository.of(template, metadata, lifecycleEventHandler);
         assertNotNull(repository);
     }
 }
