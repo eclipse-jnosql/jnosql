@@ -27,6 +27,7 @@ import org.eclipse.jnosql.mapping.keyvalue.KeyValueTemplateProducer;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 
 import java.lang.reflect.Proxy;
 import java.util.Objects;
@@ -47,6 +48,9 @@ public class KeyValueRepositoryProducer {
     @Inject
     private RepositoriesMetadata repositoriesMetadata;
 
+    @Inject
+    private LifecycleEventHandler lifecycleEventHandler;
+
     KeyValueRepositoryProducer() {
     }
 
@@ -63,7 +67,7 @@ public class KeyValueRepositoryProducer {
         Objects.requireNonNull(template, "template class is required");
         RepositoryMetadata repositoryMetadata = repositoriesMetadata.get(repositoryClass).orElseThrow();
         var entityMetadata = entities.get(repositoryMetadata.entity().orElseThrow());
-        DefaultKeyValueRepository<?, ?> executor = DefaultKeyValueRepository.of(template, entityMetadata);
+        DefaultKeyValueRepository<?, ?> executor = DefaultKeyValueRepository.of(template, entityMetadata, lifecycleEventHandler);
         var repositoryHandler =  CoreRepositoryInvocationHandler.of(executor
                 , entityMetadata,
                 repositoryMetadata,
