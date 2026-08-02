@@ -19,6 +19,7 @@ import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.data.repository.Find;
+import jakarta.data.repository.Insert;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Select;
 import jakarta.data.restrict.Restriction;
@@ -32,6 +33,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
@@ -75,6 +77,9 @@ class CustomCrudRepositoryProxyProjectionTest {
     @Inject
     private Converters converters;
 
+    @Inject
+    private LifecycleEventHandler lifecycleEventHandler;
+
     private ProductRepository productRepository;
 
     private CitizenRepository citizenRepository;
@@ -87,12 +92,14 @@ class CustomCrudRepositoryProxyProjectionTest {
         var productHandler = CustomRepositoryHandler.builder()
                 .entitiesMetadata(entities)
                 .template(template)
+                .lifecycleEventHandler(lifecycleEventHandler)
                 .customRepositoryType(ProductRepository.class)
                 .converters(converters).build();
 
         var cityHandler = CustomRepositoryHandler.builder()
                 .entitiesMetadata(entities)
                 .template(template)
+                .lifecycleEventHandler(lifecycleEventHandler)
                 .customRepositoryType(CitizenRepository.class)
                 .converters(converters).build();
 
