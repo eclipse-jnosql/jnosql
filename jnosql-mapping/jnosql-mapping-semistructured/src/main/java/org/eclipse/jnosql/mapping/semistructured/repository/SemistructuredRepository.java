@@ -23,6 +23,7 @@ import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
@@ -54,9 +55,12 @@ public class SemistructuredRepository<T, K>  extends AbstractRepository<T, K> {
 
     private final EntityMetadata metadata;
 
-    private SemistructuredRepository(EntityMetadata metadata, SemiStructuredTemplate repository) {
+    private final LifecycleEventHandler lifecycleEventHandler;
+
+    private SemistructuredRepository(EntityMetadata metadata, SemiStructuredTemplate repository, LifecycleEventHandler lifecycleEventHandler) {
         this.repository = repository;
         this.metadata = metadata;
+        this.lifecycleEventHandler = lifecycleEventHandler;
     }
 
     @Override
@@ -67,6 +71,11 @@ public class SemistructuredRepository<T, K>  extends AbstractRepository<T, K> {
     @Override
     protected EntityMetadata entityMetadata() {
         return metadata;
+    }
+
+    @Override
+    protected LifecycleEventHandler lifeCycle() {
+        return lifecycleEventHandler;
     }
 
     @Override
@@ -121,14 +130,16 @@ public class SemistructuredRepository<T, K>  extends AbstractRepository<T, K> {
      *
      * @param template  the semi-structured template used to execute persistence operations
      * @param metadata  metadata describing the entity managed by the repository
+     * @param lifecycleEventHandler the lifecycle event handler for pre/post operation events
      * @param <T>       the entity type
      * @param <K>       the identifier type
      * @return a new {@code SemistructuredRepository} instance configured with the given template and metadata
      * @throws NullPointerException if {@code template} or {@code metadata} is {@code null}
      */
-    public static <T, K> SemistructuredRepository<T, K> of(SemiStructuredTemplate template, EntityMetadata metadata) {
+    public static <T, K> SemistructuredRepository<T, K> of(SemiStructuredTemplate template, EntityMetadata metadata, LifecycleEventHandler lifecycleEventHandler) {
         Objects.requireNonNull(template, "template is required");
         Objects.requireNonNull(metadata, "metadata is required");
-        return new SemistructuredRepository<>(metadata, template);
+        Objects.requireNonNull(lifecycleEventHandler, "lifecycleEventHandler is required");
+        return new SemistructuredRepository<>(metadata, template, lifecycleEventHandler);
     }
 }
