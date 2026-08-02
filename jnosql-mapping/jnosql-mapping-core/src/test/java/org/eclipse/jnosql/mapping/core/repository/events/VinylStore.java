@@ -14,8 +14,44 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.events;
 
+import jakarta.data.repository.Delete;
+import jakarta.data.repository.Insert;
 import jakarta.data.repository.Repository;
+import jakarta.data.repository.Save;
+import jakarta.data.repository.Update;
+
+import java.util.List;
 
 @Repository
 interface VinylStore {
+
+    @Insert
+    void insert(VinylRecord vinylRecord);
+    @Insert
+    void insert(List<VinylRecord> vinylRecords);
+    @Insert
+    void insert(VinylRecord[] vinylRecords);
+
+    @Update
+    void update(VinylRecord vinylRecord);
+    @Update
+    void update(List<VinylRecord> vinylRecords);
+    @Update
+    void update(VinylRecord[] vinylRecords);
+
+
+    @Save
+    void save(VinylRecord vinylRecord);
+    @Save
+    void save(List<VinylRecord> vinylRecords);
+    @Save
+    void save(VinylRecord[] vinylRecords);
+
+    @Delete
+    void delete(VinylRecord vinylRecord);
+    @Delete
+    void delete(List<VinylRecord> vinylRecords);
+    @Delete
+    void delete(VinylRecord[] vinylRecords);
+
 }
