@@ -25,6 +25,7 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
@@ -54,13 +55,15 @@ class SemistructuredRepositoryTest {
     private SemiStructuredTemplate template;
     @Inject
     private EntitiesMetadata entitiesMetadata;
+    @Inject
+    private LifecycleEventHandler lifecycleEventHandler;
 
     private  SemistructuredRepository<Object, Object> repository;
 
     @BeforeEach
     void setUp() {
         EntityMetadata entityMetadata = entitiesMetadata.get(Person.class);
-        this.repository = SemistructuredRepository.of(template, entityMetadata);
+        this.repository = SemistructuredRepository.of(template, entityMetadata, lifecycleEventHandler);
     }
 
     @Test
