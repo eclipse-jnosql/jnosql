@@ -35,55 +35,49 @@ class VinylRecordLifecycleObserver {
 
     void onPreInsert(@Observes PreInsertEvent<VinylRecord> event) {
         events.add(new ObservedEvent(
-                "pre-insert",
+                LifecycleEventType.PRE_INSERT,
                 event.entity()));
     }
 
     void onPostInsert(@Observes PostInsertEvent<VinylRecord> event) {
         events.add(new ObservedEvent(
-                "post-insert",
+                LifecycleEventType.POST_INSERT,
                 event.entity()));
     }
 
-    void onPreUpdate(
-            @Observes PreUpdateEvent<VinylRecord> event) {
+    void onPreUpdate(@Observes PreUpdateEvent<VinylRecord> event) {
         events.add(new ObservedEvent(
-                "pre-update",
+                LifecycleEventType.PRE_UPDATE,
                 event.entity()));
     }
 
-    void onPostUpdate(
-            @Observes PostUpdateEvent<VinylRecord> event) {
+    void onPostUpdate(@Observes PostUpdateEvent<VinylRecord> event) {
         events.add(new ObservedEvent(
-                "post-update",
+                LifecycleEventType.POST_UPDATE,
                 event.entity()));
     }
 
-    void onPreUpsert(
-            @Observes PreUpsertEvent<VinylRecord> event) {
+    void onPreUpsert(@Observes PreUpsertEvent<VinylRecord> event) {
         events.add(new ObservedEvent(
-                "pre-upsert",
+                LifecycleEventType.PRE_UPSERT,
                 event.entity()));
     }
 
-    void onPostUpsert(
-            @Observes PostUpsertEvent<VinylRecord> event) {
+    void onPostUpsert(@Observes PostUpsertEvent<VinylRecord> event) {
         events.add(new ObservedEvent(
-                "post-upsert",
+                LifecycleEventType.POST_UPSERT,
                 event.entity()));
     }
 
-    void onPreDelete(
-            @Observes PreDeleteEvent<VinylRecord> event) {
+    void onPreDelete(@Observes PreDeleteEvent<VinylRecord> event) {
         events.add(new ObservedEvent(
-                "pre-delete",
+                LifecycleEventType.PRE_DELETE,
                 event.entity()));
     }
 
-    void onPostDelete(
-            @Observes PostDeleteEvent<VinylRecord> event) {
+    void onPostDelete(@Observes PostDeleteEvent<VinylRecord> event) {
         events.add(new ObservedEvent(
-                "post-delete",
+                LifecycleEventType.POST_DELETE,
                 event.entity()));
     }
 
