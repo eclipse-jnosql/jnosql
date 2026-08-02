@@ -254,7 +254,7 @@ public class CustomRepositoryHandler implements InvocationHandler {
 
     protected AbstractSemiStructuredRepositoryProxy<Object, Object> createRepositoryProxy(
             SemiStructuredTemplate template, EntityMetadata entityMetadata,  Class<?> entityType, Converters converters, EntitiesMetadata entities) {
-        return new SemiStructuredRepositoryProxy<>(template, entityMetadata, entityType, converters, entities);
+        return new SemiStructuredRepositoryProxy<>(template, entityMetadata, entityType, converters, entities, lifeCycle);
     }
 
     private RepositoryMetadata repositoryMetadata(Method method) {
