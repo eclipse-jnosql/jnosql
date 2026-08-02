@@ -21,7 +21,7 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 
-class VinylRepositoryExecutor extends AbstractRepository<ComicBook, Long> {
+class VinylRepositoryExecutor extends AbstractRepository<VinylRecord, String> {
 
 
     private final Template template;
