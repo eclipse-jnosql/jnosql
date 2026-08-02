@@ -24,6 +24,7 @@ import org.eclipse.jnosql.mapping.core.repository.operations.CoreDeleteOperation
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.DeleteOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.eclipse.jnosql.mapping.semistructured.MappingDeleteQuery;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.query.RestrictionConverter;
@@ -58,12 +59,14 @@ public class SemiStructuredDeleteOperation extends CoreDeleteOperation {
     private final Converters converters;
 
     @Inject
-    SemiStructuredDeleteOperation(SemistructuredQueryBuilder queryBuilder, Converters converters) {
+    SemiStructuredDeleteOperation(SemistructuredQueryBuilder queryBuilder, Converters converters, LifecycleEventHandler lifecycleEventHandler) {
+        super(lifecycleEventHandler);
         this.queryBuilder = queryBuilder;
         this.converters = converters;
     }
 
     SemiStructuredDeleteOperation() {
+        super(null);
         this.queryBuilder = null;
         this.converters = null;
     }
