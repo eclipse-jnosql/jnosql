@@ -22,6 +22,7 @@ import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 import java.lang.reflect.Proxy;
@@ -45,6 +46,9 @@ public class SemistructuredRepositoryProducer {
     @Inject
     private RepositoriesMetadata repositoriesMetadata;
 
+    @Inject
+    private LifecycleEventHandler lifecycleEventHandler;
+
     /**
      * Returns a fully functional repository implementation for the given
      * repository interface.
@@ -64,7 +68,7 @@ public class SemistructuredRepositoryProducer {
         RepositoryMetadata repositoryMetadata = repositoriesMetadata.get(repositoryClass).orElseThrow();
         var entityMetadata = entities.get(repositoryMetadata.entity().orElseThrow());
 
-        var executor = SemistructuredRepository.of(template, entityMetadata);
+        var executor = SemistructuredRepository.of(template, entityMetadata, lifecycleEventHandler);
 
         var repositoryHandler = CoreRepositoryInvocationHandler.of(executor,
                 entityMetadata,
