@@ -14,6 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.events;
 
-public record ObservedEvent(String event,
+public record ObservedEvent(LifecycleEventType type,
                             VinylRecord entity) {
 }
