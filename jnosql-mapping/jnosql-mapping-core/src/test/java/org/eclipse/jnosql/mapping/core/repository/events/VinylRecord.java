@@ -21,10 +21,5 @@ import jakarta.nosql.Id;
 import java.time.Year;
 
 @Entity
-public record VinylRecord(
-        @Id String catalogNumber,
-        @Column String title,
-        @Column String artist,
-        @Column Year releaseYear
-) {
+public record VinylRecord(@Id String catalogNumber, @Column String title, @Column String artist, @Column Year releaseYear) {
 }
