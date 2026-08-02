@@ -23,11 +23,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static org.eclipse.jnosql.mapping.core.query.AnnotationOperation.DELETE;
-import static org.eclipse.jnosql.mapping.core.query.AnnotationOperation.INSERT;
-import static org.eclipse.jnosql.mapping.core.query.AnnotationOperation.SAVE;
-import static org.eclipse.jnosql.mapping.core.query.AnnotationOperation.UPDATE;
-
 /**
  * Abstract class that serves as a proxy for repository interfaces.
  * It implements the InvocationHandler interface to handle method invocations.
@@ -37,6 +32,7 @@ import static org.eclipse.jnosql.mapping.core.query.AnnotationOperation.UPDATE;
  * @deprecated use {@link org.eclipse.jnosql.mapping.core.repository.AbstractRepositoryInvocationHandler} instead
  */
 @Deprecated(forRemoval = true)
+@SuppressWarnings("removal")
 public abstract class AbstractRepositoryProxy<T, K> implements InvocationHandler {
 
     /**
@@ -207,19 +203,19 @@ public abstract class AbstractRepositoryProxy<T, K> implements InvocationHandler
                 return unwrapInvocationTargetException(() -> method.invoke(customRepository, params));
             }
             case SAVE -> {
-                return unwrapInvocationTargetException(() -> SAVE.invoke(new AnnotationOperation.Operation(method, params, repository())));
+                return unwrapInvocationTargetException(() -> AnnotationOperation.SAVE.invoke(new AnnotationOperation.Operation(method, params, repository())));
             }
             case INSERT -> {
-                return unwrapInvocationTargetException(() -> INSERT.invoke(new AnnotationOperation.Operation(method, params, repository())));
+                return unwrapInvocationTargetException(() -> AnnotationOperation.INSERT.invoke(new AnnotationOperation.Operation(method, params, repository())));
             }
             case DELETE -> {
                 if(params.length > 0 && params[0] instanceof Restriction<?>) {
                     return unwrapInvocationTargetException(() -> executeDeleteRestriction(instance, method, params));
                 }
-                return unwrapInvocationTargetException(() -> DELETE.invoke(new AnnotationOperation.Operation(method, params, repository())));
+                return unwrapInvocationTargetException(() -> AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, params, repository())));
             }
             case UPDATE -> {
-                return unwrapInvocationTargetException(() -> UPDATE.invoke(new AnnotationOperation.Operation(method, params, repository())));
+                return unwrapInvocationTargetException(() -> AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, params, repository())));
             }
             case CURSOR_PAGINATION -> {
                 return unwrapInvocationTargetException(() ->   executeCursorPagination(instance, method, params));
