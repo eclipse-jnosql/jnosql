@@ -44,10 +44,10 @@ import java.util.List;
 @Typed(CoreDeleteOperation.class)
 public class CoreDeleteOperation implements DeleteOperation {
 
-    private final LifecycleEventHandler lifecycleEventHandler;
+    protected final LifecycleEventHandler lifecycleEventHandler;
 
     @Inject
-     CoreDeleteOperation(LifecycleEventHandler lifecycleEventHandler) {
+    protected CoreDeleteOperation(LifecycleEventHandler lifecycleEventHandler) {
         this.lifecycleEventHandler = lifecycleEventHandler;
     }
 
