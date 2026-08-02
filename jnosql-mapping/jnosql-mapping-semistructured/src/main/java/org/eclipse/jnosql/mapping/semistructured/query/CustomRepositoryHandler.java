@@ -46,15 +46,11 @@ import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static org.eclipse.jnosql.mapping.core.query.AnnotationOperation.DELETE;
-import static org.eclipse.jnosql.mapping.core.query.AnnotationOperation.INSERT;
-import static org.eclipse.jnosql.mapping.core.query.AnnotationOperation.SAVE;
-import static org.eclipse.jnosql.mapping.core.query.AnnotationOperation.UPDATE;
-
 /**
  * This class is the engine of a custom repository from  Jakarta Data specification.
  * The implementation is based on {@link InvocationHandler} and it's used to create a custom repository.
  */
+@SuppressWarnings("removal")
 public class CustomRepositoryHandler implements InvocationHandler {
 
     private static final Logger LOGGER = Logger.getLogger(CustomRepositoryHandler.class.getName());
@@ -98,16 +94,16 @@ public class CustomRepositoryHandler implements InvocationHandler {
 
         switch (type) {
             case SAVE -> {
-                return unwrapInvocationTargetException(() -> SAVE.invoke(new AnnotationOperation.Operation(method, params, repository(params, method))));
+                return unwrapInvocationTargetException(() -> AnnotationOperation.SAVE.invoke(new AnnotationOperation.Operation(method, params, repository(params, method))));
             }
             case INSERT -> {
-                return unwrapInvocationTargetException(() -> INSERT.invoke(new AnnotationOperation.Operation(method, params, repository(params, method))));
+                return unwrapInvocationTargetException(() -> AnnotationOperation.INSERT.invoke(new AnnotationOperation.Operation(method, params, repository(params, method))));
             }
             case DELETE -> {
-                return unwrapInvocationTargetException(() -> DELETE.invoke(new AnnotationOperation.Operation(method, params, repository(params, method))));
+                return unwrapInvocationTargetException(() -> AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, params, repository(params, method))));
             }
             case UPDATE -> {
-                return unwrapInvocationTargetException(() -> UPDATE.invoke(new AnnotationOperation.Operation(method, params, repository(params, method))));
+                return unwrapInvocationTargetException(() -> AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, params, repository(params, method))));
             }
             case DEFAULT_METHOD -> {
                 return unwrapInvocationTargetException(() -> InvocationHandler.invokeDefault(instance, method, params));
