@@ -46,7 +46,7 @@ class VinylRepositoryExecutor extends AbstractRepository<VinylRecord, String> {
 
     @Override
     protected EntityMetadata entityMetadata() {
-        return entitiesMetadata.get(ComicBook.class);
+        return entitiesMetadata.get(VinylRecord.class);
     }
 
     @Override
