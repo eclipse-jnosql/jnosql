@@ -30,6 +30,7 @@ import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
 import org.eclipse.jnosql.mapping.core.repository.ThrowingSupplier;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 import java.lang.reflect.InvocationHandler;
@@ -69,6 +70,8 @@ public class CustomRepositoryHandler implements InvocationHandler {
 
     private final SemiStructuredTemplate template;
 
+    private final LifecycleEventHandler lifeCycle;
+
     private final Class<?> customRepositoryType;
 
     private final Converters converters;
@@ -76,10 +79,12 @@ public class CustomRepositoryHandler implements InvocationHandler {
     private final AbstractSemiStructuredRepositoryProxy<?, ?> defaultRepository;
 
     protected CustomRepositoryHandler(EntitiesMetadata entitiesMetadata, SemiStructuredTemplate template,
+                                      LifecycleEventHandler lifeCycle,
                             Class<?> customRepositoryType,
                             Converters converters) {
         this.entitiesMetadata = entitiesMetadata;
         this.template = template;
+        this.lifeCycle = lifeCycle;
         this.customRepositoryType = customRepositoryType;
         this.converters = converters;
         this.defaultRepository = findDefaultRepository();
@@ -289,7 +294,7 @@ public class CustomRepositoryHandler implements InvocationHandler {
         }
 
         return getEntityMetadataBy(typeClass)
-                .map(entityMetadata -> new SemiStructuredRepositoryProxy.SemiStructuredRepository<>(template, entityMetadata))
+                .map(entityMetadata -> new SemiStructuredRepositoryProxy.SemiStructuredRepository<>(template, entityMetadata, lifeCycle))
                 .orElseThrow(() -> new UnsupportedOperationException("The repository does not support the method: " + method));
     }
 
