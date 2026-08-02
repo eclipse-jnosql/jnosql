@@ -14,5 +14,10 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.events;
 
-public interface VinylRecordRepository {
+import jakarta.data.repository.BasicRepository;
+import jakarta.data.repository.Repository;
+
+@Repository
+public interface VinylRecordRepository extends BasicRepository<VinylRecord, String> {
+
 }
