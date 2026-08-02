@@ -14,5 +14,24 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.events;
 
+import jakarta.nosql.Convert;
+import org.eclipse.jnosql.mapping.core.VetedConverter;
+import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.reflection.ReflectionClassConverter;
+import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.jboss.weld.junit5.auto.AddExtensions;
+import org.jboss.weld.junit5.auto.AddPackages;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+
+@EnableAutoWeld
+@AddPackages(Convert.class)
+@AddPackages(EntitiesMetadata.class)
+@AddPackages(VetedConverter.class)
+@AddPackages(InfrastructureOperatorProvider.class)
+@AddExtensions(ReflectionEntityMetadataExtension.class)
+@AddPackages(ReflectionClassConverter.class)
+@DisplayName("Infrastructure repository invocation handler")
 class EventCustomRepositoryTest {
 }
