@@ -19,6 +19,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 import java.lang.reflect.ParameterizedType;
@@ -123,9 +124,12 @@ public class SemiStructuredRepositoryProxy<T, K> extends AbstractSemiStructuredR
 
         private final EntityMetadata entityMetadata;
 
-        SemiStructuredRepository(SemiStructuredTemplate template, EntityMetadata entityMetadata) {
+        private final LifecycleEventHandler lifeCycle;
+
+        SemiStructuredRepository(SemiStructuredTemplate template, EntityMetadata entityMetadata, LifecycleEventHandler lifeCycle) {
             this.template = template;
             this.entityMetadata = entityMetadata;
+            this.lifeCycle = lifeCycle;
         }
 
         @Override
@@ -136,6 +140,11 @@ public class SemiStructuredRepositoryProxy<T, K> extends AbstractSemiStructuredR
         @Override
         protected EntityMetadata entityMetadata() {
             return entityMetadata;
+        }
+
+        @Override
+        protected LifecycleEventHandler lifeCycle() {
+            return lifeCycle;
         }
 
         /**
