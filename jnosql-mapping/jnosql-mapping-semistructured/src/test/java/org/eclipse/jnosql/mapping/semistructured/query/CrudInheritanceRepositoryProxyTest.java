@@ -25,6 +25,7 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
@@ -59,6 +60,9 @@ class CrudInheritanceRepositoryProxyTest {
     @Inject
     private Converters converters;
 
+    @Inject
+    private LifecycleEventHandler lifecycleEventHandler;
+
     private EmailRepository emailRepository;
 
 
@@ -68,7 +72,7 @@ class CrudInheritanceRepositoryProxyTest {
         this.template = Mockito.mock(SemiStructuredTemplate.class);
 
         SemiStructuredRepositoryProxy<EmailNotification, Long> personHandler = new SemiStructuredRepositoryProxy<>(template,
-                entities, EmailRepository.class, converters);
+                entities, EmailRepository.class, converters, lifecycleEventHandler);
 
 
         emailRepository = (EmailRepository) Proxy.newProxyInstance(EmailRepository.class.getClassLoader(),
