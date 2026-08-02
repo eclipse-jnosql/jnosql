@@ -32,6 +32,7 @@ import static org.eclipse.jnosql.mapping.core.query.AnnotationOperation.SAVE;
 import static org.eclipse.jnosql.mapping.core.query.AnnotationOperation.UPDATE;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("removal")
 class AnnotationOperationTest {
 
     @Mock
