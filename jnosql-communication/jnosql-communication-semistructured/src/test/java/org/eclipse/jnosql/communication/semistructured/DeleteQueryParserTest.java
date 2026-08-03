@@ -16,6 +16,7 @@ import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.Value;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
@@ -267,6 +268,7 @@ class DeleteQueryParserTest {
 
         var prepare = parser.prepare(query, manager, observer);
         assertThrows(QueryException.class, prepare::result);
+        assertThrows(QueryException.class, prepare::count);
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
@@ -292,6 +294,28 @@ class DeleteQueryParserTest {
         assertEquals(Condition.EQUALS, criteriaCondition.condition());
         assertEquals("age", element.name());
         assertEquals(12, element.get());
+    }
+
+    @Test
+    void shouldDelegatePreparedDeleteCount() {
+        var query = "DELETE FROM entity WHERE age = :age";
+        Mockito.when(manager.deleteAndCount(Mockito.any(DeleteQuery.class))).thenReturn(3L);
+
+        var prepare = parser.prepare(query, manager, observer);
+        prepare.bind("age", 12);
+
+        assertEquals(3L, prepare.count());
+
+        var deleteCaptor = ArgumentCaptor.forClass(DeleteQuery.class);
+        Mockito.verify(manager).deleteAndCount(deleteCaptor.capture());
+        Mockito.verify(manager, Mockito.never()).count(Mockito.any(SelectQuery.class));
+        Mockito.verify(manager, Mockito.never()).delete(Mockito.any(DeleteQuery.class));
+        var deleteQuery = deleteCaptor.getValue();
+        assertEquals("entity", deleteQuery.name());
+        var condition = deleteQuery.condition().orElseThrow();
+        assertEquals(Condition.EQUALS, condition.condition());
+        assertEquals("age", condition.element().name());
+        assertEquals(12, condition.element().get());
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")

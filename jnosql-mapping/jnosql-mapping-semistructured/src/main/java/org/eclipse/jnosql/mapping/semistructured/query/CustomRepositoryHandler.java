@@ -148,6 +148,14 @@ public class CustomRepositoryHandler implements InvocationHandler {
                     if (prepare.isCount()) {
                         return prepare.count();
                     }
+                    if (QueryType.DELETE.equals(queryType)) {
+                        if (returnsLong(method)) {
+                            return prepare.count();
+                        }
+                        if (returnsInt(method)) {
+                            return (int) prepare.count();
+                        }
+                    }
                     Stream<?> entities = prepare.result();
                     return toResultOfQueryMethod(method, entities);
                 } else if (repositoryMetadata.metadata().isPresent()) {
