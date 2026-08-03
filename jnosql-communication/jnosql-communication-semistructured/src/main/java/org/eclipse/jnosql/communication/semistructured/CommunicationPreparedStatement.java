@@ -164,20 +164,22 @@ public final class CommunicationPreparedStatement {
     }
 
     /**
-     * Returns the number of elements in the result.
+     * Returns the number of elements in a count result or the number of entities deleted by a delete statement.
      *
      * @return the number of elements
      * @throws QueryException if there are parameters left to bind
-     * @throws IllegalArgumentException if the operation is not a count operation
+     * @throws IllegalArgumentException if the operation is neither a count nor a delete operation
      */
     public long count(){
         if (!paramsLeft.isEmpty()) {
             throw new QueryException("Check all the parameters before execute the query, params left: " + paramsLeft);
         }
-        if (PreparedStatementType.COUNT.equals(type)) {
-            return manager.count(selectQuery);
-        }
-        throw new IllegalArgumentException("The count operation is only allowed for COUNT queries");
+        return switch (type) {
+            case COUNT -> manager.count(selectQuery);
+            case DELETE -> manager.deleteAndCount(deleteQuery);
+            default -> throw new IllegalArgumentException(
+                    "The count operation is only allowed for COUNT and DELETE queries");
+        };
 
     }
 

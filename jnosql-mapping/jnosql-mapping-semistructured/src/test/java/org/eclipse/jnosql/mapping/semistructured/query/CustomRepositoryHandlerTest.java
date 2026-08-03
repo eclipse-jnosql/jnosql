@@ -83,6 +83,8 @@ class CustomRepositoryHandlerTest {
 
     private UpdateArrayPersonRepository updateArrayPersonRepository;
 
+    private DeleteCountRepository deleteCountRepository;
+
     @BeforeEach
     void setUp() {
         template = Mockito.mock(SemiStructuredTemplate.class);
@@ -117,6 +119,13 @@ class CustomRepositoryHandlerTest {
                 .customRepositoryType(UpdateArrayPersonRepository.class)
                 .converters(converters).build();
 
+        var deleteCountHandler = CustomRepositoryHandler.builder()
+                .entitiesMetadata(entitiesMetadata)
+                .template(template)
+                .lifecycleEventHandler(lifecycleEventHandler)
+                .customRepositoryType(DeleteCountRepository.class)
+                .converters(converters).build();
+
         tasks = (Tasks) Proxy.newProxyInstance(Tasks.class.getClassLoader(), new Class[]{Tasks.class},
                 customRepositoryHandlerForTasks);
 
@@ -127,6 +136,10 @@ class CustomRepositoryHandlerTest {
         updateArrayPersonRepository =
                 (UpdateArrayPersonRepository) Proxy.newProxyInstance(UpdateArrayPersonRepository.class.getClassLoader(),
                 new Class[]{UpdateArrayPersonRepository.class}, updateArrayHandler);
+
+        deleteCountRepository =
+                (DeleteCountRepository) Proxy.newProxyInstance(DeleteCountRepository.class.getClassLoader(),
+                        new Class[]{DeleteCountRepository.class}, deleteCountHandler);
 
     }
 
@@ -527,25 +540,51 @@ class CustomRepositoryHandlerTest {
     }
 
     @Test
-    void shouldReturnNumberOfDeletedEntitiesFromDeleteQuery() {
+    void shouldUseResultForVoidDeleteQuery() {
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
-        Mockito.when(template.prepare(Mockito.anyString(), Mockito.any())).thenReturn(preparedStatement);
+        Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
         Mockito.when(preparedStatement.isCount())
                 .thenReturn(false);
-        Mockito.when(preparedStatement.singleResult())
-                .thenReturn(Optional.of(1L));
-        people.deleteByNameReturnLong("Ada");
+        deleteCountRepository.deleteByName("Ada");
+        Mockito.verify(preparedStatement).result();
+        Mockito.verify(preparedStatement, Mockito.never()).count();
+    }
+
+    @Test
+    void shouldReturnIntNumberOfDeletedEntitiesFromDeleteQuery() {
+        var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
+        Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
+        Mockito.when(preparedStatement.isCount())
+                .thenReturn(false);
+        Mockito.when(preparedStatement.count()).thenReturn(1L);
+        Assertions.assertThat(deleteCountRepository.deleteByNameReturnInt("Ada")).isEqualTo(1);
+        Mockito.verify(preparedStatement).count();
+        Mockito.verify(preparedStatement, Mockito.never()).result();
+    }
+
+    @Test
+    void shouldReturnLongNumberOfDeletedEntitiesFromDeleteQuery() {
+        var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
+        Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
+        Mockito.when(preparedStatement.isCount())
+                .thenReturn(false);
+        Mockito.when(preparedStatement.count()).thenReturn(3L);
+        Assertions.assertThat(deleteCountRepository.deleteByNameReturnLong("Ada")).isEqualTo(3L);
+        Mockito.verify(preparedStatement).count();
+        Mockito.verify(preparedStatement, Mockito.never()).result();
     }
 
     @Test
     void shouldReturnNumberOfUpdatedEntitiesFromUpdateQuery() {
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
-        Mockito.when(template.prepare(Mockito.anyString(), Mockito.any())).thenReturn(preparedStatement);
+        Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
         Mockito.when(preparedStatement.isCount())
                 .thenReturn(false);
-        Mockito.when(preparedStatement.singleResult())
-                .thenReturn(Optional.of(1L));
-        people.updateReturnLong("Ada");
+        Mockito.when(preparedStatement.result())
+                .thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
+        Assertions.assertThat(deleteCountRepository.updateReturnLong("Ada")).isEqualTo(1L);
+        Mockito.verify(preparedStatement).result();
+        Mockito.verify(preparedStatement, Mockito.never()).count();
     }
 
     @Test
@@ -695,6 +734,22 @@ class CustomRepositoryHandlerTest {
 
         @Insert
         void insert(Person[] person);
+    }
+
+    @Repository
+    public interface DeleteCountRepository {
+
+        @Query("delete from Person where name = :name")
+        void deleteByName(@jakarta.data.repository.Param("name") String name);
+
+        @Query("delete from Person where name = :name")
+        int deleteByNameReturnInt(@jakarta.data.repository.Param("name") String name);
+
+        @Query("delete from Person where name = :name")
+        long deleteByNameReturnLong(@jakarta.data.repository.Param("name") String name);
+
+        @Query("update Person where name = :name")
+        long updateReturnLong(@jakarta.data.repository.Param("name") String name);
     }
 
 }
