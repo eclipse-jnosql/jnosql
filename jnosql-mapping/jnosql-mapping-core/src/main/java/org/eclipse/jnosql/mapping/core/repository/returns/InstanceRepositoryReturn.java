@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
+import jakarta.data.exceptions.EmptyResultException;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
 
@@ -29,13 +30,13 @@ public class InstanceRepositoryReturn implements RepositoryReturn {
     @Override
     public <T> Object convert(DynamicReturn<T> dynamic) {
         Optional<T> optional = dynamic.singleResult();
-        return optional.orElse(null);
+        return optional.orElseThrow(() -> new EmptyResultException("No value present"));
     }
 
     @Override
     public <T> Object convertPageRequest(DynamicReturn<T> dynamic) {
         Optional<T> optional = dynamic.singleResultPagination();
-        return optional.orElse(null);
+        return optional.orElseThrow(() -> new EmptyResultException("No value present"));
     }
 
 }
