@@ -106,6 +106,10 @@ public interface People {
 
     @Query("update Person where name = :name")
     long updateReturnInt(@Param("name") String name);
+
+    @Query("SELECT COUNT(THIS) WHERE age > ?1")
+    long countAdults(int age);
+
     @Delete
     void deleteAll();
 }
