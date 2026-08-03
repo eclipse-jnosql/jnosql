@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+import jakarta.data.exceptions.EmptyResultException;
 import jakarta.data.repository.CrudRepository;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
@@ -138,7 +139,7 @@ class DynamicReturnPaginationTest {
     }
 
     @Test
-    void shouldReturnNull() throws NoSuchMethodException {
+    void shouldThrowEmptyResultException() throws NoSuchMethodException {
 
         Method method = getMethod(PersonRepository.class, "getInstance");
         Supplier<Stream<?>> stream = Stream::empty;
@@ -157,8 +158,7 @@ class DynamicReturnPaginationTest {
                 .page(page)
                 .build();
 
-        Object execute = dynamicReturn.execute();
-        Assertions.assertNull(execute);
+        Assertions.assertThrows(EmptyResultException.class, dynamicReturn::execute);
 
         Mockito.verify(singlePagination).apply(pageRequest);
         Mockito.verify(streamPagination, Mockito.never()).apply(pageRequest);

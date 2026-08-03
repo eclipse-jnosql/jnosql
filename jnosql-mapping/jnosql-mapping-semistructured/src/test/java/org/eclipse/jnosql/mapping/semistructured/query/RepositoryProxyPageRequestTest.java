@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.data.Limit;
 import jakarta.data.Order;
+import jakarta.data.exceptions.EmptyResultException;
 import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
@@ -137,7 +138,8 @@ public class RepositoryProxyPageRequestTest {
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
                 .empty());
 
-        assertNull(personRepository.findByName("name", pageRequest, Order.by()));
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> personRepository.findByName("name", pageRequest, Order.by()))
+                .isInstanceOf(EmptyResultException.class);
 
 
     }
@@ -489,7 +491,8 @@ public class RepositoryProxyPageRequestTest {
         assertNotNull(personRepository.findByName("name", pageRequest, order));
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
                 .empty());
-        assertNull(personRepository.findByName("name", pageRequest, order));
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> personRepository.findByName("name", pageRequest, order))
+                .isInstanceOf(EmptyResultException.class);
     }
 
     @Test
@@ -518,10 +521,10 @@ public class RepositoryProxyPageRequestTest {
 
         assertEquals(Element.of("name", "name"), condition.element());
 
-        assertNotNull(personRepository.findByName("name", pageRequest, nameOrder));
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
                 .empty());
-        assertNull(personRepository.findByName("name", pageRequest, nameOrder));
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> personRepository.findByName("name", pageRequest, nameOrder))
+                .isInstanceOf(EmptyResultException.class);
     }
 
     @Test
@@ -846,9 +849,9 @@ public class RepositoryProxyPageRequestTest {
 
     public interface VendorRepository extends BasicRepository<Vendor, String> {
 
-        Vendor findByPrefixes(String prefix, PageRequest pageRequest);
+        Optional<Vendor> findByPrefixes(String prefix, PageRequest pageRequest);
 
-        Vendor findByPrefixesIn(List<String> prefix, PageRequest pageRequest);
+        Optional<Vendor> findByPrefixesIn(List<String> prefix, PageRequest pageRequest);
 
     }
 }

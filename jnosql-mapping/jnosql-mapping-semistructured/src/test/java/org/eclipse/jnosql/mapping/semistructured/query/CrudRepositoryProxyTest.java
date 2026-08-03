@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.query;
 
+import jakarta.data.exceptions.EmptyResultException;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import jakarta.data.repository.CrudRepository;
@@ -248,7 +249,8 @@ class CrudRepositoryProxyTest {
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
                 .empty());
 
-        assertNull(personRepository.findByName("name"));
+        Assertions.assertThatThrownBy(() -> personRepository.findByName("name"))
+                .isInstanceOf(EmptyResultException.class);
 
 
     }
@@ -884,9 +886,9 @@ class CrudRepositoryProxyTest {
 
     public interface VendorRepository extends CrudRepository<Vendor, String> {
 
-        Vendor findByPrefixes(String prefix);
+        Optional<Vendor> findByPrefixes(String prefix);
 
-        Vendor findByPrefixesIn(List<String> prefix);
+        Optional<Vendor> findByPrefixesIn(List<String> prefix);
 
     }
 
