@@ -149,6 +149,14 @@ public class CustomRepositoryHandler implements InvocationHandler {
                     if (prepare.isCount()) {
                         return prepare.count();
                     }
+                    if (QueryType.DELETE.equals(queryType)) {
+                        if (returnsLong(method)) {
+                            return prepare.count();
+                        }
+                        if (returnsInt(method)) {
+                            return (int) prepare.count();
+                        }
+                    }
                     Stream<?> entities = prepare.result();
                     return toResultOfQueryMethod(method, entities);
                 }
@@ -350,6 +358,5 @@ public class CustomRepositoryHandler implements InvocationHandler {
     private static boolean returnsBoolean(Method method) {
         return method.getReturnType().equals(boolean.class) || method.getReturnType().equals(Boolean.class);
     }
-
 
 }

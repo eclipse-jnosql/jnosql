@@ -190,6 +190,30 @@ public interface DatabaseManager extends AutoCloseable {
     void delete(DeleteQuery query);
 
     /**
+     * Deletes entities from the database and returns the number of entities deleted.
+     *
+     * <p>Reporting an affected-entity count is an optional provider capability. The default implementation
+     * validates the query and then throws {@link UnsupportedOperationException} without performing the delete.
+     * This does not affect {@link #delete(DeleteQuery)}, so delete operations whose callers do not request a
+     * count continue to use the ordinary delete contract.</p>
+     *
+     * <p>A database provider should override this method only when it can obtain an accurate count from the
+     * delete operation itself. Implementations should not derive the result by counting matching entities before
+     * deletion because that is not atomic and can report an incorrect value. Proxies, decorators, and other
+     * manager wrappers will likely need to explicitly override and delegate this method to expose an underlying
+     * provider's support; otherwise callers receive the default {@link UnsupportedOperationException}.</p>
+     *
+     * @param query the query used to select entities to be deleted
+     * @return the number of entities deleted by this operation
+     * @throws NullPointerException when the query is null
+     * @throws UnsupportedOperationException if the database cannot report an accurate delete count
+     */
+    default long deleteAndCount(DeleteQuery query) {
+        Objects.requireNonNull(query, "query is required");
+        throw new UnsupportedOperationException("The database does not support reporting the number of deleted entities");
+    }
+
+    /**
      * Finds entities in the database based on the specified query.
      *
      * @param query the query used to select entities

@@ -404,6 +404,8 @@ class CustomRepositoryHandlerTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(template).prepare(captor.capture());
         Mockito.verifyNoMoreInteractions(template);
+        Mockito.verify(preparedStatement).result();
+        Mockito.verify(preparedStatement, Mockito.never()).count();
         var query = captor.getValue();
 
         Assertions.assertThat(query).isEqualTo("delete from Person where name = :name");
@@ -484,14 +486,27 @@ class CustomRepositoryHandlerTest {
     }
 
     @Test
-    void shouldReturnNumberOfDeletedEntitiesFromDeleteQuery() {
+    void shouldReturnIntNumberOfDeletedEntitiesFromDeleteQuery() {
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
         Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
         Mockito.when(preparedStatement.isCount())
                 .thenReturn(false);
-        Mockito.when(preparedStatement.result())
-                .thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
-        Assertions.assertThat(people.deleteByNameReturnInt("Ada")).isEqualTo(1L);
+        Mockito.when(preparedStatement.count()).thenReturn(1L);
+        Assertions.assertThat(people.deleteByNameReturnInt("Ada")).isEqualTo(1);
+        Mockito.verify(preparedStatement).count();
+        Mockito.verify(preparedStatement, Mockito.never()).result();
+    }
+
+    @Test
+    void shouldReturnLongNumberOfDeletedEntitiesFromDeleteQuery() {
+        var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
+        Mockito.when(template.prepare(Mockito.anyString())).thenReturn(preparedStatement);
+        Mockito.when(preparedStatement.isCount())
+                .thenReturn(false);
+        Mockito.when(preparedStatement.count()).thenReturn(3L);
+        Assertions.assertThat(people.deleteByNameReturnLong("Ada")).isEqualTo(3L);
+        Mockito.verify(preparedStatement).count();
+        Mockito.verify(preparedStatement, Mockito.never()).result();
     }
 
     @Test
@@ -503,5 +518,7 @@ class CustomRepositoryHandlerTest {
         Mockito.when(preparedStatement.result())
                 .thenReturn(Stream.of(Person.builder().age(26).name("Ada").build()));
         Assertions.assertThat(people.updateReturnInt("Ada")).isEqualTo(1L);
+        Mockito.verify(preparedStatement).result();
+        Mockito.verify(preparedStatement, Mockito.never()).count();
     }
 }
