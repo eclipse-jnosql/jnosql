@@ -38,6 +38,20 @@ class DatabaseManagerTest {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private DatabaseManager databaseManager;
 
+    @Test
+    void shouldNotSupportDeleteAndCountByDefault() {
+        DeleteQuery query = DeleteQuery.delete().from("person").build();
+
+        assertThrows(UnsupportedOperationException.class, () -> databaseManager.deleteAndCount(query));
+        Mockito.verify(databaseManager, Mockito.never()).delete(Mockito.any(DeleteQuery.class));
+    }
+
+    @Test
+    void shouldValidateDeleteAndCountQueryBeforeSupportCheck() {
+        assertThrows(NullPointerException.class, () -> databaseManager.deleteAndCount(null));
+        Mockito.verify(databaseManager, Mockito.never()).delete(Mockito.any(DeleteQuery.class));
+    }
+
 
     @Test
     void shouldReturnErrorWhenThereIsNotSort() {
