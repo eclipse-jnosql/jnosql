@@ -39,6 +39,13 @@ public enum DeleteMethodProvider implements BiFunction<Method, String, DeleteQue
         return apply(method.getName(), entity);
     }
 
+    /**
+     * Parses a repository method name into a delete query.
+     *
+     * @param methodName the repository method name
+     * @param entity the entity name
+     * @return the delete query
+     */
     public DeleteQuery apply(String methodName, String entity) {
         Objects.requireNonNull(methodName, "method is required");
         Objects.requireNonNull(entity, "entity is required");
