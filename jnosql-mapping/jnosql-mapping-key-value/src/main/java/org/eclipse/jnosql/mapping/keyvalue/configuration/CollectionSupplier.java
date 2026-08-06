@@ -31,6 +31,9 @@ import java.util.Queue;
 import java.util.Set;
 
 @ApplicationScoped
+/**
+ * Supplies key-value bucket names from mapping configuration.
+ */
 public class CollectionSupplier {
 
 
@@ -38,6 +41,13 @@ public class CollectionSupplier {
     private BucketManagerFactory factory;
 
 
+    /**
+     * Produces a list from key-value configuration.
+     *
+     * @param injectionPoint the injection point
+     * @param <T> the list element type
+     * @return the configured list
+     */
     @Produces
     @KeyValueDatabase("")
     public <T> List<T> getList(InjectionPoint injectionPoint) {
@@ -45,6 +55,13 @@ public class CollectionSupplier {
          return factory.getList(element.bucketName, element.type);
     }
 
+    /**
+     * Produces a queue from key-value configuration.
+     *
+     * @param injectionPoint the injection point
+     * @param <T> the queue element type
+     * @return the configured queue
+     */
     @Produces
     @KeyValueDatabase("")
     public <T> Queue<T> getQueue(InjectionPoint injectionPoint) {
@@ -52,6 +69,13 @@ public class CollectionSupplier {
         return factory.getQueue(element.bucketName, element.type);
     }
 
+    /**
+     * Produces a set from key-value configuration.
+     *
+     * @param injectionPoint the injection point
+     * @param <T> the set element type
+     * @return the configured set
+     */
     @Produces
     @KeyValueDatabase("")
     public <T> Set<T> getSet(InjectionPoint injectionPoint) {
@@ -59,6 +83,14 @@ public class CollectionSupplier {
         return factory.getSet(element.bucketName, element.type);
     }
 
+    /**
+     * Produces a map from key-value configuration.
+     *
+     * @param injectionPoint the injection point
+     * @param <K> the map key type
+     * @param <V> the map value type
+     * @return the configured map
+     */
     @Produces
     @KeyValueDatabase("")
     public <K, V> Map<K, V> getMap(InjectionPoint injectionPoint) {
