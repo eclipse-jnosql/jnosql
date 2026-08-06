@@ -78,7 +78,7 @@ class DefaultKeyValueRepository<T, K>  extends AbstractRepository<T, K> {
      * @return A new instance of DefaultKeyValueRepository.
      * @throws NullPointerException If any argument is {@code null}.
      */
-    public static <T, K> DefaultKeyValueRepository<T, K> of(KeyValueTemplate template, EntityMetadata metadata,
+    static <T, K> DefaultKeyValueRepository<T, K> of(KeyValueTemplate template, EntityMetadata metadata,
                                                            LifecycleEventHandler lifecycleEventHandler) {
         Objects.requireNonNull(template,"template is required");
         Objects.requireNonNull(metadata,"metadata is required");
