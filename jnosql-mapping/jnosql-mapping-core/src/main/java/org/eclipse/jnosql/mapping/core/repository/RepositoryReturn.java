@@ -14,6 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+/**
+ * Strategy for converting repository operation results into method return values.
+ */
 public interface RepositoryReturn {
 
     boolean isCompatible(Class<?> entity, Class<?> returnType);
