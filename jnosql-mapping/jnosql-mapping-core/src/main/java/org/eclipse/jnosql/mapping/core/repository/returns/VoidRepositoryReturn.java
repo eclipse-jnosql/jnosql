@@ -19,6 +19,9 @@ import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
 
 import java.util.Optional;
 
+/**
+ * Handles repository methods with {@code void} return type.
+ */
 public class VoidRepositoryReturn implements RepositoryReturn {
 
     @Override
