@@ -89,6 +89,11 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         return pageRequest;
     }
 
+    /**
+     * Returns the repository method name.
+     *
+     * @return the method name
+     */
     public String methodName() {
         return methodName;
     }
@@ -105,6 +110,12 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         return pageRequest != null;
     }
 
+    /**
+     * Creates a dynamic query method return builder.
+     *
+     * @param <T> the mapped result type
+     * @return the builder
+     */
     public static <T> DynamicQueryMethodReturnBuilder<T> builder() {
         return new DynamicQueryMethodReturnBuilder<>();
     }
@@ -136,16 +147,34 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         private DynamicQueryMethodReturnBuilder() {
         }
 
+        /**
+         * Sets the query supplier.
+         *
+         * @param querySupplier the query supplier
+         * @return this builder
+         */
         public DynamicQueryMethodReturnBuilder<T> querySupplier(Supplier<String> querySupplier) {
             this.querySupplier = querySupplier;
             return this;
         }
 
+        /**
+         * Sets the named parameter supplier.
+         *
+         * @param paramsSupplier the parameter supplier
+         * @return this builder
+         */
         public DynamicQueryMethodReturnBuilder<T> paramsSupplier(Supplier<Map<String, Object>> paramsSupplier) {
             this.paramsSupplier = paramsSupplier;
             return this;
         }
 
+        /**
+         * Sets invocation arguments.
+         *
+         * @param args the invocation arguments
+         * @return this builder
+         */
         public DynamicQueryMethodReturnBuilder<T> args(Object[] args) {
             if (args != null) {
                 this.args = args.clone();
@@ -153,41 +182,88 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
             return this;
         }
 
+        /**
+         * Sets the entity type.
+         *
+         * @param typeClass the entity type
+         * @return this builder
+         */
         public DynamicQueryMethodReturnBuilder<T> typeClass(Class<?> typeClass) {
             this.typeClass = typeClass;
             return this;
         }
 
+        /**
+         * Sets the prepared statement converter.
+         *
+         * @param prepareConverter the prepared statement converter
+         * @return this builder
+         */
         public DynamicQueryMethodReturnBuilder<T> prepareConverter(Function<String, PreparedStatement> prepareConverter) {
             this.prepareConverter = prepareConverter;
             return this;
         }
 
+        /**
+         * Sets the page request.
+         *
+         * @param pageRequest the page request
+         * @return this builder
+         */
         public DynamicQueryMethodReturnBuilder<T> pageRequest(PageRequest pageRequest) {
             this.pageRequest = pageRequest;
             return this;
         }
 
+        /**
+         * Sets the result mapper.
+         *
+         * @param queryMapper the result mapper
+         * @return this builder
+         */
         public DynamicQueryMethodReturnBuilder<T> mapper(Function<Object, T> queryMapper) {
             this.queryMapper = queryMapper;
             return this;
         }
 
+        /**
+         * Sets the repository method return type.
+         *
+         * @param returnType the return type
+         * @return this builder
+         */
         public DynamicQueryMethodReturnBuilder<T> returnType(Class<?> returnType) {
             this.returnType = returnType;
             return this;
         }
 
+        /**
+         * Sets the repository method name.
+         *
+         * @param methodName the method name
+         * @return this builder
+         */
         public DynamicQueryMethodReturnBuilder<T> methodName(String methodName) {
             this.methodName = methodName;
             return this;
         }
 
+        /**
+         * Sets the total result supplier.
+         *
+         * @param totalSupplier the total result supplier
+         * @return this builder
+         */
         public DynamicQueryMethodReturnBuilder<T> totalSupplier(LongSupplier totalSupplier) {
             this.totalSupplier = totalSupplier;
             return this;
         }
 
+        /**
+         * Builds the dynamic query method return.
+         *
+         * @return the dynamic query method return
+         */
         public DynamicQueryMethodReturn<T> build() {
             Objects.requireNonNull(typeClass, "typeClass is required");
             Objects.requireNonNull(prepareConverter, "prepareConverter is required");
