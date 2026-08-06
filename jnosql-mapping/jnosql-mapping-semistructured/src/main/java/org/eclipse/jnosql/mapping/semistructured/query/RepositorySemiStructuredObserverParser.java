@@ -33,6 +33,11 @@ public final class RepositorySemiStructuredObserverParser implements Communicati
 
     private EntityMetadata entityMetadata;
 
+    /**
+     * Creates a semi-structured repository observer parser.
+     *
+     * @param entityMetadata the entity metadata
+     */
     public RepositorySemiStructuredObserverParser(EntityMetadata entityMetadata) {
         this.entityMetadata = entityMetadata;
         this.parser = RepositoryObserverParser.of(entityMetadata);
