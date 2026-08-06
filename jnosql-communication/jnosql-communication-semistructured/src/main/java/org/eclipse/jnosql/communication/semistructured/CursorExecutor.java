@@ -135,6 +135,12 @@ enum CursorExecutor {
 
     abstract CursoredPage<CommunicationEntity> cursor(SelectQuery query, PageRequest pageRequest, DatabaseManager template);
 
+    /**
+     * Returns the cursor executor for a page request mode.
+     *
+     * @param value the page request mode
+     * @return the cursor executor
+     */
     public static CursorExecutor of(PageRequest.Mode value) {
 
         return switch (value) {
