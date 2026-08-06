@@ -18,7 +18,14 @@ import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 
 record NativeMapping (String nativeField, FieldMetadata fieldMetadata) {
 
-    public static NativeMapping of(String nativeField, FieldMetadata field) {
+    /**
+     * Creates a native field mapping.
+     *
+     * @param nativeField the native field name
+     * @param field the field metadata
+     * @return the native mapping
+     */
+    static NativeMapping of(String nativeField, FieldMetadata field) {
         return new NativeMapping(nativeField, field);
     }
 }
