@@ -17,8 +17,20 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
+/**
+ * Base CDI bean representation for custom semi-structured repositories.
+ *
+ * @param <T> the repository type
+ */
 public abstract class CustomRepositoryBean<T> extends BaseRepositoryBean<T> {
 
+    /**
+     * Creates a custom semi-structured repository bean.
+     *
+     * @param type the repository type
+     * @param provider the provider name
+     * @param databaseType the database type
+     */
     public CustomRepositoryBean(Class<?> type, String provider, DatabaseType databaseType) {
         super(type, provider, databaseType);
     }
