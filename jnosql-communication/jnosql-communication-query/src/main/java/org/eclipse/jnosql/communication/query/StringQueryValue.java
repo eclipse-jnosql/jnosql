@@ -65,6 +65,12 @@ public final class StringQueryValue implements QueryValue<String> {
         return ValueType.STRING;
     }
 
+    /**
+     * Creates a string query value.
+     *
+     * @param text the string value
+     * @return the query value
+     */
     public static StringQueryValue of(String text) {
         return new StringQueryValue(text);
     }
