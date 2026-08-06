@@ -35,6 +35,12 @@ import org.eclipse.jnosql.mapping.semistructured.query.RepositoryBean;
  */
 public class RepositoryGraphBean<T extends DataRepository<T, ?>> extends RepositoryBean<T> {
 
+    /**
+     * Creates a graph repository bean.
+     *
+     * @param type the repository type
+     * @param provider the provider name
+     */
     public RepositoryGraphBean(Class<?> type, String provider) {
         super(type, provider, DatabaseType.GRAPH);
     }

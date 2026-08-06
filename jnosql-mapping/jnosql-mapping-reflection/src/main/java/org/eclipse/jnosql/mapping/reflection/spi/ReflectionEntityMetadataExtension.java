@@ -49,6 +49,12 @@ public class ReflectionEntityMetadataExtension implements Extension {
     private static final Map<String, EntityMetadata> ENTITY_METADATA_BY_ENTITY_NAME = new ConcurrentHashMap<>();
     private static final Map<Class<?>, ProjectionMetadata> PROJECTOR_METADATA_BY_CLASS = new ConcurrentHashMap<>();
 
+    /**
+     * Registers reflection entity metadata beans after CDI bean discovery.
+     *
+     * @param event the CDI after-bean-discovery event
+     * @param bm the bean manager
+     */
     public void afterBeanDiscovery(@Observes AfterBeanDiscovery event, BeanManager bm) {
 
         scanEntitiesAndEmbeddableEntities();

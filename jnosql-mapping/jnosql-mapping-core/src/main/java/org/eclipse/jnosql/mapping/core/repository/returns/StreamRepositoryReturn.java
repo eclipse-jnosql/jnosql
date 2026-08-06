@@ -18,8 +18,14 @@ import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 
 import java.util.stream.Stream;
 
+/**
+ * Converts repository results to {@link java.util.stream.Stream} return values.
+ */
 public class StreamRepositoryReturn extends AbstractRepositoryReturn {
 
+    /**
+     * Creates a stream repository return handler.
+     */
     public StreamRepositoryReturn() {
         super(Stream.class);
     }

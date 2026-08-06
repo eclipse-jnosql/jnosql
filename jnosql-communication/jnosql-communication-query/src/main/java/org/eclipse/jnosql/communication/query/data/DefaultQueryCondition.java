@@ -15,6 +15,13 @@ import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryValue;
 
+/**
+ * Default immutable representation of a query condition.
+ *
+ * @param name the field or property name
+ * @param condition the condition operator
+ * @param value the condition value
+ */
 public record DefaultQueryCondition(String name, Condition condition, QueryValue<?> value) implements QueryCondition {
 
     @Override

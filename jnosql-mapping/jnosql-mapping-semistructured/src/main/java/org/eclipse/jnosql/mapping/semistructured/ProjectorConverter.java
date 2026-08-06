@@ -44,6 +44,11 @@ public class ProjectorConverter {
 
 
     @Inject
+    /**
+     * Creates a projector converter.
+     *
+     * @param entitiesMetadata the entity metadata registry
+     */
     public ProjectorConverter(EntitiesMetadata entitiesMetadata) {
         this.entitiesMetadata = entitiesMetadata;
     }

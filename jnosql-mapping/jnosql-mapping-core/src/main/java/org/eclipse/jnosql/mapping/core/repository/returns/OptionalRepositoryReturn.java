@@ -18,8 +18,14 @@ import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 
 import java.util.Optional;
 
+/**
+ * Converts repository results to {@link java.util.Optional} return values.
+ */
 public class OptionalRepositoryReturn extends AbstractRepositoryReturn {
 
+    /**
+     * Creates an optional repository return handler.
+     */
     public OptionalRepositoryReturn() {
         super(Optional.class);
     }

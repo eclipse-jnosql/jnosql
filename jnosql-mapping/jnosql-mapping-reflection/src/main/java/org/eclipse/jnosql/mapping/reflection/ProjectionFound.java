@@ -14,5 +14,10 @@
  */
 package org.eclipse.jnosql.mapping.reflection;
 
+/**
+ * Event payload indicating that a projection type was discovered.
+ *
+ * @param type the projection type
+ */
 public record ProjectionFound(Class<?> type) {
 }

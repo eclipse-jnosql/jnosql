@@ -34,6 +34,12 @@ import org.eclipse.jnosql.mapping.semistructured.query.CustomRepositoryBean;
  */
 public class CustomRepositoryGraphBean<T> extends CustomRepositoryBean<T> {
 
+    /**
+     * Creates a custom graph repository bean.
+     *
+     * @param type the repository type
+     * @param provider the provider name
+     */
     public CustomRepositoryGraphBean(Class<?> type, String provider) {
         super(type, provider, DatabaseType.GRAPH);
     }

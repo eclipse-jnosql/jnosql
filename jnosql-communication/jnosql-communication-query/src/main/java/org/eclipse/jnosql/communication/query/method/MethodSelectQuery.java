@@ -57,6 +57,12 @@ final class MethodSelectQuery  implements SelectQuery {
         return Optional.ofNullable(where);
     }
 
+    /**
+     * Returns the number of results to skip.
+     *
+     * @return the skip value
+     */
+    @Override
     public long skip() {
         return 0;
     }
@@ -76,6 +82,7 @@ final class MethodSelectQuery  implements SelectQuery {
         return count;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

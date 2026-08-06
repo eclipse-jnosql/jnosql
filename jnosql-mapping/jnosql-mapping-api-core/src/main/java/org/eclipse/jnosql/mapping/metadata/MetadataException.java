@@ -22,7 +22,7 @@ import jakarta.nosql.NoSQLException;
  * It extends the {@link NoSQLException} class and is used to signal errors that occur during metadata-related operations,
  * such as schema management or entity mapping.
  *
- * <p>The {@code } provides constructors for creating instances with different levels of detail,
+ * <p>The {@code MetadataException} class provides constructors for creating instances with different levels of detail,
  * including specifying custom messages and associated causes. It inherits constructors from its superclass,
  * {@link NoSQLException}, allowing for flexible exception handling and propagation of error information.
  *
@@ -81,8 +81,8 @@ public class MetadataException extends NoSQLException {
      *
      * @param message            the message
      * @param cause              the cause
-     * @param enableSuppression  the enableSuppression
-     * @param writableStackTrace the writableStackTrace
+     * @param enableSuppression  whether suppression is enabled
+     * @param writableStackTrace whether the stack trace is writable
      */
     protected MetadataException(String message, Throwable cause,
                              boolean enableSuppression,

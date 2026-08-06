@@ -37,6 +37,11 @@ public final class ParamValue implements Value {
         return value;
     }
 
+    /**
+     * Returns the parameter name.
+     *
+     * @return the parameter name
+     */
     public String getName() {
         return name;
     }
@@ -68,6 +73,11 @@ public final class ParamValue implements Value {
         return false;
     }
 
+    /**
+     * Indicates whether this parameter has no associated value.
+     *
+     * @return {@code true} when the value is empty
+     */
     public boolean isEmpty() {
         return Objects.isNull(value);
     }

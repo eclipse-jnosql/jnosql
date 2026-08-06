@@ -34,6 +34,12 @@ import org.eclipse.jnosql.mapping.semistructured.query.CustomRepositoryBean;
  */
 public class CustomRepositoryDocumentBean<T> extends CustomRepositoryBean<T> {
 
+    /**
+     * Creates a custom document repository bean.
+     *
+     * @param type the repository type
+     * @param provider the provider name
+     */
     public CustomRepositoryDocumentBean(Class<?> type, String provider) {
         super(type, provider, DatabaseType.DOCUMENT);
     }

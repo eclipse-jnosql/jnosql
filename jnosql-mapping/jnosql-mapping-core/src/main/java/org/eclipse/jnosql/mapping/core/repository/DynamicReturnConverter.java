@@ -109,6 +109,12 @@ public enum DynamicReturnConverter {
         return convert(dynamicReturn);
     }
 
+    /**
+     * Checks whether a query contains named parameters.
+     *
+     * @param query the query text
+     * @return {@code true} when named parameters are present
+     */
     public static boolean queryContainsNamedParameters(final String query) {
 
         if (query == null || query.isEmpty()) {

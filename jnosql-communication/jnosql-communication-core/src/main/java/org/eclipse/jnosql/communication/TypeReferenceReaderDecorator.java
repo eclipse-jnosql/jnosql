@@ -38,6 +38,11 @@ public final class TypeReferenceReaderDecorator implements TypeReferenceReader {
                 .toList());
     }
 
+    /**
+     * Returns the shared type reference reader decorator instance.
+     *
+     * @return the type reference reader decorator
+     */
     public static TypeReferenceReaderDecorator getInstance() {
         return INSTANCE;
     }

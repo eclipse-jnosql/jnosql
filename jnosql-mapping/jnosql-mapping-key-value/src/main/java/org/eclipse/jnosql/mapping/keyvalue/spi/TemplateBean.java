@@ -40,7 +40,7 @@ class TemplateBean extends AbstractBean<KeyValueTemplate> {
      * Constructor
      * @param provider    the provider name, that must be a
      */
-    public TemplateBean(String provider) {
+    TemplateBean(String provider) {
         this.provider = provider;
         this.qualifiers = Collections.singleton(DatabaseQualifier.ofKeyValue(provider));
     }

@@ -15,7 +15,6 @@
  *
  */
 module org.eclipse.jnosql.communication.core {
-    requires microprofile.config.api;
     requires jakarta.json;
     exports org.eclipse.jnosql.communication;
     opens org.eclipse.jnosql.communication;

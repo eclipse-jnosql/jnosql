@@ -68,7 +68,12 @@ class GraphManagerSupplier implements Supplier<GraphDatabaseManager> {
                 "check the configuration, the current instance is: " + manager.getClass());
     }
 
-    public void close(@Disposes GraphDatabaseManager manager) {
+    /**
+     * Closes a disposed graph database manager.
+     *
+     * @param manager the graph database manager
+     */
+    void close(@Disposes GraphDatabaseManager manager) {
         LOGGER.log(Level.FINEST, "Closing GraphManager resource, database name: " + manager.name());
         manager.close();
     }

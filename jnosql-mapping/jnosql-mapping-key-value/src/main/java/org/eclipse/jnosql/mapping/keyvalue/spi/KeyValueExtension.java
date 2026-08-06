@@ -32,6 +32,9 @@ import java.util.logging.Logger;
 import static org.eclipse.jnosql.mapping.DatabaseType.KEY_VALUE;
 
 
+/**
+ * CDI extension that registers key-value mapping infrastructure.
+ */
 public class KeyValueExtension implements Extension {
 
     private static final Logger LOGGER = Logger.getLogger(KeyValueExtension.class.getName());

@@ -14,7 +14,19 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+/**
+ * Supplier contract whose operation may throw an exception.
+ *
+ * @param <T> the supplied value type
+ */
 @FunctionalInterface
 public interface ThrowingSupplier<T> {
+
+    /**
+     * Gets a supplied value.
+     *
+     * @return the supplied value
+     * @throws Throwable when supplying the value fails
+     */
     T get() throws Throwable;
 }

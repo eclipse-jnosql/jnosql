@@ -62,7 +62,10 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
     @Inject
     private GroupEntityMetadata extension;
 
-    public DefaultEntitiesMetadata() {
+    /**
+     * Creates the default entity metadata registry.
+     */
+    DefaultEntitiesMetadata() {
         this.mappings = new ConcurrentHashMap<>();
         this.classes = new ConcurrentHashMap<>();
         this.findBySimpleName = new ConcurrentHashMap<>();
@@ -72,8 +75,11 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
         this.findByMappingName = new ConcurrentHashMap<>();
     }
 
+    /**
+     * Initializes discovered entity metadata.
+     */
     @PostConstruct
-    public void init() {
+    void init() {
         LOGGER.fine(() -> "Init DefaultEntitiesMetadata");
         classes.putAll(extension.classes());
         extension.classes().values().forEach(e -> findByMappingName.put(e.mappingName(), e));

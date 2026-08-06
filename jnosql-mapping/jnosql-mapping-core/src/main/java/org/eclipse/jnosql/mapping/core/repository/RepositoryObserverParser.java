@@ -20,6 +20,9 @@ import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Parses repository metadata used by observer-based repository operations.
+ */
 public final class RepositoryObserverParser {
 
     private static final String CAMEL_CASE = "(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])";
@@ -111,6 +114,12 @@ public final class RepositoryObserverParser {
         return new String(chars);
     }
 
+    /**
+     * Creates a repository observer parser from entity metadata.
+     *
+     * @param metadata the entity metadata
+     * @return the repository observer parser
+     */
     public static RepositoryObserverParser of(EntityMetadata metadata) {
         Objects.requireNonNull(metadata, "metadata is required");
         return new RepositoryObserverParser(metadata);

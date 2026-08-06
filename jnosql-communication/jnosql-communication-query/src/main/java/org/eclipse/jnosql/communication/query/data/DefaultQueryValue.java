@@ -30,6 +30,12 @@ public record DefaultQueryValue(String value) implements ParamQueryValue {
         return "@" + value;
     }
 
+    /**
+     * Creates a default query value, stripping a leading named-parameter marker when present.
+     *
+     * @param text the value text
+     * @return the query value
+     */
     public static DefaultQueryValue of(String text) {
         if(text != null && text.startsWith(":")) {
             return new DefaultQueryValue(text.substring(1));

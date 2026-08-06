@@ -22,6 +22,11 @@ import jakarta.data.exceptions.MappingException;
  */
 public class ConstructorException extends MappingException {
 
+    /**
+     * Creates an exception for a type without an accessible no-argument constructor.
+     *
+     * @param type the entity type
+     */
     public ConstructorException(Class<?> type) {
         super("This class must have a no arg with either public or default visibility: " + type.getName());
     }

@@ -239,6 +239,11 @@ public enum AnnotationOperation {
                     || method.getReturnType().equals(Integer.TYPE);
         }
 
+        /**
+         * Indicates whether this operation uses a long result.
+         *
+         * @return {@code true} when the operation returns a long value
+         */
         public boolean isLong() {
             return method.getReturnType().equals(Long.class)
                     || method.getReturnType().equals(Long.TYPE);

@@ -14,11 +14,20 @@
  */
 package org.eclipse.jnosql.communication.util;
 
+/**
+ * Utility methods for common {@link String} checks.
+ */
 public final class StringUtils {
 
     private StringUtils() {
     }
 
+    /**
+     * Checks whether a character sequence is {@code null}, empty, or contains only whitespace.
+     *
+     * @param cs the character sequence to inspect
+     * @return {@code true} when the sequence is blank
+     */
     public static boolean isBlank(final CharSequence cs) {
         final int strLen = length(cs);
         if (strLen == 0) {

@@ -24,6 +24,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+/**
+ * Converts repository results to a single instance return value.
+ */
 public class InstanceRepositoryReturn implements RepositoryReturn {
 
     @Override

@@ -23,6 +23,9 @@ import org.eclipse.jnosql.mapping.EntityPostPersist;
 import org.eclipse.jnosql.mapping.EntityPrePersist;
 
 @ApplicationScoped
+/**
+ * Coordinates lifecycle events around key-value entity persistence.
+ */
 public class KeyValueEventPersistManager {
 
     @Inject

@@ -103,10 +103,20 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
                 .findFirst().orElse(null);
     }
 
+    /**
+     * Returns the repository method name.
+     *
+     * @return the method name
+     */
     public String methodName() {
         return methodName;
     }
 
+    /**
+     * Returns the repository method return type.
+     *
+     * @return the return type
+     */
     public Class<?> returnType() {
         return returnType;
     }
@@ -270,11 +280,23 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
             return this;
         }
 
+        /**
+         * Sets the repository method name.
+         *
+         * @param methodName the method name
+         * @return this builder
+         */
         public DefaultDynamicReturnBuilder<T> methodName(String methodName) {
             this.methodName = methodName;
             return this;
         }
 
+        /**
+         * Sets the repository method return type.
+         *
+         * @param returnType the return type
+         * @return this builder
+         */
         public DefaultDynamicReturnBuilder<T> returnType(Class<?> returnType) {
             this.returnType = returnType;
             return this;
@@ -334,6 +356,12 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
             return this;
         }
 
+        /**
+         * Sets the total result supplier.
+         *
+         * @param totalSupplier the total result supplier
+         * @return this builder
+         */
         public DefaultDynamicReturnBuilder totalSupplier(LongSupplier totalSupplier) {
             this.totalSupplier = totalSupplier;
             return this;

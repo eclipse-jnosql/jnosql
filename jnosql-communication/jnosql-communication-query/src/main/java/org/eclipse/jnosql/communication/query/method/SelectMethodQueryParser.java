@@ -23,6 +23,9 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+/**
+ * Parses repository method names into select queries.
+ */
 public final class SelectMethodQueryParser extends AbstractMethodQueryParser implements BiFunction<String, String, SelectQuery> {
 
     private final List<Sort<?>> sorts = new ArrayList<>();

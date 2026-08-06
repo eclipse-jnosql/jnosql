@@ -20,8 +20,19 @@ import org.eclipse.jnosql.mapping.document.DocumentTemplate;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.query.RepositoryBean;
 
+/**
+ * CDI bean representation for document repositories.
+ *
+ * @param <T> the repository type
+ */
 public class RepositoryDocumentBean<T extends DataRepository<T, ?>> extends RepositoryBean<T> {
 
+    /**
+     * Creates a document repository bean.
+     *
+     * @param type the repository type
+     * @param provider the provider name
+     */
     public RepositoryDocumentBean(Class<?> type, String provider) {
         super(type, provider, DatabaseType.DOCUMENT);
     }

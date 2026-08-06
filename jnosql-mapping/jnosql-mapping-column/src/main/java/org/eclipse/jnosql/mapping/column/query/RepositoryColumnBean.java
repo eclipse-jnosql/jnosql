@@ -34,6 +34,12 @@ import org.eclipse.jnosql.mapping.semistructured.query.RepositoryBean;
  */
 public class RepositoryColumnBean<T extends DataRepository<T, ?>> extends RepositoryBean<T> {
 
+    /**
+     * Creates a column repository bean.
+     *
+     * @param type the repository type
+     * @param provider the provider name
+     */
     public RepositoryColumnBean(Class<?> type, String provider) {
         super(type, provider, DatabaseType.COLUMN);
     }

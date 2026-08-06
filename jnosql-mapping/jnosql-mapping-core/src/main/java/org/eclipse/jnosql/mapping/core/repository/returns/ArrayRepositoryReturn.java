@@ -18,8 +18,14 @@ import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 
 import java.util.List;
 
+/**
+ * Converts repository results to array return values.
+ */
 public class ArrayRepositoryReturn extends AbstractRepositoryReturn {
 
+    /**
+     * Creates an array repository return handler.
+     */
     public ArrayRepositoryReturn() {
         super(null);
     }

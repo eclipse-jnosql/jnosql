@@ -42,6 +42,11 @@ public final class ValueReaderDecorator implements ValueReader {
                 .toList());
     }
 
+    /**
+     * Returns the shared value reader decorator instance.
+     *
+     * @return the value reader decorator
+     */
     public static ValueReaderDecorator getInstance() {
         return INSTANCE;
     }

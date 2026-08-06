@@ -18,8 +18,20 @@ import jakarta.data.repository.DataRepository;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
+/**
+ * CDI bean representation for semi-structured repositories.
+ *
+ * @param <T> the repository type
+ */
 public class RepositoryBean<T extends DataRepository<T, ?>> extends BaseRepositoryBean<T> {
 
+    /**
+     * Creates a semi-structured repository bean.
+     *
+     * @param type the repository type
+     * @param provider the provider name
+     * @param databaseType the database type
+     */
     public RepositoryBean(Class<?> type, String provider, DatabaseType databaseType) {
         super(type, provider, databaseType);
     }
@@ -30,4 +42,3 @@ public class RepositoryBean<T extends DataRepository<T, ?>> extends BaseReposito
     }
 
 }
-

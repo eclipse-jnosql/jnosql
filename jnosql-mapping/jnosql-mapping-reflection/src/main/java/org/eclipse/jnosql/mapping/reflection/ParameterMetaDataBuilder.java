@@ -67,7 +67,13 @@ class ParameterMetaDataBuilder {
 
     }
 
-    public static ParameterMetaData of(Parameter parameter) {
+    /**
+     * Creates constructor parameter metadata from a reflection parameter.
+     *
+     * @param parameter the reflection parameter
+     * @return the parameter metadata
+     */
+    static ParameterMetaData of(Parameter parameter) {
         ParameterMetaDataBuilder builder = new ParameterMetaDataBuilder(parameter);
         return builder.build();
     }

@@ -25,5 +25,12 @@ import org.eclipse.jnosql.communication.semistructured.IdFieldNameSupplier;
  * enabling contextual configuration for specific database implementation.
  */
 public interface EntityConverterFactory {
+
+    /**
+     * Creates an entity converter using the supplied identifier field name strategy.
+     *
+     * @param idFieldNameSupplier the identifier field name supplier
+     * @return the entity converter
+     */
     EntityConverter create(IdFieldNameSupplier idFieldNameSupplier);
 }

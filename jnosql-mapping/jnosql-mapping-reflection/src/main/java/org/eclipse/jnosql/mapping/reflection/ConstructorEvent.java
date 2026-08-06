@@ -73,6 +73,13 @@ public final class ConstructorEvent {
                 '}';
     }
 
+    /**
+     * Creates a constructor event.
+     *
+     * @param constructor the constructor
+     * @param params the constructor parameters
+     * @return the constructor event
+     */
     public static ConstructorEvent of(Constructor<?> constructor, Object[] params) {
         Objects.requireNonNull(constructor, "constructor is required");
         Objects.requireNonNull(params, "params is required");

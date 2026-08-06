@@ -22,6 +22,9 @@ import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * Converts values to {@link java.time.Instant} instances.
+ */
 public class InstantReader implements ValueReader {
 
     @SuppressWarnings("unchecked")
@@ -55,4 +58,3 @@ public class InstantReader implements ValueReader {
         return Instant.parse(value.toString());
     }
 }
-

@@ -22,8 +22,14 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+/**
+ * Converts repository results to {@link java.util.SortedSet} return values.
+ */
 public class SortedSetRepositoryReturn extends AbstractRepositoryReturn {
 
+    /**
+     * Creates a sorted-set repository return handler.
+     */
     public SortedSetRepositoryReturn() {
         super(null);
     }
@@ -46,6 +52,12 @@ public class SortedSetRepositoryReturn extends AbstractRepositoryReturn {
         return dynamicReturn.streamPagination().collect(Collectors.toCollection(TreeSet::new));
     }
 
+    /**
+     * Validates that the dynamic return can be converted to a sorted set.
+     *
+     * @param dynamicReturn the dynamic return metadata
+     * @throws DynamicQueryException when the return cannot be sorted
+     */
     public void validate(DynamicReturn<?> dynamicReturn) throws DynamicQueryException {
 
         Class<?> typeClass = dynamicReturn.typeClass();

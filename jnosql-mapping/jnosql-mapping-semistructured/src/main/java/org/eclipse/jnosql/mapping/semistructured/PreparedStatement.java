@@ -64,11 +64,23 @@ public final class PreparedStatement implements org.eclipse.jnosql.mapping.Prepa
         return this;
     }
 
+    /**
+     * Binds a value to a positional parameter.
+     *
+     * @param index the parameter index
+     * @param value the parameter value
+     * @return this prepared statement
+     */
     public org.eclipse.jnosql.mapping.PreparedStatement bind(int index, Object value) {
         preparedStatement.bind(index, value);
         return this;
     }
 
+    /**
+     * Returns the communication prepared statement type.
+     *
+     * @return the prepared statement type
+     */
     public CommunicationPreparedStatement.PreparedStatementType type() {
         return this.preparedStatement.getType();
     }

@@ -33,7 +33,7 @@ final class StringUtils {
      * @param cs The character sequence to be checked for blankness.
      * @return {@code true} if the character sequence is blank, otherwise {@code false}.
      */
-    public static boolean isBlank(final CharSequence cs) {
+    static boolean isBlank(final CharSequence cs) {
         if (cs == null || cs.isEmpty()) {
             return true;
         }
@@ -53,8 +53,7 @@ final class StringUtils {
      * @param cs The character sequence to be checked for non-blankness.
      * @return {@code true} if the character sequence is not blank, otherwise {@code false}.
      */
-    public static boolean isNotBlank(final CharSequence cs) {
+    static boolean isNotBlank(final CharSequence cs) {
         return !isBlank(cs);
     }
 }
-

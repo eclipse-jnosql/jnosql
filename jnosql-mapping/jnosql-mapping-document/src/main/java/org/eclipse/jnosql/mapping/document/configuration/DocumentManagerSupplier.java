@@ -62,7 +62,12 @@ class DocumentManagerSupplier implements Supplier<DatabaseManager> {
         return manager;
     }
 
-    public void close(@Disposes @Database(DatabaseType.DOCUMENT) DatabaseManager manager) {
+    /**
+     * Closes a disposed document database manager.
+     *
+     * @param manager the document database manager
+     */
+    void close(@Disposes @Database(DatabaseType.DOCUMENT) DatabaseManager manager) {
         LOGGER.log(Level.FINEST, "Closing DocumentManager resource, database name: " + manager.name());
         manager.close();
     }

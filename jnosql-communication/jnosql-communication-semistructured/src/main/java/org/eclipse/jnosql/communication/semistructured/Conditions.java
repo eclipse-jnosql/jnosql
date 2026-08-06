@@ -16,11 +16,23 @@ import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.Where;
 
+/**
+ * Utility methods for creating semi-structured query conditions.
+ */
 public final class Conditions {
 
     private Conditions() {
     }
 
+    /**
+     * Converts a query {@link Where} clause into a criteria condition.
+     *
+     * @param where the query where clause
+     * @param params the query parameters
+     * @param observer the observer parser
+     * @param entity the entity name
+     * @return the criteria condition
+     */
     public static CriteriaCondition getCondition(Where where, Params params, CommunicationObserverParser observer, String entity) {
         QueryCondition condition = where.condition();
         return getCondition(condition, params, observer, entity);

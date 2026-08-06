@@ -18,8 +18,14 @@ import jakarta.data.page.Page;
 import org.eclipse.jnosql.mapping.DynamicQueryException;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 
+/**
+ * Converts repository results to {@link jakarta.data.page.Page} return values.
+ */
 public class PageRepositoryReturn extends AbstractRepositoryReturn {
 
+    /**
+     * Creates a page repository return handler.
+     */
     public PageRepositoryReturn() {
         super(Page.class);
     }

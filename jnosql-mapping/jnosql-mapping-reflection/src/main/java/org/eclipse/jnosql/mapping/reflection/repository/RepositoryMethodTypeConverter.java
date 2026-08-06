@@ -81,7 +81,13 @@ enum RepositoryMethodTypeConverter {
     private static final String FIND_ALL = "findAll";
 
 
-    public static RepositoryMethodType of(Method method) {
+    /**
+     * Resolves the repository method type for a Java method.
+     *
+     * @param method the repository method
+     * @return the repository method type
+     */
+    static RepositoryMethodType of(Method method) {
         Objects.requireNonNull(method, "method is required");
 
         if (method.isDefault()) {

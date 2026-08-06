@@ -49,7 +49,12 @@ class BucketManagerFactorySupplier implements Supplier<BucketManagerFactory> {
         return configuration.apply(settings);
     }
 
-    public void close(@Disposes BucketManagerFactory manager) {
+    /**
+     * Closes a disposed bucket manager factory.
+     *
+     * @param manager the bucket manager factory
+     */
+    void close(@Disposes BucketManagerFactory manager) {
         LOGGER.log(Level.FINEST, "Closing BucketManagerFactory");
         manager.close();
     }
