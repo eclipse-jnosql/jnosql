@@ -18,6 +18,9 @@ import org.eclipse.jnosql.mapping.metadata.ProjectionBuilder;
 import org.eclipse.jnosql.mapping.metadata.ProjectionBuilderSupplier;
 import org.eclipse.jnosql.mapping.metadata.ProjectionConstructorMetadata;
 
+/**
+ * Supplies reflection-based projection metadata builders.
+ */
 public class ReflectionProjectionBuilderSupplier implements ProjectionBuilderSupplier {
 
     @Override
