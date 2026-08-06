@@ -38,6 +38,12 @@ public class IdNotFoundException extends NoSQLException {
     }
 
 
+    /**
+     * Creates an exception for a type without identifier metadata.
+     *
+     * @param type the entity type
+     * @return the exception
+     */
     public static IdNotFoundException newInstance(Class<?> type) {
         String message = "The entity " + type.getName() + " must have a field annotated with @Id";
         return new IdNotFoundException(message);
