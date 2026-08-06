@@ -57,6 +57,12 @@ public final class EntityPostPersist implements Supplier<Object> {
                 '}';
     }
 
+    /**
+     * Creates a post-persist event.
+     *
+     * @param value the entity value
+     * @return the post-persist event
+     */
     public static EntityPostPersist of(Object value) {
         Objects.requireNonNull(value, "value is required");
         return new EntityPostPersist(value);
