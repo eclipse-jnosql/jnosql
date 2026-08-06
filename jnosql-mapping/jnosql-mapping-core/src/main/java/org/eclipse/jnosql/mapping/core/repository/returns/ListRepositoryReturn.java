@@ -20,8 +20,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Converts repository results to {@link java.util.List} return values.
+ */
 public class ListRepositoryReturn extends AbstractRepositoryReturn {
 
+    /**
+     * Creates a list repository return handler.
+     */
     public ListRepositoryReturn() {
         super(null);
     }
