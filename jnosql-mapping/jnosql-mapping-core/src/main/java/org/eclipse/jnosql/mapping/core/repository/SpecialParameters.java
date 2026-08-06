@@ -162,14 +162,9 @@ public final class SpecialParameters {
      *
      * Parameters of unsupported types, including {@code null} values, are ignored.
      *
-     * @param parameters
-     *        an array containing heterogeneous query parameters such as sorting,
-     *        pagination, limits, and restrictions
-     * @param sortParser
-     *        a function used to normalize or transform sort property names before
-     *        they are applied
-     * @return a {@code SpecialParameters} instance populated with the recognized
-     *         parameters
+     * @param parameters an array containing heterogeneous query parameters such as sorting, pagination, limits, and restrictions
+     * @param sortParser a function used to normalize or transform sort property names before they are applied
+     * @return a {@code SpecialParameters} instance populated with the recognized parameters
      */
     @SuppressWarnings("rawtypes")
     public static SpecialParameters of(Object[] parameters, Function<String, String> sortParser) {
