@@ -63,6 +63,11 @@ class ColumnManagerSupplier implements Supplier<DatabaseManager> {
         return manager;
     }
 
+    /**
+     * Closes a disposed column database manager.
+     *
+     * @param manager the column database manager
+     */
     public void close(@Disposes @Database(DatabaseType.COLUMN) DatabaseManager manager) {
         LOGGER.log(Level.FINEST, "Closing DatabaseManager resource, database name: " + manager.name());
         manager.close();
