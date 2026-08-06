@@ -66,6 +66,12 @@ public final class NumberQueryValue implements QueryValue<Number> {
         return ValueType.NUMBER;
     }
 
+    /**
+     * Creates a number query value.
+     *
+     * @param number the number value
+     * @return the query value
+     */
     public static NumberQueryValue of(Number number) {
         return new NumberQueryValue(number);
     }
