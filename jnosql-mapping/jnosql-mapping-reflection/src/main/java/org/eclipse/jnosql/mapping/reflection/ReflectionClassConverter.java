@@ -36,6 +36,9 @@ import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
+/**
+ * Reflection-based converter between Java classes and entity metadata.
+ */
 public final class ReflectionClassConverter implements ClassConverter {
 
     private static final Logger LOGGER = Logger.getLogger(ReflectionClassConverter.class.getName());
@@ -43,6 +46,9 @@ public final class ReflectionClassConverter implements ClassConverter {
     private final Reflections reflections;
     private final ConstructorMetadataBuilder constructorMetadataBuilder;
 
+    /**
+     * Creates a reflection class converter.
+     */
     public ReflectionClassConverter() {
         this.reflections = new Reflections();
         this.constructorMetadataBuilder = new ConstructorMetadataBuilder();
