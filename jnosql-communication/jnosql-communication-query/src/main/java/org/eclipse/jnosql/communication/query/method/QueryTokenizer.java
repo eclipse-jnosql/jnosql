@@ -84,6 +84,12 @@ public final class QueryTokenizer implements Supplier<String> {
         return value.hashCode();
     }
 
+    /**
+     * Creates a tokenizer for a query string.
+     *
+     * @param query the query string
+     * @return the query tokenizer
+     */
     public static QueryTokenizer of(String query) {
         Objects.requireNonNull(query, "query is required");
         return new QueryTokenizer(CACHE.computeIfAbsent(query, q -> {
