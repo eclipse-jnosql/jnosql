@@ -19,8 +19,14 @@ import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Converts repository results to {@link java.util.Set} return values.
+ */
 public class SetRepositoryReturn extends AbstractRepositoryReturn {
 
+    /**
+     * Creates a set repository return handler.
+     */
     public SetRepositoryReturn() {
         super(Set.class);
     }
