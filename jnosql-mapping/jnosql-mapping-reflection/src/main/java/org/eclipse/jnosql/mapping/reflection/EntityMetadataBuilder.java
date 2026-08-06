@@ -51,63 +51,134 @@ class EntityMetadataBuilder {
     private ConstructorMetadata constructor;
 
 
-    public EntityMetadataBuilder name(String name) {
+    /**
+     * Sets the entity name.
+     *
+     * @param name the entity name
+     * @return this builder
+     */
+    EntityMetadataBuilder name(String name) {
         this.name = name;
         return this;
     }
 
-    public EntityMetadataBuilder mappingName(String mappingName) {
+    /**
+     * Sets the mapped entity name.
+     *
+     * @param mappingName the mapped entity name
+     * @return this builder
+     */
+    EntityMetadataBuilder mappingName(String mappingName) {
         this.mappingName = mappingName;
         return this;
     }
 
-    public EntityMetadataBuilder fieldsName(List<String> fieldsName) {
+    /**
+     * Sets the field names.
+     *
+     * @param fieldsName the field names
+     * @return this builder
+     */
+    EntityMetadataBuilder fieldsName(List<String> fieldsName) {
         this.fieldsName = fieldsName;
         return this;
     }
 
-    public EntityMetadataBuilder type(Class<?> type) {
+    /**
+     * Sets the entity Java type.
+     *
+     * @param type the entity type
+     * @return this builder
+     */
+    EntityMetadataBuilder type(Class<?> type) {
         this.type = type;
         return this;
     }
 
-    public EntityMetadataBuilder fields(List<FieldMetadata> fields) {
+    /**
+     * Sets the field metadata entries.
+     *
+     * @param fields the field metadata entries
+     * @return this builder
+     */
+    EntityMetadataBuilder fields(List<FieldMetadata> fields) {
         this.fields = fields;
         return this;
     }
 
-    public EntityMetadataBuilder javaFieldGroupedByColumn(Map<String, NativeMapping> javaFieldGroupedByColumn) {
+    /**
+     * Sets Java fields grouped by native column name.
+     *
+     * @param javaFieldGroupedByColumn the Java fields grouped by native column
+     * @return this builder
+     */
+    EntityMetadataBuilder javaFieldGroupedByColumn(Map<String, NativeMapping> javaFieldGroupedByColumn) {
         this.javaFieldGroupedByColumn = javaFieldGroupedByColumn;
         return this;
     }
 
-    public EntityMetadataBuilder fieldsGroupedByName(Map<String, FieldMetadata> fieldsGroupedByName) {
+    /**
+     * Sets fields grouped by logical name.
+     *
+     * @param fieldsGroupedByName the fields grouped by name
+     * @return this builder
+     */
+    EntityMetadataBuilder fieldsGroupedByName(Map<String, FieldMetadata> fieldsGroupedByName) {
         this.fieldsGroupedByName = fieldsGroupedByName;
         return this;
     }
 
-    public EntityMetadataBuilder instanceSupplier(InstanceSupplier instanceSupplier) {
+    /**
+     * Sets the instance supplier.
+     *
+     * @param instanceSupplier the instance supplier
+     * @return this builder
+     */
+    EntityMetadataBuilder instanceSupplier(InstanceSupplier instanceSupplier) {
         this.instanceSupplier = instanceSupplier;
         return this;
     }
 
-    public EntityMetadataBuilder inheritance(InheritanceMetadata inheritance) {
+    /**
+     * Sets inheritance metadata.
+     *
+     * @param inheritance the inheritance metadata
+     * @return this builder
+     */
+    EntityMetadataBuilder inheritance(InheritanceMetadata inheritance) {
         this.inheritance = inheritance;
         return this;
     }
 
-    public EntityMetadataBuilder hasInheritanceAnnotation(boolean hasInheritanceAnnotation) {
+    /**
+     * Sets whether the entity declares inheritance metadata.
+     *
+     * @param hasInheritanceAnnotation whether inheritance is declared
+     * @return this builder
+     */
+    EntityMetadataBuilder hasInheritanceAnnotation(boolean hasInheritanceAnnotation) {
         this.hasInheritanceAnnotation = hasInheritanceAnnotation;
         return this;
     }
 
-    public EntityMetadataBuilder constructor(ConstructorMetadata constructor) {
+    /**
+     * Sets constructor metadata.
+     *
+     * @param constructor the constructor metadata
+     * @return this builder
+     */
+    EntityMetadataBuilder constructor(ConstructorMetadata constructor) {
         this.constructor = constructor;
         return this;
     }
 
 
-    public EntityMetadata build() {
+    /**
+     * Builds entity metadata.
+     *
+     * @return the entity metadata
+     */
+    EntityMetadata build() {
         return new DefaultEntityMetadata(name, mappingName, fieldsName, type, fields,
                 javaFieldGroupedByColumn, fieldsGroupedByName, instanceSupplier, inheritance,
                 constructor, hasInheritanceAnnotation);
