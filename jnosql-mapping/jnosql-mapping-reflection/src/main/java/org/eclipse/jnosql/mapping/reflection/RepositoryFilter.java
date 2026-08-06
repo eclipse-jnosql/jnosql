@@ -49,7 +49,7 @@ enum RepositoryFilter implements Predicate<Class<?>> {
      * @param type The repository type
      * @return if the repository is supported
      */
-    public boolean isSupported(Class<?> type) {
+    boolean isSupported(Class<?> type) {
         Optional<String> provider = getProvider(type);
         return provider.map(p -> Repository.ANY_PROVIDER.equals(p) || PROVIDER.equalsIgnoreCase(p))
                        .orElse(false);
@@ -64,7 +64,7 @@ enum RepositoryFilter implements Predicate<Class<?>> {
      * @param type The repository type
      * @return if the repository is valid
      */
-    public boolean isValid(Class<?> type) {
+    boolean isValid(Class<?> type) {
         Optional<Class<?>> entity = getEntity(type);
         
         // If entity not found from generic interface, try to extract from methods
