@@ -21,6 +21,9 @@ import org.eclipse.jnosql.communication.ValueReader;
 
 import java.util.UUID;
 
+/**
+ * Converts values to {@link java.util.UUID} instances.
+ */
 public class UUIDValueReader implements ValueReader {
 
     @SuppressWarnings("unchecked")
