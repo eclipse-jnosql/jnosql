@@ -21,6 +21,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Delete query representation used by the mapping layer.
+ *
+ * @param entity the entity name
+ * @param criteriaCondition the delete criteria
+ */
 public record MappingDeleteQuery(String entity, CriteriaCondition criteriaCondition) implements DeleteQuery {
 
 
