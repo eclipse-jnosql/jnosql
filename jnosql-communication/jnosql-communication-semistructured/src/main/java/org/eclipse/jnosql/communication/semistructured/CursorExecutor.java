@@ -141,7 +141,7 @@ enum CursorExecutor {
      * @param value the page request mode
      * @return the cursor executor
      */
-    public static CursorExecutor of(PageRequest.Mode value) {
+    static CursorExecutor of(PageRequest.Mode value) {
 
         return switch (value) {
             case CURSOR_NEXT -> CURSOR_NEXT;
