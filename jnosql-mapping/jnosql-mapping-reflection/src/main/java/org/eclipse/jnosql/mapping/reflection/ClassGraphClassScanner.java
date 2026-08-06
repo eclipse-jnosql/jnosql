@@ -97,6 +97,11 @@ enum ClassGraphClassScanner implements ClassScanner {
         return unmodifiableSet(embeddables);
     }
 
+    /**
+     * Returns auto-apply attribute converter classes discovered by the scanner.
+     *
+     * @return the auto-apply converter classes
+     */
     public Set<Class<? extends AttributeConverter<?, ?>>> autoApplyConverters() {
         return unmodifiableSet(autoApplyConverters);
     }
