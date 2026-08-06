@@ -105,6 +105,11 @@ public final class CommunicationPreparedStatement {
         return this;
     }
 
+    /**
+     * Returns the prepared statement type.
+     *
+     * @return the prepared statement type
+     */
     public PreparedStatementType getType() {
         return type;
     }
