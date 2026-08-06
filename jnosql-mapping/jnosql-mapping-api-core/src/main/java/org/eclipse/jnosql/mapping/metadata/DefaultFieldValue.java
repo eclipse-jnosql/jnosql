@@ -16,8 +16,20 @@ package org.eclipse.jnosql.mapping.metadata;
 
 import java.util.Objects;
 
+/**
+ * Default immutable field value representation.
+ *
+ * @param value the field value
+ * @param field the field metadata
+ */
 public record DefaultFieldValue(Object value, FieldMetadata field) implements FieldValue {
 
+    /**
+     * Creates a field value.
+     *
+     * @param value the field value
+     * @param field the field metadata
+     */
     public DefaultFieldValue(Object value, FieldMetadata field) {
         this.value = value;
         this.field = Objects.requireNonNull(field, "field is required");
