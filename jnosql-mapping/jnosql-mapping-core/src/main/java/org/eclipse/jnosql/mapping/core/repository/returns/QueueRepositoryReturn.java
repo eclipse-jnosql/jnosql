@@ -21,8 +21,14 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
+/**
+ * Converts repository results to {@link java.util.Queue} return values.
+ */
 public class QueueRepositoryReturn extends AbstractRepositoryReturn {
 
+    /**
+     * Creates a queue repository return handler.
+     */
     public QueueRepositoryReturn() {
         super(Deque.class);
     }
