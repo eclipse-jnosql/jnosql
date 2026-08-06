@@ -33,12 +33,6 @@ import java.lang.reflect.Method;
  */
 @Deprecated(forRemoval = true)
 @SuppressWarnings("removal")
-/**
- * Base invocation handler for generated repository proxies.
- *
- * @param <T> the repository entity type
- * @param <K> the entity identifier type
- */
 public abstract class AbstractRepositoryProxy<T, K> implements InvocationHandler {
 
     /**
