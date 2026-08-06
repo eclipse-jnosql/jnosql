@@ -33,6 +33,9 @@ import java.lang.reflect.Proxy;
 import java.util.Objects;
 
 @ApplicationScoped
+/**
+ * CDI producer for key-value repository proxies.
+ */
 public class KeyValueRepositoryProducer {
 
     @Inject
@@ -54,6 +57,16 @@ public class KeyValueRepositoryProducer {
     KeyValueRepositoryProducer() {
     }
 
+    /**
+     * Creates a key-value repository backed by a bucket manager.
+     *
+     * @param repositoryClass the repository class
+     * @param manager the bucket manager
+     * @param <T> the entity type
+     * @param <K> the entity identifier type
+     * @param <R> the repository type
+     * @return the repository proxy
+     */
     public <T, K, R extends BasicRepository<T, K>> R get(Class<R> repositoryClass, BucketManager manager) {
         Objects.requireNonNull(repositoryClass, "repository class is required");
         Objects.requireNonNull(manager, "manager class is required");
@@ -61,6 +74,14 @@ public class KeyValueRepositoryProducer {
         return get(repositoryClass, template);
     }
 
+    /**
+     * Creates a key-value repository backed by a template.
+     *
+     * @param repositoryClass the repository class
+     * @param template the key-value template
+     * @param <R> the repository type
+     * @return the repository proxy
+     */
     @SuppressWarnings("unchecked")
     public <R extends BasicRepository<?, ?>> R get(Class<R> repositoryClass, KeyValueTemplate template) {
         Objects.requireNonNull(repositoryClass, "repository class is required");
