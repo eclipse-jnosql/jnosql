@@ -63,6 +63,11 @@ class BucketManagerSupplier implements Supplier<BucketManager> {
         return manager;
     }
 
+    /**
+     * Closes a disposed bucket manager.
+     *
+     * @param manager the bucket manager
+     */
     public void close(@Disposes BucketManager manager) {
         LOGGER.log(Level.FINEST, "Closing BucketManager resource, database name: " + manager.name());
         manager.close();
