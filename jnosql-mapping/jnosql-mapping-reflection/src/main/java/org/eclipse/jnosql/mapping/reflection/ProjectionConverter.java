@@ -27,6 +27,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
+/**
+ * Converts projection classes into projection metadata.
+ */
 public class ProjectionConverter implements Function<Class<?>, ProjectionMetadata> {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectionConverter.class.getName());
