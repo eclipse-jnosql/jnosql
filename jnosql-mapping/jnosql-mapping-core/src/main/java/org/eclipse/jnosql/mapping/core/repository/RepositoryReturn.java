@@ -19,10 +19,31 @@ package org.eclipse.jnosql.mapping.core.repository;
  */
 public interface RepositoryReturn {
 
+    /**
+     * Determines whether this strategy supports the entity and repository return type.
+     *
+     * @param entity the entity type
+     * @param returnType the repository method return type
+     * @return {@code true} when this strategy can handle the return type
+     */
     boolean isCompatible(Class<?> entity, Class<?> returnType);
 
+    /**
+     * Converts a dynamic repository result.
+     *
+     * @param dynamicReturn the dynamic return metadata and result suppliers
+     * @param <T> the result element type
+     * @return the converted result
+     */
     <T> Object convert(DynamicReturn<T> dynamicReturn);
 
+    /**
+     * Converts a paged dynamic repository result.
+     *
+     * @param dynamicReturn the dynamic return metadata and result suppliers
+     * @param <T> the result element type
+     * @return the converted paged result
+     */
     <T> Object convertPageRequest(DynamicReturn<T> dynamicReturn);
 
 }
