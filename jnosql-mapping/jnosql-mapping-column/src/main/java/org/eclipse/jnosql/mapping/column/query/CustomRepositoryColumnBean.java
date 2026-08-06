@@ -34,6 +34,12 @@ import org.eclipse.jnosql.mapping.semistructured.query.CustomRepositoryBean;
  */
 public class CustomRepositoryColumnBean<T> extends CustomRepositoryBean<T> {
 
+    /**
+     * Creates a custom column repository bean.
+     *
+     * @param type the repository type
+     * @param provider the provider name
+     */
     public CustomRepositoryColumnBean(Class<?> type, String provider) {
         super(type, provider, DatabaseType.COLUMN);
     }
