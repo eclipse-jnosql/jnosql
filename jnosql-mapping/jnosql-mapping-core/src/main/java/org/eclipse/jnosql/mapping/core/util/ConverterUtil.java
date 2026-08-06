@@ -28,6 +28,9 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
+/**
+ * Utility methods for converter lookups and conversions.
+ */
 public final class ConverterUtil {
 
     private static final Logger LOGGER = Logger.getLogger(ConverterUtil.class.getName());
