@@ -56,6 +56,12 @@ public final class EntityPrePersist implements Supplier<Object>  {
                 '}';
     }
 
+    /**
+     * Creates a pre-persist event.
+     *
+     * @param value the entity value
+     * @return the pre-persist event
+     */
     public static EntityPrePersist of(Object value) {
         Objects.requireNonNull(value, "value is required");
         return new EntityPrePersist(value);
