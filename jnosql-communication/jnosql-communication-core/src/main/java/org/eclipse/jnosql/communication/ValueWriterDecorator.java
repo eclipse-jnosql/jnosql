@@ -42,6 +42,11 @@ public final class ValueWriterDecorator<T, S> implements ValueWriter<T, S> {
     private ValueWriterDecorator() {
     }
 
+    /**
+     * Returns the shared value writer decorator instance.
+     *
+     * @return the value writer decorator
+     */
     public static ValueWriter getInstance() {
         return INSTANCE;
     }
