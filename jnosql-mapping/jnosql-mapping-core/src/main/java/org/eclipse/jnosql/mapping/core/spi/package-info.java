@@ -17,4 +17,4 @@
  * This package contains the Service Provider Interface (SPI) for the core Eclipse JNoSQL Mapping module.
  * It provides extension points and implementations necessary for integrating JNoSQL into various environments.
  */
-package org.eclipse.jnosql.mapping.spi;
+package org.eclipse.jnosql.mapping.core.spi;
