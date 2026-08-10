@@ -40,7 +40,7 @@ class SemistructuredRepositoryOperationProvider implements RepositoryOperationPr
     @Inject
     private UpdateOperation updateOperation;
     @Inject
-    private DeleteOperation deleteOperation;
+    private SemiStructuredDeleteOperation deleteOperation;
     @Inject
     private SaveOperation saveOperation;
     @Inject
