@@ -30,7 +30,10 @@ import java.util.ServiceLoader;
  */
 public interface ConstructorBuilder {
 
-    ConstructorBuilderSupplier CONSTRUCTOR_BUILDER_SUPPLIER = ServiceLoader.load(ConstructorBuilderSupplier.class)
+    ConstructorBuilderSupplier CONSTRUCTOR_BUILDER_SUPPLIER = ServiceLoader.load(
+                    ConstructorBuilderSupplier.class,
+                    ConstructorBuilder.class.getClassLoader()
+            )
             .findFirst()
             .orElseThrow(() ->
                     new NoSQLException("There is not implementation for the ConstructorBuilderSupplier"));

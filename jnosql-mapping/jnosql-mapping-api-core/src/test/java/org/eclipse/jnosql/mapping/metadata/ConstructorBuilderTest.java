@@ -28,4 +28,23 @@ class ConstructorBuilderTest {
         SoftAssertions.assertSoftly(soft -> soft.assertThat(builder).isNotNull());
     }
 
+    @Test
+    void shouldReturnValidConstructorBuilderWhenTcclCannotSeeProvider() {
+        ClassLoader original = Thread.currentThread().getContextClassLoader();
+
+        try {
+            ClassLoader isolatedClassLoader = new ClassLoader(null) {
+            };
+            Thread.currentThread().setContextClassLoader(isolatedClassLoader);
+
+            ConstructorMetadata constructorMetadata = mock(ConstructorMetadata.class);
+
+            ConstructorBuilder builder = ConstructorBuilder.of(constructorMetadata);
+
+            SoftAssertions.assertSoftly(soft ->
+                    soft.assertThat(builder).isNotNull());
+        } finally {
+            Thread.currentThread().setContextClassLoader(original);
+        }
+    }
 }
