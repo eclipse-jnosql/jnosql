@@ -78,15 +78,15 @@ public class QuerySelectDeleteTest {
     @DisplayName("When the delete query executes")
     class WhenTheDeleteQueryExecutes {
 
-        @DisplayName("Should Error When Delete Is Not Support Key Value")
         @ParameterizedTest
+        @DisplayName("Should error when delete is not support key-value")
         @ValueSource(strings = {"DELETE FROM User"})
         void shouldErrorWhenDeleteIsNotSupportKeyValue(String text) {
             assertThatThrownBy(() -> template.query(text)).isInstanceOf(UnsupportedOperationException.class);
         }
 
-        @DisplayName("Should Error When Attribute Is Not Id")
         @ParameterizedTest
+        @DisplayName("Should error when attribute is not ID")
         @ValueSource(strings = {"DELETE FROM User where name = 'Ada'",
                 "DELETE FROM User where age > 10",
                 "DELETE FROM User where age < 10",
@@ -96,8 +96,8 @@ public class QuerySelectDeleteTest {
             assertThatThrownBy(() -> template.query(text)).isInstanceOf(UnsupportedOperationException.class);
         }
 
-        @DisplayName("Should Error When Id When Not Condition")
         @ParameterizedTest
+        @DisplayName("Should error when ID when not condition")
         @ValueSource(strings = {
                 "DELETE FROM User where nickname > 10",
                 "DELETE FROM User where nickname < 10",
@@ -107,8 +107,8 @@ public class QuerySelectDeleteTest {
             assertThatThrownBy(() -> template.query(text)).isInstanceOf(UnsupportedOperationException.class);
         }
 
-        @DisplayName("Should Return Error When Select Call Result")
         @ParameterizedTest
+        @DisplayName("Should return error when select call result")
         @ValueSource(strings = { "DELETE FROM User WHERE nickname = 'Otavio'"})
         void shouldReturnErrorWhenSelectCallResult(String text) {
             Query query = template.query(text);
@@ -117,8 +117,8 @@ public class QuerySelectDeleteTest {
             assertThatThrownBy(query::stream).isInstanceOf(UnsupportedOperationException.class);
         }
 
-        @DisplayName("Should Execute Delete Literal")
         @ParameterizedTest
+        @DisplayName("Should execute delete literal")
         @ValueSource(strings = { "DELETE FROM User WHERE nickname = 'Otavio'"})
         void shouldExecuteDeleteLiteral(String text) {
 
@@ -127,8 +127,8 @@ public class QuerySelectDeleteTest {
             Mockito.verify(manager).delete("Otavio");
         }
 
-        @DisplayName("Should Delete In Single Parameter")
         @ParameterizedTest
+        @DisplayName("Should delete in single parameter")
         @ValueSource(strings = { "DELETE FROM User WHERE nickname IN ('Otavio')"})
         void shouldDeleteInSingleParameter(String text) {
             Query query = template.query(text);
@@ -136,8 +136,8 @@ public class QuerySelectDeleteTest {
             Mockito.verify(manager).delete("Otavio");
         }
 
-        @DisplayName("Should Delete In Parameters")
         @ParameterizedTest
+        @DisplayName("Should delete in parameters")
         @ValueSource(strings = { "DELETE FROM User WHERE nickname IN ('Otavio', 'Maria')"})
         void shouldDeleteInParameters(String text) {
             Query query = template.query(text);
@@ -146,8 +146,8 @@ public class QuerySelectDeleteTest {
             Mockito.verify(manager).delete("Maria");
         }
 
-        @DisplayName("Should Error When Parameter Is Missing On Equals")
         @ParameterizedTest
+        @DisplayName("Should error when parameter is missing on equals")
         @ValueSource(strings = { "DELETE FROM User WHERE nickname = :param"})
         void shouldErrorWhenParameterIsMissingOnEquals(String text){
             Query query = template.query(text);
@@ -155,16 +155,16 @@ public class QuerySelectDeleteTest {
             assertThatThrownBy(query::executeUpdate).isInstanceOf(QueryException.class);
         }
 
-        @DisplayName("Should Error When Parameter Is Missing On In")
         @ParameterizedTest
+        @DisplayName("Should error when parameter is missing on in")
         @ValueSource(strings = { "DELETE FROM User WHERE nickname in (:param)"})
         void shouldErrorWhenParameterIsMissingOnIn(String text){
             Query query = template.query(text);
             assertThatThrownBy(query::executeUpdate).isInstanceOf(QueryException.class);
         }
 
-        @DisplayName("Should Bind Parameter Equals Single Result")
         @ParameterizedTest
+        @DisplayName("Should bind parameter equals single result")
         @ValueSource(strings = { "DELETE FROM User WHERE nickname = :nickname"})
         void shouldBindParameterEqualsSingleResult(String text){
 
@@ -175,8 +175,8 @@ public class QuerySelectDeleteTest {
             Mockito.verify(manager).delete("Otavio");
         }
 
-        @DisplayName("Should Bind Parameter Index Equals Single Result")
         @ParameterizedTest
+        @DisplayName("Should bind parameter index equals single result")
         @ValueSource(strings = { "DELETE FROM User WHERE nickname = ?1"})
         void shouldBindParameterIndexEqualsSingleResult(String text){
             Mockito.when(manager.get("Otavio"))
@@ -188,16 +188,16 @@ public class QuerySelectDeleteTest {
             Mockito.verify(manager).delete("Otavio");
         }
 
-        @DisplayName("Should Bind Return When Index Is Negative")
         @ParameterizedTest
+        @DisplayName("Should bind return when index is negative")
         @ValueSource(strings = { "DELETE FROM User WHERE nickname = ?1"})
         void shouldBindReturnWhenIndexIsNegative(String text){
             Query query = template.query(text);
             assertThatThrownBy(() -> query.bind(-1, "Otavio")).isInstanceOf(IllegalArgumentException.class);
         }
 
-        @DisplayName("Should Bind Mix Of Delete")
         @ParameterizedTest
+        @DisplayName("Should bind mix of delete")
         @ValueSource(strings = { "DELETE FROM User WHERE nickname in (?1, :second, 'Maria')"})
         void shouldBindMixOfDelete(String text){
 
