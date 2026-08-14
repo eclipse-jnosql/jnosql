@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.keyvalue.spi;
 
 import jakarta.inject.Inject;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -28,9 +29,11 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, KeyValueEntityConverter.class})
@@ -57,26 +60,37 @@ class KeyValueExtensionTest {
     @Database(value = DatabaseType.KEY_VALUE, provider = "keyvalueMock")
     private UserRepository userRepositoryMock;
 
-    @Test
-    void shouldUseMock() {
-        Person person = template.get(10L, Person.class).get();
+    @Nested
+    @DisplayName("When the extension discovers beans")
+    class WhenTheExtensionDiscoversBeans {
 
-        Person personMock = templateMock.get(10L, Person.class).get();
+        @DisplayName("Should Use Mock")
+        @Test
+        void shouldUseMock() {
+            Person person = template.get(10L, Person.class).get();
 
-        assertEquals("Default", person.getName());
-        assertEquals("keyvalueMock", personMock.getName());
+            Person personMock = templateMock.get(10L, Person.class).get();
 
-    }
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(person.getName()).isEqualTo("Default");
+                softly.assertThat(personMock.getName()).isEqualTo("keyvalueMock");
+            });
 
+        }
 
-    @Test
-    void shouldUseRepository() {
-        User user = userRepository.findById("user").get();
-        User userDefault = userRepositoryDefault.findById("user").get();
-        User userMock = userRepositoryMock.findById("user").get();
-        assertEquals("Default", user.getName());
-        assertEquals("Default", userDefault.getName());
-        assertEquals("keyvalueMock", userMock.getName());
+        @DisplayName("Should Use Repository")
+        @Test
+        void shouldUseRepository() {
+            User user = userRepository.findById("user").get();
+            User userDefault = userRepositoryDefault.findById("user").get();
+            User userMock = userRepositoryMock.findById("user").get();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(user.getName()).isEqualTo("Default");
+                softly.assertThat(userDefault.getName()).isEqualTo("Default");
+                softly.assertThat(userMock.getName()).isEqualTo("keyvalueMock");
+            });
+        }
+
     }
 
 }
