@@ -131,6 +131,7 @@ class SaveOperationRepositoryInvocationHandlerTest {
     @DisplayName("When saving one entity")
     class WhenSaveEntity {
 
+        @DisplayName("Should reject save without required parameter")
         @Test
         @DisplayName("Should reject a save method without the required parameter")
         void shouldRejectSaveWithoutRequiredParameter() {
@@ -140,6 +141,7 @@ class SaveOperationRepositoryInvocationHandlerTest {
             verifyNoInteractions(lifecycleEventHandler);
         }
 
+        @DisplayName("Should insert when entity does not exist")
         @Test
         @DisplayName("Should insert a missing entity between pre-upsert and post-upsert events")
         void shouldInsertWhenEntityDoesNotExist() {
@@ -164,6 +166,7 @@ class SaveOperationRepositoryInvocationHandlerTest {
             ordered.verify(lifecycleEventHandler).postUpsert(book);
         }
 
+        @DisplayName("Should update when entity exists")
         @Test
         @DisplayName("Should update an existing entity between pre-upsert and post-upsert events")
         void shouldUpdateWhenEntityExists() {
@@ -193,6 +196,7 @@ class SaveOperationRepositoryInvocationHandlerTest {
     @DisplayName("When saving multiple entities")
     class WhenSaveMultipleEntities {
 
+        @DisplayName("Should save iterable with lifecycle events")
         @Test
         @DisplayName("Should save iterable entities with upsert lifecycle events for each entity")
         void shouldSaveIterableWithLifecycleEvents() {
@@ -218,6 +222,7 @@ class SaveOperationRepositoryInvocationHandlerTest {
             ordered.verify(lifecycleEventHandler).postUpsert(book);
         }
 
+        @DisplayName("Should save array with lifecycle events")
         @Test
         @DisplayName("Should save array entities with upsert lifecycle events for each entity")
         void shouldSaveArrayWithLifecycleEvents() {
@@ -248,6 +253,7 @@ class SaveOperationRepositoryInvocationHandlerTest {
     @DisplayName("When saving an invalid entity")
     class WhenSaveInvalidEntity {
 
+        @DisplayName("Should reject entity without identifier")
         @Test
         @DisplayName("Should reject an entity without an identifier and not fire a post-upsert event")
         void shouldRejectEntityWithoutIdentifier() {
