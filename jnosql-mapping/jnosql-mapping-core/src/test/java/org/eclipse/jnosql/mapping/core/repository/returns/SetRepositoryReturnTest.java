@@ -14,11 +14,13 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -31,8 +33,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
@@ -43,57 +43,8 @@ class SetRepositoryReturnTest {
     @Mock
     private Page<Person> page;
 
-    @Test
-    void shouldReturnIsCompatible() {
-        Assertions.assertTrue(repositoryReturn.isCompatible(Person.class, Set.class));
-        assertFalse(repositoryReturn.isCompatible(Object.class, Person.class));
-        assertFalse(repositoryReturn.isCompatible(Person.class, Object.class));
-    }
 
-    @Test
-    void shouldReturnSet() {
-        Person ada = new Person("Ada");
-        Method method = Person.class.getDeclaredMethods()[0];
-        DynamicReturn<Person> dynamic = DynamicReturn.builder()
-                .classSource(Person.class)
-                .singleResult(Optional::empty)
-                .result(() -> Stream.of(ada))
-                .singleResultPagination(p -> Optional.empty())
-                .streamPagination(p -> Stream.of(ada))
-                .returnType(method.getReturnType())
-                .methodName(method.getName())
-                .pagination(PageRequest.ofPage(2).size(2))
-                .page((p, l) -> page)
-                .totalSupplier(() -> 1L)
-                .build();
 
-        Set<Person> person = (Set<Person>) repositoryReturn.convert(dynamic);
-        Assertions.assertNotNull(person);
-        assertFalse(person.isEmpty());
-        assertEquals(ada, person.stream().findFirst().get());
-    }
-
-    @Test
-    void shouldReturnSetPage() {
-        Method method = Person.class.getDeclaredMethods()[0];
-        Person ada = new Person("Ada");
-        DynamicReturn<Person> dynamic = DynamicReturn.builder()
-                .classSource(Person.class)
-                .singleResult(Optional::empty)
-                .result(Collections::emptyList)
-                .singleResultPagination(p -> Optional.empty())
-                .streamPagination(p -> Stream.of(ada))
-                .returnType(method.getReturnType())
-                .methodName(method.getName())
-                .pagination(PageRequest.ofPage(2).size(2))
-                .page((p, l) -> page)
-                .totalSupplier(() -> 1L)
-                .build();
-        Set<Person> person = (Set<Person>) repositoryReturn.convertPageRequest(dynamic);
-        Assertions.assertNotNull(person);
-        assertFalse(person.isEmpty());
-        assertEquals(ada, person.stream().findFirst().get());
-    }
 
 
     private static class Person implements Comparable<Person> {
@@ -137,4 +88,62 @@ class SetRepositoryReturnTest {
         }
     }
 
+
+    @Nested
+    @DisplayName("When the set repository return operates")
+    class WhenTheSetRepositoryReturnOperates {
+
+        @DisplayName("Should return is compatible")
+        @Test
+        void shouldReturnIsCompatible() {
+            assertThat(repositoryReturn.isCompatible(Person.class, Set.class)).isTrue();
+            assertThat(repositoryReturn.isCompatible(Object.class, Person.class)).isFalse();
+            assertThat(repositoryReturn.isCompatible(Person.class, Object.class)).isFalse();
+        }
+        @DisplayName("Should return set")
+        @Test
+        void shouldReturnSet() {
+            Person ada = new Person("Ada");
+            Method method = Person.class.getDeclaredMethods()[0];
+            DynamicReturn<Person> dynamic = DynamicReturn.builder()
+                    .classSource(Person.class)
+                    .singleResult(Optional::empty)
+                    .result(() -> Stream.of(ada))
+                    .singleResultPagination(p -> Optional.empty())
+                    .streamPagination(p -> Stream.of(ada))
+                    .returnType(method.getReturnType())
+                    .methodName(method.getName())
+                    .pagination(PageRequest.ofPage(2).size(2))
+                    .page((p, l) -> page)
+                    .totalSupplier(() -> 1L)
+                    .build();
+
+            Set<Person> person = (Set<Person>) repositoryReturn.convert(dynamic);
+            assertThat(person).isNotNull();
+            assertThat(person.isEmpty()).isFalse();
+            assertThat(person.stream().findFirst().get()).isEqualTo(ada);
+        }
+        @DisplayName("Should return set page")
+        @Test
+        void shouldReturnSetPage() {
+            Method method = Person.class.getDeclaredMethods()[0];
+            Person ada = new Person("Ada");
+            DynamicReturn<Person> dynamic = DynamicReturn.builder()
+                    .classSource(Person.class)
+                    .singleResult(Optional::empty)
+                    .result(Collections::emptyList)
+                    .singleResultPagination(p -> Optional.empty())
+                    .streamPagination(p -> Stream.of(ada))
+                    .returnType(method.getReturnType())
+                    .methodName(method.getName())
+                    .pagination(PageRequest.ofPage(2).size(2))
+                    .page((p, l) -> page)
+                    .totalSupplier(() -> 1L)
+                    .build();
+            Set<Person> person = (Set<Person>) repositoryReturn.convertPageRequest(dynamic);
+            assertThat(person).isNotNull();
+            assertThat(person.isEmpty()).isFalse();
+            assertThat(person.stream().findFirst().get()).isEqualTo(ada);
+        }
+    }
 }
