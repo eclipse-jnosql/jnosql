@@ -42,8 +42,8 @@ class DefaultKeyValueRepositoryTest {
     @DisplayName("When the repository is created")
     class WhenTheRepositoryIsCreated {
 
-        @DisplayName("Should Return Error When Template Is Null")
         @Test
+        @DisplayName("Should return error when template is null")
         void shouldReturnErrorWhenTemplateIsNull() {
             assertThatThrownBy(() -> DefaultKeyValueRepository.of(template, null, lifecycleEventHandler)).isInstanceOf(NullPointerException.class);
             assertThatThrownBy(() -> DefaultKeyValueRepository.of(null, metadata, lifecycleEventHandler)).isInstanceOf(NullPointerException.class);
@@ -51,8 +51,8 @@ class DefaultKeyValueRepositoryTest {
             assertThatThrownBy(() -> DefaultKeyValueRepository.of(template, metadata, null)).isInstanceOf(NullPointerException.class);
         }
 
-        @DisplayName("Should Create Repository")
         @Test
+        @DisplayName("Should create repository")
         void shouldCreateRepository() {
             DefaultKeyValueRepository<Object, Object> repository = DefaultKeyValueRepository.of(template, metadata, lifecycleEventHandler);
             assertThat(repository).isNotNull();
