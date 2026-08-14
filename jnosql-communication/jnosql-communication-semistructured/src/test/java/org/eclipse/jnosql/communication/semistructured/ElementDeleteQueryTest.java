@@ -19,42 +19,54 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ElementDeleteQueryTest {
 
-    @Test
-    void shouldBuilderThrownException() {
-        assertThrows(NullPointerException.class, () -> DeleteQuery.builder(new String[]{null}));
-    }
 
-    @ParameterizedTest(name = "{0} passed to build method then a valid builder should be returned")
-    @MethodSource("testScenarios")
-    void shouldBuildReturnsAValidBuilder(String scenario, String[] documents) {
-        var builder = Objects.isNull(documents) ? DeleteQuery.builder() : DeleteQuery.builder(documents);
-        assertNotNull(builder);
-    }
+    @Nested
+    @DisplayName("When the element delete query is used")
+    class WhenTheElementDeleteQueryIsUsed {
 
-    @Test
-    void shouldDeleteThrownException() {
-        assertThrows(NullPointerException.class, () -> DeleteQuery.delete(new String[]{null}));
-    }
+        @DisplayName("Should Builder Thrown Exception")
+        @Test
+        void shouldBuilderThrownException() {
+            assertThatThrownBy(() -> DeleteQuery.builder(new String[]{null})).isInstanceOf(NullPointerException.class);
+        }
 
-    @ParameterizedTest(name = "{0} passed to delete method then a valid builder should be returned")
-    @MethodSource("testScenarios")
-    void shouldDeleteReturnsAValidBuilder(String scenario, String[] documents) {
-        var builder = Objects.isNull(documents) ? DeleteQuery.delete() : DeleteQuery.delete(documents);
-        assertNotNull(builder);
-    }
+        @DisplayName("Should Build Returns AValid Builder")
+        @ParameterizedTest(name = "{0} passed to build method then a valid builder should be returned")
+        @MethodSource("testScenarios")
+        void shouldBuildReturnsAValidBuilder(String scenario, String[] documents) {
+            var builder = Objects.isNull(documents) ? DeleteQuery.builder() : DeleteQuery.builder(documents);
+            assertThat(builder).isNotNull();
+        }
 
-    static Stream<Arguments> testScenarios() {
-        return Stream.of(
-                arguments("when an empty array", new String[0]),
-                arguments("when a non empty array", new String[]{"doc1", "doc2", "doc2"}),
-                arguments("when zero arguments", null)
-        );
+        @DisplayName("Should Delete Thrown Exception")
+        @Test
+        void shouldDeleteThrownException() {
+            assertThatThrownBy(() -> DeleteQuery.delete(new String[]{null})).isInstanceOf(NullPointerException.class);
+        }
+
+        @DisplayName("Should Delete Returns AValid Builder")
+        @ParameterizedTest(name = "{0} passed to delete method then a valid builder should be returned")
+        @MethodSource("testScenarios")
+        void shouldDeleteReturnsAValidBuilder(String scenario, String[] documents) {
+            var builder = Objects.isNull(documents) ? DeleteQuery.delete() : DeleteQuery.delete(documents);
+            assertThat(builder).isNotNull();
+        }
+
+        static Stream<Arguments> testScenarios() {
+            return Stream.of(
+                    arguments("when an empty array", new String[0]),
+                    arguments("when a non empty array", new String[]{"doc1", "doc2", "doc2"}),
+                    arguments("when zero arguments", null)
+            );
+        }
     }
 
 }
