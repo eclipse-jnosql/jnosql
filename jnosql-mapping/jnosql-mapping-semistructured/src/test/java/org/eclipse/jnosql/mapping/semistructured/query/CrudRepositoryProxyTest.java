@@ -268,7 +268,7 @@ class CrudRepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-        assertThat(condition.element()).isEqualTo(Element.of("name", "name"));
+        assertElement(condition.element(), Element.of("name", "name"));
 
         assertThat(personRepository.findByName("name")).isNotNull();
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -378,7 +378,7 @@ class CrudRepositoryProxyTest {
         CriteriaCondition condition = deleteQuery.condition().get();
         assertThat(deleteQuery.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-        assertThat(condition.element()).isEqualTo(Element.of("name", "Ada"));
+        assertElement(condition.element(), Element.of("name", "Ada"));
 
     }
 
@@ -531,7 +531,7 @@ class CrudRepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(GREATER_THAN);
-        assertThat(condition.element()).isEqualTo(Element.of("age", 33));
+        assertElement(condition.element(), Element.of("age", 33));
 
     }
 
@@ -551,7 +551,7 @@ class CrudRepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(LESSER_EQUALS_THAN);
-        assertThat(condition.element()).isEqualTo(Element.of("age", 33));
+        assertElement(condition.element(), Element.of("age", 33));
 
     }
 
@@ -571,7 +571,7 @@ class CrudRepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(LESSER_THAN);
-        assertThat(condition.element()).isEqualTo(Element.of("age", 33));
+        assertElement(condition.element(), Element.of("age", 33));
 
     }
 
@@ -614,7 +614,7 @@ class CrudRepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(LIKE);
-        assertThat(condition.element()).isEqualTo(Element.of("name", "Ada"));
+        assertElement(condition.element(), Element.of("name", "Ada"));
 
     }
 
@@ -636,7 +636,7 @@ class CrudRepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("vendors");
         assertThat(condition.condition()).isEqualTo(EQUALS);
-        assertThat(condition.element()).isEqualTo(Element.of("prefixes", "prefix"));
+        assertElement(condition.element(), Element.of("prefixes", "prefix"));
 
     }
 
@@ -677,7 +677,7 @@ class CrudRepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(EQUALS);
-        assertThat(condition.element()).isEqualTo(Element.of("age", 120));
+        assertElement(condition.element(), Element.of("age", 120));
     }
 
 
@@ -790,7 +790,7 @@ class CrudRepositoryProxyTest {
         assertThat(negate.condition()).isEqualTo(Condition.NOT);
         CriteriaCondition condition = negate.element().get(CriteriaCondition.class);
         assertThat(condition.condition()).isEqualTo(EQUALS);
-        assertThat(condition.element()).isEqualTo(Element.of("name", "Otavio"));
+        assertElement(condition.element(), Element.of("name", "Otavio"));
     }
 
     @DisplayName("Should find by age not greater than")
@@ -811,7 +811,7 @@ class CrudRepositoryProxyTest {
         assertThat(negate.condition()).isEqualTo(Condition.NOT);
         CriteriaCondition condition = negate.element().get(CriteriaCondition.class);
         assertThat(condition.condition()).isEqualTo(GREATER_THAN);
-        assertThat(condition.element()).isEqualTo(Element.of("age", 10));
+        assertElement(condition.element(), Element.of("age", 10));
     }
 
     @DisplayName("Should count")
@@ -982,6 +982,10 @@ class CrudRepositoryProxyTest {
         List<Address> findByZipCodeZipOrderByZipCodeZip(String zip);
     }
 
+    private static void assertElement(Element actual, Element expected) {
+        assertThat(actual.name()).isEqualTo(expected.name());
+        assertThat(actual.get()).isEqualTo(expected.get());
+    }
 
     @Nested
     @DisplayName("When the crud repository proxy is tested")
