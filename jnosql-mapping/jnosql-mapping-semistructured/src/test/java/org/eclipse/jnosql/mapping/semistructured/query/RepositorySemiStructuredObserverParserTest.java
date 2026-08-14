@@ -33,8 +33,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -54,36 +53,41 @@ class RepositorySemiStructuredObserverParserTest {
         this.parser = (RepositorySemiStructuredObserverParser) RepositorySemiStructuredObserverParser.of(entityMetadata);
     }
 
+    @DisplayName("Should create from repository")
     @Test
     void shouldCreateFromRepository() {
         EntityMetadata entityMetadata = Mockito.mock(EntityMetadata.class);
         var parser = RepositorySemiStructuredObserverParser.of(entityMetadata);
-        assertNotNull(parser);
+        assertThat(parser).isNotNull();
     }
 
+    @DisplayName("Should fire entity")
     @Test
     void shouldFireEntity() {
         String entity = "entity";
-        assertEquals("Person", parser.fireEntity(entity));
+        assertThat(parser.fireEntity(entity)).isEqualTo("Person");
     }
 
+    @DisplayName("Should fire select field")
     @Test
     void shouldFireSelectField() {
        String field = "id";
-       assertEquals("_id", parser.fireSelectField("entity", field));
+       assertThat(parser.fireSelectField("entity", field)).isEqualTo("_id");
     }
 
+    @DisplayName("Should fire sort property")
     @Test
     void shouldFireSortProperty() {
         String field = "id";
-        assertEquals("_id", parser.fireSortProperty("entity", field));
+        assertThat(parser.fireSortProperty("entity", field)).isEqualTo("_id");
     }
 
 
+    @DisplayName("Should fire condition field")
     @Test
     void shouldFireConditionField() {
         String field = "id";
-        assertEquals("_id", parser.fireConditionField("entity", field));
+        assertThat(parser.fireConditionField("entity", field)).isEqualTo("_id");
     }
 
 
@@ -91,23 +95,26 @@ class RepositorySemiStructuredObserverParserTest {
     @DisplayName("When Id function is used")
     class WhenIdFunctionUsed {
 
+        @DisplayName("Should fire select field")
         @Test
         void shouldFireSelectField() {
             String field = By.ID;
-            assertEquals("_id", parser.fireSelectField("entity", field));
+            assertThat(parser.fireSelectField("entity", field)).isEqualTo("_id");
         }
 
+        @DisplayName("Should fire sort property")
         @Test
         void shouldFireSortProperty() {
             String field = By.ID;
-            assertEquals("_id", parser.fireSortProperty("entity", field));
+            assertThat(parser.fireSortProperty("entity", field)).isEqualTo("_id");
         }
 
 
+        @DisplayName("Should fire condition field")
         @Test
         void shouldFireConditionField() {
             String field = By.ID;
-            assertEquals("_id", parser.fireConditionField("entity", field));
+            assertThat(parser.fireConditionField("entity", field)).isEqualTo("_id");
         }
     }
 
