@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.graph.spi;
 
 import jakarta.inject.Inject;
-import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -29,9 +28,11 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 
 @EnableAutoWeld
@@ -52,35 +53,44 @@ class GraphCustomExtensionTest {
     @Inject
     private People repository;
 
-    @Test
-    void shouldInitiate() {
-        assertNotNull(people);
-        Person person = people.insert(Person.builder().build());
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(person).isNotNull();
-            soft.assertThat(person.getName()).isEqualTo("Default");
-        });
-    }
+    @Nested
+    @DisplayName("When the custom repository is injected")
+    class WhenTheCustomRepositoryIsInjected {
 
-    @Test
-    void shouldUseMock(){
-        assertNotNull(pepoleMock);
+        @Test
+        @DisplayName("Should use graph-qualified custom repository")
+        void shouldInitiate() {
+            Person person = people.insert(Person.builder().build());
 
-        Person person = pepoleMock.insert(Person.builder().build());
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(person).isNotNull();
-            soft.assertThat(person.getName()).isEqualTo("graphRepositoryMock");
-        });
-    }
+            assertSoftly(soft -> {
+                soft.assertThat(people).isNotNull();
+                soft.assertThat(person).isNotNull();
+                soft.assertThat(person.getName()).isEqualTo("Default");
+            });
+        }
 
-    @Test
-    void shouldUseDefault(){
-        assertNotNull(repository);
+        @Test
+        @DisplayName("Should use mock custom repository")
+        void shouldUseMock(){
+            Person person = pepoleMock.insert(Person.builder().build());
 
-        Person person = repository.insert(Person.builder().build());
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(person).isNotNull();
-            soft.assertThat(person.getName()).isEqualTo("Default");
-        });
+            assertSoftly(soft -> {
+                soft.assertThat(pepoleMock).isNotNull();
+                soft.assertThat(person).isNotNull();
+                soft.assertThat(person.getName()).isEqualTo("graphRepositoryMock");
+            });
+        }
+
+        @Test
+        @DisplayName("Should use default custom repository")
+        void shouldUseDefault(){
+            Person person = repository.insert(Person.builder().build());
+
+            assertSoftly(soft -> {
+                soft.assertThat(repository).isNotNull();
+                soft.assertThat(person).isNotNull();
+                soft.assertThat(person.getName()).isEqualTo("Default");
+            });
+        }
     }
 }
