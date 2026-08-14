@@ -46,14 +46,14 @@ class KeyValueTemplateProducerTest {
     @DisplayName("When the producer creates a template")
     class WhenTheProducerCreatesTemplate {
 
-        @DisplayName("Should Return Error When Manager Null")
         @Test
+        @DisplayName("Should return error when manager null")
         void shouldReturnErrorWhenManagerNull() {
             assertThatThrownBy(() -> producer.apply(null)).isInstanceOf(NullPointerException.class);
         }
 
-        @DisplayName("Should Return")
         @Test
+        @DisplayName("Should return")
         void shouldReturn() {
             BucketManager manager = Mockito.mock(BucketManager.class);
             KeyValueTemplate repository = producer.apply(manager);
