@@ -14,12 +14,15 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.DisplayName;
+
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
@@ -30,7 +33,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ArrayRepositoryReturnTest {
 
@@ -39,16 +41,18 @@ class ArrayRepositoryReturnTest {
     @Mock
     private Page<Person> page;
 
+    @DisplayName("Should return is compatible")
     @Test
     void shouldReturnIsCompatible() {
-        Assertions.assertTrue(repositoryReturn.isCompatible(Person.class, Person[].class));
-        Assertions.assertFalse(repositoryReturn.isCompatible(Person.class, Iterable.class));
-        Assertions.assertFalse(repositoryReturn.isCompatible(Person.class, Collection.class));
-        assertFalse(repositoryReturn.isCompatible(Object.class, Person.class));
-        assertFalse(repositoryReturn.isCompatible(Person.class, Object.class));
+        assertThat(repositoryReturn.isCompatible(Person.class, Person[].class)).isTrue();
+        assertThat(repositoryReturn.isCompatible(Person.class, Iterable.class)).isFalse();
+        assertThat(repositoryReturn.isCompatible(Person.class, Collection.class)).isFalse();
+        assertThat(repositoryReturn.isCompatible(Object.class, Person.class)).isFalse();
+        assertThat(repositoryReturn.isCompatible(Person.class, Object.class)).isFalse();
     }
 
     @SuppressWarnings("unchecked")
+    @DisplayName("Should return array")
     @Test
     void shouldReturnArray() {
         Method method = Person.class.getDeclaredMethods()[0];
@@ -69,6 +73,7 @@ class ArrayRepositoryReturnTest {
     }
 
     @SuppressWarnings("unchecked")
+    @DisplayName("Should return list page")
     @Test
     void shouldReturnListPage() {
         Method method = Person.class.getDeclaredMethods()[0];
@@ -94,6 +99,7 @@ class ArrayRepositoryReturnTest {
     }
 
     @SuppressWarnings("unchecked")
+    @DisplayName("Should return array primitive")
     @Test
     void shouldReturnArrayPrimitive() {
         Method method = Person.class.getDeclaredMethods()[0];
