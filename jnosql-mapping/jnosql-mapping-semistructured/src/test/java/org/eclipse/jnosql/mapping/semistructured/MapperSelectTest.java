@@ -91,7 +91,7 @@ class MapperSelectTest {
         SelectQuery queryExpected = select().from("Person").build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should select order asc")
@@ -101,7 +101,7 @@ class MapperSelectTest {
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
         SelectQuery queryExpected = select().from("Worker").orderBy("money").asc().build();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should select order desc")
@@ -111,7 +111,7 @@ class MapperSelectTest {
         SelectQuery queryExpected = select().from("Worker").orderBy("money").desc().build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should select limit")
@@ -121,7 +121,7 @@ class MapperSelectTest {
         SelectQuery queryExpected = select().from("Worker").limit(10L).build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should select start")
@@ -131,7 +131,7 @@ class MapperSelectTest {
         SelectQuery queryExpected = select().from("Worker").skip(10L).build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
 
@@ -143,7 +143,7 @@ class MapperSelectTest {
                 .eq("Ada").build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should select where in")
@@ -154,7 +154,7 @@ class MapperSelectTest {
                 .in(List.of("Ada")).build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should select where like")
@@ -165,7 +165,7 @@ class MapperSelectTest {
                 .like("Ada").build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should select where contains")
@@ -176,7 +176,7 @@ class MapperSelectTest {
                 .where(contains(Element.of("name", "Ada"))).build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should select where start with")
@@ -187,7 +187,7 @@ class MapperSelectTest {
                 .where(startsWith(Element.of("name", "Ada"))).build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should select where ends with")
@@ -198,7 +198,7 @@ class MapperSelectTest {
                 .where(endsWith(Element.of("name", "Ada"))).build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should select where gt")
@@ -209,7 +209,7 @@ class MapperSelectTest {
                 .gt(10L).build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should select where gte")
@@ -220,7 +220,7 @@ class MapperSelectTest {
                 .gte(10L).build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
 
@@ -232,7 +232,7 @@ class MapperSelectTest {
                 .lt(10L).build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should select where lte")
@@ -243,7 +243,7 @@ class MapperSelectTest {
                 .lte(10L).build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should select where between")
@@ -255,7 +255,7 @@ class MapperSelectTest {
                 .between(10L, 20L).build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should select where not")
@@ -266,7 +266,7 @@ class MapperSelectTest {
                 .not().like("Ada").build();
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
 
@@ -281,7 +281,7 @@ class MapperSelectTest {
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
 
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should select where or")
@@ -295,7 +295,7 @@ class MapperSelectTest {
 
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should convert field")
@@ -309,7 +309,7 @@ class MapperSelectTest {
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
 
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should use attribute converter")
@@ -322,7 +322,7 @@ class MapperSelectTest {
 
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should query by embeddable")
@@ -336,7 +336,7 @@ class MapperSelectTest {
 
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should query by sub entity")
@@ -350,7 +350,7 @@ class MapperSelectTest {
 
         Mockito.verify(managerMock).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
 
@@ -407,7 +407,7 @@ class MapperSelectTest {
                 .gte(10L).build();
         Mockito.verify(managerMock).count(captor.capture());
         SelectQuery query = captor.getValue();
-        assertThat(query).isEqualTo(queryExpected);
+        assertSelectQuery(query, queryExpected);
     }
 
     @DisplayName("Should return error select when order is null")
@@ -416,6 +416,15 @@ class MapperSelectTest {
         assertThatThrownBy(() -> template.select(Worker.class).orderBy(null)).isInstanceOf(NullPointerException.class);
     }
 
+    private static void assertSelectQuery(SelectQuery actual, SelectQuery expected) {
+        assertThat(actual.name()).isEqualTo(expected.name());
+        assertThat(actual.limit()).isEqualTo(expected.limit());
+        assertThat(actual.skip()).isEqualTo(expected.skip());
+        assertThat(actual.columns()).isEqualTo(expected.columns());
+        assertThat(actual.sorts()).isEqualTo(expected.sorts());
+        assertThat(actual.condition()).isEqualTo(expected.condition());
+        assertThat(actual.isCount()).isEqualTo(expected.isCount());
+    }
 
     @Nested
     @DisplayName("When the mapper select is tested")
