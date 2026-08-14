@@ -15,12 +15,15 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class UnsupportedFunctionExceptionTest {
 
+    @DisplayName("Should create with function and database name")
     @Test
     void shouldCreateWithFunctionAndDatabaseName() {
         var ex = new UnsupportedFunctionException("UPPER", "TestDB");
@@ -30,12 +33,14 @@ class UnsupportedFunctionExceptionTest {
         });
     }
 
+    @DisplayName("Should create with message")
     @Test
     void shouldCreateWithMessage() {
         var ex = new UnsupportedFunctionException("function not supported");
         assertThat(ex.getMessage()).isEqualTo("function not supported");
     }
 
+    @DisplayName("Should create with message and cause")
     @Test
     void shouldCreateWithMessageAndCause() {
         var cause = new RuntimeException("root cause");
@@ -44,5 +49,10 @@ class UnsupportedFunctionExceptionTest {
             soft.assertThat(ex.getMessage()).isEqualTo("function not supported");
             soft.assertThat(ex.getCause()).isSameAs(cause);
         });
+    }
+
+    @Nested
+    @DisplayName("When the unsupported function exception is tested")
+    class WhenTheUnsupportedFunctionExceptionIsTested {
     }
 }
