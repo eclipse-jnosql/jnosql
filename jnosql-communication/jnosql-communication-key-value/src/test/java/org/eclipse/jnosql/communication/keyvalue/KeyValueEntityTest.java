@@ -17,10 +17,10 @@
  */
 package org.eclipse.jnosql.communication.keyvalue;
 
-import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.Value;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -30,107 +30,200 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
+@DisplayName("Key-value entity")
 class KeyValueEntityTest {
 
     public static final String KEY = "key";
     public static final String VALUE = "VALUE";
 
-    @Test
-    @DisplayName("Should throw NullPointerException when key is null")
-    void shouldReturnErrorWhenKeyIsNull() {
-        assertThatNullPointerException().isThrownBy(() -> KeyValueEntity.of(null, VALUE)).withMessage("key is required");
+    @Nested
+    @DisplayName("When creating an entity")
+    class WhenTheCreation {
+
+        @Test
+        @DisplayName("Should require a key")
+        void shouldRequireKey() {
+
+            // When / Then
+            assertThatNullPointerException()
+                    .isThrownBy(() -> KeyValueEntity.of(null, VALUE))
+                    .withMessage("key is required");
+        }
+
+        @Test
+        @DisplayName("Should require a value")
+        void shouldRequireValue() {
+
+            // When / Then
+            assertThatNullPointerException()
+                    .isThrownBy(() -> KeyValueEntity.of(KEY, null))
+                    .withMessage("value is required");
+        }
+
+        @Test
+        @DisplayName("Should create an entity with key and value")
+        void shouldCreateEntityWithKeyAndValue() {
+
+            // When
+            KeyValueEntity entity = KeyValueEntity.of(KEY, VALUE);
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(entity.key()).as("key is required").isEqualTo(KEY);
+                softly.assertThat(entity.value()).as("value is required").isEqualTo(VALUE);
+            });
+        }
+
+        @Test
+        @DisplayName("Should unwrap a value used as the key")
+        void shouldUnwrapValueUsedAsKey() {
+
+            // When
+            KeyValueEntity entity = KeyValueEntity.of(Value.of(KEY), VALUE);
+
+            // Then
+            assertThat(entity.key()).isEqualTo(KEY);
+        }
     }
 
-    @Test
-    @DisplayName("Should throw NullPointerException when value is null")
-    void shouldReturnErrorWhenValueIsNull() {
-        assertThatNullPointerException().isThrownBy(() -> KeyValueEntity.of(KEY, null)).withMessage("value is required");
+    @Nested
+    @DisplayName("When reading the value")
+    class WhenTheValueReading {
+
+        @Test
+        @DisplayName("Should return the raw value")
+        void shouldReturnRawValue() {
+
+            // Given
+            Value value = Value.of(VALUE);
+            KeyValueEntity entity = KeyValueEntity.of(KEY, value);
+
+            // When
+            Object result = entity.value();
+
+            // Then
+            assertThat(result).isEqualTo(value.get());
+        }
+
+        @Test
+        @DisplayName("Should return the value as a class")
+        void shouldReturnValueAsClass() {
+
+            // Given
+            KeyValueEntity entity = KeyValueEntity.of(KEY, VALUE);
+
+            // When
+            var result = entity.value(String.class);
+
+            // Then
+            assertThat(result).isEqualTo(VALUE);
+        }
+
+        @Test
+        @DisplayName("Should return the value as a type reference")
+        void shouldReturnValueAsTypeReference() {
+
+            // Given
+            String value = "10";
+            KeyValueEntity entity = KeyValueEntity.of(value, value);
+
+            // When
+            var result = entity.value(new TypeReference<List<Integer>>() {
+            });
+
+            // Then
+            assertThat(result).isEqualTo(singletonList(10));
+        }
     }
 
-    @Test
-    @DisplayName("Should be able to create a KeyValueEntity")
-    void shouldCreateInstance() {
-        KeyValueEntity entity = KeyValueEntity.of(KEY, VALUE);
+    @Nested
+    @DisplayName("When converting the key")
+    class WhenTheKeyConversion {
 
-        assertSoftly(softly -> {
-            softly.assertThat(entity.key()).as("key is required").isEqualTo(KEY);
-            softly.assertThat(entity.value()).as("value is required").isEqualTo(VALUE);
-        });
+        @Test
+        @DisplayName("Should return the key as a class")
+        void shouldReturnKeyAsClass() {
+
+            // Given
+            Value value = Value.of(VALUE);
+            KeyValueEntity entity = KeyValueEntity.of("10", value);
+
+            // When
+            var result = entity.key(Long.class);
+
+            // Then
+            assertThat(result).isEqualTo(10L);
+        }
+
+        @Test
+        @DisplayName("Should require a class")
+        void shouldRequireClass() {
+
+            // Given
+            Value value = Value.of(VALUE);
+            KeyValueEntity entity = KeyValueEntity.of("10", value);
+
+            // When / Then
+            assertThatNullPointerException()
+                    .isThrownBy(() -> entity.key((Class<Object>) null))
+                    .withMessage("type is required");
+        }
+
+        @Test
+        @DisplayName("Should require a type reference")
+        void shouldRequireTypeReference() {
+
+            // Given
+            Value value = Value.of("value");
+            KeyValueEntity entity = KeyValueEntity.of("10", value);
+
+            // When / Then
+            assertThatNullPointerException()
+                    .isThrownBy(() -> entity.key((TypeReference<Object>) null))
+                    .withMessage("supplier is required");
+        }
     }
 
-    @Test
-    @DisplayName("Should be able to get the value")
-    void shouldGetValue() {
-        Value value = Value.of(VALUE);
-        KeyValueEntity entity = KeyValueEntity.of(KEY, value);
+    @Nested
+    @DisplayName("When comparing entities")
+    class WhenTheComparison {
 
-        assertThat(entity.value()).isEqualTo(value.get());
+        @Test
+        @DisplayName("Should compare entities by key and value")
+        void shouldCompareByKeyAndValue() {
+
+            // Given
+            KeyValueEntity entity1 = KeyValueEntity.of(KEY, VALUE);
+            KeyValueEntity entity2 = KeyValueEntity.of(KEY, VALUE);
+            KeyValueEntity entity3 = KeyValueEntity.of("anotherKey", "anotherValue");
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(entity1).isEqualTo(entity1);
+                softly.assertThat(entity1).isEqualTo(entity2);
+                softly.assertThat(entity1).isNotEqualTo(entity3);
+                softly.assertThat(entity1.hashCode()).isEqualTo(entity2.hashCode());
+                softly.assertThat(entity1.hashCode()).isNotEqualTo(entity3.hashCode());
+            });
+        }
     }
 
-    @Test
-    @DisplayName("Should be able to get the key by class")
-    void shouldGetKeyClass() {
-        Value value = Value.of(VALUE);
-        KeyValueEntity entity = KeyValueEntity.of("10", value);
+    @Nested
+    @DisplayName("When formatting an entity")
+    class WhenTheFormatting {
 
-        assertThat(entity.key(Long.class)).isEqualTo(10L);
-    }
+        @Test
+        @DisplayName("Should include the key and value")
+        void shouldIncludeKeyAndValue() {
 
-    @Test
-    @DisplayName("Should throw NullPointerException when Class is null")
-    void shouldReturnErrorWhenGetKeyClassIsNull() {
-        Value value = Value.of(VALUE);
-        KeyValueEntity entity = KeyValueEntity.of("10", value);
+            // Given
+            KeyValueEntity entity = KeyValueEntity.of(KEY, VALUE);
 
-        assertThatNullPointerException().isThrownBy(() -> entity.key((Class<Object>) null)).withMessage("type is required");
-    }
+            // When
+            String result = entity.toString();
 
-    @Test
-    @DisplayName("Should be able to get the key by TypeSupplier")
-    void shouldGetKeyValueSupplier() {
-        String value = "10";
-        KeyValueEntity entity = KeyValueEntity.of(value, value);
-
-        assertThat(entity.value(new TypeReference<List<Integer>>() {
-        })).isEqualTo(singletonList(10));
-    }
-
-    @Test
-    @DisplayName("Should throw NullPointerException when TypeSupplier is null")
-    void shouldReturnErrorWhenGetKeySupplierIsNull() {
-        Value value = Value.of("value");
-        KeyValueEntity entity = KeyValueEntity.of("10", value);
-
-        assertThatNullPointerException().isThrownBy(() -> entity.key((TypeReference<Object>) null)).withMessage("supplier is required");
-    }
-
-    @Test
-    void shouldToString() {
-        KeyValueEntity entity = KeyValueEntity.of(KEY, VALUE);
-        String expected = "KeyValueEntity{key=key, value=VALUE}";
-
-        assertThat(entity.toString()).isNotNull();
-    }
-
-    @Test
-    void shouldHashCodeAndEquals() {
-        KeyValueEntity entity1 = KeyValueEntity.of(KEY, VALUE);
-        KeyValueEntity entity2 = KeyValueEntity.of(KEY, VALUE);
-        KeyValueEntity entity3 = KeyValueEntity.of("anotherKey", "anotherValue");
-
-        assertThat(entity1).isEqualTo(entity1);
-        assertThat(entity1).isEqualTo(entity2);
-        assertThat(entity1).isNotEqualTo(entity3);
-        assertThat(entity1.hashCode()).isEqualTo(entity2.hashCode());
-        assertThat(entity1.hashCode()).isNotEqualTo(entity3.hashCode());
-    }
-
-    @Test
-    void shouldValue() {
-        KeyValueEntity entity1 = KeyValueEntity.of(Value.of(KEY), VALUE);
-        var value = entity1.value(String.class);
-
-        Assertions.assertThat(value).isEqualTo(VALUE);
-
+            // Then
+            assertThat(result).isEqualTo("DefaultKeyValueEntity{key=key, value=DefaultValue[value=VALUE]}");
+        }
     }
 }
