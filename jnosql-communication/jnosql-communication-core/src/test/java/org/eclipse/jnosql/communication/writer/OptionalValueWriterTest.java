@@ -17,35 +17,52 @@
 package org.eclipse.jnosql.communication.writer;
 
 import org.eclipse.jnosql.communication.ValueWriter;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class OptionalValueWriterTest {
 
     private final ValueWriter<Optional<String>, String> writer = new OptionalValueWriter<>();
 
+    @Nested
+    @DisplayName("When the supported type is checked")
+    class WhenTheSupportedTypeIsChecked {
 
-    @Test
-    void shouldReturnSupportedOptional() {
-
-        assertTrue(writer.test(Optional.class));
-        assertFalse(writer.test(String.class));
+        @Test
+        @DisplayName("Should accept Optional and reject other types")
+        void shouldReturnSupportedOptional() {
+            assertSoftly(softly -> {
+                softly.assertThat(writer.test(Optional.class)).isTrue();
+                softly.assertThat(writer.test(String.class)).isFalse();
+            });
+        }
     }
 
-    @Test
-    void shouldReturnValueFromOptional() {
+    @Nested
+    @DisplayName("When the optional value is written")
+    class WhenTheOptionalValueIsWritten {
 
-        Optional<String> nonEmptyOptional = Optional.of("TestValue");
-        assertEquals("TestValue", writer.write(nonEmptyOptional));
+        @Test
+        @DisplayName("Should unwrap a present value")
+        void shouldReturnValueFromOptional() {
+            Optional<String> nonEmptyOptional = Optional.of("TestValue");
 
-        Optional<String> emptyOptional = Optional.empty();
-        assertNull(writer.write(emptyOptional));
+            assertThat(writer.write(nonEmptyOptional)).isEqualTo("TestValue");
+        }
+
+        @Test
+        @DisplayName("Should write null for an empty optional")
+        void shouldReturnNullFromEmptyOptional() {
+            Optional<String> emptyOptional = Optional.empty();
+
+            assertThat(writer.write(emptyOptional)).isNull();
+        }
     }
 
 }
