@@ -14,44 +14,55 @@ package org.eclipse.jnosql.communication.semistructured;
 import org.eclipse.jnosql.communication.Params;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class QueryParamsTest {
 
-    @Test
-    void shouldCreateQueryParams() {
-        SelectQuery query = mock(SelectQuery.class);
-        Params params = mock(Params.class);
 
-        QueryParams queryParams = new QueryParams(query, params);
+    @Nested
+    @DisplayName("When the query params is used")
+    class WhenTheQueryParamsIsUsed {
 
-        assertThat(queryParams.query()).isSameAs(query);
-        assertThat(queryParams.params()).isSameAs(params);
-    }
+        @DisplayName("Should Create Query Params")
+        @Test
+        void shouldCreateQueryParams() {
+            SelectQuery query = mock(SelectQuery.class);
+            Params params = mock(Params.class);
 
-    @Test
-    void shouldImplementEqualsAndHashCode() {
-        SelectQuery query = mock(SelectQuery.class);
-        Params params = mock(Params.class);
+            QueryParams queryParams = new QueryParams(query, params);
 
-        QueryParams first = new QueryParams(query, params);
-        QueryParams second = new QueryParams(query, params);
+            assertThat(queryParams.query()).isSameAs(query);
+            assertThat(queryParams.params()).isSameAs(params);
+        }
 
-        assertThat(first).isEqualTo(second);
-        assertThat(first).hasSameHashCodeAs(second);
-    }
+        @DisplayName("Should Implement Equals And Hash Code")
+        @Test
+        void shouldImplementEqualsAndHashCode() {
+            SelectQuery query = mock(SelectQuery.class);
+            Params params = mock(Params.class);
 
-    @Test
-    void shouldHaveToStringRepresentation() {
-        SelectQuery query = mock(SelectQuery.class);
-        Params params = mock(Params.class);
+            QueryParams first = new QueryParams(query, params);
+            QueryParams second = new QueryParams(query, params);
 
-        QueryParams queryParams = new QueryParams(query, params);
+            assertThat(first).isEqualTo(second);
+            assertThat(first).hasSameHashCodeAs(second);
+        }
 
-        assertThat(queryParams.toString())
-                .contains("query=")
-                .contains("params=");
+        @DisplayName("Should Have To String Representation")
+        @Test
+        void shouldHaveToStringRepresentation() {
+            SelectQuery query = mock(SelectQuery.class);
+            Params params = mock(Params.class);
+
+            QueryParams queryParams = new QueryParams(query, params);
+
+            assertThat(queryParams.toString())
+                    .contains("query=")
+                    .contains("params=");
+        }
     }
 
 }
