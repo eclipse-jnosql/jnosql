@@ -28,6 +28,10 @@ import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
+import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
@@ -48,15 +52,13 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Proxy;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Stream;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jnosql.communication.Condition.AND;
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
 import static org.eclipse.jnosql.communication.Condition.GREATER_THAN;
@@ -93,13 +95,13 @@ class CrudRepositoryProxyRestrictionTest {
                 entities, ProductRepository.class, converters, lifecycleEventHandler);
 
 
-
         repository = (ProductRepository) Proxy.newProxyInstance(ProductRepository.class.getClassLoader(),
                 new Class[]{ProductRepository.class},
                 productHandler);
     }
 
 
+    @DisplayName("Should restrict")
     @Test
     void shouldRestrict() {
 
@@ -121,6 +123,7 @@ class CrudRepositoryProxyRestrictionTest {
         });
     }
 
+    @DisplayName("Should restrict page")
     @Test
     void shouldRestrictPage() {
 
@@ -147,6 +150,7 @@ class CrudRepositoryProxyRestrictionTest {
         });
     }
 
+    @DisplayName("Should restrict sort")
     @Test
     void shouldRestrictSort() {
 
@@ -169,6 +173,7 @@ class CrudRepositoryProxyRestrictionTest {
             softly.assertThat(query.sorts()).contains( _Product.name.asc());
         });
     }
+    @DisplayName("Should restrict order")
     @Test
     void shouldRestrictOrder() {
 
@@ -193,6 +198,7 @@ class CrudRepositoryProxyRestrictionTest {
     }
 
 
+    @DisplayName("Should restrict sort by annotation")
     @Test
     void shouldRestrictSortByAnnotation() {
 
@@ -216,6 +222,7 @@ class CrudRepositoryProxyRestrictionTest {
         });
     }
 
+    @DisplayName("Should have cursor")
     @SuppressWarnings("rawtypes")
     @Test
     void shouldHaveCursor() {
@@ -243,6 +250,7 @@ class CrudRepositoryProxyRestrictionTest {
         });
     }
 
+    @DisplayName("Should should combine restriction with find")
     @Test
     void shouldShouldCombineRestrictionWithFind() {
 
@@ -273,6 +281,7 @@ class CrudRepositoryProxyRestrictionTest {
         });
     }
 
+    @DisplayName("Should should combine restriction with query")
     @Test
     void shouldShouldCombineRestrictionWithQuery() {
 
@@ -284,6 +293,7 @@ class CrudRepositoryProxyRestrictionTest {
 
     }
 
+    @DisplayName("Should delete")
     @Test
     void shouldDelete() {
 
@@ -333,5 +343,10 @@ class CrudRepositoryProxyRestrictionTest {
 
         @Delete
         void delete(Restriction<Product> restriction);
+    }
+
+    @Nested
+    @DisplayName("When the crud repository proxy restriction is tested")
+    class WhenTheCrudRepositoryProxyRestrictionIsTested {
     }
 }
