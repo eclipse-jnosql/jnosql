@@ -27,6 +27,10 @@ import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.Is;
 import jakarta.inject.Inject;
+import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -46,15 +50,12 @@ import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Proxy;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Stream;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
 import static org.eclipse.jnosql.communication.Condition.GREATER_THAN;
 import static org.eclipse.jnosql.communication.Condition.IN;
@@ -99,6 +100,7 @@ class CrudRepositoryProxyIsTest {
     }
 
 
+    @DisplayName("Should equals")
     @Test
     void shouldEquals() {
 
@@ -120,6 +122,7 @@ class CrudRepositoryProxyIsTest {
         });
     }
 
+    @DisplayName("Should not equals")
     @Test
     void shouldNotEquals() {
 
@@ -167,7 +170,7 @@ class CrudRepositoryProxyIsTest {
     }
 
 
-
+    @DisplayName("Should default method")
     @Test
     void shouldDefaultMethod() {
 
@@ -189,6 +192,7 @@ class CrudRepositoryProxyIsTest {
         });
     }
 
+    @DisplayName("Should at least")
     @Test
     void shouldAtLeast() {
 
@@ -210,6 +214,7 @@ class CrudRepositoryProxyIsTest {
         });
     }
 
+    @DisplayName("Should lesser")
     @Test
     void shouldLesser() {
 
@@ -231,6 +236,7 @@ class CrudRepositoryProxyIsTest {
         });
     }
 
+    @DisplayName("Should in")
     @Test
     void shouldIn() {
 
@@ -252,6 +258,7 @@ class CrudRepositoryProxyIsTest {
         });
     }
 
+    @DisplayName("Should not in")
     @Test
     void shouldNotIn() {
 
@@ -275,6 +282,7 @@ class CrudRepositoryProxyIsTest {
         });
     }
 
+    @DisplayName("Should like")
     @Test
     void shouldLike() {
 
@@ -296,6 +304,7 @@ class CrudRepositoryProxyIsTest {
         });
     }
 
+    @DisplayName("Should not like")
     @Test
     void shouldNotLike() {
 
@@ -351,4 +360,8 @@ class CrudRepositoryProxyIsTest {
     }
 
 
+    @Nested
+    @DisplayName("When the crud repository proxy is is tested")
+    class WhenTheCrudRepositoryProxyIsIsTested {
+    }
 }
