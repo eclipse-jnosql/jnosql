@@ -43,7 +43,7 @@ class DefaultElementQueryTest {
         void shouldNotRemoveColumns() {
             assertThatThrownBy(() -> {
                 List<String> columns = query.columns();
-                assertTrue(columns.isEmpty());
+                assertThat(columns).isEmpty();
                 columns.clear();
             }).isInstanceOf(UnsupportedOperationException.class);
         }
@@ -53,7 +53,7 @@ class DefaultElementQueryTest {
         void shouldNotRemoveSort() {
             assertThatThrownBy(() -> {
                 List<Sort<?>> sorts = query.sorts();
-                assertTrue(sorts.isEmpty());
+                assertThat(sorts).isEmpty();
                 sorts.clear();
             }).isInstanceOf(UnsupportedOperationException.class);
         }
