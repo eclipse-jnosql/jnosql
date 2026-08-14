@@ -21,6 +21,7 @@ import org.eclipse.jnosql.communication.ValueReader;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -28,6 +29,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class BigIntegerReaderTest {
+
+    private static final String LARGE_INTEGER = "12345678901234567890";
 
     private final ValueReader valueReader = new BigIntegerReader();
 
@@ -53,8 +56,24 @@ class BigIntegerReaderTest {
 
         assertSoftly(softly -> {
             softly.assertThat(valueReader.read(BigInteger.class, bigInteger)).as("BigInteger conversion").isEqualTo(bigInteger);
-            softly.assertThat(valueReader.read(BigInteger.class, bigInteger)).as("Number conversion").isEqualTo(bigInteger);
-            softly.assertThat(valueReader.read(BigInteger.class, bigInteger)).as("String conversion").isEqualTo(bigInteger);
+            softly.assertThat(valueReader.read(BigInteger.class, 10.99D)).as("Number conversion").isEqualTo(bigInteger);
+            softly.assertThat(valueReader.read(BigInteger.class, "10")).as("String conversion").isEqualTo(bigInteger);
         });
+    }
+
+    @Test
+    @DisplayName("Should preserve a BigDecimal beyond the Long range")
+    void shouldPreserveLargeBigDecimal() {
+        BigInteger expected = new BigInteger(LARGE_INTEGER);
+
+        assertThat(valueReader.read(BigInteger.class, new BigDecimal(LARGE_INTEGER))).isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("Should parse a String beyond the Long range")
+    void shouldParseLargeString() {
+        BigInteger expected = new BigInteger(LARGE_INTEGER);
+
+        assertThat(valueReader.read(BigInteger.class, LARGE_INTEGER)).isEqualTo(expected);
     }
 }

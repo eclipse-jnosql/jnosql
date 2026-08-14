@@ -20,12 +20,13 @@ package org.eclipse.jnosql.communication.reader;
 
 import org.eclipse.jnosql.communication.ValueReader;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * Class to reads and converts to {@link BigInteger}, first it verify if is Double if yes return itself then verifies
- * if is {@link Number} and use {@link Number#longValue()} otherwise convert to {@link String}
- * and then {@link BigInteger}
+ * Reads and converts values to {@link BigInteger}. {@link BigInteger} values are returned unchanged,
+ * {@link BigDecimal} values retain their arbitrary precision, other {@link Number} values use
+ * {@link Number#longValue()}, and remaining values are parsed from their string representation.
  *
  */
 public final class BigIntegerReader implements ValueReader {
@@ -41,10 +42,13 @@ public final class BigIntegerReader implements ValueReader {
         if (BigInteger.class.isInstance(value)) {
             return (T) value;
         }
+        if (value instanceof BigDecimal bigDecimal) {
+            return (T) bigDecimal.toBigInteger();
+        }
         if (value instanceof Number number) {
             return (T) BigInteger.valueOf(number.longValue());
         } else {
-            return (T) BigInteger.valueOf(Long.parseLong(value.toString()));
+            return (T) new BigInteger(value.toString());
         }
     }
 }
