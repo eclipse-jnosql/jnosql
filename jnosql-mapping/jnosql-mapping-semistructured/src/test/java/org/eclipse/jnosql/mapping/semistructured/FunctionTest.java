@@ -15,13 +15,16 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class FunctionTest {
 
+    @DisplayName("Should create upper function")
     @Test
     void shouldCreateUpperFunction() {
         Function f = Function.upper("name");
@@ -33,6 +36,7 @@ class FunctionTest {
         });
     }
 
+    @DisplayName("Should create lower function")
     @Test
     void shouldCreateLowerFunction() {
         Function f = Function.lower("name");
@@ -44,6 +48,7 @@ class FunctionTest {
         });
     }
 
+    @DisplayName("Should create length function")
     @Test
     void shouldCreateLengthFunction() {
         Function f = Function.length("description");
@@ -55,6 +60,7 @@ class FunctionTest {
         });
     }
 
+    @DisplayName("Should create abs function")
     @Test
     void shouldCreateAbsFunction() {
         Function f = Function.abs("age");
@@ -66,6 +72,7 @@ class FunctionTest {
         });
     }
 
+    @DisplayName("Should create left function")
     @Test
     void shouldCreateLeftFunction() {
         Function f = Function.left("name", 3);
@@ -77,6 +84,7 @@ class FunctionTest {
         });
     }
 
+    @DisplayName("Should create right function")
     @Test
     void shouldCreateRightFunction() {
         Function f = Function.right("name", 2);
@@ -88,22 +96,25 @@ class FunctionTest {
         });
     }
 
+    @DisplayName("Should throw null pointer exception when field is null")
     @Test
     void shouldThrowNullPointerExceptionWhenFieldIsNull() {
-        assertThrows(NullPointerException.class, () -> Function.upper(null));
-        assertThrows(NullPointerException.class, () -> Function.lower(null));
-        assertThrows(NullPointerException.class, () -> Function.length(null));
-        assertThrows(NullPointerException.class, () -> Function.abs(null));
-        assertThrows(NullPointerException.class, () -> Function.left(null, 3));
-        assertThrows(NullPointerException.class, () -> Function.right(null, 3));
+        assertThatThrownBy(() -> Function.upper(null)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> Function.lower(null)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> Function.length(null)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> Function.abs(null)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> Function.left(null, 3)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> Function.right(null, 3)).isInstanceOf(NullPointerException.class);
     }
 
+    @DisplayName("Should throw illegal argument exception when length is negative")
     @Test
     void shouldThrowIllegalArgumentExceptionWhenLengthIsNegative() {
-        assertThrows(IllegalArgumentException.class, () -> Function.left("name", -1));
-        assertThrows(IllegalArgumentException.class, () -> Function.right("name", -1));
+        assertThatThrownBy(() -> Function.left("name", -1)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> Function.right("name", -1)).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @DisplayName("Should return zero as valid length")
     @Test
     void shouldReturnZeroAsValidLength() {
         SoftAssertions.assertSoftly(soft -> {
@@ -112,11 +123,17 @@ class FunctionTest {
         });
     }
 
+    @DisplayName("Should return defensive copy of arguments")
     @Test
     void shouldReturnDefensiveCopyOfArguments() {
         Function f = Function.left("name", 3);
         Object[] args = f.arguments();
         args[0] = 99;
         assertThat(f.arguments()[0]).isEqualTo(3);
+    }
+
+    @Nested
+    @DisplayName("When the function is tested")
+    class WhenTheFunctionIsTested {
     }
 }
