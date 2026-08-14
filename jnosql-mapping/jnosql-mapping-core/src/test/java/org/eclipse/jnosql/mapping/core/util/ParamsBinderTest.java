@@ -14,6 +14,10 @@
  */
 package org.eclipse.jnosql.mapping.core.util;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import jakarta.data.repository.CrudRepository;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.Params;
@@ -29,7 +33,6 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -61,101 +64,13 @@ class ParamsBinderTest {
         this.binder = new ParamsBinder(metadata, converters);
     }
 
-    @Test
-    void shouldReturnNPEWhenThereIsNullParameter() {
-        Params params = Params.newParams();
-        Assertions.assertThrows(NullPointerException.class, () ->
-                binder.bind(params, null, null)
-        );
 
-        Assertions.assertThrows(NullPointerException.class, () ->
-                binder.bind(null, null, null)
-        );
-    }
 
-    @Test
-    void shouldReturnErrorWhenParamsIsBiggerThanArgs() {
-        Method method = PersonRepository.class.getDeclaredMethods()[0];
-        Params params = Params.newParams();
-        params.add("name");
-        Assertions.assertThrows(DynamicQueryException.class, () ->
-                binder.bind(params, new Object[0], method.getName())
-        );
-    }
 
-    @Test
-    void shouldBindParameterFindById() {
-        Method method = PersonRepository.class.getDeclaredMethods()[0];
-        Params params = Params.newParams();
-        Value value = params.add("name");
-        binder.bind(params, new Object[]{"otavio"}, method.getName());
 
-        Object param = value.get();
-        Assertions.assertNotNull(param);
-        Assertions.assertEquals("otavio", param);
-    }
 
-    @Test
-    void shouldBindParameterFindByUnderLineParameter() {
-        Method method = PersonRepository.class.getDeclaredMethods()[0];
-        Params params = Params.newParams();
-        Value value = params.add("name_1212");
-        binder.bind(params, new Object[]{"otavio"}, method.getName());
 
-        Object param = value.get();
-        Assertions.assertNotNull(param);
-        Assertions.assertEquals("otavio", param);
-    }
 
-    @Test
-    void shouldBindParameterInSingleParameter() {
-        Method method = PersonRepository.class.getDeclaredMethods()[1];
-        Params params = Params.newParams();
-        Value value = params.add("name_1212");
-        binder.bind(params, new Object[]{"otavio"}, method.getName());
-
-        Object param = value.get();
-        Assertions.assertNotNull(param);
-        Assertions.assertEquals("otavio", param);
-    }
-
-    @Test
-    void shouldBindParameterInIterableParameter() {
-        Method method = PersonRepository.class.getDeclaredMethods()[1];
-        Params params = Params.newParams();
-        Value value = params.add("name_1212");
-        binder.bind(params, new Object[]{Arrays.asList("otavio", "poliana")}, method.getName());
-
-        Object param = value.get();
-        Assertions.assertNotNull(param);
-        Assertions.assertInstanceOf(Iterable.class, param);
-        Assertions.assertEquals(Arrays.asList("otavio", "poliana"), param);
-    }
-
-    @Test
-    void shouldConvertParamBinder() {
-        Method method = PersonRepository.class.getDeclaredMethods()[2];
-        Params params = Params.newParams();
-        Value value = params.add("age_1212");
-        binder.bind(params, new Object[]{1L}, method.getName());
-
-        Object param = value.get();
-        Assertions.assertNotNull(param);
-        Assertions.assertEquals(1, param);
-    }
-
-    @Test
-    void shouldConvertIterable() {
-        Method method = PersonRepository.class.getDeclaredMethods()[1];
-        Params params = Params.newParams();
-        Value value = params.add("age");
-        binder.bind(params, new Object[]{Arrays.asList(1L, 2L)}, method.getName());
-
-        Object param = value.get();
-        Assertions.assertNotNull(param);
-        Assertions.assertInstanceOf(Iterable.class, param);
-        Assertions.assertEquals(Arrays.asList(1, 2), param);
-    }
 
 
     interface PersonRepository extends CrudRepository<Person, Long> {
@@ -171,4 +86,103 @@ class ParamsBinderTest {
         List<Person> findByAgeIn(Iterable<Long> age);
     }
 
+
+    @Nested
+    @DisplayName("When the params binder operates")
+    class WhenTheParamsBinderOperates {
+
+        @DisplayName("Should return npewhen there is null parameter")
+        @Test
+        void shouldReturnNPEWhenThereIsNullParameter() {
+            Params params = Params.newParams();
+            assertThatExceptionOfType(NullPointerException.class).isThrownBy(() ->
+                    binder.bind(params, null, null));
+
+            assertThatExceptionOfType(NullPointerException.class).isThrownBy(() ->
+                    binder.bind(null, null, null));
+        }
+        @DisplayName("Should return error when params is bigger than args")
+        @Test
+        void shouldReturnErrorWhenParamsIsBiggerThanArgs() {
+            Method method = PersonRepository.class.getDeclaredMethods()[0];
+            Params params = Params.newParams();
+            params.add("name");
+            assertThatExceptionOfType(DynamicQueryException.class).isThrownBy(() ->
+                    binder.bind(params, new Object[0], method.getName()));
+        }
+        @DisplayName("Should bind parameter find by id")
+        @Test
+        void shouldBindParameterFindById() {
+            Method method = PersonRepository.class.getDeclaredMethods()[0];
+            Params params = Params.newParams();
+            Value value = params.add("name");
+            binder.bind(params, new Object[]{"otavio"}, method.getName());
+
+            Object param = value.get();
+            assertThat(param).isNotNull();
+            assertThat(param).isEqualTo("otavio");
+        }
+        @DisplayName("Should bind parameter find by under line parameter")
+        @Test
+        void shouldBindParameterFindByUnderLineParameter() {
+            Method method = PersonRepository.class.getDeclaredMethods()[0];
+            Params params = Params.newParams();
+            Value value = params.add("name_1212");
+            binder.bind(params, new Object[]{"otavio"}, method.getName());
+
+            Object param = value.get();
+            assertThat(param).isNotNull();
+            assertThat(param).isEqualTo("otavio");
+        }
+        @DisplayName("Should bind parameter in single parameter")
+        @Test
+        void shouldBindParameterInSingleParameter() {
+            Method method = PersonRepository.class.getDeclaredMethods()[1];
+            Params params = Params.newParams();
+            Value value = params.add("name_1212");
+            binder.bind(params, new Object[]{"otavio"}, method.getName());
+
+            Object param = value.get();
+            assertThat(param).isNotNull();
+            assertThat(param).isEqualTo("otavio");
+        }
+        @DisplayName("Should bind parameter in iterable parameter")
+        @Test
+        void shouldBindParameterInIterableParameter() {
+            Method method = PersonRepository.class.getDeclaredMethods()[1];
+            Params params = Params.newParams();
+            Value value = params.add("name_1212");
+            binder.bind(params, new Object[]{Arrays.asList("otavio", "poliana")}, method.getName());
+
+            Object param = value.get();
+            assertThat(param).isNotNull();
+            assertThat(param).isInstanceOf(Iterable.class);
+            assertThat(param).isEqualTo(Arrays.asList("otavio", "poliana"));
+        }
+        @DisplayName("Should convert param binder")
+        @Test
+        void shouldConvertParamBinder() {
+            Method method = PersonRepository.class.getDeclaredMethods()[2];
+            Params params = Params.newParams();
+            Value value = params.add("age_1212");
+            binder.bind(params, new Object[]{1L}, method.getName());
+
+            Object param = value.get();
+            assertThat(param).isNotNull();
+            assertThat(param).isEqualTo(1);
+        }
+        @DisplayName("Should convert iterable")
+        @Test
+        void shouldConvertIterable() {
+            Method method = PersonRepository.class.getDeclaredMethods()[1];
+            Params params = Params.newParams();
+            Value value = params.add("age");
+            binder.bind(params, new Object[]{Arrays.asList(1L, 2L)}, method.getName());
+
+            Object param = value.get();
+            assertThat(param).isNotNull();
+            assertThat(param).isInstanceOf(Iterable.class);
+            assertThat(param).isEqualTo(Arrays.asList(1, 2));
+        }
+    }
 }
