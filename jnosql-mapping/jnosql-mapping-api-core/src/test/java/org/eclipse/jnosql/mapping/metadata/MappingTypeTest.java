@@ -23,6 +23,8 @@ import org.eclipse.jnosql.mapping.core.entities.Person;
 import org.eclipse.jnosql.mapping.core.entities.Worker;
 import org.eclipse.jnosql.mapping.core.entities.constructor.BookUser;
 import org.eclipse.jnosql.mapping.core.entities.constructor.PetOwner;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
@@ -30,121 +32,166 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 
 class MappingTypeTest {
 
-    @Test
-    void shouldReturnList() throws NoSuchFieldException {
-        Field field = Person.class.getDeclaredField("phones");
-        assertEquals(MappingType.COLLECTION, MappingType.of(field.getType()));
+    @Nested
+    @DisplayName("When the field type is mapped")
+    class WhenTheFieldTypeIsMapped {
+
+        @Test
+        @DisplayName("Should map a list field to collection")
+        void shouldMapAListFieldToCollection() throws NoSuchFieldException {
+            Field field = Person.class.getDeclaredField("phones");
+
+            assertThat(MappingType.of(field.getType())).isEqualTo(MappingType.COLLECTION);
+        }
+
+        @Test
+        @DisplayName("Should map a set field to collection")
+        void shouldMapASetFieldToCollection() throws NoSuchFieldException {
+            Field field = Movie.class.getDeclaredField("actors");
+
+            assertThat(MappingType.of(field.getType())).isEqualTo(MappingType.COLLECTION);
+        }
+
+        @Test
+        @DisplayName("Should map a map field to map")
+        void shouldMapAMapFieldToMap() throws NoSuchFieldException {
+            Field field = Actor.class.getDeclaredField("movieCharacter");
+
+            assertThat(MappingType.of(field.getType())).isEqualTo(MappingType.MAP);
+        }
+
+        @Test
+        @DisplayName("Should map a simple field to default")
+        void shouldMapASimpleFieldToDefault() throws NoSuchFieldException {
+            Field field = Person.class.getDeclaredField("name");
+
+            assertThat(MappingType.of(field.getType())).isEqualTo(MappingType.DEFAULT);
+        }
+
+        @Test
+        @DisplayName("Should map an array field to array")
+        void shouldMapAnArrayFieldToArray() throws NoSuchFieldException {
+            Field field = Person.class.getDeclaredField("mobile");
+
+            assertThat(MappingType.of(field.getType())).isEqualTo(MappingType.ARRAY);
+        }
+
+        @Test
+        @DisplayName("Should map an entity array field to array")
+        void shouldMapAnEntityArrayFieldToArray() throws NoSuchFieldException {
+            Field field = Worker.class.getDeclaredField("freeLancer");
+
+            assertThat(MappingType.of(field.getType())).isEqualTo(MappingType.ARRAY);
+        }
+
+        @Test
+        @DisplayName("Should map a flat embeddable field to embedded")
+        void shouldMapAFlatEmbeddableFieldToEmbedded() throws NoSuchFieldException {
+            Field field = Worker.class.getDeclaredField("job");
+
+            assertThat(MappingType.of(field.getType())).isEqualTo(MappingType.EMBEDDED);
+        }
+
+        @Test
+        @DisplayName("Should map a grouping embeddable field to embedded group")
+        void shouldMapAGroupingEmbeddableFieldToEmbeddedGroup() throws NoSuchFieldException {
+            Field field = ForClass.class.getDeclaredField("bar2Class");
+
+            assertThat(MappingType.of(field.getType())).isEqualTo(MappingType.EMBEDDED_GROUP);
+        }
+
+        @Test
+        @DisplayName("Should map an entity field to entity")
+        void shouldMapAnEntityFieldToEntity() throws NoSuchFieldException {
+            Field field = Address.class.getDeclaredField("zipCode");
+
+            assertThat(MappingType.of(field.getType())).isEqualTo(MappingType.ENTITY);
+        }
     }
 
-    @Test
-    void shouldReturnSet() throws NoSuchFieldException {
-        Field field = Movie.class.getDeclaredField("actors");
-        assertEquals(MappingType.COLLECTION, MappingType.of(field.getType()));
-    }
+    @Nested
+    @DisplayName("When the constructor parameter type is mapped")
+    class WhenTheConstructorParameterTypeIsMapped {
 
-    @Test
-    void shouldReturnMap() throws NoSuchFieldException {
-        Field field = Actor.class.getDeclaredField("movieCharacter");
-        assertEquals(MappingType.MAP, MappingType.of(field.getType()));
-    }
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("Should map simple parameters to default")
+        void shouldMapSimpleParametersToDefault() {
+            Constructor<BookUser> constructor = (Constructor<BookUser>) BookUser.class.getDeclaredConstructors()[0];
+            Parameter id = constructor.getParameters()[0];
+            Parameter name = constructor.getParameters()[1];
 
-    @Test
-    void shouldReturnDefault() throws NoSuchFieldException {
-        Field field = Person.class.getDeclaredField("name");
-        assertEquals(MappingType.DEFAULT, MappingType.of(field.getType()));
-    }
+            assertSoftly(softly -> {
+                softly.assertThat(MappingType.of(id.getType())).isEqualTo(MappingType.DEFAULT);
+                softly.assertThat(MappingType.of(name.getType())).isEqualTo(MappingType.DEFAULT);
+            });
+        }
 
-    @Test
-    void shouldReturnArray() throws NoSuchFieldException {
-        Field field = Person.class.getDeclaredField("mobile");
-        assertEquals(MappingType.ARRAY, MappingType.of(field.getType()));
-    }
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("Should map a collection parameter to collection")
+        void shouldMapACollectionParameterToCollection() {
+            Constructor<BookUser> constructor = (Constructor<BookUser>) BookUser.class.getDeclaredConstructors()[0];
+            Parameter books = constructor.getParameters()[2];
 
-    @Test
-    void shouldReturnArrayEntity() throws NoSuchFieldException {
-        Field field = Worker.class.getDeclaredField("freeLancer");
-        assertEquals(MappingType.ARRAY, MappingType.of(field.getType()));
-    }
+            assertThat(MappingType.of(books.getType())).isEqualTo(MappingType.COLLECTION);
+        }
 
-    @Test
-    void shouldReturnEmbedded() throws NoSuchFieldException {
-        Field field = Worker.class.getDeclaredField("job");
-        assertEquals(MappingType.EMBEDDED, MappingType.of(field.getType()));
-    }
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("Should map an entity parameter to entity")
+        void shouldMapAnEntityParameterToEntity() {
+            Constructor<PetOwner> constructor = (Constructor<PetOwner>) PetOwner.class.getDeclaredConstructors()[0];
+            Parameter animal = constructor.getParameters()[2];
 
-    @Test
-    void shouldReturnEmbeddedGroup() throws NoSuchFieldException {
-        Field field = ForClass.class.getDeclaredField("bar2Class");
-        assertEquals(MappingType.EMBEDDED_GROUP, MappingType.of(field.getType()));
-    }
+            assertThat(MappingType.of(animal.getType())).isEqualTo(MappingType.ENTITY);
+        }
 
-    @Test
-    void shouldReturnEntity() throws NoSuchFieldException {
-        Field field = Address.class.getDeclaredField("zipCode");
-        assertEquals(MappingType.ENTITY, MappingType.of(field.getType()));
-    }
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("Should map a map parameter to map")
+        void shouldMapAMapParameterToMap() {
+            Constructor<ForClass> constructor = (Constructor<ForClass>) ForClass.class.getDeclaredConstructors()[0];
+            Parameter map = constructor.getParameters()[0];
 
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldReturnParameterDefault()  {
-        Constructor<BookUser> constructor = (Constructor<BookUser>) BookUser.class.getDeclaredConstructors()[0];
-        Parameter id = constructor.getParameters()[0];
-        Parameter name = constructor.getParameters()[1];
-        assertEquals(MappingType.DEFAULT, MappingType.of(id.getType()));
-        assertEquals(MappingType.DEFAULT, MappingType.of(name.getType()));
-    }
+            assertThat(MappingType.of(map.getType())).isEqualTo(MappingType.MAP);
+        }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldReturnParameterCollection() {
-        Constructor<BookUser> constructor = (Constructor<BookUser>) BookUser.class.getDeclaredConstructors()[0];
-        Parameter books = constructor.getParameters()[2];
-        assertEquals(MappingType.COLLECTION, MappingType.of(books.getType()));
-    }
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("Should map a flat embeddable parameter to embedded")
+        void shouldMapAFlatEmbeddableParameterToEmbedded() {
+            Constructor<ForClass> constructor = (Constructor<ForClass>) ForClass.class.getDeclaredConstructors()[0];
+            Parameter map = constructor.getParameters()[1];
 
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldReturnParameterEntity() {
-        Constructor<PetOwner> constructor = (Constructor<PetOwner>) PetOwner.class.getDeclaredConstructors()[0];
-        Parameter animal = constructor.getParameters()[2];
-        assertEquals(MappingType.ENTITY, MappingType.of(animal.getType()));
-    }
+            assertThat(MappingType.of(map.getType())).isEqualTo(MappingType.EMBEDDED);
+        }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldReturnParameterMap() {
-        Constructor<ForClass> constructor = (Constructor<ForClass>) ForClass.class.getDeclaredConstructors()[0];
-        Parameter map = constructor.getParameters()[0];
-        assertEquals(MappingType.MAP, MappingType.of(map.getType()));
-    }
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("Should map a grouping embeddable parameter to embedded group")
+        void shouldMapAGroupingEmbeddableParameterToEmbeddedGroup() {
+            Constructor<ForClass> constructor = (Constructor<ForClass>) ForClass.class.getDeclaredConstructors()[0];
+            Parameter map = constructor.getParameters()[2];
 
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldReturnParameterEmbeddedFlat() {
-        Constructor<ForClass> constructor = (Constructor<ForClass>) ForClass.class.getDeclaredConstructors()[0];
-        Parameter map = constructor.getParameters()[1];
-        assertEquals(MappingType.EMBEDDED, MappingType.of(map.getType()));
-    }
+            assertThat(MappingType.of(map.getType())).isEqualTo(MappingType.EMBEDDED_GROUP);
+        }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldReturnParameterEmbeddedGroup() {
-        Constructor<ForClass> constructor = (Constructor<ForClass>) ForClass.class.getDeclaredConstructors()[0];
-        Parameter map = constructor.getParameters()[2];
-        assertEquals(MappingType.EMBEDDED_GROUP, MappingType.of(map.getType()));
-    }
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("Should map an array parameter to array")
+        void shouldMapAnArrayParameterToArray() {
+            Constructor<Contacts> constructor = (Constructor<Contacts>) Contacts.class.getDeclaredConstructors()[0];
+            Parameter map = constructor.getParameters()[1];
 
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldReturnParameterEmbeddedArray() {
-        Constructor<Contacts> constructor = (Constructor<Contacts>) Contacts.class.getDeclaredConstructors()[0];
-        Parameter map = constructor.getParameters()[1];
-        assertEquals(MappingType.ARRAY, MappingType.of(map.getType()));
+            assertThat(MappingType.of(map.getType())).isEqualTo(MappingType.ARRAY);
+        }
     }
 
     public static class ForClass {
