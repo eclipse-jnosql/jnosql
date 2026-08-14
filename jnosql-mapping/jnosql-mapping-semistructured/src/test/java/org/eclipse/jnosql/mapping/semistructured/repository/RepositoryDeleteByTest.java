@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 
 import jakarta.inject.Inject;
+import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
@@ -32,10 +33,12 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("The scenarios to test the feature delete by")
 @EnableAutoWeld
@@ -184,4 +187,8 @@ public class RepositoryDeleteByTest extends AbstractRepositoryTest {
     }
 
 
+    @Nested
+    @DisplayName("When the repository delete by is tested")
+    class WhenTheRepositoryDeleteByIsTested {
+    }
 }
