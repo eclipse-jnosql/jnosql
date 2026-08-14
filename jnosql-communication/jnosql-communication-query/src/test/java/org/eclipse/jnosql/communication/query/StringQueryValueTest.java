@@ -11,6 +11,7 @@
  */
 package org.eclipse.jnosql.communication.query;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +19,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("StringQueryValue")
 class StringQueryValueTest {
+
+    @Nested
+    @DisplayName("When the string query value is used")
+    class WhenTheStringQueryValue {
+    }
 
     @Test
     @DisplayName("should expose the string value through the Supplier contract")
@@ -57,7 +63,7 @@ class StringQueryValueTest {
 
     @Test
     @DisplayName("factory method should create an equivalent instance")
-    void factoryMethodShouldCreateEquivalentInstance() {
+    void shouldCreateEquivalentInstanceFromFactoryMethod() {
         StringQueryValue fromFactory = StringQueryValue.of("same");
         StringQueryValue fromConstructor = new StringQueryValue("same");
 
