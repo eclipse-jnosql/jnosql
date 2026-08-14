@@ -23,430 +23,462 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.eclipse.jnosql.communication.semistructured.CriteriaCondition.eq;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class UpdateQueryParserTest {
 
-    private final UpdateQueryParser parser = new UpdateQueryParser();
 
-    private final DatabaseManager manager = Mockito.mock(DatabaseManager.class);
+    @Nested
+    @DisplayName("When the update query parser is used")
+    class WhenTheUpdateQueryParserIsUsed {
 
-    private final CommunicationObserverParser observer = new CommunicationObserverParser() {
-    };
+        private final UpdateQueryParser parser = new UpdateQueryParser();
 
+        private final DatabaseManager manager = Mockito.mock(DatabaseManager.class);
 
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET name = 'Ada'"})
-    void shouldReturnParserQuery(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-        parser.query(query, manager, observer);
-        Mockito.verify(manager).update(captor.capture());
-        var updateQuery = captor.getValue();
-
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(updateQuery.where()).isEmpty();
-            soft.assertThat(updateQuery.name()).isEqualTo("entity");
-            soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
-                    .contains(Element.of("name", "Ada"));
-        });
-    }
+        private final CommunicationObserverParser observer = new CommunicationObserverParser() {
+        };
 
 
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE stamina > 10.23"})
-    void shouldReturnParserQuery11(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-        parser.query(query, manager, observer);
-        Mockito.verify(manager).update(captor.capture());
-        var updateQuery = captor.getValue();
+        @DisplayName("Should Return Parser Query")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET name = 'Ada'"})
+        void shouldReturnParserQuery(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+            parser.query(query, manager, observer);
+            Mockito.verify(manager).update(captor.capture());
+            var updateQuery = captor.getValue();
 
-        checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.where().isPresent());
-        CriteriaCondition condition = updateQuery.where().get();
-
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(condition.condition()).isEqualTo(Condition.GREATER_THAN);
-            soft.assertThat(condition.element()).isEqualTo(Element.of("stamina", 10.23));
-            soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
-                    .contains(Element.of("age", 10));
-        });
-
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE stamina >= -10.23"})
-    void shouldReturnParserQuery12(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-        parser.query(query, manager, observer);
-        Mockito.verify(manager).update(captor.capture());
-        var updateQuery = captor.getValue();
-
-        checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.where().isPresent());
-        var condition = updateQuery.where().get();
-
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(condition.condition()).isEqualTo(Condition.GREATER_EQUALS_THAN);
-            soft.assertThat(condition.element()).isEqualTo(Element.of("stamina", -10.23));
-            soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
-                    .contains(Element.of("age", 10));
-        });
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE stamina <= -10.23"})
-    void shouldReturnParserQuery13(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-        parser.query(query, manager, observer);
-        Mockito.verify(manager).update(captor.capture());
-        var updateQuery = captor.getValue();
-
-        checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.where().isPresent());
-        CriteriaCondition condition = updateQuery.where().get();
-
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(condition.condition()).isEqualTo(Condition.LESSER_EQUALS_THAN);
-            soft.assertThat(condition.element()).isEqualTo(Element.of("stamina", -10.23));
-            soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
-                    .contains(Element.of("age", 10));
-        });
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE stamina < -10.23"})
-    void shouldReturnParserQuery14(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-        parser.query(query, manager, observer);
-        Mockito.verify(manager).update(captor.capture());
-        UpdateQuery updateQuery = captor.getValue();
-
-        checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.where().isPresent());
-        CriteriaCondition condition = updateQuery.where().get();
-
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(condition.condition()).isEqualTo(Condition.LESSER_THAN);
-            soft.assertThat(condition.element()).isEqualTo(Element.of("stamina", -10.23));
-            soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
-                    .contains(Element.of("age", 10));
-        });
-
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE age BETWEEN 10 AND 30"})
-    void shouldReturnParserQuery15(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-        parser.query(query, manager, observer);
-        Mockito.verify(manager).update(captor.capture());
-        var updateQuery = captor.getValue();
-
-        checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.where().isPresent());
-        CriteriaCondition condition = updateQuery.where().get();
-
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(condition.condition()).isEqualTo(Condition.BETWEEN);
-            soft.assertThat(condition.element()).isEqualTo(Element.of("age", Arrays.asList(10, 30)));
-            soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
-                    .contains(Element.of("age", 10));
-        });
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE name = \"diana\""})
-    void shouldReturnParserQuery16(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-        parser.query(query, manager, observer);
-        Mockito.verify(manager).update(captor.capture());
-        UpdateQuery updateQuery = captor.getValue();
-
-        checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.where().isPresent());
-        CriteriaCondition condition = updateQuery.where().get();
-
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-            soft.assertThat(condition.element()).isEqualTo(Element.of("name", "diana"));
-            soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
-                    .contains(Element.of("age", 10));
-        });
-
-    }
-
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE name IN (\"Ada\", \"Apollo\")"})
-    void shouldReturnParserQuery20(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-        parser.query(query, manager, observer);
-        Mockito.verify(manager).update(captor.capture());
-        var updateQuery = captor.getValue();
-
-        checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.where().isPresent());
-        CriteriaCondition condition = updateQuery.where().get();
-
-
-        SoftAssertions.assertSoftly(soft -> {
-            Element element = condition.element();
-            List<String> values = element.get(new TypeReference<>() {
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(updateQuery.where()).isEmpty();
+                soft.assertThat(updateQuery.name()).isEqualTo("entity");
+                soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
+                        .contains(Element.of("name", "Ada"));
             });
-            soft.assertThat(condition.condition()).isEqualTo(Condition.IN);
-            soft.assertThat(condition.element().name()).isEqualTo("name");
-            soft.assertThat(values).contains("Ada", "Apollo");
-            soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
-                    .contains(Element.of("age", 10));
-        });
+        }
 
-    }
 
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE name LIKE \"Ada\""})
-    void shouldReturnParserQuery21(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-        parser.query(query, manager, observer);
-        Mockito.verify(manager).update(captor.capture());
-        var updateQuery = captor.getValue();
+        @DisplayName("Should Return Parser Query11")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE stamina > 10.23"})
+        void shouldReturnParserQuery11(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+            parser.query(query, manager, observer);
+            Mockito.verify(manager).update(captor.capture());
+            var updateQuery = captor.getValue();
 
-        checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.where().isPresent());
-        CriteriaCondition condition = updateQuery.where().get();
+            checkBaseQuery(updateQuery);
+            assertThat(updateQuery.where().isPresent()).isTrue();
+            CriteriaCondition condition = updateQuery.where().get();
 
-        SoftAssertions.assertSoftly(soft -> {
-            Element element = condition.element();
-            soft.assertThat(condition.condition()).isEqualTo(Condition.LIKE);
-            soft.assertThat(element.name()).isEqualTo("name");
-            soft.assertThat(element.get()).isEqualTo("Ada");
-            soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
-                    .contains(Element.of("age", 10));
-        });
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE name NOT LIKE \"Ada\""})
-    void shouldReturnParserQuery22(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-        parser.query(query, manager, observer);
-        Mockito.verify(manager).update(captor.capture());
-        UpdateQuery updateQuery = captor.getValue();
-
-        checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.where().isPresent());
-        CriteriaCondition condition = updateQuery.where().get();
-
-        SoftAssertions.assertSoftly(soft -> {
-            var element = condition.element();
-            List<CriteriaCondition> conditions = element.get(new TypeReference<>() {
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(condition.condition()).isEqualTo(Condition.GREATER_THAN);
+                soft.assertThat(condition.element()).isEqualTo(Element.of("stamina", 10.23));
+                soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
+                        .contains(Element.of("age", 10));
             });
-            var criteriaCondition = conditions.getFirst();
 
-            soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
-            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.LIKE);
-            soft.assertThat(conditions.getFirst().element().name()).isEqualTo("name");
-            soft.assertThat(conditions.getFirst().element().get()).isEqualTo("Ada");
-            soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
-                    .contains(Element.of("age", 10));
-        });
-    }
+        }
 
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE name = \"Ada\" AND age = 20"})
-    void shouldReturnParserQuery23(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-        parser.query(query, manager, observer);
-        Mockito.verify(manager).update(captor.capture());
-        var updateQuery = captor.getValue();
+        @DisplayName("Should Return Parser Query12")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE stamina >= -10.23"})
+        void shouldReturnParserQuery12(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+            parser.query(query, manager, observer);
+            Mockito.verify(manager).update(captor.capture());
+            var updateQuery = captor.getValue();
 
-        checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.where().isPresent());
-        CriteriaCondition condition = updateQuery.where().get();
+            checkBaseQuery(updateQuery);
+            assertThat(updateQuery.where().isPresent()).isTrue();
+            var condition = updateQuery.where().get();
 
-        SoftAssertions.assertSoftly(soft ->{
-            Element element = condition.element();
-            soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
-            List<CriteriaCondition> conditions = element.get(new TypeReference<>() {
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(condition.condition()).isEqualTo(Condition.GREATER_EQUALS_THAN);
+                soft.assertThat(condition.element()).isEqualTo(Element.of("stamina", -10.23));
+                soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
+                        .contains(Element.of("age", 10));
             });
-            soft.assertThat(conditions).contains(eq(Element.of("name", "Ada")),
-                    eq(Element.of("age", 20)));
-        });
-    }
+        }
 
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE name = \"Ada\" OR age = 20"})
-    void shouldReturnParserQuery24(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-        parser.query(query, manager, observer);
-        Mockito.verify(manager).update(captor.capture());
-        var updateQuery = captor.getValue();
+        @DisplayName("Should Return Parser Query13")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE stamina <= -10.23"})
+        void shouldReturnParserQuery13(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+            parser.query(query, manager, observer);
+            Mockito.verify(manager).update(captor.capture());
+            var updateQuery = captor.getValue();
 
-        checkBaseQuery(updateQuery);
-        assertTrue(updateQuery.where().isPresent());
-        CriteriaCondition condition = updateQuery.where().get();
+            checkBaseQuery(updateQuery);
+            assertThat(updateQuery.where().isPresent()).isTrue();
+            CriteriaCondition condition = updateQuery.where().get();
 
-        SoftAssertions.assertSoftly(soft -> {
-            Element element = condition.element();
-            soft.assertThat(condition.condition()).isEqualTo(Condition.OR);
-            List<CriteriaCondition> conditions = element.get(new TypeReference<>() {
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(condition.condition()).isEqualTo(Condition.LESSER_EQUALS_THAN);
+                soft.assertThat(condition.element()).isEqualTo(Element.of("stamina", -10.23));
+                soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
+                        .contains(Element.of("age", 10));
             });
-            soft.assertThat(conditions).contains(eq(Element.of("name", "Ada")),
-                    eq(Element.of("age", 20)));
-        });
+        }
+
+        @DisplayName("Should Return Parser Query14")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE stamina < -10.23"})
+        void shouldReturnParserQuery14(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+            parser.query(query, manager, observer);
+            Mockito.verify(manager).update(captor.capture());
+            UpdateQuery updateQuery = captor.getValue();
+
+            checkBaseQuery(updateQuery);
+            assertThat(updateQuery.where().isPresent()).isTrue();
+            CriteriaCondition condition = updateQuery.where().get();
+
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(condition.condition()).isEqualTo(Condition.LESSER_THAN);
+                soft.assertThat(condition.element()).isEqualTo(Element.of("stamina", -10.23));
+                soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
+                        .contains(Element.of("age", 10));
+            });
+
+        }
+
+        @DisplayName("Should Return Parser Query15")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE age BETWEEN 10 AND 30"})
+        void shouldReturnParserQuery15(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+            parser.query(query, manager, observer);
+            Mockito.verify(manager).update(captor.capture());
+            var updateQuery = captor.getValue();
+
+            checkBaseQuery(updateQuery);
+            assertThat(updateQuery.where().isPresent()).isTrue();
+            CriteriaCondition condition = updateQuery.where().get();
+
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(condition.condition()).isEqualTo(Condition.BETWEEN);
+                soft.assertThat(condition.element()).isEqualTo(Element.of("age", Arrays.asList(10, 30)));
+                soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
+                        .contains(Element.of("age", 10));
+            });
+        }
+
+        @DisplayName("Should Return Parser Query16")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE name = \"diana\""})
+        void shouldReturnParserQuery16(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+            parser.query(query, manager, observer);
+            Mockito.verify(manager).update(captor.capture());
+            UpdateQuery updateQuery = captor.getValue();
+
+            checkBaseQuery(updateQuery);
+            assertThat(updateQuery.where().isPresent()).isTrue();
+            CriteriaCondition condition = updateQuery.where().get();
+
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+                soft.assertThat(condition.element()).isEqualTo(Element.of("name", "diana"));
+                soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
+                        .contains(Element.of("age", 10));
+            });
+
+        }
+
+
+        @DisplayName("Should Return Parser Query20")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE name IN (\"Ada\", \"Apollo\")"})
+        void shouldReturnParserQuery20(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+            parser.query(query, manager, observer);
+            Mockito.verify(manager).update(captor.capture());
+            var updateQuery = captor.getValue();
+
+            checkBaseQuery(updateQuery);
+            assertThat(updateQuery.where().isPresent()).isTrue();
+            CriteriaCondition condition = updateQuery.where().get();
+
+
+            SoftAssertions.assertSoftly(soft -> {
+                Element element = condition.element();
+                List<String> values = element.get(new TypeReference<>() {
+                });
+                soft.assertThat(condition.condition()).isEqualTo(Condition.IN);
+                soft.assertThat(condition.element().name()).isEqualTo("name");
+                soft.assertThat(values).contains("Ada", "Apollo");
+                soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
+                        .contains(Element.of("age", 10));
+            });
+
+        }
+
+        @DisplayName("Should Return Parser Query21")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE name LIKE \"Ada\""})
+        void shouldReturnParserQuery21(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+            parser.query(query, manager, observer);
+            Mockito.verify(manager).update(captor.capture());
+            var updateQuery = captor.getValue();
+
+            checkBaseQuery(updateQuery);
+            assertThat(updateQuery.where().isPresent()).isTrue();
+            CriteriaCondition condition = updateQuery.where().get();
+
+            SoftAssertions.assertSoftly(soft -> {
+                Element element = condition.element();
+                soft.assertThat(condition.condition()).isEqualTo(Condition.LIKE);
+                soft.assertThat(element.name()).isEqualTo("name");
+                soft.assertThat(element.get()).isEqualTo("Ada");
+                soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
+                        .contains(Element.of("age", 10));
+            });
+        }
+
+        @DisplayName("Should Return Parser Query22")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE name NOT LIKE \"Ada\""})
+        void shouldReturnParserQuery22(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+            parser.query(query, manager, observer);
+            Mockito.verify(manager).update(captor.capture());
+            UpdateQuery updateQuery = captor.getValue();
+
+            checkBaseQuery(updateQuery);
+            assertThat(updateQuery.where().isPresent()).isTrue();
+            CriteriaCondition condition = updateQuery.where().get();
+
+            SoftAssertions.assertSoftly(soft -> {
+                var element = condition.element();
+                List<CriteriaCondition> conditions = element.get(new TypeReference<>() {
+                });
+                var criteriaCondition = conditions.getFirst();
+
+                soft.assertThat(condition.condition()).isEqualTo(Condition.NOT);
+                soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.LIKE);
+                soft.assertThat(conditions.getFirst().element().name()).isEqualTo("name");
+                soft.assertThat(conditions.getFirst().element().get()).isEqualTo("Ada");
+                soft.assertThat(updateQuery.sets()).isNotNull().hasSize(1)
+                        .contains(Element.of("age", 10));
+            });
+        }
+
+        @DisplayName("Should Return Parser Query23")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE name = \"Ada\" AND age = 20"})
+        void shouldReturnParserQuery23(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+            parser.query(query, manager, observer);
+            Mockito.verify(manager).update(captor.capture());
+            var updateQuery = captor.getValue();
+
+            checkBaseQuery(updateQuery);
+            assertThat(updateQuery.where().isPresent()).isTrue();
+            CriteriaCondition condition = updateQuery.where().get();
+
+            SoftAssertions.assertSoftly(soft ->{
+                Element element = condition.element();
+                soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
+                List<CriteriaCondition> conditions = element.get(new TypeReference<>() {
+                });
+                soft.assertThat(conditions).contains(eq(Element.of("name", "Ada")),
+                        eq(Element.of("age", 20)));
+            });
+        }
+
+        @DisplayName("Should Return Parser Query24")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE name = \"Ada\" OR age = 20"})
+        void shouldReturnParserQuery24(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+            parser.query(query, manager, observer);
+            Mockito.verify(manager).update(captor.capture());
+            var updateQuery = captor.getValue();
+
+            checkBaseQuery(updateQuery);
+            assertThat(updateQuery.where().isPresent()).isTrue();
+            CriteriaCondition condition = updateQuery.where().get();
+
+            SoftAssertions.assertSoftly(soft -> {
+                Element element = condition.element();
+                soft.assertThat(condition.condition()).isEqualTo(Condition.OR);
+                List<CriteriaCondition> conditions = element.get(new TypeReference<>() {
+                });
+                soft.assertThat(conditions).contains(eq(Element.of("name", "Ada")),
+                        eq(Element.of("age", 20)));
+            });
+        }
+
+        @DisplayName("Should Return Error When Need Prepare Statement")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE age = :age"})
+        void shouldReturnErrorWhenNeedPrepareStatement(String query) {
+            assertThatThrownBy(() -> parser.query(query, manager, observer)).isInstanceOf(QueryException.class);
+        }
+
+        @DisplayName("Should Return Error When Is Query With Param")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE age = :age"})
+        void shouldReturnErrorWhenIsQueryWithParam(String query) {
+            assertThatThrownBy(() -> parser.query(query, manager, observer)).isInstanceOf(QueryException.class);
+        }
+
+        @DisplayName("Should Return Error When Is Query With Param Position")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE age = ?1"})
+        void shouldReturnErrorWhenIsQueryWithParamPosition(String query) {
+            assertThatThrownBy(() -> parser.query(query, manager, observer)).isInstanceOf(QueryException.class);
+        }
+
+        @DisplayName("Should Return Error When Is Query With Param Sets Position")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = ?1"})
+        void shouldReturnErrorWhenIsQueryWithParamSetsPosition(String query) {
+            assertThatThrownBy(() -> parser.query(query, manager, observer)).isInstanceOf(QueryException.class);
+        }
+
+        @DisplayName("Should Return Error When Is Query With Param Sets")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = :age"})
+        void shouldReturnErrorWhenIsQueryWithParamSets(String query) {
+            assertThatThrownBy(() -> parser.query(query, manager, observer)).isInstanceOf(QueryException.class);
+        }
+
+        @DisplayName("Should Return Error When Dont Bind Parameters")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE age = :age"})
+        void shouldReturnErrorWhenDontBindParameters(String query) {
+
+            CommunicationPreparedStatement prepare = parser.prepare(query, manager, observer);
+            assertThatThrownBy(prepare::result).isInstanceOf(QueryException.class);
+        }
+
+        @DisplayName("Should Execute Prepare Statement")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE age = :age"})
+        void shouldExecutePrepareStatement(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+
+            CommunicationPreparedStatement prepare = parser.prepare(query, manager, observer);
+            prepare.bind("age", 12);
+            prepare.result();
+            Mockito.verify(manager).update(captor.capture());
+            var updateQuery = captor.getValue();
+            CriteriaCondition criteriaCondition = updateQuery.where().orElseThrow();
+            SoftAssertions.assertSoftly(soft -> {
+                Element element = criteriaCondition.element();
+                soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
+                soft.assertThat(element.name()).isEqualTo("age");
+                soft.assertThat(element.get()).isEqualTo(12);
+            });
+        }
+
+        @DisplayName("Should Execute Prepare Statement Position")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE age = ?1"})
+        void shouldExecutePrepareStatementPosition(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+
+            CommunicationPreparedStatement prepare = parser.prepare(query, manager, observer);
+            prepare.bind(1, 12);
+            prepare.result();
+            Mockito.verify(manager).update(captor.capture());
+            var updateQuery = captor.getValue();
+            CriteriaCondition criteriaCondition = updateQuery.where().orElseThrow();
+            SoftAssertions.assertSoftly(soft -> {
+                Element element = criteriaCondition.element();
+                soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
+                soft.assertThat(element.name()).isEqualTo("age");
+                soft.assertThat(element.get()).isEqualTo(12);
+            });
+        }
+
+        @DisplayName("Should Execute Prepare Statement Sets")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET name = :name WHERE age = :age"})
+        void shouldExecutePrepareStatementSets(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+
+            CommunicationPreparedStatement prepare = parser.prepare(query, manager, observer);
+            prepare.bind("age", 12);
+            prepare.bind("name", "Ada");
+            prepare.result();
+            Mockito.verify(manager).update(captor.capture());
+            var updateQuery = captor.getValue();
+            CriteriaCondition criteriaCondition = updateQuery.where().orElseThrow();
+            SoftAssertions.assertSoftly(soft -> {
+                Element element = criteriaCondition.element();
+                soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
+                soft.assertThat(element.name()).isEqualTo("age");
+                soft.assertThat(element.get()).isEqualTo(12);
+                soft.assertThat(updateQuery.sets()).hasSize(1);
+                var setItem = updateQuery.sets().getFirst();
+                soft.assertThat(setItem.name()).isEqualTo("name");
+                soft.assertThat(setItem.value().get()).isEqualTo("Ada");
+            });
+        }
+
+
+        @DisplayName("Should Return Query Special True")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET active = true"})
+        void shouldReturnQuerySpecialTrue(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+            parser.query(query, manager, observer);
+            Mockito.verify(manager).update(captor.capture());
+            var updateQuery = captor.getValue();
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(updateQuery.where()).isEmpty();
+                var items = updateQuery.sets();
+                soft.assertThat(items).isNotNull().hasSize(1);
+                soft.assertThat(items).contains(Element.of("active", true));
+            });
+        }
+
+
+        @DisplayName("Should Return Query Special False")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET active = false"})
+        void shouldReturnQuerySpecialFalse(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+            parser.query(query, manager, observer);
+            Mockito.verify(manager).update(captor.capture());
+            var updateQuery = captor.getValue();
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(updateQuery.where()).isEmpty();
+                var items = updateQuery.sets();
+                soft.assertThat(items).isNotNull().hasSize(1);
+                soft.assertThat(items).contains(Element.of("active", false));
+            });
+        }
+
+        @DisplayName("Should Return Query Special Null")
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"UPDATE entity SET active = NULL"})
+        void shouldReturnQuerySpecialNull(String query) {
+            var captor = ArgumentCaptor.forClass(UpdateQuery.class);
+            parser.query(query, manager, observer);
+            Mockito.verify(manager).update(captor.capture());
+            var updateQuery = captor.getValue();
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(updateQuery.where()).isEmpty();
+                var items = updateQuery.sets();
+                soft.assertThat(items).isNotNull().hasSize(1);
+                soft.assertThat(items).contains(Element.of("active", null));
+            });
+
+        }
+
+
+        private void checkBaseQuery(UpdateQuery updateQuery) {
+            assertThat(updateQuery.name()).isEqualTo("entity");
+        }
     }
 
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE age = :age"})
-    void shouldReturnErrorWhenNeedPrepareStatement(String query) {
-        assertThrows(QueryException.class, () -> parser.query(query, manager, observer));
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE age = :age"})
-    void shouldReturnErrorWhenIsQueryWithParam(String query) {
-        assertThrows(QueryException.class, () -> parser.query(query, manager, observer));
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE age = ?1"})
-    void shouldReturnErrorWhenIsQueryWithParamPosition(String query) {
-        assertThrows(QueryException.class, () -> parser.query(query, manager, observer));
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = ?1"})
-    void shouldReturnErrorWhenIsQueryWithParamSetsPosition(String query) {
-        assertThrows(QueryException.class, () -> parser.query(query, manager, observer));
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = :age"})
-    void shouldReturnErrorWhenIsQueryWithParamSets(String query) {
-        assertThrows(QueryException.class, () -> parser.query(query, manager, observer));
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE age = :age"})
-    void shouldReturnErrorWhenDontBindParameters(String query) {
-
-        CommunicationPreparedStatement prepare = parser.prepare(query, manager, observer);
-        assertThrows(QueryException.class, prepare::result);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE age = :age"})
-    void shouldExecutePrepareStatement(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-
-        CommunicationPreparedStatement prepare = parser.prepare(query, manager, observer);
-        prepare.bind("age", 12);
-        prepare.result();
-        Mockito.verify(manager).update(captor.capture());
-        var updateQuery = captor.getValue();
-        CriteriaCondition criteriaCondition = updateQuery.where().orElseThrow();
-        SoftAssertions.assertSoftly(soft -> {
-            Element element = criteriaCondition.element();
-            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
-            soft.assertThat(element.name()).isEqualTo("age");
-            soft.assertThat(element.get()).isEqualTo(12);
-        });
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET age = 10 WHERE age = ?1"})
-    void shouldExecutePrepareStatementPosition(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-
-        CommunicationPreparedStatement prepare = parser.prepare(query, manager, observer);
-        prepare.bind(1, 12);
-        prepare.result();
-        Mockito.verify(manager).update(captor.capture());
-        var updateQuery = captor.getValue();
-        CriteriaCondition criteriaCondition = updateQuery.where().orElseThrow();
-        SoftAssertions.assertSoftly(soft -> {
-            Element element = criteriaCondition.element();
-            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
-            soft.assertThat(element.name()).isEqualTo("age");
-            soft.assertThat(element.get()).isEqualTo(12);
-        });
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET name = :name WHERE age = :age"})
-    void shouldExecutePrepareStatementSets(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-
-        CommunicationPreparedStatement prepare = parser.prepare(query, manager, observer);
-        prepare.bind("age", 12);
-        prepare.bind("name", "Ada");
-        prepare.result();
-        Mockito.verify(manager).update(captor.capture());
-        var updateQuery = captor.getValue();
-        CriteriaCondition criteriaCondition = updateQuery.where().orElseThrow();
-        SoftAssertions.assertSoftly(soft -> {
-            Element element = criteriaCondition.element();
-            soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
-            soft.assertThat(element.name()).isEqualTo("age");
-            soft.assertThat(element.get()).isEqualTo(12);
-            soft.assertThat(updateQuery.sets()).hasSize(1);
-            var setItem = updateQuery.sets().getFirst();
-            soft.assertThat(setItem.name()).isEqualTo("name");
-            soft.assertThat(setItem.value().get()).isEqualTo("Ada");
-        });
-    }
-
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET active = true"})
-    void shouldReturnQuerySpecialTrue(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-        parser.query(query, manager, observer);
-        Mockito.verify(manager).update(captor.capture());
-        var updateQuery = captor.getValue();
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(updateQuery.where()).isEmpty();
-            var items = updateQuery.sets();
-            soft.assertThat(items).isNotNull().hasSize(1);
-            soft.assertThat(items).contains(Element.of("active", true));
-        });
-    }
-
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET active = false"})
-    void shouldReturnQuerySpecialFalse(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-        parser.query(query, manager, observer);
-        Mockito.verify(manager).update(captor.capture());
-        var updateQuery = captor.getValue();
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(updateQuery.where()).isEmpty();
-            var items = updateQuery.sets();
-            soft.assertThat(items).isNotNull().hasSize(1);
-            soft.assertThat(items).contains(Element.of("active", false));
-        });
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"UPDATE entity SET active = NULL"})
-    void shouldReturnQuerySpecialNull(String query) {
-        var captor = ArgumentCaptor.forClass(UpdateQuery.class);
-        parser.query(query, manager, observer);
-        Mockito.verify(manager).update(captor.capture());
-        var updateQuery = captor.getValue();
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(updateQuery.where()).isEmpty();
-            var items = updateQuery.sets();
-            soft.assertThat(items).isNotNull().hasSize(1);
-            soft.assertThat(items).contains(Element.of("active", null));
-        });
-
-    }
-
-
-    private void checkBaseQuery(UpdateQuery updateQuery) {
-        assertEquals("entity", updateQuery.name());
-    }
 }
