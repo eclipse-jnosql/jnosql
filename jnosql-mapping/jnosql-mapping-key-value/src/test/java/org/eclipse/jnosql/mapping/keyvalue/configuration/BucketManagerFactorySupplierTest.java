@@ -58,8 +58,8 @@ class BucketManagerFactorySupplierTest {
     @DisplayName("When the factory supplier provides manager factories")
     class WhenTheFactorySupplierProvidesManagerFactories {
 
-        @DisplayName("Should Get Bucket Manager")
         @Test
+        @DisplayName("Should get bucket manager")
         public void shouldGetBucketManager() {
             System.setProperty(KEY_VALUE_PROVIDER.get(), KeyValueConfigurationMock.class.getName());
             System.setProperty(KEY_VALUE_DATABASE.get(), "database");
@@ -70,8 +70,8 @@ class BucketManagerFactorySupplierTest {
             });
         }
 
-        @DisplayName("Should Use Default Configuration When Provider Is Wrong")
         @Test
+        @DisplayName("Should use default configuration when provIDer is wrong")
         public void shouldUseDefaultConfigurationWhenProviderIsWrong() {
             System.setProperty(KEY_VALUE_PROVIDER.get(), Integer.class.getName());
             System.setProperty(KEY_VALUE_DATABASE.get(), "database");
@@ -82,8 +82,8 @@ class BucketManagerFactorySupplierTest {
             });
         }
 
-        @DisplayName("Should Use Default Configuration")
         @Test
+        @DisplayName("Should use default configuration")
         public void shouldUseDefaultConfiguration() {
             System.setProperty(KEY_VALUE_DATABASE.get(), "database");
             BucketManagerFactory factory = supplier.get();
@@ -93,8 +93,8 @@ class BucketManagerFactorySupplierTest {
             });
         }
 
-        @DisplayName("Should Close")
         @Test
+        @DisplayName("Should close")
         public void shouldClose(){
             BucketManagerFactory factory = Mockito.mock(BucketManagerFactory.class);
             supplier.close(factory);
