@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.keyvalue.configuration;
 
 import jakarta.inject.Inject;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.keyvalue.BucketManagerFactory;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.keyvalue.KeyValueEntityConverter;
@@ -25,8 +26,9 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -52,38 +54,52 @@ class BucketManagerFactorySupplierTest {
         System.clearProperty(KEY_VALUE_DATABASE.get());
     }
 
-    @Test
-    public void shouldGetBucketManager() {
-        System.setProperty(KEY_VALUE_PROVIDER.get(), KeyValueConfigurationMock.class.getName());
-        System.setProperty(KEY_VALUE_DATABASE.get(), "database");
-        BucketManagerFactory factory = supplier.get();
-        Assertions.assertNotNull(factory);
-        assertThat(factory).isInstanceOf(KeyValueConfigurationMock.BucketManagerFactoryMock.class);
+    @Nested
+    @DisplayName("When the factory supplier provides manager factories")
+    class WhenTheFactorySupplierProvidesManagerFactories {
+
+        @DisplayName("Should Get Bucket Manager")
+        @Test
+        public void shouldGetBucketManager() {
+            System.setProperty(KEY_VALUE_PROVIDER.get(), KeyValueConfigurationMock.class.getName());
+            System.setProperty(KEY_VALUE_DATABASE.get(), "database");
+            BucketManagerFactory factory = supplier.get();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(factory).isNotNull();
+                softly.assertThat(factory).isInstanceOf(KeyValueConfigurationMock.BucketManagerFactoryMock.class);
+            });
+        }
+
+        @DisplayName("Should Use Default Configuration When Provider Is Wrong")
+        @Test
+        public void shouldUseDefaultConfigurationWhenProviderIsWrong() {
+            System.setProperty(KEY_VALUE_PROVIDER.get(), Integer.class.getName());
+            System.setProperty(KEY_VALUE_DATABASE.get(), "database");
+            BucketManagerFactory factory = supplier.get();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(factory).isNotNull();
+                softly.assertThat(factory).isInstanceOf(KeyValueConfigurationMock2.BucketManagerFactoryMock.class);
+            });
+        }
+
+        @DisplayName("Should Use Default Configuration")
+        @Test
+        public void shouldUseDefaultConfiguration() {
+            System.setProperty(KEY_VALUE_DATABASE.get(), "database");
+            BucketManagerFactory factory = supplier.get();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(factory).isNotNull();
+                softly.assertThat(factory).isInstanceOf(KeyValueConfigurationMock2.BucketManagerFactoryMock.class);
+            });
+        }
+
+        @DisplayName("Should Close")
+        @Test
+        public void shouldClose(){
+            BucketManagerFactory factory = Mockito.mock(BucketManagerFactory.class);
+            supplier.close(factory);
+            Mockito.verify(factory).close();
+        }
     }
 
-
-    @Test
-    public void shouldUseDefaultConfigurationWhenProviderIsWrong() {
-        System.setProperty(KEY_VALUE_PROVIDER.get(), Integer.class.getName());
-        System.setProperty(KEY_VALUE_DATABASE.get(), "database");
-        BucketManagerFactory factory = supplier.get();
-        Assertions.assertNotNull(factory);
-        assertThat(factory).isInstanceOf(KeyValueConfigurationMock2.BucketManagerFactoryMock.class);
-    }
-
-    @Test
-    public void shouldUseDefaultConfiguration() {
-        System.setProperty(KEY_VALUE_DATABASE.get(), "database");
-        BucketManagerFactory factory = supplier.get();
-        Assertions.assertNotNull(factory);
-        assertThat(factory).isInstanceOf(KeyValueConfigurationMock2.BucketManagerFactoryMock.class);
-    }
-
-
-    @Test
-    public void shouldClose(){
-        BucketManagerFactory factory = Mockito.mock(BucketManagerFactory.class);
-        supplier.close(factory);
-        Mockito.verify(factory).close();
-    }
 }
