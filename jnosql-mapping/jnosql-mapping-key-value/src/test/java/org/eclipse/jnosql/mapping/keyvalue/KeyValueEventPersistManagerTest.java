@@ -17,6 +17,8 @@ package org.eclipse.jnosql.mapping.keyvalue;
 import jakarta.enterprise.event.Event;
 import org.eclipse.jnosql.mapping.EntityPostPersist;
 import org.eclipse.jnosql.mapping.EntityPrePersist;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -24,7 +26,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 
@@ -42,31 +44,41 @@ class KeyValueEventPersistManagerTest {
     private Event<EntityPostPersist> entityPostPersistEvent;
 
 
-    @Test
-    void shouldFirePreEntity() {
-        Actor actor = new Actor();
-        actor.name = "Luke";
-        subject.firePreEntity(actor);
-        ArgumentCaptor<EntityPrePersist> captor = ArgumentCaptor.forClass(EntityPrePersist.class);
-        verify(entityPrePersistEvent).fire(captor.capture());
-        EntityPrePersist value = captor.getValue();
-        assertEquals(actor, value.get());
-    }
 
-    @Test
-    void shouldFirePostEntity() {
-        Actor actor = new Actor();
-        actor.name = "Luke";
-        subject.firePostEntity(actor);
-        ArgumentCaptor<EntityPostPersist> captor = ArgumentCaptor.forClass(EntityPostPersist.class);
-        verify(entityPostPersistEvent).fire(captor.capture());
-        EntityPostPersist value = captor.getValue();
-        assertEquals(actor, value.get());
-    }
 
 
     static class Actor {
         private String name;
+    }
+
+    @Nested
+    @DisplayName("When the event manager fires events")
+    class WhenTheEventManagerFiresEvents {
+
+        @DisplayName("Should Fire Pre Entity")
+        @Test
+        void shouldFirePreEntity() {
+            Actor actor = new Actor();
+            actor.name = "Luke";
+            subject.firePreEntity(actor);
+            ArgumentCaptor<EntityPrePersist> captor = ArgumentCaptor.forClass(EntityPrePersist.class);
+            verify(entityPrePersistEvent).fire(captor.capture());
+            EntityPrePersist value = captor.getValue();
+            assertThat(value.get()).isEqualTo(actor);
+        }
+
+        @DisplayName("Should Fire Post Entity")
+        @Test
+        void shouldFirePostEntity() {
+            Actor actor = new Actor();
+            actor.name = "Luke";
+            subject.firePostEntity(actor);
+            ArgumentCaptor<EntityPostPersist> captor = ArgumentCaptor.forClass(EntityPostPersist.class);
+            verify(entityPostPersistEvent).fire(captor.capture());
+            EntityPostPersist value = captor.getValue();
+            assertThat(value.get()).isEqualTo(actor);
+        }
+
     }
 
 }
