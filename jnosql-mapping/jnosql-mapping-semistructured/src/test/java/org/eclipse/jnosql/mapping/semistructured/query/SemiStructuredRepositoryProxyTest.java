@@ -15,6 +15,9 @@
 package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.inject.Inject;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
@@ -30,15 +33,15 @@ import org.eclipse.jnosql.mapping.semistructured.entities.PersonRepository;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -58,6 +61,7 @@ class SemiStructuredRepositoryProxyTest {
     @Inject
     private Converters converters;
 
+    @DisplayName("Should create semi structured repository proxy")
     @Test
     void shouldCreateSemiStructuredRepositoryProxy() {
         EntityMetadata entityMetadata = entitiesMetadata.get(Person.class);
@@ -67,6 +71,7 @@ class SemiStructuredRepositoryProxyTest {
         Assertions.assertThat(repository).isNotNull();
     }
 
+    @DisplayName("Should execute find all")
     @Test
     void shouldExecuteFindAll() {
         SemiStructuredRepositoryProxy proxy = new SemiStructuredRepositoryProxy(template, entitiesMetadata,
@@ -78,6 +83,7 @@ class SemiStructuredRepositoryProxyTest {
         proxy.executeFindAll(proxy, findAll, new Object[0]);
     }
 
+    @DisplayName("Should get error on find restriction")
     @Test
     void shouldGetErrorOnFindRestriction() {
         var proxy = new SemiStructuredRepositoryProxy(template, entitiesMetadata,
@@ -93,5 +99,10 @@ class SemiStructuredRepositoryProxyTest {
 
     List<Person> findAll() {
         return List.of();
+    }
+
+    @Nested
+    @DisplayName("When the semi structured repository proxy is tested")
+    class WhenTheSemiStructuredRepositoryProxyIsTested {
     }
 }
