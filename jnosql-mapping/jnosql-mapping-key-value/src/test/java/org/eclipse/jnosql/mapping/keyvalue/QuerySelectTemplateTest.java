@@ -96,16 +96,16 @@ public class QuerySelectTemplateTest {
             assertThatThrownBy(() -> template.query("UPDATE User set name = 'Otavio' where id = 123")).isInstanceOf(UnsupportedOperationException.class);
         }
 
-        @DisplayName("Should Error When Select Is Not Support Key Value")
         @ParameterizedTest
+        @DisplayName("Should error when select is not support key-value")
         @ValueSource(strings = {"SELECT name, age FROM User", "FROM User", "From User skip 10", "From User limit 10", "From User ORDER BY name",
                 "From User ORDER BY name DESC", "From User ORDER BY name ASC", "select count(this) FROM User"})
         void shouldErrorWhenSelectIsNotSupportKeyValue(String text) {
             assertThatThrownBy(() -> template.query(text)).isInstanceOf(UnsupportedOperationException.class);
         }
 
-        @DisplayName("Should Error When Attribute Is Not Id")
         @ParameterizedTest
+        @DisplayName("Should error when attribute is not ID")
         @ValueSource(strings = {"FROM User where name = 'Ada'",
                 "FROM User where age > 10",
                 "FROM User where age < 10",
@@ -115,8 +115,8 @@ public class QuerySelectTemplateTest {
             assertThatThrownBy(() -> template.query(text)).isInstanceOf(UnsupportedOperationException.class);
         }
 
-        @DisplayName("Should Error When Id When Not Condition")
         @ParameterizedTest
+        @DisplayName("Should error when ID when not condition")
         @ValueSource(strings = {
                 "FROM User where nickname > 10",
                 "FROM User where nickname < 10",
@@ -126,16 +126,16 @@ public class QuerySelectTemplateTest {
             assertThatThrownBy(() -> template.query(text)).isInstanceOf(UnsupportedOperationException.class);
         }
 
-        @DisplayName("Should Return Error When Select Call Update")
         @ParameterizedTest
+        @DisplayName("Should return error when select call update")
         @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
         void shouldReturnErrorWhenSelectCallUpdate(String text) {
             Query query = template.query(text);
             assertThatThrownBy(query::executeUpdate).isInstanceOf(UnsupportedOperationException.class);
         }
 
-        @DisplayName("Should Return Empty When Select Literal Single Value")
         @ParameterizedTest
+        @DisplayName("Should return empty when select literal single value")
         @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
         void shouldReturnEmptyWhenSelectLiteralSingleValue(String text) {
             Mockito.when(manager.get("Otavio"))
@@ -146,8 +146,8 @@ public class QuerySelectTemplateTest {
             SoftAssertions.assertSoftly(soft -> soft.assertThat(user).isEmpty());
         }
 
-        @DisplayName("Should Select Literal Single Value")
         @ParameterizedTest
+        @DisplayName("Should select literal single value")
         @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
         void shouldSelectLiteralSingleValue(String text) {
 
@@ -163,8 +163,8 @@ public class QuerySelectTemplateTest {
             });
         }
 
-        @DisplayName("Should Select Literal Single Value List")
         @ParameterizedTest
+        @DisplayName("Should select literal single value list")
         @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
         void shouldSelectLiteralSingleValueList(String text) {
 
@@ -180,8 +180,8 @@ public class QuerySelectTemplateTest {
             });
         }
 
-        @DisplayName("Should Select Literal Single Value Stream")
         @ParameterizedTest
+        @DisplayName("Should select literal single value stream")
         @ValueSource(strings = { "FROM User WHERE nickname = 'Otavio'"})
         void shouldSelectLiteralSingleValueStream(String text) {
 
@@ -196,8 +196,8 @@ public class QuerySelectTemplateTest {
             });
         }
 
-        @DisplayName("Should Select In With Single Value")
         @ParameterizedTest
+        @DisplayName("Should select in with single value")
         @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio')"})
         void shouldSelectInWithSingleValue(String text) {
 
@@ -213,8 +213,8 @@ public class QuerySelectTemplateTest {
             });
         }
 
-        @DisplayName("Should Select In With Single Value Empty")
         @ParameterizedTest
+        @DisplayName("Should select in with single value empty")
         @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio')"})
         void shouldSelectInWithSingleValueEmpty(String text) {
 
@@ -228,8 +228,8 @@ public class QuerySelectTemplateTest {
             });
         }
 
-        @DisplayName("Should Select In With Empty")
         @ParameterizedTest
+        @DisplayName("Should select in with empty")
         @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio', 'Maria')"})
         void shouldSelectInWithEmpty(String text) {
 
@@ -242,8 +242,8 @@ public class QuerySelectTemplateTest {
             assertThatThrownBy(query::singleResult).isInstanceOf(NonUniqueResultException.class);
         }
 
-        @DisplayName("Should In List")
         @ParameterizedTest
+        @DisplayName("Should in list")
         @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio', 'Maria')"})
         void shouldInList(String text) {
 
@@ -260,8 +260,8 @@ public class QuerySelectTemplateTest {
             });
         }
 
-        @DisplayName("Should In Stream")
         @ParameterizedTest
+        @DisplayName("Should in stream")
         @ValueSource(strings = { "FROM User WHERE nickname IN ('Otavio', 'Maria')"})
         void shouldInStream(String text) {
 
@@ -275,8 +275,8 @@ public class QuerySelectTemplateTest {
             SoftAssertions.assertSoftly(soft -> soft.assertThat(users).isNotEmpty().hasSize(2).map( User::getNickname).contains("Otavio", "Maria"));
         }
 
-        @DisplayName("Should Error When Parameter Is Missing On Equals")
         @ParameterizedTest
+        @DisplayName("Should error when parameter is missing on equals")
         @ValueSource(strings = { "FROM User WHERE nickname = :param"})
         void shouldErrorWhenParameterIsMissingOnEquals(String text){
             Query query = template.query(text);
@@ -286,8 +286,8 @@ public class QuerySelectTemplateTest {
             assertThatThrownBy(query::stream).isInstanceOf(QueryException.class);
         }
 
-        @DisplayName("Should Error When Parameter Is Missing On In")
         @ParameterizedTest
+        @DisplayName("Should error when parameter is missing on in")
         @ValueSource(strings = { "FROM User WHERE nickname in (:param)"})
         void shouldErrorWhenParameterIsMissingOnIn(String text){
             Query query = template.query(text);
@@ -297,8 +297,8 @@ public class QuerySelectTemplateTest {
             assertThatThrownBy(query::stream).isInstanceOf(QueryException.class);
         }
 
-        @DisplayName("Should Bind Parameter Equals Single Result")
         @ParameterizedTest
+        @DisplayName("Should bind parameter equals single result")
         @ValueSource(strings = { "FROM User WHERE nickname = :nickname"})
         void shouldBindParameterEqualsSingleResult(String text){
             Mockito.when(manager.get("Otavio"))
@@ -314,8 +314,8 @@ public class QuerySelectTemplateTest {
             });
         }
 
-        @DisplayName("Should Bind Parameter Index Equals Single Result")
         @ParameterizedTest
+        @DisplayName("Should bind parameter index equals single result")
         @ValueSource(strings = { "FROM User WHERE nickname = ?1"})
         void shouldBindParameterIndexEqualsSingleResult(String text){
             Mockito.when(manager.get("Otavio"))
@@ -331,16 +331,16 @@ public class QuerySelectTemplateTest {
             });
         }
 
-        @DisplayName("Should Bind Return When Index Is Negative")
         @ParameterizedTest
+        @DisplayName("Should bind return when index is negative")
         @ValueSource(strings = { "FROM User WHERE nickname = ?1"})
         void shouldBindReturnWhenIndexIsNegative(String text){
             Query query = template.query(text);
             assertThatThrownBy(() -> query.bind(-1, "Otavio")).isInstanceOf(IllegalArgumentException.class);
         }
 
-        @DisplayName("Should Bind Stream")
         @ParameterizedTest
+        @DisplayName("Should bind stream")
         @ValueSource(strings = { "FROM User WHERE nickname in (?1, :second, 'Maria')"})
         void shouldBindStream(String text){
             Mockito.when(manager.get("Otavio"))
@@ -357,8 +357,8 @@ public class QuerySelectTemplateTest {
             SoftAssertions.assertSoftly(soft -> soft.assertThat(users).isNotEmpty().hasSize(3).map( User::getNickname).contains("Otavio", "Maria", "Ada"));
         }
 
-        @DisplayName("Should Bind List")
         @ParameterizedTest
+        @DisplayName("Should bind list")
         @ValueSource(strings = { "FROM User WHERE nickname in (?1, :second, 'Maria')"})
         void shouldBindList(String text){
 
