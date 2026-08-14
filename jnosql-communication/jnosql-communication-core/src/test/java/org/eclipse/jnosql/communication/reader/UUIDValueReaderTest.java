@@ -17,53 +17,72 @@
 package org.eclipse.jnosql.communication.reader;
 
 import org.eclipse.jnosql.communication.CommunicationException;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class UUIDValueReaderTest {
     private final UUIDValueReader valueReader = new UUIDValueReader();
 
-    @Test
-    void shouldReadUUIDFromUUIDInstance() {
-        UUID uuid = UUID.randomUUID();
-        UUID result = valueReader.read(UUID.class, uuid);
-        assertEquals(uuid, result);
+    @Nested
+    @DisplayName("When the value is read")
+    class WhenTheValueIsRead {
+
+        @Test
+        @DisplayName("Should return the same UUID instance")
+        void shouldReadUUIDFromUUIDInstance() {
+            UUID uuid = UUID.randomUUID();
+            UUID result = valueReader.read(UUID.class, uuid);
+
+            assertThat(result).isEqualTo(uuid);
+        }
+
+        @Test
+        @DisplayName("Should parse UUID text")
+        void shouldReadUUIDFromString() {
+            UUID uuid = UUID.randomUUID();
+            UUID result = valueReader.read(UUID.class, uuid.toString());
+
+            assertThat(result).isEqualTo(uuid);
+        }
+
+        @Test
+        @DisplayName("Should reject invalid UUID text")
+        void shouldThrowExceptionForInvalidString() {
+            String invalidUUID = "invalid-uuid";
+
+            assertThatThrownBy(() -> valueReader.read(UUID.class, invalidUUID))
+                    .isInstanceOf(CommunicationException.class)
+                    .hasMessageContaining("value is not UUID format: " + invalidUUID);
+        }
+
+        @Test
+        @DisplayName("Should return null for unsupported value types")
+        void shouldReturnNullForUnsupportedType() {
+            Integer unsupportedValue = 42;
+            UUID result = valueReader.read(UUID.class, unsupportedValue);
+
+            assertThat(result).isNull();
+        }
     }
 
-    @Test
-    void shouldReadUUIDFromString() {
-        UUID uuid = UUID.randomUUID();
-        UUID result = valueReader.read(UUID.class, uuid.toString());
-        assertEquals(uuid, result);
-    }
+    @Nested
+    @DisplayName("When the supported type is checked")
+    class WhenTheSupportedTypeIsChecked {
 
-    @Test
-    void shouldReturnNullForInvalidString() {
-        String invalidUUID = "invalid-uuid";
-        assertThrows(CommunicationException.class, () -> valueReader.read(UUID.class, invalidUUID));
-    }
-
-    @Test
-    void shouldReturnNullForUnsupportedType() {
-        Integer unsupportedValue = 42;
-        UUID result = valueReader.read(UUID.class, unsupportedValue);
-        assertNull(result);
-    }
-
-    @Test
-    void shouldTestUUIDType() {
-        assertTrue(valueReader.test(UUID.class));
-    }
-
-    @Test
-    void shouldNotTestNonUUIDType() {
-        assertFalse(valueReader.test(String.class));
+        @Test
+        @DisplayName("Should accept only UUID")
+        void shouldTestUUIDType() {
+            assertSoftly(softly -> {
+                softly.assertThat(valueReader.test(UUID.class)).isTrue();
+                softly.assertThat(valueReader.test(String.class)).isFalse();
+            });
+        }
     }
 }
