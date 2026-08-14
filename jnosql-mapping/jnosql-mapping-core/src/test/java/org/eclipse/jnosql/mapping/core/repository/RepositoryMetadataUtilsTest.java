@@ -91,7 +91,6 @@ class RepositoryMetadataUtilsTest {
 
     @DisplayName("Should map param empty")
     @Test
-    @DisplayName("should map param empty")
     void shouldMapParamEmpty() {
         RepositoryMethod method = repositoryMetadata.find(new NameKey("query")).orElseThrow();
         var params = RepositoryMetadataUtils.INSTANCE.getParams(method, new Object[]{});
@@ -100,7 +99,6 @@ class RepositoryMetadataUtilsTest {
 
     @DisplayName("Should map param empty with parameter")
     @Test
-    @DisplayName("should map param empty with special parameter")
     void shouldMapParamEmptyWithParameter() {
         RepositoryMethod method = repositoryMetadata.find(new NameKey("query0")).orElseThrow();
         var params = RepositoryMetadataUtils.INSTANCE.getParams(method, new Object[]{
@@ -112,7 +110,6 @@ class RepositoryMetadataUtilsTest {
 
     @DisplayName("Should map params by name")
     @Test
-    @DisplayName("should map params by name")
     void shouldMapParamsByName() {
         RepositoryMethod method = repositoryMetadata.find(new NameKey("query1")).orElseThrow();
         var params = RepositoryMetadataUtils.INSTANCE.getParams(method, new Object[]{
@@ -129,7 +126,6 @@ class RepositoryMetadataUtilsTest {
 
     @DisplayName("Should map params by name2")
     @Test
-    @DisplayName("should map params by name")
     void shouldMapParamsByName2() {
         RepositoryMethod method = repositoryMetadata.find(new NameKey("query2")).orElseThrow();
         var params = RepositoryMetadataUtils.INSTANCE.getParams(method, new Object[]{
@@ -144,7 +140,6 @@ class RepositoryMetadataUtilsTest {
 
     @DisplayName("Should map params multiple params")
     @Test
-    @DisplayName("should map params with multiple params")
     void shouldMapParamsMultipleParams() {
         RepositoryMethod method = repositoryMetadata.find(new NameKey("query3")).orElseThrow();
         var params = RepositoryMetadataUtils.INSTANCE.getParams(method, new Object[]{
@@ -161,7 +156,6 @@ class RepositoryMetadataUtilsTest {
 
     @DisplayName("Should map params multiple params from name")
     @Test
-    @DisplayName("should map params with multiple params")
     void shouldMapParamsMultipleParamsFromName() {
         RepositoryMethod method = repositoryMetadata.find(new NameKey("query1")).orElseThrow();
         var params = RepositoryMetadataUtils.INSTANCE.getParamsFromName(method, new Object[]{
@@ -176,7 +170,6 @@ class RepositoryMetadataUtilsTest {
 
     @DisplayName("Should execute")
     @Test
-    @DisplayName("should execute")
     void shouldExecute() {
         var  method = repositoryMetadata.find(new NameKey("people")).orElseThrow();
         var entityMetadata = entitiesMetadata.findBySimpleName(Person.class.getSimpleName()).orElseThrow();
@@ -194,7 +187,6 @@ class RepositoryMetadataUtilsTest {
 
         @DisplayName("Should ignore special parameters")
         @ParameterizedTest
-        @DisplayName("should ignore special parameters")
         @ValueSource(classes = {Limit.class, PageRequest.class, Order.class, Restriction.class,
                 Sort.class})
         void shouldIgnoreSpecialParameters(Class<?> specialParameter) {
@@ -210,7 +202,6 @@ class RepositoryMetadataUtilsTest {
 
         @DisplayName("Should map equals as default")
         @Test
-        @DisplayName("should map equals as default")
         void shouldMapEqualsAsDefault() {
             RepositoryMethod method = Mockito.mock(RepositoryMethod.class);
             RepositoryParam param = Mockito.mock(RepositoryParam.class);
