@@ -72,8 +72,8 @@ public class QueryUpdateTest {
     @DisplayName("When the update query executes")
     class WhenTheUpdateQueryExecutes {
 
-        @DisplayName("Should Not Execute Update Operations")
         @ParameterizedTest
+        @DisplayName("Should not execute update operations")
         @ValueSource(strings = {"UPDATE User SET name = 'Jonh' where nickname = 'Jonh' ",
                 "UPDATE User SET name = 'Jonh'"})
         void shouldNotExecuteUpdateOperations(String text) {
