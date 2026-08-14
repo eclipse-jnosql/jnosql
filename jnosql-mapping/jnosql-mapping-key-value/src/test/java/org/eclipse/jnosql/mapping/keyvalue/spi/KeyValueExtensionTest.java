@@ -64,8 +64,8 @@ class KeyValueExtensionTest {
     @DisplayName("When the extension discovers beans")
     class WhenTheExtensionDiscoversBeans {
 
-        @DisplayName("Should Use Mock")
         @Test
+        @DisplayName("Should use mock")
         void shouldUseMock() {
             Person person = template.get(10L, Person.class).get();
 
@@ -78,8 +78,8 @@ class KeyValueExtensionTest {
 
         }
 
-        @DisplayName("Should Use Repository")
         @Test
+        @DisplayName("Should use repository")
         void shouldUseRepository() {
             User user = userRepository.findById("user").get();
             User userDefault = userRepositoryDefault.findById("user").get();
