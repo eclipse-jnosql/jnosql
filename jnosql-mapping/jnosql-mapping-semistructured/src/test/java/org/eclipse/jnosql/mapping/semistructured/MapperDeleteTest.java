@@ -85,7 +85,7 @@ class MapperDeleteTest {
         Mockito.verify(managerMock).delete(captor.capture());
         DeleteQuery query = captor.getValue();
         var queryExpected = delete().from("Person").build();
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
 
@@ -98,7 +98,7 @@ class MapperDeleteTest {
 
         var queryExpected =  delete().from("Person").where("name")
                 .eq("Ada").build();
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should delete where like")
@@ -109,7 +109,7 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = delete().from("Person").where("name")
                 .like("Ada").build();
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should delete where contains")
@@ -120,7 +120,7 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = DeleteQuery.builder().from("Person")
                 .where(CriteriaCondition.contains(Element.of("name", "Ada"))).build();
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should delete where start with")
@@ -131,7 +131,7 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = DeleteQuery.builder().from("Person")
                 .where(CriteriaCondition.startsWith(Element.of("name", "Ada"))).build();
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should delete where ends with")
@@ -142,7 +142,7 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = DeleteQuery.builder().from("Person")
                 .where(CriteriaCondition.endsWith(Element.of("name", "Ada"))).build();
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should delete where in with")
@@ -153,7 +153,7 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = DeleteQuery.builder().from("Person")
                 .where(CriteriaCondition.in(Element.of("name", List.of("Ada")))).build();
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should delete where gt")
@@ -163,7 +163,7 @@ class MapperDeleteTest {
         Mockito.verify(managerMock).delete(captor.capture());
         var query = captor.getValue();
         var queryExpected = delete().from("Person").where("_id").gt(10L).build();
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should delete where gte")
@@ -174,7 +174,7 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = delete().from("Person").where("_id")
                 .gte(10L).build();
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should delete where lt")
@@ -184,7 +184,7 @@ class MapperDeleteTest {
         Mockito.verify(managerMock).delete(captor.capture());
         var query = captor.getValue();
         var queryExpected = delete().from("Person").where("_id").lt(10L).build();
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should delete where lte")
@@ -194,7 +194,7 @@ class MapperDeleteTest {
         Mockito.verify(managerMock).delete(captor.capture());
         var query = captor.getValue();
         var queryExpected = delete().from("Person").where("_id").lte(10L).build();
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should delete where between")
@@ -206,7 +206,7 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = delete().from("Person").where("_id")
                 .between(10L, 20L).build();
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should delete where not")
@@ -216,7 +216,7 @@ class MapperDeleteTest {
         Mockito.verify(managerMock).delete(captor.capture());
         var query = captor.getValue();
         var queryExpected = delete().from("Person").where("name").not().like("Ada").build();
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
 
@@ -231,7 +231,7 @@ class MapperDeleteTest {
                 .between(10, 20)
                 .and("name").eq("Ada").build();
 
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should delete where or")
@@ -245,7 +245,7 @@ class MapperDeleteTest {
                 .between(10L, 20L)
                 .or("name").eq("Ada").build();
 
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should convert field")
@@ -258,7 +258,7 @@ class MapperDeleteTest {
         var queryExpected = delete().from("Person").where("_id").eq(20L)
                 .build();
 
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should use attribute converter")
@@ -270,7 +270,7 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = delete().from("Worker").where("money")
                 .eq("USD 10").build();
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should query by embeddable")
@@ -284,7 +284,7 @@ class MapperDeleteTest {
         var queryExpected = delete().from("Worker").where("city").eq("Salvador")
                 .build();
 
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
     }
 
     @DisplayName("Should query by sub entity")
@@ -299,7 +299,13 @@ class MapperDeleteTest {
         var queryExpected = delete().from("Address").where("zipCode.zip").eq("01312321")
                 .build();
 
-        assertThat(query).isEqualTo(queryExpected);
+        assertDeleteQuery(query, queryExpected);
+    }
+
+    private static void assertDeleteQuery(DeleteQuery actual, DeleteQuery expected) {
+        assertThat(actual.name()).isEqualTo(expected.name());
+        assertThat(actual.columns()).isEqualTo(expected.columns());
+        assertThat(actual.condition()).isEqualTo(expected.condition());
     }
 
     @Nested
