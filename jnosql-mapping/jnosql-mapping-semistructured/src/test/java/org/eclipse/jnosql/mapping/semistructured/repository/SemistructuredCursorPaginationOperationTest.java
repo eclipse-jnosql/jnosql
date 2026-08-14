@@ -15,14 +15,23 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SemistructuredCursorPaginationOperationTest {
 
+    @DisplayName("Should create pagination default instance")
     @Test
     void shouldCreatePaginationDefaultInstance() {
         SemistructuredCursorPaginationOperation operation = new SemistructuredCursorPaginationOperation();
         Assertions.assertThat(operation).isNotNull();
+    }
+
+    @Nested
+    @DisplayName("When the semistructured cursor pagination operation is tested")
+    class WhenTheSemistructuredCursorPaginationOperationIsTested {
     }
 }
