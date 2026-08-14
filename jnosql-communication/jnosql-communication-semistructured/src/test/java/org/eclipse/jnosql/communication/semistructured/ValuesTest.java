@@ -25,122 +25,138 @@ import org.mockito.Mockito;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 class ValuesTest {
 
-    private enum SampleEnum { FIRST, SECOND }
+
+    @Nested
+    @DisplayName("When the values is used")
+    class WhenTheValuesIsUsed {
+
+        private enum SampleEnum { FIRST, SECOND }
 
 
-    @Test
-    void shouldReturnNumberAsIs() {
-        @SuppressWarnings("unchecked")
-        QueryValue<Integer> value = Mockito.mock(QueryValue.class);
-        Mockito.when(value.type()).thenReturn(ValueType.NUMBER);
-        Mockito. when(value.get()).thenReturn(42);
+        @DisplayName("Should Return Number As Is")
+        @Test
+        void shouldReturnNumberAsIs() {
+            @SuppressWarnings("unchecked")
+            QueryValue<Integer> value = Mockito.mock(QueryValue.class);
+            Mockito.when(value.type()).thenReturn(ValueType.NUMBER);
+            Mockito. when(value.get()).thenReturn(42);
 
-        Object result = Values.get(value, Mockito.mock(Params.class));
+            Object result = Values.get(value, Mockito.mock(Params.class));
 
-        assertThat(result).isEqualTo(42);
-    }
+            assertThat(result).isEqualTo(42);
+        }
 
 
-    @Test
-    void shouldReturnStringAsIs() {
-        @SuppressWarnings("unchecked")
-        QueryValue<String> value = mock(QueryValue.class);
-        when(value.type()).thenReturn(ValueType.STRING);
-        when(value.get()).thenReturn("jnosql");
+        @DisplayName("Should Return String As Is")
+        @Test
+        void shouldReturnStringAsIs() {
+            @SuppressWarnings("unchecked")
+            QueryValue<String> value = mock(QueryValue.class);
+            when(value.type()).thenReturn(ValueType.STRING);
+            when(value.get()).thenReturn("jnosql");
 
-        Object result = Values.get(value, mock(Params.class));
+            Object result = Values.get(value, mock(Params.class));
 
-        assertThat(result).isEqualTo("jnosql");
-    }
+            assertThat(result).isEqualTo("jnosql");
+        }
 
-    @Test
-    void shouldReturnBooleanAsIs() {
-        @SuppressWarnings("unchecked")
-        QueryValue<Boolean> value = mock(QueryValue.class);
-        when(value.type()).thenReturn(ValueType.BOOLEAN);
-        when(value.get()).thenReturn(Boolean.TRUE);
+        @DisplayName("Should Return Boolean As Is")
+        @Test
+        void shouldReturnBooleanAsIs() {
+            @SuppressWarnings("unchecked")
+            QueryValue<Boolean> value = mock(QueryValue.class);
+            when(value.type()).thenReturn(ValueType.BOOLEAN);
+            when(value.get()).thenReturn(Boolean.TRUE);
 
-        Object result = Values.get(value, mock(Params.class));
+            Object result = Values.get(value, mock(Params.class));
 
-        assertThat(result).isEqualTo(true);
-    }
+            assertThat(result).isEqualTo(true);
+        }
 
-    @Test
-    void shouldResolveParameterViaParamsAdd() {
-        Params params = mock(Params.class);
+        @DisplayName("Should Resolve Parameter Via Params Add")
+        @Test
+        void shouldResolveParameterViaParamsAdd() {
+            Params params = mock(Params.class);
 
-        ParamQueryValue paramValue = mock(ParamQueryValue.class);
-        when(paramValue.type()).thenReturn(ValueType.PARAMETER);
-        when(paramValue.get()).thenReturn("age");
-        when(params.add("age")).thenReturn(Value.of(99));
+            ParamQueryValue paramValue = mock(ParamQueryValue.class);
+            when(paramValue.type()).thenReturn(ValueType.PARAMETER);
+            when(paramValue.get()).thenReturn("age");
+            when(params.add("age")).thenReturn(Value.of(99));
 
-        Object result = Values.get(paramValue, params);
+            Object result = Values.get(paramValue, params);
 
-        assertThat(result).isEqualTo(Value.of(99));
-        verify(params).add("age");
-    }
+            assertThat(result).isEqualTo(Value.of(99));
+            verify(params).add("age");
+        }
 
-    @Test
-    void shouldResolveArrayRecursivelyIncludingParamsAndNulls() {
-        Params params = mock(Params.class);
+        @DisplayName("Should Resolve Array Recursively Including Params And Nulls")
+        @Test
+        void shouldResolveArrayRecursivelyIncludingParamsAndNulls() {
+            Params params = mock(Params.class);
 
-        @SuppressWarnings("unchecked")
-        QueryValue<Integer> num = mock(QueryValue.class);
-        when(num.type()).thenReturn(ValueType.NUMBER);
-        when(num.get()).thenReturn(7);
+            @SuppressWarnings("unchecked")
+            QueryValue<Integer> num = mock(QueryValue.class);
+            when(num.type()).thenReturn(ValueType.NUMBER);
+            when(num.get()).thenReturn(7);
 
-        ParamQueryValue param = mock(ParamQueryValue.class);
-        when(param.type()).thenReturn(ValueType.PARAMETER);
-        when(param.get()).thenReturn("p1");
-        when(params.add("p1")).thenReturn(Value.of("added-p1"));
+            ParamQueryValue param = mock(ParamQueryValue.class);
+            when(param.type()).thenReturn(ValueType.PARAMETER);
+            when(param.get()).thenReturn("p1");
+            when(params.add("p1")).thenReturn(Value.of("added-p1"));
 
-        @SuppressWarnings("unchecked")
-        QueryValue<Object> nullVal = mock(QueryValue.class);
-        when(nullVal.type()).thenReturn(ValueType.NULL);
+            @SuppressWarnings("unchecked")
+            QueryValue<Object> nullVal = mock(QueryValue.class);
+            when(nullVal.type()).thenReturn(ValueType.NULL);
 
-        ArrayQueryValue array = () -> new QueryValue[]{ num, param, nullVal};
+            ArrayQueryValue array = () -> new QueryValue[]{ num, param, nullVal};
 
-        Object result = Values.get(array, params);
+            Object result = Values.get(array, params);
 
-        assertThat(result)
-                .isInstanceOf(List.class)
-                .asInstanceOf(InstanceOfAssertFactories.LIST)
-                .contains(7, Value.of("added-p1"), null);
+            assertThat(result)
+                    .isInstanceOf(List.class)
+                    .asInstanceOf(InstanceOfAssertFactories.LIST)
+                    .contains(7, Value.of("added-p1"), null);
 
-        verify(params).add("p1");
-    }
+            verify(params).add("p1");
+        }
 
-    @Test
-    void shouldMapEnumToItsName() {
+        @DisplayName("Should Map Enum To Its Name")
+        @Test
+        void shouldMapEnumToItsName() {
 
-        Object result = Values.get(new EnumQueryValue(SampleEnum.SECOND), mock(Params.class));
+            Object result = Values.get(new EnumQueryValue(SampleEnum.SECOND), mock(Params.class));
 
-        assertThat(result).isEqualTo(SampleEnum.SECOND);
-    }
+            assertThat(result).isEqualTo(SampleEnum.SECOND);
+        }
 
-    @Test
-    void shouldReturnNullForNullType() {
-        @SuppressWarnings("unchecked")
-        QueryValue<Object> nullValue = mock(QueryValue.class);
-        when(nullValue.type()).thenReturn(ValueType.NULL);
+        @DisplayName("Should Return Null For Null Type")
+        @Test
+        void shouldReturnNullForNullType() {
+            @SuppressWarnings("unchecked")
+            QueryValue<Object> nullValue = mock(QueryValue.class);
+            when(nullValue.type()).thenReturn(ValueType.NULL);
 
-        Object result = Values.get(nullValue, mock(Params.class));
+            Object result = Values.get(nullValue, mock(Params.class));
 
-        assertThat(result).isNull();
-    }
+            assertThat(result).isNull();
+        }
 
-    @Test
-    void shouldReturnPath() {
-        Object result = Values.get(QueryPath.of("attribute"), mock(Params.class));
-        assertThat(result).isEqualTo(org.eclipse.jnosql.communication.ReferenceToken.of("attribute"));
+        @DisplayName("Should Return Path")
+        @Test
+        void shouldReturnPath() {
+            Object result = Values.get(QueryPath.of("attribute"), mock(Params.class));
+            assertThat(result).isEqualTo(org.eclipse.jnosql.communication.ReferenceToken.of("attribute"));
+        }
     }
 
 }
