@@ -27,10 +27,12 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, KeyValueEntityConverter.class})
@@ -42,18 +44,26 @@ class KeyValueRepositoryProducerTest {
     @Inject
     private KeyValueRepositoryProducer producer;
 
-    @Test
-    void shouldCreateFromManager() {
-        BucketManager manager = Mockito.mock(BucketManager.class);
-        PersonRepository personRepository = producer.get(PersonRepository.class, manager);
-        assertNotNull(personRepository);
-    }
+    @Nested
+    @DisplayName("When the producer creates repositories")
+    class WhenTheProducerCreatesRepositories {
 
-    @Test
-    void shouldCreateFromTemplate() {
-        KeyValueTemplate template = Mockito.mock(KeyValueTemplate.class);
-        PersonRepository personRepository = producer.get(PersonRepository.class, template);
-        assertNotNull(personRepository);
+        @DisplayName("Should Create From Manager")
+        @Test
+        void shouldCreateFromManager() {
+            BucketManager manager = Mockito.mock(BucketManager.class);
+            PersonRepository personRepository = producer.get(PersonRepository.class, manager);
+            assertThat(personRepository).isNotNull();
+        }
+
+        @DisplayName("Should Create From Template")
+        @Test
+        void shouldCreateFromTemplate() {
+            KeyValueTemplate template = Mockito.mock(KeyValueTemplate.class);
+            PersonRepository personRepository = producer.get(PersonRepository.class, template);
+            assertThat(personRepository).isNotNull();
+        }
+
     }
 
 }
