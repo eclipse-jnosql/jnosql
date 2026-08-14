@@ -20,23 +20,33 @@ package org.eclipse.jnosql.communication.keyvalue;
 import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.Value;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@DisplayName("Key-value entity parameters")
 class KeyValueEntityParamsTest {
 
-    @Test
-    @DisplayName("Should be able to set and change a parameter value")
-    void shouldSetParameter() {
-        Params params = Params.newParams();
-        Value name = params.add("name");
+    @Nested
+    @DisplayName("When binding a parameter value")
+    class WhenTheParameterBinding {
 
-        KeyValueEntity entity = KeyValueEntity.of("name", name);
-        params.bind("name", "Ada Lovelace");
-        assertThat(entity.value()).isEqualTo("Ada Lovelace");
+        @Test
+        @DisplayName("Should update the entity value when the parameter changes")
+        void shouldUpdateEntityValueWhenParameterChanges() {
 
-        params.bind("name", "Diana");
-        assertThat(entity.value()).isEqualTo("Diana");
+            // Given
+            Params params = Params.newParams();
+            Value name = params.add("name");
+            KeyValueEntity entity = KeyValueEntity.of("name", name);
+
+            // When / Then
+            params.bind("name", "Ada Lovelace");
+            assertThat(entity.value()).isEqualTo("Ada Lovelace");
+
+            params.bind("name", "Diana");
+            assertThat(entity.value()).isEqualTo("Diana");
+        }
     }
 }
