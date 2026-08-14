@@ -75,7 +75,6 @@ class RepositoryReflectionUtilsTest {
 
         @DisplayName("Should get params without special params")
         @Test
-        @DisplayName("should return parameters without special ones")
         void shouldGetParamsWithoutSpecialParams() {
             Method method = Arrays.stream(PersonRepository.class.getDeclaredMethods())
                     .filter(m -> m.getName().equals("query"))
@@ -93,7 +92,6 @@ class RepositoryReflectionUtilsTest {
 
         @DisplayName("Should query")
         @Test
-        @DisplayName("should return query string from @Query annotation")
         void shouldQuery() {
             Method method = Arrays.stream(PersonRepository.class.getDeclaredMethods())
                     .filter(m -> m.getName().equals("query"))
@@ -106,7 +104,6 @@ class RepositoryReflectionUtilsTest {
 
         @DisplayName("Should by without special params")
         @Test
-        @DisplayName("should return @By parameters excluding Sort parameter")
         void shouldByWithoutSpecialParams() {
             Method method = Arrays.stream(PersonRepository.class.getDeclaredMethods())
                     .filter(m -> m.getName().equals("query"))
@@ -129,7 +126,6 @@ class RepositoryReflectionUtilsTest {
 
         @DisplayName("Should find by age without params")
         @Test
-        @DisplayName("should find parameters by position when compiled without -parameters")
         void shouldFindByAgeWithoutParams() {
             Method method = Stream.of(PersonRepository.class.getDeclaredMethods())
                     .filter(m -> m.getName().equals("findAge"))
@@ -145,7 +141,6 @@ class RepositoryReflectionUtilsTest {
 
         @DisplayName("Should find by age with params")
         @Test
-        @DisplayName("should find parameters by name when compiled with -parameters")
         void shouldFindByAgeWithParams() {
             Method method = Stream.of(PERSON_REPOSITORY_COMPILED_WITH_PARAMETERS_CLASS.getDeclaredMethods())
                     .filter(m -> m.getName().equals("findAge"))
@@ -162,7 +157,6 @@ class RepositoryReflectionUtilsTest {
 
         @DisplayName("Should find by age and name without params")
         @Test
-        @DisplayName("should handle multiple parameters without names")
         void shouldFindByAgeAndNameWithoutParams() {
             Method method = Stream.of(PersonRepository.class.getDeclaredMethods())
                     .filter(m -> m.getName().equals("findAgeAndName"))
@@ -180,7 +174,6 @@ class RepositoryReflectionUtilsTest {
 
         @DisplayName("Should find by age and name with params")
         @Test
-        @DisplayName("should handle multiple parameters with names")
         void shouldFindByAgeAndNameWithParams() {
             Method method = Stream.of(PERSON_REPOSITORY_COMPILED_WITH_PARAMETERS_CLASS.getDeclaredMethods())
                     .filter(m -> m.getName().equals("findAgeAndName"))
@@ -258,7 +251,6 @@ class RepositoryReflectionUtilsTest {
 
         @DisplayName("Should create param value equals when is null")
         @Test
-        @DisplayName("should create ParamValue equals when constraint is null")
         void shouldCreateParamValueEqualsWhenIsNull() {
             var param = RepositoryReflectionUtils.INSTANCE.condition(null, "name");
             SoftAssertions.assertSoftly(softly -> {
@@ -271,7 +263,6 @@ class RepositoryReflectionUtilsTest {
 
         @DisplayName("Should use the is param value")
         @Test
-        @DisplayName("should use @Is annotation to resolve constraint type")
         void shouldUseTheIsParamValue() {
             Is is = new Is() {
                 @Override
@@ -296,7 +287,6 @@ class RepositoryReflectionUtilsTest {
 
         @DisplayName("Should create param value equals when is null and have constraint instance")
         @Test
-        @DisplayName("should create ParamValue equals when constraint is null and constraint instance")
         void shouldCreateParamValueEqualsWhenIsNullAndHaveConstraintInstance() {
 
             var param = RepositoryReflectionUtils.INSTANCE.condition(null, AtMost.max(10));
@@ -310,7 +300,6 @@ class RepositoryReflectionUtilsTest {
 
         @DisplayName("Should ignore is annotation when value is constraint instance")
         @Test
-        @DisplayName("should ignore @Is annotation when value is constraint instance")
         void shouldIgnoreIsAnnotationWhenValueIsConstraintInstance() {
             Is is = new Is() {
                 @Override
