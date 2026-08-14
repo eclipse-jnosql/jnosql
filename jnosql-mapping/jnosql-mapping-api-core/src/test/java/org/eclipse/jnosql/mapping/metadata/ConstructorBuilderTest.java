@@ -14,18 +14,27 @@
  */
 package org.eclipse.jnosql.mapping.metadata;
 
-import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 class ConstructorBuilderTest {
 
-    @Test
-    void shouldReturnValidConstructorBuilder() {
-        ConstructorMetadata constructorMetadata = mock(ConstructorMetadata.class);
-         ConstructorBuilder builder = ConstructorBuilder.of(constructorMetadata);
-        SoftAssertions.assertSoftly(soft -> soft.assertThat(builder).isNotNull());
+    @Nested
+    @DisplayName("When the constructor builder is requested")
+    class WhenTheConstructorBuilderIsRequested {
+
+        @Test
+        @DisplayName("Should return a constructor builder for metadata")
+        void shouldReturnAConstructorBuilderForMetadata() {
+            ConstructorMetadata constructorMetadata = mock(ConstructorMetadata.class);
+            ConstructorBuilder builder = ConstructorBuilder.of(constructorMetadata);
+
+            assertThat(builder).isNotNull();
+        }
     }
 
 }
