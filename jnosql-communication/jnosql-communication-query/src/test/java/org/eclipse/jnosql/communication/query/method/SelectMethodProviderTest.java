@@ -12,21 +12,30 @@
 package org.eclipse.jnosql.communication.query.method;
 
 import org.eclipse.jnosql.communication.query.SelectQuery;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 class SelectMethodProviderTest {
+
+    @Nested
+    @DisplayName("When the select method provider is used")
+    class WhenTheSelectMethodProvider {
+    }
 
 
     @Test
+    @DisplayName("Should Create From Provider")
     void shouldCreateFromProvider() {
         Method method = PersonRepository.class.getDeclaredMethods()[0];
         SelectQuery query = SelectMethodProvider.INSTANCE.apply(method, "Person");
-        Assertions.assertNotNull(query);
-        Assertions.assertEquals("Person", query.entity());
+        assertThat(query).isNotNull();
+        assertThat(query.entity()).isEqualTo("Person");
     }
 
 
