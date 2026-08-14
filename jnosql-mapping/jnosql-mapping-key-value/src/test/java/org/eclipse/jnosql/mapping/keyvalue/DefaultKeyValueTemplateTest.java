@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.keyvalue;
 
 import jakarta.enterprise.inject.Instance;
+import org.assertj.core.api.SoftAssertions;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
@@ -28,8 +29,9 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -44,12 +46,10 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
 import static java.util.Collections.singletonList;
 import static java.util.stream.StreamSupport.stream;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @EnableAutoWeld
@@ -84,203 +84,255 @@ class DefaultKeyValueTemplateTest {
         this.template = new DefaultKeyValueTemplate(converter, instance, eventManager);
     }
 
-    @Test
-    void shouldPut() {
-        User user = new User(KEY, "otavio", 27);
-        template.put(user);
-        Mockito.verify(manager).put(captor.capture());
-        KeyValueEntity entity = captor.getValue();
-        assertEquals(KEY, entity.key());
-        assertEquals(user, entity.value());
-    }
+    @Nested
+    @DisplayName("When the template handles entities")
+    class WhenTheTemplateHandlesEntities {
 
+        @DisplayName("Should Put")
+        @Test
+        void shouldPut() {
+            User user = new User(KEY, "otavio", 27);
+            template.put(user);
+            Mockito.verify(manager).put(captor.capture());
+            KeyValueEntity entity = captor.getValue();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(entity.key()).isEqualTo(KEY);
+                softly.assertThat(entity.value()).isEqualTo(user);
+            });
+        }
 
-    @Test
-    void shouldMergeOnPut() {
-        User user = new User(KEY, "otavio", 27);
-        User result = template.put(user);
-        assertSame(user, result);
-    }
+        @DisplayName("Should Merge On Put")
+        @Test
+        void shouldMergeOnPut() {
+            User user = new User(KEY, "otavio", 27);
+            User result = template.put(user);
+            assertThat(result).isSameAs(user);
+        }
 
-    @Test
-    void shouldPutIterable() {
-        User user = new User(KEY, "otavio", 27);
-        template.put(singletonList(user));
-        Mockito.verify(manager).put(captor.capture());
-        KeyValueEntity entity = captor.getValue();
-        assertEquals(KEY, entity.key());
-        assertEquals(user, entity.value());
-    }
+        @DisplayName("Should Put Iterable")
+        @Test
+        void shouldPutIterable() {
+            User user = new User(KEY, "otavio", 27);
+            template.put(singletonList(user));
+            Mockito.verify(manager).put(captor.capture());
+            KeyValueEntity entity = captor.getValue();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(entity.key()).isEqualTo(KEY);
+                softly.assertThat(entity.value()).isEqualTo(user);
+            });
+        }
 
-    @Test
-    void shouldPutTTL() {
+        @DisplayName("Should Put TTL")
+        @Test
+        void shouldPutTTL() {
 
-        Duration duration = Duration.ofSeconds(2L);
-        User user = new User(KEY, "otavio", 27);
-        template.put(user, duration);
+            Duration duration = Duration.ofSeconds(2L);
+            User user = new User(KEY, "otavio", 27);
+            template.put(user, duration);
 
-        Mockito.verify(manager).put(captor.capture(), Mockito.eq(duration));
-        KeyValueEntity entity = captor.getValue();
-        assertEquals(KEY, entity.key());
-        assertEquals(user, entity.value());
-    }
+            Mockito.verify(manager).put(captor.capture(), Mockito.eq(duration));
+            KeyValueEntity entity = captor.getValue();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(entity.key()).isEqualTo(KEY);
+                softly.assertThat(entity.value()).isEqualTo(user);
+            });
+        }
 
-    @Test
-    void shouldPutTTLIterable() {
+        @DisplayName("Should Put TTLIterable")
+        @Test
+        void shouldPutTTLIterable() {
 
-        Duration duration = Duration.ofSeconds(2L);
-        User user = new User(KEY, "otavio", 27);
-        template.put(singletonList(user), duration);
+            Duration duration = Duration.ofSeconds(2L);
+            User user = new User(KEY, "otavio", 27);
+            template.put(singletonList(user), duration);
 
-        Mockito.verify(manager).put(captor.capture(), Mockito.eq(duration));
-        KeyValueEntity entity = captor.getValue();
-        assertEquals(KEY, entity.key());
-        assertEquals(user, entity.value());
-    }
+            Mockito.verify(manager).put(captor.capture(), Mockito.eq(duration));
+            KeyValueEntity entity = captor.getValue();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(entity.key()).isEqualTo(KEY);
+                softly.assertThat(entity.value()).isEqualTo(user);
+            });
+        }
 
-    @Test
-    void shouldInsert() {
-        User user = new User(KEY, "otavio", 27);
-        template.insert(user);
-        Mockito.verify(manager).put(captor.capture());
-        KeyValueEntity entity = captor.getValue();
-        assertEquals(KEY, entity.key());
-        assertEquals(user, entity.value());
-    }
+        @DisplayName("Should Insert")
+        @Test
+        void shouldInsert() {
+            User user = new User(KEY, "otavio", 27);
+            template.insert(user);
+            Mockito.verify(manager).put(captor.capture());
+            KeyValueEntity entity = captor.getValue();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(entity.key()).isEqualTo(KEY);
+                softly.assertThat(entity.value()).isEqualTo(user);
+            });
+        }
 
-    @Test
-    void shouldInsertIterable() {
-        User user = new User(KEY, "otavio", 27);
-        template.insert(singletonList(user));
-        Mockito.verify(manager).put(captor.capture());
-        KeyValueEntity entity = captor.getValue();
-        assertEquals(KEY, entity.key());
-        assertEquals(user, entity.value());
-    }
+        @DisplayName("Should Insert Iterable")
+        @Test
+        void shouldInsertIterable() {
+            User user = new User(KEY, "otavio", 27);
+            template.insert(singletonList(user));
+            Mockito.verify(manager).put(captor.capture());
+            KeyValueEntity entity = captor.getValue();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(entity.key()).isEqualTo(KEY);
+                softly.assertThat(entity.value()).isEqualTo(user);
+            });
+        }
 
-    @Test
-    void shouldInsertTTL() {
+        @DisplayName("Should Insert TTL")
+        @Test
+        void shouldInsertTTL() {
 
-        Duration duration = Duration.ofSeconds(2L);
-        User user = new User(KEY, "otavio", 27);
-        template.insert(user, duration);
+            Duration duration = Duration.ofSeconds(2L);
+            User user = new User(KEY, "otavio", 27);
+            template.insert(user, duration);
 
-        Mockito.verify(manager).put(captor.capture(), Mockito.eq(duration));
-        KeyValueEntity entity = captor.getValue();
-        assertEquals(KEY, entity.key());
-        assertEquals(user, entity.value());
-    }
+            Mockito.verify(manager).put(captor.capture(), Mockito.eq(duration));
+            KeyValueEntity entity = captor.getValue();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(entity.key()).isEqualTo(KEY);
+                softly.assertThat(entity.value()).isEqualTo(user);
+            });
+        }
 
-    @Test
-    void shouldInsertTTLIterable() {
+        @DisplayName("Should Insert TTLIterable")
+        @Test
+        void shouldInsertTTLIterable() {
 
-        Duration duration = Duration.ofSeconds(2L);
-        User user = new User(KEY, "otavio", 27);
-        template.insert(singletonList(user), duration);
+            Duration duration = Duration.ofSeconds(2L);
+            User user = new User(KEY, "otavio", 27);
+            template.insert(singletonList(user), duration);
 
-        Mockito.verify(manager).put(captor.capture(), Mockito.eq(duration));
-        KeyValueEntity entity = captor.getValue();
-        assertEquals(KEY, entity.key());
-        assertEquals(user, entity.value());
-    }
+            Mockito.verify(manager).put(captor.capture(), Mockito.eq(duration));
+            KeyValueEntity entity = captor.getValue();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(entity.key()).isEqualTo(KEY);
+                softly.assertThat(entity.value()).isEqualTo(user);
+            });
+        }
 
-    @Test
-    void shouldUpdate() {
-        User user = new User(KEY, "otavio", 27);
-        template.update(user);
-        Mockito.verify(manager).put(captor.capture());
-        KeyValueEntity entity = captor.getValue();
-        assertEquals(KEY, entity.key());
-        assertEquals(user, entity.value());
-    }
+        @DisplayName("Should Update")
+        @Test
+        void shouldUpdate() {
+            User user = new User(KEY, "otavio", 27);
+            template.update(user);
+            Mockito.verify(manager).put(captor.capture());
+            KeyValueEntity entity = captor.getValue();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(entity.key()).isEqualTo(KEY);
+                softly.assertThat(entity.value()).isEqualTo(user);
+            });
+        }
 
-    @Test
-    void shouldUpdateIterable() {
-        User user = new User(KEY, "otavio", 27);
-        template.update(singletonList(user));
-        Mockito.verify(manager).put(captor.capture());
-        KeyValueEntity entity = captor.getValue();
-        assertEquals(KEY, entity.key());
-        assertEquals(user, entity.value());
-    }
+        @DisplayName("Should Update Iterable")
+        @Test
+        void shouldUpdateIterable() {
+            User user = new User(KEY, "otavio", 27);
+            template.update(singletonList(user));
+            Mockito.verify(manager).put(captor.capture());
+            KeyValueEntity entity = captor.getValue();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(entity.key()).isEqualTo(KEY);
+                softly.assertThat(entity.value()).isEqualTo(user);
+            });
+        }
 
-    @Test
-    void shouldGet() {
-        User user = new User(KEY, "otavio", 27);
+        @DisplayName("Should Get")
+        @Test
+        void shouldGet() {
+            User user = new User(KEY, "otavio", 27);
 
-        when(manager.get(KEY)).thenReturn(Optional.of(Value.of(user)));
-        Optional<User> userOptional = template.get(KEY, User.class);
+            when(manager.get(KEY)).thenReturn(Optional.of(Value.of(user)));
+            Optional<User> userOptional = template.get(KEY, User.class);
 
-        assertTrue(userOptional.isPresent());
-        assertEquals(user, userOptional.get());
-    }
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(userOptional.isPresent()).isTrue();
+                softly.assertThat(userOptional.get()).isEqualTo(user);
+            });
+        }
 
-    @Test
-    void shouldFindById() {
-        User user = new User(KEY, "otavio", 27);
-        when(manager.get(KEY)).thenReturn(Optional.of(Value.of(user)));
-        Optional<User> userOptional = template.find(User.class, KEY);
+        @DisplayName("Should Find By Id")
+        @Test
+        void shouldFindById() {
+            User user = new User(KEY, "otavio", 27);
+            when(manager.get(KEY)).thenReturn(Optional.of(Value.of(user)));
+            Optional<User> userOptional = template.find(User.class, KEY);
 
-        assertTrue(userOptional.isPresent());
-        assertEquals(user, userOptional.get());
-    }
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(userOptional.isPresent()).isTrue();
+                softly.assertThat(userOptional.get()).isEqualTo(user);
+            });
+        }
 
-    @Test
-    void shouldGetIterable() {
-        User user = new User(KEY, "otavio", 27);
+        @DisplayName("Should Get Iterable")
+        @Test
+        void shouldGetIterable() {
+            User user = new User(KEY, "otavio", 27);
 
-        when(manager.get(KEY)).thenReturn(Optional.of(Value.of(user)));
-        List<User> userOptional = stream(template.get(singletonList(KEY), User.class).spliterator(), false)
-                .toList();
+            when(manager.get(KEY)).thenReturn(Optional.of(Value.of(user)));
+            List<User> userOptional = stream(template.get(singletonList(KEY), User.class).spliterator(), false)
+                    .toList();
 
-        assertFalse(userOptional.isEmpty());
-        assertEquals(user, userOptional.getFirst());
-    }
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(userOptional.isEmpty()).isFalse();
+                softly.assertThat(userOptional.getFirst()).isEqualTo(user);
+            });
+        }
 
-    @Test
-    void shouldReturnEmptyIterable() {
-        User user = new User(KEY, "otavio", 27);
+        @DisplayName("Should Return Empty Iterable")
+        @Test
+        void shouldReturnEmptyIterable() {
+            User user = new User(KEY, "otavio", 27);
 
-        when(manager.get(KEY)).thenReturn(Optional.empty());
-        List<User> userOptional = stream(template.get(singletonList(KEY), User.class).spliterator(), false)
-                .toList();
+            when(manager.get(KEY)).thenReturn(Optional.empty());
+            List<User> userOptional = stream(template.get(singletonList(KEY), User.class).spliterator(), false)
+                    .toList();
 
-        assertTrue(userOptional.isEmpty());
-    }
+            assertThat(userOptional.isEmpty()).isTrue();
+        }
 
-    @Test
-    void shouldRemove() {
-        template.deleteByKey(KEY);
-        Mockito.verify(manager).delete(KEY);
-    }
+        @DisplayName("Should Remove")
+        @Test
+        void shouldRemove() {
+            template.deleteByKey(KEY);
+            Mockito.verify(manager).delete(KEY);
+        }
 
-    @Test
-    void shouldRemoveUsingEntity() {
-        User user = new User(KEY, "otavio", 27);
-        template.delete(user);
-        Mockito.verify(manager).delete(KEY);
-    }
+        @DisplayName("Should Remove Using Entity")
+        @Test
+        void shouldRemoveUsingEntity() {
+            User user = new User(KEY, "otavio", 27);
+            template.delete(user);
+            Mockito.verify(manager).delete(KEY);
+        }
 
-    @Test
-    void shouldReturnErrorWhenEntityIsNull(){
-        Assertions.assertThrows(NullPointerException.class, () -> template.delete((User)null));
-    }
+        @DisplayName("Should Return Error When Entity Is Null")
+        @Test
+        void shouldReturnErrorWhenEntityIsNull(){
+            assertThatThrownBy(() -> template.delete((User)null)).isInstanceOf(NullPointerException.class);
+        }
 
-    @Test
-    void shouldRemoveById() {
-        template.delete(User.class, KEY);
-        Mockito.verify(manager).delete(KEY);
-    }
+        @DisplayName("Should Remove By Id")
+        @Test
+        void shouldRemoveById() {
+            template.delete(User.class, KEY);
+            Mockito.verify(manager).delete(KEY);
+        }
 
-    @Test
-    void shouldRemoveIterable() {
-        template.deleteByKeys(singletonList(KEY));
-        Mockito.verify(manager).delete(singletonList(KEY));
-    }
+        @DisplayName("Should Remove Iterable")
+        @Test
+        void shouldRemoveIterable() {
+            template.deleteByKeys(singletonList(KEY));
+            Mockito.verify(manager).delete(singletonList(KEY));
+        }
 
-    @Test
-    void shouldReturnUnsupportedExceptionOnUpdate() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.update(Person.class));
+        @DisplayName("Should Return Unsupported Exception On Update")
+        @Test
+        void shouldReturnUnsupportedExceptionOnUpdate() {
+            assertThatThrownBy(() -> template.update(Person.class)).isInstanceOf(UnsupportedOperationException.class);
+        }
+
     }
 
 }
