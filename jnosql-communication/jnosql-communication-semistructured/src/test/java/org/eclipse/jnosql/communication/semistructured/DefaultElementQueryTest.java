@@ -12,99 +12,113 @@ package org.eclipse.jnosql.communication.semistructured;
 
 import jakarta.data.Sort;
 import org.eclipse.jnosql.communication.Condition;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.eclipse.jnosql.communication.semistructured.SelectQuery.select;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 class DefaultElementQueryTest {
 
-    private SelectQuery query;
 
-    @BeforeEach
-    public void setUp() {
-        query = select().from("entity").build();
+    @Nested
+    @DisplayName("When the default element query is used")
+    class WhenTheDefaultElementQueryIsUsed {
+
+        private SelectQuery query;
+
+        @BeforeEach
+        public void setUp() {
+            query = select().from("entity").build();
+        }
+
+        @DisplayName("Should Not Remove Columns")
+        @Test
+        void shouldNotRemoveColumns() {
+            assertThatThrownBy(() -> {
+                List<String> columns = query.columns();
+                assertTrue(columns.isEmpty());
+                columns.clear();
+            }).isInstanceOf(UnsupportedOperationException.class);
+        }
+
+        @DisplayName("Should Not Remove Sort")
+        @Test
+        void shouldNotRemoveSort() {
+            assertThatThrownBy(() -> {
+                List<Sort<?>> sorts = query.sorts();
+                assertTrue(sorts.isEmpty());
+                sorts.clear();
+            }).isInstanceOf(UnsupportedOperationException.class);
+        }
+
+        @DisplayName("Should Convert County By")
+        @Test
+        void shouldConvertCountyBy() {
+            SelectQuery query = SelectQuery.select().from("entity")
+                    .where("name").eq("predicate")
+                    .orderBy("name").asc().build();
+
+            SelectQuery countQuery = DefaultSelectQuery.countBy(query);
+            assertThat(countQuery).isNotNull();
+            assertThat(countQuery.name()).isEqualTo("entity");
+            assertThat(countQuery.limit()).isEqualTo(0);
+            assertThat(countQuery.skip()).isEqualTo(0);
+            assertThat(countQuery.sorts().isEmpty()).isTrue();
+           CriteriaCondition condition = countQuery.condition().orElseThrow();
+           assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+        }
+
+        @DisplayName("Should Convert Exists By")
+        @Test
+        void shouldConvertExistsBy() {
+            SelectQuery query = SelectQuery.select().from("entity")
+                    .where("name").eq("predicate")
+                    .orderBy("name").asc().build();
+
+            SelectQuery countQuery = DefaultSelectQuery.existsBy(query);
+            assertThat(countQuery).isNotNull();
+            assertThat(countQuery.name()).isEqualTo("entity");
+            assertThat(countQuery.limit()).isEqualTo(1);
+            assertThat(countQuery.skip()).isEqualTo(0);
+            assertThat(countQuery.sorts().isEmpty()).isTrue();
+            CriteriaCondition condition = countQuery.condition().orElseThrow();
+            assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+        }
+
+        @DisplayName("Should Has Code")
+        @Test
+        void shouldHasCode(){
+            SelectQuery query = SelectQuery.select().from("entity")
+                    .where("name").eq("predicate")
+                    .orderBy("name").asc().build();
+            SelectQuery query2 = SelectQuery.select().from("entity")
+                    .where("name").eq("predicate")
+                    .orderBy("name").asc().build();
+
+            assertThat(query2.hashCode()).isEqualTo(query.hashCode());
+        }
+
+        @DisplayName("Should Equals")
+        @Test
+        void shouldEquals(){
+            SelectQuery query = SelectQuery.select().from("entity")
+                    .where("name").eq("predicate")
+                    .orderBy("name").asc().build();
+            SelectQuery query2 = SelectQuery.select().from("entity")
+                    .where("name").eq("predicate")
+                    .orderBy("name").asc().build();
+
+            assertThat(query2).isEqualTo(query);
+            assertThat(query).isEqualTo(query);
+            assertThat(query).isNotEqualTo("query");
+        }
     }
 
-    @Test
-    void shouldNotRemoveColumns() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
-            List<String> columns = query.columns();
-            assertTrue(columns.isEmpty());
-            columns.clear();
-        });
-    }
-
-    @Test
-    void shouldNotRemoveSort() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
-            List<Sort<?>> sorts = query.sorts();
-            assertTrue(sorts.isEmpty());
-            sorts.clear();
-        });
-    }
-
-    @Test
-    void shouldConvertCountyBy() {
-        SelectQuery query = SelectQuery.select().from("entity")
-                .where("name").eq("predicate")
-                .orderBy("name").asc().build();
-
-        SelectQuery countQuery = DefaultSelectQuery.countBy(query);
-        Assertions.assertNotNull(countQuery);
-        assertEquals("entity", countQuery.name());
-        assertEquals(0, countQuery.limit());
-        assertEquals(0, countQuery.skip());
-        assertTrue(countQuery.sorts().isEmpty());
-       CriteriaCondition condition = countQuery.condition().orElseThrow();
-       Assertions.assertEquals(Condition.EQUALS, condition.condition());
-    }
-
-    @Test
-    void shouldConvertExistsBy() {
-        SelectQuery query = SelectQuery.select().from("entity")
-                .where("name").eq("predicate")
-                .orderBy("name").asc().build();
-
-        SelectQuery countQuery = DefaultSelectQuery.existsBy(query);
-        Assertions.assertNotNull(countQuery);
-        assertEquals("entity", countQuery.name());
-        assertEquals(1, countQuery.limit());
-        assertEquals(0, countQuery.skip());
-        assertTrue(countQuery.sorts().isEmpty());
-        CriteriaCondition condition = countQuery.condition().orElseThrow();
-        Assertions.assertEquals(Condition.EQUALS, condition.condition());
-    }
-
-    @Test
-    void shouldHasCode(){
-        SelectQuery query = SelectQuery.select().from("entity")
-                .where("name").eq("predicate")
-                .orderBy("name").asc().build();
-        SelectQuery query2 = SelectQuery.select().from("entity")
-                .where("name").eq("predicate")
-                .orderBy("name").asc().build();
-
-        Assertions.assertEquals(query.hashCode(), query2.hashCode());
-    }
-
-    @Test
-    void shouldEquals(){
-        SelectQuery query = SelectQuery.select().from("entity")
-                .where("name").eq("predicate")
-                .orderBy("name").asc().build();
-        SelectQuery query2 = SelectQuery.select().from("entity")
-                .where("name").eq("predicate")
-                .orderBy("name").asc().build();
-
-        Assertions.assertEquals(query, query2);
-        Assertions.assertEquals(query, query);
-        Assertions.assertNotEquals("query", query);
-    }
 }
