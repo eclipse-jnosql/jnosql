@@ -246,25 +246,25 @@ class SpecialParametersTest {
         @ParameterizedTest
         @ValueSource(classes = {Sort.class, Limit.class, PageRequest.class, Order.class, Restriction.class})
         void shouldReturnTrueSpecialParameter(Class<?> type){
-            org.assertj.core.api.assertThat(SpecialParameters.isSpecialParameter(type)).isTrue();
+            assertThat(SpecialParameters.isSpecialParameter(type)).isTrue();
         }
         @DisplayName("Should return not special parameter")
         @ParameterizedTest
         @ValueSource(classes = {String.class, Integer.class, Long.class, Double.class, Float.class, Boolean.class, Object.class})
         void shouldReturnNotSpecialParameter(Class<?> type){
-            org.assertj.core.api.assertThat(SpecialParameters.isNotSpecialParameter(type)).isTrue();
+            assertThat(SpecialParameters.isNotSpecialParameter(type)).isTrue();
         }
         @DisplayName("Should return true special parameter")
         @ParameterizedTest
         @MethodSource("org.eclipse.jnosql.mapping.core.repository.SpecialParametersTest#provideSpecialParameters")
         void shouldReturnTrueSpecialParameter(Object parameter){
-            org.assertj.core.api.assertThat(SpecialParameters.isSpecialParameter(parameter)).isTrue();
+            assertThat(SpecialParameters.isSpecialParameter(parameter)).isTrue();
         }
         @DisplayName("Should return not special parameter")
         @ParameterizedTest
         @MethodSource("org.eclipse.jnosql.mapping.core.repository.SpecialParametersTest#provideNonSpecialParameters")
         void shouldReturnNotSpecialParameter(Object parameter){
-            org.assertj.core.api.assertThat(SpecialParameters.isNotSpecialParameter(parameter)).isTrue();
+            assertThat(SpecialParameters.isNotSpecialParameter(parameter)).isTrue();
         }
     }
 }
