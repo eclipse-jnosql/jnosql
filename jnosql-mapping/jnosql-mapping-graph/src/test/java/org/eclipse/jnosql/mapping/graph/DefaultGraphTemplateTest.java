@@ -25,6 +25,7 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -33,7 +34,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -72,93 +74,116 @@ class DefaultGraphTemplateTest {
         this.graphTemplate = new DefaultGraphTemplate(entityConverterFactory, graphDatabaseManager, eventPersistManager, entitiesMetadata, converters);
     }
 
-    @Test
-    void shouldCreateEdgeSuccessfully() {
-        String label = "READS";
-        Map<String, Object> properties = Map.of("since", 2020);
-        CommunicationEntity sourceEntity = mock(CommunicationEntity.class);
-        CommunicationEntity targetEntity = mock(CommunicationEntity.class);
-        CommunicationEdge communicationEdge = mock(CommunicationEdge.class);
+    @Nested
+    @DisplayName("When the edge is created")
+    class WhenTheEdgeIsCreated {
 
-        when(entityConverter.toCommunication(person)).thenReturn(sourceEntity);
-        when(entityConverter.toCommunication(book)).thenReturn(targetEntity);
-        when(graphDatabaseManager.edge(sourceEntity, label, targetEntity, properties)).thenReturn(communicationEdge);
-        when(communicationEdge.id()).thenReturn(123L);
-        when(communicationEdge.source()).thenReturn(sourceEntity);
-        when(communicationEdge.target()).thenReturn(targetEntity);
-        when(entityConverter.toEntity(sourceEntity)).thenReturn(person);
-        when(entityConverter.toEntity(targetEntity)).thenReturn(book);
+        @Test
+        @DisplayName("Should create an edge successfully")
+        void shouldCreateEdgeSuccessfully() {
+            String label = "READS";
+            Map<String, Object> properties = Map.of("since", 2020);
+            CommunicationEntity sourceEntity = mock(CommunicationEntity.class);
+            CommunicationEntity targetEntity = mock(CommunicationEntity.class);
+            CommunicationEdge communicationEdge = mock(CommunicationEdge.class);
 
+            when(entityConverter.toCommunication(person)).thenReturn(sourceEntity);
+            when(entityConverter.toCommunication(book)).thenReturn(targetEntity);
+            when(graphDatabaseManager.edge(sourceEntity, label, targetEntity, properties)).thenReturn(communicationEdge);
+            when(communicationEdge.id()).thenReturn(123L);
+            when(communicationEdge.source()).thenReturn(sourceEntity);
+            when(communicationEdge.target()).thenReturn(targetEntity);
+            when(entityConverter.toEntity(sourceEntity)).thenReturn(person);
+            when(entityConverter.toEntity(targetEntity)).thenReturn(book);
 
-        Edge<Person, Book> edge = graphTemplate.edge(person, label, book, properties);
+            Edge<Person, Book> edge = graphTemplate.edge(person, label, book, properties);
 
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(edge.label()).isEqualTo(label);
-            soft.assertThat(edge.source()).isEqualTo(person);
-            soft.assertThat(edge.target()).isEqualTo(book);
-            soft.assertThat(edge.properties()).containsEntry("since", 2020);
-            soft.assertThat(edge.id()).contains(123L);
-            soft.assertThat(edge.label()).isNotNull();
-            soft.assertThat(edge.label()).isEqualTo(label);
-        });
+            assertSoftly(soft -> {
+                soft.assertThat(edge.label()).isEqualTo(label);
+                soft.assertThat(edge.source()).isEqualTo(person);
+                soft.assertThat(edge.target()).isEqualTo(book);
+                soft.assertThat(edge.properties()).containsEntry("since", 2020);
+                soft.assertThat(edge.id()).contains(123L);
+                soft.assertThat(edge.label()).isNotNull();
+                soft.assertThat(edge.label()).isEqualTo(label);
+            });
 
-        verify(graphDatabaseManager).edge(sourceEntity, label, targetEntity, properties);
+            verify(graphDatabaseManager).edge(sourceEntity, label, targetEntity, properties);
+        }
     }
 
-    @Test
-    void shouldDeleteEdgeSuccessfully() {
-        String label = "READS";
-        Edge<Person, Book> edge = mock(Edge.class);
-        when(edge.id()).thenReturn(Optional.of(123L));
+    @Nested
+    @DisplayName("When the edge is deleted")
+    class WhenTheEdgeIsDeleted {
 
-        graphTemplate.delete(edge);
+        @Test
+        @DisplayName("Should delete edge successfully")
+        void shouldDeleteEdgeSuccessfully() {
+            Edge<Person, Book> edge = mock(Edge.class);
+            when(edge.id()).thenReturn(Optional.of(123L));
 
-        verify(graphDatabaseManager).deleteEdge(123L);
+            graphTemplate.delete(edge);
+
+            verify(graphDatabaseManager).deleteEdge(123L);
+        }
+
+        @Test
+        @DisplayName("Should delete edge by id")
+        void shouldDeleteEdgeById() {
+            long edgeId = 123L;
+
+            graphTemplate.deleteEdge(edgeId);
+
+            verify(graphDatabaseManager).deleteEdge(edgeId);
+        }
     }
 
-    @Test
-    void shouldFindEdgeById() {
-        long edgeId = 123L;
-        CommunicationEntity sourceEntity = mock(CommunicationEntity.class);
-        CommunicationEntity targetEntity = mock(CommunicationEntity.class);
-        CommunicationEdge communicationEdge = mock(CommunicationEdge.class);
+    @Nested
+    @DisplayName("When the edge is searched")
+    class WhenTheEdgeIsSearched {
 
-        when(graphDatabaseManager.findEdgeById(edgeId)).thenReturn(Optional.of(communicationEdge));
-        when(communicationEdge.id()).thenReturn(edgeId);
-        when(communicationEdge.label()).thenReturn("READS");
-        when(communicationEdge.source()).thenReturn(sourceEntity);
-        when(communicationEdge.target()).thenReturn(targetEntity);
-        when(communicationEdge.properties()).thenReturn(Map.of("since", 2020));
-        when(entityConverter.toEntity(sourceEntity)).thenReturn(person);
-        when(entityConverter.toEntity(targetEntity)).thenReturn(book);
+        @Test
+        @DisplayName("Should find edge by id")
+        void shouldFindEdgeById() {
+            long edgeId = 123L;
+            CommunicationEntity sourceEntity = mock(CommunicationEntity.class);
+            CommunicationEntity targetEntity = mock(CommunicationEntity.class);
+            CommunicationEdge communicationEdge = mock(CommunicationEdge.class);
 
-        Optional<Edge<Person, Book>> edge = graphTemplate.findEdgeById(edgeId);
+            when(graphDatabaseManager.findEdgeById(edgeId)).thenReturn(Optional.of(communicationEdge));
+            when(communicationEdge.id()).thenReturn(edgeId);
+            when(communicationEdge.label()).thenReturn("READS");
+            when(communicationEdge.source()).thenReturn(sourceEntity);
+            when(communicationEdge.target()).thenReturn(targetEntity);
+            when(communicationEdge.properties()).thenReturn(Map.of("since", 2020));
+            when(entityConverter.toEntity(sourceEntity)).thenReturn(person);
+            when(entityConverter.toEntity(targetEntity)).thenReturn(book);
 
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(edge).isPresent();
-            soft.assertThat(edge.get().label()).isEqualTo("READS");
-            soft.assertThat(edge.get().source()).isEqualTo(person);
-            soft.assertThat(edge.get().target()).isEqualTo(book);
-            soft.assertThat(edge.get().properties()).containsEntry("since", 2020);
-        });
+            Optional<Edge<Person, Book>> edge = graphTemplate.findEdgeById(edgeId);
 
-        verify(graphDatabaseManager).findEdgeById(edgeId);
+            assertSoftly(soft -> {
+                soft.assertThat(edge).isPresent();
+                soft.assertThat(edge.get().label()).isEqualTo("READS");
+                soft.assertThat(edge.get().source()).isEqualTo(person);
+                soft.assertThat(edge.get().target()).isEqualTo(book);
+                soft.assertThat(edge.get().properties()).containsEntry("since", 2020);
+            });
+
+            verify(graphDatabaseManager).findEdgeById(edgeId);
+        }
     }
 
-    @Test
-    void shouldDeleteEdgeById() {
-        long edgeId = 123L;
+    @Nested
+    @DisplayName("When the template is constructed")
+    class WhenTheTemplateIsConstructed {
 
-        graphTemplate.deleteEdge(edgeId);
+        @Test
+        @DisplayName("Should have a default constructor for CDI")
+        void shouldHaveDefaultConstructor() {
+            DefaultGraphTemplate template = new DefaultGraphTemplate();
 
-        verify(graphDatabaseManager).deleteEdge(edgeId);
-    }
-
-    @Test
-    @DisplayName("Should have a default constructor for CDI ")
-    void shouldHaveDefaultConstructor() {
-        DefaultGraphTemplate template = new DefaultGraphTemplate();
-        assertNotNull(template);
+            assertThat(template).isNotNull();
+        }
     }
 
 
