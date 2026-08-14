@@ -28,8 +28,13 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -48,24 +53,28 @@ class SemistructuredRepositoryProducerTest {
         this.semiStructuredTemplate = Mockito.mock(SemiStructuredTemplate.class);
     }
 
+    @DisplayName("Should return instance")
     @Test
     void shouldReturnInstance() {
         Assertions.assertThat(producer).isNotNull();
     }
 
 
+    @DisplayName("Should return error when template is null")
     @Test
     void shouldReturnErrorWhenTemplateIsNull() {
         Assertions.assertThatThrownBy(() -> producer.get(Tasks.class, null))
                 .isInstanceOf(NullPointerException.class);
     }
 
+    @DisplayName("Should return error when repository class is null")
     @Test
     void shouldReturnErrorWhenRepositoryClassIsNull() {
         Assertions.assertThatThrownBy(() -> producer.get(null, semiStructuredTemplate))
                 .isInstanceOf(NullPointerException.class);
     }
 
+    @DisplayName("Should instance default constructor")
     @Test
     void shouldInstanceDefaultConstructor() {
         SemistructuredRepositoryProducer producer = new SemistructuredRepositoryProducer();
@@ -73,16 +82,23 @@ class SemistructuredRepositoryProducerTest {
     }
 
 
+    @DisplayName("Should return custom repository instance")
     @Test
     void shouldReturnCustomRepositoryInstance() {
         var repository = producer.get(Tasks.class, semiStructuredTemplate);
         Assertions.assertThat(repository).isNotNull();
     }
 
+    @DisplayName("Should return repository instance")
     @Test
     void shouldReturnRepositoryInstance() {
         var repository = producer.get(ComicBookRepository.class, semiStructuredTemplate);
         Assertions.assertThat(repository).isNotNull();
     }
 
+
+    @Nested
+    @DisplayName("When the semistructured repository producer is tested")
+    class WhenTheSemistructuredRepositoryProducerIsTested {
+    }
 }
