@@ -14,17 +14,25 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SemistructuredCountByOperationTest {
 
 
+    @DisplayName("Should create instance with default constructor")
     @Test
     void shouldCreateInstanceWithDefaultConstructor() {
         SemistructuredCountByOperation operation = new SemistructuredCountByOperation();
-        assertNotNull(operation);
+        assertThat(operation).isNotNull();
     }
 
+
+    @Nested
+    @DisplayName("When the semistructured count by operation is tested")
+    class WhenTheSemistructuredCountByOperationIsTested {
+    }
 }
