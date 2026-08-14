@@ -17,6 +17,8 @@
 package org.eclipse.jnosql.communication;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -32,17 +34,23 @@ class ConfigurationsTest {
             Configurations.CURSOR_PAGINATION_MULTIPLE_SORTING, "org.eclipse.jnosql.pagination.cursor"
     );
 
-    @ParameterizedTest
-    @EnumSource(Configurations.class)
-    void shouldReturnExpectedConfigurationValue(Configurations config) {
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(config.get())
-                    .as("Check get() for " + config.name())
-                    .isEqualTo(EXPECTED_VALUES.get(config));
+    @Nested
+    @DisplayName("When the configuration value is requested")
+    class WhenTheConfigurationValueIsRequested {
 
-            soft.assertThat(config)
-                    .as("Ensure mapping is defined for " + config.name())
-                    .isIn(EXPECTED_VALUES.keySet());
-        });
+        @ParameterizedTest
+        @EnumSource(Configurations.class)
+        @DisplayName("Should return the expected key for every configuration")
+        void shouldReturnExpectedConfigurationValue(Configurations config) {
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(config.get())
+                        .as("Check get() for " + config.name())
+                        .isEqualTo(EXPECTED_VALUES.get(config));
+
+                soft.assertThat(config)
+                        .as("Ensure mapping is defined for " + config.name())
+                        .isIn(EXPECTED_VALUES.keySet());
+            });
+        }
     }
 }
