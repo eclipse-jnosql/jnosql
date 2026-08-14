@@ -33,8 +33,8 @@ class LazyLongSupplierTest {
     @DisplayName("getAsLong")
     class GetAsLong {
 
+        @DisplayName("Should load value lazily only once")
         @Test
-        @DisplayName("should load value lazily only once")
         void shouldLoadValueLazilyOnlyOnce() throws Exception {
 
             // given
@@ -59,8 +59,8 @@ class LazyLongSupplierTest {
             assertThat(counter.get()).isEqualTo(1);
         }
 
+        @DisplayName("Should not execute supplier before first access")
         @Test
-        @DisplayName("should not execute supplier before first access")
         void shouldNotExecuteSupplierBeforeFirstAccess() {
 
             // given
@@ -77,8 +77,8 @@ class LazyLongSupplierTest {
             assertThat(counter.get()).isZero();
         }
 
+        @DisplayName("Should cache computed value")
         @Test
-        @DisplayName("should cache computed value")
         void shouldCacheComputedValue() {
 
             // given
@@ -101,8 +101,8 @@ class LazyLongSupplierTest {
             assertThat(counter.get()).isEqualTo(1);
         }
 
+        @DisplayName("Should execute supplier only once under concurrent access")
         @Test
-        @DisplayName("should execute supplier only once under concurrent access")
         void shouldExecuteSupplierOnlyOnceUnderConcurrentAccess() throws Exception {
 
             // given
@@ -152,8 +152,8 @@ class LazyLongSupplierTest {
     @DisplayName("error handling")
     class ErrorHandling {
 
+        @DisplayName("Should cache unsupported operation exception")
         @Test
-        @DisplayName("should cache unsupported operation exception")
         void shouldCacheUnsupportedOperationException() {
 
             // given
@@ -183,8 +183,8 @@ class LazyLongSupplierTest {
             assertThat(counter.get()).isEqualTo(1);
         }
 
+        @DisplayName("Should cache runtime exception")
         @Test
-        @DisplayName("should cache runtime exception")
         void shouldCacheRuntimeException() {
 
             // given
@@ -214,8 +214,8 @@ class LazyLongSupplierTest {
             assertThat(counter.get()).isEqualTo(1);
         }
 
+        @DisplayName("Should execute supplier only once when exception happens concurrently")
         @Test
-        @DisplayName("should execute supplier only once when exception happens concurrently")
         void shouldExecuteSupplierOnlyOnceWhenExceptionHappensConcurrently() throws Exception {
 
             // given
