@@ -59,14 +59,14 @@ class RepositoryObserverParserTest {
         void shouldCreateInstance() {
             EntityMetadata metadata = entities.get(Person.class);
             RepositoryObserverParser parser = RepositoryObserverParser.of(metadata);
-            org.assertj.core.api.assertThat(parser).isNotNull();
+            assertThat(parser).isNotNull();
         }
         @DisplayName("Should fire event")
         @Test
         void shouldFireEvent() {
             EntityMetadata metadata = entities.get(Person.class);
             RepositoryObserverParser parser = RepositoryObserverParser.of(metadata);
-            org.assertj.core.api.assertThat(parser)
+            assertThat(parser)
                     .extracting(RepositoryObserverParser::name)
                     .isEqualTo(metadata.name());
         }
@@ -75,7 +75,7 @@ class RepositoryObserverParserTest {
         void shouldKeepName() {
             EntityMetadata metadata = entities.get(Person.class);
             RepositoryObserverParser parser = RepositoryObserverParser.of(metadata);
-            org.assertj.core.api.assertThat(parser)
+            assertThat(parser)
                     .extracting(p -> p.field("name"))
                     .isEqualTo("name");
         }
@@ -84,7 +84,7 @@ class RepositoryObserverParserTest {
         void shouldReplaceName(){
             EntityMetadata metadata = entities.get(Worker.class);
             RepositoryObserverParser parser = RepositoryObserverParser.of(metadata);
-            org.assertj.core.api.assertThat(parser)
+            assertThat(parser)
                     .extracting(p -> p.field("salary"))
                     .isEqualTo("money");
         }
@@ -93,7 +93,7 @@ class RepositoryObserverParserTest {
         void shouldKeepWhenDoesNotFind() {
             EntityMetadata metadata = entities.get(Address.class);
             RepositoryObserverParser parser = RepositoryObserverParser.of(metadata);
-            org.assertj.core.api.assertThat(parser)
+            assertThat(parser)
                     .extracting(p -> p.field("not-found"))
                     .isEqualTo("not-found");
         }
@@ -102,7 +102,7 @@ class RepositoryObserverParserTest {
         void shouldConcatSmart() {
             EntityMetadata metadata = entities.get(Address.class);
             RepositoryObserverParser parser = RepositoryObserverParser.of(metadata);
-            org.assertj.core.api.assertThat(parser)
+            assertThat(parser)
                     .extracting(p -> p.field("zipCodePlusFour"))
                     .isEqualTo("zipCode.plusFour");
         }
