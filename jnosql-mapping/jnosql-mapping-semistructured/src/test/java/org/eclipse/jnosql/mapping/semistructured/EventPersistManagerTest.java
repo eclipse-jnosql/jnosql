@@ -17,6 +17,8 @@ package org.eclipse.jnosql.mapping.semistructured;
 import jakarta.enterprise.event.Event;
 import org.eclipse.jnosql.mapping.EntityPostPersist;
 import org.eclipse.jnosql.mapping.EntityPrePersist;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -24,7 +26,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,10 +44,7 @@ class EventPersistManagerTest {
     private Event<EntityPostPersist> entityPostPersistEvent;
 
 
-
-
-
-
+    @DisplayName("Should fire pre entity")
     @Test
     void shouldFirePreEntity() {
         Jedi jedi = new Jedi();
@@ -54,9 +53,10 @@ class EventPersistManagerTest {
         ArgumentCaptor<EntityPrePersist> captor = ArgumentCaptor.forClass(EntityPrePersist.class);
         verify(entityPrePersistEvent).fire(captor.capture());
         EntityPrePersist value = captor.getValue();
-        assertEquals(jedi, value.get());
+        assertThat(value.get()).isEqualTo(jedi);
     }
 
+    @DisplayName("Should fire post entity")
     @Test
     void shouldFirePostEntity() {
         Jedi jedi = new Jedi();
@@ -65,11 +65,16 @@ class EventPersistManagerTest {
         ArgumentCaptor<EntityPostPersist> captor = ArgumentCaptor.forClass(EntityPostPersist.class);
         verify(entityPostPersistEvent).fire(captor.capture());
         EntityPostPersist value = captor.getValue();
-        assertEquals(jedi, value.get());
+        assertThat(value.get()).isEqualTo(jedi);
     }
 
 
     static class Jedi {
         private String name;
+    }
+
+    @Nested
+    @DisplayName("When the event persist manager is tested")
+    class WhenTheEventPersistManagerIsTested {
     }
 }
