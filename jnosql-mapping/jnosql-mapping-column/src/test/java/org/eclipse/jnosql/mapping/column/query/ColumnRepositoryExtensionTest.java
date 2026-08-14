@@ -30,15 +30,17 @@ import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredRepositoryP
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class, SemiStructuredRepositoryProxy.class})
 @AddPackages({MockProducer.class, ColumnTemplate.class, Reflections.class})
 @AddExtensions({ReflectionEntityMetadataExtension.class, ColumnExtension.class})
+@DisplayName("Column repository extension")
 class ColumnRepositoryExtensionTest {
 
     @Inject
@@ -49,17 +51,36 @@ class ColumnRepositoryExtensionTest {
     @Database(value = DatabaseType.COLUMN, provider = "columnRepositoryMock")
     private PersonRepository repositoryMock;
 
-    @Test
-    void shouldInitiate() {
-        assertNotNull(repository);
-        Person person = repository.save(Person.builder().build());
-        assertEquals("Default", person.getName());
-    }
+    @Nested
+    @DisplayName("When injecting column repositories")
+    class WhenTheRepositoryInjection {
 
-    @Test
-    void shouldUseInstantiation(){
-        assertNotNull(repositoryMock);
-        Person person = repositoryMock.save(Person.builder().build());
-        assertEquals("columnRepositoryMock", person.getName());
+        @Test
+        @DisplayName("Should inject the default repository")
+        void shouldInjectDefaultRepository() {
+
+            // When
+            Person person = repository.save(Person.builder().build());
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(repository).isNotNull();
+                softly.assertThat(person.getName()).isEqualTo("Default");
+            });
+        }
+
+        @Test
+        @DisplayName("Should inject the provider-specific repository")
+        void shouldInjectProviderRepository() {
+
+            // When
+            Person person = repositoryMock.save(Person.builder().build());
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(repositoryMock).isNotNull();
+                softly.assertThat(person.getName()).isEqualTo("columnRepositoryMock");
+            });
+        }
     }
 }
