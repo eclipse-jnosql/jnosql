@@ -23,6 +23,7 @@ import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryPath;
 import org.eclipse.jnosql.communication.query.SelectQuery;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,6 +36,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("SelectJakartaDataQueryProvider")
 class SelectJakartaDataQueryProviderTest {
+
+    @Nested
+    @DisplayName("When the select jakarta data query provider is used")
+    class WhenTheSelectJakartaDataQueryProvider {
+    }
 
 
     private SelectParser selectParser;
