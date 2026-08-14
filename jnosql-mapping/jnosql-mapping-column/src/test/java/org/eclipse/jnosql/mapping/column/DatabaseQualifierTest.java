@@ -15,95 +15,197 @@
 package org.eclipse.jnosql.mapping.column;
 
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.eclipse.jnosql.mapping.DatabaseType.COLUMN;
 import static org.eclipse.jnosql.mapping.DatabaseType.DOCUMENT;
 import static org.eclipse.jnosql.mapping.DatabaseType.GRAPH;
 import static org.eclipse.jnosql.mapping.DatabaseType.KEY_VALUE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@DisplayName("Database qualifier")
 class DatabaseQualifierTest {
 
-    @Test
-    void shouldReturnDefaultColumn() {
-        DatabaseQualifier qualifier = DatabaseQualifier.ofColumn();
-        assertEquals("", qualifier.provider());
-        assertEquals(COLUMN, qualifier.value());
+    @Nested
+    @DisplayName("When creating a column qualifier")
+    class WhenTheColumnQualifierCreation {
+
+        @Test
+        @DisplayName("Should create the default qualifier")
+        void shouldCreateDefaultQualifier() {
+
+            // When
+            DatabaseQualifier qualifier = DatabaseQualifier.ofColumn();
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(qualifier.provider()).isEmpty();
+                softly.assertThat(qualifier.value()).isEqualTo(COLUMN);
+            });
+        }
+
+        @Test
+        @DisplayName("Should create a provider qualifier")
+        void shouldCreateProviderQualifier() {
+
+            // Given
+            String provider = "provider";
+
+            // When
+            DatabaseQualifier qualifier = DatabaseQualifier.ofColumn(provider);
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(qualifier.provider()).isEqualTo(provider);
+                softly.assertThat(qualifier.value()).isEqualTo(COLUMN);
+            });
+        }
+
+        @Test
+        @DisplayName("Should require a provider")
+        void shouldRequireProvider() {
+
+            // When / Then
+            assertThatExceptionOfType(NullPointerException.class)
+                    .isThrownBy(() -> DatabaseQualifier.ofColumn(null));
+        }
     }
 
-    @Test
-    void shouldReturnColumnProvider() {
-        String provider = "provider";
-        DatabaseQualifier qualifier = DatabaseQualifier.ofColumn(provider);
-        assertEquals(provider, qualifier.provider());
-        assertEquals(COLUMN, qualifier.value());
+    @Nested
+    @DisplayName("When creating a document qualifier")
+    class WhenTheDocumentQualifierCreation {
+
+        @Test
+        @DisplayName("Should create the default qualifier")
+        void shouldCreateDefaultQualifier() {
+
+            // When
+            DatabaseQualifier qualifier = DatabaseQualifier.ofDocument();
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(qualifier.provider()).isEmpty();
+                softly.assertThat(qualifier.value()).isEqualTo(DOCUMENT);
+            });
+        }
+
+        @Test
+        @DisplayName("Should create a provider qualifier")
+        void shouldCreateProviderQualifier() {
+
+            // Given
+            String provider = "provider";
+
+            // When
+            DatabaseQualifier qualifier = DatabaseQualifier.ofDocument(provider);
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(qualifier.provider()).isEqualTo(provider);
+                softly.assertThat(qualifier.value()).isEqualTo(DOCUMENT);
+            });
+        }
+
+        @Test
+        @DisplayName("Should require a provider")
+        void shouldRequireProvider() {
+
+            // When / Then
+            assertThatExceptionOfType(NullPointerException.class)
+                    .isThrownBy(() -> DatabaseQualifier.ofDocument(null));
+        }
     }
 
-    @Test
-    void shouldReturnErrorWhenColumnNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> DatabaseQualifier.ofColumn(null));
+    @Nested
+    @DisplayName("When creating a key-value qualifier")
+    class WhenTheKeyValueQualifierCreation {
+
+        @Test
+        @DisplayName("Should create the default qualifier")
+        void shouldCreateDefaultQualifier() {
+
+            // When
+            DatabaseQualifier qualifier = DatabaseQualifier.ofKeyValue();
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(qualifier.provider()).isEmpty();
+                softly.assertThat(qualifier.value()).isEqualTo(KEY_VALUE);
+            });
+        }
+
+        @Test
+        @DisplayName("Should create a provider qualifier")
+        void shouldCreateProviderQualifier() {
+
+            // Given
+            String provider = "provider";
+
+            // When
+            DatabaseQualifier qualifier = DatabaseQualifier.ofKeyValue(provider);
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(qualifier.provider()).isEqualTo(provider);
+                softly.assertThat(qualifier.value()).isEqualTo(KEY_VALUE);
+            });
+        }
+
+        @Test
+        @DisplayName("Should require a provider")
+        void shouldRequireProvider() {
+
+            // When / Then
+            assertThatExceptionOfType(NullPointerException.class)
+                    .isThrownBy(() -> DatabaseQualifier.ofKeyValue(null));
+        }
     }
 
-    @Test
-    void shouldReturnDefaultDocument() {
-        DatabaseQualifier qualifier = DatabaseQualifier.ofDocument();
-        assertEquals("", qualifier.provider());
-        assertEquals(DOCUMENT, qualifier.value());
-    }
+    @Nested
+    @DisplayName("When creating a graph qualifier")
+    class WhenTheGraphQualifierCreation {
 
-    @Test
-    void shouldReturnDocumentProvider() {
-        String provider = "provider";
-        DatabaseQualifier qualifier = DatabaseQualifier.ofDocument(provider);
-        assertEquals(provider, qualifier.provider());
-        assertEquals(DOCUMENT, qualifier.value());
-    }
+        @Test
+        @DisplayName("Should create the default qualifier")
+        void shouldCreateDefaultQualifier() {
 
-    @Test
-    void shouldReturnErrorWhenDocumentNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> DatabaseQualifier.ofDocument(null));
-    }
+            // When
+            DatabaseQualifier qualifier = DatabaseQualifier.ofGraph();
 
-    @Test
-    void shouldReturnErrorWhenKeyValueNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> DatabaseQualifier.ofKeyValue(null));
-    }
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(qualifier.provider()).isEmpty();
+                softly.assertThat(qualifier.value()).isEqualTo(GRAPH);
+            });
+        }
 
-    @Test
-    void shouldReturnKeyValueProvider() {
-        String provider = "provider";
-        DatabaseQualifier qualifier = DatabaseQualifier.ofKeyValue(provider);
-        assertEquals(provider, qualifier.provider());
-        assertEquals(KEY_VALUE, qualifier.value());
-    }
+        @Test
+        @DisplayName("Should create a provider qualifier")
+        void shouldCreateProviderQualifier() {
 
-    @Test
-    void shouldReturnDefaultKeyValue() {
-        DatabaseQualifier qualifier = DatabaseQualifier.ofKeyValue();
-        assertEquals("", qualifier.provider());
-        assertEquals(KEY_VALUE, qualifier.value());
-    }
+            // Given
+            String provider = "provider";
 
+            // When
+            DatabaseQualifier qualifier = DatabaseQualifier.ofGraph(provider);
 
-    @Test
-    void shouldReturnErrorWhenGraphNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> DatabaseQualifier.ofGraph(null));
-    }
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(qualifier.provider()).isEqualTo(provider);
+                softly.assertThat(qualifier.value()).isEqualTo(GRAPH);
+            });
+        }
 
-    @Test
-    void shouldReturnGraphProvider() {
-        String provider = "provider";
-        DatabaseQualifier qualifier = DatabaseQualifier.ofGraph(provider);
-        assertEquals(provider, qualifier.provider());
-        assertEquals(GRAPH, qualifier.value());
-    }
+        @Test
+        @DisplayName("Should require a provider")
+        void shouldRequireProvider() {
 
-    @Test
-    void shouldReturnDefaultGraph() {
-        DatabaseQualifier qualifier = DatabaseQualifier.ofGraph();
-        assertEquals("", qualifier.provider());
-        assertEquals(GRAPH, qualifier.value());
+            // When / Then
+            assertThatExceptionOfType(NullPointerException.class)
+                    .isThrownBy(() -> DatabaseQualifier.ofGraph(null));
+        }
     }
 }
