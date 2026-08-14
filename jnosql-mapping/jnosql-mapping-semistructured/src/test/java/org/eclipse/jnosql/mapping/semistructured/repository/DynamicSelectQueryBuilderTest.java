@@ -21,6 +21,7 @@ import jakarta.data.metamodel.BasicAttribute;
 import jakarta.data.page.PageRequest;
 import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
+import java.util.List;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
@@ -48,13 +49,12 @@ import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jnosql.communication.semistructured.SelectQuery.select;
-
 
 @DisplayName("The scenarios to test the dynamic query builder")
 @EnableAutoWeld
@@ -385,4 +385,9 @@ class DynamicSelectQueryBuilderTest {
         });
     }
 
+
+    @Nested
+    @DisplayName("When the dynamic select query builder is tested")
+    class WhenTheDynamicSelectQueryBuilderIsTested {
+    }
 }
