@@ -13,10 +13,16 @@ package org.eclipse.jnosql.communication.query.data;
 
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.QueryException;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class EnumConverterTest {
+
+    @Nested
+    @DisplayName("When the enum converter is used")
+    class WhenTheEnumConverter {
+    }
     @Test
     @DisplayName("Successfully convert string to enum")
     void shouldSuccessfulConversion() {
