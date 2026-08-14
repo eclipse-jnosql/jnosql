@@ -16,36 +16,54 @@
  */
 package org.eclipse.jnosql.communication;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class NullValueTest {
-    @Test
-    void shouldReturnNullForGet() {
-        assertNull(NullValue.INSTANCE.get());
+
+    @Nested
+    @DisplayName("When the value is read")
+    class WhenTheValueIsRead {
+
+        @Test
+        @DisplayName("Should return null from the raw value accessor")
+        void shouldReturnNullForGet() {
+            assertThat(NullValue.INSTANCE.get()).isNull();
+        }
+
+        @Test
+        @DisplayName("Should return null from the typed value accessor")
+        void shouldReturnNullForGetWithType() {
+            assertThat(NullValue.INSTANCE.get(String.class)).isNull();
+        }
+
+        @Test
+        @DisplayName("Should return null from the type supplier accessor")
+        void shouldReturnNullForGetWithTypeSupplier() {
+            String value = NullValue.INSTANCE.get(new TypeReference<>() {
+            });
+
+            assertThat(value).isNull();
+        }
     }
 
-    @Test
-    void shouldReturnNullForGetWithType() {
-        assertNull(NullValue.INSTANCE.get(String.class));
-    }
+    @Nested
+    @DisplayName("When the null marker is inspected")
+    class WhenTheNullMarkerIsInspected {
 
-    @Test
-    void shouldReturnNullForGetWithTypeSupplier() {
-        assertNull(NullValue.INSTANCE.get(new TypeReference<>() {
-        }));
-    }
+        @Test
+        @DisplayName("Should not report any requested type as an instance")
+        void shouldReturnFalseForIsInstanceOf() {
+            assertThat(NullValue.INSTANCE.isInstanceOf(String.class)).isFalse();
+        }
 
-    @Test
-    void shouldReturnFalseForIsInstanceOf() {
-        assertFalse(NullValue.INSTANCE.isInstanceOf(String.class));
-    }
-
-    @Test
-    void shouldReturnTrueForIsNull() {
-        assertTrue(NullValue.INSTANCE.isNull());
+        @Test
+        @DisplayName("Should report that it represents null")
+        void shouldReturnTrueForIsNull() {
+            assertThat(NullValue.INSTANCE.isNull()).isTrue();
+        }
     }
 }
