@@ -16,15 +16,24 @@
  */
 package org.eclipse.jnosql.communication;
 
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class TypeReferenceReaderDecoratorTest {
 
-    @Test
-    void shouldTestToString() {
-        TypeReferenceReaderDecorator reader = TypeReferenceReaderDecorator.getInstance();
+    @Nested
+    @DisplayName("When the decorator is described")
+    class WhenTheDecoratorIsDescribed {
 
-        Assertions.assertThat(reader.toString()).isNotNull().isNotEmpty();
+        @Test
+        @DisplayName("Should provide a non-empty description")
+        void shouldTestToString() {
+            TypeReferenceReaderDecorator reader = TypeReferenceReaderDecorator.getInstance();
+
+            assertThat(reader.toString()).isNotNull().isNotEmpty();
+        }
     }
 }
