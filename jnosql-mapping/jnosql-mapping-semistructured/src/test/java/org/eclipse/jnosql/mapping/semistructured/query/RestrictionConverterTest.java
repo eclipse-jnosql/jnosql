@@ -17,6 +17,9 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 import jakarta.data.restrict.Restrict;
 import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
@@ -35,12 +38,11 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-
+import static org.assertj.core.api.Assertions.assertThat;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -63,6 +65,7 @@ class RestrictionConverterTest {
     }
 
 
+    @DisplayName("Should execute equals condition")
     @Test
     void shouldExecuteEqualsCondition() {
         Restriction<Product> equalTo = _Product.name.equalTo("Macbook Pro");
@@ -80,6 +83,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute not equals condition")
     @Test
     void shouldExecuteNotEqualsCondition() {
         Restriction<Product> equalTo = _Product.name.equalTo("Macbook Pro").negate();
@@ -99,6 +103,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute less than")
     @Test
     void shouldExecuteLessThan() {
         Restriction<Product> lessThan = _Product.price.lessThan(BigDecimal.TEN);
@@ -115,6 +120,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute not less e quals")
     @Test
     void shouldExecuteNotLessEQuals() {
         Restriction<Product> lessThanNegate = _Product.price.lessThan(BigDecimal.TEN).negate();
@@ -131,6 +137,7 @@ class RestrictionConverterTest {
     }
 
 
+    @DisplayName("Should execute greater than")
     @Test
     void shouldExecuteGreaterThan() {
         Restriction<Product> greaterThan = _Product.price.greaterThan(BigDecimal.TEN);
@@ -147,6 +154,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute not greater e quals")
     @Test
     void shouldExecuteNotGreaterEQuals() {
         Restriction<Product> greaterThanNegate = _Product.price.greaterThan(BigDecimal.TEN).negate();
@@ -161,6 +169,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute greater than equals")
     @Test
     void shouldExecuteGreaterThanEquals() {
         Restriction<Product> greaterThanEqual = _Product.price.greaterThanEqual(BigDecimal.TEN);
@@ -177,6 +186,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute negate greater than equals")
     @Test
     void shouldExecuteNegateGreaterThanEquals() {
         Restriction<Product> greaterThanEqualNegate = _Product.price.greaterThanEqual(BigDecimal.TEN).negate();
@@ -191,6 +201,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute lesser than equals")
     @Test
     void shouldExecuteLesserThanEquals() {
         Restriction<Product> greaterThanEqual = _Product.price.lessThanEqual(BigDecimal.TEN);
@@ -207,6 +218,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute negate lesser than equals")
     @Test
     void shouldExecuteNegateLesserThanEquals() {
         Restriction<Product> greaterThanEqualNegate = _Product.price.lessThanEqual(BigDecimal.TEN).negate();
@@ -221,6 +233,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute between")
     @Test
     void shouldExecuteBetween() {
         Restriction<Product> between = _Product.price.between(BigDecimal.ZERO, BigDecimal.TEN);
@@ -237,6 +250,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute negate between")
     @Test
     void shouldExecuteNegateBetween() {
         Restriction<Product> between = _Product.price.between(BigDecimal.ZERO, BigDecimal.TEN).negate();
@@ -256,6 +270,7 @@ class RestrictionConverterTest {
     }
 
 
+    @DisplayName("Should execute like")
     @Test
     void shouldExecuteLike() {
         Restriction<Product> like = _Product.name.like("Macbook%");
@@ -272,6 +287,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute negate like")
     @Test
     void shouldExecuteNegateLike() {
         Restriction<Product> like = _Product.name.like("Macbook%").negate();
@@ -290,6 +306,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute null")
     @Test
     void shouldExecuteNull() {
         Restriction<Product> nullRestriction = _Product.name.isNull();
@@ -306,6 +323,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute negate null")
     @Test
     void shouldExecuteNegateNull() {
 
@@ -325,6 +343,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute in")
     @Test
     void shouldExecuteIn() {
         Restriction<Product> in = _Product.name.in("Macbook Pro", "Macbook Air");
@@ -341,6 +360,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute negate in")
     @Test
     void shouldExecuteNegateIn() {
 
@@ -360,6 +380,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should all")
     @Test
     void shouldAll() {
         Restriction<Product> all = Restrict.all(_Product.name.equalTo("Macbook Pro"),
@@ -387,6 +408,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should negate all")
     @Test
     void shouldNegateAll() {
         Restriction<Product> all = Restrict.all(_Product.name.equalTo("Macbook Pro"),
@@ -415,6 +437,7 @@ class RestrictionConverterTest {
     }
 
 
+    @DisplayName("Should any")
     @Test
     void shouldAny() {
         Restriction<Product> any = Restrict.any(_Product.name.equalTo("Macbook Pro"),
@@ -442,6 +465,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should negate any")
     @Test
     void shouldNegateAny() {
         Restriction<Product> any = Restrict.any(_Product.name.equalTo("Macbook Pro"),
@@ -469,6 +493,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute equals condition with converter")
     @Test
     void shouldExecuteEqualsConditionWithConverter() {
         Restriction<Product> equalTo = _Product.amount.equalTo(new Money("USD", BigDecimal.valueOf(100)));
@@ -487,6 +512,7 @@ class RestrictionConverterTest {
         });
     }
 
+    @DisplayName("Should execute composite any")
     @Test
     void shouldExecuteCompositeAny() {
         Restriction<Product> restriction =
@@ -510,4 +536,8 @@ class RestrictionConverterTest {
     }
 
 
+    @Nested
+    @DisplayName("When the restriction converter is tested")
+    class WhenTheRestrictionConverterIsTested {
+    }
 }
