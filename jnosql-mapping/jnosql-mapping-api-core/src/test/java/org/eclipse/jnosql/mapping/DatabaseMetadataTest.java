@@ -14,43 +14,65 @@
  */
 package org.eclipse.jnosql.mapping;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class DatabaseMetadataTest {
 
-    @Test
-    void shouldReturnErrorWhenDatabaseIsNull() {
-        assertThrows(NullPointerException.class, () -> DatabaseMetadata.of(null));
+    @Nested
+    @DisplayName("When the metadata is created")
+    class WhenTheMetadataIsCreated {
+
+        @Test
+        @DisplayName("Should reject a null database annotation")
+        void shouldRejectANullDatabaseAnnotation() {
+            assertThatNullPointerException().isThrownBy(() -> DatabaseMetadata.of(null));
+        }
+
+        @Test
+        @DisplayName("Should expose type and provider from the annotation")
+        void shouldExposeTypeAndProviderFromTheAnnotation() {
+            Database database = Mockito.mock(Database.class);
+            Mockito.when(database.value()).thenReturn(DatabaseType.COLUMN);
+            Mockito.when(database.provider()).thenReturn("column");
+            DatabaseMetadata metadata = DatabaseMetadata.of(database);
+
+            assertSoftly(softly -> {
+                softly.assertThat(metadata.getType()).isEqualTo(DatabaseType.COLUMN);
+                softly.assertThat(metadata.getProvider()).isEqualTo("column");
+            });
+        }
     }
 
-    @Test
-    void shouldReturnMetadata() {
-        Database database = Mockito.mock(Database.class);
-        Mockito.when(database.value()).thenReturn(DatabaseType.COLUMN);
-        Mockito.when(database.provider()).thenReturn("column");
-        DatabaseMetadata metadata = DatabaseMetadata.of(database);
-        assertEquals(DatabaseType.COLUMN, metadata.getType());
-        assertEquals("column", metadata.getProvider());
-    }
+    @Nested
+    @DisplayName("When the metadata is represented as text")
+    class WhenTheMetadataIsRepresentedAsText {
 
-    @Test
-    void shouldReturnToString() {
-        Database database = Mockito.mock(Database.class);
-        Mockito.when(database.value()).thenReturn(DatabaseType.COLUMN);
-        Mockito.when(database.provider()).thenReturn("column");
-        DatabaseMetadata metadata = DatabaseMetadata.of(database);
-        assertEquals("COLUMN@column", metadata.toString());
-    }
+        @Test
+        @DisplayName("Should include the provider when it is present")
+        void shouldIncludeTheProviderWhenItIsPresent() {
+            Database database = Mockito.mock(Database.class);
+            Mockito.when(database.value()).thenReturn(DatabaseType.COLUMN);
+            Mockito.when(database.provider()).thenReturn("column");
+            DatabaseMetadata metadata = DatabaseMetadata.of(database);
 
-    @Test
-    void shouldReturnToString2() {
-        Database database = Mockito.mock(Database.class);
-        Mockito.when(database.value()).thenReturn(DatabaseType.COLUMN);
-        DatabaseMetadata metadata = DatabaseMetadata.of(database);
-        assertEquals("COLUMN", metadata.toString());
+            assertThat(metadata).hasToString("COLUMN@column");
+        }
+
+        @Test
+        @DisplayName("Should omit the provider when it is null")
+        void shouldOmitTheProviderWhenItIsNull() {
+            Database database = Mockito.mock(Database.class);
+            Mockito.when(database.value()).thenReturn(DatabaseType.COLUMN);
+            DatabaseMetadata metadata = DatabaseMetadata.of(database);
+
+            assertThat(metadata).hasToString("COLUMN");
+        }
     }
 }
