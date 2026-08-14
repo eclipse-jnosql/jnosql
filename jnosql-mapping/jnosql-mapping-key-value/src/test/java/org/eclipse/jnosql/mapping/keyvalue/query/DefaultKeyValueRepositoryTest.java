@@ -17,13 +17,15 @@ package org.eclipse.jnosql.mapping.keyvalue.query;
 import org.eclipse.jnosql.mapping.keyvalue.KeyValueTemplate;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -36,17 +38,25 @@ class DefaultKeyValueRepositoryTest {
     @Mock
     private LifecycleEventHandler lifecycleEventHandler;
 
-    @Test
-    void shouldReturnErrorWhenTemplateIsNull() {
-        assertThrows(NullPointerException.class, () -> DefaultKeyValueRepository.of(template, null, lifecycleEventHandler));
-        assertThrows(NullPointerException.class, () -> DefaultKeyValueRepository.of(null, metadata, lifecycleEventHandler));
-        assertThrows(NullPointerException.class, () -> DefaultKeyValueRepository.of(null, null, lifecycleEventHandler));
-        assertThrows(NullPointerException.class, () -> DefaultKeyValueRepository.of(template, metadata, null));
+    @Nested
+    @DisplayName("When the repository is created")
+    class WhenTheRepositoryIsCreated {
+
+        @DisplayName("Should Return Error When Template Is Null")
+        @Test
+        void shouldReturnErrorWhenTemplateIsNull() {
+            assertThatThrownBy(() -> DefaultKeyValueRepository.of(template, null, lifecycleEventHandler)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> DefaultKeyValueRepository.of(null, metadata, lifecycleEventHandler)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> DefaultKeyValueRepository.of(null, null, lifecycleEventHandler)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> DefaultKeyValueRepository.of(template, metadata, null)).isInstanceOf(NullPointerException.class);
+        }
+
+        @DisplayName("Should Create Repository")
+        @Test
+        void shouldCreateRepository() {
+            DefaultKeyValueRepository<Object, Object> repository = DefaultKeyValueRepository.of(template, metadata, lifecycleEventHandler);
+            assertThat(repository).isNotNull();
+        }
     }
 
-    @Test
-    void shouldCreateRepository() {
-        DefaultKeyValueRepository<Object, Object> repository = DefaultKeyValueRepository.of(template, metadata, lifecycleEventHandler);
-        assertNotNull(repository);
-    }
 }
