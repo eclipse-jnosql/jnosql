@@ -15,6 +15,11 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.inject.Inject;
+import java.time.Year;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
@@ -43,17 +48,11 @@ import org.eclipse.jnosql.mapping.semistructured.entities.constructor.Survey;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.time.Year;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -65,6 +64,7 @@ class EntityConverterConstructorTest {
     @Inject
     private EntityConverter converter;
 
+    @DisplayName("Should converter entity computer")
     @Test
     void shouldConverterEntityComputer() {
         CommunicationEntity communication = CommunicationEntity.of("Computer");
@@ -74,28 +74,30 @@ class EntityConverterConstructorTest {
         communication.add("model", "Dell 2020");
         communication.add("price", "USD 20");
         Computer computer = this.converter.toEntity(communication);
-        assertNotNull(computer);
-        assertEquals(10L, computer.getId());
-        assertEquals("Dell", computer.getName());
-        assertEquals(2020, computer.getAge());
-        assertEquals("Dell 2020", computer.getModel());
-        assertEquals(Money.parse("USD 20"), computer.getPrice());
+        assertThat(computer).isNotNull();
+        assertThat(computer.getId()).isEqualTo(10L);
+        assertThat(computer.getName()).isEqualTo("Dell");
+        assertThat(computer.getAge()).isEqualTo(2020);
+        assertThat(computer.getModel()).isEqualTo("Dell 2020");
+        assertThat(computer.getPrice()).isEqualTo(Money.parse("USD 20"));
     }
 
+    @DisplayName("Should convert computer to communication")
     @Test
     void shouldConvertComputerToCommunication() {
         Computer computer = new Computer(10L, "Dell", 2020, "Dell 2020",
                 Money.parse("USD 20"));
         CommunicationEntity communication = this.converter.toCommunication(computer);
-        assertNotNull(communication);
+        assertThat(communication).isNotNull();
 
-        assertEquals(computer.getId(), communication.find("_id", Long.class).get());
-        assertEquals(computer.getName(), communication.find("name", String.class).get());
-        assertEquals(computer.getAge(), communication.find("age", int.class).get());
-        assertEquals(computer.getModel(), communication.find("model", String.class).get());
-        assertEquals(computer.getPrice().toString(), communication.find("price", String.class).get());
+        assertThat(communication.find("_id", Long.class).get()).isEqualTo(computer.getId());
+        assertThat(communication.find("name", String.class).get()).isEqualTo(computer.getName());
+        assertThat(communication.find("age", int.class).get()).isEqualTo(computer.getAge());
+        assertThat(communication.find("model", String.class).get()).isEqualTo(computer.getModel());
+        assertThat(communication.find("price", String.class).get()).isEqualTo(computer.getPrice().toString());
     }
 
+    @DisplayName("Should convert pet owner")
     @Test
     void shouldConvertPetOwner() {
         CommunicationEntity communication = CommunicationEntity.of("PetOwner");
@@ -105,28 +107,30 @@ class EntityConverterConstructorTest {
                 , Element.of("name", "Ada")));
 
         PetOwner petOwner = this.converter.toEntity(communication);
-        assertNotNull(petOwner);
-        assertEquals(10L, petOwner.getId());
-        assertEquals("Otavio", petOwner.getName());
+        assertThat(petOwner).isNotNull();
+        assertThat(petOwner.getId()).isEqualTo(10L);
+        assertThat(petOwner.getName()).isEqualTo("Otavio");
         Animal animal = petOwner.getAnimal();
-        assertEquals(23L, animal.getId());
-        assertEquals("Ada", animal.getName());
+        assertThat(animal.getId()).isEqualTo(23L);
+        assertThat(animal.getName()).isEqualTo("Ada");
     }
 
+    @DisplayName("Should convert pet owner communication")
     @Test
     void shouldConvertPetOwnerCommunication() {
         Animal ada = new Animal("Ada");
         PetOwner petOwner = new PetOwner(10L, "Poliana", ada);
         CommunicationEntity communication = this.converter.toCommunication(petOwner);
-        assertNotNull(communication);
-        assertEquals(10L, communication.find("_id", Long.class).get());
-        assertEquals("Poliana", communication.find("name", String.class).get());
+        assertThat(communication).isNotNull();
+        assertThat(communication.find("_id", Long.class).get()).isEqualTo(10L);
+        assertThat(communication.find("name", String.class).get()).isEqualTo("Poliana");
         List<Element> columns = communication.find("animal", new TypeReference<List<Element>>() {
                 })
                 .get();
         assertThat(columns).contains(Element.of("name", "Ada"));
     }
 
+    @DisplayName("Should convert book user")
     @Test
     void shouldConvertBookUser() {
         CommunicationEntity communication = CommunicationEntity.of("BookUser");
@@ -138,15 +142,16 @@ class EntityConverterConstructorTest {
         communication.add("books", columns);
 
         BookUser bookUser = this.converter.toEntity(communication);
-        assertNotNull(bookUser);
-        assertEquals("Otavio Santana", bookUser.getName());
-        assertEquals("otaviojava", bookUser.getNickname());
-        assertEquals(2, bookUser.getBooks().size());
+        assertThat(bookUser).isNotNull();
+        assertThat(bookUser.getName()).isEqualTo("Otavio Santana");
+        assertThat(bookUser.getNickname()).isEqualTo("otaviojava");
+        assertThat(bookUser.getBooks().size()).isEqualTo(2);
         List<String> names = bookUser.getBooks().stream().map(Book::getName).toList();
         assertThat(names).contains("Effective Java", "Clean Code");
 
     }
 
+    @DisplayName("Should converter fields on entity computer")
     @Test
     void shouldConverterFieldsOnEntityComputer() {
         CommunicationEntity communication = CommunicationEntity.of("Computer");
@@ -156,14 +161,15 @@ class EntityConverterConstructorTest {
         communication.add("model", "Dell 2020");
         communication.add("price", "USD 20");
         Computer computer = this.converter.toEntity(communication);
-        assertNotNull(computer);
-        assertEquals(10L, computer.getId());
-        assertEquals("Dell", computer.getName());
-        assertEquals(2020, computer.getAge());
-        assertEquals("Dell 2020", computer.getModel());
-        assertEquals(Money.parse("USD 20"), computer.getPrice());
+        assertThat(computer).isNotNull();
+        assertThat(computer.getId()).isEqualTo(10L);
+        assertThat(computer.getName()).isEqualTo("Dell");
+        assertThat(computer.getAge()).isEqualTo(2020);
+        assertThat(computer.getModel()).isEqualTo("Dell 2020");
+        assertThat(computer.getPrice()).isEqualTo(Money.parse("USD 20"));
     }
 
+    @DisplayName("Should converter entity book release")
     @Test
     void shouldConverterEntityBookRelease() {
         CommunicationEntity communication = CommunicationEntity.of("BookRelease");
@@ -172,13 +178,14 @@ class EntityConverterConstructorTest {
         communication.add("author", "Joshua Bloch");
         communication.add("year", Year.of(2001));
         BookRelease book = this.converter.toEntity(communication);
-        assertNotNull(book);
-        assertEquals("9780132345286", book.getIsbn());
-        assertEquals("Effective Java", book.getTitle());
-        assertEquals("Joshua Bloch", book.getAuthor());
-        assertEquals(Year.of(2001), book.getYear());
+        assertThat(book).isNotNull();
+        assertThat(book.getIsbn()).isEqualTo("9780132345286");
+        assertThat(book.getTitle()).isEqualTo("Effective Java");
+        assertThat(book.getAuthor()).isEqualTo("Joshua Bloch");
+        assertThat(book.getYear()).isEqualTo(Year.of(2001));
     }
 
+    @DisplayName("Should converter entity book release on string year")
     @Test
     void shouldConverterEntityBookReleaseOnStringYear() {
         CommunicationEntity communication = CommunicationEntity.of("BookRelease");
@@ -187,13 +194,14 @@ class EntityConverterConstructorTest {
         communication.add("author", "Joshua Bloch");
         communication.add("year", "2001");
         BookRelease book = this.converter.toEntity(communication);
-        assertNotNull(book);
-        assertEquals("9780132345286", book.getIsbn());
-        assertEquals("Effective Java", book.getTitle());
-        assertEquals("Joshua Bloch", book.getAuthor());
-        assertEquals(Year.of(2001), book.getYear());
+        assertThat(book).isNotNull();
+        assertThat(book.getIsbn()).isEqualTo("9780132345286");
+        assertThat(book.getTitle()).isEqualTo("Effective Java");
+        assertThat(book.getAuthor()).isEqualTo("Joshua Bloch");
+        assertThat(book.getYear()).isEqualTo(Year.of(2001));
     }
 
+    @DisplayName("Should convert hero")
     @Test
     void shouldConvertHero() {
         CommunicationEntity communication = CommunicationEntity.of("SuperHero");
@@ -209,6 +217,7 @@ class EntityConverterConstructorTest {
         });
     }
 
+    @DisplayName("Should ignore when null at constructor")
     @Test
     void shouldIgnoreWhenNullAtConstructor() {
         CommunicationEntity entity = CommunicationEntity.of("SocialMediaFollowers");
@@ -223,6 +232,7 @@ class EntityConverterConstructorTest {
         });
     }
 
+    @DisplayName("Should ignore when null at record")
     @Test
     void shouldIgnoreWhenNullAtRecord() {
         CommunicationEntity entity = CommunicationEntity.of("SocialMediaFollowersRecord");
@@ -237,6 +247,7 @@ class EntityConverterConstructorTest {
         });
     }
 
+    @DisplayName("Should convert group embeddable")
     @Test
     void shouldConvertGroupEmbeddable() {
         CommunicationEntity entity = CommunicationEntity.of("Beer");
@@ -258,6 +269,7 @@ class EntityConverterConstructorTest {
         });
     }
 
+    @DisplayName("Should ignore null embeddable")
     @Test
     void shouldIgnoreNullEmbeddable() {
         CommunicationEntity entity = CommunicationEntity.of("Beer");
@@ -276,6 +288,7 @@ class EntityConverterConstructorTest {
         });
     }
 
+    @DisplayName("Should convert group embeddable to communication")
     @Test
     void shouldConvertGroupEmbeddableToCommunication() {
 
@@ -302,6 +315,7 @@ class EntityConverterConstructorTest {
         });
     }
 
+    @DisplayName("Should convert generic types")
     @Test
     void shouldConvertGenericTypes() {
         CommunicationEntity communication = CommunicationEntity.of("Survey");
@@ -324,6 +338,7 @@ class EntityConverterConstructorTest {
 
     }
 
+    @DisplayName("Should convert array types")
     @Test
     void shouldConvertArrayTypes() {
 
@@ -383,6 +398,7 @@ class EntityConverterConstructorTest {
 
     }
 
+    @DisplayName("Should convert from flat communication from entity")
     @Test
     void shouldConvertFromFlatCommunicationFromEntity() {
 
@@ -401,6 +417,7 @@ class EntityConverterConstructorTest {
         });
     }
 
+    @DisplayName("Should convert from flat communication from entity to communication")
     @Test
     void shouldConvertFromFlatCommunicationFromEntityToCommunication() {
         var room = new Room(12, new Guest("123", "Ada"));
@@ -415,6 +432,7 @@ class EntityConverterConstructorTest {
     }
 
 
+    @DisplayName("Should convert from map")
     @Test
     void shouldConvertFromMap() {
         var program = new ProgramRecord(
@@ -442,6 +460,7 @@ class EntityConverterConstructorTest {
         });
     }
 
+    @DisplayName("Should convert to map")
     @Test
     void shouldConvertToMap() {
 
@@ -468,6 +487,7 @@ class EntityConverterConstructorTest {
         });
     }
 
+    @DisplayName("Should convert from maps")
     @Test
     void shouldConvertFromMaps() {
         var program = new ProgramRecord(
@@ -506,6 +526,7 @@ class EntityConverterConstructorTest {
         });
     }
 
+    @DisplayName("Should convert to maps")
     @Test
     void shouldConvertToMaps() {
 
@@ -541,4 +562,9 @@ class EntityConverterConstructorTest {
         });
     }
 
+
+    @Nested
+    @DisplayName("When the entity converter constructor is tested")
+    class WhenTheEntityConverterConstructorIsTested {
+    }
 }
