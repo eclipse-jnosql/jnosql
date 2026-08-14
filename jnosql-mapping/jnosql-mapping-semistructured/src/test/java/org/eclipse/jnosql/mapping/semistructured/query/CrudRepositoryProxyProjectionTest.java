@@ -24,6 +24,11 @@ import jakarta.data.repository.Query;
 import jakarta.data.repository.Select;
 import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
+import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -47,16 +52,13 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Proxy;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
@@ -106,6 +108,7 @@ class CrudRepositoryProxyProjectionTest {
     }
 
 
+    @DisplayName("Should return names only")
     @Test
     void shouldReturnNamesOnly() {
 
@@ -145,6 +148,7 @@ class CrudRepositoryProxyProjectionTest {
 
     }
 
+    @DisplayName("Should return name")
     @Test
     void shouldReturnName() {
 
@@ -161,6 +165,7 @@ class CrudRepositoryProxyProjectionTest {
 
     }
 
+    @DisplayName("Should return optional name")
     @Test
     void shouldReturnOptionalName() {
 
@@ -180,6 +185,7 @@ class CrudRepositoryProxyProjectionTest {
 
     }
 
+    @DisplayName("Should return page")
     @Test
     void shouldReturnPage() {
 
@@ -198,6 +204,7 @@ class CrudRepositoryProxyProjectionTest {
 
     }
 
+    @DisplayName("Should return cursor")
     @Test
     void shouldReturnCursor() {
 
@@ -224,6 +231,7 @@ class CrudRepositoryProxyProjectionTest {
 
     }
 
+    @DisplayName("Should name from query")
     @Test
     void shouldNameFromQuery() {
 
@@ -255,6 +263,7 @@ class CrudRepositoryProxyProjectionTest {
         SoftAssertions.assertSoftly(softly -> softly.assertThat(productNames).contains("Mac", "Sofa", "T-Shirt"));
     }
 
+    @DisplayName("Should keep the same result")
     @Test
     void shouldKeepTheSameResult() {
 
@@ -271,6 +280,7 @@ class CrudRepositoryProxyProjectionTest {
         SoftAssertions.assertSoftly(softly -> softly.assertThat(productNames).contains("Mac", "Sofa", "T-Shirt"));
     }
 
+    @DisplayName("Should return cities")
     @Test
     void shouldReturnCities() {
 
@@ -283,6 +293,7 @@ class CrudRepositoryProxyProjectionTest {
     }
 
 
+    @DisplayName("Should return projections")
     @Test
     void shouldReturnProjections() {
 
@@ -327,6 +338,7 @@ class CrudRepositoryProxyProjectionTest {
 
     }
 
+    @DisplayName("Should return projection")
     @Test
     void shouldReturnProjection() {
 
@@ -346,6 +358,7 @@ class CrudRepositoryProxyProjectionTest {
                 softly -> softly.assertThat(summary).isEqualTo(new ProductPriceSummary("Mac", new Money("USD", BigDecimal.valueOf(1000)))));
     }
 
+    @DisplayName("Should return projections by query")
     @Test
     void shouldReturnProjectionsByQuery() {
 
@@ -420,5 +433,10 @@ class CrudRepositoryProxyProjectionTest {
         @Find
         @Select("city.name")
         List<String> cities();
+    }
+
+    @Nested
+    @DisplayName("When the crud repository proxy projection is tested")
+    class WhenTheCrudRepositoryProxyProjectionIsTested {
     }
 }
