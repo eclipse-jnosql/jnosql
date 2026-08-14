@@ -14,6 +14,8 @@
  */
 package org.eclipse.jnosql.mapping.core.spi;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.spi.CreationalContext;
 import jakarta.enterprise.inject.Instance;
@@ -28,14 +30,13 @@ import java.lang.reflect.Type;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.mockito.Mockito.*;
 
 class AbstractBeanTest {
 
 
+    @DisplayName("Should get injection points")
     @Test
-    @DisplayName("should return empty injection points")
     void shouldGetInjectionPoints() {
         AbstractBean<Object> abstractBean = getInstance();
 
@@ -44,8 +45,8 @@ class AbstractBeanTest {
         assertThat(injectionPoints).isEmpty();
     }
 
+    @DisplayName("Should return scope")
     @Test
-    @DisplayName("should return ApplicationScoped as scope")
     void shouldReturnScope() {
         AbstractBean<Object> abstractBean = getInstance();
 
@@ -54,8 +55,8 @@ class AbstractBeanTest {
         assertThat(scope).isEqualTo(ApplicationScoped.class);
     }
 
+    @DisplayName("Should return name as null")
     @Test
-    @DisplayName("should return name as null")
     void shouldReturnNameAsNull() {
         AbstractBean<Object> abstractBean = getInstance();
 
@@ -64,8 +65,8 @@ class AbstractBeanTest {
         assertThat(name).isNull();
     }
 
+    @DisplayName("Should return empty stereotypes")
     @Test
-    @DisplayName("should return empty stereotypes")
     void shouldReturnEmptyStereotypes() {
         AbstractBean<Object> abstractBean = getInstance();
 
@@ -74,8 +75,8 @@ class AbstractBeanTest {
         assertThat(stereotypes).isEmpty();
     }
 
+    @DisplayName("Should return false for alternative and nullable")
     @Test
-    @DisplayName("should return false for isAlternative and isNullable")
     void shouldReturnFalseForAlternativeAndNullable() {
         AbstractBean<Object> abstractBean = getInstance();
 
@@ -83,8 +84,8 @@ class AbstractBeanTest {
         assertThat(abstractBean.isNullable()).isFalse();
     }
 
+    @DisplayName("Should return instance from cdi without qualifier")
     @Test
-    @DisplayName("should call CDI.current() and return instance without qualifier")
     void shouldReturnInstanceFromCdiWithoutQualifier() {
         AbstractBean<Object> abstractBean = getInstance();
 
@@ -104,8 +105,8 @@ class AbstractBeanTest {
         }
     }
 
+    @DisplayName("Should return instance from cdi with qualifier")
     @Test
-    @DisplayName("should call CDI.current() and return instance with qualifier")
     void shouldReturnInstanceFromCdiWithQualifier() {
         AbstractBean<Object> abstractBean = getInstance();
 
@@ -126,8 +127,8 @@ class AbstractBeanTest {
         }
     }
 
+    @DisplayName("Should execute destroy without exception")
     @Test
-    @DisplayName("should execute destroy without throwing any exception")
     void shouldExecuteDestroyWithoutException() {
         AbstractBean<Object> abstractBean = getInstance();
         CreationalContext<Object> context = mock(CreationalContext.class);
