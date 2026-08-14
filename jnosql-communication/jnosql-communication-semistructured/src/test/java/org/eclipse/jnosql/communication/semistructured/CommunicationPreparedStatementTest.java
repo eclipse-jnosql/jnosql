@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.List;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
@@ -124,6 +125,19 @@ class CommunicationPreparedStatementTest {
 
             // When / Then
             assertThatThrownBy(() -> statement.bind("age", null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("value is required");
+        }
+
+        @Test
+        @DisplayName("Should reject a null positional parameter value")
+        void shouldRejectNullPositionalValue() {
+
+            // Given
+            var statement = selectStatement();
+
+            // When / Then
+            assertThatThrownBy(() -> statement.bind(1, null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("value is required");
         }
@@ -337,6 +351,22 @@ class CommunicationPreparedStatementTest {
             verify(manager).deleteAndCount(deleteQuery);
             verify(manager, never()).delete(deleteQuery);
         }
+
+        @Test
+        @DisplayName("Should reject removal when parameters remain unbound")
+        void shouldRejectUnboundParameters() {
+
+            // Given
+            var params = Params.newParams();
+            var statement = CommunicationPreparedStatement.delete(deleteWithNamedParameter(params), params, QUERY, manager);
+
+            // When / Then
+            assertThatThrownBy(statement::result)
+                    .isInstanceOf(QueryException.class)
+                    .hasMessageContaining("Check all the parameters before execute the query")
+                    .hasMessageContaining("age");
+            verifyNoInteractions(manager);
+        }
     }
 
     @Nested
@@ -357,6 +387,23 @@ class CommunicationPreparedStatementTest {
             // Then
             assertThat(result).isEmpty();
             verify(manager).update(updateQuery);
+        }
+
+        @Test
+        @DisplayName("Should reject update when parameters remain unbound")
+        void shouldRejectUnboundParameters() {
+
+            // Given
+            var params = Params.newParams();
+            var updateQuery = updateWithNamedParameter(params);
+            var statement = CommunicationPreparedStatement.update(updateQuery, params, QUERY, manager);
+
+            // When / Then
+            assertThatThrownBy(statement::result)
+                    .isInstanceOf(QueryException.class)
+                    .hasMessageContaining("Check all the parameters before execute the query")
+                    .hasMessageContaining("age");
+            verifyNoInteractions(manager);
         }
     }
 
@@ -397,6 +444,20 @@ class CommunicationPreparedStatementTest {
         }
 
         @Test
+        @DisplayName("Should reject count for an update")
+        void shouldRejectUpdate() {
+
+            // Given
+            var statement = CommunicationPreparedStatement.update(mock(UpdateQuery.class), Params.newParams(), QUERY, manager);
+
+            // When / Then
+            assertThatThrownBy(statement::count)
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("The count operation is only allowed for COUNT and DELETE queries");
+            verifyNoInteractions(manager);
+        }
+
+        @Test
         @DisplayName("Should reject count when parameters remain unbound")
         void shouldRejectUnboundParameters() {
 
@@ -404,6 +465,22 @@ class CommunicationPreparedStatementTest {
             var params = Params.newParams();
             var selectQuery = DefaultSelectQuery.countBy(selectWithNamedParameter(params));
             var statement = selectStatement(selectQuery, params);
+
+            // When / Then
+            assertThatThrownBy(statement::count)
+                    .isInstanceOf(QueryException.class)
+                    .hasMessageContaining("Check all the parameters before execute the query")
+                    .hasMessageContaining("age");
+            verifyNoInteractions(manager);
+        }
+
+        @Test
+        @DisplayName("Should reject removal count when parameters remain unbound")
+        void shouldRejectRemovalCountWithUnboundParameters() {
+
+            // Given
+            var params = Params.newParams();
+            var statement = CommunicationPreparedStatement.delete(deleteWithNamedParameter(params), params, QUERY, manager);
 
             // When / Then
             assertThatThrownBy(statement::count)
@@ -526,5 +603,14 @@ class CommunicationPreparedStatementTest {
 
     private DeleteQuery deleteQuery() {
         return DeleteQuery.delete().from("God").where("age").eq(12).build();
+    }
+
+    private DeleteQuery deleteWithNamedParameter(Params params) {
+        return DeleteQuery.delete().from("God").where("age").eq(params.add("age")).build();
+    }
+
+    private UpdateQuery updateWithNamedParameter(Params params) {
+        var condition = CriteriaCondition.eq(Element.of("age", params.add("age")));
+        return new DefaultUpdateQuery("God", List.of(Element.of("name", "Zeus")), condition);
     }
 }
