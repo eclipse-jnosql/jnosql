@@ -24,9 +24,9 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -36,6 +36,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @EnableAutoWeld
@@ -67,12 +68,18 @@ public class QueryUpdateTest {
         this.template = new DefaultKeyValueTemplate(converter, instance, eventManager);
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"UPDATE User SET name = 'Jonh' where nickname = 'Jonh' ",
-            "UPDATE User SET name = 'Jonh'"})
-    void shouldNotExecuteUpdateOperations(String text) {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> template.query(text));
-    }
+    @Nested
+    @DisplayName("When the update query executes")
+    class WhenTheUpdateQueryExecutes {
 
+        @DisplayName("Should Not Execute Update Operations")
+        @ParameterizedTest
+        @ValueSource(strings = {"UPDATE User SET name = 'Jonh' where nickname = 'Jonh' ",
+                "UPDATE User SET name = 'Jonh'"})
+        void shouldNotExecuteUpdateOperations(String text) {
+            assertThatThrownBy(() -> template.query(text)).isInstanceOf(UnsupportedOperationException.class);
+        }
+
+    }
 
 }
