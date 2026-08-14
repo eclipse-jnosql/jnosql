@@ -144,7 +144,7 @@ public class RepositoryProxyPageRequestTest {
         assertThat(query.skip()).isEqualTo(pageRequest.size());
         assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
 
-        assertThat(condition.element()).isEqualTo(Element.of("name", "name"));
+        assertElement(condition.element(), Element.of("name", "name"));
 
         assertThat(personRepository.findByName("name", pageRequest, Order.by())).isNotNull();
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -316,7 +316,7 @@ public class RepositoryProxyPageRequestTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(GREATER_THAN);
-        assertThat(condition.element()).isEqualTo(Element.of("age", 33));
+        assertElement(condition.element(), Element.of("age", 33));
         assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
         assertThat(query.limit()).isEqualTo(pageRequest.size());
 
@@ -339,7 +339,7 @@ public class RepositoryProxyPageRequestTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(LESSER_EQUALS_THAN);
-        assertThat(condition.element()).isEqualTo(Element.of("age", 33));
+        assertElement(condition.element(), Element.of("age", 33));
         assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
         assertThat(query.limit()).isEqualTo(pageRequest.size());
 
@@ -362,7 +362,7 @@ public class RepositoryProxyPageRequestTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(LESSER_THAN);
-        assertThat(condition.element()).isEqualTo(Element.of("age", 33));
+        assertElement(condition.element(), Element.of("age", 33));
         assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
         assertThat(query.limit()).isEqualTo(pageRequest.size());
 
@@ -411,7 +411,7 @@ public class RepositoryProxyPageRequestTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(LIKE);
-        assertThat(condition.element()).isEqualTo(Element.of("name", "Ada"));
+        assertElement(condition.element(), Element.of("name", "Ada"));
         assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
         assertThat(query.limit()).isEqualTo(pageRequest.size());
 
@@ -436,7 +436,7 @@ public class RepositoryProxyPageRequestTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("vendors");
         assertThat(condition.condition()).isEqualTo(EQUALS);
-        assertThat(condition.element()).isEqualTo(Element.of("prefixes", "prefix"));
+        assertElement(condition.element(), Element.of("prefixes", "prefix"));
         assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
         assertThat(query.limit()).isEqualTo(pageRequest.size());
 
@@ -483,7 +483,7 @@ public class RepositoryProxyPageRequestTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(EQUALS);
-        assertThat(condition.element()).isEqualTo(Element.of("age", 120));
+        assertElement(condition.element(), Element.of("age", 120));
         assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
         assertThat(query.limit()).isEqualTo(pageRequest.size());
     }
@@ -511,7 +511,7 @@ public class RepositoryProxyPageRequestTest {
         assertThat(query.sorts()).hasSize(1)
                 .contains(name);
 
-        assertThat(condition.element()).isEqualTo(Element.of("name", "name"));
+        assertElement(condition.element(), Element.of("name", "name"));
 
         assertThat(personRepository.findByName("name", pageRequest, order)).isNotNull();
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -545,7 +545,7 @@ public class RepositoryProxyPageRequestTest {
         assertThat(query.sorts()).hasSize(2)
                 .containsExactly(Sort.asc("age"), name);
 
-        assertThat(condition.element()).isEqualTo(Element.of("name", "name"));
+        assertElement(condition.element(), Element.of("name", "name"));
 
 
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -571,7 +571,7 @@ public class RepositoryProxyPageRequestTest {
         assertThat(condition.condition()).isEqualTo(EQUALS);
         assertThat(query.sorts()).hasSize(1)
                 .containsExactly(Sort.asc("name"));
-        assertThat(condition.element()).isEqualTo(Element.of("name", "name"));
+        assertElement(condition.element(), Element.of("name", "name"));
     }
 
     @DisplayName("Should find by name sort pagination")
@@ -590,7 +590,7 @@ public class RepositoryProxyPageRequestTest {
         assertThat(condition.condition()).isEqualTo(EQUALS);
         assertThat(query.sorts()).hasSize(1)
                 .containsExactly(Sort.asc("name"));
-        assertThat(condition.element()).isEqualTo(Element.of("name", "name"));
+        assertElement(condition.element(), Element.of("name", "name"));
     }
 
     @DisplayName("Should find by name limit")
@@ -610,7 +610,7 @@ public class RepositoryProxyPageRequestTest {
         assertThat(condition.condition()).isEqualTo(EQUALS);
         assertThat(query.sorts()).hasSize(1)
                 .containsExactly(Sort.asc("name"));
-        assertThat(condition.element()).isEqualTo(Element.of("name", "name"));
+        assertElement(condition.element(), Element.of("name", "name"));
     }
 
     @DisplayName("Should find by name limit 2")
@@ -630,7 +630,7 @@ public class RepositoryProxyPageRequestTest {
         assertThat(condition.condition()).isEqualTo(EQUALS);
         assertThat(query.sorts()).hasSize(1)
                 .containsExactly(Sort.asc("name"));
-        assertThat(condition.element()).isEqualTo(Element.of("name", "name"));
+        assertElement(condition.element(), Element.of("name", "name"));
     }
 
     @DisplayName("Should find by name limit 3")
@@ -650,7 +650,7 @@ public class RepositoryProxyPageRequestTest {
         assertThat(condition.condition()).isEqualTo(EQUALS);
         assertThat(query.sorts()).hasSize(1)
                 .containsExactly(Sort.asc("name"));
-        assertThat(condition.element()).isEqualTo(Element.of("name", "name"));
+        assertElement(condition.element(), Element.of("name", "name"));
     }
 
     @DisplayName("Should find by name order by name")
@@ -719,7 +719,7 @@ public class RepositoryProxyPageRequestTest {
             soft.assertThat(query.sorts()).hasSize(0);
             CriteriaCondition condition = query.condition().orElseThrow();
             soft.assertThat(condition.condition()).isEqualTo(EQUALS);
-            soft.assertThat(condition.element()).isEqualTo(Element.of("name", "name"));
+            assertElement(condition.element(), Element.of("name", "name"));
 
         });
     }
@@ -892,6 +892,11 @@ public class RepositoryProxyPageRequestTest {
 
         Optional<Vendor> findByPrefixesIn(List<String> prefix, PageRequest pageRequest);
 
+    }
+
+    private static void assertElement(Element actual, Element expected) {
+        assertThat(actual.name()).isEqualTo(expected.name());
+        assertThat(actual.get()).isEqualTo(expected.get());
     }
 
     @Nested
