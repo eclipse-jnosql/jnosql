@@ -14,16 +14,25 @@
  */
 package org.eclipse.jnosql.mapping.metadata;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ClassInformationNotFoundExceptionTest {
 
-    @Test
-    void shouldConstructWithValidMessage() {
-        String errorMessage = "Class information not found.";
-        ClassInformationNotFoundException exception = new ClassInformationNotFoundException(errorMessage);
-        assertEquals(errorMessage, exception.getMessage());
+    @Nested
+    @DisplayName("When the exception is created")
+    class WhenTheExceptionIsCreated {
+
+        @Test
+        @DisplayName("Should preserve the provided message")
+        void shouldPreserveTheProvidedMessage() {
+            String errorMessage = "Class information not found.";
+            ClassInformationNotFoundException exception = new ClassInformationNotFoundException(errorMessage);
+
+            assertThat(exception.getMessage()).isEqualTo(errorMessage);
+        }
     }
 }
