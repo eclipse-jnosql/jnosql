@@ -113,7 +113,6 @@ class UpdateOperationRepositoryInvocationHandlerTest {
 
         @DisplayName("Should reject update without required parameter")
         @Test
-        @DisplayName("Should reject an update method without the required parameter")
         void shouldRejectUpdateWithoutRequiredParameter() {
             // when, then
             assertThatThrownBy(comicBookRepository::invalidUpdate)
@@ -124,7 +123,6 @@ class UpdateOperationRepositoryInvocationHandlerTest {
 
         @DisplayName("Should update entity with void return and lifecycle events")
         @Test
-        @DisplayName("Should update an entity between pre-update and post-update events for a void method")
         void shouldUpdateEntityWithVoidReturnAndLifecycleEvents() {
             // given
             ComicBook book = new ComicBook("1234", "Book");
@@ -144,7 +142,6 @@ class UpdateOperationRepositoryInvocationHandlerTest {
 
         @DisplayName("Should return updated entity with lifecycle events")
         @Test
-        @DisplayName("Should return the updated entity after pre-update and post-update events")
         void shouldReturnUpdatedEntityWithLifecycleEvents() {
             // given
             ComicBook book = new ComicBook("1234", "Book");
@@ -174,7 +171,6 @@ class UpdateOperationRepositoryInvocationHandlerTest {
         @SuppressWarnings("unchecked")
         @DisplayName("Should update iterable with lifecycle events")
         @Test
-        @DisplayName("Should return updated iterable entities after firing lifecycle events for each entity")
         void shouldUpdateIterableWithLifecycleEvents() {
             // given
             ComicBook book = new ComicBook("1234", "Book");
@@ -206,7 +202,6 @@ class UpdateOperationRepositoryInvocationHandlerTest {
         @SuppressWarnings("unchecked")
         @DisplayName("Should update array as iterable")
         @Test
-        @DisplayName("Should convert an array to an iterable and update its entities")
         void shouldUpdateArrayAsIterable() {
             // given
             ComicBook book = new ComicBook("1234", "Book");
