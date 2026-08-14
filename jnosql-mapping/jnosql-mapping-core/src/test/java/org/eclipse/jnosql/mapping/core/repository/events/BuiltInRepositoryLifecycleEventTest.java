@@ -106,8 +106,8 @@ class BuiltInRepositoryLifecycleEventTest {
     @DisplayName("When inserting an entity")
     class WhenInsert {
 
+        @DisplayName("Should fire insert events")
         @Test
-        @DisplayName("Should fire pre-insert and post-insert events with the inserted entity")
         void shouldFireInsertEvents() {
             // given
             VinylRecord entity = entity();
@@ -136,8 +136,8 @@ class BuiltInRepositoryLifecycleEventTest {
     @DisplayName("When updating an entity")
     class WhenUpdate {
 
+        @DisplayName("Should fire update events")
         @Test
-        @DisplayName("Should fire pre-update and post-update events with the updated entity")
         void shouldFireUpdateEvents() {
             // given
             VinylRecord entity = entity();
@@ -166,8 +166,8 @@ class BuiltInRepositoryLifecycleEventTest {
     @DisplayName("When saving a new entity")
     class WhenSaveNewEntity {
 
+        @DisplayName("Should fire upsert events when inserting")
         @Test
-        @DisplayName("Should fire pre-upsert and post-upsert events when inserting a missing entity")
         void shouldFireUpsertEventsWhenInserting() {
             // given
             VinylRecord entity = entity();
@@ -201,8 +201,8 @@ class BuiltInRepositoryLifecycleEventTest {
     @DisplayName("When saving an existing entity")
     class WhenSaveExistingEntity {
 
+        @DisplayName("Should fire upsert events when updating")
         @Test
-        @DisplayName("Should fire pre-upsert and post-upsert events when updating an existing entity")
         void shouldFireUpsertEventsWhenUpdating() {
             // given
             VinylRecord entity = entity();
@@ -232,8 +232,8 @@ class BuiltInRepositoryLifecycleEventTest {
     @DisplayName("When deleting an entity")
     class WhenDelete {
 
+        @DisplayName("Should fire delete events")
         @Test
-        @DisplayName("Should fire pre-delete and post-delete events with the deleted entity")
         void shouldFireDeleteEvents() {
             // given
             VinylRecord entity = entity();
