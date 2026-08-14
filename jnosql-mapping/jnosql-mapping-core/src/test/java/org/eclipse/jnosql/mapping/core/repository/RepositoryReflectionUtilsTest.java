@@ -52,7 +52,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class RepositoryReflectionUtilsTest {
@@ -74,6 +73,7 @@ class RepositoryReflectionUtilsTest {
     @DisplayName("Repository query and @By reflection tests")
     class GetByAndQueryTests {
 
+        @DisplayName("Should get params without special params")
         @Test
         @DisplayName("should return parameters without special ones")
         void shouldGetParamsWithoutSpecialParams() {
@@ -91,6 +91,7 @@ class RepositoryReflectionUtilsTest {
                     .containsEntry("name", "Ada");
         }
 
+        @DisplayName("Should query")
         @Test
         @DisplayName("should return query string from @Query annotation")
         void shouldQuery() {
@@ -100,9 +101,10 @@ class RepositoryReflectionUtilsTest {
                     .orElseThrow();
 
             String query = RepositoryReflectionUtils.INSTANCE.getQuery(method);
-            assertEquals("FROM Person WHERE name = :name", query);
+            assertThat(query).isEqualTo("FROM Person WHERE name = :name");
         }
 
+        @DisplayName("Should by without special params")
         @Test
         @DisplayName("should return @By parameters excluding Sort parameter")
         void shouldByWithoutSpecialParams() {
@@ -125,6 +127,7 @@ class RepositoryReflectionUtilsTest {
     @DisplayName("Reflection-based parameter extraction tests")
     class GetParamsTests {
 
+        @DisplayName("Should find by age without params")
         @Test
         @DisplayName("should find parameters by position when compiled without -parameters")
         void shouldFindByAgeWithoutParams() {
@@ -140,6 +143,7 @@ class RepositoryReflectionUtilsTest {
                     .containsEntry("?1", 10);
         }
 
+        @DisplayName("Should find by age with params")
         @Test
         @DisplayName("should find parameters by name when compiled with -parameters")
         void shouldFindByAgeWithParams() {
@@ -156,6 +160,7 @@ class RepositoryReflectionUtilsTest {
                     .containsEntry("age", 10);
         }
 
+        @DisplayName("Should find by age and name without params")
         @Test
         @DisplayName("should handle multiple parameters without names")
         void shouldFindByAgeAndNameWithoutParams() {
@@ -173,6 +178,7 @@ class RepositoryReflectionUtilsTest {
                     .containsEntry("?2", "Ada");
         }
 
+        @DisplayName("Should find by age and name with params")
         @Test
         @DisplayName("should handle multiple parameters with names")
         void shouldFindByAgeAndNameWithParams() {
@@ -197,6 +203,7 @@ class RepositoryReflectionUtilsTest {
     @DisplayName("Constraint annotation mapping tests")
     class ConstraintMappingTests {
 
+        @DisplayName("Should get param value by positive")
         @ParameterizedTest(name = "should map positive constraint {0}")
         @ValueSource(classes = {
                 AtLeast.class, AtMost.class, GreaterThan.class, LessThan.class,
@@ -210,6 +217,7 @@ class RepositoryReflectionUtilsTest {
             });
         }
 
+        @DisplayName("Should get param value by negative")
         @ParameterizedTest(name = "should map negative constraint {0}")
         @ValueSource(classes = {NotBetween.class, NotEqualTo.class, NotIn.class, NotLike.class})
         void shouldGetParamValueByNegative(Class<? extends Constraint<?>> constraint) {
@@ -221,6 +229,7 @@ class RepositoryReflectionUtilsTest {
             });
         }
 
+        @DisplayName("Should return param")
         @ParameterizedTest(name = "should match condition for {0}")
         @MethodSource("org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtilsTest#conditions")
         void shouldReturnParam(Class<? extends Constraint<?>> constraint, boolean isNegate, Condition condition) {
@@ -233,6 +242,7 @@ class RepositoryReflectionUtilsTest {
             });
         }
 
+        @DisplayName("Should return param with instances")
         @ParameterizedTest(name = "should map constraint instance {0}")
         @MethodSource("org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtilsTest#conditionsInstances")
         void shouldReturnParamWithInstances(boolean isNegate, Condition condition,
@@ -246,6 +256,7 @@ class RepositoryReflectionUtilsTest {
             });
         }
 
+        @DisplayName("Should create param value equals when is null")
         @Test
         @DisplayName("should create ParamValue equals when constraint is null")
         void shouldCreateParamValueEqualsWhenIsNull() {
@@ -258,6 +269,7 @@ class RepositoryReflectionUtilsTest {
             });
         }
 
+        @DisplayName("Should use the is param value")
         @Test
         @DisplayName("should use @Is annotation to resolve constraint type")
         void shouldUseTheIsParamValue() {
@@ -282,6 +294,7 @@ class RepositoryReflectionUtilsTest {
             });
         }
 
+        @DisplayName("Should create param value equals when is null and have constraint instance")
         @Test
         @DisplayName("should create ParamValue equals when constraint is null and constraint instance")
         void shouldCreateParamValueEqualsWhenIsNullAndHaveConstraintInstance() {
@@ -295,6 +308,7 @@ class RepositoryReflectionUtilsTest {
             });
         }
 
+        @DisplayName("Should ignore is annotation when value is constraint instance")
         @Test
         @DisplayName("should ignore @Is annotation when value is constraint instance")
         void shouldIgnoreIsAnnotationWhenValueIsConstraintInstance() {
