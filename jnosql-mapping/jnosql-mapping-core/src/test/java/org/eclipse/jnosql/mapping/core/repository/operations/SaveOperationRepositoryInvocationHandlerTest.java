@@ -133,7 +133,6 @@ class SaveOperationRepositoryInvocationHandlerTest {
 
         @DisplayName("Should reject save without required parameter")
         @Test
-        @DisplayName("Should reject a save method without the required parameter")
         void shouldRejectSaveWithoutRequiredParameter() {
             assertThatThrownBy(comicBookRepository::invalidSave)
                     .isInstanceOf(IllegalArgumentException.class);
@@ -143,7 +142,6 @@ class SaveOperationRepositoryInvocationHandlerTest {
 
         @DisplayName("Should insert when entity does not exist")
         @Test
-        @DisplayName("Should insert a missing entity between pre-upsert and post-upsert events")
         void shouldInsertWhenEntityDoesNotExist() {
             // given
             ComicBook book = new ComicBook("id", "Book");
@@ -168,7 +166,6 @@ class SaveOperationRepositoryInvocationHandlerTest {
 
         @DisplayName("Should update when entity exists")
         @Test
-        @DisplayName("Should update an existing entity between pre-upsert and post-upsert events")
         void shouldUpdateWhenEntityExists() {
             // given
             ComicBook book = new ComicBook("id", "Book");
@@ -198,7 +195,6 @@ class SaveOperationRepositoryInvocationHandlerTest {
 
         @DisplayName("Should save iterable with lifecycle events")
         @Test
-        @DisplayName("Should save iterable entities with upsert lifecycle events for each entity")
         void shouldSaveIterableWithLifecycleEvents() {
             // given
             ComicBook book = new ComicBook("id", "Book updated");
@@ -224,7 +220,6 @@ class SaveOperationRepositoryInvocationHandlerTest {
 
         @DisplayName("Should save array with lifecycle events")
         @Test
-        @DisplayName("Should save array entities with upsert lifecycle events for each entity")
         void shouldSaveArrayWithLifecycleEvents() {
             // given
             ComicBook book = new ComicBook("id", "Book updated");
@@ -255,7 +250,6 @@ class SaveOperationRepositoryInvocationHandlerTest {
 
         @DisplayName("Should reject entity without identifier")
         @Test
-        @DisplayName("Should reject an entity without an identifier and not fire a post-upsert event")
         void shouldRejectEntityWithoutIdentifier() {
             // given
             InvalidEntity entity = new InvalidEntity("Invalid");
