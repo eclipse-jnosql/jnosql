@@ -39,7 +39,7 @@ class DefaultElementDeleteQueryTest {
         void shouldNotEditColumns() {
             assertThatThrownBy(() -> {
                 List<String> columns = query.columns();
-                assertTrue(columns.isEmpty());
+                assertThat(columns).isEmpty();
                 columns.clear();
             }).isInstanceOf(UnsupportedOperationException.class);
         }
