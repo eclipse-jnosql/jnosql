@@ -14,57 +14,73 @@
  */
 package org.eclipse.jnosql.mapping.core.config;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MappingConfigurationsTest {
 
-    @Test
-    void shouldReturnValueForKeyValueProvider() {
-        String expectedValue = "jnosql.keyvalue.provider";
-        assertEquals(expectedValue, MappingConfigurations.KEY_VALUE_PROVIDER.get());
-    }
 
-    @Test
-    void shouldReturnValueForKeyValueDatabase() {
-        String expectedValue = "jnosql.keyvalue.database";
-        assertEquals(expectedValue, MappingConfigurations.KEY_VALUE_DATABASE.get());
-    }
 
-    @Test
-    void shouldReturnValueForDocumentProvider() {
-        String expectedValue = "jnosql.document.provider";
-        assertEquals(expectedValue, MappingConfigurations.DOCUMENT_PROVIDER.get());
-    }
 
-    @Test
-    void shouldReturnValueForDocumentDatabase() {
-        String expectedValue = "jnosql.document.database";
-        assertEquals(expectedValue, MappingConfigurations.DOCUMENT_DATABASE.get());
-    }
 
-    @Test
-    void shouldReturnValueForColumnProvider() {
-        String expectedValue = "jnosql.column.provider";
-        assertEquals(expectedValue, MappingConfigurations.COLUMN_PROVIDER.get());
-    }
 
-    @Test
-    void shouldReturnValueForColumnDatabase() {
-        String expectedValue = "jnosql.column.database";
-        assertEquals(expectedValue, MappingConfigurations.COLUMN_DATABASE.get());
-    }
 
-    @Test
-    void shouldReturnValueForGraphProvider() {
-        String expectedValue = "jnosql.graph.provider";
-        assertEquals(expectedValue, MappingConfigurations.GRAPH_PROVIDER.get());
-    }
 
-    @Test
-    void shouldReturnValueForGraphTransactionAutomatic() {
-        String expectedValue = "jnosql.graph.transaction.automatic";
-        assertEquals(expectedValue, MappingConfigurations.GRAPH_TRANSACTION_AUTOMATIC.get());
+
+    @Nested
+    @DisplayName("When the mapping configurations operates")
+    class WhenTheMappingConfigurationsOperates {
+
+        @DisplayName("Should return value for key value provider")
+        @Test
+        void shouldReturnValueForKeyValueProvider() {
+            String expectedValue = "jnosql.keyvalue.provider";
+            assertThat(MappingConfigurations.KEY_VALUE_PROVIDER.get()).isEqualTo(expectedValue);
+        }
+        @DisplayName("Should return value for key value database")
+        @Test
+        void shouldReturnValueForKeyValueDatabase() {
+            String expectedValue = "jnosql.keyvalue.database";
+            assertThat(MappingConfigurations.KEY_VALUE_DATABASE.get()).isEqualTo(expectedValue);
+        }
+        @DisplayName("Should return value for document provider")
+        @Test
+        void shouldReturnValueForDocumentProvider() {
+            String expectedValue = "jnosql.document.provider";
+            assertThat(MappingConfigurations.DOCUMENT_PROVIDER.get()).isEqualTo(expectedValue);
+        }
+        @DisplayName("Should return value for document database")
+        @Test
+        void shouldReturnValueForDocumentDatabase() {
+            String expectedValue = "jnosql.document.database";
+            assertThat(MappingConfigurations.DOCUMENT_DATABASE.get()).isEqualTo(expectedValue);
+        }
+        @DisplayName("Should return value for column provider")
+        @Test
+        void shouldReturnValueForColumnProvider() {
+            String expectedValue = "jnosql.column.provider";
+            assertThat(MappingConfigurations.COLUMN_PROVIDER.get()).isEqualTo(expectedValue);
+        }
+        @DisplayName("Should return value for column database")
+        @Test
+        void shouldReturnValueForColumnDatabase() {
+            String expectedValue = "jnosql.column.database";
+            assertThat(MappingConfigurations.COLUMN_DATABASE.get()).isEqualTo(expectedValue);
+        }
+        @DisplayName("Should return value for graph provider")
+        @Test
+        void shouldReturnValueForGraphProvider() {
+            String expectedValue = "jnosql.graph.provider";
+            assertThat(MappingConfigurations.GRAPH_PROVIDER.get()).isEqualTo(expectedValue);
+        }
+        @DisplayName("Should return value for graph transaction automatic")
+        @Test
+        void shouldReturnValueForGraphTransactionAutomatic() {
+            String expectedValue = "jnosql.graph.transaction.automatic";
+            assertThat(MappingConfigurations.GRAPH_TRANSACTION_AUTOMATIC.get()).isEqualTo(expectedValue);
+        }
     }
 }
