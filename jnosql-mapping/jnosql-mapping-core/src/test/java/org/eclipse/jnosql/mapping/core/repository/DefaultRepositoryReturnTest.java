@@ -14,9 +14,12 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.DisplayName;
+
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -37,15 +40,17 @@ class DefaultRepositoryReturnTest {
     @Mock
     private Page<Person> page;
 
+    @DisplayName("Should return is compatible")
     @Test
     void shouldReturnIsCompatible() {
-        Assertions.assertTrue(repositoryReturn.isCompatible(Person.class, Optional.class));
-        Assertions.assertTrue(repositoryReturn.isCompatible(Object.class, Person.class));
-        Assertions.assertTrue(repositoryReturn.isCompatible(Person.class, Object.class));
+        assertThat(repositoryReturn.isCompatible(Person.class, Optional.class)).isTrue();
+        assertThat(repositoryReturn.isCompatible(Object.class, Person.class)).isTrue();
+        assertThat(repositoryReturn.isCompatible(Person.class, Object.class)).isTrue();
     }
 
 
 
+    @DisplayName("Should return default page")
     @Test
     void shouldReturnDefaultPage() {
         Method method = Person.class.getDeclaredMethods()[0];
@@ -63,9 +68,10 @@ class DefaultRepositoryReturnTest {
                 .totalSupplier(() -> 1L)
                 .build();
         Object person = repositoryReturn.convertPageRequest(dynamic);
-        Assertions.assertNotNull(person);
+        assertThat(person).isNotNull();
     }
 
+    @DisplayName("Should return default")
     @Test
     void shouldReturnDefault() {
         Method method = Person.class.getDeclaredMethods()[0];
@@ -78,7 +84,7 @@ class DefaultRepositoryReturnTest {
                 .methodName(method.getName())
                 .build();
         Object person = repositoryReturn.convert(dynamic);
-        Assertions.assertNotNull(person);
+        assertThat(person).isNotNull();
     }
 
 
