@@ -15,6 +15,8 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.inject.Inject;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
@@ -26,11 +28,12 @@ import org.eclipse.jnosql.mapping.semistructured.entities.Person;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Optional;
-import java.util.stream.Stream;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -46,6 +49,7 @@ class PreparedStatementTest {
     @Inject
     private EntityConverter converter;
 
+    @DisplayName("Should return count")
     @Test
     void shouldReturnCount(){
         var communicationPreparedStatement = Mockito.mock(org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement.class);
@@ -54,6 +58,7 @@ class PreparedStatementTest {
         Assertions.assertThat(preparedStatement.count()).isEqualTo(10L);
     }
 
+    @DisplayName("Should return false when query is empty")
     @Test
     void shouldReturnFalseWhenQueryIsEmpty(){
         var communicationPreparedStatement = Mockito.mock(org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement.class);
@@ -62,6 +67,7 @@ class PreparedStatementTest {
         Assertions.assertThat(preparedStatement.isCount()).isFalse();
     }
 
+    @DisplayName("Should return check is count base on query")
     @Test
     void shouldReturnCheckIsCountBaseOnQuery(){
         var communicationPreparedStatement = Mockito.mock(org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement.class);
@@ -72,6 +78,7 @@ class PreparedStatementTest {
         Assertions.assertThat(preparedStatement.isCount()).isTrue();
     }
 
+    @DisplayName("Should return single result")
     @Test
     void shouldReturnSingleResult(){
         var communicationPreparedStatement = Mockito.mock(org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement.class);
@@ -87,6 +94,7 @@ class PreparedStatementTest {
         Assertions.assertThat(person).isPresent();
     }
 
+    @DisplayName("Should return single field in single result")
     @Test
     void shouldReturnSingleFieldInSingleResult() {
         var communicationPreparedStatement = Mockito.mock(org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement.class);
@@ -104,6 +112,7 @@ class PreparedStatementTest {
         Assertions.assertThat(name).isPresent().get().isEqualTo("Ada");
     }
 
+    @DisplayName("Should return single fields in single result")
     @Test
     void shouldReturnSingleFieldsInSingleResult() {
         var communicationPreparedStatement = Mockito.mock(org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement.class);
@@ -122,6 +131,7 @@ class PreparedStatementTest {
         Assertions.assertThat(fields).isPresent().get().isEqualTo(new Object[]{"Ada", 20});
     }
 
+    @DisplayName("Should return single field in result")
     @Test
     void shouldReturnSingleFieldInResult() {
         var communicationPreparedStatement = Mockito.mock(org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement.class);
@@ -139,6 +149,7 @@ class PreparedStatementTest {
         Assertions.assertThat(name).isNotEmpty().hasSize(1).contains("Ada");
     }
 
+    @DisplayName("Should return single fields in result")
     @Test
     void shouldReturnSingleFieldsInResult() {
         var communicationPreparedStatement = Mockito.mock(org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement.class);
@@ -157,6 +168,7 @@ class PreparedStatementTest {
         Assertions.assertThat(fields).isNotEmpty().hasSize(1).contains(new Object[]{"Ada", 20});
     }
 
+    @DisplayName("Should select mapper")
     @Test
     void shouldSelectMapper() {
         var communicationPreparedStatement = Mockito.mock(org.eclipse.jnosql.communication.semistructured.CommunicationPreparedStatement.class);
@@ -176,4 +188,9 @@ class PreparedStatementTest {
         Assertions.assertThat(fields).isNotEmpty().hasSize(1).contains(new Object[]{"Ada", 20});
     }
 
+
+    @Nested
+    @DisplayName("When the prepared statement is tested")
+    class WhenThePreparedStatementIsTested {
+    }
 }
