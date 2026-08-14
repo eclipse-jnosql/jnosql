@@ -16,6 +16,9 @@ package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
@@ -32,17 +35,14 @@ import org.eclipse.jnosql.mapping.semistructured.entities.WrongEntity;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -81,6 +81,7 @@ class SelectFieldMapperTest {
                 eventPersistManager, entities, converters);
     }
 
+    @DisplayName("Should select field")
     @Test
     void shouldSelectField() {
         CommunicationEntity entity = CommunicationEntity.of("Person", columns);
@@ -99,6 +100,7 @@ class SelectFieldMapperTest {
         });
     }
 
+    @DisplayName("Should single select field")
     @Test
     void shouldSingleSelectField() {
         CommunicationEntity entity = CommunicationEntity.of("Person", columns);
@@ -110,9 +112,10 @@ class SelectFieldMapperTest {
         });
 
         List<Integer> result = template.prepare("select age from Person").<Integer>result().toList();
-        assertEquals(1, result.size());
+        assertThat(result.size()).isEqualTo(1);
     }
 
+    @DisplayName("Should multiple select fields")
     @Test
     void shouldMultipleSelectFields() {
         CommunicationEntity entity = CommunicationEntity.of("Person", columns);
@@ -136,7 +139,7 @@ class SelectFieldMapperTest {
         EntityMetadata entityMetadata = entities.get(Person.class);
         Person person = Person.builder().id(1L).name("Name").age(10).build();
         long id = SelectFieldMapper.INSTANCE.field(person, entityMetadata, "id(this)");
-        Assertions.assertEquals(1L, id);
+        assertThat(id).isEqualTo(1L);
 
     }
 
@@ -144,7 +147,11 @@ class SelectFieldMapperTest {
     @DisplayName("should return error when entity does not have id")
     void shouldReturnErrorWhenEntityDoesNotHaveId() {
         EntityMetadata entityMetadata = entities.get(WrongEntity.class);
-        Assertions.assertThrows(ClassInformationNotFoundException.class,
-                () -> SelectFieldMapper.INSTANCE.field(new WrongEntity(), entityMetadata, "id(this)"));
+        assertThatThrownBy(() -> SelectFieldMapper.INSTANCE.field(new WrongEntity(), entityMetadata, "id(this)")).isInstanceOf(ClassInformationNotFoundException.class);
+    }
+
+    @Nested
+    @DisplayName("When the select field mapper is tested")
+    class WhenTheSelectFieldMapperIsTested {
     }
 }
