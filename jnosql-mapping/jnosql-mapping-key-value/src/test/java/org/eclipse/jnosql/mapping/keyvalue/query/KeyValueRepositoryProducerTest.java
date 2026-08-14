@@ -48,16 +48,16 @@ class KeyValueRepositoryProducerTest {
     @DisplayName("When the producer creates repositories")
     class WhenTheProducerCreatesRepositories {
 
-        @DisplayName("Should Create From Manager")
         @Test
+        @DisplayName("Should create from manager")
         void shouldCreateFromManager() {
             BucketManager manager = Mockito.mock(BucketManager.class);
             PersonRepository personRepository = producer.get(PersonRepository.class, manager);
             assertThat(personRepository).isNotNull();
         }
 
-        @DisplayName("Should Create From Template")
         @Test
+        @DisplayName("Should create from template")
         void shouldCreateFromTemplate() {
             KeyValueTemplate template = Mockito.mock(KeyValueTemplate.class);
             PersonRepository personRepository = producer.get(PersonRepository.class, template);
