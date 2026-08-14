@@ -89,8 +89,8 @@ class CollectionSupplierTest {
     @DisplayName("When the collection supplier provides collections")
     class WhenTheCollectionSupplierProvidesCollections {
 
-        @DisplayName("Should Get List")
         @Test
+        @DisplayName("Should get list")
         void shouldGetList() {
             SoftAssertions.assertSoftly(softly -> {
                 softly.assertThat(names).isNotNull();
@@ -98,8 +98,8 @@ class CollectionSupplierTest {
             });
         }
 
-        @DisplayName("Should Get Map")
         @Test
+        @DisplayName("Should get map")
         void shouldGetMap() {
             SoftAssertions.assertSoftly(softly -> {
                 softly.assertThat(map).isNotNull();
@@ -107,8 +107,8 @@ class CollectionSupplierTest {
             });
         }
 
-        @DisplayName("Should Get Queue")
         @Test
+        @DisplayName("Should get queue")
         void shouldGetQueue() {
             SoftAssertions.assertSoftly(softly -> {
                 softly.assertThat(orders).isNotNull();
@@ -116,8 +116,8 @@ class CollectionSupplierTest {
             });
         }
 
-        @DisplayName("Should Get Set")
         @Test
+        @DisplayName("Should get set")
         void shouldGetSet() {
             SoftAssertions.assertSoftly(softly -> {
                 softly.assertThat(fruits).isNotNull();
@@ -125,14 +125,14 @@ class CollectionSupplierTest {
             });
         }
 
-        @DisplayName("Should Structure")
         @Test
+        @DisplayName("Should structure")
         void shouldStructure() {
             assertThat(structure).isNotNull();
         }
 
-        @DisplayName("Should Get From Qualifier")
         @Test
+        @DisplayName("Should get from qualifier")
         void shouldGetFromQualifier() {
             CDI<Object> current = CDI.current();
             TypeLiteral<List<Integer>> literal = new TypeLiteral<>(){};
