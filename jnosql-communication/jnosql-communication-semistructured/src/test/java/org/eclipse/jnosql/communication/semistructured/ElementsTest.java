@@ -19,41 +19,51 @@ import java.util.Map;
 
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
 class ElementsTest {
 
-    @Test
-    void shouldCreateColumn() {
-        Element element = Elements.of("name", "Ada");
-        assertEquals("name", element.name());
-        assertEquals("Ada", element.get());
+
+    @Nested
+    @DisplayName("When the elements is used")
+    class WhenTheElementsIsUsed {
+
+        @DisplayName("Should Create Column")
+        @Test
+        void shouldCreateColumn() {
+            Element element = Elements.of("name", "Ada");
+            assertThat(element.name()).isEqualTo("name");
+            assertThat(element.get()).isEqualTo("Ada");
+        }
+
+        @DisplayName("Should Create Columns From Map")
+        @Test
+        void shouldCreateColumnsFromMap() {
+            Map<String, String> map = singletonMap("name", "Ada");
+            List<Element> elements = Elements.of(map);
+            assertThat(elements.isEmpty()).isFalse();
+            assertThat(elements).contains(Element.of("name", "Ada"));
+        }
+
+
+        @DisplayName("Should Create Recursive Map")
+        @Test
+        void shouldCreateRecursiveMap() {
+            List<List<Map<String, String>>> list = new ArrayList<>();
+            Map<String, String> map = singletonMap("mobile", "55 1234-4567");
+            list.add(singletonList(map));
+
+            List<Element> elements = Elements.of(singletonMap("contact", list));
+            assertThat(elements.size()).isEqualTo(1);
+            Element element = elements.getFirst();
+            assertThat(element.name()).isEqualTo("contact");
+            List<List<Element>> result = (List<List<Element>>) element.get();
+            assertThat(result.getFirst().getFirst()).isEqualTo(Element.of("mobile", "55 1234-4567"));
+
+        }
     }
 
-    @Test
-    void shouldCreateColumnsFromMap() {
-        Map<String, String> map = singletonMap("name", "Ada");
-        List<Element> elements = Elements.of(map);
-        assertFalse(elements.isEmpty());
-        assertThat(elements).contains(Element.of("name", "Ada"));
-    }
-
-
-    @Test
-    void shouldCreateRecursiveMap() {
-        List<List<Map<String, String>>> list = new ArrayList<>();
-        Map<String, String> map = singletonMap("mobile", "55 1234-4567");
-        list.add(singletonList(map));
-
-        List<Element> elements = Elements.of(singletonMap("contact", list));
-        assertEquals(1, elements.size());
-        Element element = elements.getFirst();
-        assertEquals("contact", element.name());
-        List<List<Element>> result = (List<List<Element>>) element.get();
-        assertEquals(Element.of("mobile", "55 1234-4567"), result.getFirst().getFirst());
-
-    }
 }
