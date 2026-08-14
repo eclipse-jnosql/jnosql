@@ -11,6 +11,7 @@
  */
 package org.eclipse.jnosql.communication.query;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +19,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("BooleanQueryValue")
 class BooleanQueryValueTest {
+
+    @Nested
+    @DisplayName("When the boolean query value is used")
+    class WhenTheBooleanQueryValue {
+    }
 
     @Test
     @DisplayName("should expose true as a Boolean query value")
@@ -57,7 +63,7 @@ class BooleanQueryValueTest {
 
     @Test
     @DisplayName("static TRUE instance should be equivalent to a true value")
-    void staticTrueInstanceShouldBeEquivalent() {
+    void shouldTreatStaticTrueInstanceAsEquivalent() {
         BooleanQueryValue fromConstant = BooleanQueryValue.TRUE;
         BooleanQueryValue fromConstructor = new BooleanQueryValue(true);
 
@@ -67,7 +73,7 @@ class BooleanQueryValueTest {
 
     @Test
     @DisplayName("static FALSE instance should be equivalent to a false value")
-    void staticFalseInstanceShouldBeEquivalent() {
+    void shouldTreatStaticFalseInstanceAsEquivalent() {
         BooleanQueryValue fromConstant = BooleanQueryValue.FALSE;
         BooleanQueryValue fromConstructor = new BooleanQueryValue(false);
 
