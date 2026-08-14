@@ -14,96 +14,112 @@
  */
 package org.eclipse.jnosql.mapping.core;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.DisplayName;
+
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.eclipse.jnosql.mapping.DatabaseType.COLUMN;
 import static org.eclipse.jnosql.mapping.DatabaseType.DOCUMENT;
 import static org.eclipse.jnosql.mapping.DatabaseType.GRAPH;
 import static org.eclipse.jnosql.mapping.DatabaseType.KEY_VALUE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DatabaseQualifierTest {
 
+    @DisplayName("Should return default column")
     @Test
     void shouldReturnDefaultColumn() {
         DatabaseQualifier qualifier = DatabaseQualifier.ofColumn();
-        assertEquals("", qualifier.provider());
-        assertEquals(COLUMN, qualifier.value());
+        assertThat(qualifier.provider()).isEqualTo("");
+        assertThat(qualifier.value()).isEqualTo(COLUMN);
     }
 
+    @DisplayName("Should return column provider")
     @Test
     void shouldReturnColumnProvider() {
         String provider = "provider";
         DatabaseQualifier qualifier = DatabaseQualifier.ofColumn(provider);
-        assertEquals(provider, qualifier.provider());
-        assertEquals(COLUMN, qualifier.value());
+        assertThat(qualifier.provider()).isEqualTo(provider);
+        assertThat(qualifier.value()).isEqualTo(COLUMN);
     }
 
+    @DisplayName("Should return error when column null")
     @Test
     void shouldReturnErrorWhenColumnNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> DatabaseQualifier.ofColumn(null));
+        assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> DatabaseQualifier.ofColumn(null));
     }
 
+    @DisplayName("Should return default document")
     @Test
     void shouldReturnDefaultDocument() {
         DatabaseQualifier qualifier = DatabaseQualifier.ofDocument();
-        assertEquals("", qualifier.provider());
-        assertEquals(DOCUMENT, qualifier.value());
+        assertThat(qualifier.provider()).isEqualTo("");
+        assertThat(qualifier.value()).isEqualTo(DOCUMENT);
     }
 
+    @DisplayName("Should return document provider")
     @Test
     void shouldReturnDocumentProvider() {
         String provider = "provider";
         DatabaseQualifier qualifier = DatabaseQualifier.ofDocument(provider);
-        assertEquals(provider, qualifier.provider());
-        assertEquals(DOCUMENT, qualifier.value());
+        assertThat(qualifier.provider()).isEqualTo(provider);
+        assertThat(qualifier.value()).isEqualTo(DOCUMENT);
     }
 
+    @DisplayName("Should return error when document null")
     @Test
     void shouldReturnErrorWhenDocumentNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> DatabaseQualifier.ofDocument(null));
+        assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> DatabaseQualifier.ofDocument(null));
     }
 
+    @DisplayName("Should return error when key value null")
     @Test
     void shouldReturnErrorWhenKeyValueNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> DatabaseQualifier.ofKeyValue(null));
+        assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> DatabaseQualifier.ofKeyValue(null));
     }
 
+    @DisplayName("Should return key value provider")
     @Test
     void shouldReturnKeyValueProvider() {
         String provider = "provider";
         DatabaseQualifier qualifier = DatabaseQualifier.ofKeyValue(provider);
-        assertEquals(provider, qualifier.provider());
-        assertEquals(KEY_VALUE, qualifier.value());
+        assertThat(qualifier.provider()).isEqualTo(provider);
+        assertThat(qualifier.value()).isEqualTo(KEY_VALUE);
     }
 
+    @DisplayName("Should return default key value")
     @Test
     void shouldReturnDefaultKeyValue() {
         DatabaseQualifier qualifier = DatabaseQualifier.ofKeyValue();
-        assertEquals("", qualifier.provider());
-        assertEquals(KEY_VALUE, qualifier.value());
+        assertThat(qualifier.provider()).isEqualTo("");
+        assertThat(qualifier.value()).isEqualTo(KEY_VALUE);
     }
 
 
+    @DisplayName("Should return error when graph null")
     @Test
     void shouldReturnErrorWhenGraphNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> DatabaseQualifier.ofGraph(null));
+        assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> DatabaseQualifier.ofGraph(null));
     }
 
+    @DisplayName("Should return graph provider")
     @Test
     void shouldReturnGraphProvider() {
         String provider = "provider";
         DatabaseQualifier qualifier = DatabaseQualifier.ofGraph(provider);
-        assertEquals(provider, qualifier.provider());
-        assertEquals(GRAPH, qualifier.value());
+        assertThat(qualifier.provider()).isEqualTo(provider);
+        assertThat(qualifier.value()).isEqualTo(GRAPH);
     }
 
+    @DisplayName("Should return default graph")
     @Test
     void shouldReturnDefaultGraph() {
         DatabaseQualifier qualifier = DatabaseQualifier.ofGraph();
-        assertEquals("", qualifier.provider());
-        assertEquals(GRAPH, qualifier.value());
+        assertThat(qualifier.provider()).isEqualTo("");
+        assertThat(qualifier.value()).isEqualTo(GRAPH);
     }
 }
