@@ -12,11 +12,19 @@
 package org.eclipse.jnosql.communication.query.data;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class DeleteProviderTest {
 
+    @Nested
+    @DisplayName("When the delete provider is used")
+    class WhenTheDeleteProvider {
+    }
+
     @Test
+    @DisplayName("Should Delete Query")
     void shouldDeleteQuery() {
         DeleteProvider provider = DeleteProvider.INSTANCE;
 
