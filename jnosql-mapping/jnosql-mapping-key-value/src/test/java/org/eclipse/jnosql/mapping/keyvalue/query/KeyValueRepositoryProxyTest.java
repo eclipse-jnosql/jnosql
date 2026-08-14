@@ -110,8 +110,8 @@ class KeyValueRepositoryProxyTest {
     @DisplayName("When the proxy invokes the template")
     class WhenTheProxyInvokesTemplate {
 
-        @DisplayName("Should Save")
         @Test
+        @DisplayName("Should save")
         void shouldSave() {
             ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
 
@@ -123,8 +123,8 @@ class KeyValueRepositoryProxyTest {
             assertThat(value).isEqualTo(user);
         }
 
-        @DisplayName("Should Save Iterable")
         @Test
+        @DisplayName("Should save iterable")
         void shouldSaveIterable() {
             ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
 
@@ -136,8 +136,8 @@ class KeyValueRepositoryProxyTest {
             assertThat(value).isEqualTo(user);
         }
 
-        @DisplayName("Should Insert")
         @Test
+        @DisplayName("Should insert")
         void shouldInsert() {
             ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
 
@@ -149,8 +149,8 @@ class KeyValueRepositoryProxyTest {
             assertThat(value).isEqualTo(user);
         }
 
-        @DisplayName("Should Insert Iterable")
         @Test
+        @DisplayName("Should insert iterable")
         void shouldInsertIterable() {
             ArgumentCaptor<Iterable> captor = ArgumentCaptor.forClass(Iterable.class);
 
@@ -161,8 +161,8 @@ class KeyValueRepositoryProxyTest {
             assertThat(value).isEqualTo(user);
         }
 
-        @DisplayName("Should Update")
         @Test
+        @DisplayName("Should update")
         void shouldUpdate() {
             ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
 
@@ -174,8 +174,8 @@ class KeyValueRepositoryProxyTest {
             assertThat(value).isEqualTo(user);
         }
 
-        @DisplayName("Should Update Iterable")
         @Test
+        @DisplayName("Should update iterable")
         void shouldUpdateIterable() {
             ArgumentCaptor<Iterable> captor = ArgumentCaptor.forClass(Iterable.class);
 
@@ -186,8 +186,8 @@ class KeyValueRepositoryProxyTest {
             assertThat(value).isEqualTo(user);
         }
 
-        @DisplayName("Should Delete")
         @Test
+        @DisplayName("Should delete")
         void shouldDelete() {
             userRepository.deleteById("key");
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -195,8 +195,8 @@ class KeyValueRepositoryProxyTest {
             assertThat(captor.getValue()).isEqualTo("key");
         }
 
-        @DisplayName("Should Delete Iterable")
         @Test
+        @DisplayName("Should delete iterable")
         void shouldDeleteIterable() {
             userRepository.deleteByIdIn(Collections.singletonList("key"));
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -204,8 +204,8 @@ class KeyValueRepositoryProxyTest {
             assertThat(captor.getValue()).isEqualTo("key");
         }
 
-        @DisplayName("Should Delete Entity")
         @Test
+        @DisplayName("Should delete entity")
         void shouldDeleteEntity() {
             User user = new User("ada", "Ada", 10);
             userRepository.delete(user);
@@ -214,8 +214,8 @@ class KeyValueRepositoryProxyTest {
             assertThat(captor.getValue()).isEqualTo("ada");
         }
 
-        @DisplayName("Should Delete Entities")
         @Test
+        @DisplayName("Should delete entities")
         void shouldDeleteEntities() {
             User user = new User("ada", "Ada", 10);
             userRepository.deleteAll(Collections.singletonList(user));
@@ -224,8 +224,8 @@ class KeyValueRepositoryProxyTest {
             assertThat(captor.getValue()).isEqualTo("ada");
         }
 
-        @DisplayName("Should Find By Id")
         @Test
+        @DisplayName("Should find by ID")
         void shouldFindById() {
             User user = new User("ada", "Ada", 10);
             when(template.find(User.class, "key")).thenReturn(
@@ -234,8 +234,8 @@ class KeyValueRepositoryProxyTest {
             assertThat(userRepository.findById("key").get()).isEqualTo(user);
         }
 
-        @DisplayName("Should Exists By Id")
         @Test
+        @DisplayName("Should exists by ID")
         void shouldExistsById() {
             User user = new User("ada", "Ada", 10);
             when(template.find(User.class, "key")).thenReturn(Optional.of(user));
@@ -246,8 +246,8 @@ class KeyValueRepositoryProxyTest {
             });
         }
 
-        @DisplayName("Should Find By Id Iterable")
         @Test
+        @DisplayName("Should find by ID iterable")
         void shouldFindByIdIterable() {
             User user = new User("ada", "Ada", 10);
             User user2 = new User("ada", "Ada", 10);
@@ -258,26 +258,26 @@ class KeyValueRepositoryProxyTest {
             assertThat(userRepository.findByIdIn(keys)).contains(user, user2);
         }
 
-        @DisplayName("Should Return Error When Execute Method Query")
         @Test
+        @DisplayName("Should return error when execute method query")
         void shouldReturnErrorWhenExecuteMethodQuery() {
             assertThatThrownBy(() -> userRepository.findByName("name")).isInstanceOf(UnsupportedOperationException.class);
         }
 
-        @DisplayName("Should Return To String")
         @Test
+        @DisplayName("Should return to string")
         void shouldReturnToString() {
             assertThat(userRepository.toString()).isNotNull();
         }
 
-        @DisplayName("Should Return Has Code")
         @Test
+        @DisplayName("Should return hash code")
         void shouldReturnHasCode() {
             assertThat(userRepository.hashCode()).isEqualTo(userRepository.hashCode());
         }
 
-        @DisplayName("Should Return Unsupported Operation Exception")
         @Test
+        @DisplayName("Should return unsupported operation exception")
         void shouldReturnUnsupportedOperationException() {
             assertThatThrownBy(() -> userRepository.findAll()).isInstanceOf(UnsupportedOperationException.class);
             assertThatThrownBy(() -> userRepository.countBy()).isInstanceOf(UnsupportedOperationException.class);
@@ -288,8 +288,8 @@ class KeyValueRepositoryProxyTest {
             assertThatThrownBy(() -> userRepository.deleteByAge(10)).isInstanceOf(UnsupportedOperationException.class);
         }
 
-        @DisplayName("Should Execute Custom Repository")
         @Test
+        @DisplayName("Should execute custom repository")
         void shouldExecuteCustomRepository(){
             PersonStatisticRepository.PersonStatistic statistics = userRepository
                     .statistics("Salvador");
@@ -304,8 +304,8 @@ class KeyValueRepositoryProxyTest {
             });
         }
 
-        @DisplayName("Should Insert Using Annotation")
         @Test
+        @DisplayName("Should insert using annotation")
         void shouldInsertUsingAnnotation(){
             User user = new User("12", "Poliana", 30);
             when(template.insert(user)).thenReturn(user);
@@ -313,8 +313,8 @@ class KeyValueRepositoryProxyTest {
             Mockito.verify(template).insert(user);
         }
 
-        @DisplayName("Should Update Using Annotation")
         @Test
+        @DisplayName("Should update using annotation")
         void shouldUpdateUsingAnnotation(){
             User user = new User("12", "Poliana", 30);
             when(template.update(user)).thenReturn(user);
@@ -322,16 +322,16 @@ class KeyValueRepositoryProxyTest {
             Mockito.verify(template).update(user);
         }
 
-        @DisplayName("Should Delete Using Annotation")
         @Test
+        @DisplayName("Should delete using annotation")
         void shouldDeleteUsingAnnotation(){
             User user = new User("12", "Poliana", 30);
             userRepository.deleteUser(user);
             Mockito.verify(template).delete(user);
         }
 
-        @DisplayName("Should Save Using Annotation")
         @Test
+        @DisplayName("Should save using annotation")
         void shouldSaveUsingAnnotation(){
             User user = new User("12", "Poliana", 30);
             when(template.insert(user)).thenReturn(user);
@@ -339,8 +339,8 @@ class KeyValueRepositoryProxyTest {
             Mockito.verify(template).insert(user);
         }
 
-        @DisplayName("Should Return Not Supported")
         @Test
+        @DisplayName("Should return not supported")
         void shouldReturnNotSupported(){
             assertThatThrownBy(() -> userRepository.existsByName("Ada")).isInstanceOf(UnsupportedOperationException.class);
             assertThatThrownBy(() -> userRepository.findByAge(10)).isInstanceOf(UnsupportedOperationException.class);
