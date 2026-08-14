@@ -19,6 +19,9 @@ import jakarta.data.page.CursoredPage;
 import jakarta.data.page.PageRequest;
 import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.inject.Inject;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
@@ -35,12 +38,12 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("The scenarios to test the feature cursor pagination")
 @EnableAutoWeld
@@ -52,7 +55,6 @@ public class RepositoryCursorPaginationTest extends AbstractRepositoryTest {
 
     @Inject
     private SemistructuredRepositoryProducer producer;
-
 
 
     @Override
@@ -172,5 +174,8 @@ public class RepositoryCursorPaginationTest extends AbstractRepositoryTest {
     }
 
 
-
+    @Nested
+    @DisplayName("When the repository cursor pagination is tested")
+    class WhenTheRepositoryCursorPaginationIsTested {
+    }
 }
