@@ -30,10 +30,11 @@ import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredRepositoryP
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class, SemiStructuredRepositoryProxy.class})
@@ -49,17 +50,30 @@ class GraphRepositoryExtensionTest {
     @Database(value = DatabaseType.GRAPH, provider = "graphRepositoryMock")
     private PersonRepository repositoryMock;
 
-    @Test
-    void shouldInitiate() {
-        assertNotNull(repository);
-        Person person = repository.save(Person.builder().build());
-        assertEquals("Default", person.getName());
-    }
+    @Nested
+    @DisplayName("When the repository is injected")
+    class WhenTheRepositoryIsInjected {
 
-    @Test
-    void shouldUseInstantiation(){
-        assertNotNull(repositoryMock);
-        Person person = repositoryMock.save(Person.builder().build());
-        assertEquals("graphRepositoryMock", person.getName());
+        @Test
+        @DisplayName("Should save using graph-qualified repository")
+        void shouldInitiate() {
+            Person person = repository.save(Person.builder().build());
+
+            assertSoftly(soft -> {
+                soft.assertThat(repository).isNotNull();
+                soft.assertThat(person.getName()).isEqualTo("Default");
+            });
+        }
+
+        @Test
+        @DisplayName("Should save using provider-qualified repository")
+        void shouldUseInstantiation(){
+            Person person = repositoryMock.save(Person.builder().build());
+
+            assertSoftly(soft -> {
+                soft.assertThat(repositoryMock).isNotNull();
+                soft.assertThat(person.getName()).isEqualTo("graphRepositoryMock");
+            });
+        }
     }
 }
