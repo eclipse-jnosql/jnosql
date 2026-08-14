@@ -18,6 +18,7 @@ import jakarta.data.Order;
 import jakarta.data.Sort;
 import jakarta.data.page.PageRequest;
 import jakarta.inject.Inject;
+import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -34,14 +35,15 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.stream.Stream;
-
+import static org.assertj.core.api.Assertions.assertThat;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -66,21 +68,25 @@ class SemistructuredRepositoryTest {
         this.repository = SemistructuredRepository.of(template, entityMetadata, lifecycleEventHandler);
     }
 
+    @DisplayName("Should create instance")
     @Test
     void shouldCreateInstance() {
         Assertions.assertThat(repository).isNotNull();
     }
 
+    @DisplayName("Should get template")
     @Test
     void shouldGetTemplate() {
         Assertions.assertThat(repository.template()).isNotNull();
     }
 
+    @DisplayName("Should get entity metadata")
     @Test
     void shouldGetEntityMetadata() {
         Assertions.assertThat(repository.entityMetadata()).isNotNull();
     }
 
+    @DisplayName("Should count by")
     @Test
     void shouldCountBy() {
         Mockito.when(template.count(Person.class)).thenReturn(1L);
@@ -89,18 +95,21 @@ class SemistructuredRepositoryTest {
         Mockito.verify(template).count(Person.class);
     }
 
+    @DisplayName("Should delete all")
     @Test
     void shouldDeleteAll() {
         repository.deleteAll();
         Mockito.verify(template).deleteAll(Person.class);
     }
 
+    @DisplayName("Should find all")
     @Test
     void shouldFindAll() {
         repository.findAll();
         Mockito.verify(template).findAll(Person.class);
     }
 
+    @DisplayName("Should find pagination")
     @Test
     void shouldFindPagination() {
         Mockito.when(template.select(Mockito.any(SelectQuery.class)))
@@ -112,9 +121,15 @@ class SemistructuredRepositoryTest {
         Mockito.verify(template).select(Mockito.any(SelectQuery.class));
     }
 
+    @DisplayName("Should get error message")
     @Test
     void shouldGetErrorMessage() {
         Assertions.assertThat(repository.getErrorMessage())
                 .isEqualTo("The Semistructured type does not support %s method");
+    }
+
+    @Nested
+    @DisplayName("When the semistructured repository is tested")
+    class WhenTheSemistructuredRepositoryIsTested {
     }
 }
