@@ -14,6 +14,8 @@
  */
 package org.eclipse.jnosql.mapping.core.query;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import jakarta.inject.Inject;
 import jakarta.nosql.Convert;
 import jakarta.nosql.Template;
@@ -35,7 +37,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -71,8 +72,8 @@ class AbstractRepositoryTest {
     @DisplayName("When inserting entities")
     class WhenInsert {
 
+        @DisplayName("Should insert one entity with lifecycle events")
         @Test
-        @DisplayName("Should insert one entity between pre-insert and post-insert events")
         void shouldInsertOneEntityWithLifecycleEvents() {
             // given
             Person person = person();
@@ -88,8 +89,8 @@ class AbstractRepositoryTest {
             ordered.verify(lifecycleEventHandler).postInsert(person);
         }
 
+        @DisplayName("Should insert all entities with lifecycle events")
         @Test
-        @DisplayName("Should insert all entities between pre-insert and post-insert events")
         void shouldInsertAllEntitiesWithLifecycleEvents() {
             // given
             Person person = person();
@@ -111,8 +112,8 @@ class AbstractRepositoryTest {
     @DisplayName("When updating entities")
     class WhenUpdate {
 
+        @DisplayName("Should update one entity with lifecycle events")
         @Test
-        @DisplayName("Should update one entity between pre-update and post-update events")
         void shouldUpdateOneEntityWithLifecycleEvents() {
             // given
             Person person = person();
@@ -128,8 +129,8 @@ class AbstractRepositoryTest {
             ordered.verify(lifecycleEventHandler).postUpdate(person);
         }
 
+        @DisplayName("Should update all entities with lifecycle events")
         @Test
-        @DisplayName("Should update all entities between pre-update and post-update events")
         void shouldUpdateAllEntitiesWithLifecycleEvents() {
             // given
             Person person = person();
@@ -151,8 +152,8 @@ class AbstractRepositoryTest {
     @DisplayName("When saving entities")
     class WhenSave {
 
+        @DisplayName("Should save missing entity as insert with lifecycle events")
         @Test
-        @DisplayName("Should insert a missing entity between pre-upsert and post-upsert events")
         void shouldSaveMissingEntityAsInsertWithLifecycleEvents() {
             // given
             Person person = personWithId();
@@ -170,8 +171,8 @@ class AbstractRepositoryTest {
             ordered.verify(lifecycleEventHandler).postUpsert(person);
         }
 
+        @DisplayName("Should save existing entity as update with lifecycle events")
         @Test
-        @DisplayName("Should update an existing entity between pre-upsert and post-upsert events")
         void shouldSaveExistingEntityAsUpdateWithLifecycleEvents() {
             // given
             Person person = personWithId();
@@ -190,8 +191,8 @@ class AbstractRepositoryTest {
             ordered.verify(lifecycleEventHandler).postUpsert(person);
         }
 
+        @DisplayName("Should save all missing entities with lifecycle events")
         @Test
-        @DisplayName("Should save all missing entities with upsert lifecycle events")
         void shouldSaveAllMissingEntitiesWithLifecycleEvents() {
             // given
             Person person = personWithId();
@@ -214,8 +215,8 @@ class AbstractRepositoryTest {
     @DisplayName("When deleting entities")
     class WhenDelete {
 
+        @DisplayName("Should delete one entity with lifecycle events")
         @Test
-        @DisplayName("Should delete one entity between pre-delete and post-delete events")
         void shouldDeleteOneEntityWithLifecycleEvents() {
             // given
             Person person = personWithId();
@@ -230,8 +231,8 @@ class AbstractRepositoryTest {
             ordered.verify(lifecycleEventHandler).postDelete(person);
         }
 
+        @DisplayName("Should delete all entities with lifecycle events")
         @Test
-        @DisplayName("Should delete all entities with delete lifecycle events")
         void shouldDeleteAllEntitiesWithLifecycleEvents() {
             // given
             Person person = personWithId();
@@ -246,8 +247,8 @@ class AbstractRepositoryTest {
             ordered.verify(lifecycleEventHandler).postDelete(person);
         }
 
+        @DisplayName("Should delete by id without lifecycle events")
         @Test
-        @DisplayName("Should delete directly by identifier without lifecycle events")
         void shouldDeleteByIdWithoutLifecycleEvents() {
             // when
             repository.deleteById(10L);
@@ -257,8 +258,8 @@ class AbstractRepositoryTest {
             verifyNoInteractions(lifecycleEventHandler);
         }
 
+        @DisplayName("Should delete by id in without lifecycle events")
         @Test
-        @DisplayName("Should delete each supplied identifier without lifecycle events")
         void shouldDeleteByIdInWithoutLifecycleEvents() {
             // when
             repository.deleteByIdIn(List.of(10L));
@@ -273,8 +274,8 @@ class AbstractRepositoryTest {
     @DisplayName("When finding entities")
     class WhenFind {
 
+        @DisplayName("Should find by id")
         @Test
-        @DisplayName("Should find an entity by its identifier")
         void shouldFindById() {
             // when
             repository.findById(10L);
@@ -283,8 +284,8 @@ class AbstractRepositoryTest {
             verify(template).find(Person.class, 10L);
         }
 
+        @DisplayName("Should find by id in")
         @Test
-        @DisplayName("Should find entities for each supplied identifier")
         void shouldFindByIdIn() {
             // when
             repository.findByIdIn(List.of(10L)).toList();
@@ -293,8 +294,8 @@ class AbstractRepositoryTest {
             verify(template).find(Person.class, 10L);
         }
 
+        @DisplayName("Should check existence by id")
         @Test
-        @DisplayName("Should check existence by finding the entity identifier")
         void shouldCheckExistenceById() {
             // when
             repository.existsById(10L);
@@ -308,36 +309,28 @@ class AbstractRepositoryTest {
     @DisplayName("When invoking unsupported operations")
     class WhenInvokeUnsupportedOperation {
 
+        @DisplayName("Should reject find all")
         @Test
-        @DisplayName("Should reject finding all entities without pagination")
         void shouldRejectFindAll() {
-            assertThrows(
-                    UnsupportedOperationException.class,
-                    repository::findAll);
+            assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(repository::findAll);
         }
 
+        @DisplayName("Should reject paginated find all")
         @Test
-        @DisplayName("Should reject finding all entities with pagination")
         void shouldRejectPaginatedFindAll() {
-            assertThrows(
-                    UnsupportedOperationException.class,
-                    () -> repository.findAll(null, null));
+            assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> repository.findAll(null, null));
         }
 
+        @DisplayName("Should reject delete all")
         @Test
-        @DisplayName("Should reject deleting all entities without arguments")
         void shouldRejectDeleteAll() {
-            assertThrows(
-                    UnsupportedOperationException.class,
-                    repository::deleteAll);
+            assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(repository::deleteAll);
         }
 
+        @DisplayName("Should reject count by")
         @Test
-        @DisplayName("Should reject counting all entities")
         void shouldRejectCountBy() {
-            assertThrows(
-                    UnsupportedOperationException.class,
-                    repository::countBy);
+            assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(repository::countBy);
         }
     }
 
