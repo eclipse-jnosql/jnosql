@@ -49,14 +49,14 @@ class KeyValueTemplateTest {
     @DisplayName("When the container injects the template")
     class WhenTheContainerInjectsTemplate {
 
-        @DisplayName("Should Inject Template")
         @Test
+        @DisplayName("Should inject template")
         void shouldInjectTemplate() {
             assertThat(template).isNotNull();
         }
 
-        @DisplayName("Should Inject Qualifier")
         @Test
+        @DisplayName("Should inject qualifier")
         void shouldInjectQualifier() {
             assertThat(qualifier).isNotNull();
         }
