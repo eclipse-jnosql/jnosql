@@ -14,7 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.graph;
 
-import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.graph.CommunicationEdge;
 import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
