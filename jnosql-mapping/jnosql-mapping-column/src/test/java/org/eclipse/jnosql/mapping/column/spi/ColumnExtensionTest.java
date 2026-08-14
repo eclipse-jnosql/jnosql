@@ -27,16 +27,18 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class, ColumnTemplate.class})
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class, ColumnExtension.class})
+@DisplayName("Column extension")
 class ColumnExtensionTest {
 
     @Inject
@@ -47,28 +49,34 @@ class ColumnExtensionTest {
     private ColumnTemplate template;
 
 
-    @Test
-    void shouldInstance() {
-        assertNotNull(template);
-        assertNotNull(templateMock);
-    }
+    @Nested
+    @DisplayName("When injecting column templates")
+    class WhenTheTemplateInjection {
 
-    @Test
-    void shouldSave() {
-        Person person = template.insert(Person.builder().build());
-        Person personMock = templateMock.insert(Person.builder().build());
+        @Test
+        @DisplayName("Should inject default and provider-specific templates")
+        void shouldInjectTemplates() {
 
-        assertEquals("Default", person.getName());
-        assertEquals("columnRepositoryMock", personMock.getName());
-    }
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(template).isNotNull();
+                softly.assertThat(templateMock).isNotNull();
+            });
+        }
 
-    @Test
-    void shouldInjectRepository() {
-    }
+        @Test
+        @DisplayName("Should persist with the matching template provider")
+        void shouldPersistWithMatchingTemplateProvider() {
 
-    @Test
-    void shouldInjectTemplate() {
-        assertNotNull(templateMock);
-        assertNotNull(template);
+            // When
+            Person person = template.insert(Person.builder().build());
+            Person personMock = templateMock.insert(Person.builder().build());
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(person.getName()).isEqualTo("Default");
+                softly.assertThat(personMock.getName()).isEqualTo("columnRepositoryMock");
+            });
+        }
     }
 }
