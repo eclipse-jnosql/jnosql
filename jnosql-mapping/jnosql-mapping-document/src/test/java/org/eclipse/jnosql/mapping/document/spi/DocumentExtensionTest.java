@@ -28,10 +28,12 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 
 @EnableAutoWeld
@@ -39,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class, DocumentExtension.class})
+@DisplayName("Document extension")
 class DocumentExtensionTest {
 
 
@@ -57,29 +60,66 @@ class DocumentExtensionTest {
     @Inject
     private DocumentTemplate template;
 
-    @Test
-    void shouldInitiate() {
-        assertNotNull(repository);
-        Person person = repository.save(Person.builder().build());
-        assertEquals("Default", person.getName());
+    @Nested
+    @DisplayName("When injecting document repositories")
+    class WhenTheRepositoryInjection {
+
+        @Test
+        @DisplayName("Should inject the default repository")
+        void shouldInjectDefaultRepository() {
+
+            // When
+            Person person = repository.save(Person.builder().build());
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(repository).isNotNull();
+                softly.assertThat(person.getName()).isEqualTo("Default");
+            });
+        }
+
+        @Test
+        @DisplayName("Should inject the provider-specific repository")
+        void shouldInjectProviderRepository() {
+
+            // When
+            Person person = repositoryMock.save(Person.builder().build());
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(repositoryMock).isNotNull();
+                softly.assertThat(person.getName()).isEqualTo("documentRepositoryMock");
+            });
+        }
     }
 
-    @Test
-    void shouldUseMock(){
-        assertNotNull(repositoryMock);
-        Person person = repositoryMock.save(Person.builder().build());
-        assertEquals("documentRepositoryMock", person.getName());
+    @Nested
+    @DisplayName("When injecting document templates")
+    class WhenTheTemplateInjection {
+
+        @Test
+        @DisplayName("Should inject default and provider-specific templates")
+        void shouldInjectTemplates() {
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(templateMock).isNotNull();
+                softly.assertThat(template).isNotNull();
+            });
+        }
     }
 
-    @Test
-    void shouldInjectTemplate() {
-        assertNotNull(templateMock);
-        assertNotNull(template);
-    }
+    @Nested
+    @DisplayName("When resolving document repositories")
+    class WhenTheRepositoryResolution {
 
-    @Test
-    void shouldInjectRepository() {
-        assertNotNull(repository);
-        assertNotNull(repositoryMock);
+        @Test
+        @DisplayName("Should expose default and provider-specific repositories")
+        void shouldExposeRepositories() {
+
+            // Then
+            assertThat(repository).isNotNull();
+            assertThat(repositoryMock).isNotNull();
+        }
     }
 }
