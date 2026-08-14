@@ -14,6 +14,12 @@
  */
 package org.eclipse.jnosql.mapping.core.query;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.DisplayName;
+
 import jakarta.data.repository.DataRepository;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.mapping.core.entities.Person;
@@ -35,16 +41,18 @@ class AnnotationOperationTest {
     private AbstractRepository<Person, Long> repository;
 
 
+    @DisplayName("Should return invalid parameter")
     @Test
     void shouldReturnInvalidParameter() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("invalid", Person.class, Person.class);
         Person person = Person.builder().build();
-        Assertions.assertThatThrownBy(() -> AnnotationOperation.INSERT.invoke(new AnnotationOperation.Operation(method, new Object[]{person, person}, repository)))
+        assertThatThrownBy(() -> AnnotationOperation.INSERT.invoke(new AnnotationOperation.Operation(method, new Object[]{person, person}, repository)))
                 .isInstanceOf(UnsupportedOperationException.class);
-        Assertions.assertThatThrownBy(() -> AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{person, person}, repository)))
+        assertThatThrownBy(() -> AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{person, person}, repository)))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
+    @DisplayName("Should insert single parameter")
     @Test
     void shouldInsertSingleParameter() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("same", Person.class);
@@ -52,9 +60,10 @@ class AnnotationOperationTest {
         Mockito.when(repository.insert(person)).thenReturn(person);
         Object invoked = AnnotationOperation.INSERT.invoke(new AnnotationOperation.Operation(method, new Object[]{person}, repository));
         Mockito.verify(repository).insert(person);
-        Assertions.assertThat(person).isEqualTo(invoked);
+        assertThat(person).isEqualTo(invoked);
     }
 
+    @DisplayName("Should insert iterable parameter")
     @Test
     void shouldInsertIterableParameter() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("iterable", List.class);
@@ -62,9 +71,10 @@ class AnnotationOperationTest {
         Mockito.when(repository.insertAll(List.of(person))).thenReturn(List.of(person));
         Object invoked = AnnotationOperation.INSERT.invoke(new AnnotationOperation.Operation(method, new Object[]{List.of(person)}, repository));
         Mockito.verify(repository).insertAll(List.of(person));
-        Assertions.assertThat(List.of(person)).isEqualTo(invoked);
+        assertThat(List.of(person)).isEqualTo(invoked);
     }
 
+    @DisplayName("Should insert array object parameter")
     @Test
     void shouldInsertArrayObjectParameter() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("array", Person[].class);
@@ -73,10 +83,11 @@ class AnnotationOperationTest {
         Object invoked = AnnotationOperation.INSERT.invoke(new AnnotationOperation.Operation(method, new Object[]{new Person[]{person}},
                 repository));
         Mockito.verify(repository).insertAll(List.of(person));
-        Assertions.assertThat(new Person[]{person}).isEqualTo(invoked);
+        assertThat(new Person[]{person}).isEqualTo(invoked);
     }
 
 
+    @DisplayName("Should update single parameter")
     @Test
     void shouldUpdateSingleParameter() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("same", Person.class);
@@ -84,9 +95,10 @@ class AnnotationOperationTest {
         Mockito.when(repository.update(person)).thenReturn(person);
         Object invoked = AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{person}, repository));
         Mockito.verify(repository).update(person);
-        Assertions.assertThat(person).isEqualTo(invoked);
+        assertThat(person).isEqualTo(invoked);
     }
 
+    @DisplayName("Should update single parameter boolean")
     @Test
     void shouldUpdateSingleParameterBoolean() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("sameBoolean", Person.class);
@@ -94,9 +106,10 @@ class AnnotationOperationTest {
         Mockito.when(repository.update(person)).thenReturn(person);
         Object invoked = AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{person}, repository));
         Mockito.verify(repository).update(person);
-        Assertions.assertThat(invoked).isEqualTo(true);
+        assertThat(invoked).isEqualTo(true);
     }
 
+    @DisplayName("Should update single parameter void")
     @Test
     void shouldUpdateSingleParameterVoid() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("sameVoid", Person.class);
@@ -104,9 +117,10 @@ class AnnotationOperationTest {
         Mockito.when(repository.update(person)).thenReturn(person);
         Object invoked = AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{person}, repository));
         Mockito.verify(repository).update(person);
-        Assertions.assertThat(invoked).isEqualTo(Void.TYPE);
+        assertThat(invoked).isEqualTo(Void.TYPE);
     }
 
+    @DisplayName("Should update single parameter int")
     @Test
     void shouldUpdateSingleParameterInt() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("sameInt", Person.class);
@@ -114,9 +128,10 @@ class AnnotationOperationTest {
         Mockito.when(repository.update(person)).thenReturn(person);
         Object invoked = AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{person}, repository));
         Mockito.verify(repository).update(person);
-        Assertions.assertThat(invoked).isEqualTo(1);
+        assertThat(invoked).isEqualTo(1);
     }
 
+    @DisplayName("Should update single parameter long")
     @Test
     void shouldUpdateSingleParameterLong() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("sameLong", Person.class);
@@ -124,9 +139,10 @@ class AnnotationOperationTest {
         Mockito.when(repository.update(person)).thenReturn(person);
         Object invoked = AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{person}, repository));
         Mockito.verify(repository).update(person);
-        Assertions.assertThat(invoked).isEqualTo(1L);
+        assertThat(invoked).isEqualTo(1L);
     }
 
+    @DisplayName("Should update iterable parameter")
     @Test
     void shouldUpdateIterableParameter() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("iterable", List.class);
@@ -134,9 +150,10 @@ class AnnotationOperationTest {
         Mockito.when(repository.updateAll(List.of(person))).thenReturn(List.of(person));
         Object invoked = AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{List.of(person)}, repository));
         Mockito.verify(repository).updateAll(List.of(person));
-        Assertions.assertThat(List.of(person)).isEqualTo(invoked);
+        assertThat(List.of(person)).isEqualTo(invoked);
     }
 
+    @DisplayName("Should update iterable parameter void")
     @Test
     void shouldUpdateIterableParameterVoid() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("iterableVoid", List.class);
@@ -144,9 +161,10 @@ class AnnotationOperationTest {
         Mockito.when(repository.updateAll(List.of(person))).thenReturn(List.of(person));
         Object invoked = AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{List.of(person)}, repository));
         Mockito.verify(repository).updateAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(Void.TYPE);
+        assertThat(invoked).isEqualTo(Void.TYPE);
     }
 
+    @DisplayName("Should update iterable parameter int")
     @Test
     void shouldUpdateIterableParameterInt() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("iterableInt", List.class);
@@ -154,10 +172,11 @@ class AnnotationOperationTest {
         Mockito.when(repository.updateAll(List.of(person))).thenReturn(List.of(person));
         Object invoked = AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{List.of(person)}, repository));
         Mockito.verify(repository).updateAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(1);
+        assertThat(invoked).isEqualTo(1);
     }
 
 
+    @DisplayName("Should update iterable parameter long")
     @Test
     void shouldUpdateIterableParameterLong() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("iterableLong", List.class);
@@ -165,9 +184,10 @@ class AnnotationOperationTest {
         Mockito.when(repository.updateAll(List.of(person))).thenReturn(List.of(person));
         Object invoked = AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{List.of(person)}, repository));
         Mockito.verify(repository).updateAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(1L);
+        assertThat(invoked).isEqualTo(1L);
     }
 
+    @DisplayName("Should update iterable parameter boolean")
     @Test
     void shouldUpdateIterableParameterBoolean() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("iterableBoolean", List.class);
@@ -175,9 +195,10 @@ class AnnotationOperationTest {
         Mockito.when(repository.updateAll(List.of(person))).thenReturn(List.of(person));
         Object invoked = AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{List.of(person)}, repository));
         Mockito.verify(repository).updateAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(true);
+        assertThat(invoked).isEqualTo(true);
     }
 
+    @DisplayName("Should update array parameter")
     @Test
     void shouldUpdateArrayParameter() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("array", Person[].class);
@@ -186,9 +207,10 @@ class AnnotationOperationTest {
         Object invoked = AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{new Person[]{person}},
                 repository));
         Mockito.verify(repository).updateAll(List.of(person));
-        Assertions.assertThat(new Person[]{person}).isEqualTo(invoked);
+        assertThat(new Person[]{person}).isEqualTo(invoked);
     }
 
+    @DisplayName("Should update array parameter boolean")
     @Test
     void shouldUpdateArrayParameterBoolean() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("arrayBoolean", Person[].class);
@@ -197,9 +219,10 @@ class AnnotationOperationTest {
         Object invoked = AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{new Person[]{person}},
                 repository));
         Mockito.verify(repository).updateAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(true);
+        assertThat(invoked).isEqualTo(true);
     }
 
+    @DisplayName("Should update array parameter int")
     @Test
     void shouldUpdateArrayParameterInt() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("arrayInt", Person[].class);
@@ -208,10 +231,11 @@ class AnnotationOperationTest {
         Object invoked = AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{new Person[]{person}},
                 repository));
         Mockito.verify(repository).updateAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(1);
+        assertThat(invoked).isEqualTo(1);
     }
 
 
+    @DisplayName("Should update array parameter long")
     @Test
     void shouldUpdateArrayParameterLong() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("arrayLong", Person[].class);
@@ -220,10 +244,11 @@ class AnnotationOperationTest {
         Object invoked = AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{new Person[]{person}},
                 repository));
         Mockito.verify(repository).updateAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(1L);
+        assertThat(invoked).isEqualTo(1L);
     }
 
 
+    @DisplayName("Should update array parameter void")
     @Test
     void shouldUpdateArrayParameterVoid() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("arrayVoid", Person[].class);
@@ -232,108 +257,120 @@ class AnnotationOperationTest {
         Object invoked = AnnotationOperation.UPDATE.invoke(new AnnotationOperation.Operation(method, new Object[]{new Person[]{person}},
                 repository));
         Mockito.verify(repository).updateAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(Void.TYPE);
+        assertThat(invoked).isEqualTo(Void.TYPE);
     }
 
+    @DisplayName("Should delete single parameter")
     @Test
     void shouldDeleteSingleParameter() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("same", Person.class);
         Person person = Person.builder().build();
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{person}, repository));
         Mockito.verify(repository).delete(person);
-        Assertions.assertThat(invoked).isNull();
+        assertThat(invoked).isNull();
     }
 
+    @DisplayName("Should delete single parameter boolean")
     @Test
     void shouldDeleteSingleParameterBoolean() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("sameBoolean", Person.class);
         Person person = Person.builder().build();
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{person}, repository));
         Mockito.verify(repository).delete(person);
-        Assertions.assertThat(invoked).isEqualTo(true);
+        assertThat(invoked).isEqualTo(true);
     }
 
+    @DisplayName("Should delete all when there is no parameter")
     @Test
     void shouldDeleteAllWhenThereIsNoParameter() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("deleteAll");
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{}, repository));
         Mockito.verify(repository).deleteAll();
-        Assertions.assertThat(invoked).isEqualTo(Void.TYPE);
+        assertThat(invoked).isEqualTo(Void.TYPE);
     }
 
+    @DisplayName("Should delete single parameter void")
     @Test
     void shouldDeleteSingleParameterVoid() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("sameVoid", Person.class);
         Person person = Person.builder().build();
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{person}, repository));
         Mockito.verify(repository).delete(person);
-        Assertions.assertThat(invoked).isEqualTo(Void.TYPE);
+        assertThat(invoked).isEqualTo(Void.TYPE);
     }
 
+    @DisplayName("Should delete single parameter int")
     @Test
     void shouldDeleteSingleParameterInt() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("sameInt", Person.class);
         Person person = Person.builder().build();
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{person}, repository));
         Mockito.verify(repository).delete(person);
-        Assertions.assertThat(invoked).isEqualTo(1);
+        assertThat(invoked).isEqualTo(1);
     }
 
+    @DisplayName("Should delete single parameter long")
     @Test
     void shouldDeleteSingleParameterLong() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("sameLong", Person.class);
         Person person = Person.builder().build();
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{person}, repository));
         Mockito.verify(repository).delete(person);
-        Assertions.assertThat(invoked).isEqualTo(1L);
+        assertThat(invoked).isEqualTo(1L);
     }
 
 
+    @DisplayName("Should delete iterable parameter")
     @Test
     void shouldDeleteIterableParameter() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("iterable", List.class);
         Person person = Person.builder().build();
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{List.of(person)}, repository));
         Mockito.verify(repository).deleteAll(List.of(person));
-        Assertions.assertThat(invoked).isNull();
+        assertThat(invoked).isNull();
     }
 
+    @DisplayName("Should delete iterable parameter void")
     @Test
     void shouldDeleteIterableParameterVoid() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("iterableVoid", List.class);
         Person person = Person.builder().build();
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{List.of(person)}, repository));
         Mockito.verify(repository).deleteAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(Void.TYPE);
+        assertThat(invoked).isEqualTo(Void.TYPE);
     }
 
+    @DisplayName("Should delete iterable parameter int")
     @Test
     void shouldDeleteIterableParameterInt() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("iterableInt", List.class);
         Person person = Person.builder().build();
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{List.of(person)}, repository));
         Mockito.verify(repository).deleteAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(1);
+        assertThat(invoked).isEqualTo(1);
     }
 
+    @DisplayName("Should delete iterable parameter long")
     @Test
     void shouldDeleteIterableParameterLong() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("iterableLong", List.class);
         Person person = Person.builder().build();
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{List.of(person)}, repository));
         Mockito.verify(repository).deleteAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(1L);
+        assertThat(invoked).isEqualTo(1L);
     }
 
+    @DisplayName("Should delete iterable parameter boolean")
     @Test
     void shouldDeleteIterableParameterBoolean() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("iterableBoolean", List.class);
         Person person = Person.builder().build();
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{List.of(person)}, repository));
         Mockito.verify(repository).deleteAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(true);
+        assertThat(invoked).isEqualTo(true);
     }
 
+    @DisplayName("Should delete array parameter")
     @Test
     void shouldDeleteArrayParameter() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("array", Person[].class);
@@ -341,9 +378,10 @@ class AnnotationOperationTest {
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{new Person[]{person}},
                 repository));
         Mockito.verify(repository).deleteAll(List.of(person));
-        Assertions.assertThat(invoked).isNull();
+        assertThat(invoked).isNull();
     }
 
+    @DisplayName("Should delete array parameter boolean")
     @Test
     void shouldDeleteArrayParameterBoolean() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("arrayBoolean", Person[].class);
@@ -351,9 +389,10 @@ class AnnotationOperationTest {
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{new Person[]{person}},
                 repository));
         Mockito.verify(repository).deleteAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(true);
+        assertThat(invoked).isEqualTo(true);
     }
 
+    @DisplayName("Should delete array parameter int")
     @Test
     void shouldDeleteArrayParameterInt() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("arrayInt", Person[].class);
@@ -361,9 +400,10 @@ class AnnotationOperationTest {
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{new Person[]{person}},
                 repository));
         Mockito.verify(repository).deleteAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(1);
+        assertThat(invoked).isEqualTo(1);
     }
 
+    @DisplayName("Should delete array parameter long")
     @Test
     void shouldDeleteArrayParameterLong() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("arrayLong", Person[].class);
@@ -371,9 +411,10 @@ class AnnotationOperationTest {
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{new Person[]{person}},
                 repository));
         Mockito.verify(repository).deleteAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(1L);
+        assertThat(invoked).isEqualTo(1L);
     }
 
+    @DisplayName("Should delete array parameter void")
     @Test
     void shouldDeleteArrayParameterVoid() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("arrayVoid", Person[].class);
@@ -381,9 +422,10 @@ class AnnotationOperationTest {
         Object invoked = AnnotationOperation.DELETE.invoke(new AnnotationOperation.Operation(method, new Object[]{new Person[]{person}},
                 repository));
         Mockito.verify(repository).deleteAll(List.of(person));
-        Assertions.assertThat(invoked).isEqualTo(Void.TYPE);
+        assertThat(invoked).isEqualTo(Void.TYPE);
     }
 
+    @DisplayName("Should save single parameter")
     @Test
     void shouldSaveSingleParameter() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("same", Person.class);
@@ -391,9 +433,10 @@ class AnnotationOperationTest {
         Mockito.when(repository.save(person)).thenReturn(person);
         Object invoked = AnnotationOperation.SAVE.invoke(new AnnotationOperation.Operation(method, new Object[]{person}, repository));
         Mockito.verify(repository).save(person);
-        Assertions.assertThat(person).isEqualTo(invoked);
+        assertThat(person).isEqualTo(invoked);
     }
 
+    @DisplayName("Should save iterable parameter")
     @Test
     void shouldSaveIterableParameter() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("iterable", List.class);
@@ -401,10 +444,11 @@ class AnnotationOperationTest {
         Mockito.when(repository.saveAll(List.of(person))).thenReturn(List.of(person));
         Object invoked = AnnotationOperation.SAVE.invoke(new AnnotationOperation.Operation(method, new Object[]{List.of(person)}, repository));
         Mockito.verify(repository).saveAll(List.of(person));
-        Assertions.assertThat(List.of(person)).isEqualTo(invoked);
+        assertThat(List.of(person)).isEqualTo(invoked);
     }
 
 
+    @DisplayName("Should save array parameter")
     @Test
     void shouldSaveArrayParameter() throws Throwable {
         Method method = PersonRepository.class.getDeclaredMethod("array", Person[].class);
@@ -413,9 +457,10 @@ class AnnotationOperationTest {
         Person[] invoked = (Person[]) AnnotationOperation.SAVE.invoke(new AnnotationOperation.Operation(method, new Object[]{new Person[]{person}},
                 repository));
         Mockito.verify(repository).saveAll(List.of(person));
-        Assertions.assertThat(invoked).contains(person);
+        assertThat(invoked).contains(person);
     }
 
+    @DisplayName("Should equals annotation operation")
     @Test
     void shouldEqualsAnnotationOperation() throws NoSuchMethodException {
         Person person = Person.builder().build();
@@ -427,11 +472,12 @@ class AnnotationOperationTest {
         AnnotationOperation.Operation operation2 = new AnnotationOperation.Operation(method, params,
                 repository);
 
-        Assertions.assertThat(operation).isEqualTo(operation2);
-        Assertions.assertThat(operation).isEqualTo(operation);
-        Assertions.assertThat(operation).isNotEqualTo(123);
+        assertThat(operation).isEqualTo(operation2);
+        assertThat(operation).isEqualTo(operation);
+        assertThat(operation).isNotEqualTo(123);
     }
 
+    @DisplayName("Should hashcode annotation operation")
     @Test
     void shouldHashcodeAnnotationOperation() throws NoSuchMethodException {
         Person person = Person.builder().build();
@@ -443,9 +489,10 @@ class AnnotationOperationTest {
         AnnotationOperation.Operation operation2 = new AnnotationOperation.Operation(method, params,
                 repository);
 
-        Assertions.assertThat(operation.hashCode()).isEqualTo(operation2.hashCode());
+        assertThat(operation.hashCode()).isEqualTo(operation2.hashCode());
     }
 
+    @DisplayName("Should to string annotation operation")
     @Test
     void shouldToStringAnnotationOperation() throws NoSuchMethodException {
         Person person = Person.builder().build();
@@ -454,7 +501,7 @@ class AnnotationOperationTest {
         AnnotationOperation.Operation operation = new AnnotationOperation.Operation(method, params,
                 repository);
 
-        Assertions.assertThat(operation.toString()).isNotEmpty();
+        assertThat(operation.toString()).isNotEmpty();
     }
 
     interface PersonRepository extends DataRepository<Person, Long>{
