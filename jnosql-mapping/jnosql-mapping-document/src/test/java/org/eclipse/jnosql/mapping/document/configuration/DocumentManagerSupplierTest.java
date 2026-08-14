@@ -26,12 +26,15 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.DOCUMENT_DATABASE;
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.DOCUMENT_PROVIDER;
 
@@ -40,53 +43,100 @@ import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.DOCUM
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class, DocumentExtension.class})
+@DisplayName("Document manager supplier")
 class DocumentManagerSupplierTest {
 
     @Inject
     private DocumentManagerSupplier supplier;
 
     @BeforeEach
-    void beforeEach(){
+    void beforeEach() {
         System.clearProperty(DOCUMENT_PROVIDER.get());
         System.clearProperty(DOCUMENT_DATABASE.get());
     }
 
-    @Test
-    void shouldGetManager() {
-        System.setProperty(DOCUMENT_PROVIDER.get(), DocumentConfigurationMock.class.getName());
-        System.setProperty(DOCUMENT_DATABASE.get(), "database");
-        DatabaseManager manager = supplier.get();
-        Assertions.assertNotNull(manager);
-        assertThat(manager).isInstanceOf(DocumentConfigurationMock.DocumentManagerMock.class);
+    @Nested
+    @DisplayName("When resolving a document manager")
+    class WhenTheManagerResolution {
+
+        @Test
+        @DisplayName("Should use the configured provider")
+        void shouldUseConfiguredProvider() {
+
+            // Given
+            System.setProperty(DOCUMENT_PROVIDER.get(), DocumentConfigurationMock.class.getName());
+            System.setProperty(DOCUMENT_DATABASE.get(), "database");
+
+            // When
+            DatabaseManager manager = supplier.get();
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(manager).isNotNull();
+                softly.assertThat(manager).isInstanceOf(DocumentConfigurationMock.DocumentManagerMock.class);
+            });
+        }
+
+        @Test
+        @DisplayName("Should use the default configuration when the provider is invalid")
+        void shouldUseDefaultConfigurationWhenProviderIsInvalid() {
+
+            // Given
+            System.setProperty(DOCUMENT_PROVIDER.get(), Integer.class.getName());
+            System.setProperty(DOCUMENT_DATABASE.get(), "database");
+
+            // When
+            DatabaseManager manager = supplier.get();
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(manager).isNotNull();
+                softly.assertThat(manager).isInstanceOf(DocumentConfigurationMock2.DocumentManagerMock.class);
+            });
+        }
+
+        @Test
+        @DisplayName("Should use the default configuration when no provider is configured")
+        void shouldUseDefaultConfigurationWhenNoProviderIsConfigured() {
+
+            // Given
+            System.setProperty(DOCUMENT_DATABASE.get(), "database");
+
+            // When
+            DatabaseManager manager = supplier.get();
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(manager).isNotNull();
+                softly.assertThat(manager).isInstanceOf(DocumentConfigurationMock2.DocumentManagerMock.class);
+            });
+        }
+
+        @Test
+        @DisplayName("Should throw an exception when the database is missing")
+        void shouldThrowExceptionWhenDatabaseIsMissing() {
+
+            // When / Then
+            assertThatExceptionOfType(MappingException.class).isThrownBy(supplier::get);
+        }
     }
 
+    @Nested
+    @DisplayName("When closing a document manager")
+    class WhenTheManagerClosing {
 
-    @Test
-    void shouldUseDefaultConfigurationWhenProviderIsWrong() {
-        System.setProperty(DOCUMENT_PROVIDER.get(), Integer.class.getName());
-        System.setProperty(DOCUMENT_DATABASE.get(), "database");
-        DatabaseManager manager = supplier.get();
-        Assertions.assertNotNull(manager);
-        assertThat(manager).isInstanceOf(DocumentConfigurationMock2.DocumentManagerMock.class);
-    }
+        @Test
+        @DisplayName("Should close the manager")
+        void shouldCloseManager() {
 
-    @Test
-    void shouldUseDefaultConfiguration() {
-        System.setProperty(DOCUMENT_DATABASE.get(), "database");
-        DatabaseManager manager = supplier.get();
-        Assertions.assertNotNull(manager);
-        assertThat(manager).isInstanceOf(DocumentConfigurationMock2.DocumentManagerMock.class);
-    }
+            // Given
+            DatabaseManager manager = Mockito.mock(DatabaseManager.class);
 
-    @Test
-    void shouldReturnErrorWhenThereIsNotDatabase() {
-        Assertions.assertThrows(MappingException.class, () -> supplier.get());
-    }
+            // When
+            supplier.close(manager);
 
-    @Test
-    void shouldClose(){
-        DatabaseManager manager = Mockito.mock(DatabaseManager.class);
-        supplier.close(manager);
-        Mockito.verify(manager).close();
+            // Then
+            Mockito.verify(manager).close();
+        }
     }
 }
