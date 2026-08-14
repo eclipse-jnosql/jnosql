@@ -111,6 +111,7 @@ class UpdateOperationRepositoryInvocationHandlerTest {
     @DisplayName("When updating one entity")
     class WhenUpdateEntity {
 
+        @DisplayName("Should reject update without required parameter")
         @Test
         @DisplayName("Should reject an update method without the required parameter")
         void shouldRejectUpdateWithoutRequiredParameter() {
@@ -121,6 +122,7 @@ class UpdateOperationRepositoryInvocationHandlerTest {
             verifyNoInteractions(lifecycleEventHandler);
         }
 
+        @DisplayName("Should update entity with void return and lifecycle events")
         @Test
         @DisplayName("Should update an entity between pre-update and post-update events for a void method")
         void shouldUpdateEntityWithVoidReturnAndLifecycleEvents() {
@@ -140,6 +142,7 @@ class UpdateOperationRepositoryInvocationHandlerTest {
             ordered.verify(lifecycleEventHandler).postUpdate(book);
         }
 
+        @DisplayName("Should return updated entity with lifecycle events")
         @Test
         @DisplayName("Should return the updated entity after pre-update and post-update events")
         void shouldReturnUpdatedEntityWithLifecycleEvents() {
@@ -169,6 +172,7 @@ class UpdateOperationRepositoryInvocationHandlerTest {
     class WhenUpdateMultipleEntities {
 
         @SuppressWarnings("unchecked")
+        @DisplayName("Should update iterable with lifecycle events")
         @Test
         @DisplayName("Should return updated iterable entities after firing lifecycle events for each entity")
         void shouldUpdateIterableWithLifecycleEvents() {
@@ -200,6 +204,7 @@ class UpdateOperationRepositoryInvocationHandlerTest {
         }
 
         @SuppressWarnings("unchecked")
+        @DisplayName("Should update array as iterable")
         @Test
         @DisplayName("Should convert an array to an iterable and update its entities")
         void shouldUpdateArrayAsIterable() {
