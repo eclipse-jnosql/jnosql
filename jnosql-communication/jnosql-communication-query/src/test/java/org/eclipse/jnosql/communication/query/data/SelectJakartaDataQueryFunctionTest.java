@@ -17,8 +17,8 @@ import org.eclipse.jnosql.communication.query.Function;
 import org.eclipse.jnosql.communication.query.ParamQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.SelectQuery;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -26,6 +26,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+@DisplayName("SelectJakartaDataQueryFunction")
 class SelectJakartaDataQueryFunctionTest {
 
     private SelectParser selectParser;
@@ -37,6 +41,7 @@ class SelectJakartaDataQueryFunctionTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @MethodSource("functionsProvider")
+    @DisplayName("Should Handle Functions")
     void shouldHandleFunctions(String query, String fieldName, String functionName) {
         SelectQuery selectQuery = selectParser.apply(query, "Customer");
 
@@ -66,6 +71,7 @@ class SelectJakartaDataQueryFunctionTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @MethodSource("nestedFunctionsProvider")
+    @DisplayName("Should Handle Nested Functions")
     void shouldHandleNestedFunctions(String query, String outerFunc, String innerFunc) {
         SelectQuery selectQuery = selectParser.apply(query, "Customer");
 
@@ -90,6 +96,7 @@ class SelectJakartaDataQueryFunctionTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @MethodSource("parametersProvider")
+    @DisplayName("Should Handle Functions With Parameters")
     void shouldHandleFunctionsWithParameters(String query, String functionName, String paramName) {
         SelectQuery selectQuery = selectParser.apply(query, "Customer");
 
@@ -115,6 +122,7 @@ class SelectJakartaDataQueryFunctionTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @MethodSource("fieldCollisionProvider")
+    @DisplayName("Should Handle Field Names Same As Function Names")
     void shouldHandleFieldNamesSameAsFunctionNames(String query, String fieldName) {
         SelectQuery selectQuery = selectParser.apply(query, "Box");
 
@@ -135,9 +143,9 @@ class SelectJakartaDataQueryFunctionTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @MethodSource("wrongArityProvider")
+    @DisplayName("Should Reject Wrong Arity")
     void shouldRejectWrongArity(String query) {
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> selectParser.apply(query, "Customer"));
+        assertThatThrownBy(() -> selectParser.apply(query, "Customer")).isInstanceOf(IllegalArgumentException.class);
     }
 
     static Stream<Arguments> wrongArityProvider() {
@@ -155,8 +163,8 @@ class SelectJakartaDataQueryFunctionTest {
             "FROM Customer WHERE age = ABS(1 + 2)",
             "FROM Customer WHERE age = ABS(price * 2)"
     })
+    @DisplayName("Should Reject Arithmetic In Function Arguments")
     void shouldRejectArithmeticInFunctionArguments(String query) {
-        Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> selectParser.apply(query, "Customer"));
+        assertThatThrownBy(() -> selectParser.apply(query, "Customer")).isInstanceOf(UnsupportedOperationException.class);
     }
 }
