@@ -58,8 +58,8 @@ class BucketManagerSupplierTest {
     @DisplayName("When the manager supplier provides managers")
     class WhenTheManagerSupplierProvidesManagers {
 
-        @DisplayName("Should Get Bucket Manager")
         @Test
+        @DisplayName("Should get bucket manager")
         void shouldGetBucketManager() {
             System.setProperty(KEY_VALUE_PROVIDER.get(), KeyValueConfigurationMock.class.getName());
             System.setProperty(KEY_VALUE_DATABASE.get(), "database");
@@ -70,8 +70,8 @@ class BucketManagerSupplierTest {
             });
         }
 
-        @DisplayName("Should Use Default Configuration When Provider Is Wrong")
         @Test
+        @DisplayName("Should use default configuration when provIDer is wrong")
         void shouldUseDefaultConfigurationWhenProviderIsWrong() {
             System.setProperty(KEY_VALUE_PROVIDER.get(), Integer.class.getName());
             System.setProperty(KEY_VALUE_DATABASE.get(), "database");
@@ -82,8 +82,8 @@ class BucketManagerSupplierTest {
             });
         }
 
-        @DisplayName("Should Use Default Configuration")
         @Test
+        @DisplayName("Should use default configuration")
         void shouldUseDefaultConfiguration() {
             System.setProperty(KEY_VALUE_DATABASE.get(), "database");
             BucketManager manager = supplier.get();
@@ -93,14 +93,14 @@ class BucketManagerSupplierTest {
             });
         }
 
-        @DisplayName("Should Return Error When There Is Not Database")
         @Test
+        @DisplayName("Should return error when there is no database")
         void shouldReturnErrorWhenThereIsNotDatabase() {
             assertThatThrownBy(() -> supplier.get()).isInstanceOf(MappingException.class);
         }
 
-        @DisplayName("Should Close")
         @Test
+        @DisplayName("Should close")
         void shouldClose(){
             BucketManager manager = Mockito.mock(BucketManager.class);
             supplier.close(manager);
