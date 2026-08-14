@@ -55,8 +55,8 @@ class KeyValueEventPersistManagerTest {
     @DisplayName("When the event manager fires events")
     class WhenTheEventManagerFiresEvents {
 
-        @DisplayName("Should Fire Pre Entity")
         @Test
+        @DisplayName("Should fire pre entity")
         void shouldFirePreEntity() {
             Actor actor = new Actor();
             actor.name = "Luke";
@@ -67,8 +67,8 @@ class KeyValueEventPersistManagerTest {
             assertThat(value.get()).isEqualTo(actor);
         }
 
-        @DisplayName("Should Fire Post Entity")
         @Test
+        @DisplayName("Should fire post entity")
         void shouldFirePostEntity() {
             Actor actor = new Actor();
             actor.name = "Luke";
