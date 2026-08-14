@@ -88,8 +88,8 @@ class DefaultKeyValueTemplateTest {
     @DisplayName("When the template handles entities")
     class WhenTheTemplateHandlesEntities {
 
-        @DisplayName("Should Put")
         @Test
+        @DisplayName("Should put")
         void shouldPut() {
             User user = new User(KEY, "otavio", 27);
             template.put(user);
@@ -101,16 +101,16 @@ class DefaultKeyValueTemplateTest {
             });
         }
 
-        @DisplayName("Should Merge On Put")
         @Test
+        @DisplayName("Should merge on put")
         void shouldMergeOnPut() {
             User user = new User(KEY, "otavio", 27);
             User result = template.put(user);
             assertThat(result).isSameAs(user);
         }
 
-        @DisplayName("Should Put Iterable")
         @Test
+        @DisplayName("Should put iterable")
         void shouldPutIterable() {
             User user = new User(KEY, "otavio", 27);
             template.put(singletonList(user));
@@ -122,8 +122,8 @@ class DefaultKeyValueTemplateTest {
             });
         }
 
-        @DisplayName("Should Put TTL")
         @Test
+        @DisplayName("Should put TTL")
         void shouldPutTTL() {
 
             Duration duration = Duration.ofSeconds(2L);
@@ -138,8 +138,8 @@ class DefaultKeyValueTemplateTest {
             });
         }
 
-        @DisplayName("Should Put TTLIterable")
         @Test
+        @DisplayName("Should put TTL iterable")
         void shouldPutTTLIterable() {
 
             Duration duration = Duration.ofSeconds(2L);
@@ -154,8 +154,8 @@ class DefaultKeyValueTemplateTest {
             });
         }
 
-        @DisplayName("Should Insert")
         @Test
+        @DisplayName("Should insert")
         void shouldInsert() {
             User user = new User(KEY, "otavio", 27);
             template.insert(user);
@@ -167,8 +167,8 @@ class DefaultKeyValueTemplateTest {
             });
         }
 
-        @DisplayName("Should Insert Iterable")
         @Test
+        @DisplayName("Should insert iterable")
         void shouldInsertIterable() {
             User user = new User(KEY, "otavio", 27);
             template.insert(singletonList(user));
@@ -180,8 +180,8 @@ class DefaultKeyValueTemplateTest {
             });
         }
 
-        @DisplayName("Should Insert TTL")
         @Test
+        @DisplayName("Should insert TTL")
         void shouldInsertTTL() {
 
             Duration duration = Duration.ofSeconds(2L);
@@ -196,8 +196,8 @@ class DefaultKeyValueTemplateTest {
             });
         }
 
-        @DisplayName("Should Insert TTLIterable")
         @Test
+        @DisplayName("Should insert TTL iterable")
         void shouldInsertTTLIterable() {
 
             Duration duration = Duration.ofSeconds(2L);
@@ -212,8 +212,8 @@ class DefaultKeyValueTemplateTest {
             });
         }
 
-        @DisplayName("Should Update")
         @Test
+        @DisplayName("Should update")
         void shouldUpdate() {
             User user = new User(KEY, "otavio", 27);
             template.update(user);
@@ -225,8 +225,8 @@ class DefaultKeyValueTemplateTest {
             });
         }
 
-        @DisplayName("Should Update Iterable")
         @Test
+        @DisplayName("Should update iterable")
         void shouldUpdateIterable() {
             User user = new User(KEY, "otavio", 27);
             template.update(singletonList(user));
@@ -238,8 +238,8 @@ class DefaultKeyValueTemplateTest {
             });
         }
 
-        @DisplayName("Should Get")
         @Test
+        @DisplayName("Should get")
         void shouldGet() {
             User user = new User(KEY, "otavio", 27);
 
@@ -252,8 +252,8 @@ class DefaultKeyValueTemplateTest {
             });
         }
 
-        @DisplayName("Should Find By Id")
         @Test
+        @DisplayName("Should find by ID")
         void shouldFindById() {
             User user = new User(KEY, "otavio", 27);
             when(manager.get(KEY)).thenReturn(Optional.of(Value.of(user)));
@@ -265,8 +265,8 @@ class DefaultKeyValueTemplateTest {
             });
         }
 
-        @DisplayName("Should Get Iterable")
         @Test
+        @DisplayName("Should get iterable")
         void shouldGetIterable() {
             User user = new User(KEY, "otavio", 27);
 
@@ -280,8 +280,8 @@ class DefaultKeyValueTemplateTest {
             });
         }
 
-        @DisplayName("Should Return Empty Iterable")
         @Test
+        @DisplayName("Should return empty iterable")
         void shouldReturnEmptyIterable() {
             User user = new User(KEY, "otavio", 27);
 
@@ -292,43 +292,43 @@ class DefaultKeyValueTemplateTest {
             assertThat(userOptional.isEmpty()).isTrue();
         }
 
-        @DisplayName("Should Remove")
         @Test
+        @DisplayName("Should remove")
         void shouldRemove() {
             template.deleteByKey(KEY);
             Mockito.verify(manager).delete(KEY);
         }
 
-        @DisplayName("Should Remove Using Entity")
         @Test
+        @DisplayName("Should remove using entity")
         void shouldRemoveUsingEntity() {
             User user = new User(KEY, "otavio", 27);
             template.delete(user);
             Mockito.verify(manager).delete(KEY);
         }
 
-        @DisplayName("Should Return Error When Entity Is Null")
         @Test
+        @DisplayName("Should return error when entity is null")
         void shouldReturnErrorWhenEntityIsNull(){
             assertThatThrownBy(() -> template.delete((User)null)).isInstanceOf(NullPointerException.class);
         }
 
-        @DisplayName("Should Remove By Id")
         @Test
+        @DisplayName("Should remove by ID")
         void shouldRemoveById() {
             template.delete(User.class, KEY);
             Mockito.verify(manager).delete(KEY);
         }
 
-        @DisplayName("Should Remove Iterable")
         @Test
+        @DisplayName("Should remove iterable")
         void shouldRemoveIterable() {
             template.deleteByKeys(singletonList(KEY));
             Mockito.verify(manager).delete(singletonList(KEY));
         }
 
-        @DisplayName("Should Return Unsupported Exception On Update")
         @Test
+        @DisplayName("Should return unsupported exception on update")
         void shouldReturnUnsupportedExceptionOnUpdate() {
             assertThatThrownBy(() -> template.update(Person.class)).isInstanceOf(UnsupportedOperationException.class);
         }
