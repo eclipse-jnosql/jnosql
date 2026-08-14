@@ -202,7 +202,7 @@ class RepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-        assertThat(condition.element()).isEqualTo(Element.of("name", "name"));
+        assertElement(condition.element(), Element.of("name", "name"));
 
         assertThat(personRepository.findByName("name")).isNotNull();
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -285,7 +285,7 @@ class RepositoryProxyTest {
         CriteriaCondition condition = deleteQuery.condition().get();
         assertThat(deleteQuery.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-        assertThat(condition.element()).isEqualTo(Element.of("name", "Ada"));
+        assertElement(condition.element(), Element.of("name", "Ada"));
 
     }
 
@@ -445,7 +445,7 @@ class RepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(GREATER_THAN);
-        assertThat(condition.element()).isEqualTo(Element.of("age", 33));
+        assertElement(condition.element(), Element.of("age", 33));
 
     }
 
@@ -465,7 +465,7 @@ class RepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(LESSER_EQUALS_THAN);
-        assertThat(condition.element()).isEqualTo(Element.of("age", 33));
+        assertElement(condition.element(), Element.of("age", 33));
 
     }
 
@@ -485,7 +485,7 @@ class RepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(LESSER_THAN);
-        assertThat(condition.element()).isEqualTo(Element.of("age", 33));
+        assertElement(condition.element(), Element.of("age", 33));
 
     }
 
@@ -528,7 +528,7 @@ class RepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(LIKE);
-        assertThat(condition.element()).isEqualTo(Element.of("name", "Ada"));
+        assertElement(condition.element(), Element.of("name", "Ada"));
 
     }
 
@@ -564,7 +564,7 @@ class RepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("vendors");
         assertThat(condition.condition()).isEqualTo(EQUALS);
-        assertThat(condition.element()).isEqualTo(Element.of("prefixes", "prefix"));
+        assertElement(condition.element(), Element.of("prefixes", "prefix"));
 
     }
 
@@ -605,7 +605,7 @@ class RepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(EQUALS);
-        assertThat(condition.element()).isEqualTo(Element.of("age", 120));
+        assertElement(condition.element(), Element.of("age", 120));
     }
 
     @DisplayName("Should find by active true")
@@ -624,7 +624,7 @@ class RepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(EQUALS);
-        assertThat(condition.element()).isEqualTo(Element.of("active", true));
+        assertElement(condition.element(), Element.of("active", true));
     }
 
     @DisplayName("Should find by active false")
@@ -643,7 +643,7 @@ class RepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         assertThat(query.name()).isEqualTo("Person");
         assertThat(condition.condition()).isEqualTo(EQUALS);
-        assertThat(condition.element()).isEqualTo(Element.of("active", false));
+        assertElement(condition.element(), Element.of("active", false));
     }
 
 
@@ -829,7 +829,7 @@ class RepositoryProxyTest {
         assertThat(query.name()).isEqualTo("Person");
         CriteriaCondition columnCondition = condition.element().get(CriteriaCondition.class);
         assertThat(columnCondition.condition()).isEqualTo(Condition.EQUALS);
-        assertThat(columnCondition.element()).isEqualTo(Element.of("name", "name"));
+        assertElement(columnCondition.element(), Element.of("name", "name"));
 
         assertThat(personRepository.findByName("name")).isNotNull();
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -855,7 +855,7 @@ class RepositoryProxyTest {
         assertThat(query.name()).isEqualTo("Person");
         CriteriaCondition columnCondition = condition.element().get(CriteriaCondition.class);
         assertThat(columnCondition.condition()).isEqualTo(Condition.EQUALS);
-        assertThat(columnCondition.element()).isEqualTo(Element.of("name", "name"));
+        assertElement(columnCondition.element(), Element.of("name", "name"));
 
         assertThat(personRepository.findByName("name")).isNotNull();
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -885,7 +885,7 @@ class RepositoryProxyTest {
         assertThat(query.name()).isEqualTo("Person");
         CriteriaCondition condition = query.condition().get();
         assertThat(condition.condition()).isEqualTo(LESSER_THAN);
-        assertThat(condition.element()).isEqualTo(Element.of("name", "name"));
+        assertElement(condition.element(), Element.of("name", "name"));
     }
 
     @DisplayName("Should use default method from other interface")
@@ -899,7 +899,7 @@ class RepositoryProxyTest {
         assertThat(query.name()).isEqualTo("Person");
         CriteriaCondition condition = query.condition().get();
         assertThat(condition.condition()).isEqualTo(LESSER_THAN);
-        assertThat(condition.element()).isEqualTo(Element.of("name", "Ada"));
+        assertElement(condition.element(), Element.of("name", "Ada"));
     }
 
     @DisplayName("Should execute custom repository")
@@ -972,7 +972,7 @@ class RepositoryProxyTest {
             softly.assertThat(query.name()).isEqualTo("Person");
             var condition = query.condition().orElseThrow();
             softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of("name", "Ada"));
+            assertElement(condition.element(), Element.of("name", "Ada"));
             softly.assertThat(query.sorts()).isEmpty();
         });
     }
@@ -988,7 +988,7 @@ class RepositoryProxyTest {
             softly.assertThat(query.name()).isEqualTo("Person");
             var condition = query.condition().orElseThrow();
             softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of("_id", 10L));
+            assertElement(condition.element(), Element.of("_id", 10L));
             softly.assertThat(query.sorts()).hasSize(1).contains(Sort.asc("_id"));
         });
     }
@@ -1004,7 +1004,7 @@ class RepositoryProxyTest {
             softly.assertThat(query.name()).isEqualTo("Person");
             var condition = query.condition().orElseThrow();
             softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of("name", "Ada"));
+            assertElement(condition.element(), Element.of("name", "Ada"));
             softly.assertThat(query.sorts()).hasSize(1).contains(Sort.asc("name"));
         });
     }
@@ -1020,7 +1020,7 @@ class RepositoryProxyTest {
             softly.assertThat(query.name()).isEqualTo("Person");
             var condition = query.condition().orElseThrow();
             softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of("name", "Ada"));
+            assertElement(condition.element(), Element.of("name", "Ada"));
             softly.assertThat(query.sorts()).hasSize(2).contains(Sort.asc("name"),
                     Sort.desc("age"));
         });
@@ -1163,6 +1163,11 @@ class RepositoryProxyTest {
 
         Optional<Vendor> findByPrefixesIn(List<String> prefix);
 
+    }
+
+    private static void assertElement(Element actual, Element expected) {
+        assertThat(actual.name()).isEqualTo(expected.name());
+        assertThat(actual.get()).isEqualTo(expected.get());
     }
 
     @Nested
