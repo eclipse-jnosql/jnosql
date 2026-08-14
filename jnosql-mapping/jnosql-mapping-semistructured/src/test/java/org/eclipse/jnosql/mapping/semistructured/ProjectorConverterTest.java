@@ -15,6 +15,8 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.inject.Inject;
+import java.util.Collections;
+import java.util.List;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
@@ -29,14 +31,11 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -55,9 +54,10 @@ class ProjectorConverterTest {
     @DisplayName("Should have a default constructor for CDI ")
     void shouldHaveDefaultConstructor() {
         ProjectorConverter converter = new ProjectorConverter();
-        assertNotNull(converter);
+        assertThat(converter).isNotNull();
     }
 
+    @DisplayName("Should convert entity to projection")
     @Test
     void shouldConvertEntityToProjection() {
         var projection = entitiesMetadata.projection(BookView.class).orElseThrow();
@@ -72,6 +72,7 @@ class ProjectorConverterTest {
         });
     }
 
+    @DisplayName("Should convert when there is embedded projection")
     @Test
     void shouldConvertWhenThereIsEmbeddedProjection() {
         var projection = entitiesMetadata.projection(CitizenGeographySummary.class).orElseThrow();
@@ -87,6 +88,7 @@ class ProjectorConverterTest {
         });
     }
 
+    @DisplayName("Should dont break when embedded is null")
     @Test
     void shouldDontBreakWhenEmbeddedIsNull(){
         var projection = entitiesMetadata.projection(CitizenGeographySummary.class).orElseThrow();
@@ -101,25 +103,29 @@ class ProjectorConverterTest {
         });
     }
 
+    @DisplayName("Should return error when list is different")
     @Test
     void shouldReturnErrorWhenListIsDifferent() {
         var projection = entitiesMetadata.projection(CitizenGeographySummary.class).orElseThrow();
         Citizen citizen = Citizen.of("1", "Ada Lovelace");
-        assertThrows(IllegalArgumentException.class, () -> converter.map(citizen, projection, Collections.singletonList("name")));
+        assertThatThrownBy(() -> converter.map(citizen, projection, Collections.singletonList("name"))).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @DisplayName("Should return error when entity is invalid")
     @Test
     void shouldReturnErrorWhenEntityIsInvalid() {
         var projection = entitiesMetadata.projection(BookView.class).orElseThrow();
-        assertThrows(IllegalArgumentException.class, () -> converter.map("citizen", projection, Collections.singletonList("name")));
+        assertThatThrownBy(() -> converter.map("citizen", projection, Collections.singletonList("name"))).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @DisplayName("Should return error when entity is invalid 2")
     @Test
     void shouldReturnErrorWhenEntityIsInvalid2() {
         var projection = entitiesMetadata.projection(BookView.class).orElseThrow();
-        assertThrows(IllegalArgumentException.class, () -> converter.map("citizen", projection));
+        assertThatThrownBy(() -> converter.map("citizen", projection)).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @DisplayName("Should convert entity to projection using list")
     @Test
     void shouldConvertEntityToProjectionUsingList() {
         var projection = entitiesMetadata.projection(BookView.class).orElseThrow();
@@ -134,6 +140,7 @@ class ProjectorConverterTest {
         });
     }
 
+    @DisplayName("Should convert from array")
     @Test
     void shouldConvertFromArray() {
         var projection = entitiesMetadata.projection(BookView.class).orElseThrow();
@@ -147,4 +154,9 @@ class ProjectorConverterTest {
         });
     }
 
+
+    @Nested
+    @DisplayName("When the projector converter is tested")
+    class WhenTheProjectorConverterIsTested {
+    }
 }

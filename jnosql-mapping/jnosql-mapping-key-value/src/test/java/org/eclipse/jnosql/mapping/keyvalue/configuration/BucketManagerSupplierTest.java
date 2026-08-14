@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.keyvalue.configuration;
 
 import jakarta.data.exceptions.MappingException;
+import org.assertj.core.api.SoftAssertions;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -26,11 +27,13 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.KEY_VALUE_DATABASE;
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.KEY_VALUE_PROVIDER;
@@ -51,43 +54,59 @@ class BucketManagerSupplierTest {
         System.clearProperty(KEY_VALUE_DATABASE.get());
     }
 
-    @Test
-    void shouldGetBucketManager() {
-        System.setProperty(KEY_VALUE_PROVIDER.get(), KeyValueConfigurationMock.class.getName());
-        System.setProperty(KEY_VALUE_DATABASE.get(), "database");
-        BucketManager manager = supplier.get();
-        Assertions.assertNotNull(manager);
-        assertThat(manager).isInstanceOf(KeyValueConfigurationMock.BucketManagerMock.class);
-    }
+    @Nested
+    @DisplayName("When the manager supplier provides managers")
+    class WhenTheManagerSupplierProvidesManagers {
 
+        @Test
+        @DisplayName("Should get bucket manager")
+        void shouldGetBucketManager() {
+            System.setProperty(KEY_VALUE_PROVIDER.get(), KeyValueConfigurationMock.class.getName());
+            System.setProperty(KEY_VALUE_DATABASE.get(), "database");
+            BucketManager manager = supplier.get();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(manager).isNotNull();
+                softly.assertThat(manager).isInstanceOf(KeyValueConfigurationMock.BucketManagerMock.class);
+            });
+        }
 
-    @Test
-    void shouldUseDefaultConfigurationWhenProviderIsWrong() {
-        System.setProperty(KEY_VALUE_PROVIDER.get(), Integer.class.getName());
-        System.setProperty(KEY_VALUE_DATABASE.get(), "database");
-        BucketManager manager = supplier.get();
-        Assertions.assertNotNull(manager);
-        assertThat(manager).isInstanceOf(KeyValueConfigurationMock2.BucketManagerMock.class);
-    }
+        @Test
+        @DisplayName("Should use default configuration when provIDer is wrong")
+        void shouldUseDefaultConfigurationWhenProviderIsWrong() {
+            System.setProperty(KEY_VALUE_PROVIDER.get(), Integer.class.getName());
+            System.setProperty(KEY_VALUE_DATABASE.get(), "database");
+            BucketManager manager = supplier.get();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(manager).isNotNull();
+                softly.assertThat(manager).isInstanceOf(KeyValueConfigurationMock2.BucketManagerMock.class);
+            });
+        }
 
-    @Test
-    void shouldUseDefaultConfiguration() {
-        System.setProperty(KEY_VALUE_DATABASE.get(), "database");
-        BucketManager manager = supplier.get();
-        Assertions.assertNotNull(manager);
-        assertThat(manager).isInstanceOf(KeyValueConfigurationMock2.BucketManagerMock.class);
-    }
+        @Test
+        @DisplayName("Should use default configuration")
+        void shouldUseDefaultConfiguration() {
+            System.setProperty(KEY_VALUE_DATABASE.get(), "database");
+            BucketManager manager = supplier.get();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(manager).isNotNull();
+                softly.assertThat(manager).isInstanceOf(KeyValueConfigurationMock2.BucketManagerMock.class);
+            });
+        }
 
-    @Test
-    void shouldReturnErrorWhenThereIsNotDatabase() {
-        Assertions.assertThrows(MappingException.class, () -> supplier.get());
-    }
+        @Test
+        @DisplayName("Should return error when there is no database")
+        void shouldReturnErrorWhenThereIsNotDatabase() {
+            assertThatThrownBy(() -> supplier.get()).isInstanceOf(MappingException.class);
+        }
 
-    @Test
-    void shouldClose(){
-        BucketManager manager = Mockito.mock(BucketManager.class);
-        supplier.close(manager);
-        Mockito.verify(manager).close();
+        @Test
+        @DisplayName("Should close")
+        void shouldClose(){
+            BucketManager manager = Mockito.mock(BucketManager.class);
+            supplier.close(manager);
+            Mockito.verify(manager).close();
+        }
+
     }
 
 }

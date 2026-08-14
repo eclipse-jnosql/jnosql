@@ -24,9 +24,11 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jnosql.mapping.DatabaseType.KEY_VALUE;
 
 @EnableAutoWeld
@@ -43,14 +45,22 @@ class KeyValueTemplateTest {
     @Database(KEY_VALUE)
     private Template qualifier;
 
-    @Test
-    void shouldInjectTemplate() {
-        Assertions.assertNotNull(template);
-    }
+    @Nested
+    @DisplayName("When the container injects the template")
+    class WhenTheContainerInjectsTemplate {
 
-    @Test
-    void shouldInjectQualifier() {
-        Assertions.assertNotNull(qualifier);
+        @Test
+        @DisplayName("Should inject template")
+        void shouldInjectTemplate() {
+            assertThat(template).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should inject qualifier")
+        void shouldInjectQualifier() {
+            assertThat(qualifier).isNotNull();
+        }
+
     }
 
 }

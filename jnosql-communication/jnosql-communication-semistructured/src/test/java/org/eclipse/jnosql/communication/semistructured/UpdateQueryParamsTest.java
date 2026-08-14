@@ -14,43 +14,55 @@ package org.eclipse.jnosql.communication.semistructured;
 import org.eclipse.jnosql.communication.Params;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class UpdateQueryParamsTest {
 
-    @Test
-    void shouldCreateUpdateQueryParams() {
-        UpdateQuery updateQuery = mock(UpdateQuery.class);
-        Params params = mock(Params.class);
 
-        UpdateQueryParams updateQueryParams = new UpdateQueryParams(updateQuery, params);
+    @Nested
+    @DisplayName("When the update query params is used")
+    class WhenTheUpdateQueryParamsIsUsed {
 
-        assertThat(updateQueryParams.updateQuery()).isSameAs(updateQuery);
-        assertThat(updateQueryParams.params()).isSameAs(params);
+        @DisplayName("Should Create Update Query Params")
+        @Test
+        void shouldCreateUpdateQueryParams() {
+            UpdateQuery updateQuery = mock(UpdateQuery.class);
+            Params params = mock(Params.class);
+
+            UpdateQueryParams updateQueryParams = new UpdateQueryParams(updateQuery, params);
+
+            assertThat(updateQueryParams.updateQuery()).isSameAs(updateQuery);
+            assertThat(updateQueryParams.params()).isSameAs(params);
+        }
+
+        @DisplayName("Should Implement Equals And Hash Code")
+        @Test
+        void shouldImplementEqualsAndHashCode() {
+            UpdateQuery updateQuery = mock(UpdateQuery.class);
+            Params params = mock(Params.class);
+
+            UpdateQueryParams first = new UpdateQueryParams(updateQuery, params);
+            UpdateQueryParams second = new UpdateQueryParams(updateQuery, params);
+
+            assertThat(first).isEqualTo(second);
+            assertThat(first).hasSameHashCodeAs(second);
+        }
+
+        @DisplayName("Should Have To String Representation")
+        @Test
+        void shouldHaveToStringRepresentation() {
+            UpdateQuery updateQuery = mock(UpdateQuery.class);
+            Params params = mock(Params.class);
+
+            UpdateQueryParams updateQueryParams = new UpdateQueryParams(updateQuery, params);
+
+            assertThat(updateQueryParams.toString())
+                    .contains("updateQuery=")
+                    .contains("params=");
+        }
     }
 
-    @Test
-    void shouldImplementEqualsAndHashCode() {
-        UpdateQuery updateQuery = mock(UpdateQuery.class);
-        Params params = mock(Params.class);
-
-        UpdateQueryParams first = new UpdateQueryParams(updateQuery, params);
-        UpdateQueryParams second = new UpdateQueryParams(updateQuery, params);
-
-        assertThat(first).isEqualTo(second);
-        assertThat(first).hasSameHashCodeAs(second);
-    }
-
-    @Test
-    void shouldHaveToStringRepresentation() {
-        UpdateQuery updateQuery = mock(UpdateQuery.class);
-        Params params = mock(Params.class);
-
-        UpdateQueryParams updateQueryParams = new UpdateQueryParams(updateQuery, params);
-
-        assertThat(updateQueryParams.toString())
-                .contains("updateQuery=")
-                .contains("params=");
-    }
 }

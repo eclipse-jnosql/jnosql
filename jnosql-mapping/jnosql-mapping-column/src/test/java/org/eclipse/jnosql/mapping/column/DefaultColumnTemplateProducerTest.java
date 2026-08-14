@@ -24,39 +24,65 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class, ColumnExtension.class})
+@DisplayName("Column template producer")
 class DefaultColumnTemplateProducerTest {
 
     @Inject
     private ColumnTemplateProducer producer;
 
-    @Test
-    void shouldReturnErrorWhenColumnManagerNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> producer.apply(null));
+    @Nested
+    @DisplayName("When creating a template")
+    class WhenTheTemplateCreation {
+
+        @Test
+        @DisplayName("Should require a database manager")
+        void shouldRequireDatabaseManager() {
+
+            // When / Then
+            assertThatNullPointerException().isThrownBy(() -> producer.apply(null));
+        }
+
+        @Test
+        @DisplayName("Should create a column template")
+        void shouldCreateColumnTemplate() {
+
+            // Given
+            DatabaseManager manager = Mockito.mock(DatabaseManager.class);
+
+            // When
+            ColumnTemplate columnTemplate = producer.apply(manager);
+
+            // Then
+            assertThat(columnTemplate).isNotNull();
+        }
     }
 
-    @Test
-    void shouldReturn() {
-        DatabaseManager manager = Mockito.mock(DatabaseManager.class);
-        ColumnTemplate columnTemplate = producer.apply(manager);
-        assertNotNull(columnTemplate);
-    }
+    @Nested
+    @DisplayName("When creating the CDI producer")
+    class WhenTheProducerCreation {
 
-    @Test
-    @DisplayName("Should have a default constructor for CDI ")
-    void shouldHaveDefaultConstructor() {
-        ColumnTemplateProducer.ProducerColumnTemplate template = new ColumnTemplateProducer.ProducerColumnTemplate();
-        assertNotNull(template);
+        @Test
+        @DisplayName("Should expose a default constructor")
+        void shouldExposeDefaultConstructor() {
+
+            // When
+            ColumnTemplateProducer.ProducerColumnTemplate template = new ColumnTemplateProducer.ProducerColumnTemplate();
+
+            // Then
+            assertThat(template).isNotNull();
+        }
     }
 }

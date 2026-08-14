@@ -16,6 +16,8 @@ package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import java.math.BigDecimal;
+import java.util.List;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
@@ -32,15 +34,14 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.math.BigDecimal;
-import java.util.List;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jnosql.communication.semistructured.DeleteQuery.delete;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @EnableAutoWeld
@@ -77,16 +78,18 @@ class MapperDeleteTest {
                 persistManager, entities, converters);
     }
 
+    @DisplayName("Should return delete from")
     @Test
     void shouldReturnDeleteFrom() {
         template.delete(Person.class).execute();
         Mockito.verify(managerMock).delete(captor.capture());
         DeleteQuery query = captor.getValue();
         var queryExpected = delete().from("Person").build();
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
 
+    @DisplayName("Should delete where eq")
     @Test
     void shouldDeleteWhereEq() {
         template.delete(Person.class).where("name").eq("Ada").execute();
@@ -95,9 +98,10 @@ class MapperDeleteTest {
 
         var queryExpected =  delete().from("Person").where("name")
                 .eq("Ada").build();
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should delete where like")
     @Test
     void shouldDeleteWhereLike() {
         template.delete(Person.class).where("name").like("Ada").execute();
@@ -105,9 +109,10 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = delete().from("Person").where("name")
                 .like("Ada").build();
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should delete where contains")
     @Test
     void shouldDeleteWhereContains() {
         template.delete(Person.class).where("name").contains("Ada").execute();
@@ -115,9 +120,10 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = DeleteQuery.builder().from("Person")
                 .where(CriteriaCondition.contains(Element.of("name", "Ada"))).build();
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should delete where start with")
     @Test
     void shouldDeleteWhereStartWith() {
         template.delete(Person.class).where("name").startsWith("Ada").execute();
@@ -125,9 +131,10 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = DeleteQuery.builder().from("Person")
                 .where(CriteriaCondition.startsWith(Element.of("name", "Ada"))).build();
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should delete where ends with")
     @Test
     void shouldDeleteWhereEndsWith() {
         template.delete(Person.class).where("name").endsWith("Ada").execute();
@@ -135,9 +142,10 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = DeleteQuery.builder().from("Person")
                 .where(CriteriaCondition.endsWith(Element.of("name", "Ada"))).build();
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should delete where in with")
     @Test
     void shouldDeleteWhereInWith() {
         template.delete(Person.class).where("name").in(List.of("Ada")).execute();
@@ -145,18 +153,20 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = DeleteQuery.builder().from("Person")
                 .where(CriteriaCondition.in(Element.of("name", List.of("Ada")))).build();
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should delete where gt")
     @Test
     void shouldDeleteWhereGt() {
         template.delete(Person.class).where("id").gt(10).execute();
         Mockito.verify(managerMock).delete(captor.capture());
         var query = captor.getValue();
         var queryExpected = delete().from("Person").where("_id").gt(10L).build();
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should delete where gte")
     @Test
     void shouldDeleteWhereGte() {
         template.delete(Person.class).where("id").gte(10).execute();
@@ -164,27 +174,30 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = delete().from("Person").where("_id")
                 .gte(10L).build();
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should delete where lt")
     @Test
     void shouldDeleteWhereLt() {
         template.delete(Person.class).where("id").lt(10).execute();
         Mockito.verify(managerMock).delete(captor.capture());
         var query = captor.getValue();
         var queryExpected = delete().from("Person").where("_id").lt(10L).build();
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should delete where lte")
     @Test
     void shouldDeleteWhereLte() {
         template.delete(Person.class).where("id").lte(10).execute();
         Mockito.verify(managerMock).delete(captor.capture());
         var query = captor.getValue();
         var queryExpected = delete().from("Person").where("_id").lte(10L).build();
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should delete where between")
     @Test
     void shouldDeleteWhereBetween() {
         template.delete(Person.class).where("id")
@@ -193,19 +206,21 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = delete().from("Person").where("_id")
                 .between(10L, 20L).build();
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should delete where not")
     @Test
     void shouldDeleteWhereNot() {
         template.delete(Person.class).where("name").not().like("Ada").execute();
         Mockito.verify(managerMock).delete(captor.capture());
         var query = captor.getValue();
         var queryExpected = delete().from("Person").where("name").not().like("Ada").build();
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
 
+    @DisplayName("Should delete where and")
     @Test
     void shouldDeleteWhereAnd() {
         template.delete(Person.class).where("age").between(10, 20)
@@ -216,9 +231,10 @@ class MapperDeleteTest {
                 .between(10, 20)
                 .and("name").eq("Ada").build();
 
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should delete where or")
     @Test
     void shouldDeleteWhereOr() {
         template.delete(Person.class).where("id").between(10, 20)
@@ -229,9 +245,10 @@ class MapperDeleteTest {
                 .between(10L, 20L)
                 .or("name").eq("Ada").build();
 
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should convert field")
     @Test
     void shouldConvertField() {
         template.delete(Person.class).where("id").eq("20")
@@ -241,9 +258,10 @@ class MapperDeleteTest {
         var queryExpected = delete().from("Person").where("_id").eq(20L)
                 .build();
 
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should use attribute converter")
     @Test
     void shouldUseAttributeConverter() {
         template.delete(Worker.class).where("salary")
@@ -252,9 +270,10 @@ class MapperDeleteTest {
         var query = captor.getValue();
         var queryExpected = delete().from("Worker").where("money")
                 .eq("USD 10").build();
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should query by embeddable")
     @Test
     void shouldQueryByEmbeddable() {
         template.delete(Worker.class).where("job.city").eq("Salvador")
@@ -265,9 +284,10 @@ class MapperDeleteTest {
         var queryExpected = delete().from("Worker").where("city").eq("Salvador")
                 .build();
 
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
     }
 
+    @DisplayName("Should query by sub entity")
     @Test
     void shouldQueryBySubEntity() {
         template.delete(Address.class).where("zipCode.zip").eq("01312321")
@@ -279,6 +299,17 @@ class MapperDeleteTest {
         var queryExpected = delete().from("Address").where("zipCode.zip").eq("01312321")
                 .build();
 
-        assertEquals(queryExpected, query);
+        assertDeleteQuery(query, queryExpected);
+    }
+
+    private static void assertDeleteQuery(DeleteQuery actual, DeleteQuery expected) {
+        assertThat(actual.name()).isEqualTo(expected.name());
+        assertThat(actual.columns()).isEqualTo(expected.columns());
+        assertThat(actual.condition()).isEqualTo(expected.condition());
+    }
+
+    @Nested
+    @DisplayName("When the mapper delete is tested")
+    class WhenTheMapperDeleteIsTested {
     }
 }

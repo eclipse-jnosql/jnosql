@@ -24,10 +24,11 @@ import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
+import static org.assertj.core.api.Assertions.assertThat;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -38,6 +39,7 @@ class SemistructuredRepositoryOperationProviderTest {
     @Inject
     private RepositoryOperationProvider provider;
 
+    @DisplayName("Should inject provider")
     @Test
     void shouldInjectProvider() {
         assertThat(provider)
@@ -45,73 +47,92 @@ class SemistructuredRepositoryOperationProviderTest {
                 .isInstanceOf(SemistructuredRepositoryOperationProvider.class);
     }
 
+    @DisplayName("Should provide insert operation")
     @Test
     void shouldProvideInsertOperation() {
         assertThat(provider.insertOperation()).isNotNull();
     }
 
+    @DisplayName("Should provide update operation")
     @Test
     void shouldProvideUpdateOperation() {
         assertThat(provider.updateOperation()).isNotNull();
     }
 
+    @DisplayName("Should provide delete operation")
     @Test
     void shouldProvideDeleteOperation() {
         assertThat(provider.deleteOperation()).isNotNull();
     }
 
+    @DisplayName("Should provide save operation")
     @Test
     void shouldProvideSaveOperation() {
         assertThat(provider.saveOperation()).isNotNull();
     }
 
+    @DisplayName("Should provide find by operation")
     @Test
     void shouldProvideFindByOperation() {
         assertThat(provider.findByOperation()).isNotNull();
     }
 
+    @DisplayName("Should provide find all operation")
     @Test
     void shouldProvideFindAllOperation() {
         assertThat(provider.findAllOperation()).isNotNull();
     }
 
+    @DisplayName("Should provide count by operation")
     @Test
     void shouldProvideCountByOperation() {
         assertThat(provider.countByOperation()).isNotNull();
     }
 
+    @DisplayName("Should provide count all operation")
     @Test
     void shouldProvideCountAllOperation() {
         assertThat(provider.countAllOperation()).isNotNull();
     }
 
+    @DisplayName("Should provide exists by operation")
     @Test
     void shouldProvideExistsByOperation() {
         assertThat(provider.existsByOperation()).isNotNull();
     }
 
+    @DisplayName("Should provide delete by operation")
     @Test
     void shouldProvideDeleteByOperation() {
         assertThat(provider.deleteByOperation()).isNotNull();
     }
 
+    @DisplayName("Should provide parameter based operation")
     @Test
     void shouldProvideParameterBasedOperation() {
         assertThat(provider.parameterBasedOperation()).isNotNull();
     }
 
+    @DisplayName("Should provide cursor pagination operation")
     @Test
     void shouldProvideCursorPaginationOperation() {
         assertThat(provider.cursorPaginationOperation()).isNotNull();
     }
 
+    @DisplayName("Should provide query operation")
     @Test
     void shouldProvideQueryOperation() {
         assertThat(provider.queryOperation()).isNotNull();
     }
 
+    @DisplayName("Should provider operation")
     @Test
     void shouldProviderOperation(){
         assertThat(provider.providerOperation()).isNotNull();
+    }
+
+    @Nested
+    @DisplayName("When the semistructured repository operation provider is tested")
+    class WhenTheSemistructuredRepositoryOperationProviderIsTested {
     }
 }

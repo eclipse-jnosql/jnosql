@@ -15,15 +15,25 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SemistructuredExistsByOperationTest {
 
 
+    @DisplayName("Should create instance with default constructor")
     @Test
     void shouldCreateInstanceWithDefaultConstructor() {
         SemistructuredExistsByOperation operation = new SemistructuredExistsByOperation();
         Assertions.assertThat(operation).isNotNull();
     }
 
+
+    @Nested
+    @DisplayName("When the semistructured exists by operation is tested")
+    class WhenTheSemistructuredExistsByOperationIsTested {
+    }
 }

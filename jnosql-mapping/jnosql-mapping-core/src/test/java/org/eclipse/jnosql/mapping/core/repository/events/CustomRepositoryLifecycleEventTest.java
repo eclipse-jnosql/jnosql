@@ -107,8 +107,8 @@ class CustomRepositoryLifecycleEventTest {
     @DisplayName("When inserting entities")
     class WhenInsert {
 
+        @DisplayName("Should fire events for one entity")
         @Test
-        @DisplayName("Should fire pre-insert and post-insert events when inserting one entity")
         void shouldFireEventsForOneEntity() {
             // given
             VinylRecord entity = firstEntity();
@@ -127,8 +127,8 @@ class CustomRepositoryLifecycleEventTest {
         }
 
         @SuppressWarnings("unchecked")
+        @DisplayName("Should fire events for entity list")
         @Test
-        @DisplayName("Should fire pre-insert and post-insert events for each entity in a list")
         void shouldFireEventsForEntityList() {
             // given
             VinylRecord first = firstEntity();
@@ -151,8 +151,8 @@ class CustomRepositoryLifecycleEventTest {
         }
 
         @SuppressWarnings("unchecked")
+        @DisplayName("Should fire events for entity array")
         @Test
-        @DisplayName("Should fire pre-insert and post-insert events for each entity in an array")
         void shouldFireEventsForEntityArray() {
             // given
             VinylRecord first = firstEntity();
@@ -178,8 +178,8 @@ class CustomRepositoryLifecycleEventTest {
     @DisplayName("When updating entities")
     class WhenUpdate {
 
+        @DisplayName("Should fire events for one entity")
         @Test
-        @DisplayName("Should fire pre-update and post-update events when updating one entity")
         void shouldFireEventsForOneEntity() {
             // given
             VinylRecord entity = firstEntity();
@@ -198,8 +198,8 @@ class CustomRepositoryLifecycleEventTest {
         }
 
         @SuppressWarnings("unchecked")
+        @DisplayName("Should fire events for entity list")
         @Test
-        @DisplayName("Should fire pre-update and post-update events for each entity in a list")
         void shouldFireEventsForEntityList() {
             // given
             VinylRecord first = firstEntity();
@@ -222,8 +222,8 @@ class CustomRepositoryLifecycleEventTest {
         }
 
         @SuppressWarnings("unchecked")
+        @DisplayName("Should fire events for entity array")
         @Test
-        @DisplayName("Should fire pre-update and post-update events for each entity in an array")
         void shouldFireEventsForEntityArray() {
             // given
             VinylRecord first = firstEntity();
@@ -249,8 +249,8 @@ class CustomRepositoryLifecycleEventTest {
     @DisplayName("When saving entities")
     class WhenSave {
 
+        @DisplayName("Should fire events for one new entity")
         @Test
-        @DisplayName("Should fire pre-upsert and post-upsert events when saving one new entity")
         void shouldFireEventsForOneNewEntity() {
             // given
             VinylRecord entity = firstEntity();
@@ -273,8 +273,8 @@ class CustomRepositoryLifecycleEventTest {
                             event(LifecycleEventType.POST_UPSERT, entity));
         }
 
+        @DisplayName("Should fire events for one existing entity")
         @Test
-        @DisplayName("Should fire pre-upsert and post-upsert events when saving one existing entity")
         void shouldFireEventsForOneExistingEntity() {
             // given
             VinylRecord entity = firstEntity();
@@ -297,8 +297,8 @@ class CustomRepositoryLifecycleEventTest {
                             event(LifecycleEventType.POST_UPSERT, entity));
         }
 
+        @DisplayName("Should fire events for entity list")
         @Test
-        @DisplayName("Should fire pre-upsert and post-upsert events for each entity in a list")
         void shouldFireEventsForEntityList() {
             // given
             VinylRecord first = firstEntity();
@@ -332,8 +332,8 @@ class CustomRepositoryLifecycleEventTest {
                             event(LifecycleEventType.POST_UPSERT, second));
         }
 
+        @DisplayName("Should fire events for entity array")
         @Test
-        @DisplayName("Should fire pre-upsert and post-upsert events for each entity in an array")
         void shouldFireEventsForEntityArray() {
             // given
             VinylRecord first = firstEntity();
@@ -372,8 +372,8 @@ class CustomRepositoryLifecycleEventTest {
     @DisplayName("When deleting entities")
     class WhenDelete {
 
+        @DisplayName("Should fire events for one entity")
         @Test
-        @DisplayName("Should fire pre-delete and post-delete events when deleting one entity")
         void shouldFireEventsForOneEntity() {
             // given
             VinylRecord entity = firstEntity();
@@ -388,8 +388,8 @@ class CustomRepositoryLifecycleEventTest {
                             event(LifecycleEventType.POST_DELETE, entity));
         }
 
+        @DisplayName("Should fire events for entity list")
         @Test
-        @DisplayName("Should fire pre-delete and post-delete events for each entity in a list")
         void shouldFireEventsForEntityList() {
             // given
             VinylRecord first = firstEntity();
@@ -407,8 +407,8 @@ class CustomRepositoryLifecycleEventTest {
                             event(LifecycleEventType.POST_DELETE, second));
         }
 
+        @DisplayName("Should fire events for entity array")
         @Test
-        @DisplayName("Should fire pre-delete and post-delete events for each entity in an array")
         void shouldFireEventsForEntityArray() {
             // given
             VinylRecord first = firstEntity();

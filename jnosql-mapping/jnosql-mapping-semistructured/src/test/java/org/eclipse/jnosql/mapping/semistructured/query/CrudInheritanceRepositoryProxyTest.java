@@ -16,6 +16,8 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 
 
 import jakarta.inject.Inject;
+import java.lang.reflect.Proxy;
+import java.util.List;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -34,13 +36,13 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Proxy;
-import java.util.List;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.eclipse.jnosql.communication.Condition.AND;
 import static org.mockito.Mockito.verify;
@@ -66,7 +68,6 @@ class CrudInheritanceRepositoryProxyTest {
     private EmailRepository emailRepository;
 
 
-
     @BeforeEach
     public void setUp() {
         this.template = Mockito.mock(SemiStructuredTemplate.class);
@@ -80,18 +81,21 @@ class CrudInheritanceRepositoryProxyTest {
                 personHandler);
     }
 
+    @DisplayName("Should put filter at find all")
     @Test
     void shouldPutFilterAtFindAll() {
         emailRepository.findAll();
         verify(template).findAll(EmailNotification.class);
     }
 
+    @DisplayName("Should put filter at count")
     @Test
     void shouldPutFilterAtCount() {
         emailRepository.countBy();
         verify(template).count(EmailNotification.class);
     }
 
+    @DisplayName("Should put filter at find by name")
     @Test
     void shouldPutFilterAtFindByName() {
         emailRepository.findByName("name");
@@ -109,6 +113,7 @@ class CrudInheritanceRepositoryProxyTest {
         });
     }
 
+    @DisplayName("Should put filter at count by name")
     @Test
     void shouldPutFilterAtCountByName() {
         emailRepository.countByName("name");
@@ -127,6 +132,7 @@ class CrudInheritanceRepositoryProxyTest {
     }
 
 
+    @DisplayName("Should put filter at exist by name")
     @Test
     void shouldPutFilterAtExistByName() {
         emailRepository.existsByName("name");
@@ -144,6 +150,7 @@ class CrudInheritanceRepositoryProxyTest {
         });
     }
 
+    @DisplayName("Should put filter at delete all")
     @Test
     void shouldPutFilterAtDeleteAll() {
         emailRepository.deleteAll();
@@ -160,5 +167,10 @@ class CrudInheritanceRepositoryProxyTest {
         boolean existsByName(String name);
 
 
+    }
+
+    @Nested
+    @DisplayName("When the crud inheritance repository proxy is tested")
+    class WhenTheCrudInheritanceRepositoryProxyIsTested {
     }
 }

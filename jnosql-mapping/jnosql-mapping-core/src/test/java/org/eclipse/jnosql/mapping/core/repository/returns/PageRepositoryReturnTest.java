@@ -14,12 +14,15 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import org.eclipse.jnosql.mapping.DynamicQueryException;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -33,8 +36,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
@@ -45,55 +46,9 @@ class PageRepositoryReturnTest {
     @Mock
     private Page<Person> page;
 
-    @Test
-    void shouldReturnIsCompatible() {
-        Assertions.assertTrue(repositoryReturn.isCompatible(Person.class, Page.class));
-        assertFalse(repositoryReturn.isCompatible(Object.class, Person.class));
-        assertFalse(repositoryReturn.isCompatible(Person.class, Object.class));
-    }
-
-    @Test
-    void shouldReturnPage() {
-
-        Person ada = new Person("Ada");
-
-        Mockito.when(page.content()).thenReturn(List.of(ada));
-
-        Method method = Person.class.getDeclaredMethods()[0];
-        DynamicReturn<Person> dynamic = DynamicReturn.builder()
-                .classSource(Person.class)
-                .singleResult(Optional::empty)
-                .result(Collections::emptyList)
-                .singleResultPagination(p -> Optional.empty())
-                .streamPagination(p -> Stream.of(ada))
-                .returnType(method.getReturnType())
-                .methodName(method.getName())
-                .pagination(PageRequest.ofPage(2).size(2))
-                .page((p, l) -> page)
-                .totalSupplier(() -> 1L)
-                .build();
-
-        Page<Person> personPage = (Page<Person>) repositoryReturn.convertPageRequest(dynamic);
-        List<Person> content = personPage.content();
-
-        assertFalse(content.isEmpty());
-        assertEquals(ada, content.getFirst());
-    }
 
 
-    @Test
-    void shouldReturnErrorWhenUsePage() {
-        Method method = Person.class.getDeclaredMethods()[0];
-        Person ada = new Person("Ada");
-        DynamicReturn<Person> dynamic = DynamicReturn.builder()
-                .singleResult(Optional::empty)
-                .classSource(Person.class)
-                .result(() -> Stream.of(ada))
-                .returnType(method.getReturnType())
-                .methodName(method.getName())
-                .build();
-        Assertions.assertThrows(DynamicQueryException.class, () -> repositoryReturn.convert(dynamic));
-    }
+
 
     private static class Person implements Comparable<Person> {
 
@@ -136,4 +91,59 @@ class PageRepositoryReturnTest {
         }
     }
 
+
+    @Nested
+    @DisplayName("When the page repository return operates")
+    class WhenThePageRepositoryReturnOperates {
+
+        @DisplayName("Should return is compatible")
+        @Test
+        void shouldReturnIsCompatible() {
+            assertThat(repositoryReturn.isCompatible(Person.class, Page.class)).isTrue();
+            assertThat(repositoryReturn.isCompatible(Object.class, Person.class)).isFalse();
+            assertThat(repositoryReturn.isCompatible(Person.class, Object.class)).isFalse();
+        }
+        @DisplayName("Should return page")
+        @Test
+        void shouldReturnPage() {
+
+            Person ada = new Person("Ada");
+
+            Mockito.when(page.content()).thenReturn(List.of(ada));
+
+            Method method = Person.class.getDeclaredMethods()[0];
+            DynamicReturn<Person> dynamic = DynamicReturn.builder()
+                    .classSource(Person.class)
+                    .singleResult(Optional::empty)
+                    .result(Collections::emptyList)
+                    .singleResultPagination(p -> Optional.empty())
+                    .streamPagination(p -> Stream.of(ada))
+                    .returnType(method.getReturnType())
+                    .methodName(method.getName())
+                    .pagination(PageRequest.ofPage(2).size(2))
+                    .page((p, l) -> page)
+                    .totalSupplier(() -> 1L)
+                    .build();
+
+            Page<Person> personPage = (Page<Person>) repositoryReturn.convertPageRequest(dynamic);
+            List<Person> content = personPage.content();
+
+            assertThat(content.isEmpty()).isFalse();
+            assertThat(content.getFirst()).isEqualTo(ada);
+        }
+        @DisplayName("Should return error when use page")
+        @Test
+        void shouldReturnErrorWhenUsePage() {
+            Method method = Person.class.getDeclaredMethods()[0];
+            Person ada = new Person("Ada");
+            DynamicReturn<Person> dynamic = DynamicReturn.builder()
+                    .singleResult(Optional::empty)
+                    .classSource(Person.class)
+                    .result(() -> Stream.of(ada))
+                    .returnType(method.getReturnType())
+                    .methodName(method.getName())
+                    .build();
+            assertThatExceptionOfType(DynamicQueryException.class).isThrownBy(() -> repositoryReturn.convert(dynamic));
+        }
+    }
 }

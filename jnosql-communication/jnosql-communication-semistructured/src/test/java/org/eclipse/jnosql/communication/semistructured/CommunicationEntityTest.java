@@ -14,7 +14,6 @@ package org.eclipse.jnosql.communication.semistructured;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.Value;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -27,458 +26,506 @@ import java.util.Optional;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 class CommunicationEntityTest {
 
-    @Test
-    void shouldReturnErrorWhenNameIsNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> CommunicationEntity.of(null));
-    }
 
-    @Test
-    void shouldReturnErrorWhenColumnsIsNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> CommunicationEntity.of("entity", null));
-    }
+    @Nested
+    @DisplayName("When the communication entity is used")
+    class WhenTheCommunicationEntityIsUsed {
 
-    @Test
-    void shouldReturnOneColumn() {
-        CommunicationEntity entity = CommunicationEntity.of("entity");
-        assertEquals(Integer.valueOf(0), Integer.valueOf(entity.size()));
-        assertTrue(entity.isEmpty());
+        @DisplayName("Should Return Error When Name Is Null")
+        @Test
+        void shouldReturnErrorWhenNameIsNull() {
+            assertThatThrownBy(() -> CommunicationEntity.of(null)).isInstanceOf(NullPointerException.class);
+        }
 
-        entity.add(Element.of("name", "name"));
-        entity.add(Element.of("name2", Value.of("name2")));
-        assertFalse(entity.isEmpty());
-        assertEquals(Integer.valueOf(2), Integer.valueOf(entity.size()));
-        assertFalse(CommunicationEntity.of("entity", singletonList(Element.of("name", "name"))).isEmpty());
-    }
+        @DisplayName("Should Return Error When Columns Is Null")
+        @Test
+        void shouldReturnErrorWhenColumnsIsNull() {
+            assertThatThrownBy(() -> CommunicationEntity.of("entity", null)).isInstanceOf(NullPointerException.class);
+        }
 
-    @Test
-    void shouldDoCopy() {
-        CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(Element.of("name", "name")));
-        CommunicationEntity copy = entity.copy();
-        assertNotSame(entity, copy);
-        assertEquals(entity, copy);
+        @DisplayName("Should Return One Column")
+        @Test
+        void shouldReturnOneColumn() {
+            CommunicationEntity entity = CommunicationEntity.of("entity");
+            assertThat(Integer.valueOf(entity.size())).isEqualTo(Integer.valueOf(0));
+            assertThat(entity.isEmpty()).isTrue();
 
-    }
+            entity.add(Element.of("name", "name"));
+            entity.add(Element.of("name2", Value.of("name2")));
+            assertThat(entity.isEmpty()).isFalse();
+            assertThat(Integer.valueOf(entity.size())).isEqualTo(Integer.valueOf(2));
+            assertThat(CommunicationEntity.of("entity", singletonList(Element.of("name", "name"))).isEmpty()).isFalse();
+        }
 
-    @Test
-    void shouldFindColumn() {
-        Element element = Element.of("name", "name");
-        CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
-        Optional<Element> name = entity.find("name");
-        Optional<Element> notfound = entity.find("not_found");
-        assertTrue(name.isPresent());
-        assertFalse(notfound.isPresent());
-        assertEquals(element, name.get());
-    }
+        @DisplayName("Should Do Copy")
+        @Test
+        void shouldDoCopy() {
+            CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(Element.of("name", "name")));
+            CommunicationEntity copy = entity.copy();
+            assertThat(copy).isNotSameAs(entity);
+            assertThat(copy).isEqualTo(entity);
 
-    @Test
-    void shouldReturnErrorWhenFindColumnIsNull() {
-        Element element = Element.of("name", "name");
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        }
+
+        @DisplayName("Should Find Column")
+        @Test
+        void shouldFindColumn() {
+            Element element = Element.of("name", "name");
             CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
-            entity.find(null);
-        });
-    }
+            Optional<Element> name = entity.find("name");
+            Optional<Element> notfound = entity.find("not_found");
+            assertThat(name.isPresent()).isTrue();
+            assertThat(notfound.isPresent()).isFalse();
+            assertThat(name.get()).isEqualTo(element);
+        }
 
-    @Test
-    void shouldFindValue() {
-        Element element = Element.of("name", "name");
-        CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
-        Optional<String> name = entity.find("name", String.class);
-        Assertions.assertNotNull(name);
-        Assertions.assertTrue(name.isPresent());
-        Assertions.assertEquals("name", name.orElse(""));
-    }
+        @DisplayName("Should Return Error When Find Column Is Null")
+        @Test
+        void shouldReturnErrorWhenFindColumnIsNull() {
+            Element element = Element.of("name", "name");
+            assertThatThrownBy(() -> {
+                CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
+                entity.find(null);
+            }).isInstanceOf(NullPointerException.class);
+        }
 
-    @Test
-    void shouldNotFindValue() {
-        Element element = Element.of("name", "name");
-        CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
-        Optional<String> name = entity.find("not_found", String.class);
-        Assertions.assertNotNull(name);
-        Assertions.assertFalse(name.isPresent());
-    }
+        @DisplayName("Should Find Value")
+        @Test
+        void shouldFindValue() {
+            Element element = Element.of("name", "name");
+            CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
+            Optional<String> name = entity.find("name", String.class);
+            assertThat(name).isNotNull();
+            assertThat(name.isPresent()).isTrue();
+            assertThat(name.orElse("")).isEqualTo("name");
+        }
 
-    @Test
-    void shouldFindTypeSupplier() {
-        Element element = Element.of("name", "name");
-        CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
-        List<String> names = entity.find("name", new TypeReference<List<String>>() {
-                })
-                .orElse(Collections.emptyList());
-        Assertions.assertNotNull(names);
-        Assertions.assertFalse(names.isEmpty());
-        assertThat(names).contains("name");
-    }
+        @DisplayName("Should Not Find Value")
+        @Test
+        void shouldNotFindValue() {
+            Element element = Element.of("name", "name");
+            CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
+            Optional<String> name = entity.find("not_found", String.class);
+            assertThat(name).isNotNull();
+            assertThat(name.isPresent()).isFalse();
+        }
 
-    @Test
-    void shouldNotFindTypeSupplier() {
-        Element element = Element.of("name", "name");
-        CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
-        List<String> names = entity.find("not_find", new TypeReference<List<String>>() {
-                })
-                .orElse(Collections.emptyList());
-        Assertions.assertNotNull(names);
-        Assertions.assertTrue(names.isEmpty());
-    }
+        @DisplayName("Should Find Type Supplier")
+        @Test
+        void shouldFindTypeSupplier() {
+            Element element = Element.of("name", "name");
+            CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
+            List<String> names = entity.find("name", new TypeReference<List<String>>() {
+                    })
+                    .orElse(Collections.emptyList());
+            assertThat(names).isNotNull();
+            assertThat(names.isEmpty()).isFalse();
+            assertThat(names).contains("name");
+        }
 
-    @Test
-    void shouldRemoveColumn() {
-        Element element = Element.of("name", "name");
-        CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
-        assertTrue(entity.remove("name"));
-        assertTrue(entity.isEmpty());
-    }
+        @DisplayName("Should Not Find Type Supplier")
+        @Test
+        void shouldNotFindTypeSupplier() {
+            Element element = Element.of("name", "name");
+            CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
+            List<String> names = entity.find("not_find", new TypeReference<List<String>>() {
+                    })
+                    .orElse(Collections.emptyList());
+            assertThat(names).isNotNull();
+            assertThat(names.isEmpty()).isTrue();
+        }
 
-    @Test
-    void shouldConvertToMap() {
-        Element element = Element.of("name", "name");
-        CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
-        Map<String, Object> result = entity.toMap();
-        assertFalse(result.isEmpty());
-        assertEquals(Integer.valueOf(1), Integer.valueOf(result.size()));
-        assertEquals(element.name(), result.keySet().stream().findAny().get());
-    }
+        @DisplayName("Should Remove Column")
+        @Test
+        void shouldRemoveColumn() {
+            Element element = Element.of("name", "name");
+            CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
+            assertThat(entity.remove("name")).isTrue();
+            assertThat(entity.isEmpty()).isTrue();
+        }
 
-    @Test
-    void shouldConvertSubColumn() {
-        Element element = Element.of("name", "name");
-        CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(Element.of("sub", element)));
-        Map<String, Object> result = entity.toMap();
-        assertFalse(result.isEmpty());
-        assertEquals(Integer.valueOf(1), Integer.valueOf(result.size()));
-        Map<String, Object> map = (Map<String, Object>) result.get("sub");
-        assertEquals("name", map.get("name"));
-    }
+        @DisplayName("Should Convert To Map")
+        @Test
+        void shouldConvertToMap() {
+            Element element = Element.of("name", "name");
+            CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(element));
+            Map<String, Object> result = entity.toMap();
+            assertThat(result.isEmpty()).isFalse();
+            assertThat(Integer.valueOf(result.size())).isEqualTo(Integer.valueOf(1));
+            assertThat(result.keySet().stream().findAny().get()).isEqualTo(element.name());
+        }
+
+        @DisplayName("Should Convert Sub Column")
+        @Test
+        void shouldConvertSubColumn() {
+            Element element = Element.of("name", "name");
+            CommunicationEntity entity = CommunicationEntity.of("entity", singletonList(Element.of("sub", element)));
+            Map<String, Object> result = entity.toMap();
+            assertThat(result.isEmpty()).isFalse();
+            assertThat(Integer.valueOf(result.size())).isEqualTo(Integer.valueOf(1));
+            Map<String, Object> map = (Map<String, Object>) result.get("sub");
+            assertThat(map.get("name")).isEqualTo("name");
+        }
 
 
-    @Test
-    void shouldConvertSubColumnListToMap() {
-        CommunicationEntity entity = CommunicationEntity.of("entity");
-        entity.add(Element.of("_id", "id"));
-        List<Element> elements = asList(Element.of("name", "Ada"), Element.of("type", "type"),
-                Element.of("information", "ada@lovelace.com"));
+        @DisplayName("Should Convert Sub Column List To Map")
+        @Test
+        void shouldConvertSubColumnListToMap() {
+            CommunicationEntity entity = CommunicationEntity.of("entity");
+            entity.add(Element.of("_id", "id"));
+            List<Element> elements = asList(Element.of("name", "Ada"), Element.of("type", "type"),
+                    Element.of("information", "ada@lovelace.com"));
 
-        entity.add(Element.of("contacts", elements));
-        Map<String, Object> result = entity.toMap();
-        assertEquals("id", result.get("_id"));
-        List<Map<String, Object>> contacts = (List<Map<String, Object>>) result.get("contacts");
-        assertEquals(3, contacts.size());
-        assertThat(contacts).contains(singletonMap("name", "Ada"), singletonMap("type", "type"),
-                singletonMap("information", "ada@lovelace.com"));
+            entity.add(Element.of("contacts", elements));
+            Map<String, Object> result = entity.toMap();
+            assertThat(result.get("_id")).isEqualTo("id");
+            List<Map<String, Object>> contacts = (List<Map<String, Object>>) result.get("contacts");
+            assertThat(contacts.size()).isEqualTo(3);
+            assertThat(contacts).contains(singletonMap("name", "Ada"), singletonMap("type", "type"),
+                    singletonMap("information", "ada@lovelace.com"));
 
-    }
+        }
 
-    @Test
-    void shouldConvertSubColumnListToMap2() {
-        CommunicationEntity entity = CommunicationEntity.of("entity");
-        entity.add(Element.of("_id", "id"));
-        List<List<Element>> columns = new ArrayList<>();
-        columns.add(asList(Element.of("name", "Ada"), Element.of("type", "type"),
-                Element.of("information", "ada@lovelace.com")));
+        @DisplayName("Should Convert Sub Column List To Map2")
+        @Test
+        void shouldConvertSubColumnListToMap2() {
+            CommunicationEntity entity = CommunicationEntity.of("entity");
+            entity.add(Element.of("_id", "id"));
+            List<List<Element>> columns = new ArrayList<>();
+            columns.add(asList(Element.of("name", "Ada"), Element.of("type", "type"),
+                    Element.of("information", "ada@lovelace.com")));
 
-        entity.add(Element.of("contacts", columns));
-        Map<String, Object> result = entity.toMap();
-        assertEquals("id", result.get("_id"));
-        List<List<Map<String, Object>>> contacts = (List<List<Map<String, Object>>>) result.get("contacts");
-        assertEquals(1, contacts.size());
-        List<Map<String, Object>> maps = contacts.getFirst();
-        assertEquals(3, maps.size());
-        assertThat(maps).contains(singletonMap("name", "Ada"), singletonMap("type", "type"),
-                singletonMap("information", "ada@lovelace.com"));
+            entity.add(Element.of("contacts", columns));
+            Map<String, Object> result = entity.toMap();
+            assertThat(result.get("_id")).isEqualTo("id");
+            List<List<Map<String, Object>>> contacts = (List<List<Map<String, Object>>>) result.get("contacts");
+            assertThat(contacts.size()).isEqualTo(1);
+            List<Map<String, Object>> maps = contacts.getFirst();
+            assertThat(maps.size()).isEqualTo(3);
+            assertThat(maps).contains(singletonMap("name", "Ada"), singletonMap("type", "type"),
+                    singletonMap("information", "ada@lovelace.com"));
 
-    }
+        }
 
-    @Test
-    void shouldCreateANewInstance() {
-        String name = "name";
-        CommunicationEntity entity = new CommunicationEntity(name);
-        assertEquals(name, entity.name());
-    }
+        @DisplayName("Should Create ANew Instance")
+        @Test
+        void shouldCreateANewInstance() {
+            String name = "name";
+            CommunicationEntity entity = new CommunicationEntity(name);
+            assertThat(entity.name()).isEqualTo(name);
+        }
 
-    @Test
-    void shouldCreateAnEmptyEntity() {
-        CommunicationEntity entity = new CommunicationEntity("name");
-        assertTrue(entity.isEmpty());
-    }
-
-    @Test
-    void shouldReturnAnErrorWhenAddANullColumn() {
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        @DisplayName("Should Create An Empty Entity")
+        @Test
+        void shouldCreateAnEmptyEntity() {
             CommunicationEntity entity = new CommunicationEntity("name");
-            entity.add(null);
-        });
-    }
+            assertThat(entity.isEmpty()).isTrue();
+        }
 
-    @Test
-    void shouldAddANewColumn() {
-        CommunicationEntity entity = new CommunicationEntity("name");
-        entity.add(Element.of("column", 12));
-        assertFalse(entity.isEmpty());
-        assertEquals(1, entity.size());
-    }
+        @DisplayName("Should Return An Error When Add ANull Column")
+        @Test
+        void shouldReturnAnErrorWhenAddANullColumn() {
+            assertThatThrownBy(() -> {
+                CommunicationEntity entity = new CommunicationEntity("name");
+                entity.add(null);
+            }).isInstanceOf(NullPointerException.class);
+        }
 
-    @Test
-    void shouldReturnErrorWhenAddAnNullIterable() {
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        @DisplayName("Should Add ANew Column")
+        @Test
+        void shouldAddANewColumn() {
             CommunicationEntity entity = new CommunicationEntity("name");
-            entity.addAll(null);
-        });
-    }
+            entity.add(Element.of("column", 12));
+            assertThat(entity.isEmpty()).isFalse();
+            assertThat(entity.size()).isEqualTo(1);
+        }
 
-    @Test
-    void shouldAddAllColumns() {
-        CommunicationEntity entity = new CommunicationEntity("name");
-        entity.addAll(Arrays.asList(Element.of("name", 12), Element.of("value", "value")));
-        assertFalse(entity.isEmpty());
-        assertEquals(2, entity.size());
-    }
+        @DisplayName("Should Return Error When Add An Null Iterable")
+        @Test
+        void shouldReturnErrorWhenAddAnNullIterable() {
+            assertThatThrownBy(() -> {
+                CommunicationEntity entity = new CommunicationEntity("name");
+                entity.addAll(null);
+            }).isInstanceOf(NullPointerException.class);
+        }
 
-
-    @Test
-    void shouldNotFindColumn() {
-        CommunicationEntity entity = new CommunicationEntity("name");
-        Optional<Element> column = entity.find("name");
-        assertFalse(column.isPresent());
-    }
-
-    @Test
-    void shouldRemoveByName() {
-        CommunicationEntity entity = new CommunicationEntity("name");
-        entity.add(Element.of("value", 32D));
-        assertTrue(entity.remove("value"));
-        assertTrue(entity.isEmpty());
-    }
-
-    @Test
-    void shouldReturnErrorWhenRemovedNameIsNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        @DisplayName("Should Add All Columns")
+        @Test
+        void shouldAddAllColumns() {
             CommunicationEntity entity = new CommunicationEntity("name");
-            entity.remove(null);
-        });
-    }
-
-    @Test
-    void shouldNotRemoveByName() {
-        CommunicationEntity entity = new CommunicationEntity("name");
-        entity.add(Element.of("value", 32D));
-
-        assertFalse(entity.remove("value1"));
-        assertFalse(entity.isEmpty());
-    }
+            entity.addAll(Arrays.asList(Element.of("name", 12), Element.of("value", "value")));
+            assertThat(entity.isEmpty()).isFalse();
+            assertThat(entity.size()).isEqualTo(2);
+        }
 
 
-    @Test
-    void shouldReturnErrorWhenRemoveByNameIsNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        @DisplayName("Should Not Find Column")
+        @Test
+        void shouldNotFindColumn() {
             CommunicationEntity entity = new CommunicationEntity("name");
-            entity.remove(null);
-        });
-    }
+            Optional<Element> column = entity.find("name");
+            assertThat(column.isPresent()).isFalse();
+        }
+
+        @DisplayName("Should Remove By Name")
+        @Test
+        void shouldRemoveByName() {
+            CommunicationEntity entity = new CommunicationEntity("name");
+            entity.add(Element.of("value", 32D));
+            assertThat(entity.remove("value")).isTrue();
+            assertThat(entity.isEmpty()).isTrue();
+        }
+
+        @DisplayName("Should Return Error When Removed Name Is Null")
+        @Test
+        void shouldReturnErrorWhenRemovedNameIsNull() {
+            assertThatThrownBy(() -> {
+                CommunicationEntity entity = new CommunicationEntity("name");
+                entity.remove(null);
+            }).isInstanceOf(NullPointerException.class);
+        }
+
+        @DisplayName("Should Not Remove By Name")
+        @Test
+        void shouldNotRemoveByName() {
+            CommunicationEntity entity = new CommunicationEntity("name");
+            entity.add(Element.of("value", 32D));
+
+            assertThat(entity.remove("value1")).isFalse();
+            assertThat(entity.isEmpty()).isFalse();
+        }
 
 
-    @Test
-    void shouldAddColumnAsNameAndObject() {
-        CommunicationEntity entity = new CommunicationEntity("columnFamily");
-        entity.add("name", 10);
-        assertEquals(1, entity.size());
-        Optional<Element> name = entity.find("name");
-        assertTrue(name.isPresent());
-        assertEquals(10, name.get().get());
-    }
+        @DisplayName("Should Return Error When Remove By Name Is Null")
+        @Test
+        void shouldReturnErrorWhenRemoveByNameIsNull() {
+            assertThatThrownBy(() -> {
+                CommunicationEntity entity = new CommunicationEntity("name");
+                entity.remove(null);
+            }).isInstanceOf(NullPointerException.class);
+        }
 
-    @Test
-    void shouldAddColumnAsNameAndValue() {
-        CommunicationEntity entity = new CommunicationEntity("columnFamily");
-        entity.add("name", Value.of(10));
-        assertEquals(1, entity.size());
-        Optional<Element> name = entity.find("name");
-        assertTrue(name.isPresent());
-        assertEquals(10, name.get().get());
-    }
 
-    @Test
-    void shouldReturnWhenAddColumnsObjectWhenHasNullObject() {
-        CommunicationEntity entity = new CommunicationEntity("columnFamily");
-        entity.add("name", null);
-        assertEquals(1, entity.size());
-        Element name = entity.find("name").orElseThrow();
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(name.name()).isEqualTo("name");
-            softly.assertThat(name.get()).isNull();
-        });
-    }
-
-    @Test
-    void shouldReturnErrorWhenAddColumnsObjectWhenHasNullColumnName() {
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        @DisplayName("Should Add Column As Name And Object")
+        @Test
+        void shouldAddColumnAsNameAndObject() {
             CommunicationEntity entity = new CommunicationEntity("columnFamily");
-            entity.add(null, 10);
-        });
-    }
+            entity.add("name", 10);
+            assertThat(entity.size()).isEqualTo(1);
+            Optional<Element> name = entity.find("name");
+            assertThat(name.isPresent()).isTrue();
+            assertThat(name.get().get()).isEqualTo(10);
+        }
 
-    @Test
-    void shouldReturnErrorWhenAddColumnsValueWhenHasNullColumnName() {
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        @DisplayName("Should Add Column As Name And Value")
+        @Test
+        void shouldAddColumnAsNameAndValue() {
             CommunicationEntity entity = new CommunicationEntity("columnFamily");
-            entity.add(null, Value.of(12));
-        });
-    }
+            entity.add("name", Value.of(10));
+            assertThat(entity.size()).isEqualTo(1);
+            Optional<Element> name = entity.find("name");
+            assertThat(name.isPresent()).isTrue();
+            assertThat(name.get().get()).isEqualTo(10);
+        }
+
+        @DisplayName("Should Return When Add Columns Object When Has Null Object")
+        @Test
+        void shouldReturnWhenAddColumnsObjectWhenHasNullObject() {
+            CommunicationEntity entity = new CommunicationEntity("columnFamily");
+            entity.add("name", null);
+            assertThat(entity.size()).isEqualTo(1);
+            Element name = entity.find("name").orElseThrow();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(name.name()).isEqualTo("name");
+                softly.assertThat(name.get()).isNull();
+            });
+        }
+
+        @DisplayName("Should Return Error When Add Columns Object When Has Null Column Name")
+        @Test
+        void shouldReturnErrorWhenAddColumnsObjectWhenHasNullColumnName() {
+            assertThatThrownBy(() -> {
+                CommunicationEntity entity = new CommunicationEntity("columnFamily");
+                entity.add(null, 10);
+            }).isInstanceOf(NullPointerException.class);
+        }
+
+        @DisplayName("Should Return Error When Add Columns Value When Has Null Column Name")
+        @Test
+        void shouldReturnErrorWhenAddColumnsValueWhenHasNullColumnName() {
+            assertThatThrownBy(() -> {
+                CommunicationEntity entity = new CommunicationEntity("columnFamily");
+                entity.add(null, Value.of(12));
+            }).isInstanceOf(NullPointerException.class);
+        }
 
 
-    @Test
-    void shouldAvoidDuplicatedColumn() {
-        CommunicationEntity entity = new CommunicationEntity("columnFamily");
-        entity.add("name", 10);
-        entity.add("name", 13);
-        assertEquals(1, entity.size());
-        Optional<Element> column = entity.find("name");
-        assertEquals(Element.of("name", 13), column.get());
-    }
+        @DisplayName("Should Avoid Duplicated Column")
+        @Test
+        void shouldAvoidDuplicatedColumn() {
+            CommunicationEntity entity = new CommunicationEntity("columnFamily");
+            entity.add("name", 10);
+            entity.add("name", 13);
+            assertThat(entity.size()).isEqualTo(1);
+            Optional<Element> column = entity.find("name");
+            assertThat(column.get()).isEqualTo(Element.of("name", 13));
+        }
 
-    @Test
-    void shouldAvoidDuplicatedColumnWhenAddList() {
-        List<Element> elements = asList(Element.of("name", 10), Element.of("name", 13));
-        CommunicationEntity entity = new CommunicationEntity("columnFamily");
-        entity.addAll(elements);
-        assertEquals(1, entity.size());
-        assertEquals(1, CommunicationEntity.of("columnFamily", elements).size());
-    }
+        @DisplayName("Should Avoid Duplicated Column When Add List")
+        @Test
+        void shouldAvoidDuplicatedColumnWhenAddList() {
+            List<Element> elements = asList(Element.of("name", 10), Element.of("name", 13));
+            CommunicationEntity entity = new CommunicationEntity("columnFamily");
+            entity.addAll(elements);
+            assertThat(entity.size()).isEqualTo(1);
+            assertThat(CommunicationEntity.of("columnFamily", elements).size()).isEqualTo(1);
+        }
 
-    @Test
-    void shouldReturnsTheColumnNames() {
-        List<Element> elements = asList(Element.of("name", 10), Element.of("name2", 11),
-                Element.of("name3", 12), Element.of("name4", 13),
-                Element.of("name5", 14), Element.of("name5", 16));
+        @DisplayName("Should Returns The Column Names")
+        @Test
+        void shouldReturnsTheColumnNames() {
+            List<Element> elements = asList(Element.of("name", 10), Element.of("name2", 11),
+                    Element.of("name3", 12), Element.of("name4", 13),
+                    Element.of("name5", 14), Element.of("name5", 16));
 
-        CommunicationEntity columnFamily = CommunicationEntity.of("columnFamily", elements);
-        assertThat(columnFamily.elementNames())
-                .hasSize(5)
-                .contains("name", "name2", "name3", "name4", "name5");
+            CommunicationEntity columnFamily = CommunicationEntity.of("columnFamily", elements);
+            assertThat(columnFamily.elementNames())
+                    .hasSize(5)
+                    .contains("name", "name2", "name3", "name4", "name5");
 
-    }
+        }
 
-    @Test
-    void shouldReturnsTheColumnValues() {
-        List<Element> elements = asList(Element.of("name", 10), Element.of("name2", 11),
-                Element.of("name3", 12), Element.of("name4", 13),
-                Element.of("name5", 14), Element.of("name5", 16));
+        @DisplayName("Should Returns The Column Values")
+        @Test
+        void shouldReturnsTheColumnValues() {
+            List<Element> elements = asList(Element.of("name", 10), Element.of("name2", 11),
+                    Element.of("name3", 12), Element.of("name4", 13),
+                    Element.of("name5", 14), Element.of("name5", 16));
 
-        CommunicationEntity columnFamily = CommunicationEntity.of("columnFamily", elements);
-        assertThat(columnFamily.values()).contains(Value.of(10), Value.of(11), Value.of(12),
-                Value.of(13), Value.of(16));
-    }
+            CommunicationEntity columnFamily = CommunicationEntity.of("columnFamily", elements);
+            assertThat(columnFamily.values()).contains(Value.of(10), Value.of(11), Value.of(12),
+                    Value.of(13), Value.of(16));
+        }
 
-    @Test
-    void shouldReturnTrueWhenContainsElement() {
-        List<Element> elements = asList(Element.of("name", 10), Element.of("name2", 11),
-                Element.of("name3", 12), Element.of("name4", 13),
-                Element.of("name5", 14), Element.of("name5", 16));
+        @DisplayName("Should Return True When Contains Element")
+        @Test
+        void shouldReturnTrueWhenContainsElement() {
+            List<Element> elements = asList(Element.of("name", 10), Element.of("name2", 11),
+                    Element.of("name3", 12), Element.of("name4", 13),
+                    Element.of("name5", 14), Element.of("name5", 16));
 
-        CommunicationEntity columnFamily = CommunicationEntity.of("columnFamily", elements);
+            CommunicationEntity columnFamily = CommunicationEntity.of("columnFamily", elements);
 
-        assertTrue(columnFamily.contains("name"));
-        assertTrue(columnFamily.contains("name2"));
-        assertTrue(columnFamily.contains("name3"));
-        assertTrue(columnFamily.contains("name4"));
-        assertTrue(columnFamily.contains("name5"));
-    }
+            assertThat(columnFamily.contains("name")).isTrue();
+            assertThat(columnFamily.contains("name2")).isTrue();
+            assertThat(columnFamily.contains("name3")).isTrue();
+            assertThat(columnFamily.contains("name4")).isTrue();
+            assertThat(columnFamily.contains("name5")).isTrue();
+        }
 
-    @Test
-    void shouldReturnFalseWhenDoesNotContainElement() {
-        List<Element> elements = asList(Element.of("name", 10), Element.of("name2", 11),
-                Element.of("name3", 12), Element.of("name4", 13),
-                Element.of("name5", 14), Element.of("name5", 16));
+        @DisplayName("Should Return False When Does Not Contain Element")
+        @Test
+        void shouldReturnFalseWhenDoesNotContainElement() {
+            List<Element> elements = asList(Element.of("name", 10), Element.of("name2", 11),
+                    Element.of("name3", 12), Element.of("name4", 13),
+                    Element.of("name5", 14), Element.of("name5", 16));
 
-        CommunicationEntity columnFamily = CommunicationEntity.of("columnFamily", elements);
+            CommunicationEntity columnFamily = CommunicationEntity.of("columnFamily", elements);
 
-        assertFalse(columnFamily.contains("name6"));
-        assertFalse(columnFamily.contains("name7"));
-        assertFalse(columnFamily.contains("name8"));
-        assertFalse(columnFamily.contains("name9"));
-        assertFalse(columnFamily.contains("name10"));
-    }
+            assertThat(columnFamily.contains("name6")).isFalse();
+            assertThat(columnFamily.contains("name7")).isFalse();
+            assertThat(columnFamily.contains("name8")).isFalse();
+            assertThat(columnFamily.contains("name9")).isFalse();
+            assertThat(columnFamily.contains("name10")).isFalse();
+        }
 
-    @Test
-    void shouldRemoveAllElementsWhenUseClearMethod() {
-        List<Element> elements = asList(Element.of("name", 10), Element.of("name2", 11),
-                Element.of("name3", 12), Element.of("name4", 13),
-                Element.of("name5", 14), Element.of("name5", 16));
+        @DisplayName("Should Remove All Elements When Use Clear Method")
+        @Test
+        void shouldRemoveAllElementsWhenUseClearMethod() {
+            List<Element> elements = asList(Element.of("name", 10), Element.of("name2", 11),
+                    Element.of("name3", 12), Element.of("name4", 13),
+                    Element.of("name5", 14), Element.of("name5", 16));
 
-        CommunicationEntity columnFamily = CommunicationEntity.of("columnFamily", elements);
+            CommunicationEntity columnFamily = CommunicationEntity.of("columnFamily", elements);
 
-        assertFalse(columnFamily.isEmpty());
-        columnFamily.clear();
-        assertTrue(columnFamily.isEmpty());
-    }
+            assertThat(columnFamily.isEmpty()).isFalse();
+            columnFamily.clear();
+            assertThat(columnFamily.isEmpty()).isTrue();
+        }
 
-    @Test
-    void shouldCreateNull() {
-        CommunicationEntity entity = CommunicationEntity.of("entity");
-        entity.addNull("name");
-        Element name = entity.find("name").orElseThrow();
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(name.name()).isEqualTo("name");
-            softly.assertThat(name.get()).isNull();
-        });
-    }
+        @DisplayName("Should Create Null")
+        @Test
+        void shouldCreateNull() {
+            CommunicationEntity entity = CommunicationEntity.of("entity");
+            entity.addNull("name");
+            Element name = entity.find("name").orElseThrow();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(name.name()).isEqualTo("name");
+                softly.assertThat(name.get()).isNull();
+            });
+        }
 
-    @Test
-    void shouldTestToString() {
-        CommunicationEntity entity = CommunicationEntity.of("entity");
-        entity.add(Element.of("name", 10));
-        org.assertj.core.api.Assertions.assertThat(entity.toString())
-                .isNotNull()
-                .isNotBlank().contains("name=10");
-    }
+        @DisplayName("Should Test To String")
+        @Test
+        void shouldTestToString() {
+            CommunicationEntity entity = CommunicationEntity.of("entity");
+            entity.add(Element.of("name", 10));
+            assertThat(entity.toString())
+                    .isNotNull()
+                    .isNotBlank().contains("name=10");
+        }
 
 
-    @Test
-    void shouldTestHashCode(){
-        var entity = CommunicationEntity.of("entity");
-        entity.add(Element.of("name", 10));
-        org.assertj.core.api.Assertions.assertThat(entity.hashCode())
-                .isNotZero();
-    }
+        @DisplayName("Should Test Hash Code")
+        @Test
+        void shouldTestHashCode(){
+            var entity = CommunicationEntity.of("entity");
+            entity.add(Element.of("name", 10));
+            assertThat(entity.hashCode())
+                    .isNotZero();
+        }
 
-    @Test
-    void shouldElements() {
-        CommunicationEntity entity = CommunicationEntity.of("entity");
-        entity.add(Element.of("name", 10));
+        @DisplayName("Should Elements")
+        @Test
+        void shouldElements() {
+            CommunicationEntity entity = CommunicationEntity.of("entity");
+            entity.add(Element.of("name", 10));
 
-        List<Element> elements = entity.elements();
-        SoftAssertions.assertSoftly(softly -> {
-           softly.assertThat(elements).hasSize(1);
-           softly.assertThat(elements.getFirst().name()).isEqualTo("name");
-        });
-    }
+            List<Element> elements = entity.elements();
+            SoftAssertions.assertSoftly(softly -> {
+               softly.assertThat(elements).hasSize(1);
+               softly.assertThat(elements.getFirst().name()).isEqualTo("name");
+            });
+        }
 
-    @Test
-    void shouldEquals() {
-        var entity = CommunicationEntity.of("entity");
-        entity.add(Element.of("name", 10));
-        var entity2 = CommunicationEntity.of("entity");
-        entity2.add(Element.of("name", 10));
-        var entity3 = CommunicationEntity.of("entity");
-        entity3.add(Element.of("name", 11));
+        @DisplayName("Should Equals")
+        @Test
+        void shouldEquals() {
+            var entity = CommunicationEntity.of("entity");
+            entity.add(Element.of("name", 10));
+            var entity2 = CommunicationEntity.of("entity");
+            entity2.add(Element.of("name", 10));
+            var entity3 = CommunicationEntity.of("entity");
+            entity3.add(Element.of("name", 11));
 
-        SoftAssertions.assertSoftly(softly -> {
-           softly.assertThat(entity).isEqualTo(entity2);
-           softly.assertThat(entity).isNotEqualTo(entity3);
-           softly.assertThat(entity2).isEqualTo(entity);
-           softly.assertThat(entity3).isNotEqualTo(entity);
-           softly.assertThat(entity).isNotEqualTo(null);
-           softly.assertThat(entity).isNotEqualTo(new Object());
-           softly.assertThat(entity).isEqualTo(entity);
-        });
+            SoftAssertions.assertSoftly(softly -> {
+               softly.assertThat(entity).isEqualTo(entity2);
+               softly.assertThat(entity).isNotEqualTo(entity3);
+               softly.assertThat(entity2).isEqualTo(entity);
+               softly.assertThat(entity3).isNotEqualTo(entity);
+               softly.assertThat(entity).isNotEqualTo(null);
+               softly.assertThat(entity).isNotEqualTo(new Object());
+               softly.assertThat(entity).isEqualTo(entity);
+            });
+        }
     }
 
 }

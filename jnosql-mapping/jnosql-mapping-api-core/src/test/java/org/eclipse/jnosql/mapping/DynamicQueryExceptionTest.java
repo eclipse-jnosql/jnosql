@@ -15,21 +15,33 @@
 package org.eclipse.jnosql.mapping;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+
 class DynamicQueryExceptionTest {
 
-    @Test
-    void testConstructorWithMessage() {
-        String errorMessage = "Test error message";
-        DynamicQueryException exception = new DynamicQueryException(errorMessage);
-        assertEquals(errorMessage, exception.getMessage());
-    }
+    @Nested
+    @DisplayName("When the exception is created")
+    class WhenTheExceptionIsCreated {
 
-    @Test
-    void testEmptyMessage() {
-        String emptyMessage = "";
-        DynamicQueryException exception = new DynamicQueryException(emptyMessage);
-        assertEquals(emptyMessage, exception.getMessage());
+        @Test
+        @DisplayName("Should preserve the provided message")
+        void shouldPreserveTheProvidedMessage() {
+            String errorMessage = "Test error message";
+            DynamicQueryException exception = new DynamicQueryException(errorMessage);
+
+            assertThat(exception.getMessage()).isEqualTo(errorMessage);
+        }
+
+        @Test
+        @DisplayName("Should preserve an empty message")
+        void shouldPreserveAnEmptyMessage() {
+            String emptyMessage = "";
+            DynamicQueryException exception = new DynamicQueryException(emptyMessage);
+
+            assertThat(exception.getMessage()).isEqualTo(emptyMessage);
+        }
     }
 }

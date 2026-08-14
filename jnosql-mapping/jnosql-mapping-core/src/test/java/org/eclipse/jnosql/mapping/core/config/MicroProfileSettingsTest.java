@@ -14,9 +14,11 @@
  */
 package org.eclipse.jnosql.mapping.core.config;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import org.eclipse.jnosql.communication.Settings;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -30,10 +32,6 @@ import java.util.function.Supplier;
 
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MicroProfileSettingsTest {
     @AfterAll
@@ -69,199 +67,230 @@ class MicroProfileSettingsTest {
     }
 
 
-    @Test
-    void shouldReturnNPEWhenInstanceIsNull() {
-        assertThrows(NullPointerException.class, () -> Settings.of((Map<String, Object>) null));
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Nested
+    @DisplayName("When the micro profile settings operates")
+    class WhenTheMicroProfileSettingsOperates {
+
+        @DisplayName("Should return npewhen instance is null")
+        @Test
+        void shouldReturnNPEWhenInstanceIsNull() {
+            assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> Settings.of((Map<String, Object>) null));
+
+        }
+        @DisplayName("Should return new instance")
+        @Test
+        void shouldReturnNewInstance() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+            assertThat(settings).isNotNull();
+        }
+        @DisplayName("Should create from map")
+        @Test
+        void shouldCreateFromMap() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+            assertThat(settings.isEmpty()).isFalse();
+        }
+        @DisplayName("Should contains keys")
+        @Test
+        void shouldContainsKeys() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+            assertThat(settings.containsKey("jnosql.key")).isTrue();
+            assertThat(settings.containsKey("key2")).isFalse();
+        }
+        @DisplayName("Should get keys")
+        @Test
+        void shouldGetKeys() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+            assertThat(settings.keySet()).contains("jnosql.key");
+        }
+        @DisplayName("Should size")
+        @Test
+        void shouldSize() {
+            Settings settings = Settings.of(singletonMap("jnosql.key", "value"));
+            assertThat(settings.isEmpty()).isFalse();
+
+        }
+        @DisplayName("Should is empty")
+        @Test
+        void shouldIsEmpty() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+            assertThat(settings.isEmpty()).isFalse();
+        }
+        @DisplayName("Should get")
+        @Test
+        void shouldGet() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+            Optional<Object> value = settings.get("jnosql.key-number");
+            assertThat(value).isNotNull();
+            assertThat(value.get()).isEqualTo("12");
+        }
+        @DisplayName("Should get supplier")
+        @Test
+        void shouldGetSupplier() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+            Optional<Object> value = settings.get(() -> "jnosql.key-number");
+            assertThat(value).isNotNull();
+            assertThat(value.get()).isEqualTo("12");
+        }
+        @DisplayName("Should npeget")
+        @Test
+        void shouldNPEGet() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+            assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> settings.get((String) null));
+            assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> settings.get((Supplier<String>) null));
+        }
+        @DisplayName("Should get iterable")
+        @Test
+        void shouldGetIterable() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+            Optional<Object> value = settings.get(Collections.singleton("jnosql.key-number"));
+            assertThat(value).isNotNull();
+            assertThat(value.get()).isEqualTo("12");
+        }
+        @DisplayName("Should get iterable supplier")
+        @Test
+        void shouldGetIterableSupplier() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+            Optional<Object> value = settings.getSupplier(Collections.singleton(() -> "jnosql.key-number"));
+            assertThat(value).isNotNull();
+            assertThat(value.get()).isEqualTo("12");
+        }
+        @DisplayName("Should npeget iterable")
+        @Test
+        void shouldNPEGetIterable() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+            assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> settings.get((Iterable<String>) null));
+            assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> settings.getSupplier(null));
+        }
+        @DisplayName("Should get value class")
+        @Test
+        void shouldGetValueClass() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+
+            Integer value = settings.get("jnosql.key-number", Integer.class).get();
+            assertThat(value).isEqualTo(Integer.valueOf(12));
+            assertThat(settings.get("jnosql.key2", Integer.class).isPresent()).isFalse();
+        }
+        @DisplayName("Should get value class supplier")
+        @Test
+        void shouldGetValueClassSupplier() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+
+            Integer value = settings.get(() -> "jnosql.key-number", Integer.class).get();
+            assertThat(value).isEqualTo(Integer.valueOf(12));
+            assertThat(settings.get(() -> "key2", Integer.class).isPresent()).isFalse();
+        }
+        @DisplayName("Should get or default")
+        @Test
+        void shouldGetOrDefault() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+            assertThat(settings.getOrDefault("jnosql.key-number", "13")).isEqualTo("12");
+            assertThat(settings.getOrDefault("key-1", "13")).isEqualTo("13");
+        }
+        @DisplayName("Should get or default supplier")
+        @Test
+        void shouldGetOrDefaultSupplier() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+            assertThat(settings.getOrDefault(() -> "jnosql.key-number", "13")).isEqualTo("12");
+            assertThat(settings.getOrDefault(() -> "key-1", "13")).isEqualTo("13");
+        }
+        @DisplayName("Should return error when prefix is null")
+        @Test
+        void shouldReturnErrorWhenPrefixIsNull() {
+
+            Settings settings = MicroProfileSettings.INSTANCE;
+
+            assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> settings.prefix((String) null));
+        }
+        @DisplayName("Should find prefix")
+        @Test
+        void shouldFindPrefix() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+
+            List<Object> hosts = settings.prefix("jnosql.host");
+            assertThat(hosts)
+                    .hasSize(4)
+                    .contains("host", "host-1", "host-2", "host-3");
+        }
+        @DisplayName("Should find prefix supplier")
+        @Test
+        void shouldFindPrefixSupplier() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+
+            List<Object> hosts = settings.prefix(() -> "jnosql.host");
+            assertThat(hosts)
+                    .hasSize(4)
+                    .contains("host", "host-1", "host-2", "host-3");
+        }
+        @DisplayName("Should find prefix with order")
+        @Test
+        void shouldFindPrefixWithOrder() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+            List<Object> hosts = settings.prefix("jnosql.host");
+            assertThat(hosts).hasSize(4).contains("host", "host-1", "host-2", "host-3");
+        }
+        @DisplayName("Should return error when prefixes is null")
+        @Test
+        void shouldReturnErrorWhenPrefixesIsNull() {
+            Settings settings = MicroProfileSettings.INSTANCE;
+            assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> settings.prefix((Collection<String>) null));
+
+        }
+        @DisplayName("Should find prefixes")
+        @Test
+        void shouldFindPrefixes() {
+
+            Settings settings = MicroProfileSettings.INSTANCE;
+
+            List<Object> hosts = settings.prefix(Arrays.asList("jnosql.host", "jnosql.server"));
+            assertThat(hosts).hasSize(7).contains("host", "host-1", "server", "server-1");
+        }
+        @DisplayName("Should find prefixes supplier")
+        @Test
+        void shouldFindPrefixesSupplier() {
+
+            Settings settings = MicroProfileSettings.INSTANCE;
+            List<Object> hosts = settings.prefixSupplier(Arrays.asList(() -> "jnosql.host", () -> "jnosql.server"));
+            assertThat(hosts).hasSize(7).contains("host", "host-1", "server", "server-1");
+        }
+        @DisplayName("Should find prefixes sort")
+        @Test
+        void shouldFindPrefixesSort() {
+
+            Settings settings = MicroProfileSettings.INSTANCE;
+
+            List<Object> hosts = settings.prefix(Arrays.asList("jnosql.host", "jnosql.server"));
+            assertThat(hosts).hasSize(7).contains("host", "host-1", "server", "server-1");
+        }
     }
-
-    @Test
-    void shouldReturnNewInstance() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-        Assertions.assertNotNull(settings);
-    }
-
-    @Test
-    void shouldCreateFromMap() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-        assertFalse(settings.isEmpty());
-    }
-
-    @Test
-    void shouldContainsKeys() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-        assertTrue(settings.containsKey("jnosql.key"));
-        assertFalse(settings.containsKey("key2"));
-    }
-
-
-    @Test
-    void shouldGetKeys() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-        assertThat(settings.keySet()).contains("jnosql.key");
-    }
-
-
-    @Test
-    void shouldSize() {
-        Settings settings = Settings.of(singletonMap("jnosql.key", "value"));
-        assertFalse(settings.isEmpty());
-
-    }
-
-    @Test
-    void shouldIsEmpty() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-        assertFalse(settings.isEmpty());
-    }
-
-    @Test
-    void shouldGet() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-        Optional<Object> value = settings.get("jnosql.key-number");
-        Assertions.assertNotNull(value);
-        Assertions.assertEquals("12", value.get());
-    }
-
-    @Test
-    void shouldGetSupplier() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-        Optional<Object> value = settings.get(() -> "jnosql.key-number");
-        Assertions.assertNotNull(value);
-        Assertions.assertEquals("12", value.get());
-    }
-
-    @Test
-    void shouldNPEGet() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-        Assertions.assertThrows(NullPointerException.class, () -> settings.get((String) null));
-        Assertions.assertThrows(NullPointerException.class, () -> settings.get((Supplier<String>) null));
-    }
-
-    @Test
-    void shouldGetIterable() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-        Optional<Object> value = settings.get(Collections.singleton("jnosql.key-number"));
-        Assertions.assertNotNull(value);
-        Assertions.assertEquals("12", value.get());
-    }
-
-    @Test
-    void shouldGetIterableSupplier() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-        Optional<Object> value = settings.getSupplier(Collections.singleton(() -> "jnosql.key-number"));
-        Assertions.assertNotNull(value);
-        Assertions.assertEquals("12", value.get());
-    }
-
-    @Test
-    void shouldNPEGetIterable() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-        Assertions.assertThrows(NullPointerException.class, () -> settings.get((Iterable<String>) null));
-        Assertions.assertThrows(NullPointerException.class, () -> settings.getSupplier(null));
-    }
-
-    @Test
-    void shouldGetValueClass() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-
-        Integer value = settings.get("jnosql.key-number", Integer.class).get();
-        assertEquals(Integer.valueOf(12), value);
-        assertFalse(settings.get("jnosql.key2", Integer.class).isPresent());
-    }
-
-    @Test
-    void shouldGetValueClassSupplier() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-
-        Integer value = settings.get(() -> "jnosql.key-number", Integer.class).get();
-        assertEquals(Integer.valueOf(12), value);
-        assertFalse(settings.get(() -> "key2", Integer.class).isPresent());
-    }
-
-    @Test
-    void shouldGetOrDefault() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-        assertEquals("12", settings.getOrDefault("jnosql.key-number", "13"));
-        assertEquals("13", settings.getOrDefault("key-1", "13"));
-    }
-
-    @Test
-    void shouldGetOrDefaultSupplier() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-        assertEquals("12", settings.getOrDefault(() -> "jnosql.key-number", "13"));
-        assertEquals("13", settings.getOrDefault(() -> "key-1", "13"));
-    }
-
-    @Test
-    void shouldReturnErrorWhenPrefixIsNull() {
-
-        Settings settings = MicroProfileSettings.INSTANCE;
-
-        assertThrows(NullPointerException.class, () -> settings.prefix((String) null));
-    }
-
-    @Test
-    void shouldFindPrefix() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-
-        List<Object> hosts = settings.prefix("jnosql.host");
-        assertThat(hosts)
-                .hasSize(4)
-                .contains("host", "host-1", "host-2", "host-3");
-    }
-
-    @Test
-    void shouldFindPrefixSupplier() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-
-        List<Object> hosts = settings.prefix(() -> "jnosql.host");
-        assertThat(hosts)
-                .hasSize(4)
-                .contains("host", "host-1", "host-2", "host-3");
-    }
-
-    @Test
-    void shouldFindPrefixWithOrder() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-        List<Object> hosts = settings.prefix("jnosql.host");
-        assertThat(hosts).hasSize(4).contains("host", "host-1", "host-2", "host-3");
-    }
-
-
-    @Test
-    void shouldReturnErrorWhenPrefixesIsNull() {
-        Settings settings = MicroProfileSettings.INSTANCE;
-        assertThrows(NullPointerException.class, () -> settings.prefix((Collection<String>) null));
-
-    }
-
-    @Test
-    void shouldFindPrefixes() {
-
-        Settings settings = MicroProfileSettings.INSTANCE;
-
-        List<Object> hosts = settings.prefix(Arrays.asList("jnosql.host", "jnosql.server"));
-        assertThat(hosts).hasSize(7).contains("host", "host-1", "server", "server-1");
-    }
-
-    @Test
-    void shouldFindPrefixesSupplier() {
-
-        Settings settings = MicroProfileSettings.INSTANCE;
-        List<Object> hosts = settings.prefixSupplier(Arrays.asList(() -> "jnosql.host", () -> "jnosql.server"));
-        assertThat(hosts).hasSize(7).contains("host", "host-1", "server", "server-1");
-    }
-
-    @Test
-    void shouldFindPrefixesSort() {
-
-        Settings settings = MicroProfileSettings.INSTANCE;
-
-        List<Object> hosts = settings.prefix(Arrays.asList("jnosql.host", "jnosql.server"));
-        assertThat(hosts).hasSize(7).contains("host", "host-1", "server", "server-1");
-    }
-
-
-
 }

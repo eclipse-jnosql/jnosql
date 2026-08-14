@@ -14,6 +14,11 @@
  */
 package org.eclipse.jnosql.mapping.core.util;
 
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.DisplayName;
+
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.literal.NamedLiteral;
@@ -21,28 +26,36 @@ import jakarta.enterprise.util.AnnotationLiteral;
 import jakarta.inject.Named;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AnnotationLiteralUtilTest {
 
-    @Test
-    void shouldDefaultAnnotationLiteral() {
-        AnnotationLiteral<Default> defaultAnnotation = AnnotationLiteralUtil.DEFAULT_ANNOTATION;
-        assertEquals(Default.class, defaultAnnotation.annotationType());
+
+
+
+
+    @Nested
+    @DisplayName("When the annotation literal util operates")
+    class WhenTheAnnotationLiteralUtilOperates {
+
+        @DisplayName("Should default annotation literal")
+        @Test
+        void shouldDefaultAnnotationLiteral() {
+            AnnotationLiteral<Default> defaultAnnotation = AnnotationLiteralUtil.DEFAULT_ANNOTATION;
+            assertThat(defaultAnnotation.annotationType()).isEqualTo(Default.class);
+        }
+        @DisplayName("Should any annotation literal")
+        @Test
+        void shouldAnyAnnotationLiteral() {
+            AnnotationLiteral<Any> anyAnnotation = AnnotationLiteralUtil.ANY_ANNOTATION;
+
+            assertThat(anyAnnotation.annotationType()).isEqualTo(Any.class);
+        }
+        @DisplayName("Should custom annotation literal")
+        @Test
+        void shouldCustomAnnotationLiteral() {
+            AnnotationLiteral<Named> namedLiteral = NamedLiteral.of("test");
+
+            assertThat(namedLiteral.annotationType()).isEqualTo(Named.class);
+        }
     }
-
-    @Test
-    void shouldAnyAnnotationLiteral() {
-        AnnotationLiteral<Any> anyAnnotation = AnnotationLiteralUtil.ANY_ANNOTATION;
-
-        assertEquals(Any.class, anyAnnotation.annotationType());
-    }
-
-    @Test
-    void shouldCustomAnnotationLiteral() {
-        AnnotationLiteral<Named> namedLiteral = NamedLiteral.of("test");
-
-        assertEquals(Named.class, namedLiteral.annotationType());
-    }
-
 }

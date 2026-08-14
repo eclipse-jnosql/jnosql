@@ -14,12 +14,14 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import jakarta.data.exceptions.EmptyResultException;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -39,7 +41,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
@@ -50,12 +51,14 @@ class InstanceRepositoryReturnTest {
     @Mock
     private Page<Person> page;
 
+    @DisplayName("Should return is compatible")
     @ParameterizedTest
     @ValueSource(classes = {Person.class, Object.class, String.class, Integer.class, Date.class})
     void shouldReturnIsCompatible(Class<?> returnType) {
         assertThat(repositoryReturn.isCompatible(Person.class, returnType)).isTrue();
     }
 
+    @DisplayName("Should return is not compatible")
     @ParameterizedTest
     @ValueSource(classes = {List.class, Set.class, Map.class, Iterable.class, Queue.class, Optional.class, Page.class,
     void.class, Void.class})
@@ -64,6 +67,7 @@ class InstanceRepositoryReturnTest {
     }
 
 
+    @DisplayName("Should return instance page")
     @Test
     void shouldReturnInstancePage() {
         Method method = Person.class.getDeclaredMethods()[0];
@@ -81,10 +85,11 @@ class InstanceRepositoryReturnTest {
                 .totalSupplier(() -> 1L)
                 .build();
         Person person = (Person) repositoryReturn.convertPageRequest(dynamic);
-        Assertions.assertNotNull(person);
-        assertEquals(ada, person);
+        assertThat(person).isNotNull();
+        assertThat(person).isEqualTo(ada);
     }
 
+    @DisplayName("Should return empty result exception")
     @Test
     void shouldReturnEmptyResultException() {
         Method method = Person.class.getDeclaredMethods()[0];
@@ -100,9 +105,10 @@ class InstanceRepositoryReturnTest {
                 .page((p, l) -> page)
                 .totalSupplier(() -> 1L)
                 .build();
-        Assertions.assertThrows(EmptyResultException.class, () -> repositoryReturn.convertPageRequest(dynamic));
+        assertThatExceptionOfType(EmptyResultException.class).isThrownBy(() -> repositoryReturn.convertPageRequest(dynamic));
     }
 
+    @DisplayName("Should return instance")
     @Test
     void shouldReturnInstance() {
         Method method = Person.class.getDeclaredMethods()[0];
@@ -115,10 +121,11 @@ class InstanceRepositoryReturnTest {
                 .methodName(method.getName())
                 .build();
         Person person = (Person) repositoryReturn.convert(dynamic);
-        Assertions.assertNotNull(person);
-        Assertions.assertEquals(ada, person);
+        assertThat(person).isNotNull();
+        assertThat(person).isEqualTo(ada);
     }
 
+    @DisplayName("Should return not null as instance")
     @Test
     void shouldReturnNotNullAsInstance() {
         Method method = Person.class.getDeclaredMethods()[0];
@@ -129,9 +136,10 @@ class InstanceRepositoryReturnTest {
                 .returnType(Person.class)
                 .methodName(method.getName())
                 .build();
-        Assertions.assertThrows(EmptyResultException.class, () -> repositoryReturn.convert(dynamic));
+        assertThatExceptionOfType(EmptyResultException.class).isThrownBy(() -> repositoryReturn.convert(dynamic));
     }
 
+    @DisplayName("Should return error when is primitive")
     @ParameterizedTest
     @ValueSource(classes = {boolean.class, char.class, byte.class, short.class,
             int.class, long.class, float.class, double.class})
@@ -144,9 +152,10 @@ class InstanceRepositoryReturnTest {
                 .returnType(primitiveClass)
                 .methodName(method.getName())
                 .build();
-        Assertions.assertThrows(EmptyResultException.class, () -> repositoryReturn.convert(dynamic));
+        assertThatExceptionOfType(EmptyResultException.class).isThrownBy(() -> repositoryReturn.convert(dynamic));
     }
 
+    @DisplayName("Should return error when is primitive in pagination")
     @ParameterizedTest
     @ValueSource(classes = {boolean.class, char.class, byte.class, short.class,
             int.class, long.class, float.class, double.class})
@@ -160,7 +169,7 @@ class InstanceRepositoryReturnTest {
                 .returnType(primitiveClass)
                 .methodName(method.getName())
                 .build();
-        Assertions.assertThrows(EmptyResultException.class, () -> repositoryReturn.convertPageRequest(dynamic));
+        assertThatExceptionOfType(EmptyResultException.class).isThrownBy(() -> repositoryReturn.convertPageRequest(dynamic));
     }
 
     private static class Person implements Comparable<Person> {
@@ -204,4 +213,9 @@ class InstanceRepositoryReturnTest {
         }
     }
 
+
+    @Nested
+    @DisplayName("When the instance repository return operates")
+    class WhenTheInstanceRepositoryReturnOperates {
+    }
 }

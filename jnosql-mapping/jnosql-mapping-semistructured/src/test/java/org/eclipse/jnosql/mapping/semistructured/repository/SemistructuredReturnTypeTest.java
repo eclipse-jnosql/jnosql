@@ -14,17 +14,25 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SemistructuredReturnTypeTest {
 
 
+    @DisplayName("Should create instance")
     @Test
     void shouldCreateInstance() {
         SemistructuredReturnType semistructuredReturnType = new SemistructuredReturnType();
-        assertNotNull(semistructuredReturnType);
+        assertThat(semistructuredReturnType).isNotNull();
     }
 
+
+    @Nested
+    @DisplayName("When the semistructured return type is tested")
+    class WhenTheSemistructuredReturnTypeIsTested {
+    }
 }

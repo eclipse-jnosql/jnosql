@@ -15,15 +15,16 @@
 package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.enterprise.context.spi.CreationalContext;
+import java.util.Set;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.repository.SemistructuredRepositoryProducer;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
@@ -55,17 +56,20 @@ class CustomRepositoryBeanTest {
         };
     }
 
+    @DisplayName("Should return bean class")
     @Test
     void shouldReturnBeanClass() {
         assertThat(repositoryBean.getBeanClass()).isEqualTo(MockRepository.class);
     }
 
+    @DisplayName("Should return correct qualifiers")
     @Test
     void shouldReturnCorrectQualifiers() {
         Set<?> qualifiers = repositoryBean.getQualifiers();
         assertThat(qualifiers).isNotEmpty();
     }
 
+    @DisplayName("Should get id")
     @Test
     void shouldGetId() {
         SoftAssertions.assertSoftly(softly -> {
@@ -74,6 +78,7 @@ class CustomRepositoryBeanTest {
         });
     }
 
+    @DisplayName("Should get types")
     @Test
     void shouldGetTypes() {
         SoftAssertions.assertSoftly(softly -> {
@@ -85,6 +90,7 @@ class CustomRepositoryBeanTest {
         });
     }
 
+    @DisplayName("Should create proxy instance")
     @Test
     void shouldCreateProxyInstance() {
         @SuppressWarnings("unchecked")
@@ -106,4 +112,9 @@ class CustomRepositoryBeanTest {
     }
 
     interface MockRepository {}
+
+    @Nested
+    @DisplayName("When the custom repository bean is tested")
+    class WhenTheCustomRepositoryBeanIsTested {
+    }
 }

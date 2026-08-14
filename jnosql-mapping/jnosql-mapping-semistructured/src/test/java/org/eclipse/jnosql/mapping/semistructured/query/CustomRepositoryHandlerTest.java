@@ -21,6 +21,13 @@ import jakarta.data.repository.Insert;
 import jakarta.data.repository.Query;
 import jakarta.data.repository.Repository;
 import jakarta.inject.Inject;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
@@ -41,21 +48,15 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -143,6 +144,7 @@ class CustomRepositoryHandlerTest {
 
     }
 
+    @DisplayName("Should insert entity")
     @Test
     void shouldInsertEntity() {
         Person person = Person.builder().age(26).name("Ada").build();
@@ -154,6 +156,7 @@ class CustomRepositoryHandlerTest {
         Assertions.assertThat(result).isEqualTo(person);
     }
 
+    @DisplayName("Should insert list entity")
     @Test
     void shouldInsertListEntity() {
         var persons = List.of(Person.builder().age(26).name("Ada").build());
@@ -165,6 +168,7 @@ class CustomRepositoryHandlerTest {
         Assertions.assertThat(result).isEqualTo(persons);
     }
 
+    @DisplayName("Should insert array entity")
     @Test
     void shouldInsertArrayEntity() {
         Person ada = Person.builder().age(26).name("Ada").build();
@@ -178,6 +182,7 @@ class CustomRepositoryHandlerTest {
     }
 
 
+    @DisplayName("Should update entity")
     @Test
     void shouldUpdateEntity() {
         Person person = Person.builder().age(26).name("Ada").build();
@@ -189,6 +194,7 @@ class CustomRepositoryHandlerTest {
         Assertions.assertThat(result).isEqualTo(person);
     }
 
+    @DisplayName("Should update list entity")
     @Test
     void shouldUpdateListEntity() {
         var persons = List.of(Person.builder().age(26).name("Ada").build());
@@ -200,6 +206,7 @@ class CustomRepositoryHandlerTest {
         Assertions.assertThat(result).isEqualTo(persons);
     }
 
+    @DisplayName("Should update array entity")
     @Test
     void shouldUpdateArrayEntity() {
         Person ada = Person.builder().age(26).name("Ada").build();
@@ -212,6 +219,7 @@ class CustomRepositoryHandlerTest {
         Assertions.assertThat(result).isEqualTo(persons);
     }
 
+    @DisplayName("Should delete entity")
     @Test
     void shouldDeleteEntity() {
         Person person = Person.builder().id(1).age(26).name("Ada").build();
@@ -221,6 +229,7 @@ class CustomRepositoryHandlerTest {
         Mockito.verifyNoMoreInteractions(template);
     }
 
+    @DisplayName("Should delete list entity")
     @Test
     void shouldDeleteListEntity() {
         var persons = List.of(Person.builder().id(12L).age(26).name("Ada").build());
@@ -230,6 +239,7 @@ class CustomRepositoryHandlerTest {
         Mockito.verifyNoMoreInteractions(template);
     }
 
+    @DisplayName("Should delete all")
     @Test
     void shouldDeleteAll() {
         people.deleteAll();
@@ -238,6 +248,7 @@ class CustomRepositoryHandlerTest {
         Mockito.verifyNoMoreInteractions(template);
     }
 
+    @DisplayName("Should delete array entity")
     @Test
     void shouldDeleteArrayEntity() {
         Person ada = Person.builder().id(2L).age(26).name("Ada").build();
@@ -248,6 +259,7 @@ class CustomRepositoryHandlerTest {
         Mockito.verifyNoMoreInteractions(template);
     }
 
+    @DisplayName("Should save entity")
     @Test
     void shouldSaveEntity() {
         Person person = Person.builder().age(26).name("Ada").build();
@@ -259,6 +271,7 @@ class CustomRepositoryHandlerTest {
         Assertions.assertThat(result).isEqualTo(person);
     }
 
+    @DisplayName("Should save list entity")
     @Test
     void shouldSaveListEntity() {
         Person ada = Person.builder().age(26).name("Ada").build();
@@ -272,6 +285,7 @@ class CustomRepositoryHandlerTest {
         Assertions.assertThat(result).isEqualTo(persons);
     }
 
+    @DisplayName("Should save array entity")
     @Test
     void shouldSaveArrayEntity() {
         Person ada = Person.builder().age(26).name("Ada").build();
@@ -286,17 +300,20 @@ class CustomRepositoryHandlerTest {
     }
 
 
+    @DisplayName("Should execute object methods")
     @Test
     void shouldExecuteObjectMethods() {
         Assertions.assertThat(people.toString()).isNotNull();
         Assertions.assertThat(people.hashCode()).isNotEqualTo(0);
     }
 
+    @DisplayName("Should execute default method")
     @Test
     void shouldExecuteDefaultMethod() {
         Assertions.assertThat(people.defaultMethod()).isEqualTo("default");
     }
 
+    @DisplayName("Should execute find by age")
     @Test
     void shouldExecuteFindByAge() {
         Mockito.when(template.select(Mockito.any(SelectQuery.class)))
@@ -316,6 +333,7 @@ class CustomRepositoryHandlerTest {
         });
     }
 
+    @DisplayName("Should execute find by id")
     @Test
     void shouldExecuteFindById() {
 
@@ -337,6 +355,7 @@ class CustomRepositoryHandlerTest {
         });
     }
 
+    @DisplayName("Should execute find by id and name")
     @Test
     void shouldExecuteFindByIdAndName() {
 
@@ -358,6 +377,7 @@ class CustomRepositoryHandlerTest {
         });
     }
 
+    @DisplayName("Should execute find pagination")
     @Test
     void shouldExecuteFindPagination() {
 
@@ -379,6 +399,7 @@ class CustomRepositoryHandlerTest {
         });
     }
 
+    @DisplayName("Should execute find cursor pagination")
     @Test
     void shouldExecuteFindCursorPagination() {
 
@@ -401,6 +422,7 @@ class CustomRepositoryHandlerTest {
         });
     }
 
+    @DisplayName("Should execute path parameter")
     @Test
     void shouldExecutePathParameter() {
 
@@ -423,6 +445,7 @@ class CustomRepositoryHandlerTest {
     }
 
 
+    @DisplayName("Should execute query")
     @Test
     void shouldExecuteQuery() {
 
@@ -444,6 +467,7 @@ class CustomRepositoryHandlerTest {
         Assertions.assertThat(query).isEqualTo("from Person where name = :name");
     }
 
+    @DisplayName("Should execute query with void")
     @Test
     void shouldExecuteQueryWithVoid() {
 
@@ -462,6 +486,7 @@ class CustomRepositoryHandlerTest {
         Assertions.assertThat(query).isEqualTo("delete from Person where name = :name");
     }
 
+    @DisplayName("Should execute fixed query")
     @Test
     void shouldExecuteFixedQuery() {
 
@@ -484,6 +509,7 @@ class CustomRepositoryHandlerTest {
 
     }
 
+    @DisplayName("Should execute count by")
     @Test
     void shouldExecuteCountBy() {
 
@@ -511,6 +537,7 @@ class CustomRepositoryHandlerTest {
 
     }
 
+    @DisplayName("Should execute exist by")
     @Test
     void shouldExecuteExistBy() {
 
@@ -539,6 +566,7 @@ class CustomRepositoryHandlerTest {
 
     }
 
+    @DisplayName("Should use result for void delete query")
     @Test
     void shouldUseResultForVoidDeleteQuery() {
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
@@ -550,6 +578,7 @@ class CustomRepositoryHandlerTest {
         Mockito.verify(preparedStatement, Mockito.never()).count();
     }
 
+    @DisplayName("Should return int number of deleted entities from delete query")
     @Test
     void shouldReturnIntNumberOfDeletedEntitiesFromDeleteQuery() {
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
@@ -562,6 +591,7 @@ class CustomRepositoryHandlerTest {
         Mockito.verify(preparedStatement, Mockito.never()).result();
     }
 
+    @DisplayName("Should return long number of deleted entities from delete query")
     @Test
     void shouldReturnLongNumberOfDeletedEntitiesFromDeleteQuery() {
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
@@ -574,6 +604,7 @@ class CustomRepositoryHandlerTest {
         Mockito.verify(preparedStatement, Mockito.never()).result();
     }
 
+    @DisplayName("Should return number of updated entities from update query")
     @Test
     void shouldReturnNumberOfUpdatedEntitiesFromUpdateQuery() {
         var preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
@@ -587,6 +618,7 @@ class CustomRepositoryHandlerTest {
         Mockito.verify(preparedStatement, Mockito.never()).count();
     }
 
+    @DisplayName("Should find all")
     @Test
     void shouldFindAll() {
 
@@ -594,12 +626,14 @@ class CustomRepositoryHandlerTest {
         Mockito.verify(template).select(Mockito.any(SelectQuery.class));
     }
 
+    @DisplayName("Should delete by name")
     @Test
     void shouldDeleteByName() {
         tasks.deleteByName("name");
         Mockito.verify(template).delete(Mockito.any(DeleteQuery.class));
     }
 
+    @DisplayName("Should insert")
     @Test
     void shouldInsert(){
         Mockito.when(template.insert(Mockito.any(Person.class))).thenReturn(Person.builder().age(26).name("Ada").build());
@@ -608,6 +642,7 @@ class CustomRepositoryHandlerTest {
     }
 
 
+    @DisplayName("Should return long")
     @ParameterizedTest
     @ValueSource(strings = {"returnLong", "returnLongWrapper"})
     void shouldReturnLong(String methodName) {
@@ -617,6 +652,7 @@ class CustomRepositoryHandlerTest {
         Assertions.assertThat(CustomRepositoryHandler.returnsLong(method)).isTrue();
     }
 
+    @DisplayName("Should return int")
     @ParameterizedTest
     @ValueSource(strings = {"returnInt", "returnIntWrapper"})
     void shouldReturnInt(String methodName) {
@@ -626,6 +662,7 @@ class CustomRepositoryHandlerTest {
         Assertions.assertThat(CustomRepositoryHandler.returnsInt(method)).isTrue();
     }
 
+    @DisplayName("Should return true for simple named parameter")
     @Test
     void shouldReturnTrueForSimpleNamedParameter() {
         var query = Mockito.mock(Query.class);
@@ -634,6 +671,7 @@ class CustomRepositoryHandlerTest {
         assertThat(result).isTrue();
     }
 
+    @DisplayName("Should return false when only ordinal parameters present")
     @Test
     void shouldReturnFalseWhenOnlyOrdinalParametersPresent() {
         var query = Mockito.mock(Query.class);
@@ -642,6 +680,7 @@ class CustomRepositoryHandlerTest {
         assertThat(result).isFalse();
     }
 
+    @DisplayName("Should return true when named parameter appears before ordinal")
     @Test
     void shouldReturnTrueWhenNamedParameterAppearsBeforeOrdinal() {
         var query = Mockito.mock(Query.class);
@@ -650,6 +689,7 @@ class CustomRepositoryHandlerTest {
         assertThat(result).isTrue();
     }
 
+    @DisplayName("Should return false when ordinal appears before named even if named exists later")
     @Test
     void shouldReturnFalseWhenOrdinalAppearsBeforeNamedEvenIfNamedExistsLater() {
         var query = Mockito.mock(Query.class);
@@ -658,6 +698,7 @@ class CustomRepositoryHandlerTest {
         assertThat(result).isFalse();
     }
 
+    @DisplayName("Should support underscore and dollar in named parameter")
     @Test
     void shouldSupportUnderscoreAndDollarInNamedParameter() {
         var query = Mockito.mock(Query.class);
@@ -666,6 +707,7 @@ class CustomRepositoryHandlerTest {
         assertThat(result).isTrue();
     }
 
+    @DisplayName("Should return false for invalid named starting with digit")
     @Test
     void shouldReturnFalseForInvalidNamedStartingWithDigit() {
         var query = Mockito.mock(Query.class);
@@ -674,6 +716,7 @@ class CustomRepositoryHandlerTest {
         assertThat(result).isFalse();
     }
 
+    @DisplayName("Should return false when no parameters present")
     @Test
     void shouldReturnFalseWhenNoParametersPresent() {
         var query = Mockito.mock(Query.class);
@@ -682,6 +725,7 @@ class CustomRepositoryHandlerTest {
         assertThat(result).isFalse();
     }
 
+    @DisplayName("Should return false for bare question mark without digits")
     @Test
     void shouldReturnFalseForBareQuestionMarkWithoutDigits() {
         var query = Mockito.mock(Query.class);
@@ -690,6 +734,7 @@ class CustomRepositoryHandlerTest {
         assertThat(result).isFalse();
     }
 
+    @DisplayName("Should return true for dotted identifier treating prefix as named param")
     @Test
     void shouldReturnTrueForDottedIdentifierTreatingPrefixAsNamedParam() {
         var query = Mockito.mock(Query.class);
@@ -698,6 +743,7 @@ class CustomRepositoryHandlerTest {
         assertThat(result).isTrue();
     }
 
+    @DisplayName("Should return true when multiple named parameters exist")
     @Test
     void shouldReturnTrueWhenMultipleNamedParametersExist() {
         var query = Mockito.mock(Query.class);
@@ -752,4 +798,9 @@ class CustomRepositoryHandlerTest {
         long updateReturnLong(@jakarta.data.repository.Param("name") String name);
     }
 
+
+    @Nested
+    @DisplayName("When the custom repository handler is tested")
+    class WhenTheCustomRepositoryHandlerIsTested {
+    }
 }

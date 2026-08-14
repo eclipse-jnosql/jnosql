@@ -24,12 +24,13 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 
 @EnableAutoWeld
@@ -43,23 +44,37 @@ class DefaultGraphTemplateProducerTest {
     private GraphTemplateProducer producer;
 
 
-    @Test
-    void shouldReturnErrorWhenManagerNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> producer.apply(null));
+    @Nested
+    @DisplayName("When the producer applies a manager")
+    class WhenTheProducerAppliesManager {
+
+        @Test
+        @DisplayName("Should throw an exception when manager is null")
+        void shouldReturnErrorWhenManagerNull() {
+            assertThatNullPointerException().isThrownBy(() -> producer.apply(null));
+        }
+
+        @Test
+        @DisplayName("Should return a graph template")
+        void shouldReturnGraphTemplate() {
+            var manager = Mockito.mock(GraphDatabaseManager.class);
+            GraphTemplate graphTemplate = producer.apply(manager);
+
+            assertThat(graphTemplate).isNotNull();
+        }
     }
 
-    @Test
-    void shouldReturn() {
-        var manager = Mockito.mock(GraphDatabaseManager.class);
-        GraphTemplate graphTemplate = producer.apply(manager);
-        assertNotNull(graphTemplate);
-    }
+    @Nested
+    @DisplayName("When the template is constructed")
+    class WhenTheTemplateIsConstructed {
 
-    @Test
-    @DisplayName("Should have a default constructor for CDI ")
-    void shouldHaveDefaultConstructor() {
-        GraphTemplateProducer.ProducerGraphTemplate template = new GraphTemplateProducer.ProducerGraphTemplate();
-        assertNotNull(template);
+        @Test
+        @DisplayName("Should have a default constructor for CDI")
+        void shouldHaveDefaultConstructor() {
+            GraphTemplateProducer.ProducerGraphTemplate template = new GraphTemplateProducer.ProducerGraphTemplate();
+
+            assertThat(template).isNotNull();
+        }
     }
 
 }

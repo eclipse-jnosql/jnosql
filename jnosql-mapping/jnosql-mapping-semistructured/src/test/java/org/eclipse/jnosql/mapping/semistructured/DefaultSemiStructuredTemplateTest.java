@@ -21,6 +21,13 @@ import jakarta.data.page.PageRequest;
 import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.Configurations;
@@ -43,26 +50,17 @@ import org.eclipse.jnosql.mapping.semistructured.entities.inheritance.LargeProje
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.eclipse.jnosql.communication.semistructured.DeleteQuery.delete;
 import static org.eclipse.jnosql.communication.semistructured.SelectQuery.select;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -118,6 +116,7 @@ class DefaultSemiStructuredTemplateTest {
                 eventPersistManager, entities, converters);
     }
 
+    @DisplayName("Should insert")
     @Test
     void shouldInsert() {
         var communicationEntity = CommunicationEntity.of("Person");
@@ -132,11 +131,12 @@ class DefaultSemiStructuredTemplateTest {
         verify(eventPersistManager).firePostEntity(any(Person.class));
         verify(eventPersistManager).firePreEntity(any(Person.class));
         CommunicationEntity value = captor.getValue();
-        assertEquals("Person", value.name());
-        assertEquals(5, value.elements().size());
+        assertThat(value.name()).isEqualTo("Person");
+        assertThat(value.elements().size()).isEqualTo(5);
     }
 
 
+    @DisplayName("Should merge on insert")
     @Test
     void shouldMergeOnInsert() {
         var communicationEntity = CommunicationEntity.of("Person");
@@ -151,12 +151,13 @@ class DefaultSemiStructuredTemplateTest {
         verify(managerMock).insert(captor.capture());
         verify(eventPersistManager).firePostEntity(any(Person.class));
         verify(eventPersistManager).firePreEntity(any(Person.class));
-        assertSame(person, result);
-        assertEquals(10, person.getAge());
+        assertThat(result).isSameAs(person);
+        assertThat(person.getAge()).isEqualTo(10);
 
     }
 
 
+    @DisplayName("Should insert ttl")
     @Test
     void shouldInsertTTL() {
         var communicationEntity = CommunicationEntity.of("Person");
@@ -172,10 +173,11 @@ class DefaultSemiStructuredTemplateTest {
         verify(eventPersistManager).firePostEntity(any(Person.class));
         verify(eventPersistManager).firePreEntity(any(Person.class));
         CommunicationEntity value = captor.getValue();
-        assertEquals("Person", value.name());
-        assertEquals(5, value.elements().size());
+        assertThat(value.name()).isEqualTo("Person");
+        assertThat(value.elements().size()).isEqualTo(5);
     }
 
+    @DisplayName("Should update")
     @Test
     void shouldUpdate() {
         var communicationEntity = CommunicationEntity.of("Person");
@@ -190,10 +192,11 @@ class DefaultSemiStructuredTemplateTest {
         verify(eventPersistManager).firePostEntity(any(Person.class));
         verify(eventPersistManager).firePreEntity(any(Person.class));
         CommunicationEntity value = captor.getValue();
-        assertEquals("Person", value.name());
-        assertEquals(5, value.elements().size());
+        assertThat(value.name()).isEqualTo("Person");
+        assertThat(value.elements().size()).isEqualTo(5);
     }
 
+    @DisplayName("Should merge on update")
     @Test
     void shouldMergeOnUpdate() {
         var communicationEntity = CommunicationEntity.of("Person");
@@ -208,11 +211,12 @@ class DefaultSemiStructuredTemplateTest {
         verify(managerMock).update(captor.capture());
         verify(eventPersistManager).firePostEntity(any(Person.class));
         verify(eventPersistManager).firePreEntity(any(Person.class));
-        assertSame(person, result);
-        assertEquals(10, person.getAge());
+        assertThat(result).isSameAs(person);
+        assertThat(person.getAge()).isEqualTo(10);
 
     }
 
+    @DisplayName("Should insert entities ttl")
     @Test
     void shouldInsertEntitiesTTL() {
         var communicationEntity = CommunicationEntity.of("Person");
@@ -227,6 +231,7 @@ class DefaultSemiStructuredTemplateTest {
         verify(managerMock, times(2)).insert(any(CommunicationEntity.class), any(Duration.class));
     }
 
+    @DisplayName("Should insert entities")
     @Test
     void shouldInsertEntities() {
         var communicationEntity = CommunicationEntity.of("Person");
@@ -240,6 +245,7 @@ class DefaultSemiStructuredTemplateTest {
         verify(managerMock, times(2)).insert(any(CommunicationEntity.class));
     }
 
+    @DisplayName("Should update entities")
     @Test
     void shouldUpdateEntities() {
         var communicationEntity = CommunicationEntity.of("Person");
@@ -253,6 +259,7 @@ class DefaultSemiStructuredTemplateTest {
         verify(managerMock, times(2)).update(any(CommunicationEntity.class));
     }
 
+    @DisplayName("Should delete")
     @Test
     void shouldDelete() {
 
@@ -261,6 +268,7 @@ class DefaultSemiStructuredTemplateTest {
         verify(managerMock).delete(query);
     }
 
+    @DisplayName("Should select")
     @Test
     void shouldSelect() {
         SelectQuery query = select().from("person").build();
@@ -270,6 +278,7 @@ class DefaultSemiStructuredTemplateTest {
         verify(eventPersistManager, never()).firePreEntity(any(Person.class));
     }
 
+    @DisplayName("Should count by")
     @Test
     void shouldCountBy() {
         SelectQuery query = select().from("person").build();
@@ -279,6 +288,7 @@ class DefaultSemiStructuredTemplateTest {
         verify(eventPersistManager, never()).firePreEntity(any(Person.class));
     }
 
+    @DisplayName("Should exist")
     @Test
     void shouldExist() {
         SelectQuery query = select().from("person").build();
@@ -288,6 +298,7 @@ class DefaultSemiStructuredTemplateTest {
         verify(eventPersistManager, never()).firePreEntity(any(Person.class));
     }
 
+    @DisplayName("Should return single result")
     @Test
     void shouldReturnSingleResult() {
         CommunicationEntity columnEntity = CommunicationEntity.of("Person");
@@ -300,11 +311,12 @@ class DefaultSemiStructuredTemplateTest {
         SelectQuery query = select().from("person").build();
 
         Optional<Person> result = template.singleResult(query);
-        assertTrue(result.isPresent());
+        assertThat(result.isPresent()).isTrue();
         verify(eventPersistManager, never()).firePostEntity(any(Person.class));
         verify(eventPersistManager, never()).firePreEntity(any(Person.class));
     }
 
+    @DisplayName("Should return single result is empty")
     @Test
     void shouldReturnSingleResultIsEmpty() {
         Mockito.when(managerMock
@@ -314,14 +326,15 @@ class DefaultSemiStructuredTemplateTest {
         SelectQuery query = select().from("person").build();
 
         Optional<Person> result = template.singleResult(query);
-        assertFalse(result.isPresent());
+        assertThat(result.isPresent()).isFalse();
         verify(eventPersistManager, never()).firePostEntity(any(Person.class));
         verify(eventPersistManager, never()).firePreEntity(any(Person.class));
     }
 
+    @DisplayName("Should return error when there more than a single result")
     @Test
     void shouldReturnErrorWhenThereMoreThanASingleResult() {
-        Assertions.assertThrows(NonUniqueResultException.class, () -> {
+        assertThatThrownBy(() -> {
             CommunicationEntity columnEntity = CommunicationEntity.of("Person");
             columnEntity.addAll(Stream.of(columns).collect(Collectors.toList()));
 
@@ -332,25 +345,29 @@ class DefaultSemiStructuredTemplateTest {
             SelectQuery query = select().from("person").build();
 
             template.singleResult(query);
-        });
+        }).isInstanceOf(NonUniqueResultException.class);
     }
 
 
+    @DisplayName("Should return error when find id has id null")
     @Test
     void shouldReturnErrorWhenFindIdHasIdNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> template.find(Person.class, null));
+        assertThatThrownBy(() -> template.find(Person.class, null)).isInstanceOf(NullPointerException.class);
     }
 
+    @DisplayName("Should return error when find id has class null")
     @Test
     void shouldReturnErrorWhenFindIdHasClassNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> template.find(null, "10"));
+        assertThatThrownBy(() -> template.find(null, "10")).isInstanceOf(NullPointerException.class);
     }
 
+    @DisplayName("Should return error when there is not id in find")
     @Test
     void shouldReturnErrorWhenThereIsNotIdInFind() {
-        Assertions.assertThrows(IdNotFoundException.class, () -> template.find(Job.class, "10"));
+        assertThatThrownBy(() -> template.find(Job.class, "10")).isInstanceOf(IdNotFoundException.class);
     }
 
+    @DisplayName("Should return find")
     @Test
     void shouldReturnFind() {
         template.find(Person.class, "10");
@@ -359,10 +376,11 @@ class DefaultSemiStructuredTemplateTest {
         SelectQuery query = queryCaptor.getValue();
         CriteriaCondition condition = query.condition().get();
 
-        assertEquals("Person", query.name());
-        assertEquals(CriteriaCondition.eq(Element.of("_id", 10L)), condition);
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition).isEqualTo(CriteriaCondition.eq(Element.of("_id", 10L)));
     }
 
+    @DisplayName("Should delete type class")
     @Test
     void shouldDeleteTypeClass() {
         template.delete(Person.class, "10");
@@ -373,65 +391,72 @@ class DefaultSemiStructuredTemplateTest {
 
         CriteriaCondition condition = query.condition().get();
 
-        assertEquals("Person", query.name());
-        assertEquals(CriteriaCondition.eq(Element.of("_id", 10L)), condition);
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition).isEqualTo(CriteriaCondition.eq(Element.of("_id", 10L)));
     }
 
+    @DisplayName("Should execute query")
     @Test
     void shouldExecuteQuery() {
         template.prepare("FROM Person").result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
-        assertEquals("Person", query.name());
+        assertThat(query.name()).isEqualTo("Person");
     }
 
+    @DisplayName("Should execute query entity")
     @Test
     void shouldExecuteQueryEntity() {
         template.prepare("FROM Person", "Person").result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
-        assertEquals("Person", query.name());
+        assertThat(query.name()).isEqualTo("Person");
     }
 
 
+    @DisplayName("Should convert entity")
     @Test
     void shouldConvertEntity() {
         template.prepare("FROM Movie").result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
-        assertEquals("movie", query.name());
+        assertThat(query.name()).isEqualTo("movie");
     }
 
+    @DisplayName("Should convert entity name")
     @Test
     void shouldConvertEntityName() {
         template.prepare("SELECT name FROM download").result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
-        assertEquals("download", query.name());
+        assertThat(query.name()).isEqualTo("download");
     }
 
+    @DisplayName("Should convert entity name class name")
     @Test
     void shouldConvertEntityNameClassName() {
         template.prepare("FROM " + Person.class.getSimpleName()).result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
-        assertEquals("Person", query.name());
+        assertThat(query.name()).isEqualTo("Person");
     }
 
+    @DisplayName("Should convert convert from annotation entity")
     @Test
     void shouldConvertConvertFromAnnotationEntity() {
         template.prepare("FROM Vendor").result();
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
-        assertEquals("vendors", query.name());
+        assertThat(query.name()).isEqualTo("vendors");
     }
 
+    @DisplayName("Should prepared statement")
     @Test
     void shouldPreparedStatement() {
         PreparedStatement preparedStatement = template.prepare("FROM Person WHERE name = :name");
@@ -440,9 +465,10 @@ class DefaultSemiStructuredTemplateTest {
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
-        assertEquals("Person", query.name());
+        assertThat(query.name()).isEqualTo("Person");
     }
 
+    @DisplayName("Should prepared statement entity")
     @Test
     void shouldPreparedStatementEntity() {
         PreparedStatement preparedStatement = template.prepare("FROM Person WHERE name = :name", "Person");
@@ -451,15 +477,17 @@ class DefaultSemiStructuredTemplateTest {
         ArgumentCaptor<SelectQuery> queryCaptor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(managerMock).select(queryCaptor.capture());
         SelectQuery query = queryCaptor.getValue();
-        assertEquals("Person", query.name());
+        assertThat(query.name()).isEqualTo("Person");
     }
 
+    @DisplayName("Should count")
     @Test
     void shouldCount() {
         template.count("Person");
         verify(managerMock).count("Person");
     }
 
+    @DisplayName("Should count from entity class")
     @Test
     void shouldCountFromEntityClass() {
         template.count(Person.class);
@@ -470,18 +498,21 @@ class DefaultSemiStructuredTemplateTest {
     }
 
 
+    @DisplayName("Should find all")
     @Test
     void shouldFindAll() {
         template.findAll(Person.class);
         verify(managerMock).select(select().from("Person").build());
     }
 
+    @DisplayName("Should delete all")
     @Test
     void shouldDeleteAll() {
         template.deleteAll(Person.class);
         verify(managerMock).delete(delete().from("Person").build());
     }
 
+    @DisplayName("Should select cursor")
     @Test
     void shouldSelectCursor() {
         PageRequest request = PageRequest.ofSize(2);
@@ -509,6 +540,7 @@ class DefaultSemiStructuredTemplateTest {
 
     }
 
+    @DisplayName("Should throw exception when cursor has multiple sorts")
     @Test
     void shouldThrowExceptionWhenCursorHasMultipleSorts() {
         System.setProperty(Configurations.CURSOR_PAGINATION_MULTIPLE_SORTING.get(), "true");
@@ -528,6 +560,7 @@ class DefaultSemiStructuredTemplateTest {
         System.clearProperty(Configurations.CURSOR_PAGINATION_MULTIPLE_SORTING.get());
     }
 
+    @DisplayName("Should execute multiple sorts when enable it")
     @Test
     void shouldExecuteMultipleSortsWhenEnableIt() {
         PageRequest request = PageRequest.ofSize(2);
@@ -544,6 +577,7 @@ class DefaultSemiStructuredTemplateTest {
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
+    @DisplayName("Should select off set")
     @Test
     void shouldSelectOffSet() {
         PageRequest request = PageRequest.ofPage(2).size(10);
@@ -569,6 +603,7 @@ class DefaultSemiStructuredTemplateTest {
         });
     }
 
+    @DisplayName("Should find by id using inheritance")
     @Test
     void shouldFindByIdUsingInheritance() {
 
@@ -589,6 +624,7 @@ class DefaultSemiStructuredTemplateTest {
         });
     }
 
+    @DisplayName("Should delete by id using inheritance")
     @Test
     void shouldDeleteByIdUsingInheritance() {
         this.template.delete(LargeProject.class, 1L);
@@ -608,6 +644,7 @@ class DefaultSemiStructuredTemplateTest {
         });
     }
 
+    @DisplayName("Should delete entity")
     @Test
     void shouldDeleteEntity() {
         Person person = Person.builder().id(10).build();
@@ -619,10 +656,11 @@ class DefaultSemiStructuredTemplateTest {
 
         CriteriaCondition condition = query.condition().get();
 
-        assertEquals("Person", query.name());
-        assertEquals(CriteriaCondition.eq(Element.of("_id", 10L)), condition);
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition).isEqualTo(CriteriaCondition.eq(Element.of("_id", 10L)));
     }
 
+    @DisplayName("Should delete entity iterable")
     @Test
     void shouldDeleteEntityIterable() {
         Person person = Person.builder().id(10).build();
@@ -634,10 +672,11 @@ class DefaultSemiStructuredTemplateTest {
 
         CriteriaCondition condition = query.condition().get();
 
-        assertEquals("Person", query.name());
-        assertEquals(CriteriaCondition.eq(Element.of("_id", 10L)), condition);
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition).isEqualTo(CriteriaCondition.eq(Element.of("_id", 10L)));
     }
 
+    @DisplayName("Should update query")
     @Test
     void shouldUpdateQuery() {
         var updateQuery = new SemistructureUpdateQuery("Person",
@@ -652,5 +691,10 @@ class DefaultSemiStructuredTemplateTest {
         CommunicationEntity columnEntity = CommunicationEntity.of("Person");
         columnEntity.addAll(Stream.of(columns).collect(Collectors.toList()));
         return List.of(columnEntity);
+    }
+
+    @Nested
+    @DisplayName("When the default semi structured template is tested")
+    class WhenTheDefaultSemiStructuredTemplateIsTested {
     }
 }

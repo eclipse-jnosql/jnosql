@@ -26,10 +26,12 @@ import org.eclipse.jnosql.mapping.semistructured.entities.Worker;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -48,105 +50,127 @@ class MapperObserverTest {
         this.parser = new MapperObserver(mappings);
     }
 
+    @DisplayName("Should fire entity")
     @Test
     void shouldFireEntity(){
         var entity = parser.fireEntity("Vendor");
-        Assertions.assertEquals("vendors", entity);
+        assertThat(entity).isEqualTo("vendors");
     }
 
+    @DisplayName("Should fire from class")
     @Test
     void shouldFireFromClass(){
         var entity = parser.fireEntity(Car.class.getSimpleName());
-        Assertions.assertEquals("Car", entity);
+        assertThat(entity).isEqualTo("Car");
     }
 
+    @DisplayName("Should fire from class name")
     @Test
     void shouldFireFromClassName(){
         var entity = parser.fireEntity(Car.class.getSimpleName());
-        Assertions.assertEquals("Car", entity);
+        assertThat(entity).isEqualTo("Car");
     }
 
+    @DisplayName("Should fire field")
     @Test
     void shouldFireField(){
         var field = parser.fireSelectField("Worker", "salary");
-        Assertions.assertEquals("money", field);
+        assertThat(field).isEqualTo("money");
     }
 
+    @DisplayName("Should fire field from class name")
     @Test
     void shouldFireFieldFromClassName(){
         var field = parser.fireSelectField(Worker.class.getName(), "salary");
-        Assertions.assertEquals("money", field);
+        assertThat(field).isEqualTo("money");
     }
 
+    @DisplayName("Should fire field from simples name")
     @Test
     void shouldFireFieldFromSimplesName(){
         var field = parser.fireSelectField(Worker.class.getSimpleName(), "salary");
-        Assertions.assertEquals("money", field);
+        assertThat(field).isEqualTo("money");
     }
 
+    @DisplayName("Should fire field from entity")
     @Test
     void shouldFireFieldFromEntity(){
         var field = parser.fireSelectField(Vendor.class.getSimpleName(), "name");
-        Assertions.assertEquals("_id", field);
+        assertThat(field).isEqualTo("_id");
     }
 
+    @DisplayName("Should fire condition field")
     @Test
     void shouldFireConditionField(){
         var field = parser.fireConditionField("Worker", "salary");
-        Assertions.assertEquals("money", field);
+        assertThat(field).isEqualTo("money");
     }
 
+    @DisplayName("Should fire condition field from class name")
     @Test
     void shouldFireConditionFieldFromClassName(){
         var field = parser.fireConditionField(Worker.class.getName(), "salary");
-        Assertions.assertEquals("money", field);
+        assertThat(field).isEqualTo("money");
     }
 
+    @DisplayName("Should fire condition field from simples name")
     @Test
     void shouldFireConditionFieldFromSimplesName(){
         var field = parser.fireConditionField(Worker.class.getSimpleName(), "salary");
-        Assertions.assertEquals("money", field);
+        assertThat(field).isEqualTo("money");
     }
 
+    @DisplayName("Should fire condition field from entity")
     @Test
     void shouldFireConditionFieldFromEntity(){
         var field = parser.fireConditionField(Vendor.class.getSimpleName(), "name");
-        Assertions.assertEquals("_id", field);
+        assertThat(field).isEqualTo("_id");
     }
 
+    @DisplayName("Should fire sort property field")
     @Test
     void shouldFireSortPropertyField(){
         var field = parser.fireSortProperty("Worker", "salary");
-        Assertions.assertEquals("money", field);
+        assertThat(field).isEqualTo("money");
     }
 
+    @DisplayName("Should fire sort property field from class name")
     @Test
     void shouldFireSortPropertyFieldFromClassName(){
         var field = parser.fireSortProperty(Worker.class.getName(), "salary");
-        Assertions.assertEquals("money", field);
+        assertThat(field).isEqualTo("money");
     }
 
+    @DisplayName("Should fire sort property field from simples name")
     @Test
     void shouldFireSortPropertyFieldFromSimplesName(){
         var field = parser.fireSortProperty(Worker.class.getSimpleName(), "salary");
-        Assertions.assertEquals("money", field);
+        assertThat(field).isEqualTo("money");
     }
 
+    @DisplayName("Should fire sort property field from entity")
     @Test
     void shouldFireSortPropertyFieldFromEntity(){
         var field = parser.fireSortProperty(Vendor.class.getSimpleName(), "name");
-        Assertions.assertEquals("_id", field);
+        assertThat(field).isEqualTo("_id");
     }
 
+    @DisplayName("Should sort id function")
     @Test
     void shouldSortIdFunction() {
         var field = parser.fireSortProperty(Vendor.class.getSimpleName(), "id(this)");
-        Assertions.assertEquals("_id", field);
+        assertThat(field).isEqualTo("_id");
     }
 
+    @DisplayName("Should select id function")
     @Test
     void shouldSelectIdFunction() {
         var field = parser.fireSelectField(Vendor.class.getSimpleName(), "id(this)");
-        Assertions.assertEquals("_id", field);
+        assertThat(field).isEqualTo("_id");
+    }
+
+    @Nested
+    @DisplayName("When the mapper observer is tested")
+    class WhenTheMapperObserverIsTested {
     }
 }

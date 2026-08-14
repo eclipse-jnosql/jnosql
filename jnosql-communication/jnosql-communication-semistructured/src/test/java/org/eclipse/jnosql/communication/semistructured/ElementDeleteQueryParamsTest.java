@@ -23,210 +23,235 @@ import org.mockito.Mockito;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ElementDeleteQueryParamsTest {
 
-    @ParameterizedTest
-    @MethodSource("scenarios")
-    void shouldInstantiateSuccessfully(DeleteQuery query, Params params) {
-        DeleteQueryParams target = newInstance(query, params);
-        assertThat(target).isNotNull();
-    }
 
-    @ParameterizedTest
-    @MethodSource("scenarios")
-    void shouldReturnTheSameQueryInstance(DeleteQuery expectedQuery, Params params) {
-        var target = newInstance(expectedQuery, params);
-        assertThat(expectedQuery).isSameAs(target.query());
-    }
+    @Nested
+    @DisplayName("When the element delete query params is used")
+    class WhenTheElementDeleteQueryParamsIsUsed {
 
-    @ParameterizedTest
-    @MethodSource("scenarios")
-    void shouldReturnTheSameParamsInstance(DeleteQuery query, Params expectedParams) {
-        var target = newInstance(query, expectedParams);
-        assertThat(expectedParams).isSameAs(target.params());
-    }
+        @DisplayName("Should Instantiate Successfully")
+        @ParameterizedTest
+        @MethodSource("scenarios")
+        void shouldInstantiateSuccessfully(DeleteQuery query, Params params) {
+            DeleteQueryParams target = newInstance(query, params);
+            assertThat(target).isNotNull();
+        }
 
-    @ParameterizedTest
-    @MethodSource("scenarios")
-    void shouldBeNotEqualsToNull(DeleteQuery query, Params params) {
-        var instance = newInstance(query, params);
-        assertThat(instance).isNotEqualTo(null);
-    }
+        @DisplayName("Should Return The Same Query Instance")
+        @ParameterizedTest
+        @MethodSource("scenarios")
+        void shouldReturnTheSameQueryInstance(DeleteQuery expectedQuery, Params params) {
+            var target = newInstance(expectedQuery, params);
+            assertThat(expectedQuery).isSameAs(target.query());
+        }
+
+        @DisplayName("Should Return The Same Params Instance")
+        @ParameterizedTest
+        @MethodSource("scenarios")
+        void shouldReturnTheSameParamsInstance(DeleteQuery query, Params expectedParams) {
+            var target = newInstance(query, expectedParams);
+            assertThat(expectedParams).isSameAs(target.params());
+        }
+
+        @DisplayName("Should Be Not Equals To Null")
+        @ParameterizedTest
+        @MethodSource("scenarios")
+        void shouldBeNotEqualsToNull(DeleteQuery query, Params params) {
+            var instance = newInstance(query, params);
+            assertThat(instance).isNotEqualTo(null);
+        }
 
 
-    @ParameterizedTest
-    @MethodSource("scenarios")
-    void shouldBeNotEqualsToAnyOtherInstanceOfDifferentType(DeleteQuery query, Params params) {
-        var instance = newInstance(query, params);
-        assertThat(instance).isNotEqualTo(new Object());
-    }
+        @DisplayName("Should Be Not Equals To Any Other Instance Of Different Type")
+        @ParameterizedTest
+        @MethodSource("scenarios")
+        void shouldBeNotEqualsToAnyOtherInstanceOfDifferentType(DeleteQuery query, Params params) {
+            var instance = newInstance(query, params);
+            assertThat(instance).isNotEqualTo(new Object());
+        }
 
-    @ParameterizedTest
-    @MethodSource("scenarios")
-    void shouldBeEqualsToItself(DeleteQuery query, Params params) {
-        var instance = newInstance(query, params);
-        assertThat(instance).isEqualTo(instance);
-    }
+        @DisplayName("Should Be Equals To Itself")
+        @ParameterizedTest
+        @MethodSource("scenarios")
+        void shouldBeEqualsToItself(DeleteQuery query, Params params) {
+            var instance = newInstance(query, params);
+            assertThat(instance).isEqualTo(instance);
+        }
 
-    @Test
-    void shouldBeEqualsWhenQueryAndParamsAreUsedByTwoDifferentInstances() {
-        var query = newDummyColumnDeleteQuery();
-        var params = newDummyParams();
+        @DisplayName("Should Be Equals When Query And Params Are Used By Two Different Instances")
+        @Test
+        void shouldBeEqualsWhenQueryAndParamsAreUsedByTwoDifferentInstances() {
+            var query = newDummyColumnDeleteQuery();
+            var params = newDummyParams();
 
-        var leftInstance = newInstance(query, params);
-        var rightInstance = newInstance(query, params);
+            var leftInstance = newInstance(query, params);
+            var rightInstance = newInstance(query, params);
 
-        assertThat(leftInstance).isEqualTo(rightInstance);
-    }
+            assertThat(leftInstance).isEqualTo(rightInstance);
+        }
 
-    @ParameterizedTest
-    @MethodSource("scenarios")
-    void shouldBeNotEqualsWhenDifferentQueryAndParamsAreUsedByTwoDifferentInstances(DeleteQuery query, Params params) {
+        @DisplayName("Should Be Not Equals When Different Query And Params Are Used By Two Different Instances")
+        @ParameterizedTest
+        @MethodSource("scenarios")
+        void shouldBeNotEqualsWhenDifferentQueryAndParamsAreUsedByTwoDifferentInstances(DeleteQuery query, Params params) {
 
-        var leftInstance = newInstance(query, params);
-        var rightInstance = newInstance(newDummyColumnDeleteQuery(), newDummyParams());
+            var leftInstance = newInstance(query, params);
+            var rightInstance = newInstance(newDummyColumnDeleteQuery(), newDummyParams());
 
-        assertThat(leftInstance).isNotEqualTo(rightInstance);
-    }
+            assertThat(leftInstance).isNotEqualTo(rightInstance);
+        }
 
-    @Test
-    void shouldHashCodeBeConditionedToQueryAndParamsAttributes() {
+        @DisplayName("Should Hash Code Be Conditioned To Query And Params Attributes")
+        @Test
+        void shouldHashCodeBeConditionedToQueryAndParamsAttributes() {
 
-        DeleteQuery firstQuery = newDummyColumnDeleteQuery();
-        Params firstParams = newDummyParams();
+            DeleteQuery firstQuery = newDummyColumnDeleteQuery();
+            Params firstParams = newDummyParams();
 
-        var fistInstance = newInstance(firstQuery, firstParams);
-        var secondInstance = newInstance(firstQuery, firstParams);
+            var fistInstance = newInstance(firstQuery, firstParams);
+            var secondInstance = newInstance(firstQuery, firstParams);
 
-        assertThat(fistInstance).hasSameHashCodeAs(secondInstance);
+            assertThat(fistInstance).hasSameHashCodeAs(secondInstance);
 
-        DeleteQuery secondQuery = newDummyColumnDeleteQuery();
-        Params secondParams = newDummyParams();
+            DeleteQuery secondQuery = newDummyColumnDeleteQuery();
+            Params secondParams = newDummyParams();
 
-        var thirdInstance = newInstance(secondQuery, secondParams);
+            var thirdInstance = newInstance(secondQuery, secondParams);
 
-        assertThat(fistInstance.hashCode()).isNotEqualTo(thirdInstance.hashCode());
+            assertThat(fistInstance.hashCode()).isNotEqualTo(thirdInstance.hashCode());
 
-    }
+        }
 
-    @Test
-    void shouldDeleteUsingCondition() {
-        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
-        DeleteQuery deleteQuery = builder.from("entity")
-                .where(CriteriaCondition.of(Element.of("field", "value"), Condition.EQUALS)).build();
+        @DisplayName("Should Delete Using Condition")
+        @Test
+        void shouldDeleteUsingCondition() {
+            DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+            DeleteQuery deleteQuery = builder.from("entity")
+                    .where(CriteriaCondition.of(Element.of("field", "value"), Condition.EQUALS)).build();
 
-        SoftAssertions.assertSoftly(soft-> {
-            soft.assertThat(deleteQuery.columns()).isEmpty();
-            soft.assertThat(deleteQuery.name()).isEqualTo("entity");
-            soft.assertThat(deleteQuery.condition()).isNotEmpty();
-            var condition = deleteQuery.condition().orElseThrow();
-            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-            soft.assertThat(condition.element()).isEqualTo(Element.of("field", "value"));
-        });
-    }
+            SoftAssertions.assertSoftly(soft-> {
+                soft.assertThat(deleteQuery.columns()).isEmpty();
+                soft.assertThat(deleteQuery.name()).isEqualTo("entity");
+                soft.assertThat(deleteQuery.condition()).isNotEmpty();
+                var condition = deleteQuery.condition().orElseThrow();
+                soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+                soft.assertThat(condition.element()).isEqualTo(Element.of("field", "value"));
+            });
+        }
 
-    @Test
-    void shouldDeleteColumnsUsingCondition() {
-        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
-        DeleteQuery deleteQuery = builder.from("entity").delete("field", "field2")
-                .where(CriteriaCondition.of(Element.of("field", "value"), Condition.EQUALS)).build();
+        @DisplayName("Should Delete Columns Using Condition")
+        @Test
+        void shouldDeleteColumnsUsingCondition() {
+            DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+            DeleteQuery deleteQuery = builder.from("entity").delete("field", "field2")
+                    .where(CriteriaCondition.of(Element.of("field", "value"), Condition.EQUALS)).build();
 
-        SoftAssertions.assertSoftly(soft-> {
-            soft.assertThat(deleteQuery.columns()).isNotEmpty().hasSize(2).contains("field", "field2");
-            soft.assertThat(deleteQuery.name()).isEqualTo("entity");
-            soft.assertThat(deleteQuery.condition()).isNotEmpty();
-            var condition = deleteQuery.condition().orElseThrow();
-            soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-            soft.assertThat(condition.element()).isEqualTo(Element.of("field", "value"));
-        });
+            SoftAssertions.assertSoftly(soft-> {
+                soft.assertThat(deleteQuery.columns()).isNotEmpty().hasSize(2).contains("field", "field2");
+                soft.assertThat(deleteQuery.name()).isEqualTo("entity");
+                soft.assertThat(deleteQuery.condition()).isNotEmpty();
+                var condition = deleteQuery.condition().orElseThrow();
+                soft.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+                soft.assertThat(condition.element()).isEqualTo(Element.of("field", "value"));
+            });
 
-    }
+        }
 
-    @Test
-    void shouldToString() {
-        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
-        Assertions.assertThat(builder.toString()).isNotBlank().isNotNull();
-    }
+        @DisplayName("Should To String")
+        @Test
+        void shouldToString() {
+            DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+            assertThat(builder.toString()).isNotBlank().isNotNull();
+        }
 
-    @Test
-    void shouldToHashCode() {
-        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
-        DeleteQuery.DeleteQueryBuilder builder2 = new DefaultDeleteQueryBuilder();
-        Assertions.assertThat(builder.hashCode()).isEqualTo(builder2.hashCode());
-    }
+        @DisplayName("Should To Hash Code")
+        @Test
+        void shouldToHashCode() {
+            DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+            DeleteQuery.DeleteQueryBuilder builder2 = new DefaultDeleteQueryBuilder();
+            assertThat(builder.hashCode()).isEqualTo(builder2.hashCode());
+        }
 
-    @Test
-    void shouldEquals() {
-        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
-        DeleteQuery.DeleteQueryBuilder builder2 = new DefaultDeleteQueryBuilder();
-        DeleteQuery.DeleteQueryBuilder builder3 = new DefaultDeleteQueryBuilder().delete("field", "field2");
+        @DisplayName("Should Equals")
+        @Test
+        void shouldEquals() {
+            DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+            DeleteQuery.DeleteQueryBuilder builder2 = new DefaultDeleteQueryBuilder();
+            DeleteQuery.DeleteQueryBuilder builder3 = new DefaultDeleteQueryBuilder().delete("field", "field2");
 
-        SoftAssertions.assertSoftly(soft-> {
-           soft.assertThat(builder).isEqualTo(builder2);
-           soft.assertThat(builder).isNotEqualTo(builder3);
-           soft.assertThat(builder2).isEqualTo(builder);
-            soft.assertThat(builder).isEqualTo(builder2);
-            soft.assertThat(builder).isEqualTo(builder);
-            soft.assertThat(builder).isNotEqualTo(null);
-            soft.assertThat(builder).isNotEqualTo("234");
-        });
-    }
+            SoftAssertions.assertSoftly(soft-> {
+               soft.assertThat(builder).isEqualTo(builder2);
+               soft.assertThat(builder).isNotEqualTo(builder3);
+               soft.assertThat(builder2).isEqualTo(builder);
+                soft.assertThat(builder).isEqualTo(builder2);
+                soft.assertThat(builder).isEqualTo(builder);
+                soft.assertThat(builder).isNotEqualTo(null);
+                soft.assertThat(builder).isNotEqualTo("234");
+            });
+        }
 
-    @Test
-    void shouldGetIssueWhenNotEntity() {
-        DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
-        Assertions.assertThatThrownBy(builder::build).isInstanceOf(IllegalArgumentException.class);
-    }
+        @DisplayName("Should Get Issue When Not Entity")
+        @Test
+        void shouldGetIssueWhenNotEntity() {
+            DeleteQuery.DeleteQueryBuilder builder = new DefaultDeleteQueryBuilder();
+            assertThatThrownBy(builder::build).isInstanceOf(IllegalArgumentException.class);
+        }
 
-    @Test
-    void shouldExecute() {
-        DatabaseManager manager = Mockito.mock(DatabaseManager.class);
-        new DefaultDeleteQueryBuilder().delete("field", "field2")
-                .from("entity").delete(manager);
+        @DisplayName("Should Execute")
+        @Test
+        void shouldExecute() {
+            DatabaseManager manager = Mockito.mock(DatabaseManager.class);
+            new DefaultDeleteQueryBuilder().delete("field", "field2")
+                    .from("entity").delete(manager);
 
-        Mockito.verify(manager).delete(Mockito.any(DeleteQuery.class));
-    }
+            Mockito.verify(manager).delete(Mockito.any(DeleteQuery.class));
+        }
 
-    static Stream<Arguments> scenarios() {
-        return Stream.of(
-                givenNullArguments(),
-                givenColumnDeleteQueryOnly(),
-                givenParamsOnly(),
-                givenValidArguments()
-        );
-    }
+        static Stream<Arguments> scenarios() {
+            return Stream.of(
+                    givenNullArguments(),
+                    givenColumnDeleteQueryOnly(),
+                    givenParamsOnly(),
+                    givenValidArguments()
+            );
+        }
 
-    private DeleteQueryParams newInstance(DeleteQuery query, Params params) {
-        return new DeleteQueryParams(query,params);
-    }
+        private DeleteQueryParams newInstance(DeleteQuery query, Params params) {
+            return new DeleteQueryParams(query,params);
+        }
 
-    private static Params newDummyParams() {
-        Params params = Params.newParams();
-        params.add(UUID.randomUUID().toString());
-        return params;
-    }
+        private static Params newDummyParams() {
+            Params params = Params.newParams();
+            params.add(UUID.randomUUID().toString());
+            return params;
+        }
 
-    private static DeleteQuery newDummyColumnDeleteQuery() {
-        return DeleteQuery.builder().from(UUID.randomUUID().toString()).build();
-    }
+        private static DeleteQuery newDummyColumnDeleteQuery() {
+            return DeleteQuery.builder().from(UUID.randomUUID().toString()).build();
+        }
 
-    private static Arguments givenValidArguments() {
-        return arguments(newDummyColumnDeleteQuery(), newDummyParams());
-    }
+        private static Arguments givenValidArguments() {
+            return arguments(newDummyColumnDeleteQuery(), newDummyParams());
+        }
 
-    private static Arguments givenParamsOnly() {
-        return arguments(null, newDummyParams());
-    }
+        private static Arguments givenParamsOnly() {
+            return arguments(null, newDummyParams());
+        }
 
-    private static Arguments givenColumnDeleteQueryOnly() {
-        return arguments(newDummyColumnDeleteQuery(), null);
-    }
+        private static Arguments givenColumnDeleteQueryOnly() {
+            return arguments(newDummyColumnDeleteQuery(), null);
+        }
 
-    private static Arguments givenNullArguments() {
-        return arguments(null, null);
+        private static Arguments givenNullArguments() {
+            return arguments(null, null);
+        }
     }
 
 }

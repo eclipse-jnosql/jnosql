@@ -14,6 +14,11 @@
  */
 package org.eclipse.jnosql.mapping.core;
 
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
+import org.junit.jupiter.api.DisplayName;
+
 import jakarta.inject.Inject;
 import jakarta.nosql.AttributeConverter;
 import jakarta.nosql.Convert;
@@ -22,7 +27,6 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -38,49 +42,59 @@ class ConvertersTest {
 
     @Inject
     private Converters converters;
-    @Test
-    void shouldReturnNPEWhenClassIsNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> converters.get(null));
+
+
+
+
+
+    @Nested
+    @DisplayName("When the converters operates")
+    class WhenTheConvertersOperates {
+
+        @DisplayName("Should return npewhen class is null")
+        @Test
+        void shouldReturnNPEWhenClassIsNull() {
+            assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> converters.get(null));
+        }
+        @SuppressWarnings("unchecked")
+        @DisplayName("Should create attribute converter with injections")
+        @Test
+        void shouldCreateAttributeConverterWithInjections() {
+            FieldMetadata fieldMetadata = Mockito.mock(FieldMetadata.class);
+            Optional<?> converter = Optional.of(MyConverter.class);
+            Optional<?> newInstance = Optional.of(new MyConverter());
+
+            Mockito.when(fieldMetadata.converter())
+                    .thenReturn((Optional<Class<AttributeConverter<Object, Object>>>) converter);
+            Mockito.when(fieldMetadata.newConverter())
+                    .thenReturn((Optional<AttributeConverter<Object, Object>>) newInstance);
+            AttributeConverter<String, String> attributeConverter = converters.get(fieldMetadata);
+            Object text = attributeConverter.convertToDatabaseColumn("Text");
+            assertThat(text).isNotNull();
+        }
+        @DisplayName("Should create not using injections")
+        @Test
+        @SuppressWarnings("unchecked")
+        void shouldCreateNotUsingInjections() {
+
+            FieldMetadata fieldMetadata = Mockito.mock(FieldMetadata.class);
+            Optional<?> converter = Optional.of(VetedConverter.class);
+            Optional<?> newInstance = Optional.of(new VetedConverter());
+
+            Mockito.when(fieldMetadata.converter())
+                    .thenReturn((Optional<Class<AttributeConverter<Object, Object>>>) converter);
+            Mockito.when(fieldMetadata.newConverter())
+                    .thenReturn((Optional<AttributeConverter<Object, Object>>) newInstance);
+
+            AttributeConverter<String, String> attributeConverter = converters.get(fieldMetadata);
+            Object text = attributeConverter.convertToDatabaseColumn("Text");
+            assertThat(text).isNotNull();
+            assertThat(text).isEqualTo("Text");
+        }
+        @DisplayName("Should get to string")
+        @Test
+        void shouldGetToString(){
+            assertThat(ConvertersTest.this.converters.toString()).isNotNull().isNotBlank().isNotEmpty();
+        }
     }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldCreateAttributeConverterWithInjections() {
-        FieldMetadata fieldMetadata = Mockito.mock(FieldMetadata.class);
-        Optional<?> converter = Optional.of(MyConverter.class);
-        Optional<?> newInstance = Optional.of(new MyConverter());
-
-        Mockito.when(fieldMetadata.converter())
-                .thenReturn((Optional<Class<AttributeConverter<Object, Object>>>) converter);
-        Mockito.when(fieldMetadata.newConverter())
-                .thenReturn((Optional<AttributeConverter<Object, Object>>) newInstance);
-        AttributeConverter<String, String> attributeConverter = converters.get(fieldMetadata);
-        Object text = attributeConverter.convertToDatabaseColumn("Text");
-        Assertions.assertNotNull(text);
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    void shouldCreateNotUsingInjections() {
-
-        FieldMetadata fieldMetadata = Mockito.mock(FieldMetadata.class);
-        Optional<?> converter = Optional.of(VetedConverter.class);
-        Optional<?> newInstance = Optional.of(new VetedConverter());
-
-        Mockito.when(fieldMetadata.converter())
-                .thenReturn((Optional<Class<AttributeConverter<Object, Object>>>) converter);
-        Mockito.when(fieldMetadata.newConverter())
-                .thenReturn((Optional<AttributeConverter<Object, Object>>) newInstance);
-
-        AttributeConverter<String, String> attributeConverter = converters.get(fieldMetadata);
-        Object text = attributeConverter.convertToDatabaseColumn("Text");
-        Assertions.assertNotNull(text);
-        Assertions.assertEquals("Text", text);
-    }
-
-    @Test
-    void shouldGetToString(){
-        assertThat(this.converters.toString()).isNotNull().isNotBlank().isNotEmpty();
-    }
-
 }

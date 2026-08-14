@@ -16,35 +16,50 @@
  */
 package org.eclipse.jnosql.communication.writer;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class TemporalValueWriterTest {
 
-    @Test
-    void shouldTestTemporal() {
-        TemporalValueWriter writer = new TemporalValueWriter();
+    @Nested
+    @DisplayName("When the supported type is checked")
+    class WhenTheSupportedTypeIsChecked {
 
-        assertTrue(writer.test(Temporal.class));
-        assertFalse(writer.test(String.class));
+        @Test
+        @DisplayName("Should accept temporal types and reject other types")
+        void shouldTestTemporal() {
+            TemporalValueWriter writer = new TemporalValueWriter();
+
+            assertSoftly(softly -> {
+                softly.assertThat(writer.test(Temporal.class)).isTrue();
+                softly.assertThat(writer.test(String.class)).isFalse();
+            });
+        }
     }
 
-    @Test
-    void shouldWriteTemporal() {
-        TemporalValueWriter writer = new TemporalValueWriter();
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    @Nested
+    @DisplayName("When the temporal value is written")
+    class WhenTheTemporalValueIsWritten {
 
-        assertEquals(now.toString(), writer.write(now));
+        @Test
+        @DisplayName("Should write temporal values using their string representation")
+        void shouldWriteTemporal() {
+            TemporalValueWriter writer = new TemporalValueWriter();
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        Temporal customTemporal = LocalDateTime.parse("2022-01-01 12:00:00", formatter);
-        assertEquals("2022-01-01T12:00", writer.write(customTemporal));
+            assertThat(writer.write(now)).isEqualTo(now.toString());
+
+            Temporal customTemporal = LocalDateTime.parse("2022-01-01 12:00:00", formatter);
+            assertThat(writer.write(customTemporal)).isEqualTo("2022-01-01T12:00");
+        }
     }
 }

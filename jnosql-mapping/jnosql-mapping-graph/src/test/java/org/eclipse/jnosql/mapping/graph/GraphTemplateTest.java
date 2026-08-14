@@ -25,10 +25,12 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.eclipse.jnosql.mapping.DatabaseType.GRAPH;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class, GraphTemplate.class})
@@ -45,13 +47,20 @@ class GraphTemplateTest {
     private Template qualifier;
 
 
-    @Test
-    void shouldInjectTemplate() {
-        Assertions.assertNotNull(template);
-    }
+    @Nested
+    @DisplayName("When the template is injected")
+    class WhenTheTemplateIsInjected {
 
-    @Test
-    void shouldInjectQualifier() {
-        Assertions.assertNotNull(qualifier);
+        @Test
+        @DisplayName("Should inject template")
+        void shouldInjectTemplate() {
+            assertThat(template).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should inject graph-qualified template")
+        void shouldInjectQualifier() {
+            assertThat(qualifier).isNotNull();
+        }
     }
 }

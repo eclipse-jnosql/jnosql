@@ -15,14 +15,23 @@
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SemistructuredParameterBasedOperationTest {
 
+    @DisplayName("Should create instance")
     @Test
     void shouldCreateInstance() {
         SemistructuredParameterBasedOperation operation = new SemistructuredParameterBasedOperation();
         Assertions.assertThat(operation).isNotNull();
+    }
+
+    @Nested
+    @DisplayName("When the semistructured parameter based operation is tested")
+    class WhenTheSemistructuredParameterBasedOperationIsTested {
     }
 }

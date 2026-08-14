@@ -25,18 +25,19 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jnosql.mapping.DatabaseType.COLUMN;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class, ColumnTemplate.class})
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class, ColumnExtension.class})
+@DisplayName("Column template")
 class ColumnTemplateTest {
 
     @Inject
@@ -46,20 +47,40 @@ class ColumnTemplateTest {
     @Database(COLUMN)
     private Template qualifier;
 
-    @Test
-    void shouldInjectTemplate() {
-        Assertions.assertNotNull(template);
+    @Nested
+    @DisplayName("When injecting templates")
+    class WhenTheTemplateInjection {
+
+        @Test
+        @DisplayName("Should inject the default template")
+        void shouldInjectDefaultTemplate() {
+
+            // Then
+            assertThat(template).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should inject the qualified template")
+        void shouldInjectQualifiedTemplate() {
+
+            // Then
+            assertThat(qualifier).isNotNull();
+        }
     }
 
-    @Test
-    void shouldInjectQualifier() {
-        Assertions.assertNotNull(qualifier);
-    }
+    @Nested
+    @DisplayName("When creating a template")
+    class WhenTheTemplateCreation {
 
-    @Test
-    @DisplayName("Should have a default constructor for CDI ")
-    void shouldHaveDefaultConstructor() {
-        DefaultColumnTemplate template = new DefaultColumnTemplate();
-        assertNotNull(template);
+        @Test
+        @DisplayName("Should expose a default constructor")
+        void shouldExposeDefaultConstructor() {
+
+            // When
+            DefaultColumnTemplate template = new DefaultColumnTemplate();
+
+            // Then
+            assertThat(template).isNotNull();
+        }
     }
 }

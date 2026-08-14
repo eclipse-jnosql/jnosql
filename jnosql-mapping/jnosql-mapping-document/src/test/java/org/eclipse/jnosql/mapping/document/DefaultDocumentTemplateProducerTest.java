@@ -24,12 +24,13 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 
 @EnableAutoWeld
@@ -37,29 +38,54 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
 @AddExtensions({ReflectionEntityMetadataExtension.class, DocumentExtension.class})
+@DisplayName("Document template producer")
 class DefaultDocumentTemplateProducerTest {
 
     @Inject
     private DocumentTemplateProducer producer;
 
 
-    @Test
-    void shouldReturnErrorWhenManagerNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> producer.apply(null));
+    @Nested
+    @DisplayName("When creating a template")
+    class WhenTheTemplateCreation {
+
+        @Test
+        @DisplayName("Should require a database manager")
+        void shouldRequireDatabaseManager() {
+
+            // When / Then
+            assertThatNullPointerException().isThrownBy(() -> producer.apply(null));
+        }
+
+        @Test
+        @DisplayName("Should create a document template")
+        void shouldCreateDocumentTemplate() {
+
+            // Given
+            var manager = Mockito.mock(DatabaseManager.class);
+
+            // When
+            DocumentTemplate documentTemplate = producer.apply(manager);
+
+            // Then
+            assertThat(documentTemplate).isNotNull();
+        }
     }
 
-    @Test
-    void shouldReturn() {
-        var manager = Mockito.mock(DatabaseManager.class);
-        DocumentTemplate documentTemplate = producer.apply(manager);
-        assertNotNull(documentTemplate);
-    }
+    @Nested
+    @DisplayName("When creating the CDI producer")
+    class WhenTheProducerCreation {
 
-    @Test
-    @DisplayName("Should have a default constructor for CDI ")
-    void shouldHaveDefaultConstructor() {
-        DocumentTemplateProducer.ProducerDocumentTemplate template = new DocumentTemplateProducer.ProducerDocumentTemplate();
-        assertNotNull(template);
+        @Test
+        @DisplayName("Should expose a default constructor")
+        void shouldExposeDefaultConstructor() {
+
+            // When
+            DocumentTemplateProducer.ProducerDocumentTemplate template = new DocumentTemplateProducer.ProducerDocumentTemplate();
+
+            // Then
+            assertThat(template).isNotNull();
+        }
     }
 
 }

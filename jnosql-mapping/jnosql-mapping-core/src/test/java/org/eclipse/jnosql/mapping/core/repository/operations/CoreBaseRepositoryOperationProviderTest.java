@@ -14,6 +14,13 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.operations;
 
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import jakarta.inject.Inject;
 import jakarta.nosql.Convert;
 import org.assertj.core.api.Assertions;
@@ -40,107 +47,122 @@ class CoreBaseRepositoryOperationProviderTest {
     @Inject
     private CoreBaseRepositoryOperationProvider provider;
 
-    @Test
-    @DisplayName("Should create instance using default constructor")
-    void shouldHaveDefaultConstructor() {
-        var repositoryOperationProvider = new CoreBaseRepositoryOperationProvider();
-        Assertions.assertThat(repositoryOperationProvider).isNotNull();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Nested
+    @DisplayName("When the core base repository operation provider operates")
+    class WhenTheCoreBaseRepositoryOperationProviderOperates {
+
+        @DisplayName("Should have default constructor")
+        @Test
+        void shouldHaveDefaultConstructor() {
+            var repositoryOperationProvider = new CoreBaseRepositoryOperationProvider();
+            assertThat(repositoryOperationProvider).isNotNull();
+        }
+        @DisplayName("Should inject provider")
+        @Test
+        void shouldInjectProvider() {
+            assertThat(provider).isNotNull();
+        }
+        @DisplayName("Should return insert operation")
+        @Test
+        void shouldReturnInsertOperation() {
+            assertThatCode(() -> provider.insertOperation())
+                    .doesNotThrowAnyException();
+        }
+        @DisplayName("Should return update operation")
+        @Test
+        void shouldReturnUpdateOperation() {
+            assertThatCode(() -> provider.updateOperation())
+                    .doesNotThrowAnyException();
+        }
+        @DisplayName("Should return delete operation")
+        @Test
+        void shouldReturnDeleteOperation() {
+            assertThatCode(() -> provider.deleteOperation())
+                    .doesNotThrowAnyException();
+        }
+        @DisplayName("Should return save operation")
+        @Test
+        void shouldReturnSaveOperation() {
+            assertThatCode(() -> provider.saveOperation())
+                    .doesNotThrowAnyException();
+        }
+        @DisplayName("Should return provider operation")
+        @Test
+        void shouldReturnProviderOperation() {
+            assertThatCode(() -> provider.providerOperation())
+                    .doesNotThrowAnyException();
+        }
+        @DisplayName("Should fail on find by operation")
+        @Test
+        void shouldFailOnFindByOperation() {
+            assertThatExceptionOfType(UnsupportedOperationException.class)
+                    .isThrownBy(() -> provider.findByOperation());
+        }
+        @DisplayName("Should fail on find all operation")
+        @Test
+        void shouldFailOnFindAllOperation() {
+            assertThatExceptionOfType(UnsupportedOperationException.class)
+                    .isThrownBy(() -> provider.findAllOperation());
+        }
+        @DisplayName("Should fail on count by operation")
+        @Test
+        void shouldFailOnCountByOperation() {
+            assertThatExceptionOfType(UnsupportedOperationException.class)
+                    .isThrownBy(() -> provider.countByOperation());
+        }
+        @DisplayName("Should fail on count all operation")
+        @Test
+        void shouldFailOnCountAllOperation() {
+            assertThatExceptionOfType(UnsupportedOperationException.class)
+                    .isThrownBy(() -> provider.countAllOperation());
+        }
+        @DisplayName("Should fail on exists by operation")
+        @Test
+        void shouldFailOnExistsByOperation() {
+            assertThatExceptionOfType(UnsupportedOperationException.class)
+                    .isThrownBy(() -> provider.existsByOperation());
+        }
+        @DisplayName("Should fail on delete by operation")
+        @Test
+        void shouldFailOnDeleteByOperation() {
+            assertThatExceptionOfType(UnsupportedOperationException.class)
+                    .isThrownBy(() -> provider.deleteByOperation());
+        }
+        @DisplayName("Should fail on parameter based operation")
+        @Test
+        void shouldFailOnParameterBasedOperation() {
+            assertThatExceptionOfType(UnsupportedOperationException.class)
+                    .isThrownBy(() -> provider.parameterBasedOperation());
+        }
+        @DisplayName("Should fail on cursor pagination operation")
+        @Test
+        void shouldFailOnCursorPaginationOperation() {
+            assertThatExceptionOfType(UnsupportedOperationException.class)
+                    .isThrownBy(() -> provider.cursorPaginationOperation());
+        }
+        @DisplayName("Should fail on query operation")
+        @Test
+        void shouldFailOnQueryOperation() {
+            assertThatExceptionOfType(UnsupportedOperationException.class)
+                    .isThrownBy(() -> provider.queryOperation());
+        }
     }
-
-    @Test
-    @DisplayName("Should have implementation injected by CDI")
-    void shouldInjectProvider() {
-        Assertions.assertThat(provider).isNotNull();
-    }
-
-    @Test
-    @DisplayName("InsertOperation must NOT throw UnsupportedOperationException")
-    void shouldReturnInsertOperation() {
-        Assertions.assertThatCode(() -> provider.insertOperation())
-                .doesNotThrowAnyException();
-    }
-
-    @Test
-    @DisplayName("UpdateOperation must NOT throw UnsupportedOperationException")
-    void shouldReturnUpdateOperation() {
-        Assertions.assertThatCode(() -> provider.updateOperation())
-                .doesNotThrowAnyException();
-    }
-
-    @Test
-    @DisplayName("DeleteOperation must NOT throw UnsupportedOperationException")
-    void shouldReturnDeleteOperation() {
-        Assertions.assertThatCode(() -> provider.deleteOperation())
-                .doesNotThrowAnyException();
-    }
-
-    @Test
-    @DisplayName("SaveOperation must NOT throw UnsupportedOperationException")
-    void shouldReturnSaveOperation() {
-        Assertions.assertThatCode(() -> provider.saveOperation())
-                .doesNotThrowAnyException();
-    }
-
-    @Test
-    @DisplayName("ProviderOperation must NOT throw UnsupportedOperationException")
-    void shouldReturnProviderOperation() {
-        Assertions.assertThatCode(() -> provider.providerOperation())
-                .doesNotThrowAnyException();
-    }
-
-
-    @Test
-    void shouldFailOnFindByOperation() {
-        Assertions.assertThatExceptionOfType(UnsupportedOperationException.class)
-                .isThrownBy(() -> provider.findByOperation());
-    }
-
-    @Test
-    void shouldFailOnFindAllOperation() {
-        Assertions.assertThatExceptionOfType(UnsupportedOperationException.class)
-                .isThrownBy(() -> provider.findAllOperation());
-    }
-
-    @Test
-    void shouldFailOnCountByOperation() {
-        Assertions.assertThatExceptionOfType(UnsupportedOperationException.class)
-                .isThrownBy(() -> provider.countByOperation());
-    }
-
-    @Test
-    void shouldFailOnCountAllOperation() {
-        Assertions.assertThatExceptionOfType(UnsupportedOperationException.class)
-                .isThrownBy(() -> provider.countAllOperation());
-    }
-
-    @Test
-    void shouldFailOnExistsByOperation() {
-        Assertions.assertThatExceptionOfType(UnsupportedOperationException.class)
-                .isThrownBy(() -> provider.existsByOperation());
-    }
-
-    @Test
-    void shouldFailOnDeleteByOperation() {
-        Assertions.assertThatExceptionOfType(UnsupportedOperationException.class)
-                .isThrownBy(() -> provider.deleteByOperation());
-    }
-
-    @Test
-    void shouldFailOnParameterBasedOperation() {
-        Assertions.assertThatExceptionOfType(UnsupportedOperationException.class)
-                .isThrownBy(() -> provider.parameterBasedOperation());
-    }
-
-    @Test
-    void shouldFailOnCursorPaginationOperation() {
-        Assertions.assertThatExceptionOfType(UnsupportedOperationException.class)
-                .isThrownBy(() -> provider.cursorPaginationOperation());
-    }
-
-    @Test
-    void shouldFailOnQueryOperation() {
-        Assertions.assertThatExceptionOfType(UnsupportedOperationException.class)
-                .isThrownBy(() -> provider.queryOperation());
-    }
-
 }

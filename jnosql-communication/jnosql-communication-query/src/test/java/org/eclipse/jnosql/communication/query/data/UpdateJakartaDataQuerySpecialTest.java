@@ -15,6 +15,8 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.query.BooleanQueryValue;
 import org.eclipse.jnosql.communication.query.NullQueryValue;
 import org.eclipse.jnosql.communication.query.UpdateItem;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -22,6 +24,11 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.util.List;
 
 class UpdateJakartaDataQuerySpecialTest {
+
+    @Nested
+    @DisplayName("When the update jakarta data query special is used")
+    class WhenTheUpdateJakartaDataQuerySpecial {
+    }
     private UpdateParser updateParser;
 
     @BeforeEach
@@ -30,6 +37,7 @@ class UpdateJakartaDataQuerySpecialTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Validate True")
     @ValueSource(strings = {"UPDATE entity SET active = true"})
     void shouldValidateTrue(String query){
         var selectQuery = updateParser.apply(query);
@@ -45,6 +53,7 @@ class UpdateJakartaDataQuerySpecialTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Validate False")
     @ValueSource(strings = {"UPDATE entity SET active = false"})
     void shouldValidateFalse(String query){
         var selectQuery = updateParser.apply(query);
@@ -60,6 +69,7 @@ class UpdateJakartaDataQuerySpecialTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Validate Null")
     @ValueSource(strings = {"UPDATE entity SET active = NULL"})
     void shouldValidateNull(String query){
         var selectQuery = updateParser.apply(query);

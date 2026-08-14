@@ -14,15 +14,27 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.operations;
 
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.DisplayName;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class DefaultInfrastructureOperatorProviderTest {
 
 
-    @Test
-    void haveDefaultConstructor() {
-        var provider = new DefaultInfrastructureOperatorProvider();
-        Assertions.assertThat(provider).isNotNull();
+
+    @Nested
+    @DisplayName("When the default infrastructure operator provider operates")
+    class WhenTheDefaultInfrastructureOperatorProviderOperates {
+
+        @DisplayName("Should have default constructor")
+        @Test
+        void shouldHaveDefaultConstructor() {
+            var provider = new DefaultInfrastructureOperatorProvider();
+            assertThat(provider).isNotNull();
+        }
     }
 }

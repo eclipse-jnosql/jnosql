@@ -15,6 +15,9 @@
 package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.enterprise.context.spi.CreationalContext;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -22,15 +25,12 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.repository.SemistructuredRepositoryProducer;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.Set;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
@@ -49,11 +49,13 @@ class BaseRepositoryBeanTest {
         repositoryBean = new MockBaseRepositoryBean(MockRepository.class, PROVIDER, DatabaseType.GRAPH);
     }
 
+    @DisplayName("Should return bean class")
     @Test
     void shouldReturnBeanClass() {
         assertThat(repositoryBean.getBeanClass()).isEqualTo(MockRepository.class);
     }
 
+    @DisplayName("Should create proxy instance")
     @Test
     void shouldCreateProxyInstance() {
         CreationalContext<MockRepository> context = mock(CreationalContext.class);
@@ -68,21 +70,24 @@ class BaseRepositoryBeanTest {
 
         MockRepository proxyInstance = spyBean.create(context);
 
-        assertNotNull(proxyInstance);
+        assertThat(proxyInstance).isNotNull();
     }
 
+    @DisplayName("Should return correct qualifiers")
     @Test
     void shouldReturnCorrectQualifiers() {
         Set<Annotation> qualifiers = repositoryBean.getQualifiers();
         assertThat(qualifiers).isNotEmpty();
     }
 
+    @DisplayName("Should return correct id")
     @Test
     void shouldReturnCorrectId() {
         String id = repositoryBean.getId();
         Assertions.assertThat(id).isNotNull();
     }
 
+    @DisplayName("Should return correct types")
     @Test
     void shouldReturnCorrectTypes() {
         Set<Type> types = repositoryBean.getTypes();
@@ -104,4 +109,9 @@ class BaseRepositoryBeanTest {
     }
 
     interface MockRepository {}
+
+    @Nested
+    @DisplayName("When the base repository bean is tested")
+    class WhenTheBaseRepositoryBeanIsTested {
+    }
 }

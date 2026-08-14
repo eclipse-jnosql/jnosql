@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.data.page.PageRequest;
 import jakarta.inject.Inject;
+import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -29,10 +30,11 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.stream.Stream;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("The scenarios to test the feature query")
 @EnableAutoWeld
@@ -113,4 +115,9 @@ public class RepositoryQueryTest extends AbstractRepositoryTest {
         Assertions.assertThat(result).isNotNull().containsExactly(new SocialMediaSummary("id", "name"));
     }
 
+
+    @Nested
+    @DisplayName("When the repository query is tested")
+    class WhenTheRepositoryQueryIsTested {
+    }
 }

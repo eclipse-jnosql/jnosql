@@ -14,12 +14,16 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.DisplayName;
+
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
@@ -30,7 +34,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ArrayRepositoryReturnTest {
 
@@ -39,79 +42,9 @@ class ArrayRepositoryReturnTest {
     @Mock
     private Page<Person> page;
 
-    @Test
-    void shouldReturnIsCompatible() {
-        Assertions.assertTrue(repositoryReturn.isCompatible(Person.class, Person[].class));
-        Assertions.assertFalse(repositoryReturn.isCompatible(Person.class, Iterable.class));
-        Assertions.assertFalse(repositoryReturn.isCompatible(Person.class, Collection.class));
-        assertFalse(repositoryReturn.isCompatible(Object.class, Person.class));
-        assertFalse(repositoryReturn.isCompatible(Person.class, Object.class));
-    }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldReturnArray() {
-        Method method = Person.class.getDeclaredMethods()[0];
-        Person ada = new Person("Ada");
-        DynamicReturn<Person> dynamic = DynamicReturn.builder()
-                .singleResult(Optional::empty)
-                .classSource(Person.class)
-                .result(() -> Stream.of(ada))
-                .methodName(method.getName())
-                .returnType(Person[].class)
-                .build();
-        Person[] person = (Person[]) repositoryReturn.convert(dynamic);
-        SoftAssertions.assertSoftly(s -> {
-            s.assertThat(person).isNotNull();
-            s.assertThat(person).hasSize(1);
-            s.assertThat(person[0]).isEqualTo(ada);
-        });
-    }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldReturnListPage() {
-        Method method = Person.class.getDeclaredMethods()[0];
-        Person ada = new Person("Ada");
-        DynamicReturn<Person> dynamic = DynamicReturn.builder()
-                .classSource(Person.class)
-                .singleResult(Optional::empty)
-                .result(Collections::emptyList)
-                .singleResultPagination(p -> Optional.empty())
-                .streamPagination(p -> Stream.of(ada))
-                .methodName(method.getName())
-                .returnType(Person[].class)
-                .pagination(PageRequest.ofPage(2).size(2))
-                .page((p, l) -> page)
-                .totalSupplier(() -> 1L)
-                .build();
-        Person[] person = (Person[]) repositoryReturn.convertPageRequest(dynamic);
-        SoftAssertions.assertSoftly(s -> {
-            s.assertThat(person).isNotNull();
-            s.assertThat(person).hasSize(1);
-            s.assertThat(person[0]).isEqualTo(ada);
-        });
-    }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldReturnArrayPrimitive() {
-        Method method = Person.class.getDeclaredMethods()[0];
-        DynamicReturn<long[]> dynamic = DynamicReturn.builder()
-                .singleResult(Optional::empty)
-                .classSource(Person.class)
-                .result(() -> Stream.of(1L, 2L, 3L))
-                .methodName(method.getName())
-                .returnType(long[].class)
-                .build();
-
-        long[] values = (long[]) repositoryReturn.convert(dynamic);
-        SoftAssertions.assertSoftly(soft -> {
-            soft.assertThat(values).isNotNull();
-            soft.assertThat(values).hasSize(3);
-            soft.assertThat(values).containsExactly(1L, 2L, 3L);
-        });
-    }
 
 
     private static class Person implements Comparable<Person> {
@@ -152,6 +85,86 @@ class ArrayRepositoryReturnTest {
         @Override
         public int compareTo(Person o) {
             return name.compareTo(o.name);
+        }
+    }
+
+    @Nested
+    @DisplayName("When the array repository return operates")
+    class WhenTheArrayRepositoryReturnOperates {
+
+        @DisplayName("Should return is compatible")
+        @Test
+        void shouldReturnIsCompatible() {
+            assertThat(repositoryReturn.isCompatible(Person.class, Person[].class)).isTrue();
+            assertThat(repositoryReturn.isCompatible(Person.class, Iterable.class)).isFalse();
+            assertThat(repositoryReturn.isCompatible(Person.class, Collection.class)).isFalse();
+            assertThat(repositoryReturn.isCompatible(Object.class, Person.class)).isFalse();
+            assertThat(repositoryReturn.isCompatible(Person.class, Object.class)).isFalse();
+        }
+        @SuppressWarnings("unchecked")
+        @DisplayName("Should return array")
+        @Test
+        void shouldReturnArray() {
+            Method method = Person.class.getDeclaredMethods()[0];
+            Person ada = new Person("Ada");
+            DynamicReturn<Person> dynamic = DynamicReturn.builder()
+                    .singleResult(Optional::empty)
+                    .classSource(Person.class)
+                    .result(() -> Stream.of(ada))
+                    .methodName(method.getName())
+                    .returnType(Person[].class)
+                    .build();
+            Person[] person = (Person[]) repositoryReturn.convert(dynamic);
+            SoftAssertions.assertSoftly(s -> {
+                s.assertThat(person).isNotNull();
+                s.assertThat(person).hasSize(1);
+                s.assertThat(person[0]).isEqualTo(ada);
+            });
+        }
+        @SuppressWarnings("unchecked")
+        @DisplayName("Should return list page")
+        @Test
+        void shouldReturnListPage() {
+            Method method = Person.class.getDeclaredMethods()[0];
+            Person ada = new Person("Ada");
+            DynamicReturn<Person> dynamic = DynamicReturn.builder()
+                    .classSource(Person.class)
+                    .singleResult(Optional::empty)
+                    .result(Collections::emptyList)
+                    .singleResultPagination(p -> Optional.empty())
+                    .streamPagination(p -> Stream.of(ada))
+                    .methodName(method.getName())
+                    .returnType(Person[].class)
+                    .pagination(PageRequest.ofPage(2).size(2))
+                    .page((p, l) -> page)
+                    .totalSupplier(() -> 1L)
+                    .build();
+            Person[] person = (Person[]) repositoryReturn.convertPageRequest(dynamic);
+            SoftAssertions.assertSoftly(s -> {
+                s.assertThat(person).isNotNull();
+                s.assertThat(person).hasSize(1);
+                s.assertThat(person[0]).isEqualTo(ada);
+            });
+        }
+        @SuppressWarnings("unchecked")
+        @DisplayName("Should return array primitive")
+        @Test
+        void shouldReturnArrayPrimitive() {
+            Method method = Person.class.getDeclaredMethods()[0];
+            DynamicReturn<long[]> dynamic = DynamicReturn.builder()
+                    .singleResult(Optional::empty)
+                    .classSource(Person.class)
+                    .result(() -> Stream.of(1L, 2L, 3L))
+                    .methodName(method.getName())
+                    .returnType(long[].class)
+                    .build();
+
+            long[] values = (long[]) repositoryReturn.convert(dynamic);
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(values).isNotNull();
+                soft.assertThat(values).hasSize(3);
+                soft.assertThat(values).containsExactly(1L, 2L, 3L);
+            });
         }
     }
 }

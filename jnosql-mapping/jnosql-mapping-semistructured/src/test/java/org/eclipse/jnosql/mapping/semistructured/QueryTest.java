@@ -18,6 +18,9 @@ package org.eclipse.jnosql.mapping.semistructured;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.nosql.Query;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
@@ -33,18 +36,16 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @EnableAutoWeld
@@ -275,7 +276,7 @@ public class QueryTest {
     void shouldReturnErrorWhenSelectExecuteUpdate(String textQuery){
         Mockito.when(managerMock.count(Mockito.any(SelectQuery.class))).thenReturn(1L);
         Query query = this.template.query(textQuery);
-        Assertions.assertThrows(UnsupportedOperationException.class, query::executeUpdate);
+        assertThatThrownBy(query::executeUpdate).isInstanceOf(UnsupportedOperationException.class);
     }
 
 
@@ -316,7 +317,7 @@ public class QueryTest {
     @DisplayName("Should return error when modification execute single result")
     void shouldReturnErrorWhenModificationExecuteSingleResult(String textQuery){
         Query query = this.template.query(textQuery);
-        Assertions.assertThrows(UnsupportedOperationException.class, query::singleResult);
+        assertThatThrownBy(query::singleResult).isInstanceOf(UnsupportedOperationException.class);
     }
 
     @ParameterizedTest
@@ -324,7 +325,7 @@ public class QueryTest {
     @DisplayName("Should return error when modification execute List")
     void shouldReturnErrorWhenModificationExecuteList(String textQuery){
         Query query = this.template.query(textQuery);
-        Assertions.assertThrows(UnsupportedOperationException.class, query::result);
+        assertThatThrownBy(query::result).isInstanceOf(UnsupportedOperationException.class);
     }
 
     @ParameterizedTest
@@ -332,7 +333,12 @@ public class QueryTest {
     @DisplayName("Should return error when modification execute Stream")
     void shouldReturnErrorWhenModificationExecuteStream(String textQuery){
         Query query = this.template.query(textQuery);
-        Assertions.assertThrows(UnsupportedOperationException.class, query::stream);
+        assertThatThrownBy(query::stream).isInstanceOf(UnsupportedOperationException.class);
     }
 
+
+    @Nested
+    @DisplayName("When the query is tested")
+    class WhenTheQueryIsTested {
+    }
 }

@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.keyvalue.configuration;
 
 import jakarta.enterprise.inject.spi.CDI;
+import org.assertj.core.api.SoftAssertions;
 import jakarta.enterprise.util.TypeLiteral;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -29,8 +30,9 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -83,50 +85,64 @@ class CollectionSupplierTest {
         System.clearProperty(KEY_VALUE_PROVIDER.get());
     }
 
+    @Nested
+    @DisplayName("When the collection supplier provides collections")
+    class WhenTheCollectionSupplierProvidesCollections {
 
-    @Test
-    void shouldGetList() {
-        Assertions.assertNotNull(names);
-        assertThat(names)
-                .isInstanceOf(ArrayList.class);
+        @Test
+        @DisplayName("Should get list")
+        void shouldGetList() {
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(names).isNotNull();
+                softly.assertThat(names).isInstanceOf(ArrayList.class);
+            });
+        }
+
+        @Test
+        @DisplayName("Should get map")
+        void shouldGetMap() {
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(map).isNotNull();
+                softly.assertThat(map).isInstanceOf(HashMap.class);
+            });
+        }
+
+        @Test
+        @DisplayName("Should get queue")
+        void shouldGetQueue() {
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(orders).isNotNull();
+                softly.assertThat(orders).isInstanceOf(LinkedList.class);
+            });
+        }
+
+        @Test
+        @DisplayName("Should get set")
+        void shouldGetSet() {
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(fruits).isNotNull();
+                softly.assertThat(fruits).isInstanceOf(HashSet.class);
+            });
+        }
+
+        @Test
+        @DisplayName("Should structure")
+        void shouldStructure() {
+            assertThat(structure).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should get from qualifier")
+        void shouldGetFromQualifier() {
+            CDI<Object> current = CDI.current();
+            TypeLiteral<List<Integer>> literal = new TypeLiteral<>(){};
+            List<Integer> integers = current.select(literal, KeyValueDatabaseQualifier.of("numbers")).get();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(integers).isNotNull();
+                softly.assertThat(integers).isInstanceOf(ArrayList.class);
+            });
+        }
+
     }
-
-    @Test
-    void shouldGetMap() {
-        Assertions.assertNotNull(map);
-        assertThat(map)
-                .isInstanceOf(HashMap.class);
-    }
-
-    @Test
-    void shouldGetQueue() {
-        Assertions.assertNotNull(orders);
-        assertThat(orders)
-                .isInstanceOf(LinkedList.class);
-    }
-
-    @Test
-    void shouldGetSet() {
-        Assertions.assertNotNull(fruits);
-        assertThat(fruits)
-                .isInstanceOf(HashSet.class);
-    }
-
-    @Test
-    void shouldStructure() {
-        Assertions.assertNotNull(structure);
-    }
-
-
-    @Test
-    void shouldGetFromQualifier() {
-        CDI<Object> current = CDI.current();
-        TypeLiteral<List<Integer>> literal = new TypeLiteral<>(){};
-        List<Integer> integers = current.select(literal, KeyValueDatabaseQualifier.of("numbers")).get();
-        Assertions.assertNotNull(integers);
-        assertThat(integers)
-                .isInstanceOf(ArrayList.class);
-    }
-
 
 }

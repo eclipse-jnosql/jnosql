@@ -23,14 +23,24 @@ import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryPath;
 import org.eclipse.jnosql.communication.query.SelectQuery;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.DayOfWeek;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+@DisplayName("SelectJakartaDataQueryProvider")
 class SelectJakartaDataQueryProviderTest {
+
+    @Nested
+    @DisplayName("When the select jakarta data query provider is used")
+    class WhenTheSelectJakartaDataQueryProvider {
+    }
 
 
     private SelectParser selectParser;
@@ -42,6 +52,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"FROM entity"})
+    @DisplayName("Should Return Parser Query")
     void shouldReturnParserQuery(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -55,6 +66,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"FROM entity"})
+    @DisplayName("Should Overwrite The Entity")
     void shouldOverwriteTheEntity(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "newEntity");
 
@@ -68,6 +80,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"", " "})
+    @DisplayName("Should Keep Entity From Parameter")
     void shouldKeepEntityFromParameter(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -81,13 +94,15 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"", " "})
+    @DisplayName("Should Return Error When Entity Is Missing")
     void shouldReturnErrorWhenEntityIsMissing(String query) {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> selectParser.apply(query, null));
+        assertThatThrownBy(() -> selectParser.apply(query, null)).isInstanceOf(IllegalArgumentException.class);
     }
 
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"FROM entity ORDER BY name ASC", "ORDER BY name ASC", "ORDER BY name"})
+    @DisplayName("Should Query Order")
     void shouldQueryOrder(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -101,6 +116,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"FROM entity ORDER BY name DESC", "ORDER BY name DESC"})
+    @DisplayName("Should Query Order Desc")
     void shouldQueryOrderDesc(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -114,6 +130,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"FROM entity ORDER BY name ASC, age DESC", "ORDER BY name ASC, age DESC"})
+    @DisplayName("Should Query Orders")
     void shouldQueryOrders(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -127,6 +144,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"SELECT name, age FROM entity", "SELECT name, age"})
+    @DisplayName("Should Select Fields")
     void shouldSelectFields(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -141,6 +159,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age = 10", "FROM entity WHERE age = 10"})
+    @DisplayName("Should Eq")
     void shouldEq(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -159,6 +178,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE salary = 10.15", "FROM entity WHERE salary = 10.15"})
+    @DisplayName("Should Eq Double")
     void shouldEqDouble(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -177,6 +197,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE name = \"Otavio\"", "FROM entity WHERE name = \"Otavio\""})
+    @DisplayName("Should Eq String")
     void shouldEqString(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -195,6 +216,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE name = 'Otavio'", "FROM entity WHERE name = 'Otavio'"})
+    @DisplayName("Should Eq String Single Quote")
     void shouldEqStringSingleQuote(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -213,6 +235,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE name = :name", "FROM entity WHERE name = :name"})
+    @DisplayName("Should EQQuery With Condition")
     void shouldEQQueryWithCondition(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -231,6 +254,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE name = ?1", "FROM entity WHERE name = ?1"})
+    @DisplayName("Should EQQuery With Condition Position")
     void shouldEQQueryWithConditionPosition(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -249,6 +273,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE active = TRUE", "FROM entity WHERE active = TRUE"})
+    @DisplayName("Should Use Special Expression True")
     void shouldUseSpecialExpressionTrue(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -267,6 +292,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE active = FALSE", "FROM entity WHERE active = FALSE"})
+    @DisplayName("Should Use Special Expression False")
     void shouldUseSpecialExpressionFalse(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -285,6 +311,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age < 10", "FROM entity WHERE age < 10"})
+    @DisplayName("Should Use Special Expression Lesser")
     void shouldUseSpecialExpressionLesser(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -303,6 +330,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age > 10", "FROM entity WHERE age > 10"})
+    @DisplayName("Should Use Special Expression Greater")
     void shouldUseSpecialExpressionGreater(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -321,6 +349,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age <= 10", "FROM entity WHERE age <= 10"})
+    @DisplayName("Should Use Special Expression Lesser Than Equals")
     void shouldUseSpecialExpressionLesserThanEquals(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -339,6 +368,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE age >= 10", "FROM entity WHERE age >= 10"})
+    @DisplayName("Should Use Special Expression Greater Than Equals")
     void shouldUseSpecialExpressionGreaterThanEquals(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -358,6 +388,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = {"WHERE days = java.time.DayOfWeek.MONDAY", "FROM entity WHERE days = java.time.DayOfWeek.MONDAY"})
+    @DisplayName("Should Eq Using Enum Literal")
     void shouldEqUsingEnumLiteral(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -378,6 +409,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "SELECT COUNT (THIS) WHERE age = 10")
+    @DisplayName("Should Aggregate")
     void shouldAggregate(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -397,6 +429,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "SELECT hexadecimal WHERE hexadecimal IS NULL")
+    @DisplayName("Should Query Is Null")
     void shouldQueryIsNull(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -416,6 +449,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "SELECT hexadecimal WHERE hexadecimal IS NOT NULL")
+    @DisplayName("Should Query Is Not Null")
     void shouldQueryIsNotNull(String query) {
         var selectQuery = selectParser.apply(query, "entity");
 
@@ -437,6 +471,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "WHERE isOdd = false AND numType = java.time.DayOfWeek.MONDAY")
+    @DisplayName("Should Query Condition Enum")
     void shouldQueryConditionEnum(String query) {
         var selectQuery = selectParser.apply(query, "entity");
 
@@ -463,6 +498,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "WHERE NOT age <> 10")
+    @DisplayName("Should Use Not Not Equals")
     void shouldUseNotNotEquals(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -482,6 +518,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "WHERE age <> 10")
+    @DisplayName("Should Use Not Equals")
     void shouldUseNotEquals(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -503,6 +540,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "WHERE hexadecimal <> ' ORDER BY isn''t a keyword when inside a literal' AND hexadecimal IN ('4a', '4b', '4c')")
+    @DisplayName("Should Use Not Equals Combined")
     void shouldUseNotEqualsCombined(String query) {
         SelectQuery selectQuery = selectParser.apply(query, "entity");
 
@@ -531,12 +569,14 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "Select id Where isOdd = true and (id = :id or id < :exclusiveMax) Order by id Desc")
+    @DisplayName("Should Return Error When Use Parenthesis")
     void shouldReturnErrorWhenUseParenthesis(String query) {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> selectParser.apply(query, "entity"));
+        assertThatThrownBy(() -> selectParser.apply(query, "entity")).isInstanceOf(UnsupportedOperationException.class);
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "where employeeName LIKE ?1")
+    @DisplayName("Should Use Like")
     void shouldUseLike(String query) {
         var selectQuery = selectParser.apply(query, "entity");
 
@@ -556,6 +596,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "where employeeName LIKE  :employeeName")
+    @DisplayName("Should Use Like2")
     void shouldUseLike2(String query) {
         var selectQuery = selectParser.apply(query, "entity");
 
@@ -574,6 +615,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "where employeeName LIKE 'employeeName'")
+    @DisplayName("Should Use Like3")
     void shouldUseLike3(String query) {
         var selectQuery = selectParser.apply(query, "entity");
 
@@ -592,6 +634,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "where employeeName NOT LIKE 'employeeName'")
+    @DisplayName("Should Use Not Like")
     void shouldUseNotLike(String query) {
         var selectQuery = selectParser.apply(query, "entity");
 
@@ -612,6 +655,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "where employeeName NOT LIKE ?1")
+    @DisplayName("Should Use Not Like2")
     void shouldUseNotLike2(String query) {
         var selectQuery = selectParser.apply(query, "entity");
 
@@ -634,6 +678,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "where employeeName NOT LIKE :employeeName")
+    @DisplayName("Should Use Not Like3")
     void shouldUseNotLike3(String query) {
         var selectQuery = selectParser.apply(query, "entity");
 
@@ -655,6 +700,7 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "WHERE quantity >= attribute")
+    @DisplayName("Should Query Reference Path")
     void shouldQueryReferencePath(String query) {
         var selectQuery = selectParser.apply(query, "entity");
 

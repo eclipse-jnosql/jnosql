@@ -28,6 +28,10 @@ import jakarta.data.repository.By;
 import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Find;
 import jakarta.inject.Inject;
+import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -46,15 +50,13 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Proxy;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Stream;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jnosql.communication.Condition.BETWEEN;
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
 import static org.eclipse.jnosql.communication.Condition.GREATER_THAN;
@@ -100,6 +102,7 @@ class CrudRepositoryProxyConstraintInstanceTest {
     }
 
 
+    @DisplayName("Should at least")
     @Test
     void shouldAtLeast() {
 
@@ -121,6 +124,7 @@ class CrudRepositoryProxyConstraintInstanceTest {
         });
     }
 
+    @DisplayName("Should lesser")
     @Test
     void shouldLesser() {
 
@@ -142,6 +146,7 @@ class CrudRepositoryProxyConstraintInstanceTest {
         });
     }
 
+    @DisplayName("Should in")
     @Test
     void shouldIn() {
 
@@ -163,6 +168,7 @@ class CrudRepositoryProxyConstraintInstanceTest {
         });
     }
 
+    @DisplayName("Should not in")
     @Test
     void shouldNotIn() {
 
@@ -186,6 +192,7 @@ class CrudRepositoryProxyConstraintInstanceTest {
         });
     }
 
+    @DisplayName("Should equals")
     @Test
     void shouldEquals() {
 
@@ -207,6 +214,7 @@ class CrudRepositoryProxyConstraintInstanceTest {
         });
     }
 
+    @DisplayName("Should not equals")
     @Test
     void shouldNotEquals() {
 
@@ -230,6 +238,7 @@ class CrudRepositoryProxyConstraintInstanceTest {
         });
     }
 
+    @DisplayName("Should like")
     @Test
     void shouldLike() {
 
@@ -251,6 +260,7 @@ class CrudRepositoryProxyConstraintInstanceTest {
         });
     }
 
+    @DisplayName("Should not like")
     @Test
     void shouldNotLike() {
 
@@ -274,6 +284,7 @@ class CrudRepositoryProxyConstraintInstanceTest {
         });
     }
 
+    @DisplayName("Should between")
     @Test
     void shouldBetween() {
 
@@ -295,6 +306,7 @@ class CrudRepositoryProxyConstraintInstanceTest {
         });
     }
 
+    @DisplayName("Should not between")
     @Test
     void shouldNotBetween() {
 
@@ -318,7 +330,6 @@ class CrudRepositoryProxyConstraintInstanceTest {
                     BigDecimal.TEN)));
         });
     }
-
 
 
     public interface ProductRepository extends CrudRepository<Product, String> {
@@ -352,4 +363,8 @@ class CrudRepositoryProxyConstraintInstanceTest {
     }
 
 
+    @Nested
+    @DisplayName("When the crud repository proxy constraint instance is tested")
+    class WhenTheCrudRepositoryProxyConstraintInstanceIsTested {
+    }
 }

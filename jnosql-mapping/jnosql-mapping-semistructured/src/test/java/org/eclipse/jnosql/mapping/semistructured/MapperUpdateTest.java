@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import java.util.List;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
@@ -33,12 +34,12 @@ import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.util.List;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @EnableAutoWeld
@@ -373,4 +374,9 @@ public class MapperUpdateTest {
         });
     }
 
+
+    @Nested
+    @DisplayName("When the mapper update is tested")
+    class WhenTheMapperUpdateIsTested {
+    }
 }

@@ -13,22 +13,31 @@ package org.eclipse.jnosql.communication.semistructured;
 import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.Value;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ElementParamsTest {
 
-    @Test
-    void shouldSetParameter() {
-        Params params = Params.newParams();
-        Value name = params.add("name");
-        Element element = Element.of("name", name);
-        params.bind("name", "Ada Lovelace");
 
-        assertEquals("Ada Lovelace", element.get());
+    @Nested
+    @DisplayName("When the element params is used")
+    class WhenTheElementParamsIsUsed {
 
-        params.bind("name", "Diana");
-        assertEquals("Diana", element.get());
+        @DisplayName("Should Set Parameter")
+        @Test
+        void shouldSetParameter() {
+            Params params = Params.newParams();
+            Value name = params.add("name");
+            Element element = Element.of("name", name);
+            params.bind("name", "Ada Lovelace");
+
+            assertThat(element.get()).isEqualTo("Ada Lovelace");
+
+            params.bind("name", "Diana");
+            assertThat(element.get()).isEqualTo("Diana");
+        }
     }
 
 }

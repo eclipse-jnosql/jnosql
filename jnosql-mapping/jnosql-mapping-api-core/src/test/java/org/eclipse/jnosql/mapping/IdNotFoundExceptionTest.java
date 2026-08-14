@@ -14,35 +14,57 @@
  */
 package org.eclipse.jnosql.mapping;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class IdNotFoundExceptionTest {
-    @Test
-    void testConstructorWithMessage() {
-        String errorMessage = "Test error message";
-        IdNotFoundException exception = new IdNotFoundException(errorMessage);
-        assertEquals(errorMessage, exception.getMessage());
+
+    @Nested
+    @DisplayName("When the exception is created")
+    class WhenTheExceptionIsCreated {
+
+        @Test
+        @DisplayName("Should preserve the provided message")
+        void shouldPreserveTheProvidedMessage() {
+            String errorMessage = "Test error message";
+            IdNotFoundException exception = new IdNotFoundException(errorMessage);
+
+            assertThat(exception.getMessage()).isEqualTo(errorMessage);
+        }
     }
 
-    @Test
-    void testNewInstance() {
-        Class<?> entityType = MyClass.class;
-        String expectedMessage = "The entity " + entityType.getName() + " must have a field annotated with @Id";
-        IdNotFoundException exception = IdNotFoundException.newInstance(entityType);
-        assertEquals(expectedMessage, exception.getMessage());
-    }
+    @Nested
+    @DisplayName("When the exception factory is used")
+    class WhenTheExceptionFactoryIsUsed {
 
-    @Test
-    void testKeyNotFoundExceptionSupplier() {
-        Supplier<IdNotFoundException> supplier = IdNotFoundException.KEY_NOT_FOUND_EXCEPTION_SUPPLIER;
-        assertNotNull(supplier);
-        IdNotFoundException exception = supplier.get();
-        assertEquals("To use this resource you must annotated a field with @Id", exception.getMessage());
+        @Test
+        @DisplayName("Should create a message with the entity class name")
+        void shouldCreateMessageWithTheEntityClassName() {
+            Class<?> entityType = MyClass.class;
+            String expectedMessage = "The entity " + entityType.getName() + " must have a field annotated with @Id";
+            IdNotFoundException exception = IdNotFoundException.newInstance(entityType);
+
+            assertThat(exception.getMessage()).isEqualTo(expectedMessage);
+        }
+
+        @Test
+        @DisplayName("Should provide a reusable missing key exception supplier")
+        void shouldProvideAReusableMissingKeyExceptionSupplier() {
+            Supplier<IdNotFoundException> supplier = IdNotFoundException.KEY_NOT_FOUND_EXCEPTION_SUPPLIER;
+            IdNotFoundException exception = supplier.get();
+
+            assertSoftly(softly -> {
+                softly.assertThat(supplier).isNotNull();
+                softly.assertThat(exception.getMessage())
+                        .isEqualTo("To use this resource you must annotated a field with @Id");
+            });
+        }
     }
 
     private static class MyClass {

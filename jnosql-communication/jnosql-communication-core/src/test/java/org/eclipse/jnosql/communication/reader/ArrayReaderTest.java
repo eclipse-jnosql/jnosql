@@ -19,72 +19,89 @@ package org.eclipse.jnosql.communication.reader;
 
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.ValueReader;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class ArrayReaderTest {
+class ArrayReaderTest {
 
     private final ValueReader valueReader = new ArrayReader();
 
-    @Test
-    void shouldIsValid() {
-        SoftAssertions.assertSoftly(softly -> {
-          softly.assertThat(valueReader.test(Integer.class)).isFalse();
-            softly.assertThat(valueReader.test(String.class)).isFalse();
-            softly.assertThat(valueReader.test(Object.class)).isFalse();
+    @Nested
+    @DisplayName("When the supported type is checked")
+    class WhenTheSupportedTypeIsChecked {
 
-            softly.assertThat(valueReader.test(Object[].class)).isTrue();
-            softly.assertThat(valueReader.test(byte[].class)).isTrue();
-            softly.assertThat(valueReader.test(String[].class)).isTrue();
-        });
+        @Test
+        @DisplayName("Should accept array types and reject non-array types")
+        void shouldIsValid() {
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(valueReader.test(Integer.class)).isFalse();
+                softly.assertThat(valueReader.test(String.class)).isFalse();
+                softly.assertThat(valueReader.test(Object.class)).isFalse();
+
+                softly.assertThat(valueReader.test(Object[].class)).isTrue();
+                softly.assertThat(valueReader.test(byte[].class)).isTrue();
+                softly.assertThat(valueReader.test(String[].class)).isTrue();
+            });
+        }
     }
 
-    @Test
-    void shouldConvertListToArray() {
-        List<Integer> elements = List.of(97,98,99,100);
-        byte[] bytes = valueReader.read(byte[].class, elements);
+    @Nested
+    @DisplayName("When the value is converted")
+    class WhenTheValueIsConverted {
 
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(bytes).as("Should be able to convert List to byte[]").isNotNull();
-            softly.assertThat(bytes.length).as("Should be able to convert List to byte[]").isEqualTo(elements.size());
-            softly.assertThat(bytes).isNotNull().isEqualTo(new byte[]{97,98,99,100});
-        });
-    }
+        @Test
+        @DisplayName("Should convert a list to an array")
+        void shouldConvertListToArray() {
+            List<Integer> elements = List.of(97, 98, 99, 100);
+            byte[] bytes = valueReader.read(byte[].class, elements);
 
-    @Test
-    void shouldConvertToTheSameInstance() {
-        var data = new byte[]{'a','b','c','d'};
-        byte[] bytes = valueReader.read(byte[].class, data);
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(bytes).as("Should be able to convert List to byte[]").isNotNull();
+                softly.assertThat(bytes.length).as("Should be able to convert List to byte[]").isEqualTo(elements.size());
+                softly.assertThat(bytes).isNotNull().isEqualTo(new byte[]{97, 98, 99, 100});
+            });
+        }
 
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(bytes).as("Should be able to convert List to byte[]").isNotNull();
-            softly.assertThat(bytes.length).as("Should be able to convert List to byte[]").isEqualTo(data.length);
-            softly.assertThat(bytes).isNotNull().isEqualTo(new byte[]{97,98,99,100});
-        });
-    }
+        @Test
+        @DisplayName("Should return an array value that already matches the requested type")
+        void shouldConvertToTheSameInstance() {
+            var data = new byte[]{'a', 'b', 'c', 'd'};
+            byte[] bytes = valueReader.read(byte[].class, data);
 
-    @Test
-    void shouldConvertArrayToArray() {
-        var elements = new int[]{1,2,3,4};;
-        byte[] bytes = valueReader.read(byte[].class, elements);
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(bytes).as("Should be able to convert byte[] to byte[]").isNotNull();
+                softly.assertThat(bytes.length).as("Should be able to convert byte[] to byte[]").isEqualTo(data.length);
+                softly.assertThat(bytes).isNotNull().isEqualTo(new byte[]{97, 98, 99, 100});
+            });
+        }
 
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(bytes).as("Should be able to convert List to byte[]").isNotNull();
-            softly.assertThat(bytes.length).as("Should be able to convert List to byte[]").isEqualTo(elements.length);
-            softly.assertThat(bytes).isNotNull().isEqualTo(new byte[]{1,2,3,4});
-        });
-    }
+        @Test
+        @DisplayName("Should convert one array type to another array type")
+        void shouldConvertArrayToArray() {
+            var elements = new int[]{1, 2, 3, 4};
+            byte[] bytes = valueReader.read(byte[].class, elements);
 
-    @Test
-    void shouldConvertSingleElement() {
-        var elements = 1;;
-        byte[] bytes = valueReader.read(byte[].class, elements);
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(bytes).as("Should be able to convert int[] to byte[]").isNotNull();
+                softly.assertThat(bytes.length).as("Should be able to convert int[] to byte[]").isEqualTo(elements.length);
+                softly.assertThat(bytes).isNotNull().isEqualTo(new byte[]{1, 2, 3, 4});
+            });
+        }
 
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(bytes).as("Should be able to convert List to byte[]").isNotNull();
-            softly.assertThat(bytes.length).as("Should be able to convert List to byte[]").isEqualTo(1);
-            softly.assertThat(bytes).isNotNull().isEqualTo(new byte[]{1});
-        });
+        @Test
+        @DisplayName("Should convert a single element to a one element array")
+        void shouldConvertSingleElement() {
+            var elements = 1;
+            byte[] bytes = valueReader.read(byte[].class, elements);
+
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(bytes).as("Should be able to convert single value to byte[]").isNotNull();
+                softly.assertThat(bytes.length).as("Should be able to convert single value to byte[]").isEqualTo(1);
+                softly.assertThat(bytes).isNotNull().isEqualTo(new byte[]{1});
+            });
+        }
     }
 }

@@ -27,6 +27,16 @@ import jakarta.data.repository.Find;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import jakarta.inject.Inject;
+import java.lang.reflect.Proxy;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
@@ -48,25 +58,16 @@ import org.eclipse.jnosql.mapping.semistructured.entities.Vendor;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Proxy;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.eclipse.jnosql.communication.Condition.AND;
 import static org.eclipse.jnosql.communication.Condition.BETWEEN;
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
@@ -75,10 +76,6 @@ import static org.eclipse.jnosql.communication.Condition.IN;
 import static org.eclipse.jnosql.communication.Condition.LESSER_EQUALS_THAN;
 import static org.eclipse.jnosql.communication.Condition.LESSER_THAN;
 import static org.eclipse.jnosql.communication.Condition.LIKE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -128,6 +125,7 @@ public class RepositoryProxyPageRequestTest {
     }
 
 
+    @DisplayName("Should find by name instance")
     @Test
     public void shouldFindByNameInstance() {
 
@@ -141,14 +139,14 @@ public class RepositoryProxyPageRequestTest {
         verify(template).singleResult(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(Condition.EQUALS, condition.condition());
-        assertEquals(pageRequest.size(), query.skip());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+        assertThat(query.skip()).isEqualTo(pageRequest.size());
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
 
-        assertEquals(Element.of("name", "name"), condition.element());
+        assertElement(condition.element(), Element.of("name", "name"));
 
-        assertNotNull(personRepository.findByName("name", pageRequest, Order.by()));
+        assertThat(personRepository.findByName("name", pageRequest, Order.by())).isNotNull();
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
                 .empty());
 
@@ -156,6 +154,7 @@ public class RepositoryProxyPageRequestTest {
                 .isInstanceOf(EmptyResultException.class);
     }
 
+    @DisplayName("Should find by name and age")
     @Test
     public void shouldFindByNameANDAge() {
         Person ada = Person.builder()
@@ -171,12 +170,13 @@ public class RepositoryProxyPageRequestTest {
         assertThat(persons).contains(ada);
 
         SelectQuery query = captor.getValue();
-        assertEquals("Person", query.name());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
 
     }
 
+    @DisplayName("Should find by age and name")
     @Test
     public void shouldFindByAgeANDName() {
         Person ada = Person.builder()
@@ -191,12 +191,13 @@ public class RepositoryProxyPageRequestTest {
         verify(template).select(captor.capture());
         assertThat(persons).contains(ada);
         SelectQuery query = captor.getValue();
-        assertEquals("Person", query.name());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
 
     }
 
+    @DisplayName("Should find by name and age order by name")
     @Test
     public void shouldFindByNameANDAgeOrderByName() {
         Person ada = Person.builder()
@@ -212,12 +213,13 @@ public class RepositoryProxyPageRequestTest {
         verify(template).select(captor.capture());
         assertThat(persons.collect(Collectors.toList())).contains(ada);
         SelectQuery query = captor.getValue();
-        assertEquals("Person", query.name());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
 
     }
 
+    @DisplayName("Should find by name and age order by age")
     @Test
     public void shouldFindByNameANDAgeOrderByAge() {
         Person ada = Person.builder()
@@ -232,14 +234,15 @@ public class RepositoryProxyPageRequestTest {
         verify(template).select(captor.capture());
         assertThat(persons).contains(ada);
         SelectQuery query = captor.getValue();
-        assertEquals("Person", query.name());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
 
 
     }
 
 
+    @DisplayName("Should find all")
     @Test
     public void shouldFindAll() {
         Person ada = Person.builder()
@@ -256,13 +259,14 @@ public class RepositoryProxyPageRequestTest {
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).selectCursor(captor.capture(), any(PageRequest.class));
         SelectQuery query = captor.getValue();
-        assertFalse(query.condition().isPresent());
-        assertEquals("Person", query.name());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(query.condition().isPresent()).isFalse();
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
     }
 
 
+    @DisplayName("Should find by name and age greater equal than")
     @Test
     public void shouldFindByNameAndAgeGreaterEqualThan() {
         Person ada = Person.builder()
@@ -277,24 +281,25 @@ public class RepositoryProxyPageRequestTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(AND, condition.condition());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(AND);
         List<CriteriaCondition> conditions = condition.element().get(new TypeReference<>() {
         });
         CriteriaCondition columnCondition = conditions.get(0);
         CriteriaCondition columnCondition2 = conditions.get(1);
 
-        assertEquals(Condition.EQUALS, columnCondition.condition());
-        assertEquals("Ada", columnCondition.element().get());
-        assertEquals("name", columnCondition.element().name());
+        assertThat(columnCondition.condition()).isEqualTo(Condition.EQUALS);
+        assertThat(columnCondition.element().get()).isEqualTo("Ada");
+        assertThat(columnCondition.element().name()).isEqualTo("name");
 
-        assertEquals(Condition.GREATER_EQUALS_THAN, columnCondition2.condition());
-        assertEquals(33, columnCondition2.element().get());
-        assertEquals("age", columnCondition2.element().name());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(columnCondition2.condition()).isEqualTo(Condition.GREATER_EQUALS_THAN);
+        assertThat(columnCondition2.element().get()).isEqualTo(33);
+        assertThat(columnCondition2.element().name()).isEqualTo("age");
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
     }
 
+    @DisplayName("Should find by greater than")
     @Test
     public void shouldFindByGreaterThan() {
         Person ada = Person.builder()
@@ -309,14 +314,15 @@ public class RepositoryProxyPageRequestTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(GREATER_THAN, condition.condition());
-        assertEquals(Element.of("age", 33), condition.element());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(GREATER_THAN);
+        assertElement(condition.element(), Element.of("age", 33));
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
 
     }
 
+    @DisplayName("Should find by age less than equal")
     @Test
     public void shouldFindByAgeLessThanEqual() {
         Person ada = Person.builder()
@@ -331,14 +337,15 @@ public class RepositoryProxyPageRequestTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(LESSER_EQUALS_THAN, condition.condition());
-        assertEquals(Element.of("age", 33), condition.element());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(LESSER_EQUALS_THAN);
+        assertElement(condition.element(), Element.of("age", 33));
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
 
     }
 
+    @DisplayName("Should find by age less equal")
     @Test
     public void shouldFindByAgeLessEqual() {
         Person ada = Person.builder()
@@ -353,14 +360,15 @@ public class RepositoryProxyPageRequestTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(LESSER_THAN, condition.condition());
-        assertEquals(Element.of("age", 33), condition.element());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(LESSER_THAN);
+        assertElement(condition.element(), Element.of("age", 33));
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
 
     }
 
+    @DisplayName("Should find by age between")
     @Test
     public void shouldFindByAgeBetween() {
         Person ada = Person.builder()
@@ -375,17 +383,18 @@ public class RepositoryProxyPageRequestTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(BETWEEN, condition.condition());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(BETWEEN);
         List<Value> values = condition.element().get(new TypeReference<>() {
         });
-        assertEquals(Arrays.asList(10, 15), values.stream().map(Value::get).collect(Collectors.toList()));
-        assertTrue(condition.element().name().contains("age"));
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(values.stream().map(Value::get).collect(Collectors.toList())).isEqualTo(Arrays.asList(10, 15));
+        assertThat(condition.element().name().contains("age")).isTrue();
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
     }
 
 
+    @DisplayName("Should find by name like")
     @Test
     public void shouldFindByNameLike() {
         Person ada = Person.builder()
@@ -400,15 +409,16 @@ public class RepositoryProxyPageRequestTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(LIKE, condition.condition());
-        assertEquals(Element.of("name", "Ada"), condition.element());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(LIKE);
+        assertElement(condition.element(), Element.of("name", "Ada"));
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
 
     }
 
 
+    @DisplayName("Should find by string when field is set")
     @Test
     public void shouldFindByStringWhenFieldIsSet() {
         Vendor vendor = new Vendor("vendor");
@@ -424,14 +434,15 @@ public class RepositoryProxyPageRequestTest {
         verify(template).singleResult(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("vendors", query.name());
-        assertEquals(EQUALS, condition.condition());
-        assertEquals(Element.of("prefixes", "prefix"), condition.element());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(query.name()).isEqualTo("vendors");
+        assertThat(condition.condition()).isEqualTo(EQUALS);
+        assertElement(condition.element(), Element.of("prefixes", "prefix"));
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
 
     }
 
+    @DisplayName("Should find by in")
     @Test
     public void shouldFindByIn() {
         Vendor vendor = new Vendor("vendor");
@@ -447,13 +458,14 @@ public class RepositoryProxyPageRequestTest {
         verify(template).singleResult(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("vendors", query.name());
-        assertEquals(IN, condition.condition());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(query.name()).isEqualTo("vendors");
+        assertThat(condition.condition()).isEqualTo(IN);
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
 
     }
 
+    @DisplayName("Should convert field to the type")
     @Test
     public void shouldConvertFieldToTheType() {
         Person ada = Person.builder()
@@ -464,18 +476,19 @@ public class RepositoryProxyPageRequestTest {
 
         PageRequest pageRequest = getPageRequest();
         Page<Person> slice = personRepository.findByAge("120", pageRequest);
-        Assertions.assertNotNull(slice);
+        assertThat(slice).isNotNull();
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(EQUALS, condition.condition());
-        assertEquals(Element.of("age", 120), condition.element());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(EQUALS);
+        assertElement(condition.element(), Element.of("age", 120));
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
     }
 
+    @DisplayName("Should find by name order name")
     @Test
     public void shouldFindByNameOrderName() {
 
@@ -491,22 +504,23 @@ public class RepositoryProxyPageRequestTest {
         verify(template).singleResult(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(EQUALS, condition.condition());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(EQUALS);
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
         assertThat(query.sorts()).hasSize(1)
                 .contains(name);
 
-        assertEquals(Element.of("name", "name"), condition.element());
+        assertElement(condition.element(), Element.of("name", "name"));
 
-        assertNotNull(personRepository.findByName("name", pageRequest, order));
+        assertThat(personRepository.findByName("name", pageRequest, order)).isNotNull();
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
                 .empty());
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> personRepository.findByName("name", pageRequest, order))
                 .isInstanceOf(EmptyResultException.class);
     }
 
+    @DisplayName("Should find by name order name 2")
     @Test
     public void shouldFindByNameOrderName2() {
 
@@ -518,20 +532,20 @@ public class RepositoryProxyPageRequestTest {
         PageRequest pageRequest = getPageRequest();
         Page<Person> page = personRepository.findByNameOrderByAge("name", pageRequest, nameOrder);
 
-        Assertions.assertNotNull(page);
+        assertThat(page).isNotNull();
 
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(EQUALS, condition.condition());
-        assertEquals(NoSQLPage.skip(pageRequest), query.limit());
-        assertEquals(pageRequest.size(), query.limit());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(EQUALS);
+        assertThat(query.limit()).isEqualTo(NoSQLPage.skip(pageRequest));
+        assertThat(query.limit()).isEqualTo(pageRequest.size());
         assertThat(query.sorts()).hasSize(2)
                 .containsExactly(Sort.asc("age"), name);
 
-        assertEquals(Element.of("name", "name"), condition.element());
+        assertElement(condition.element(), Element.of("name", "name"));
 
 
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -540,6 +554,7 @@ public class RepositoryProxyPageRequestTest {
                 .isInstanceOf(EmptyResultException.class);
     }
 
+    @DisplayName("Should find by name sort")
     @Test
     public void shouldFindByNameSort() {
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -552,13 +567,14 @@ public class RepositoryProxyPageRequestTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(EQUALS, condition.condition());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(EQUALS);
         assertThat(query.sorts()).hasSize(1)
                 .containsExactly(Sort.asc("name"));
-        assertEquals(Element.of("name", "name"), condition.element());
+        assertElement(condition.element(), Element.of("name", "name"));
     }
 
+    @DisplayName("Should find by name sort pagination")
     @Test
     public void shouldFindByNameSortPagination() {
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -570,13 +586,14 @@ public class RepositoryProxyPageRequestTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(EQUALS, condition.condition());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(EQUALS);
         assertThat(query.sorts()).hasSize(1)
                 .containsExactly(Sort.asc("name"));
-        assertEquals(Element.of("name", "name"), condition.element());
+        assertElement(condition.element(), Element.of("name", "name"));
     }
 
+    @DisplayName("Should find by name limit")
     @Test
     public void shouldFindByNameLimit() {
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -587,15 +604,16 @@ public class RepositoryProxyPageRequestTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(0, query.skip());
-        assertEquals(3, query.limit());
-        assertEquals(EQUALS, condition.condition());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(query.skip()).isEqualTo(0);
+        assertThat(query.limit()).isEqualTo(3);
+        assertThat(condition.condition()).isEqualTo(EQUALS);
         assertThat(query.sorts()).hasSize(1)
                 .containsExactly(Sort.asc("name"));
-        assertEquals(Element.of("name", "name"), condition.element());
+        assertElement(condition.element(), Element.of("name", "name"));
     }
 
+    @DisplayName("Should find by name limit 2")
     @Test
     public void shouldFindByNameLimit2() {
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -606,15 +624,16 @@ public class RepositoryProxyPageRequestTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(0, query.skip());
-        assertEquals(3, query.limit());
-        assertEquals(EQUALS, condition.condition());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(query.skip()).isEqualTo(0);
+        assertThat(query.limit()).isEqualTo(3);
+        assertThat(condition.condition()).isEqualTo(EQUALS);
         assertThat(query.sorts()).hasSize(1)
                 .containsExactly(Sort.asc("name"));
-        assertEquals(Element.of("name", "name"), condition.element());
+        assertElement(condition.element(), Element.of("name", "name"));
     }
 
+    @DisplayName("Should find by name limit 3")
     @Test
     public void shouldFindByNameLimit3() {
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -625,15 +644,16 @@ public class RepositoryProxyPageRequestTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(1, query.skip());
-        assertEquals(2, query.limit());
-        assertEquals(EQUALS, condition.condition());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(query.skip()).isEqualTo(1);
+        assertThat(query.limit()).isEqualTo(2);
+        assertThat(condition.condition()).isEqualTo(EQUALS);
         assertThat(query.sorts()).hasSize(1)
                 .containsExactly(Sort.asc("name"));
-        assertEquals(Element.of("name", "name"), condition.element());
+        assertElement(condition.element(), Element.of("name", "name"));
     }
 
+    @DisplayName("Should find by name order by name")
     @Test
     public void shouldFindByNameOrderByName() {
         CursoredPage<Person> mock = Mockito.mock(CursoredPage.class);
@@ -647,6 +667,7 @@ public class RepositoryProxyPageRequestTest {
         SoftAssertions.assertSoftly(s -> s.assertThat(page).isEqualTo(mock));
     }
 
+    @DisplayName("Should mach parameter")
     @Test
     public void shouldMachParameter() {
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -674,6 +695,7 @@ public class RepositoryProxyPageRequestTest {
         });
     }
 
+    @DisplayName("Should parameter match")
     @Test
     public void shouldParameterMatch() {
         CursoredPage<Person> mock = Mockito.mock(CursoredPage.class);
@@ -697,11 +719,12 @@ public class RepositoryProxyPageRequestTest {
             soft.assertThat(query.sorts()).hasSize(0);
             CriteriaCondition condition = query.condition().orElseThrow();
             soft.assertThat(condition.condition()).isEqualTo(EQUALS);
-            soft.assertThat(condition.element()).isEqualTo(Element.of("name", "name"));
+            assertElement(condition.element(), Element.of("name", "name"));
 
         });
     }
 
+    @DisplayName("Should parameter query")
     @Test
     public void shouldParameterQuery() {
         CursoredPage<Person> mock = Mockito.mock(CursoredPage.class);
@@ -734,6 +757,7 @@ public class RepositoryProxyPageRequestTest {
     }
 
 
+    @DisplayName("Should find by cursor by order")
     @Test
     public void shouldFindByCursorByOrder() {
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -757,6 +781,7 @@ public class RepositoryProxyPageRequestTest {
         });
     }
 
+    @DisplayName("Should find by cursor by sort")
     @Test
     public void shouldFindByCursorBySort() {
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -779,6 +804,7 @@ public class RepositoryProxyPageRequestTest {
         });
     }
 
+    @DisplayName("Should page")
     @Test
     public void shouldPage() {
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
@@ -866,5 +892,15 @@ public class RepositoryProxyPageRequestTest {
 
         Optional<Vendor> findByPrefixesIn(List<String> prefix, PageRequest pageRequest);
 
+    }
+
+    private static void assertElement(Element actual, Element expected) {
+        assertThat(actual.name()).isEqualTo(expected.name());
+        assertThat(actual.get()).isEqualTo(expected.get());
+    }
+
+    @Nested
+    @DisplayName("When the repository proxy page request is tested")
+    class WhenTheRepositoryProxyPageRequestIsTested {
     }
 }

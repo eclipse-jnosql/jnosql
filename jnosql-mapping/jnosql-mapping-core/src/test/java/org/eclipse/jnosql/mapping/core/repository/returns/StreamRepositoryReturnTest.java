@@ -14,11 +14,13 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -30,8 +32,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
@@ -42,53 +42,12 @@ class StreamRepositoryReturnTest {
     @Mock
     private Page<Person> page;
 
-    @Test
-    void shouldReturnIsCompatible() {
-        Assertions.assertTrue(repositoryReturn.isCompatible(Person.class, Stream.class));
-        assertFalse(repositoryReturn.isCompatible(Object.class, Person.class));
-        assertFalse(repositoryReturn.isCompatible(Person.class, Object.class));
-    }
 
 
 
-    @Test
-    void shouldReturnStreamPage() {
-        Person ada = new Person("Ada");
-        Method method = Person.class.getDeclaredMethods()[0];
-        DynamicReturn<Person> dynamic = DynamicReturn.builder()
-                .classSource(Person.class)
-                .singleResult(Optional::empty)
-                .result(Collections::emptyList)
-                .singleResultPagination(p -> Optional.empty())
-                .streamPagination(p -> Stream.of(ada))
-                .returnType(method.getReturnType())
-                .methodName(method.getName())
-                .pagination(PageRequest.ofPage(2).size(2))
-                .page((p, l) -> page)
-                .totalSupplier(() -> 1L)
-                .build();
-        Stream<Person> person = (Stream<Person>) repositoryReturn.convertPageRequest(dynamic);
-        Assertions.assertNotNull(person);
-        assertEquals(ada, person.findFirst().get());
-    }
 
 
 
-    @Test
-    void shouldReturnStream() {
-        Person ada = new Person("Ada");
-        Method method = Person.class.getDeclaredMethods()[0];
-        DynamicReturn<Person> dynamic = DynamicReturn.builder()
-                .singleResult(Optional::empty)
-                .classSource(Person.class)
-                .result(() -> Stream.of(ada))
-                .returnType(method.getReturnType())
-                .methodName(method.getName())
-                .build();
-        Stream<Person> person = (Stream<Person>) repositoryReturn.convert(dynamic);
-        Assertions.assertNotNull(person);
-        Assertions.assertEquals(ada, person.findFirst().get());
-    }
 
     private static class Person implements Comparable<Person> {
 
@@ -131,4 +90,54 @@ class StreamRepositoryReturnTest {
         }
     }
 
+
+    @Nested
+    @DisplayName("When the stream repository return operates")
+    class WhenTheStreamRepositoryReturnOperates {
+
+        @DisplayName("Should return is compatible")
+        @Test
+        void shouldReturnIsCompatible() {
+            assertThat(repositoryReturn.isCompatible(Person.class, Stream.class)).isTrue();
+            assertThat(repositoryReturn.isCompatible(Object.class, Person.class)).isFalse();
+            assertThat(repositoryReturn.isCompatible(Person.class, Object.class)).isFalse();
+        }
+        @DisplayName("Should return stream page")
+        @Test
+        void shouldReturnStreamPage() {
+            Person ada = new Person("Ada");
+            Method method = Person.class.getDeclaredMethods()[0];
+            DynamicReturn<Person> dynamic = DynamicReturn.builder()
+                    .classSource(Person.class)
+                    .singleResult(Optional::empty)
+                    .result(Collections::emptyList)
+                    .singleResultPagination(p -> Optional.empty())
+                    .streamPagination(p -> Stream.of(ada))
+                    .returnType(method.getReturnType())
+                    .methodName(method.getName())
+                    .pagination(PageRequest.ofPage(2).size(2))
+                    .page((p, l) -> page)
+                    .totalSupplier(() -> 1L)
+                    .build();
+            Stream<Person> person = (Stream<Person>) repositoryReturn.convertPageRequest(dynamic);
+            assertThat(person).isNotNull();
+            assertThat(person.findFirst().get()).isEqualTo(ada);
+        }
+        @DisplayName("Should return stream")
+        @Test
+        void shouldReturnStream() {
+            Person ada = new Person("Ada");
+            Method method = Person.class.getDeclaredMethods()[0];
+            DynamicReturn<Person> dynamic = DynamicReturn.builder()
+                    .singleResult(Optional::empty)
+                    .classSource(Person.class)
+                    .result(() -> Stream.of(ada))
+                    .returnType(method.getReturnType())
+                    .methodName(method.getName())
+                    .build();
+            Stream<Person> person = (Stream<Person>) repositoryReturn.convert(dynamic);
+            assertThat(person).isNotNull();
+            assertThat(person.findFirst().get()).isEqualTo(ada);
+        }
+    }
 }

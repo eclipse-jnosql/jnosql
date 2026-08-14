@@ -17,6 +17,9 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.data.page.PageRequest;
 import jakarta.inject.Inject;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
@@ -35,12 +38,11 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("The scenarios to test the feature find by")
 @EnableAutoWeld
@@ -181,4 +183,8 @@ public class RepositoryFindByTest extends AbstractRepositoryTest {
     }
 
 
+    @Nested
+    @DisplayName("When the repository find by is tested")
+    class WhenTheRepositoryFindByIsTested {
+    }
 }

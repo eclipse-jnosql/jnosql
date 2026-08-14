@@ -22,6 +22,8 @@ import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBookRe
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.PhotoSocialMediaRepository;
 import org.eclipse.jnosql.mapping.semistructured.repository.entities.VideoSocialMediaRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -40,7 +42,6 @@ abstract class AbstractRepositoryTest {
     protected ArgumentCaptor<DeleteQuery> deleteQueryCaptor;
 
 
-
     @BeforeEach
     void setUP() {
         this.template = Mockito.mock(SemiStructuredTemplate.class);
@@ -53,5 +54,10 @@ abstract class AbstractRepositoryTest {
     }
 
     abstract SemistructuredRepositoryProducer producer();
+
+    @Nested
+    @DisplayName("When the abstract repository is tested")
+    class WhenTheAbstractRepositoryIsTested {
+    }
 }
 

@@ -23,6 +23,9 @@ import jakarta.data.repository.Find;
 import jakarta.data.repository.OrderBy;
 import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
+import java.lang.reflect.Proxy;
+import java.util.List;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -41,14 +44,13 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Proxy;
-import java.util.List;
-import java.util.stream.Stream;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -89,6 +91,7 @@ class CustomRepositoryHandlerRestrictionTest {
                 customRepositoryHandlerForPeople);
     }
 
+    @DisplayName("Should restrict")
     @Test
     void shouldRestrict() {
 
@@ -110,6 +113,7 @@ class CustomRepositoryHandlerRestrictionTest {
         });
     }
 
+    @DisplayName("Should restrict page")
     @Test
     void shouldRestrictPage() {
 
@@ -135,6 +139,7 @@ class CustomRepositoryHandlerRestrictionTest {
         });
     }
 
+    @DisplayName("Should restrict sort")
     @Test
     void shouldRestrictSort() {
 
@@ -158,6 +163,7 @@ class CustomRepositoryHandlerRestrictionTest {
         });
     }
 
+    @DisplayName("Should restrict order")
     @Test
     void shouldRestrictOrder() {
 
@@ -181,6 +187,7 @@ class CustomRepositoryHandlerRestrictionTest {
     }
 
 
+    @DisplayName("Should restrict sort by annotation")
     @Test
     void shouldRestrictSortByAnnotation() {
 
@@ -204,6 +211,7 @@ class CustomRepositoryHandlerRestrictionTest {
         });
     }
 
+    @DisplayName("Should have cursor")
     @SuppressWarnings("rawtypes")
     @Test
     void shouldHaveCursor() {
@@ -249,5 +257,10 @@ class CustomRepositoryHandlerRestrictionTest {
         @OrderBy(_Product.PRICE)
         @Find
         CursoredPage<Product> cursor(Restriction<Product> restriction, PageRequest pageRequest);
+    }
+
+    @Nested
+    @DisplayName("When the custom repository handler restriction is tested")
+    class WhenTheCustomRepositoryHandlerRestrictionIsTested {
     }
 }

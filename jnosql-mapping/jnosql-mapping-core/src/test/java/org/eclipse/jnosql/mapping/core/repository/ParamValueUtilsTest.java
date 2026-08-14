@@ -15,6 +15,9 @@
 package org.eclipse.jnosql.mapping.core.repository;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import jakarta.data.constraint.AtLeast;
 import jakarta.data.constraint.AtMost;
 import jakarta.data.constraint.Between;
@@ -38,17 +41,6 @@ import java.util.stream.Stream;
 
 class ParamValueUtilsTest {
 
-    @ParameterizedTest(name = "should match condition for {0}")
-    @MethodSource("conditions")
-    void shouldReturnParam(Class<? extends Constraint<?>> constraint, boolean isNegate, Condition condition) {
-        ParamValue paramValue = ParamValueUtils.getParamValue("name", constraint);
-
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(paramValue.condition()).isEqualTo(condition);
-            softly.assertThat(paramValue.negate()).isEqualTo(isNegate);
-            softly.assertThat(paramValue.value()).isEqualTo("name");
-        });
-    }
 
     private static Stream<Arguments> conditions() {
         return Stream.of(
@@ -65,5 +57,23 @@ class ParamValueUtilsTest {
                 Arguments.of(NotIn.class, true, Condition.IN),
                 Arguments.of(NotLike.class, true, Condition.LIKE)
         );
+    }
+
+    @Nested
+    @DisplayName("When the param value utils operates")
+    class WhenTheParamValueUtilsOperates {
+
+        @DisplayName("Should return param")
+        @ParameterizedTest(name = "should match condition for {0}")
+        @MethodSource("org.eclipse.jnosql.mapping.core.repository.ParamValueUtilsTest#conditions")
+        void shouldReturnParam(Class<? extends Constraint<?>> constraint, boolean isNegate, Condition condition) {
+            ParamValue paramValue = ParamValueUtils.getParamValue("name", constraint);
+
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(paramValue.condition()).isEqualTo(condition);
+                softly.assertThat(paramValue.negate()).isEqualTo(isNegate);
+                softly.assertThat(paramValue.value()).isEqualTo("name");
+            });
+        }
     }
 }

@@ -32,577 +32,612 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(MockitoExtension.class)
 class DatabaseManagerTest {
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private DatabaseManager databaseManager;
 
-    @Test
-    void shouldNotSupportDeleteAndCountByDefault() {
-        DeleteQuery query = DeleteQuery.delete().from("person").build();
+    @Nested
+    @DisplayName("When the database manager is used")
+    class WhenTheDatabaseManagerIsUsed {
 
-        assertThrows(UnsupportedOperationException.class, () -> databaseManager.deleteAndCount(query));
-        Mockito.verify(databaseManager, Mockito.never()).delete(Mockito.any(DeleteQuery.class));
-    }
+        @Mock(answer = Answers.CALLS_REAL_METHODS)
+        private DatabaseManager databaseManager;
 
-    @Test
-    void shouldValidateDeleteAndCountQueryBeforeSupportCheck() {
-        assertThrows(NullPointerException.class, () -> databaseManager.deleteAndCount(null));
-        Mockito.verify(databaseManager, Mockito.never()).delete(Mockito.any(DeleteQuery.class));
-    }
+        @DisplayName("Should Not Support Delete And Count By Default")
+        @Test
+        void shouldNotSupportDeleteAndCountByDefault() {
+            DeleteQuery query = DeleteQuery.delete().from("person").build();
 
+            assertThatThrownBy(() -> databaseManager.deleteAndCount(query)).isInstanceOf(UnsupportedOperationException.class);
+            Mockito.verify(databaseManager, Mockito.never()).delete(Mockito.any(DeleteQuery.class));
+        }
 
-    @Test
-    void shouldReturnErrorWhenThereIsNotSort() {
-        SelectQuery query = SelectQuery.builder().from("person").build();
-        PageRequest pageRequest = PageRequest.ofSize(10);
-        assertThrows(IllegalArgumentException.class, () -> databaseManager.selectCursor(query, pageRequest));
-    }
-
-    @Test
-    void shouldReturnPaginationOffSet() {
-        SelectQuery query = SelectQuery.select().from("person")
-                .orderBy("name").asc().build();
-
-        Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
-                .thenReturn(stream());
-
-        CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
-                PageRequest.ofSize(10));
-
-        assertSoftly(soft -> {
-            PageRequest pageRequest = entities.pageRequest();
-            PageRequest nextedPageRequest = entities.nextPageRequest();
-            PageRequest.Cursor cursor = nextedPageRequest.cursor().orElseThrow();
-
-            soft.assertThat(entities).hasSize(2);
-            soft.assertThat(pageRequest.mode())
-                    .isEqualTo(PageRequest.Mode.OFFSET);
-            soft.assertThat(nextedPageRequest.mode())
-                    .isEqualTo(PageRequest.Mode.CURSOR_NEXT);
-            soft.assertThat(cursor.elements())
-                    .hasSize(1);
-            soft.assertThat(cursor.get(0)).isEqualTo("Poliana");
-
-        });
-    }
-
-    @Test
-    void shouldReturnPaginationOffSetWhenReturnEmpty() {
-        SelectQuery query = SelectQuery.select().from("person")
-                .orderBy("name").asc().build();
-
-        Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
-                .thenReturn(Stream.empty());
-
-        CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
-                PageRequest.ofSize(10));
-
-        assertSoftly(soft -> {
-            PageRequest pageRequest = entities.pageRequest();
-            soft.assertThat(entities.hasNext()).isFalse();
-            soft.assertThat(entities.hasPrevious()).isFalse();
-
-            soft.assertThat(entities).hasSize(0);
-            soft.assertThat(pageRequest.mode())
-                    .isEqualTo(PageRequest.Mode.OFFSET);
-        });
-    }
-
-    @Test
-    void shouldReturnPaginationOffSet2() {
-        SelectQuery query = SelectQuery.select().from("person")
-                .orderBy("name").asc()
-                .orderBy("age").desc().build();
+        @DisplayName("Should Validate Delete And Count Query Before Support Check")
+        @Test
+        void shouldValidateDeleteAndCountQueryBeforeSupportCheck() {
+            assertThatThrownBy(() -> databaseManager.deleteAndCount(null)).isInstanceOf(NullPointerException.class);
+            Mockito.verify(databaseManager, Mockito.never()).delete(Mockito.any(DeleteQuery.class));
+        }
 
 
-        Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
-                .thenReturn(stream());
-        CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
-                PageRequest.ofSize(10));
+        @DisplayName("Should Return Error When There Is Not Sort")
+        @Test
+        void shouldReturnErrorWhenThereIsNotSort() {
+            SelectQuery query = SelectQuery.builder().from("person").build();
+            PageRequest pageRequest = PageRequest.ofSize(10);
+            assertThatThrownBy(() -> databaseManager.selectCursor(query, pageRequest)).isInstanceOf(IllegalArgumentException.class);
+        }
 
-        assertSoftly(soft -> {
-            PageRequest pageRequest = entities.pageRequest();
-            PageRequest nextedPageRequest = entities.nextPageRequest();
-            PageRequest.Cursor cursor = nextedPageRequest.cursor().orElseThrow();
+        @DisplayName("Should Return Pagination Off Set")
+        @Test
+        void shouldReturnPaginationOffSet() {
+            SelectQuery query = SelectQuery.select().from("person")
+                    .orderBy("name").asc().build();
 
-            soft.assertThat(entities).hasSize(2);
-            soft.assertThat(pageRequest.mode())
-                    .isEqualTo(PageRequest.Mode.OFFSET);
-            soft.assertThat(nextedPageRequest.mode())
-                    .isEqualTo(PageRequest.Mode.CURSOR_NEXT);
-            soft.assertThat(cursor.elements())
-                    .hasSize(2);
-            soft.assertThat(cursor.get(0)).isEqualTo("Poliana");
-            soft.assertThat(cursor.get(1)).isEqualTo(35);
+            Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
+                    .thenReturn(stream());
 
-        });
-    }
+            CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
+                    PageRequest.ofSize(10));
 
-    @Test
-    void shouldReturnPaginationAfterKeySingleElementWhenConditionIsNull() {
-        SelectQuery query = SelectQuery.select().from("person")
-                .orderBy("name").asc()
-                .orderBy("age").asc()
-                .orderBy("id").asc().build();
+            assertSoftly(soft -> {
+                PageRequest pageRequest = entities.pageRequest();
+                PageRequest nextedPageRequest = entities.nextPageRequest();
+                PageRequest.Cursor cursor = nextedPageRequest.cursor().orElseThrow();
 
-        Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
-                .thenReturn(stream());
+                soft.assertThat(entities).hasSize(2);
+                soft.assertThat(pageRequest.mode())
+                        .isEqualTo(PageRequest.Mode.OFFSET);
+                soft.assertThat(nextedPageRequest.mode())
+                        .isEqualTo(PageRequest.Mode.CURSOR_NEXT);
+                soft.assertThat(cursor.elements())
+                        .hasSize(1);
+                soft.assertThat(cursor.get(0)).isEqualTo("Poliana");
 
-        var id = UUID.randomUUID().toString();
-        CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
-                PageRequest.afterCursor(PageRequest.Cursor.forKey("Ada", 20, id), 1, 10 ,false));
+            });
+        }
+
+        @DisplayName("Should Return Pagination Off Set When Return Empty")
+        @Test
+        void shouldReturnPaginationOffSetWhenReturnEmpty() {
+            SelectQuery query = SelectQuery.select().from("person")
+                    .orderBy("name").asc().build();
+
+            Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
+                    .thenReturn(Stream.empty());
+
+            CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
+                    PageRequest.ofSize(10));
+
+            assertSoftly(soft -> {
+                PageRequest pageRequest = entities.pageRequest();
+                soft.assertThat(entities.hasNext()).isFalse();
+                soft.assertThat(entities.hasPrevious()).isFalse();
+
+                soft.assertThat(entities).hasSize(0);
+                soft.assertThat(pageRequest.mode())
+                        .isEqualTo(PageRequest.Mode.OFFSET);
+            });
+        }
+
+        @DisplayName("Should Return Pagination Off Set2")
+        @Test
+        void shouldReturnPaginationOffSet2() {
+            SelectQuery query = SelectQuery.select().from("person")
+                    .orderBy("name").asc()
+                    .orderBy("age").desc().build();
 
 
-        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
-        Mockito.verify(databaseManager).select(captor.capture());
-        SelectQuery selectQuery = captor.getValue();
+            Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
+                    .thenReturn(stream());
+            CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
+                    PageRequest.ofSize(10));
 
-        CriteriaCondition condition = selectQuery.condition().orElseThrow();
+            assertSoftly(soft -> {
+                PageRequest pageRequest = entities.pageRequest();
+                PageRequest nextedPageRequest = entities.nextPageRequest();
+                PageRequest.Cursor cursor = nextedPageRequest.cursor().orElseThrow();
 
-        assertSoftly(soft -> {
-            soft.assertThat(condition.condition()).isEqualTo(Condition.OR);
-            List<CriteriaCondition> criteriaConditions = condition.element().get(new TypeReference<>() {
+                soft.assertThat(entities).hasSize(2);
+                soft.assertThat(pageRequest.mode())
+                        .isEqualTo(PageRequest.Mode.OFFSET);
+                soft.assertThat(nextedPageRequest.mode())
+                        .isEqualTo(PageRequest.Mode.CURSOR_NEXT);
+                soft.assertThat(cursor.elements())
+                        .hasSize(2);
+                soft.assertThat(cursor.get(0)).isEqualTo("Poliana");
+                soft.assertThat(cursor.get(1)).isEqualTo(35);
+
+            });
+        }
+
+        @DisplayName("Should Return Pagination After Key Single Element When Condition Is Null")
+        @Test
+        void shouldReturnPaginationAfterKeySingleElementWhenConditionIsNull() {
+            SelectQuery query = SelectQuery.select().from("person")
+                    .orderBy("name").asc()
+                    .orderBy("age").asc()
+                    .orderBy("id").asc().build();
+
+            Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
+                    .thenReturn(stream());
+
+            var id = UUID.randomUUID().toString();
+            CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
+                    PageRequest.afterCursor(PageRequest.Cursor.forKey("Ada", 20, id), 1, 10 ,false));
+
+
+            ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+            Mockito.verify(databaseManager).select(captor.capture());
+            SelectQuery selectQuery = captor.getValue();
+
+            CriteriaCondition condition = selectQuery.condition().orElseThrow();
+
+            assertSoftly(soft -> {
+                soft.assertThat(condition.condition()).isEqualTo(Condition.OR);
+                List<CriteriaCondition> criteriaConditions = condition.element().get(new TypeReference<>() {
+                });
+
+                soft.assertThat(criteriaConditions).hasSize(3);
+                soft.assertThat(criteriaConditions.get(0)).isEqualTo(CriteriaCondition.gt("name", "Ada"));
+                soft.assertThat(criteriaConditions.get(1)).isEqualTo(
+                        CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.gt("age", 20)));
+                soft.assertThat(criteriaConditions.get(2)).isEqualTo(
+                        CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.eq("age", 20))
+                                .and(CriteriaCondition.gt("id", id)));
             });
 
-            soft.assertThat(criteriaConditions).hasSize(3);
-            soft.assertThat(criteriaConditions.get(0)).isEqualTo(CriteriaCondition.gt("name", "Ada"));
-            soft.assertThat(criteriaConditions.get(1)).isEqualTo(
-                    CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.gt("age", 20)));
-            soft.assertThat(criteriaConditions.get(2)).isEqualTo(
-                    CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.eq("age", 20))
-                            .and(CriteriaCondition.gt("id", id)));
-        });
+            assertSoftly(soft -> {
+                PageRequest pageRequest = entities.pageRequest();
+                PageRequest nextedPageRequest = entities.nextPageRequest();
+                PageRequest.Cursor cursor = nextedPageRequest.cursor().orElseThrow();
 
-        assertSoftly(soft -> {
-            PageRequest pageRequest = entities.pageRequest();
-            PageRequest nextedPageRequest = entities.nextPageRequest();
-            PageRequest.Cursor cursor = nextedPageRequest.cursor().orElseThrow();
+                soft.assertThat(entities).hasSize(2);
+                soft.assertThat(pageRequest.mode())
+                        .isEqualTo(PageRequest.Mode.CURSOR_NEXT);
+                soft.assertThat(nextedPageRequest.mode())
+                        .isEqualTo(PageRequest.Mode.CURSOR_NEXT);
+                soft.assertThat(cursor.elements())
+                        .hasSize(3);
+                soft.assertThat(cursor.get(0)).isEqualTo("Poliana");
+                soft.assertThat(cursor.get(1)).isEqualTo(35);
+                soft.assertThat(cursor.get(2)).isNotNull();
 
-            soft.assertThat(entities).hasSize(2);
-            soft.assertThat(pageRequest.mode())
-                    .isEqualTo(PageRequest.Mode.CURSOR_NEXT);
-            soft.assertThat(nextedPageRequest.mode())
-                    .isEqualTo(PageRequest.Mode.CURSOR_NEXT);
-            soft.assertThat(cursor.elements())
-                    .hasSize(3);
-            soft.assertThat(cursor.get(0)).isEqualTo("Poliana");
-            soft.assertThat(cursor.get(1)).isEqualTo(35);
-            soft.assertThat(cursor.get(2)).isNotNull();
+            });
+        }
 
-        });
-    }
+        @DisplayName("Should Return Pagination After Key Single Element When There Is Condition")
+        @Test
+        void shouldReturnPaginationAfterKeySingleElementWhenThereIsCondition() {
+            SelectQuery query = SelectQuery.select().from("person")
+                    .where("address").eq("street")
+                    .orderBy("name").asc()
+                    .orderBy("age").asc()
+                    .orderBy("id").asc()
+                    .build();
 
-    @Test
-    void shouldReturnPaginationAfterKeySingleElementWhenThereIsCondition() {
-        SelectQuery query = SelectQuery.select().from("person")
-                .where("address").eq("street")
-                .orderBy("name").asc()
-                .orderBy("age").asc()
-                .orderBy("id").asc()
-                .build();
+            Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
+                    .thenReturn(stream());
 
-        Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
-                .thenReturn(stream());
-
-        var id = UUID.randomUUID().toString();
-        CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
-                PageRequest.afterCursor(PageRequest.Cursor.forKey("Ada", 20, id), 1, 10 ,false));
+            var id = UUID.randomUUID().toString();
+            CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
+                    PageRequest.afterCursor(PageRequest.Cursor.forKey("Ada", 20, id), 1, 10 ,false));
 
 
-        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
-        Mockito.verify(databaseManager).select(captor.capture());
-        SelectQuery selectQuery = captor.getValue();
+            ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+            Mockito.verify(databaseManager).select(captor.capture());
+            SelectQuery selectQuery = captor.getValue();
 
-        CriteriaCondition condition = selectQuery.condition().orElseThrow();
+            CriteriaCondition condition = selectQuery.condition().orElseThrow();
 
-        assertSoftly(soft -> {
-            soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
-            List<CriteriaCondition> criteriaConditions = condition.element().get(new TypeReference<>() {
+            assertSoftly(soft -> {
+                soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
+                List<CriteriaCondition> criteriaConditions = condition.element().get(new TypeReference<>() {
+                });
+
+                soft.assertThat(criteriaConditions).hasSize(2);
+                soft.assertThat(criteriaConditions.get(0)).isEqualTo(CriteriaCondition.eq("address", "street"));
+
+                CriteriaCondition secondCondition = criteriaConditions.get(1);
+                soft.assertThat(secondCondition.condition()).isEqualTo(Condition.OR);
+                List<CriteriaCondition> secondConditions = secondCondition.element().get(new TypeReference<>() {
+                });
+
+                soft.assertThat(secondConditions).hasSize(3);
+                soft.assertThat(secondConditions.get(0)).isEqualTo(CriteriaCondition.gt("name", "Ada"));
+                soft.assertThat(secondConditions.get(1)).isEqualTo(
+                        CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.gt("age", 20)));
+                soft.assertThat(secondConditions.get(2)).isEqualTo(
+                        CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.eq("age", 20))
+                                .and(CriteriaCondition.gt("id", id)));
             });
 
-            soft.assertThat(criteriaConditions).hasSize(2);
-            soft.assertThat(criteriaConditions.get(0)).isEqualTo(CriteriaCondition.eq("address", "street"));
+            assertSoftly(soft -> {
+                PageRequest pageRequest = entities.pageRequest();
+                PageRequest nextedPageRequest = entities.nextPageRequest();
+                PageRequest.Cursor cursor = nextedPageRequest.cursor().orElseThrow();
 
-            CriteriaCondition secondCondition = criteriaConditions.get(1);
-            soft.assertThat(secondCondition.condition()).isEqualTo(Condition.OR);
-            List<CriteriaCondition> secondConditions = secondCondition.element().get(new TypeReference<>() {
+                soft.assertThat(entities).hasSize(2);
+                soft.assertThat(pageRequest.mode())
+                        .isEqualTo(PageRequest.Mode.CURSOR_NEXT);
+                soft.assertThat(nextedPageRequest.mode())
+                        .isEqualTo(PageRequest.Mode.CURSOR_NEXT);
+                soft.assertThat(cursor.elements())
+                        .hasSize(3);
+                soft.assertThat(cursor.get(0)).isEqualTo("Poliana");
+                soft.assertThat(cursor.get(1)).isEqualTo(35);
+                soft.assertThat(cursor.get(2)).isNotNull();
+
+            });
+        }
+
+        @DisplayName("Should Find Sub Element")
+        @Test
+        void shouldFindSubElement() {
+            SelectQuery query = SelectQuery.select().from("person")
+                    .orderBy("address.street").asc()
+                    .build();
+
+            Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
+                    .thenReturn(streamSubDocument());
+            CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
+                    PageRequest.afterCursor(PageRequest.Cursor.forKey("Paulista Avenue"), 1, 10 ,false));
+
+            assertSoftly(soft -> {
+                PageRequest nextedPageRequest = entities.nextPageRequest();
+                PageRequest.Cursor cursor = nextedPageRequest.cursor().orElseThrow();
+
+                soft.assertThat(entities).hasSize(1);
+                soft.assertThat(cursor.get(0)).isEqualTo("Paulista Avenue");
+
+            });
+        }
+
+        @DisplayName("Should Return Pagination Before Key Single Element When Condition Is Null")
+        @Test
+        void shouldReturnPaginationBeforeKeySingleElementWhenConditionIsNull() {
+            SelectQuery query = SelectQuery.select().from("person")
+                    .orderBy("name").asc()
+                    .orderBy("age").asc()
+                    .orderBy("id").asc().build();
+
+            Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
+                    .thenReturn(stream());
+
+            var id = UUID.randomUUID().toString();
+            CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
+                    PageRequest.beforeCursor(PageRequest.Cursor.forKey("Ada", 20, id), 1, 10 ,false));
+
+            ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+            Mockito.verify(databaseManager).select(captor.capture());
+            SelectQuery selectQuery = captor.getValue();
+
+            CriteriaCondition condition = selectQuery.condition().orElseThrow();
+
+            assertSoftly(soft -> {
+                soft.assertThat(condition.condition()).isEqualTo(Condition.OR);
+                List<CriteriaCondition> criteriaConditions = condition.element().get(new TypeReference<>() {
+                });
+
+                soft.assertThat(criteriaConditions).hasSize(3);
+                soft.assertThat(criteriaConditions.get(0)).isEqualTo(CriteriaCondition.lt("name", "Ada"));
+                soft.assertThat(criteriaConditions.get(1)).isEqualTo(
+                        CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.lt("age", 20)));
+                soft.assertThat(criteriaConditions.get(2)).isEqualTo(
+                        CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.eq("age", 20))
+                                .and(CriteriaCondition.lt("id", id)));
             });
 
-            soft.assertThat(secondConditions).hasSize(3);
-            soft.assertThat(secondConditions.get(0)).isEqualTo(CriteriaCondition.gt("name", "Ada"));
-            soft.assertThat(secondConditions.get(1)).isEqualTo(
-                    CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.gt("age", 20)));
-            soft.assertThat(secondConditions.get(2)).isEqualTo(
-                    CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.eq("age", 20))
-                            .and(CriteriaCondition.gt("id", id)));
-        });
+            assertSoftly(soft -> {
+                PageRequest pageRequest = entities.pageRequest();
+                PageRequest nextedPageRequest = entities.previousPageRequest();
+                PageRequest.Cursor cursor = nextedPageRequest.cursor().orElseThrow();
 
-        assertSoftly(soft -> {
-            PageRequest pageRequest = entities.pageRequest();
-            PageRequest nextedPageRequest = entities.nextPageRequest();
-            PageRequest.Cursor cursor = nextedPageRequest.cursor().orElseThrow();
+                soft.assertThat(entities).hasSize(2);
+                soft.assertThat(pageRequest.mode())
+                        .isEqualTo(PageRequest.Mode.CURSOR_PREVIOUS);
+                soft.assertThat(nextedPageRequest.mode())
+                        .isEqualTo(PageRequest.Mode.CURSOR_PREVIOUS);
+                soft.assertThat(cursor.elements())
+                        .hasSize(3);
+                soft.assertThat(cursor.get(0)).isEqualTo("Poliana");
+                soft.assertThat(cursor.get(1)).isEqualTo(35);
+                soft.assertThat(cursor.get(2)).isNotNull();
 
-            soft.assertThat(entities).hasSize(2);
-            soft.assertThat(pageRequest.mode())
-                    .isEqualTo(PageRequest.Mode.CURSOR_NEXT);
-            soft.assertThat(nextedPageRequest.mode())
-                    .isEqualTo(PageRequest.Mode.CURSOR_NEXT);
-            soft.assertThat(cursor.elements())
-                    .hasSize(3);
-            soft.assertThat(cursor.get(0)).isEqualTo("Poliana");
-            soft.assertThat(cursor.get(1)).isEqualTo(35);
-            soft.assertThat(cursor.get(2)).isNotNull();
+            });
+        }
 
-        });
-    }
+        @DisplayName("Should Return Pagination Before Key Single Element When There Is Condition")
+        @Test
+        void shouldReturnPaginationBeforeKeySingleElementWhenThereIsCondition() {
+            SelectQuery query = SelectQuery.select().from("person")
+                    .where("address").eq("street")
+                    .orderBy("name").asc()
+                    .orderBy("age").asc()
+                    .orderBy("id").asc()
+                    .build();
 
-    @Test
-    void shouldFindSubElement() {
-        SelectQuery query = SelectQuery.select().from("person")
-                .orderBy("address.street").asc()
-                .build();
+            Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
+                    .thenReturn(stream());
 
-        Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
-                .thenReturn(streamSubDocument());
-        CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
-                PageRequest.afterCursor(PageRequest.Cursor.forKey("Paulista Avenue"), 1, 10 ,false));
+            var id = UUID.randomUUID().toString();
+            CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
+                    PageRequest.beforeCursor(PageRequest.Cursor.forKey("Ada", 20, id), 1, 10 ,false));
 
-        assertSoftly(soft -> {
-            PageRequest nextedPageRequest = entities.nextPageRequest();
-            PageRequest.Cursor cursor = nextedPageRequest.cursor().orElseThrow();
 
-            soft.assertThat(entities).hasSize(1);
-            soft.assertThat(cursor.get(0)).isEqualTo("Paulista Avenue");
+            ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
+            Mockito.verify(databaseManager).select(captor.capture());
+            SelectQuery selectQuery = captor.getValue();
 
-        });
-    }
+            CriteriaCondition condition = selectQuery.condition().orElseThrow();
 
-    @Test
-    void shouldReturnPaginationBeforeKeySingleElementWhenConditionIsNull() {
-        SelectQuery query = SelectQuery.select().from("person")
-                .orderBy("name").asc()
-                .orderBy("age").asc()
-                .orderBy("id").asc().build();
+            assertSoftly(soft -> {
+                soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
+                List<CriteriaCondition> criteriaConditions = condition.element().get(new TypeReference<>() {
+                });
 
-        Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
-                .thenReturn(stream());
+                soft.assertThat(criteriaConditions).hasSize(2);
+                soft.assertThat(criteriaConditions.get(0)).isEqualTo(CriteriaCondition.eq("address", "street"));
 
-        var id = UUID.randomUUID().toString();
-        CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
-                PageRequest.beforeCursor(PageRequest.Cursor.forKey("Ada", 20, id), 1, 10 ,false));
+                CriteriaCondition secondCondition = criteriaConditions.get(1);
+                soft.assertThat(secondCondition.condition()).isEqualTo(Condition.OR);
+                List<CriteriaCondition> secondConditions = secondCondition.element().get(new TypeReference<>() {
+                });
 
-        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
-        Mockito.verify(databaseManager).select(captor.capture());
-        SelectQuery selectQuery = captor.getValue();
-
-        CriteriaCondition condition = selectQuery.condition().orElseThrow();
-
-        assertSoftly(soft -> {
-            soft.assertThat(condition.condition()).isEqualTo(Condition.OR);
-            List<CriteriaCondition> criteriaConditions = condition.element().get(new TypeReference<>() {
+                soft.assertThat(secondConditions).hasSize(3);
+                soft.assertThat(secondConditions.get(0)).isEqualTo(CriteriaCondition.lt("name", "Ada"));
+                soft.assertThat(secondConditions.get(1)).isEqualTo(
+                        CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.lt("age", 20)));
+                soft.assertThat(secondConditions.get(2)).isEqualTo(
+                        CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.eq("age", 20))
+                                .and(CriteriaCondition.lt("id", id)));
             });
 
-            soft.assertThat(criteriaConditions).hasSize(3);
-            soft.assertThat(criteriaConditions.get(0)).isEqualTo(CriteriaCondition.lt("name", "Ada"));
-            soft.assertThat(criteriaConditions.get(1)).isEqualTo(
-                    CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.lt("age", 20)));
-            soft.assertThat(criteriaConditions.get(2)).isEqualTo(
-                    CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.eq("age", 20))
-                            .and(CriteriaCondition.lt("id", id)));
-        });
+            assertSoftly(soft -> {
+                PageRequest pageRequest = entities.pageRequest();
+                PageRequest nextedPageRequest = entities.previousPageRequest();
+                PageRequest.Cursor cursor = nextedPageRequest.cursor().orElseThrow();
 
-        assertSoftly(soft -> {
-            PageRequest pageRequest = entities.pageRequest();
-            PageRequest nextedPageRequest = entities.previousPageRequest();
-            PageRequest.Cursor cursor = nextedPageRequest.cursor().orElseThrow();
+                soft.assertThat(entities).hasSize(2);
+                soft.assertThat(pageRequest.mode())
+                        .isEqualTo(PageRequest.Mode.CURSOR_PREVIOUS);
+                soft.assertThat(nextedPageRequest.mode())
+                        .isEqualTo(PageRequest.Mode.CURSOR_PREVIOUS);
+                soft.assertThat(cursor.elements())
+                        .hasSize(3);
+                soft.assertThat(cursor.get(0)).isEqualTo("Poliana");
+                soft.assertThat(cursor.get(1)).isEqualTo(35);
+                soft.assertThat(cursor.get(2)).isNotNull();
 
-            soft.assertThat(entities).hasSize(2);
-            soft.assertThat(pageRequest.mode())
-                    .isEqualTo(PageRequest.Mode.CURSOR_PREVIOUS);
-            soft.assertThat(nextedPageRequest.mode())
-                    .isEqualTo(PageRequest.Mode.CURSOR_PREVIOUS);
-            soft.assertThat(cursor.elements())
-                    .hasSize(3);
-            soft.assertThat(cursor.get(0)).isEqualTo("Poliana");
-            soft.assertThat(cursor.get(1)).isEqualTo(35);
-            soft.assertThat(cursor.get(2)).isNotNull();
-
-        });
-    }
-
-    @Test
-    void shouldReturnPaginationBeforeKeySingleElementWhenThereIsCondition() {
-        SelectQuery query = SelectQuery.select().from("person")
-                .where("address").eq("street")
-                .orderBy("name").asc()
-                .orderBy("age").asc()
-                .orderBy("id").asc()
-                .build();
-
-        Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
-                .thenReturn(stream());
-
-        var id = UUID.randomUUID().toString();
-        CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
-                PageRequest.beforeCursor(PageRequest.Cursor.forKey("Ada", 20, id), 1, 10 ,false));
-
-
-        ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
-        Mockito.verify(databaseManager).select(captor.capture());
-        SelectQuery selectQuery = captor.getValue();
-
-        CriteriaCondition condition = selectQuery.condition().orElseThrow();
-
-        assertSoftly(soft -> {
-            soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
-            List<CriteriaCondition> criteriaConditions = condition.element().get(new TypeReference<>() {
             });
+        }
 
-            soft.assertThat(criteriaConditions).hasSize(2);
-            soft.assertThat(criteriaConditions.get(0)).isEqualTo(CriteriaCondition.eq("address", "street"));
 
-            CriteriaCondition secondCondition = criteriaConditions.get(1);
-            soft.assertThat(secondCondition.condition()).isEqualTo(Condition.OR);
-            List<CriteriaCondition> secondConditions = secondCondition.element().get(new TypeReference<>() {
+        @DisplayName("Should Return Pagination After Key And Return Empty")
+        @Test
+        void shouldReturnPaginationAfterKeyAndReturnEmpty() {
+            SelectQuery query = SelectQuery.select().from("person")
+                    .orderBy("name").asc()
+                    .orderBy("age").asc()
+                    .orderBy("id").asc().build();
+
+            Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
+                    .thenReturn(Stream.empty());
+
+            var id = UUID.randomUUID().toString();
+            CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
+                    PageRequest.afterCursor(PageRequest.Cursor.forKey("Ada", 20, id), 1, 10 ,false));
+
+            assertSoftly(soft -> {
+                PageRequest pageRequest = entities.pageRequest();
+
+                soft.assertThat(entities).isEmpty();
+                soft.assertThat(entities.hasNext()).isFalse();
+                soft.assertThat(entities.hasPrevious()).isFalse();
+                soft.assertThat(pageRequest.mode())
+                        .isEqualTo(PageRequest.Mode.CURSOR_NEXT);
             });
+        }
 
-            soft.assertThat(secondConditions).hasSize(3);
-            soft.assertThat(secondConditions.get(0)).isEqualTo(CriteriaCondition.lt("name", "Ada"));
-            soft.assertThat(secondConditions.get(1)).isEqualTo(
-                    CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.lt("age", 20)));
-            soft.assertThat(secondConditions.get(2)).isEqualTo(
-                    CriteriaCondition.eq("name", "Ada").and(CriteriaCondition.eq("age", 20))
-                            .and(CriteriaCondition.lt("id", id)));
-        });
 
-        assertSoftly(soft -> {
-            PageRequest pageRequest = entities.pageRequest();
-            PageRequest nextedPageRequest = entities.previousPageRequest();
-            PageRequest.Cursor cursor = nextedPageRequest.cursor().orElseThrow();
+        @DisplayName("Should Return Pagination Before Key And Return Empty")
+        @Test
+        void shouldReturnPaginationBeforeKeyAndReturnEmpty() {
+            SelectQuery query = SelectQuery.select().from("person")
+                    .orderBy("name").asc()
+                    .orderBy("age").asc()
+                    .orderBy("id").asc().build();
 
-            soft.assertThat(entities).hasSize(2);
-            soft.assertThat(pageRequest.mode())
-                    .isEqualTo(PageRequest.Mode.CURSOR_PREVIOUS);
-            soft.assertThat(nextedPageRequest.mode())
-                    .isEqualTo(PageRequest.Mode.CURSOR_PREVIOUS);
-            soft.assertThat(cursor.elements())
-                    .hasSize(3);
-            soft.assertThat(cursor.get(0)).isEqualTo("Poliana");
-            soft.assertThat(cursor.get(1)).isEqualTo(35);
-            soft.assertThat(cursor.get(2)).isNotNull();
+            Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
+                    .thenReturn(Stream.empty());
 
-        });
+            var id = UUID.randomUUID().toString();
+            CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
+                    PageRequest.beforeCursor(PageRequest.Cursor.forKey("Ada", 20, id), 1, 10 ,false));
+
+            assertSoftly(soft -> {
+                PageRequest pageRequest = entities.pageRequest();
+
+                soft.assertThat(entities).isEmpty();
+                soft.assertThat(entities.hasNext()).isFalse();
+                soft.assertThat(entities.hasPrevious()).isFalse();
+                soft.assertThat(pageRequest.mode())
+                        .isEqualTo(PageRequest.Mode.CURSOR_PREVIOUS);
+            });
+        }
+
+        @DisplayName("Should Return Error Sort Size Different From Order Size Before Key")
+        @Test
+        void shouldReturnErrorSortSizeDifferentFromOrderSizeBeforeKey() {
+            SelectQuery query = SelectQuery.select().from("person")
+                    .orderBy("name").asc()
+                    .orderBy("age").asc()
+                    .orderBy("id").asc().build();
+
+            assertThatThrownBy(() -> databaseManager.selectCursor(query,
+                    PageRequest.beforeCursor(PageRequest.Cursor.forKey("Ada", 20), 1, 10 ,false))).isInstanceOf(IllegalArgumentException.class);
+
+        }
+
+        @DisplayName("Should Return Error Sort Size Different From Order Size After Key")
+        @Test
+        void shouldReturnErrorSortSizeDifferentFromOrderSizeAfterKey() {
+            SelectQuery query = SelectQuery.select().from("person")
+                    .orderBy("name").asc()
+                    .orderBy("age").asc()
+                    .orderBy("id").asc().build();
+
+            assertThatThrownBy(() -> databaseManager.selectCursor(query,
+                    PageRequest.afterCursor(PageRequest.Cursor.forKey("Ada", 20), 1, 10 ,false))).isInstanceOf(IllegalArgumentException.class);
+
+        }
+
+        @DisplayName("Should Count")
+        @Test
+        void shouldCount(){
+            SelectQuery query = SelectQuery.select().from("person").build();
+            Mockito.when(databaseManager.select(query)).thenReturn(stream());
+
+            long count = databaseManager.count(query);
+            assertThat(count).isNotZero().isEqualTo(2L);
+        }
+
+        @DisplayName("Should Return Zero When Count Is Empty")
+        @Test
+        void shouldReturnZeroWhenCountIsEmpty(){
+            SelectQuery query = SelectQuery.select().from("person").build();
+            Mockito.when(databaseManager.select(query)).thenReturn(Stream.empty());
+            long count = databaseManager.count(query);
+            assertThat(count).isZero();
+        }
+
+        @DisplayName("Should Exists")
+        @Test
+        void shouldExists(){
+            SelectQuery query = SelectQuery.select().from("person").build();
+            Mockito.when(databaseManager.select(Mockito.any())).thenReturn(stream());
+
+            boolean exists = databaseManager.exists(query);
+            assertThat(exists).isTrue();
+        }
+
+        @DisplayName("Should Not Exists")
+        @Test
+        void shouldNotExists(){
+            var query = SelectQuery.select().from("person").build();
+            Mockito.when(databaseManager.select(Mockito.any())).thenReturn(Stream.empty());
+
+            boolean exists = databaseManager.exists(query);
+            assertThat(exists).isFalse();
+        }
+
+        @DisplayName("Should Query")
+        @Test
+        void shouldQuery(){
+            SelectQuery query = SelectQuery.select().from("person").build();
+            Mockito.when(databaseManager.select(query)).thenReturn(stream());
+
+            Stream<CommunicationEntity> entities = databaseManager.query("FROM person");
+            assertThat(entities).hasSize(2);
+        }
+
+        @DisplayName("Should Prepare")
+        @Test
+        void shouldPrepare(){
+            var prepare = databaseManager.prepare("FROM person WHERE name = :name");
+            assertThat(prepare).isNotNull();
+        }
+
+        @DisplayName("Should Return Error Single Result")
+        @Test
+        void shouldReturnErrorSingleResult(){
+            SelectQuery query = SelectQuery.select().from("person").build();
+            Mockito.when(databaseManager.select(query)).thenReturn(stream());
+
+            assertThatThrownBy(() -> databaseManager.singleResult(query))
+                    .isInstanceOf(NonUniqueResultException.class);
+
+        }
+
+        @DisplayName("Should Single Result")
+        @Test
+        void shouldSingleResult(){
+            SelectQuery query = SelectQuery.select().from("person").build();
+            Mockito.when(databaseManager.select(query)).thenReturn(Stream.of(CommunicationEntity.of("name")));
+
+            var entity = databaseManager.singleResult(query);
+            assertThat(entity).isPresent();
+        }
+
+        @DisplayName("Should Return Empty At Single Result")
+        @Test
+        void shouldReturnEmptyAtSingleResult(){
+            SelectQuery query = SelectQuery.select().from("person").build();
+            Mockito.when(databaseManager.select(query)).thenReturn(Stream.empty());
+
+            var entity = databaseManager.singleResult(query);
+            assertThat(entity).isEmpty();
+        }
+
+        @DisplayName("Should Execute Update")
+        @Test
+        void shouldExecuteUpdate(){
+            List<Element> elements = List.of(Element.of("name", "Ada"), Element.of("age", 10));
+            var updateQuery = new DefaultUpdateQuery("person", elements, CriteriaCondition.eq("id", "id"));
+            var select = SelectQuery.select().from("person").where("id").eq("id").build();
+            var entity = CommunicationEntity.of("person");
+            entity.add("name", "Poliana");
+            Mockito.when(databaseManager.select(select)).thenReturn(Stream.of(entity));
+
+            databaseManager.update(updateQuery);
+
+            ArgumentCaptor<CommunicationEntity> captor = ArgumentCaptor.forClass(CommunicationEntity.class);
+            Mockito.verify(databaseManager).update(captor.capture());
+
+            CommunicationEntity communication = captor.getValue();
+
+            SoftAssertions.assertSoftly(soft ->{
+                soft.assertThat(communication.find("name").orElseThrow().get()).isEqualTo("Ada");
+                soft.assertThat(communication.find("age").orElseThrow().get()).isEqualTo(10);
+                soft.assertThat(communication.name()).isEqualTo("person");
+            });
+        }
+
+        @DisplayName("Should Return Empty Ate Default Id Field Name")
+        @Test
+        void shouldReturnEmptyAteDefaultIdFieldName() {
+            Optional<String> defaultIdFieldName = databaseManager.defaultIdFieldName();
+            assertThat(defaultIdFieldName).isEmpty();
+        }
+
+        private Stream<CommunicationEntity> stream() {
+            var entity = CommunicationEntity.of("name");
+            entity.add("name", "Ada");
+            entity.add("age", 10);
+            entity.add("id", UUID.randomUUID().toString());
+
+            var entity2 = CommunicationEntity.of("name");
+            entity2.add("name", "Poliana");
+            entity2.add("age", 35);
+            entity2.add("id", UUID.randomUUID().toString());
+            return Stream.of(entity, entity2);
+        }
+
+        private Stream<CommunicationEntity> streamSubDocument() {
+            var entity = CommunicationEntity.of("name");
+            entity.add("name", "Ada");
+            entity.add("age", 10);
+            entity.add("id", UUID.randomUUID().toString());
+            entity.add("address", List.of(
+                    Element.of("street", "Paulista Avenue"),
+                    Element.of("number", 100)));
+            return Stream.of(entity);
+        }
+
     }
-
-
-    @Test
-    void shouldReturnPaginationAfterKeyAndReturnEmpty() {
-        SelectQuery query = SelectQuery.select().from("person")
-                .orderBy("name").asc()
-                .orderBy("age").asc()
-                .orderBy("id").asc().build();
-
-        Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
-                .thenReturn(Stream.empty());
-
-        var id = UUID.randomUUID().toString();
-        CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
-                PageRequest.afterCursor(PageRequest.Cursor.forKey("Ada", 20, id), 1, 10 ,false));
-
-        assertSoftly(soft -> {
-            PageRequest pageRequest = entities.pageRequest();
-
-            soft.assertThat(entities).isEmpty();
-            soft.assertThat(entities.hasNext()).isFalse();
-            soft.assertThat(entities.hasPrevious()).isFalse();
-            soft.assertThat(pageRequest.mode())
-                    .isEqualTo(PageRequest.Mode.CURSOR_NEXT);
-        });
-    }
-
-
-    @Test
-    void shouldReturnPaginationBeforeKeyAndReturnEmpty() {
-        SelectQuery query = SelectQuery.select().from("person")
-                .orderBy("name").asc()
-                .orderBy("age").asc()
-                .orderBy("id").asc().build();
-
-        Mockito.when(databaseManager.select(Mockito.any(SelectQuery.class)))
-                .thenReturn(Stream.empty());
-
-        var id = UUID.randomUUID().toString();
-        CursoredPage<CommunicationEntity> entities = databaseManager.selectCursor(query,
-                PageRequest.beforeCursor(PageRequest.Cursor.forKey("Ada", 20, id), 1, 10 ,false));
-
-        assertSoftly(soft -> {
-            PageRequest pageRequest = entities.pageRequest();
-
-            soft.assertThat(entities).isEmpty();
-            soft.assertThat(entities.hasNext()).isFalse();
-            soft.assertThat(entities.hasPrevious()).isFalse();
-            soft.assertThat(pageRequest.mode())
-                    .isEqualTo(PageRequest.Mode.CURSOR_PREVIOUS);
-        });
-    }
-
-    @Test
-    void shouldReturnErrorSortSizeDifferentFromOrderSizeBeforeKey() {
-        SelectQuery query = SelectQuery.select().from("person")
-                .orderBy("name").asc()
-                .orderBy("age").asc()
-                .orderBy("id").asc().build();
-
-        assertThrows(IllegalArgumentException.class, () -> databaseManager.selectCursor(query,
-                PageRequest.beforeCursor(PageRequest.Cursor.forKey("Ada", 20), 1, 10 ,false)));
-
-    }
-
-    @Test
-    void shouldReturnErrorSortSizeDifferentFromOrderSizeAfterKey() {
-        SelectQuery query = SelectQuery.select().from("person")
-                .orderBy("name").asc()
-                .orderBy("age").asc()
-                .orderBy("id").asc().build();
-
-        assertThrows(IllegalArgumentException.class, () -> databaseManager.selectCursor(query,
-                PageRequest.afterCursor(PageRequest.Cursor.forKey("Ada", 20), 1, 10 ,false)));
-
-    }
-
-    @Test
-    void shouldCount(){
-        SelectQuery query = SelectQuery.select().from("person").build();
-        Mockito.when(databaseManager.select(query)).thenReturn(stream());
-
-        long count = databaseManager.count(query);
-        Assertions.assertThat(count).isNotZero().isEqualTo(2L);
-    }
-
-    @Test
-    void shouldReturnZeroWhenCountIsEmpty(){
-        SelectQuery query = SelectQuery.select().from("person").build();
-        Mockito.when(databaseManager.select(query)).thenReturn(Stream.empty());
-        long count = databaseManager.count(query);
-        Assertions.assertThat(count).isZero();
-    }
-
-    @Test
-    void shouldExists(){
-        SelectQuery query = SelectQuery.select().from("person").build();
-        Mockito.when(databaseManager.select(Mockito.any())).thenReturn(stream());
-
-        boolean exists = databaseManager.exists(query);
-        Assertions.assertThat(exists).isTrue();
-    }
-
-    @Test
-    void shouldNotExists(){
-        var query = SelectQuery.select().from("person").build();
-        Mockito.when(databaseManager.select(Mockito.any())).thenReturn(Stream.empty());
-
-        boolean exists = databaseManager.exists(query);
-        Assertions.assertThat(exists).isFalse();
-    }
-
-    @Test
-    void shouldQuery(){
-        SelectQuery query = SelectQuery.select().from("person").build();
-        Mockito.when(databaseManager.select(query)).thenReturn(stream());
-
-        Stream<CommunicationEntity> entities = databaseManager.query("FROM person");
-        Assertions.assertThat(entities).hasSize(2);
-    }
-
-    @Test
-    void shouldPrepare(){
-        var prepare = databaseManager.prepare("FROM person WHERE name = :name");
-        Assertions.assertThat(prepare).isNotNull();
-    }
-
-    @Test
-    void shouldReturnErrorSingleResult(){
-        SelectQuery query = SelectQuery.select().from("person").build();
-        Mockito.when(databaseManager.select(query)).thenReturn(stream());
-
-        Assertions.assertThatThrownBy(() -> databaseManager.singleResult(query))
-                .isInstanceOf(NonUniqueResultException.class);
-
-    }
-
-    @Test
-    void shouldSingleResult(){
-        SelectQuery query = SelectQuery.select().from("person").build();
-        Mockito.when(databaseManager.select(query)).thenReturn(Stream.of(CommunicationEntity.of("name")));
-
-        var entity = databaseManager.singleResult(query);
-        Assertions.assertThat(entity).isPresent();
-    }
-
-    @Test
-    void shouldReturnEmptyAtSingleResult(){
-        SelectQuery query = SelectQuery.select().from("person").build();
-        Mockito.when(databaseManager.select(query)).thenReturn(Stream.empty());
-
-        var entity = databaseManager.singleResult(query);
-        Assertions.assertThat(entity).isEmpty();
-    }
-
-    @Test
-    void shouldExecuteUpdate(){
-        List<Element> elements = List.of(Element.of("name", "Ada"), Element.of("age", 10));
-        var updateQuery = new DefaultUpdateQuery("person", elements, CriteriaCondition.eq("id", "id"));
-        var select = SelectQuery.select().from("person").where("id").eq("id").build();
-        var entity = CommunicationEntity.of("person");
-        entity.add("name", "Poliana");
-        Mockito.when(databaseManager.select(select)).thenReturn(Stream.of(entity));
-
-        databaseManager.update(updateQuery);
-
-        ArgumentCaptor<CommunicationEntity> captor = ArgumentCaptor.forClass(CommunicationEntity.class);
-        Mockito.verify(databaseManager).update(captor.capture());
-
-        CommunicationEntity communication = captor.getValue();
-
-        SoftAssertions.assertSoftly(soft ->{
-            soft.assertThat(communication.find("name").orElseThrow().get()).isEqualTo("Ada");
-            soft.assertThat(communication.find("age").orElseThrow().get()).isEqualTo(10);
-            soft.assertThat(communication.name()).isEqualTo("person");
-        });
-    }
-
-    @Test
-    void shouldReturnEmptyAteDefaultIdFieldName() {
-        Optional<String> defaultIdFieldName = databaseManager.defaultIdFieldName();
-        Assertions.assertThat(defaultIdFieldName).isEmpty();
-    }
-
-    private Stream<CommunicationEntity> stream() {
-        var entity = CommunicationEntity.of("name");
-        entity.add("name", "Ada");
-        entity.add("age", 10);
-        entity.add("id", UUID.randomUUID().toString());
-
-        var entity2 = CommunicationEntity.of("name");
-        entity2.add("name", "Poliana");
-        entity2.add("age", 35);
-        entity2.add("id", UUID.randomUUID().toString());
-        return Stream.of(entity, entity2);
-    }
-
-    private Stream<CommunicationEntity> streamSubDocument() {
-        var entity = CommunicationEntity.of("name");
-        entity.add("name", "Ada");
-        entity.add("age", 10);
-        entity.add("id", UUID.randomUUID().toString());
-        entity.add("address", List.of(
-                Element.of("street", "Paulista Avenue"),
-                Element.of("number", 100)));
-        return Stream.of(entity);
-    }
-
 
 }

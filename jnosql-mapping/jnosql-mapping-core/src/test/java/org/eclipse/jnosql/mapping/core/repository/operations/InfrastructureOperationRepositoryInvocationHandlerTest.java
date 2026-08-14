@@ -111,8 +111,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
     @DisplayName("When creating the repository proxy")
     class WhenCreateRepositoryProxy {
 
+        @DisplayName("Should create repository proxy")
         @Test
-        @DisplayName("Should create a non-null repository proxy")
         void shouldCreateRepositoryProxy() {
             assertThat(comicBookRepository).isNotNull();
         }
@@ -122,8 +122,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
     @DisplayName("When invoking Object methods")
     class WhenInvokeObjectMethods {
 
+        @DisplayName("Should execute object methods")
         @Test
-        @DisplayName("Should execute toString, hashCode, and equals without errors")
         void shouldExecuteObjectMethods() {
             assertThatCode(comicBookRepository::toString)
                     .doesNotThrowAnyException();
@@ -138,8 +138,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
             verifyNoInteractions(lifecycleEventHandler);
         }
 
+        @DisplayName("Should execute cached object method")
         @Test
-        @DisplayName("Should repeatedly execute a cached Object method without errors")
         void shouldExecuteCachedObjectMethod() {
             for (int index = 0; index < 10; index++) {
                 assertThatCode(comicBookRepository::toString)
@@ -154,8 +154,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
     @DisplayName("When invoking supported repository methods")
     class WhenInvokeSupportedRepositoryMethods {
 
+        @DisplayName("Should save missing entity with lifecycle events")
         @Test
-        @DisplayName("Should save a missing entity between pre-upsert and post-upsert events")
         void shouldSaveMissingEntityWithLifecycleEvents() {
             // given
             ComicBook book =
@@ -180,8 +180,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
             ordered.verify(lifecycleEventHandler).postUpsert(book);
         }
 
+        @DisplayName("Should save all missing entities with lifecycle events")
         @Test
-        @DisplayName("Should save all missing entities with upsert lifecycle events")
         void shouldSaveAllMissingEntitiesWithLifecycleEvents() {
             // given
             ComicBook book =
@@ -212,8 +212,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
     @DisplayName("When invoking repository component methods")
     class WhenInvokeComponentMethods {
 
+        @DisplayName("Should return component value")
         @Test
-        @DisplayName("Should return the repository component value")
         void shouldReturnComponentValue() {
             String result = comicBookRepository.component();
 
@@ -223,8 +223,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
             verifyNoInteractions(lifecycleEventHandler);
         }
 
+        @DisplayName("Should execute default method")
         @Test
-        @DisplayName("Should execute the repository default method")
         void shouldExecuteDefaultMethod() {
             String result = comicBookRepository.defaultMethod();
 
@@ -238,8 +238,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
     @DisplayName("When invoking unsupported repository methods")
     class WhenInvokeUnsupportedRepositoryMethods {
 
+        @DisplayName("Should reject find by method")
         @Test
-        @DisplayName("Should reject an unsupported find-by method")
         void shouldRejectFindByMethod() {
             assertThatThrownBy(() ->
                     comicBookRepository.findByName("name"))
@@ -248,8 +248,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
             verifyNoInteractions(lifecycleEventHandler);
         }
 
+        @DisplayName("Should reject count by method")
         @Test
-        @DisplayName("Should reject an unsupported count-by method")
         void shouldRejectCountByMethod() {
             assertThatThrownBy(() ->
                     comicBookRepository.countByName("name"))
@@ -258,8 +258,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
             verifyNoInteractions(lifecycleEventHandler);
         }
 
+        @DisplayName("Should reject count all method")
         @Test
-        @DisplayName("Should reject an unsupported count-all method")
         void shouldRejectCountAllMethod() {
             assertThatThrownBy(comicBookRepository::countAll)
                     .isInstanceOf(UnsupportedOperationException.class);
@@ -267,8 +267,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
             verifyNoInteractions(lifecycleEventHandler);
         }
 
+        @DisplayName("Should reject exists by method")
         @Test
-        @DisplayName("Should reject an unsupported exists-by method")
         void shouldRejectExistsByMethod() {
             assertThatThrownBy(() ->
                     comicBookRepository.existsByName("name"))
@@ -277,8 +277,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
             verifyNoInteractions(lifecycleEventHandler);
         }
 
+        @DisplayName("Should reject delete by method")
         @Test
-        @DisplayName("Should reject an unsupported delete-by method")
         void shouldRejectDeleteByMethod() {
             assertThatThrownBy(() ->
                     comicBookRepository.deleteByName("name"))
@@ -287,8 +287,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
             verifyNoInteractions(lifecycleEventHandler);
         }
 
+        @DisplayName("Should reject custom find method")
         @Test
-        @DisplayName("Should reject an unsupported custom find method")
         void shouldRejectCustomFindMethod() {
             assertThatThrownBy(() ->
                     comicBookRepository.find("name"))
@@ -297,8 +297,8 @@ class InfrastructureOperationRepositoryInvocationHandlerTest {
             verifyNoInteractions(lifecycleEventHandler);
         }
 
+        @DisplayName("Should reject cursor method")
         @Test
-        @DisplayName("Should reject an unsupported cursor method")
         void shouldRejectCursorMethod() {
             assertThatThrownBy(comicBookRepository::cursor)
                     .isInstanceOf(UnsupportedOperationException.class);

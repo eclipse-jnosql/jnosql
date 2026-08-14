@@ -18,6 +18,9 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 import jakarta.data.Sort;
 import jakarta.data.page.PageRequest;
 import jakarta.inject.Inject;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
@@ -37,14 +40,14 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -66,6 +69,7 @@ class SemiStructuredParameterBasedQueryTest {
         this.metadata = entitiesMetadata.get(Person.class);
     }
 
+    @DisplayName("Should create query single parameter")
     @Test
     void shouldCreateQuerySingleParameter() {
         Map<String, ParamValue> params = Map.of("name", new ParamValue(Condition.EQUALS, "Ada", false));
@@ -83,6 +87,7 @@ class SemiStructuredParameterBasedQueryTest {
         });
     }
 
+    @DisplayName("Should create query greater than")
     @Test
     void shouldCreateQueryGreaterThan() {
         Map<String, ParamValue> params = Map.of("name", new ParamValue(Condition.GREATER_THAN, "Ada", false));
@@ -100,6 +105,7 @@ class SemiStructuredParameterBasedQueryTest {
         });
     }
 
+    @DisplayName("Should update parameter based on simple query")
     @ParameterizedTest(name = "Executing parameter query: {index} - {0}")
     @EnumSource(value = Condition.class, names = {"IN", "BETWEEN", "OR", "AND", "NOT"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldUpdateParameterBasedOnSimpleQuery(Condition condition) {
@@ -118,6 +124,7 @@ class SemiStructuredParameterBasedQueryTest {
         });
     }
 
+    @DisplayName("Should not allow iterable on simple query")
     @ParameterizedTest(name = "Executing invalid iterable to parameter query: {index} - {0}")
     @EnumSource(value = Condition.class, names = {"IN", "BETWEEN", "OR", "AND", "NOT"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldNotAllowIterableOnSimpleQuery(Condition condition) {
@@ -126,6 +133,7 @@ class SemiStructuredParameterBasedQueryTest {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
+    @DisplayName("Should not allow array on simple query")
     @ParameterizedTest(name = "Executing invalid array to parameter query: {index} - {0}")
     @EnumSource(value = Condition.class, names = {"IN", "BETWEEN", "OR", "AND", "NOT"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldNotAllowArrayOnSimpleQuery(Condition condition) {
@@ -134,6 +142,7 @@ class SemiStructuredParameterBasedQueryTest {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
+    @DisplayName("Should not allow not array and iterable")
     @ParameterizedTest(name = "Executing invalid iterable to parameter query: {index} - {0}")
     @EnumSource(value = Condition.class, names = {"IN", "BETWEEN"}, mode = EnumSource.Mode.INCLUDE)
     void shouldNotAllowNotArrayAndIterable(Condition condition) {
@@ -142,6 +151,7 @@ class SemiStructuredParameterBasedQueryTest {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
+    @DisplayName("Should update parameter based on query that needs iterable")
     @ParameterizedTest(name = "Executing parameter query: {index} - {0}")
     @EnumSource(value = Condition.class, names = {"IN", "BETWEEN"}, mode = EnumSource.Mode.INCLUDE)
     void shouldUpdateParameterBasedOnQueryThatNeedsIterable(Condition condition) {
@@ -160,6 +170,7 @@ class SemiStructuredParameterBasedQueryTest {
         });
     }
 
+    @DisplayName("Should not allow between with single value")
     @Test
     void shouldNotAllowBetweenWithSingleValue() {
         Map<String, ParamValue> params = Map.of("age", new ParamValue(Condition.BETWEEN, List.of(10), false));
@@ -167,6 +178,7 @@ class SemiStructuredParameterBasedQueryTest {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
+    @DisplayName("Should update parameter based on query that needs array")
     @ParameterizedTest(name = "Executing parameter query: {index} - {0}")
     @EnumSource(value = Condition.class, names = {"IN", "BETWEEN"}, mode = EnumSource.Mode.INCLUDE)
     void shouldUpdateParameterBasedOnQueryThatNeedsArray(Condition condition) {
@@ -185,6 +197,7 @@ class SemiStructuredParameterBasedQueryTest {
         });
     }
 
+    @DisplayName("Should create query single parameter with not")
     @Test
     void shouldCreateQuerySingleParameterWithNot() {
         Map<String, ParamValue> params = Map.of("name", new ParamValue(Condition.EQUALS, "Ada", true));
@@ -203,6 +216,7 @@ class SemiStructuredParameterBasedQueryTest {
         });
     }
 
+    @DisplayName("Should create query multiple params")
     @Test
     void shouldCreateQueryMultipleParams() {
         Map<String, ParamValue> params = Map.of("name", new ParamValue(Condition.EQUALS, "Ada", false),
@@ -224,6 +238,7 @@ class SemiStructuredParameterBasedQueryTest {
 
     }
 
+    @DisplayName("Should create query empty params")
     @Test
     void shouldCreateQueryEmptyParams() {
         Map<String, ParamValue> params = Collections.emptyMap();
@@ -238,6 +253,7 @@ class SemiStructuredParameterBasedQueryTest {
         });
     }
 
+    @DisplayName("Should add sort")
     @Test
     void shouldAddSort() {
         Map<String, ParamValue> params = Collections.emptyMap();
@@ -252,6 +268,7 @@ class SemiStructuredParameterBasedQueryTest {
         });
     }
 
+    @DisplayName("Should create query single parameter native")
     @Test
     void shouldCreateQuerySingleParameterNative() {
         Map<String, Object> params = Map.of("name", "Ada");
@@ -267,6 +284,7 @@ class SemiStructuredParameterBasedQueryTest {
         });
     }
 
+    @DisplayName("Should create query multiple params native")
     @Test
     void shouldCreateQueryMultipleParamsNative() {
         Map<String, Object> params = Map.of("name", "Ada", "age", 10);
@@ -287,6 +305,7 @@ class SemiStructuredParameterBasedQueryTest {
 
     }
 
+    @DisplayName("Should create query empty params native")
     @Test
     void shouldCreateQueryEmptyParamsNative() {
         Map<String, Object> params = Collections.emptyMap();
@@ -301,6 +320,7 @@ class SemiStructuredParameterBasedQueryTest {
         });
     }
 
+    @DisplayName("Should add sort native")
     @Test
     void shouldAddSortNative() {
         Map<String, Object> params = Collections.emptyMap();
@@ -315,6 +335,7 @@ class SemiStructuredParameterBasedQueryTest {
         });
     }
 
+    @DisplayName("Should include page request")
     @Test
     void shouldIncludePageRequest(){
         Map<String, Object> params = Collections.emptyMap();
@@ -328,5 +349,10 @@ class SemiStructuredParameterBasedQueryTest {
             soft.assertThat(query.sorts()).isEmpty();
             soft.assertThat(query.condition()).isEmpty();
         });
+    }
+
+    @Nested
+    @DisplayName("When the semi structured parameter based query is tested")
+    class WhenTheSemiStructuredParameterBasedQueryIsTested {
     }
 }

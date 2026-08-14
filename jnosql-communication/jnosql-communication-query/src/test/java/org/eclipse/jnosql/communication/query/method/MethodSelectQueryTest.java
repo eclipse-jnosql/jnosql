@@ -15,6 +15,7 @@ import jakarta.data.Sort;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.eclipse.jnosql.communication.query.Where;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +27,11 @@ import static org.mockito.Mockito.mock;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class MethodSelectQueryTest {
+
+    @Nested
+    @DisplayName("When the method select query is used")
+    class WhenTheMethodSelectQuery {
+    }
 
 
     @Test

@@ -27,6 +27,20 @@ import jakarta.data.repository.Query;
 import jakarta.data.repository.Save;
 import jakarta.data.repository.Update;
 import jakarta.inject.Inject;
+import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
@@ -51,30 +65,17 @@ import org.eclipse.jnosql.mapping.semistructured.entities.Vendor;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Proxy;
-import java.math.BigDecimal;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.eclipse.jnosql.communication.Condition.AND;
 import static org.eclipse.jnosql.communication.Condition.BETWEEN;
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
@@ -83,10 +84,6 @@ import static org.eclipse.jnosql.communication.Condition.IN;
 import static org.eclipse.jnosql.communication.Condition.LESSER_EQUALS_THAN;
 import static org.eclipse.jnosql.communication.Condition.LESSER_THAN;
 import static org.eclipse.jnosql.communication.Condition.LIKE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -137,6 +134,7 @@ class RepositoryProxyTest {
     }
 
 
+    @DisplayName("Should save using insert when data does not exist")
     @Test
     void shouldSaveUsingInsertWhenDataDoesNotExist() {
         when(template.find(Person.class, 10L)).thenReturn(Optional.empty());
@@ -146,13 +144,14 @@ class RepositoryProxyTest {
                 .id(10L)
                 .phones(singletonList("123123"))
                 .build();
-        assertNotNull(personRepository.save(person));
+        assertThat(personRepository.save(person)).isNotNull();
         verify(template).insert(captor.capture());
         Person value = captor.getValue();
-        assertEquals(person, value);
+        assertThat(value).isEqualTo(person);
     }
 
 
+    @DisplayName("Should save using update when data exists")
     @Test
     void shouldSaveUsingUpdateWhenDataExists() {
 
@@ -163,13 +162,14 @@ class RepositoryProxyTest {
                 .id(10L)
                 .phones(singletonList("123123"))
                 .build();
-        assertNotNull(personRepository.save(person));
+        assertThat(personRepository.save(person)).isNotNull();
         verify(template).update(captor.capture());
         Person value = captor.getValue();
-        assertEquals(person, value);
+        assertThat(value).isEqualTo(person);
     }
 
 
+    @DisplayName("Should save iterable")
     @Test
     void shouldSaveIterable() {
         when(personRepository.findById(10L)).thenReturn(Optional.empty());
@@ -183,10 +183,11 @@ class RepositoryProxyTest {
         personRepository.saveAll(singletonList(person));
         verify(template).insert(captor.capture());
         Person personCapture = captor.getValue();
-        assertEquals(person, personCapture);
+        assertThat(personCapture).isEqualTo(person);
     }
 
 
+    @DisplayName("Should find by name instance")
     @Test
     void shouldFindByNameInstance() {
 
@@ -199,17 +200,18 @@ class RepositoryProxyTest {
         verify(template).singleResult(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(Condition.EQUALS, condition.condition());
-        assertEquals(Element.of("name", "name"), condition.element());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+        assertElement(condition.element(), Element.of("name", "name"));
 
-        assertNotNull(personRepository.findByName("name"));
+        assertThat(personRepository.findByName("name")).isNotNull();
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
                 .empty());
 
-        Assertions.assertThrows(EmptyResultException.class, () -> personRepository.findByName("name"));
+        assertThatThrownBy(() -> personRepository.findByName("name")).isInstanceOf(EmptyResultException.class);
     }
 
+    @DisplayName("Should find by name and age")
     @Test
     void shouldFindByNameANDAge() {
         Person ada = Person.builder()
@@ -225,6 +227,7 @@ class RepositoryProxyTest {
 
     }
 
+    @DisplayName("Should find by age and name")
     @Test
     void shouldFindByAgeANDName() {
         Person ada = Person.builder()
@@ -240,6 +243,7 @@ class RepositoryProxyTest {
 
     }
 
+    @DisplayName("Should find by name and age order by name")
     @Test
     void shouldFindByNameANDAgeOrderByName() {
         Person ada = Person.builder()
@@ -255,6 +259,7 @@ class RepositoryProxyTest {
 
     }
 
+    @DisplayName("Should find by name and age order by age")
     @Test
     void shouldFindByNameANDAgeOrderByAge() {
         Person ada = Person.builder()
@@ -270,6 +275,7 @@ class RepositoryProxyTest {
 
     }
 
+    @DisplayName("Should delete by name")
     @Test
     void shouldDeleteByName() {
         ArgumentCaptor<DeleteQuery> captor = ArgumentCaptor.forClass(DeleteQuery.class);
@@ -277,18 +283,20 @@ class RepositoryProxyTest {
         verify(template).delete(captor.capture());
         DeleteQuery deleteQuery = captor.getValue();
         CriteriaCondition condition = deleteQuery.condition().get();
-        assertEquals("Person", deleteQuery.name());
-        assertEquals(Condition.EQUALS, condition.condition());
-        assertEquals(Element.of("name", "Ada"), condition.element());
+        assertThat(deleteQuery.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+        assertElement(condition.element(), Element.of("name", "Ada"));
 
     }
 
+    @DisplayName("Should find by id")
     @Test
     void shouldFindById() {
         personRepository.findById(10L);
         verify(template).find(Person.class, 10L);
     }
 
+    @DisplayName("Should find by ids")
     @Test
     void shouldFindByIds() {
         when(template.find(Mockito.eq(Person.class), Mockito.any(Long.class)))
@@ -301,6 +309,7 @@ class RepositoryProxyTest {
         verify(template, times(4)).find(Mockito.eq(Person.class), Mockito.any(Long.class));
     }
 
+    @DisplayName("Should delete by id")
     @Test
     void shouldDeleteById() {
         ArgumentCaptor<DeleteQuery> captor = ArgumentCaptor.forClass(DeleteQuery.class);
@@ -308,6 +317,7 @@ class RepositoryProxyTest {
         verify(template).delete(Person.class, 10L);
     }
 
+    @DisplayName("Should delete by ids")
     @Test
     void shouldDeleteByIds() {
         ArgumentCaptor<DeleteQuery> captor = ArgumentCaptor.forClass(DeleteQuery.class);
@@ -316,18 +326,20 @@ class RepositoryProxyTest {
     }
 
 
+    @DisplayName("Should contains by id")
     @Test
     void shouldContainsById() {
         when(template.find(Person.class, 10L)).thenReturn(Optional.of(Person.builder().build()));
 
-        assertTrue(personRepository.existsById(10L));
+        assertThat(personRepository.existsById(10L)).isTrue();
         Mockito.verify(template).find(Person.class, 10L);
 
         when(template.find(Person.class, 10L)).thenReturn(Optional.empty());
-        assertFalse(personRepository.existsById(10L));
+        assertThat(personRepository.existsById(10L)).isFalse();
 
     }
 
+    @DisplayName("Should find all")
     @Test
     void shouldFindAll() {
         Person ada = Person.builder()
@@ -339,19 +351,21 @@ class RepositoryProxyTest {
         personRepository.findAll().toList();
         ArgumentCaptor<Class<?>> captor = ArgumentCaptor.forClass(Class.class);
         verify(template).findAll(captor.capture());
-        assertEquals(Person.class, captor.getValue());
+        assertThat(captor.getValue()).isEqualTo(Person.class);
 
     }
 
+    @DisplayName("Should delete all")
     @Test
     void shouldDeleteAll() {
         personRepository.deleteAll();
         ArgumentCaptor<Class<?>> captor = ArgumentCaptor.forClass(Class.class);
         verify(template).deleteAll(captor.capture());
-        assertEquals(Person.class, captor.getValue());
+        assertThat(captor.getValue()).isEqualTo(Person.class);
 
     }
 
+    @DisplayName("Should delete entity")
     @Test
     void shouldDeleteEntity(){
         Person person = Person.builder().id(1L).age(20).name("Ada").build();
@@ -359,6 +373,7 @@ class RepositoryProxyTest {
         verify(template).delete(Person.class, 1L);
     }
 
+    @DisplayName("Should delete entities")
     @Test
     void shouldDeleteEntities(){
         Person person = Person.builder().id(1L).age(20).name("Ada").build();
@@ -366,21 +381,25 @@ class RepositoryProxyTest {
         verify(template).delete(Person.class, 1L);
     }
 
+    @DisplayName("Should return to string")
     @Test
     void shouldReturnToString() {
-        assertNotNull(personRepository.toString());
+        assertThat(personRepository.toString()).isNotNull();
     }
 
+    @DisplayName("Should return same hash code")
     @Test
     void shouldReturnSameHashCode() {
-        assertEquals(personRepository.hashCode(), personRepository.hashCode());
+        assertThat(personRepository.hashCode()).isEqualTo(personRepository.hashCode());
     }
 
+    @DisplayName("Should return not null")
     @Test
     void shouldReturnNotNull() {
-        assertNotNull(personRepository);
+        assertThat(personRepository).isNotNull();
     }
 
+    @DisplayName("Should find by name and age greater equal than")
     @Test
     void shouldFindByNameAndAgeGreaterEqualThan() {
         Person ada = Person.builder()
@@ -394,22 +413,23 @@ class RepositoryProxyTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(AND, condition.condition());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(AND);
         List<CriteriaCondition> conditions = condition.element().get(new TypeReference<>() {
         });
         CriteriaCondition columnCondition = conditions.get(0);
         CriteriaCondition columnCondition2 = conditions.get(1);
 
-        assertEquals(Condition.EQUALS, columnCondition.condition());
-        assertEquals("Ada", columnCondition.element().get());
-        assertEquals("name", columnCondition.element().name());
+        assertThat(columnCondition.condition()).isEqualTo(Condition.EQUALS);
+        assertThat(columnCondition.element().get()).isEqualTo("Ada");
+        assertThat(columnCondition.element().name()).isEqualTo("name");
 
-        assertEquals(Condition.GREATER_EQUALS_THAN, columnCondition2.condition());
-        assertEquals(33, columnCondition2.element().get());
-        assertEquals("age", columnCondition2.element().name());
+        assertThat(columnCondition2.condition()).isEqualTo(Condition.GREATER_EQUALS_THAN);
+        assertThat(columnCondition2.element().get()).isEqualTo(33);
+        assertThat(columnCondition2.element().name()).isEqualTo("age");
     }
 
+    @DisplayName("Should find by greater than")
     @Test
     void shouldFindByGreaterThan() {
         Person ada = Person.builder()
@@ -423,12 +443,13 @@ class RepositoryProxyTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(GREATER_THAN, condition.condition());
-        assertEquals(Element.of("age", 33), condition.element());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(GREATER_THAN);
+        assertElement(condition.element(), Element.of("age", 33));
 
     }
 
+    @DisplayName("Should find by age less than equal")
     @Test
     void shouldFindByAgeLessThanEqual() {
         Person ada = Person.builder()
@@ -442,12 +463,13 @@ class RepositoryProxyTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(LESSER_EQUALS_THAN, condition.condition());
-        assertEquals(Element.of("age", 33), condition.element());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(LESSER_EQUALS_THAN);
+        assertElement(condition.element(), Element.of("age", 33));
 
     }
 
+    @DisplayName("Should find by age less equal")
     @Test
     void shouldFindByAgeLessEqual() {
         Person ada = Person.builder()
@@ -461,12 +483,13 @@ class RepositoryProxyTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(LESSER_THAN, condition.condition());
-        assertEquals(Element.of("age", 33), condition.element());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(LESSER_THAN);
+        assertElement(condition.element(), Element.of("age", 33));
 
     }
 
+    @DisplayName("Should find by age between")
     @Test
     void shouldFindByAgeBetween() {
         Person ada = Person.builder()
@@ -480,15 +503,16 @@ class RepositoryProxyTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(BETWEEN, condition.condition());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(BETWEEN);
         List<Value> values = condition.element().get(new TypeReference<>() {
         });
-        assertEquals(Arrays.asList(10, 15), values.stream().map(Value::get).collect(Collectors.toList()));
-        assertTrue(condition.element().name().contains("age"));
+        assertThat(values.stream().map(Value::get).collect(Collectors.toList())).isEqualTo(Arrays.asList(10, 15));
+        assertThat(condition.element().name().contains("age")).isTrue();
     }
 
 
+    @DisplayName("Should find by name like")
     @Test
     void shouldFindByNameLike() {
         Person ada = Person.builder()
@@ -502,25 +526,28 @@ class RepositoryProxyTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(LIKE, condition.condition());
-        assertEquals(Element.of("name", "Ada"), condition.element());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(LIKE);
+        assertElement(condition.element(), Element.of("name", "Ada"));
 
     }
 
+    @DisplayName("Should got order exception")
     @Test
     void shouldGotOrderException() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () ->
-                personRepository.invalid());
+        assertThatThrownBy(() ->
+                personRepository.invalid()).isInstanceOf(UnsupportedOperationException.class);
     }
 
+    @DisplayName("Should got order exception 2")
     @Test
     void shouldGotOrderException2() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () ->
-                personRepository.invalid2());
+        assertThatThrownBy(() ->
+                personRepository.invalid2()).isInstanceOf(UnsupportedOperationException.class);
     }
 
 
+    @DisplayName("Should find by string when field is set")
     @Test
     void shouldFindByStringWhenFieldIsSet() {
         Vendor vendor = new Vendor("vendor");
@@ -535,12 +562,13 @@ class RepositoryProxyTest {
         verify(template).singleResult(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("vendors", query.name());
-        assertEquals(EQUALS, condition.condition());
-        assertEquals(Element.of("prefixes", "prefix"), condition.element());
+        assertThat(query.name()).isEqualTo("vendors");
+        assertThat(condition.condition()).isEqualTo(EQUALS);
+        assertElement(condition.element(), Element.of("prefixes", "prefix"));
 
     }
 
+    @DisplayName("Should find by in")
     @Test
     void shouldFindByIn() {
         Vendor vendor = new Vendor("vendor");
@@ -555,12 +583,13 @@ class RepositoryProxyTest {
         verify(template).singleResult(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("vendors", query.name());
-        assertEquals(IN, condition.condition());
+        assertThat(query.name()).isEqualTo("vendors");
+        assertThat(condition.condition()).isEqualTo(IN);
 
     }
 
 
+    @DisplayName("Should convert field to the type")
     @Test
     void shouldConvertFieldToTheType() {
         Person ada = Person.builder()
@@ -574,11 +603,12 @@ class RepositoryProxyTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(EQUALS, condition.condition());
-        assertEquals(Element.of("age", 120), condition.element());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(EQUALS);
+        assertElement(condition.element(), Element.of("age", 120));
     }
 
+    @DisplayName("Should find by active true")
     @Test
     void shouldFindByActiveTrue() {
         Person ada = Person.builder()
@@ -592,11 +622,12 @@ class RepositoryProxyTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(EQUALS, condition.condition());
-        assertEquals(Element.of("active", true), condition.element());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(EQUALS);
+        assertElement(condition.element(), Element.of("active", true));
     }
 
+    @DisplayName("Should find by active false")
     @Test
     void shouldFindByActiveFalse() {
         Person ada = Person.builder()
@@ -610,12 +641,13 @@ class RepositoryProxyTest {
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals("Person", query.name());
-        assertEquals(EQUALS, condition.condition());
-        assertEquals(Element.of("active", false), condition.element());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(condition.condition()).isEqualTo(EQUALS);
+        assertElement(condition.element(), Element.of("active", false));
     }
 
 
+    @DisplayName("Should execute j no sql query")
     @Test
     void shouldExecuteJNoSQLQuery() {
         PreparedStatement preparedStatement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
@@ -624,6 +656,7 @@ class RepositoryProxyTest {
         verify(template).prepare("FROM Person", "Person");
     }
 
+    @DisplayName("Should execute j no sql prepare")
     @Test
     void shouldExecuteJNoSQLPrepare() {
         PreparedStatement statement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
@@ -632,6 +665,7 @@ class RepositoryProxyTest {
         verify(statement).bind("id", "Ada");
     }
 
+    @DisplayName("Should execute j no sql prepare age")
     @Test
     void shouldExecuteJNoSQLPrepareAge() {
         PreparedStatement statement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
@@ -640,6 +674,7 @@ class RepositoryProxyTest {
         verify(statement).bind("?1", 10);
     }
 
+    @DisplayName("Should execute j no sql prepare update")
     @Test
     void shouldExecuteJNoSQLPrepareUpdate() {
         PreparedStatement statement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
@@ -649,6 +684,7 @@ class RepositoryProxyTest {
         verify(statement).bind("?2", "id");
     }
 
+    @DisplayName("Should execute j no sql prepare update 2")
     @Test
     void shouldExecuteJNoSQLPrepareUpdate2() {
         PreparedStatement statement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
@@ -658,6 +694,7 @@ class RepositoryProxyTest {
         verify(statement).bind("id", "id");
     }
 
+    @DisplayName("Should execute j no sql prepare delete")
     @Test
     void shouldExecuteJNoSQLPrepareDelete() {
         PreparedStatement statement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
@@ -666,6 +703,7 @@ class RepositoryProxyTest {
         verify(statement).bind("?1", "10");
     }
 
+    @DisplayName("Should execute j no sql prepare delete 2")
     @Test
     void shouldExecuteJNoSQLPrepareDelete2() {
         PreparedStatement statement = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
@@ -675,6 +713,7 @@ class RepositoryProxyTest {
         verify(statement).bind("id", "id");
     }
 
+    @DisplayName("Should find by salary currency")
     @Test
     void shouldFindBySalary_Currency() {
         Person ada = Person.builder()
@@ -689,11 +728,12 @@ class RepositoryProxyTest {
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
         final Element element = condition.element();
-        assertEquals("Person", query.name());
-        assertEquals("salary.currency", element.name());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(element.name()).isEqualTo("salary.currency");
 
     }
 
+    @DisplayName("Should find by salary currency and salary value")
     @Test
     void shouldFindBySalary_CurrencyAndSalary_Value() {
         Person ada = Person.builder()
@@ -710,11 +750,12 @@ class RepositoryProxyTest {
         });
         final List<String> names = conditions.stream().map(CriteriaCondition::element)
                 .map(Element::name).collect(Collectors.toList());
-        assertEquals("Person", query.name());
+        assertThat(query.name()).isEqualTo("Person");
         assertThat(names).contains("salary.currency", "salary.value");
 
     }
 
+    @DisplayName("Should find by salary currency order by currency name")
     @Test
     void shouldFindBySalary_CurrencyOrderByCurrency_Name() {
         Person ada = Person.builder()
@@ -730,45 +771,48 @@ class RepositoryProxyTest {
         CriteriaCondition condition = query.condition().get();
         final Sort<?> sort = query.sorts().getFirst();
         final Element document = condition.element();
-        assertEquals("Person", query.name());
-        assertEquals("salary.currency", document.name());
-        assertEquals("currency.name", sort.property());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(document.name()).isEqualTo("salary.currency");
+        assertThat(sort.property()).isEqualTo("currency.name");
     }
 
+    @DisplayName("Should count by name")
     @Test
     void shouldCountByName() {
         when(template.count(any(SelectQuery.class)))
                 .thenReturn(10L);
 
         var result = personRepository.countByName("Poliana");
-        Assertions.assertEquals(10L, result);
+        assertThat(result).isEqualTo(10L);
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).count(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
         final Element column = condition.element();
-        assertEquals("Person", query.name());
-        assertEquals("name", column.name());
-        assertEquals("Poliana", column.get());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(column.name()).isEqualTo("name");
+        assertThat(column.get()).isEqualTo("Poliana");
     }
 
+    @DisplayName("Should exists by name")
     @Test
     void shouldExistsByName() {
         when(template.exists(any(SelectQuery.class)))
                 .thenReturn(true);
 
         var result = personRepository.existsByName("Poliana");
-        assertTrue(result);
+        assertThat(result).isTrue();
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).exists(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
         final Element column = condition.element();
-        assertEquals("Person", query.name());
-        assertEquals("name", column.name());
-        assertEquals("Poliana", column.get());
+        assertThat(query.name()).isEqualTo("Person");
+        assertThat(column.name()).isEqualTo("name");
+        assertThat(column.get()).isEqualTo("Poliana");
     }
 
+    @DisplayName("Should find by name not")
     @Test
     void shouldFindByNameNot() {
 
@@ -781,19 +825,20 @@ class RepositoryProxyTest {
         verify(template).singleResult(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals(Condition.NOT, condition.condition());
-        assertEquals("Person", query.name());
+        assertThat(condition.condition()).isEqualTo(Condition.NOT);
+        assertThat(query.name()).isEqualTo("Person");
         CriteriaCondition columnCondition = condition.element().get(CriteriaCondition.class);
-        assertEquals(Condition.EQUALS, columnCondition.condition());
-        assertEquals(Element.of("name", "name"), columnCondition.element());
+        assertThat(columnCondition.condition()).isEqualTo(Condition.EQUALS);
+        assertElement(columnCondition.element(), Element.of("name", "name"));
 
-        assertNotNull(personRepository.findByName("name"));
+        assertThat(personRepository.findByName("name")).isNotNull();
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
                 .empty());
 
-        Assertions.assertThrows(EmptyResultException.class, () -> personRepository.findByName("name"));
+        assertThatThrownBy(() -> personRepository.findByName("name")).isInstanceOf(EmptyResultException.class);
     }
 
+    @DisplayName("Should find by name not equals")
     @Test
     void shouldFindByNameNotEquals() {
 
@@ -806,28 +851,30 @@ class RepositoryProxyTest {
         verify(template).singleResult(captor.capture());
         SelectQuery query = captor.getValue();
         CriteriaCondition condition = query.condition().get();
-        assertEquals(Condition.NOT, condition.condition());
-        assertEquals("Person", query.name());
+        assertThat(condition.condition()).isEqualTo(Condition.NOT);
+        assertThat(query.name()).isEqualTo("Person");
         CriteriaCondition columnCondition = condition.element().get(CriteriaCondition.class);
-        assertEquals(Condition.EQUALS, columnCondition.condition());
-        assertEquals(Element.of("name", "name"), columnCondition.element());
+        assertThat(columnCondition.condition()).isEqualTo(Condition.EQUALS);
+        assertElement(columnCondition.element(), Element.of("name", "name"));
 
-        assertNotNull(personRepository.findByName("name"));
+        assertThat(personRepository.findByName("name")).isNotNull();
         when(template.singleResult(any(SelectQuery.class))).thenReturn(Optional
                 .empty());
 
-        Assertions.assertThrows(EmptyResultException.class, () -> personRepository.findByName("name"));
+        assertThatThrownBy(() -> personRepository.findByName("name")).isInstanceOf(EmptyResultException.class);
     }
 
+    @DisplayName("Should execute default method")
     @Test
     void shouldExecuteDefaultMethod() {
-        Assertions.assertThrows(EmptyResultException.class, () -> personRepository.partcionate("name"));
+        assertThatThrownBy(() -> personRepository.partcionate("name")).isInstanceOf(EmptyResultException.class);
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template, Mockito.times(1)).singleResult(captor.capture());
         List<SelectQuery> values = captor.getAllValues();
         assertThat(values).isNotNull().hasSize(1);
     }
 
+    @DisplayName("Should use queries from other interface")
     @Test
     void shouldUseQueriesFromOtherInterface() {
         personRepository.findByNameLessThan("name");
@@ -835,12 +882,13 @@ class RepositoryProxyTest {
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertEquals("Person", query.name());
+        assertThat(query.name()).isEqualTo("Person");
         CriteriaCondition condition = query.condition().get();
-        assertEquals(LESSER_THAN, condition.condition());
-        assertEquals(Element.of("name", "name"), condition.element());
+        assertThat(condition.condition()).isEqualTo(LESSER_THAN);
+        assertElement(condition.element(), Element.of("name", "name"));
     }
 
+    @DisplayName("Should use default method from other interface")
     @Test
     void shouldUseDefaultMethodFromOtherInterface() {
         personRepository.ada();
@@ -848,12 +896,13 @@ class RepositoryProxyTest {
         ArgumentCaptor<SelectQuery> captor = ArgumentCaptor.forClass(SelectQuery.class);
         verify(template).select(captor.capture());
         SelectQuery query = captor.getValue();
-        assertEquals("Person", query.name());
+        assertThat(query.name()).isEqualTo("Person");
         CriteriaCondition condition = query.condition().get();
-        assertEquals(LESSER_THAN, condition.condition());
-        assertEquals(Element.of("name", "Ada"), condition.element());
+        assertThat(condition.condition()).isEqualTo(LESSER_THAN);
+        assertElement(condition.element(), Element.of("name", "Ada"));
     }
 
+    @DisplayName("Should execute custom repository")
     @Test
     void shouldExecuteCustomRepository(){
         PersonStatisticRepository.PersonStatistic statistics = personRepository.statistics("Salvador");
@@ -868,6 +917,7 @@ class RepositoryProxyTest {
         });
     }
 
+    @DisplayName("Should insert using annotation")
     @Test
     void shouldInsertUsingAnnotation(){
         Person person = Person.builder().name("Ada")
@@ -878,6 +928,7 @@ class RepositoryProxyTest {
         Mockito.verify(template).insert(person);
     }
 
+    @DisplayName("Should update using annotation")
     @Test
     void shouldUpdateUsingAnnotation(){
         Person person = Person.builder().name("Ada")
@@ -888,6 +939,7 @@ class RepositoryProxyTest {
         Mockito.verify(template).update(person);
     }
 
+    @DisplayName("Should delete using annotation")
     @Test
     void shouldDeleteUsingAnnotation(){
         Person person = Person.builder().name("Ada")
@@ -898,6 +950,7 @@ class RepositoryProxyTest {
         Mockito.verify(template).delete(Person.class, 10L);
     }
 
+    @DisplayName("Should save using annotation")
     @Test
     void shouldSaveUsingAnnotation(){
         Person person = Person.builder().name("Ada")
@@ -908,6 +961,7 @@ class RepositoryProxyTest {
         Mockito.verify(template).insert(person);
     }
 
+    @DisplayName("Should execute match parameter")
     @Test
     void shouldExecuteMatchParameter(){
         personRepository.find("Ada");
@@ -918,11 +972,12 @@ class RepositoryProxyTest {
             softly.assertThat(query.name()).isEqualTo("Person");
             var condition = query.condition().orElseThrow();
             softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of("name", "Ada"));
+            assertElement(condition.element(), Element.of("name", "Ada"));
             softly.assertThat(query.sorts()).isEmpty();
         });
     }
 
+    @DisplayName("Should execute match parameter id")
     @Test
     void shouldExecuteMatchParameterId(){
         personRepository.find(10L);
@@ -933,11 +988,12 @@ class RepositoryProxyTest {
             softly.assertThat(query.name()).isEqualTo("Person");
             var condition = query.condition().orElseThrow();
             softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of("_id", 10L));
+            assertElement(condition.element(), Element.of("_id", 10L));
             softly.assertThat(query.sorts()).hasSize(1).contains(Sort.asc("_id"));
         });
     }
 
+    @DisplayName("Should execute match parameter 2")
     @Test
     void shouldExecuteMatchParameter2(){
         personRepository.find2("Ada");
@@ -948,11 +1004,12 @@ class RepositoryProxyTest {
             softly.assertThat(query.name()).isEqualTo("Person");
             var condition = query.condition().orElseThrow();
             softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of("name", "Ada"));
+            assertElement(condition.element(), Element.of("name", "Ada"));
             softly.assertThat(query.sorts()).hasSize(1).contains(Sort.asc("name"));
         });
     }
 
+    @DisplayName("Should execute match parameter 3")
     @Test
     void shouldExecuteMatchParameter3(){
         personRepository.find3("Ada");
@@ -963,7 +1020,7 @@ class RepositoryProxyTest {
             softly.assertThat(query.name()).isEqualTo("Person");
             var condition = query.condition().orElseThrow();
             softly.assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-            softly.assertThat(condition.element()).isEqualTo(Element.of("name", "Ada"));
+            assertElement(condition.element(), Element.of("name", "Ada"));
             softly.assertThat(query.sorts()).hasSize(2).contains(Sort.asc("name"),
                     Sort.desc("age"));
         });
@@ -1106,5 +1163,15 @@ class RepositoryProxyTest {
 
         Optional<Vendor> findByPrefixesIn(List<String> prefix);
 
+    }
+
+    private static void assertElement(Element actual, Element expected) {
+        assertThat(actual.name()).isEqualTo(expected.name());
+        assertThat(actual.get()).isEqualTo(expected.get());
+    }
+
+    @Nested
+    @DisplayName("When the repository proxy is tested")
+    class WhenTheRepositoryProxyIsTested {
     }
 }

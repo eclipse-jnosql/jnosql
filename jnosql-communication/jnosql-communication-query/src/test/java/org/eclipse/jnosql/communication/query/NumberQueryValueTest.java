@@ -11,6 +11,7 @@
  */
 package org.eclipse.jnosql.communication.query;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +20,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DisplayName("NumberQueryValue")
 class NumberQueryValueTest {
+
+    @Nested
+    @DisplayName("When the number query value is used")
+    class WhenTheNumberQueryValue {
+    }
 
     @Test
     @DisplayName("should expose the numeric value through the Supplier contract")
@@ -59,7 +65,7 @@ class NumberQueryValueTest {
 
     @Test
     @DisplayName("factory method should create an equivalent instance")
-    void factoryMethodShouldCreateEquivalentInstance() {
+    void shouldCreateEquivalentInstanceFromFactoryMethod() {
         NumberQueryValue fromFactory = NumberQueryValue.of(5);
         NumberQueryValue fromConstructor = new NumberQueryValue(5);
 

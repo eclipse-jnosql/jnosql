@@ -14,9 +14,13 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.DisplayName;
+
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -37,49 +41,10 @@ class DefaultRepositoryReturnTest {
     @Mock
     private Page<Person> page;
 
-    @Test
-    void shouldReturnIsCompatible() {
-        Assertions.assertTrue(repositoryReturn.isCompatible(Person.class, Optional.class));
-        Assertions.assertTrue(repositoryReturn.isCompatible(Object.class, Person.class));
-        Assertions.assertTrue(repositoryReturn.isCompatible(Person.class, Object.class));
-    }
 
 
 
-    @Test
-    void shouldReturnDefaultPage() {
-        Method method = Person.class.getDeclaredMethods()[0];
-        Person ada = new Person("Ada");
-        DynamicReturn<Person> dynamic = DynamicReturn.builder()
-                .classSource(Person.class)
-                .singleResult(Optional::empty)
-                .result(Collections::emptyList)
-                .singleResultPagination(p -> Optional.empty())
-                .streamPagination(p -> Stream.of(ada))
-                .returnType(method.getReturnType())
-                .methodName(method.getName())
-                .pagination(PageRequest.ofPage(2).size(2))
-                .page((p, l) -> page)
-                .totalSupplier(() -> 1L)
-                .build();
-        Object person = repositoryReturn.convertPageRequest(dynamic);
-        Assertions.assertNotNull(person);
-    }
 
-    @Test
-    void shouldReturnDefault() {
-        Method method = Person.class.getDeclaredMethods()[0];
-        Person ada = new Person("Ada");
-        DynamicReturn<Person> dynamic  = DynamicReturn.builder()
-                .singleResult(Optional::empty)
-                .classSource(Person.class)
-                .result(() -> Stream.of(ada))
-                .returnType(method.getReturnType())
-                .methodName(method.getName())
-                .build();
-        Object person = repositoryReturn.convert(dynamic);
-        Assertions.assertNotNull(person);
-    }
 
 
     private static class Person implements Comparable<Person> {
@@ -124,4 +89,52 @@ class DefaultRepositoryReturnTest {
     }
 
 
+
+    @Nested
+    @DisplayName("When the default repository return operates")
+    class WhenTheDefaultRepositoryReturnOperates {
+
+        @DisplayName("Should return is compatible")
+        @Test
+        void shouldReturnIsCompatible() {
+            assertThat(repositoryReturn.isCompatible(Person.class, Optional.class)).isTrue();
+            assertThat(repositoryReturn.isCompatible(Object.class, Person.class)).isTrue();
+            assertThat(repositoryReturn.isCompatible(Person.class, Object.class)).isTrue();
+        }
+        @DisplayName("Should return default page")
+        @Test
+        void shouldReturnDefaultPage() {
+            Method method = Person.class.getDeclaredMethods()[0];
+            Person ada = new Person("Ada");
+            DynamicReturn<Person> dynamic = DynamicReturn.builder()
+                    .classSource(Person.class)
+                    .singleResult(Optional::empty)
+                    .result(Collections::emptyList)
+                    .singleResultPagination(p -> Optional.empty())
+                    .streamPagination(p -> Stream.of(ada))
+                    .returnType(method.getReturnType())
+                    .methodName(method.getName())
+                    .pagination(PageRequest.ofPage(2).size(2))
+                    .page((p, l) -> page)
+                    .totalSupplier(() -> 1L)
+                    .build();
+            Object person = repositoryReturn.convertPageRequest(dynamic);
+            assertThat(person).isNotNull();
+        }
+        @DisplayName("Should return default")
+        @Test
+        void shouldReturnDefault() {
+            Method method = Person.class.getDeclaredMethods()[0];
+            Person ada = new Person("Ada");
+            DynamicReturn<Person> dynamic  = DynamicReturn.builder()
+                    .singleResult(Optional::empty)
+                    .classSource(Person.class)
+                    .result(() -> Stream.of(ada))
+                    .returnType(method.getReturnType())
+                    .methodName(method.getName())
+                    .build();
+            Object person = repositoryReturn.convert(dynamic);
+            assertThat(person).isNotNull();
+        }
+    }
 }

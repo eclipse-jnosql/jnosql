@@ -46,19 +46,170 @@ Example for negative scenario (or corner-case):
 
 This project uses the `@DisplayName` annotation from JUnit 5
 
-==== 2.4 Structure
+Both nested classes and test methods must have meaningful `@DisplayName` annotations.
+The combination should read naturally as a behavioral specification:
+
+[source,java]
+----
+@Nested
+@DisplayName("When inserting a language")
+class WhenTheInsertion {
+
+    @Test
+    @DisplayName("Should persist the language with its simulation")
+    void shouldPersist() {
+    }
+}
+----
+
+Avoid display names that only repeat the Java identifier when a clearer behavioral sentence is possible.
+
+==== 2.4 Organize tests by operation using `@Nested`
+
+Group tests according to the operation or behavior being exercised.
+Each operation must have its own nested class.
+
+Nested class names must follow this pattern:
+
+[source,java]
+----
+WhenThe<Operation>
+----
+
+Examples:
+
+[source,java]
+----
+@Nested
+@DisplayName("When executing insertion")
+class WhenTheInsertion {
+}
+
+@Nested
+@DisplayName("When removing an item")
+class WhenTheRemoval {
+}
+----
+
+Prefer behavioral operations such as:
+
+* `WhenTheInsertion`
+* `WhenTheUpdate`
+* `WhenTheRemoval`
+* `WhenTheSearch`
+* `WhenTheValidation`
+* `WhenTheConversion`
+* `WhenTheCreation`
+
+Avoid generic nested classes such as `InsertTests`, `HappyPathTests`, `ValidationTests`, `Tests`, or `Scenarios`.
+The nested class must represent the business or domain operation, not merely the Java method being called.
+
+==== 2.5 Use DDD-oriented test names
+
+Tests should describe behavior using the language already present in the production code and domain model.
+
+Prefer:
+
+* `WhenTheDecisionPointIsInserted`
+* `WhenTheSimulationIsPublished`
+* `WhenTheDefaultLanguageIsSelected`
+
+Avoid technical names such as:
+
+* `WhenTheSaveMethodIsCalled`
+* `WhenTheRepositoryReturnsData`
+* `WhenTheBooleanIsTrue`
+
+Do not invent unnecessary abstractions or new domain terminology.
+
+==== 2.6 Test method names must start with `should`
+
+Every test method must begin with `should`, followed by the expected behavior.
+Keep method names concise because the nested class already provides the operation context.
+
+Good examples:
+
+* `shouldInsert`
+* `shouldUpdate`
+* `shouldRemove`
+* `shouldReturnTheSimulation`
+* `shouldNotInsertWhenValueIsNull`
+* `shouldThrowExceptionWhenSimulationDoesNotExist`
+* `shouldReturnEmptyListWhenNoResultsExist`
+
+Avoid names such as:
+
+* `testInsert`
+* `test1`
+* `insertWorks`
+* `shouldExecuteInsertMethodSuccessfully`
+* `shouldInsertLanguageWhenInsertLanguageIsExecuted`
+
+==== 2.7 Keep names concise and avoid duplication
+
+Avoid excessive duplication between the tested class, nested class, method name, and `@DisplayName`.
+Let the surrounding context carry part of the meaning.
+
+Bad:
+
+[source,java]
+----
+@Nested
+@DisplayName("When executing insertion")
+class WhenTheInsertion {
+
+    @Test
+    @DisplayName("Should execute insertion successfully when executing insertion")
+    void shouldExecuteInsertionSuccessfullyWhenExecutingInsertion() {
+    }
+}
+----
+
+Better:
+
+[source,java]
+----
+@Nested
+@DisplayName("When inserting a language")
+class WhenTheInsertion {
+
+    @Test
+    @DisplayName("Should persist the language")
+    void shouldPersist() {
+    }
+}
+----
+
+==== 2.8 Structure
 
 [source,java]
 ----
 class CalculatorTest {
 
-    @Test
-    @DisplayName("Should sum up correctly two numbers")
-    void sumUpCorrectly() {
-        // AAA pattern (arrange, act, assert)
+    @Nested
+    @DisplayName("When summing numbers")
+    class WhenTheSum {
+
+        @Test
+        @DisplayName("Should return the total")
+        void shouldReturnTheTotal() {
+
+            // Given
+            var calculator = new Calculator();
+
+            // When
+            var result = calculator.sum(10, 20);
+
+            // Then
+            assertThat(result).isEqualTo(30);
+        }
     }
 }
 ----
+
+Use the Given / When / Then structure inside tests.
+The comments may be omitted when the structure is already obvious, but the logical separation must remain clear.
+Keep fixture creation in Given, execution in When, and assertions or verifications in Then.
 
 === 3. Creation
 
@@ -99,6 +250,96 @@ Example:
 When you can not find a method with a specific exception, use the method
 `assertThatThrownBy()`.
 
+Do not use JUnit assertions such as:
+
+* `assertEquals(...)`
+* `assertTrue(...)`
+* `assertFalse(...)`
+* `assertNull(...)`
+* `assertNotNull(...)`
+* `assertThrows(...)`
+
+Prefer AssertJ:
+
+[source,java]
+----
+assertThat(actual).isEqualTo(expected);
+assertThat(result).isTrue();
+assertThat(result).isFalse();
+assertThat(value).isNull();
+assertThat(value).isNotNull();
+
+assertThatThrownBy(() -> service.execute())
+        .isInstanceOf(ExpectedException.class)
+        .hasMessageContaining("expected message");
+----
+
+==== 3.3 Keep tests focused on behavior
+
+Each test should represent one behavioral scenario.
+Avoid one test covering several unrelated branches.
+
+Prefer separate scenarios:
+
+* `shouldInsert`
+* `shouldNotInsertWhenLanguageIsNull`
+* `shouldRejectDuplicateDefaultLanguage`
+* `shouldReturnDefaultLanguage`
+
+Do not split assertions that describe the same resulting state only to achieve one assertion per test.
+Several assertions describing one outcome belong together, preferably with soft assertions.
+
+==== 3.4 Prefer observable behavior over implementation details
+
+Tests should assert observable behavior.
+Avoid tests tightly coupled to implementation details unless the interaction itself is part of the contract.
+
+Prefer:
+
+[source,java]
+----
+assertThat(result).containsExactly(expected);
+----
+
+over verifying internal calls solely because the current implementation happens to make them.
+
+Mockito verification is appropriate when the interaction is meaningful, such as:
+
+* an event must be published;
+* a repository must not be called under a validation failure;
+* an external service must be invoked exactly once;
+* persistence must occur;
+* an operation must explicitly be skipped.
+
+==== 3.5 Refactoring existing tests
+
+When modifying a test class:
+
+[arabic]
+. Analyze the production class first.
+. Identify its meaningful operations.
+. Identify all existing test scenarios.
+. Identify important uncovered branches.
+. Group scenarios into `@Nested` classes.
+. Rename methods according to the behavioral convention.
+. Add meaningful `@DisplayName` annotations.
+. Convert assertions to AssertJ.
+. Use soft assertions for multiple independent assertions.
+. Preserve existing mocks, fixtures, setup methods, and helpers when they remain useful.
+. Remove duplication where a local helper improves readability.
+. Add missing tests for meaningful production branches.
+. Return or commit the complete updated test class unless explicitly asked to return only new or modified nested classes.
+
+The final result should read like a behavioral specification:
+
+[source,text]
+----
+When <something happens>
+    Should <expected result>
+    Should <another expected result>
+    Should not <something> when <condition>
+----
+
 === 4. Coverage
 
 ==== 4.1 Verify possible missing scenarios using PIT (pitest)
@@ -121,3 +362,27 @@ section
 ....
 NOTE: we don't seek 100% of coverage, but we must make sure the main scenario and all the corner cases have tests.
 ....
+
+==== 4.2 Preserve behavior and improve meaningful coverage
+
+Do not remove meaningful scenarios merely to simplify the test class.
+Before refactoring, identify the behaviors currently tested and preserve them.
+
+Inspect the production code for important branches that existing tests do not cover, including:
+
+* null values;
+* empty collections;
+* invalid identifiers;
+* duplicate data;
+* boundary values;
+* exceptions;
+* alternative branches;
+* missing dependencies;
+* repository or service failures where relevant;
+* existing versus new entities;
+* optional values;
+* boolean branches;
+* validation failures.
+
+Add missing tests only when they exercise actual production behavior.
+Do not invent hypothetical behavior that the production class does not support.

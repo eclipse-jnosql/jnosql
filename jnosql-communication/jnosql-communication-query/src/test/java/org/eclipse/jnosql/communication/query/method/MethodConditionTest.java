@@ -16,13 +16,19 @@ import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.query.BooleanQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryValue;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MethodConditionTest {
+
+    @Nested
+    @DisplayName("When the method condition is used")
+    class WhenTheMethodCondition {
+    }
     private QueryValue<Boolean> queryValue;
 
     @BeforeEach
@@ -31,34 +37,38 @@ class MethodConditionTest {
     }
 
     @Test
+    @DisplayName("Should Create Condition")
     void shouldCreateCondition() {
         QueryCondition condition = new MethodCondition("active", Condition.EQUALS, queryValue);
         assertThat(condition).isNotNull();
-        assertEquals(Condition.EQUALS, condition.condition());
-        assertEquals("active", condition.name());
-        assertEquals(condition.value(), queryValue);
+        assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+        assertThat(condition.name()).isEqualTo("active");
+        assertThat(condition.value()).isEqualTo(queryValue);
     }
 
     @Test
+    @DisplayName("Should Equals")
     void shouldEquals() {
         QueryCondition condition = new MethodCondition("active", Condition.EQUALS, queryValue);
         QueryCondition conditionB = new MethodCondition("active", Condition.EQUALS, queryValue);
-        assertEquals(condition,conditionB);
+        assertThat(conditionB).isEqualTo(condition);
     }
 
     @Test
+    @DisplayName("Should Hash Code")
     void shouldHashCode() {
         QueryCondition condition = new MethodCondition("active", Condition.EQUALS, queryValue);
         QueryCondition conditionB = new MethodCondition("active", Condition.EQUALS, queryValue);
-        assertEquals(condition.hashCode(),conditionB.hashCode());
+        assertThat(conditionB).hasSameHashCodeAs(condition);
     }
 
     @Test
+    @DisplayName("Should Create With Query Param")
     void shouldCreateWithQueryParam(){
         QueryCondition condition = new MethodCondition("active", Condition.EQUALS);
         assertThat(condition).isNotNull();
-        assertEquals(Condition.EQUALS, condition.condition());
-        assertEquals("active", condition.name());
+        assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+        assertThat(condition.name()).isEqualTo("active");
         Assertions.assertThat(condition.value()).isInstanceOf(MethodParamQueryValue.class);
     }
 }

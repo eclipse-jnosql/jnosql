@@ -15,14 +15,21 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.query.ArrayQueryValue;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.ValueType;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MethodArrayValueTest {
 
+    @Nested
+    @DisplayName("When the method array value is used")
+    class WhenTheMethodArrayValue {
+    }
+
     @Test
+    @DisplayName("Should Return Array Type")
     void shouldReturnArrayType() {
         ArrayQueryValue array = MethodArrayValue.of("method");
         assertThat(array).isNotNull();
@@ -31,12 +38,14 @@ class MethodArrayValueTest {
     }
 
     @Test
+    @DisplayName("Should Return Array Value")
     void shouldReturnArrayValue() {
         ArrayQueryValue array = MethodArrayValue.of("name");
         assertThat(array.get()).isInstanceOf(QueryValue[].class);
     }
 
     @Test
+    @DisplayName("Should Equals")
     void shouldEquals(){
         var array = MethodArrayValue.of("name");
         var array2 = MethodArrayValue.of("name");
@@ -51,6 +60,7 @@ class MethodArrayValueTest {
     }
 
     @Test
+    @DisplayName("Should To String")
     void shouldToString(){
         ArrayQueryValue array = MethodArrayValue.of("name");
         org.assertj.core.api.Assertions.assertThat(array.toString())
@@ -60,12 +70,14 @@ class MethodArrayValueTest {
     }
 
     @Test
+    @DisplayName("Should Hash Code")
     void shouldHashCode(){
         ArrayQueryValue array = MethodArrayValue.of("name");
-        Assertions.assertEquals(array.hashCode(), array.hashCode());
+        assertThat(array).hasSameHashCodeAs(array);
     }
 
     @Test
+    @DisplayName("Should Get")
     void shouldGet() {
         ArrayQueryValue array = MethodArrayValue.of("name");
         SoftAssertions.assertSoftly(soft -> {

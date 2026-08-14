@@ -14,67 +14,82 @@ package org.eclipse.jnosql.communication.semistructured;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.Value;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ElementTest {
 
-    private static final Value DEFAULT_VALUE = Value.of(12);
 
-    @Test
-    void shouldReturnNameWhenNameIsNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> Element.of(null, DEFAULT_VALUE));
+    @Nested
+    @DisplayName("When the element is used")
+    class WhenTheElementIsUsed {
+
+        private static final Value DEFAULT_VALUE = Value.of(12);
+
+        @DisplayName("Should Return Name When Name Is Null")
+        @Test
+        void shouldReturnNameWhenNameIsNull() {
+            assertThatThrownBy(() -> Element.of(null, DEFAULT_VALUE)).isInstanceOf(NullPointerException.class);
+        }
+
+        @DisplayName("Should Return Name When Value Is Null")
+        @Test
+        void shouldReturnNameWhenValueIsNull() {
+            Element element = Element.of("Name", null);
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(element.name()).isEqualTo("Name");
+                softly.assertThat(element.value().isNull()).isTrue();
+            });
+        }
+
+        @DisplayName("Should Create An Column Instance")
+        @Test
+        void shouldCreateAnColumnInstance() {
+            String name = "name";
+            Element element = Element.of(name, DEFAULT_VALUE);
+            assertThat(element).isNotNull();
+            assertThat(element.name()).isEqualTo(name);
+            assertThat(element.value()).isEqualTo(DEFAULT_VALUE);
+        }
+
+        @DisplayName("Should Be Equals")
+        @Test
+        void shouldBeEquals() {
+            assertThat(Element.of("name", DEFAULT_VALUE)).isEqualTo(Element.of("name", DEFAULT_VALUE));
+        }
+
+        @DisplayName("Should Return Get Object")
+        @Test
+        void shouldReturnGetObject() {
+            Value value = Value.of("text");
+            Element element = Element.of("name", value);
+            assertThat(element.get()).isEqualTo(value.get());
+        }
+
+        @DisplayName("Should Return Get Class")
+        @Test
+        void shouldReturnGetClass() {
+            Value value = Value.of("text");
+            Element element = Element.of("name", value);
+            assertThat(element.get(String.class)).isEqualTo(value.get(String.class));
+        }
+
+
+        @DisplayName("Should Return Get Type")
+        @Test
+        void shouldReturnGetType() {
+            Value value = Value.of("text");
+            Element element = Element.of("name", value);
+            TypeReference<List<String>> typeReference = new TypeReference<>() {
+            };
+            assertThat(element.get(typeReference)).isEqualTo(value.get(typeReference));
+        }
     }
 
-    @Test
-    void shouldReturnNameWhenValueIsNull() {
-        Element element = Element.of("Name", null);
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(element.name()).isEqualTo("Name");
-            softly.assertThat(element.value().isNull()).isTrue();
-        });
-    }
-
-    @Test
-    void shouldCreateAnColumnInstance() {
-        String name = "name";
-        Element element = Element.of(name, DEFAULT_VALUE);
-        assertNotNull(element);
-        assertEquals(name, element.name());
-        assertEquals(DEFAULT_VALUE, element.value());
-    }
-
-    @Test
-    void shouldBeEquals() {
-        assertEquals(Element.of("name", DEFAULT_VALUE), Element.of("name", DEFAULT_VALUE));
-    }
-
-    @Test
-    void shouldReturnGetObject() {
-        Value value = Value.of("text");
-        Element element = Element.of("name", value);
-        assertEquals(value.get(), element.get());
-    }
-
-    @Test
-    void shouldReturnGetClass() {
-        Value value = Value.of("text");
-        Element element = Element.of("name", value);
-        assertEquals(value.get(String.class), element.get(String.class));
-    }
-
-
-    @Test
-    void shouldReturnGetType() {
-        Value value = Value.of("text");
-        Element element = Element.of("name", value);
-        TypeReference<List<String>> typeReference = new TypeReference<>() {
-        };
-        assertEquals(value.get(typeReference), element.get(typeReference));
-    }
 }

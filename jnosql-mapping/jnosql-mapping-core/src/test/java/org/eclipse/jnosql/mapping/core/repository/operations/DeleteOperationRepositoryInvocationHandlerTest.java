@@ -113,8 +113,8 @@ class DeleteOperationRepositoryInvocationHandlerTest {
     @DisplayName("When deleting one entity")
     class WhenDeleteEntity {
 
+        @DisplayName("Should reject delete without required parameter")
         @Test
-        @DisplayName("Should reject a delete method without the required parameter")
         void shouldRejectDeleteWithoutRequiredParameter() {
             assertThatThrownBy(comicBookRepository::invalidDelete)
                     .isInstanceOf(IllegalArgumentException.class);
@@ -122,8 +122,8 @@ class DeleteOperationRepositoryInvocationHandlerTest {
             verifyNoInteractions(lifecycleEventHandler);
         }
 
+        @DisplayName("Should reject delete with unsupported return type")
         @Test
-        @DisplayName("Should reject a delete method with an unsupported return type")
         void shouldRejectDeleteWithUnsupportedReturnType() {
             // given
             ComicBook book = new ComicBook("1234", "Book");
@@ -136,8 +136,8 @@ class DeleteOperationRepositoryInvocationHandlerTest {
             verifyNoInteractions(lifecycleEventHandler);
         }
 
+        @DisplayName("Should delete entity with lifecycle events")
         @Test
-        @DisplayName("Should delete one entity between pre-delete and post-delete events")
         void shouldDeleteEntityWithLifecycleEvents() {
             // given
             ComicBook book = new ComicBook("1234", "Book");
@@ -157,8 +157,8 @@ class DeleteOperationRepositoryInvocationHandlerTest {
     @DisplayName("When deleting multiple entities")
     class WhenDeleteMultipleEntities {
 
+        @DisplayName("Should delete iterable with lifecycle events")
         @Test
-        @DisplayName("Should delete iterable entities with lifecycle events for each entity")
         void shouldDeleteIterableWithLifecycleEvents() {
             // given
             ComicBook book = new ComicBook("1234", "Book");
@@ -180,8 +180,8 @@ class DeleteOperationRepositoryInvocationHandlerTest {
                     .containsExactly(book);
         }
 
+        @DisplayName("Should delete array with lifecycle events")
         @Test
-        @DisplayName("Should delete array entities with lifecycle events for each entity")
         void shouldDeleteArrayWithLifecycleEvents() {
             // given
             ComicBook book = new ComicBook("1234", "Book");
@@ -207,8 +207,8 @@ class DeleteOperationRepositoryInvocationHandlerTest {
     @DisplayName("When deleting by restriction")
     class WhenDeleteByRestriction {
 
+        @DisplayName("Should reject unsupported restriction delete")
         @Test
-        @DisplayName("Should reject restriction-based deletion when the provider does not support it")
         void shouldRejectUnsupportedRestrictionDelete() {
             // given
             TextAttribute<ComicBook> name =
@@ -228,8 +228,8 @@ class DeleteOperationRepositoryInvocationHandlerTest {
     @DisplayName("When invoking Object methods")
     class WhenInvokeObjectMethods {
 
+        @DisplayName("Should return repository to string")
         @Test
-        @DisplayName("Should return a non-null textual representation for the repository proxy")
         void shouldReturnRepositoryToString() {
             assertThat(comicBookRepository.toString()).isNotNull();
         }

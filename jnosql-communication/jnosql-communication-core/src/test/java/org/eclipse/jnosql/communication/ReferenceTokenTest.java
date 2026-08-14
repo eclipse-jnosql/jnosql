@@ -10,55 +10,79 @@
  */
 package org.eclipse.jnosql.communication;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ReferenceTokenTest {
 
-    @Test
-    void shouldCreateReferenceTokenWithValue() {
-        ReferenceToken token = new ReferenceToken("status");
+    @Nested
+    @DisplayName("When the token is created")
+    class WhenTheTokenIsCreated {
 
-        assertThat(token.value()).isEqualTo("status");
+        @Test
+        @DisplayName("Should keep the constructor value")
+        void shouldCreateReferenceTokenWithValue() {
+            ReferenceToken token = new ReferenceToken("status");
+
+            assertThat(token.value()).isEqualTo("status");
+        }
+
+        @Test
+        @DisplayName("Should keep the factory method value")
+        void shouldCreateReferenceTokenUsingFactoryMethod() {
+            ReferenceToken token = ReferenceToken.of("priority");
+
+            assertThat(token.value()).isEqualTo("priority");
+        }
     }
 
-    @Test
-    void shouldCreateReferenceTokenUsingFactoryMethod() {
-        ReferenceToken token = ReferenceToken.of("priority");
+    @Nested
+    @DisplayName("When the token value is null")
+    class WhenTheTokenValueIsNull {
 
-        assertThat(token.value()).isEqualTo("priority");
+        @Test
+        @DisplayName("Should reject null in the constructor")
+        void shouldThrowNullPointerExceptionWhenValueIsNullInConstructor() {
+            assertThatThrownBy(() -> new ReferenceToken(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("value must not be null");
+        }
+
+        @Test
+        @DisplayName("Should reject null in the factory method")
+        void shouldThrowNullPointerExceptionWhenValueIsNullInFactoryMethod() {
+            assertThatThrownBy(() -> ReferenceToken.of(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("value must not be null");
+        }
     }
 
-    @Test
-    void shouldThrowNullPointerExceptionWhenValueIsNullInConstructor() {
-        assertThatThrownBy(() -> new ReferenceToken(null))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("value must not be null");
-    }
+    @Nested
+    @DisplayName("When the token is compared")
+    class WhenTheTokenIsCompared {
 
-    @Test
-    void shouldThrowNullPointerExceptionWhenValueIsNullInFactoryMethod() {
-        assertThatThrownBy(() -> ReferenceToken.of(null))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("value must not be null");
-    }
+        @Test
+        @DisplayName("Should be equal when values are equal")
+        void shouldBeEqualWhenValuesAreEqual() {
+            ReferenceToken first = new ReferenceToken("name");
+            ReferenceToken second = new ReferenceToken("name");
 
-    @Test
-    void shouldBeEqualWhenValuesAreEqual() {
-        ReferenceToken first = new ReferenceToken("name");
-        ReferenceToken second = new ReferenceToken("name");
+            assertThat(first)
+                    .isEqualTo(second)
+                    .hasSameHashCodeAs(second);
+        }
 
-        assertThat(first)
-                .isEqualTo(second)
-                .hasSameHashCodeAs(second);
-    }
+        @Test
+        @DisplayName("Should not be equal when values are different")
+        void shouldNotBeEqualWhenValuesAreDifferent() {
+            ReferenceToken first = new ReferenceToken("name");
+            ReferenceToken second = new ReferenceToken("other");
 
-    @Test
-    void shouldNotBeEqualWhenValuesAreDifferent() {
-        ReferenceToken first = new ReferenceToken("name");
-        ReferenceToken second = new ReferenceToken("other");
-
-        assertThat(first).isNotEqualTo(second);
+            assertThat(first).isNotEqualTo(second);
+        }
     }
 }

@@ -18,6 +18,7 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 import jakarta.data.metamodel.BasicAttribute;
 import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
+import java.util.UUID;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -30,10 +31,11 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.UUID;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("The scenarios to test the feature delete")
 @EnableAutoWeld
@@ -79,4 +81,9 @@ public class RepositoryDeleteTest extends AbstractRepositoryTest {
         });
     }
 
+
+    @Nested
+    @DisplayName("When the repository delete is tested")
+    class WhenTheRepositoryDeleteIsTested {
+    }
 }

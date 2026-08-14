@@ -12,21 +12,36 @@
 package org.eclipse.jnosql.communication.keyvalue;
 
 import org.eclipse.jnosql.communication.CommunicationException;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+@DisplayName("Key-value configuration")
 class KeyValueConfigurationTest {
 
 
-    @Test
-    void shouldErrorWhenConfiguration() {
-        Assertions.assertThrows(CommunicationException.class, KeyValueConfiguration::getConfiguration);
-    }
+    @Nested
+    @DisplayName("When loading a configuration")
+    class WhenTheConfigurationLoading {
 
-    @Test
-    void shouldCheckConfiguration2() {
-        Assertions.assertThrows(CommunicationException.class,
-                () -> KeyValueConfiguration.getConfiguration(MockKeyValueConfiguration.class));
+        @Test
+        @DisplayName("Should throw an exception when no configuration exists")
+        void shouldThrowExceptionWhenNoConfigurationExists() {
+
+            // When / Then
+            assertThatExceptionOfType(CommunicationException.class)
+                    .isThrownBy(KeyValueConfiguration::getConfiguration);
+        }
+
+        @Test
+        @DisplayName("Should throw an exception when the requested configuration does not exist")
+        void shouldThrowExceptionWhenRequestedConfigurationDoesNotExist() {
+
+            // When / Then
+            assertThatExceptionOfType(CommunicationException.class)
+                    .isThrownBy(() -> KeyValueConfiguration.getConfiguration(MockKeyValueConfiguration.class));
+        }
     }
 }

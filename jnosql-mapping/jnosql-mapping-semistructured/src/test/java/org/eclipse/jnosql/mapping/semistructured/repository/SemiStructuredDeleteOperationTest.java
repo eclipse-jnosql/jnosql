@@ -16,13 +16,23 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SemiStructuredDeleteOperationTest {
 
+    @DisplayName("Should create default constructor")
     @Test
     void shouldCreateDefaultConstructor() {
         SemiStructuredDeleteOperation semiStructuredDeleteOperation = new SemiStructuredDeleteOperation();
         Assertions.assertThat(semiStructuredDeleteOperation).isNotNull();
+    }
+
+    @Nested
+    @DisplayName("When the semi structured delete operation is tested")
+    class WhenTheSemiStructuredDeleteOperationIsTested {
     }
 }

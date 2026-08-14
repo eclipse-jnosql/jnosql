@@ -110,8 +110,8 @@ class InsertOperationRepositoryInvocationHandlerTest {
     @DisplayName("When inserting one entity")
     class WhenInsertEntity {
 
+        @DisplayName("Should reject insert without required parameter")
         @Test
-        @DisplayName("Should reject an insert method without the required parameter")
         void shouldRejectInsertWithoutRequiredParameter() {
             assertThatThrownBy(comicBookRepository::invalidInsert)
                     .isInstanceOf(IllegalArgumentException.class);
@@ -119,8 +119,8 @@ class InsertOperationRepositoryInvocationHandlerTest {
             verifyNoInteractions(lifecycleEventHandler);
         }
 
+        @DisplayName("Should insert entity with void return and lifecycle events")
         @Test
-        @DisplayName("Should insert an entity between pre-insert and post-insert events for a void method")
         void shouldInsertEntityWithVoidReturnAndLifecycleEvents() {
             // given
             ComicBook book = new ComicBook("1234", "Book");
@@ -138,8 +138,8 @@ class InsertOperationRepositoryInvocationHandlerTest {
             ordered.verify(lifecycleEventHandler).postInsert(book);
         }
 
+        @DisplayName("Should return inserted entity with lifecycle events")
         @Test
-        @DisplayName("Should return the inserted entity after pre-insert and post-insert events")
         void shouldReturnInsertedEntityWithLifecycleEvents() {
             // given
             ComicBook book = new ComicBook("1234", "Book");
@@ -167,8 +167,8 @@ class InsertOperationRepositoryInvocationHandlerTest {
     class WhenInsertMultipleEntities {
 
         @SuppressWarnings("unchecked")
+        @DisplayName("Should insert iterable with lifecycle events")
         @Test
-        @DisplayName("Should return inserted iterable entities after firing lifecycle events for each entity")
         void shouldInsertIterableWithLifecycleEvents() {
             // given
             ComicBook book = new ComicBook("1234", "Book");
@@ -198,8 +198,8 @@ class InsertOperationRepositoryInvocationHandlerTest {
         }
 
         @SuppressWarnings("unchecked")
+        @DisplayName("Should insert array with lifecycle events")
         @Test
-        @DisplayName("Should return inserted array entities after firing lifecycle events for each entity")
         void shouldInsertArrayWithLifecycleEvents() {
             // given
             ComicBook book = new ComicBook("1234", "Book");

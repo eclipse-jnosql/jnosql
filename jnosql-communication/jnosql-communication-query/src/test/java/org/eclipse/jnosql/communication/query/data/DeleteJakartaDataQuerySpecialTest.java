@@ -17,6 +17,8 @@ import org.eclipse.jnosql.communication.query.BooleanQueryValue;
 import org.eclipse.jnosql.communication.query.NullQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryValue;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -24,6 +26,11 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.util.List;
 
 class DeleteJakartaDataQuerySpecialTest {
+
+    @Nested
+    @DisplayName("When the delete jakarta data query special is used")
+    class WhenTheDeleteJakartaDataQuerySpecial {
+    }
 
 
     private DeleteParser deleteParser;
@@ -36,6 +43,7 @@ class DeleteJakartaDataQuerySpecialTest {
 
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Validate True")
     @ValueSource(strings = {"DELETE FROM entity WHERE active = true"})
     void shouldValidateTrue(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -53,6 +61,7 @@ class DeleteJakartaDataQuerySpecialTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Validate False")
     @ValueSource(strings = {"DELETE FROM entity WHERE active = false"})
     void shouldValidateFalse(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -70,6 +79,7 @@ class DeleteJakartaDataQuerySpecialTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Check Is Null")
     @ValueSource(strings = {"DELETE FROM entity WHERE license IS NULL"})
     void shouldCheckIsNull(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -88,6 +98,7 @@ class DeleteJakartaDataQuerySpecialTest {
 
     @SuppressWarnings("unchecked")
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Check Is Not Null")
     @ValueSource(strings = {"DELETE FROM entity WHERE license IS NOT NULL"})
     void shouldCheckIsNotNull(String query){
         var deleteQuery = deleteParser.apply(query);

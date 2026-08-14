@@ -14,19 +14,29 @@
  */
 package org.eclipse.jnosql.communication.util;
 
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class StringUtilsTest {
 
-    @Test
-    void shouldIsBlank() {
-        Assertions.assertThat(StringUtils.isBlank(null)).isTrue();
-        Assertions.assertThat(StringUtils.isBlank("")).isTrue();
-        Assertions.assertThat(StringUtils.isBlank("      ")).isTrue();
-        Assertions.assertThat(StringUtils.isBlank("bob")).isFalse();
-        Assertions.assertThat(StringUtils.isBlank("  bob  ")).isFalse();
+    @Nested
+    @DisplayName("When the character sequence is checked")
+    class WhenTheCharacterSequenceIsChecked {
+
+        @Test
+        @DisplayName("Should identify blank and non-blank values")
+        void shouldIdentifyBlankValues() {
+            assertSoftly(softly -> {
+                softly.assertThat(StringUtils.isBlank(null)).isTrue();
+                softly.assertThat(StringUtils.isBlank("")).isTrue();
+                softly.assertThat(StringUtils.isBlank("      ")).isTrue();
+                softly.assertThat(StringUtils.isBlank("bob")).isFalse();
+                softly.assertThat(StringUtils.isBlank("  bob  ")).isFalse();
+            });
+        }
     }
 
 }

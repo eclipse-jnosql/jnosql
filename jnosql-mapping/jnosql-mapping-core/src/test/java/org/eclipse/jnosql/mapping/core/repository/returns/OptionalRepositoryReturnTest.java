@@ -14,11 +14,13 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -30,7 +32,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
@@ -41,91 +42,12 @@ class OptionalRepositoryReturnTest {
     @Mock
     private Page<Person> page;
 
-    @Test
-    void shouldReturnIsCompatible() {
-        Assertions.assertTrue(repositoryReturn.isCompatible(Person.class, Optional.class));
-        Assertions.assertFalse(repositoryReturn.isCompatible(Object.class, Person.class));
-        Assertions.assertFalse(repositoryReturn.isCompatible(Person.class, Object.class));
-    }
 
 
-    @Test
-    void shouldReturnOptional() {
-
-        Person ada = new Person("Ada");
-        Method method = Person.class.getDeclaredMethods()[0];
-        DynamicReturn<Person> dynamic = DynamicReturn.builder()
-                .singleResult(() -> Optional.of(ada))
-                .classSource(Person.class)
-                .result(Collections::emptyList)
-                .returnType(method.getReturnType())
-                .methodName(method.getName())
-                .build();
-        Optional<Person> person = (Optional<Person>) repositoryReturn.convert(dynamic);
-        Assertions.assertNotNull(person);
-        Assertions.assertTrue(person.isPresent());
-        Assertions.assertEquals(ada, person.get());
-    }
-
-    @Test
-    void shouldReturnEmptyOptional() {
-        Method method = Person.class.getDeclaredMethods()[0];
-        Person ada = new Person("Ada");
-        DynamicReturn<Person> dynamic = DynamicReturn.builder()
-                .singleResult(Optional::empty)
-                .classSource(Person.class)
-                .result(Collections::emptyList)
-                .returnType(method.getReturnType())
-                .methodName(method.getName())
-                .build();
-        Optional<Person> person = (Optional<Person>) repositoryReturn.convert(dynamic);
-        Assertions.assertNotNull(person);
-        Assertions.assertFalse(person.isPresent());
-    }
 
 
-    @Test
-    void shouldReturnOptionalPage() {
-        Method method = Person.class.getDeclaredMethods()[0];
-        Person ada = new Person("Ada");
-        DynamicReturn<Person> dynamic = DynamicReturn.builder()
-                .classSource(Person.class)
-                .singleResult(Optional::empty)
-                .result(Collections::emptyList)
-                .singleResultPagination(p -> Optional.of(ada))
-                .streamPagination(p -> Stream.empty())
-                .returnType(method.getReturnType())
-                .methodName(method.getName())
-                .pagination(PageRequest.ofPage(2).size(2))
-                .page((p, l) -> page)
-                .totalSupplier(() -> 1L)
-                .build();
-        Optional<Person> person = (Optional<Person>) repositoryReturn.convertPageRequest(dynamic);
-        Assertions.assertNotNull(person);
-        Assertions.assertTrue(person.isPresent());
-        assertEquals(ada, person.get());
-    }
 
-    @Test
-    void shouldReturnOptionalEmptyPage() {
-        Method method = Person.class.getDeclaredMethods()[0];
-        Person ada = new Person("Ada");
-        DynamicReturn<Person> dynamic = DynamicReturn.builder()
-                .classSource(Person.class)
-                .singleResult(Optional::empty)
-                .result(Collections::emptyList)
-                .singleResultPagination(p -> Optional.empty())
-                .streamPagination(p -> Stream.empty())
-                .returnType(method.getReturnType())
-                .methodName(method.getName())
-                .pagination(PageRequest.ofPage(2).size(2))
-                .page((p, l) -> page)
-                .totalSupplier(() -> 1L)
-                .build();
-        Optional<Person> person = (Optional<Person>) repositoryReturn.convertPageRequest(dynamic);
-        Assertions.assertNotNull(person);
-        Assertions.assertFalse(person.isPresent());
-    }
+
 
 
     private static class Person implements Comparable<Person> {
@@ -169,4 +91,94 @@ class OptionalRepositoryReturnTest {
         }
     }
 
+
+    @Nested
+    @DisplayName("When the optional repository return operates")
+    class WhenTheOptionalRepositoryReturnOperates {
+
+        @DisplayName("Should return is compatible")
+        @Test
+        void shouldReturnIsCompatible() {
+            assertThat(repositoryReturn.isCompatible(Person.class, Optional.class)).isTrue();
+            assertThat(repositoryReturn.isCompatible(Object.class, Person.class)).isFalse();
+            assertThat(repositoryReturn.isCompatible(Person.class, Object.class)).isFalse();
+        }
+        @DisplayName("Should return optional")
+        @Test
+        void shouldReturnOptional() {
+
+            Person ada = new Person("Ada");
+            Method method = Person.class.getDeclaredMethods()[0];
+            DynamicReturn<Person> dynamic = DynamicReturn.builder()
+                    .singleResult(() -> Optional.of(ada))
+                    .classSource(Person.class)
+                    .result(Collections::emptyList)
+                    .returnType(method.getReturnType())
+                    .methodName(method.getName())
+                    .build();
+            Optional<Person> person = (Optional<Person>) repositoryReturn.convert(dynamic);
+            assertThat(person).isNotNull();
+            assertThat(person.isPresent()).isTrue();
+            assertThat(person.get()).isEqualTo(ada);
+        }
+        @DisplayName("Should return empty optional")
+        @Test
+        void shouldReturnEmptyOptional() {
+            Method method = Person.class.getDeclaredMethods()[0];
+            Person ada = new Person("Ada");
+            DynamicReturn<Person> dynamic = DynamicReturn.builder()
+                    .singleResult(Optional::empty)
+                    .classSource(Person.class)
+                    .result(Collections::emptyList)
+                    .returnType(method.getReturnType())
+                    .methodName(method.getName())
+                    .build();
+            Optional<Person> person = (Optional<Person>) repositoryReturn.convert(dynamic);
+            assertThat(person).isNotNull();
+            assertThat(person.isPresent()).isFalse();
+        }
+        @DisplayName("Should return optional page")
+        @Test
+        void shouldReturnOptionalPage() {
+            Method method = Person.class.getDeclaredMethods()[0];
+            Person ada = new Person("Ada");
+            DynamicReturn<Person> dynamic = DynamicReturn.builder()
+                    .classSource(Person.class)
+                    .singleResult(Optional::empty)
+                    .result(Collections::emptyList)
+                    .singleResultPagination(p -> Optional.of(ada))
+                    .streamPagination(p -> Stream.empty())
+                    .returnType(method.getReturnType())
+                    .methodName(method.getName())
+                    .pagination(PageRequest.ofPage(2).size(2))
+                    .page((p, l) -> page)
+                    .totalSupplier(() -> 1L)
+                    .build();
+            Optional<Person> person = (Optional<Person>) repositoryReturn.convertPageRequest(dynamic);
+            assertThat(person).isNotNull();
+            assertThat(person.isPresent()).isTrue();
+            assertThat(person.get()).isEqualTo(ada);
+        }
+        @DisplayName("Should return optional empty page")
+        @Test
+        void shouldReturnOptionalEmptyPage() {
+            Method method = Person.class.getDeclaredMethods()[0];
+            Person ada = new Person("Ada");
+            DynamicReturn<Person> dynamic = DynamicReturn.builder()
+                    .classSource(Person.class)
+                    .singleResult(Optional::empty)
+                    .result(Collections::emptyList)
+                    .singleResultPagination(p -> Optional.empty())
+                    .streamPagination(p -> Stream.empty())
+                    .returnType(method.getReturnType())
+                    .methodName(method.getName())
+                    .pagination(PageRequest.ofPage(2).size(2))
+                    .page((p, l) -> page)
+                    .totalSupplier(() -> 1L)
+                    .build();
+            Optional<Person> person = (Optional<Person>) repositoryReturn.convertPageRequest(dynamic);
+            assertThat(person).isNotNull();
+            assertThat(person.isPresent()).isFalse();
+        }
+    }
 }

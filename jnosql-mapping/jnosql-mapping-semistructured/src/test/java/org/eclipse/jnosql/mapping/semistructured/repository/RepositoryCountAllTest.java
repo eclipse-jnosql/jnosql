@@ -29,8 +29,11 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("The scenarios to test the feature count all")
 @EnableAutoWeld
@@ -86,4 +89,8 @@ public class RepositoryCountAllTest extends AbstractRepositoryTest {
     }
 
 
+    @Nested
+    @DisplayName("When the repository count all is tested")
+    class WhenTheRepositoryCountAllIsTested {
+    }
 }

@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import java.util.List;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
@@ -34,12 +35,13 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.util.List;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Mockito.when;
 
@@ -75,6 +77,7 @@ class TemplateInheritanceTest {
                 documentEventPersistManager, entities, converters);
     }
 
+    @DisplayName("Should select filter")
     @Test
     void shouldSelectFilter(){
         var captor = ArgumentCaptor.forClass(SelectQuery.class);
@@ -90,6 +93,7 @@ class TemplateInheritanceTest {
         });
     }
 
+    @DisplayName("Should select no filter")
     @Test
     void shouldSelectNoFilter(){
         var captor = ArgumentCaptor.forClass(SelectQuery.class);
@@ -102,6 +106,7 @@ class TemplateInheritanceTest {
         });
     }
 
+    @DisplayName("Should delete filter")
     @Test
     void shouldDeleteFilter(){
         var captor = ArgumentCaptor.forClass(DeleteQuery.class);
@@ -117,6 +122,7 @@ class TemplateInheritanceTest {
         });
     }
 
+    @DisplayName("Should delete no filter")
     @Test
     void shouldDeleteNoFilter(){
         var captor = ArgumentCaptor.forClass(DeleteQuery.class);
@@ -129,6 +135,7 @@ class TemplateInheritanceTest {
         });
     }
 
+    @DisplayName("Should select filter condition")
     @Test
     void shouldSelectFilterCondition(){
         var captor = ArgumentCaptor.forClass(SelectQuery.class);
@@ -147,6 +154,7 @@ class TemplateInheritanceTest {
         });
     }
 
+    @DisplayName("Should delete filter condition")
     @Test
     void shouldDeleteFilterCondition(){
         var captor = ArgumentCaptor.forClass(DeleteQuery.class);
@@ -165,6 +173,7 @@ class TemplateInheritanceTest {
         });
     }
 
+    @DisplayName("Should count all filter")
     @Test
     void shouldCountAllFilter(){
         var captor = ArgumentCaptor.forClass(SelectQuery.class);
@@ -181,6 +190,7 @@ class TemplateInheritanceTest {
         });
     }
 
+    @DisplayName("Should find all filter")
     @Test
     void shouldFindAllFilter(){
         var captor = ArgumentCaptor.forClass(SelectQuery.class);
@@ -197,6 +207,7 @@ class TemplateInheritanceTest {
         });
     }
 
+    @DisplayName("Should delete all filter")
     @Test
     void shouldDeleteAllFilter(){
         var captor = ArgumentCaptor.forClass(DeleteQuery.class);
@@ -214,6 +225,7 @@ class TemplateInheritanceTest {
     }
 
 
+    @DisplayName("Should count all no filter")
     @Test
     void shouldCountAllNoFilter(){
         var captor = ArgumentCaptor.forClass(SelectQuery.class);
@@ -227,6 +239,7 @@ class TemplateInheritanceTest {
         });
     }
 
+    @DisplayName("Should find all no filter")
     @Test
     void shouldFindAllNoFilter(){
         var captor = ArgumentCaptor.forClass(SelectQuery.class);
@@ -239,6 +252,7 @@ class TemplateInheritanceTest {
             soft.assertThat(query.condition()).isEmpty();
         });
     }
+    @DisplayName("Should delete all no filter")
     @Test
     void shouldDeleteAllNoFilter(){
         var captor = ArgumentCaptor.forClass(DeleteQuery.class);
@@ -252,6 +266,7 @@ class TemplateInheritanceTest {
         });
     }
 
+    @DisplayName("Should query generically")
     @Test
     void shouldQueryGenerically() {
         PreparedStatement prepare = template.prepare("FROM Notification");
@@ -266,6 +281,7 @@ class TemplateInheritanceTest {
         });
     }
 
+    @DisplayName("Should query with specialization")
     @Test
     void shouldQueryWithSpecialization() {
         var prepare = template.prepare("FROM EmailNotification WHERE email = 'email@gmail.com'");
@@ -277,6 +293,7 @@ class TemplateInheritanceTest {
         assertSoftly(soft -> soft.assertThat(query.name()).isEqualTo("Notification"));
     }
 
+    @DisplayName("Should query with specialization with condition")
     @Test
     void shouldQueryWithSpecializationWithCondition() {
         PreparedStatement prepare = template.prepare("FROM EmailNotification");
@@ -294,6 +311,7 @@ class TemplateInheritanceTest {
         });
     }
 
+    @DisplayName("Should query with specialization with condition append")
     @Test
     void shouldQueryWithSpecializationWithConditionAppend() {
         var prepare = template.prepare("FROM EmailNotification WHERE email = 'email@email'");
@@ -317,4 +335,9 @@ class TemplateInheritanceTest {
         });
     }
 
+
+    @Nested
+    @DisplayName("When the template inheritance is tested")
+    class WhenTheTemplateInheritanceIsTested {
+    }
 }

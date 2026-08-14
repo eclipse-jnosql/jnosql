@@ -14,59 +14,84 @@
  */
 package org.eclipse.jnosql.mapping.metadata;
 
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class DefaultFieldValueTest {
 
-    @Test
-    void shouldConstructWithValidArguments() {
-        FieldMetadata fieldMetadata = mock(FieldMetadata.class);
-        when(fieldMetadata.name()).thenReturn("fieldName");
+    @Nested
+    @DisplayName("When the field value is created")
+    class WhenTheFieldValueIsCreated {
 
-        Object value = "testValue";
+        @Test
+        @DisplayName("Should expose the value and field metadata")
+        void shouldExposeTheValueAndFieldMetadata() {
+            FieldMetadata fieldMetadata = mock(FieldMetadata.class);
+            when(fieldMetadata.name()).thenReturn("fieldName");
 
-        DefaultFieldValue fieldValue = new DefaultFieldValue(value, fieldMetadata);
+            Object value = "testValue";
 
-        assertEquals(value, fieldValue.value());
-        assertEquals(fieldMetadata, fieldValue.field());
+            DefaultFieldValue fieldValue = new DefaultFieldValue(value, fieldMetadata);
+
+            assertSoftly(softly -> {
+                softly.assertThat(fieldValue.value()).isEqualTo(value);
+                softly.assertThat(fieldValue.field()).isEqualTo(fieldMetadata);
+            });
+        }
+
+        @Test
+        @DisplayName("Should reject null field metadata")
+        void shouldRejectNullFieldMetadata() {
+            Object value = "testValue";
+
+            assertThatNullPointerException().isThrownBy(() -> new DefaultFieldValue(value, null));
+        }
     }
 
-    @Test
-    void shouldThrowExceptionForNullFieldMetadataInConstructor() {
-        Object value = "testValue";
-        assertThrows(NullPointerException.class, () -> new DefaultFieldValue(value, null));
+    @Nested
+    @DisplayName("When the field value is checked for content")
+    class WhenTheFieldValueIsCheckedForContent {
+
+        @Test
+        @DisplayName("Should be not empty when value is present")
+        void shouldBeNotEmptyWhenValueIsPresent() {
+            FieldMetadata fieldMetadata = mock(FieldMetadata.class);
+            when(fieldMetadata.name()).thenReturn("fieldName");
+            DefaultFieldValue fieldValue = new DefaultFieldValue("testValue", fieldMetadata);
+
+            assertThat(fieldValue.isNotEmpty()).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should be empty when value is null")
+        void shouldBeEmptyWhenValueIsNull() {
+            FieldMetadata fieldMetadata = mock(FieldMetadata.class);
+            when(fieldMetadata.name()).thenReturn("fieldName");
+            DefaultFieldValue fieldValue = new DefaultFieldValue(null, fieldMetadata);
+
+            assertThat(fieldValue.isNotEmpty()).isFalse();
+        }
     }
 
-    @Test
-    void shouldReturnTrueForIsNotEmptyWithValue() {
-        FieldMetadata fieldMetadata = mock(FieldMetadata.class);
-        when(fieldMetadata.name()).thenReturn("fieldName");
-        DefaultFieldValue fieldValue = new DefaultFieldValue("testValue", fieldMetadata);
-        assertTrue(fieldValue.isNotEmpty());
-    }
+    @Nested
+    @DisplayName("When the field value is represented as text")
+    class WhenTheFieldValueIsRepresentedAsText {
 
-    @Test
-    void shouldReturnFalseForIsNotEmptyWithNullValue() {
-        FieldMetadata fieldMetadata = mock(FieldMetadata.class);
-        when(fieldMetadata.name()).thenReturn("fieldName");
-        DefaultFieldValue fieldValue = new DefaultFieldValue(null, fieldMetadata);
-        assertFalse(fieldValue.isNotEmpty());
-    }
+        @Test
+        @DisplayName("Should return non-blank text")
+        void shouldReturnNonBlankText() {
+            FieldMetadata fieldMetadata = mock(FieldMetadata.class);
+            when(fieldMetadata.name()).thenReturn("fieldName");
+            DefaultFieldValue fieldValue = new DefaultFieldValue("testValue", fieldMetadata);
 
-    @Test
-    void shouldReturnCorrectStringRepresentation() {
-        FieldMetadata fieldMetadata = mock(FieldMetadata.class);
-        when(fieldMetadata.name()).thenReturn("fieldName");
-        DefaultFieldValue fieldValue = new DefaultFieldValue("testValue", fieldMetadata);
-        String expected = "FieldValue{value=testValue, field=FieldMetadata{name='fieldName', type=class java.lang.String}}";
-        Assertions.assertThat(fieldValue.toString()).isNotEmpty().isNotBlank().isNotNull();
+            assertThat(fieldValue.toString()).isNotEmpty().isNotBlank().isNotNull();
+        }
     }
 }
