@@ -21,6 +21,9 @@ import jakarta.data.repository.First;
 import jakarta.data.repository.Param;
 import jakarta.data.repository.Query;
 import jakarta.inject.Inject;
+import java.lang.reflect.Proxy;
+import java.util.List;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -39,14 +42,13 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Proxy;
-import java.util.List;
-import java.util.stream.Stream;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jnosql.communication.Condition.EQUALS;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
@@ -86,6 +88,7 @@ class CrudRepositoryProxyFirstAnnotationTest {
     }
 
 
+    @DisplayName("Should use first by find annotation")
     @Test
     void shouldUseFirstByFindAnnotation() {
 
@@ -108,6 +111,7 @@ class CrudRepositoryProxyFirstAnnotationTest {
         });
     }
 
+    @DisplayName("Should use first by query annotation")
     @Test
     void shouldUseFirstByQueryAnnotation() {
         var prepare = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
@@ -120,6 +124,7 @@ class CrudRepositoryProxyFirstAnnotationTest {
         repository.query("Mac");
     }
 
+    @DisplayName("Should use first by method query")
     @Test
     void shouldUseFirstByMethodQuery() {
 
@@ -141,8 +146,6 @@ class CrudRepositoryProxyFirstAnnotationTest {
     }
 
 
-
-
     public interface ProductRepository extends CrudRepository<Product, String> {
         @Find
         @First(5)
@@ -158,4 +161,8 @@ class CrudRepositoryProxyFirstAnnotationTest {
     }
 
 
+    @Nested
+    @DisplayName("When the crud repository proxy first annotation is tested")
+    class WhenTheCrudRepositoryProxyFirstAnnotationIsTested {
+    }
 }
