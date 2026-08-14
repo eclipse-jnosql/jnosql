@@ -17,25 +17,24 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 import jakarta.data.Limit;
 import jakarta.data.Sort;
 import jakarta.data.page.PageRequest;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
 import org.eclipse.jnosql.mapping.core.repository.SpecialParameters;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-
 
 class DynamicQueryTest {
 
@@ -53,6 +52,7 @@ class DynamicQueryTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    @DisplayName("Should create dynamic query")
     @Test
     void shouldCreateDynamicQuery() {
         when(special.isEmpty()).thenReturn(true);
@@ -61,9 +61,10 @@ class DynamicQueryTest {
 
         DynamicQuery dynamicQuery = new DynamicQuery(special, query);
 
-        assertEquals(query, dynamicQuery.get());
+        assertThat(dynamicQuery.get()).isEqualTo(query);
     }
 
+    @DisplayName("Should create dynamic query with sorts and limit")
     @Test
     void shouldCreateDynamicQueryWithSortsAndLimit() {
         when(special.isEmpty()).thenReturn(false);
@@ -86,6 +87,7 @@ class DynamicQueryTest {
         });
     }
 
+    @DisplayName("Should create dynamic query with limit")
     @Test
     void shouldCreateDynamicQueryWithLimit() {
         when(special.isEmpty()).thenReturn(false);
@@ -111,6 +113,7 @@ class DynamicQueryTest {
         });
     }
 
+    @DisplayName("Should create dynamic query with page request")
     @Test
     void shouldCreateDynamicQueryWithPageRequest() {
         when(special.isEmpty()).thenReturn(false);
@@ -125,12 +128,13 @@ class DynamicQueryTest {
         DynamicQuery dynamicQuery = new DynamicQuery(special, query);
 
         SelectQuery selectQuery = dynamicQuery.get();
-        assertEquals("sampleQuery", selectQuery.name());
-        assertEquals(0, selectQuery.skip());
-        assertEquals(10, selectQuery.limit());
-        assertEquals(1, selectQuery.sorts().size());
+        assertThat(selectQuery.name()).isEqualTo("sampleQuery");
+        assertThat(selectQuery.skip()).isEqualTo(0);
+        assertThat(selectQuery.limit()).isEqualTo(10);
+        assertThat(selectQuery.sorts().size()).isEqualTo(1);
     }
 
+    @DisplayName("Should return when there is limit and sort")
     @Test
     void shouldReturnWhenThereIsLimitAndSort(){
         when(special.isEmpty()).thenReturn(false);
@@ -145,12 +149,13 @@ class DynamicQueryTest {
         , query);
 
         SelectQuery columnQuery = dynamicQuery.get();
-        assertEquals("sampleQuery", columnQuery.name());
-        assertEquals(0, columnQuery.skip());
-        assertEquals(20, columnQuery.limit());
-        assertEquals(1, columnQuery.sorts().size());
+        assertThat(columnQuery.name()).isEqualTo("sampleQuery");
+        assertThat(columnQuery.skip()).isEqualTo(0);
+        assertThat(columnQuery.limit()).isEqualTo(20);
+        assertThat(columnQuery.sorts().size()).isEqualTo(1);
     }
 
+    @DisplayName("Should merge sorts when has only sort and no limit")
     @Test
     void shouldMergeSortsWhenHasOnlySortAndNoLimit() {
         when(special.isEmpty()).thenReturn(false);
@@ -173,6 +178,7 @@ class DynamicQueryTest {
         });
     }
 
+    @DisplayName("Should merge sorts and apply limit when has only sort")
     @Test
     void shouldMergeSortsAndApplyLimitWhenHasOnlySort() {
         when(special.isEmpty()).thenReturn(false);
@@ -195,6 +201,7 @@ class DynamicQueryTest {
         });
     }
 
+    @DisplayName("Should append special sorts when limit present")
     @Test
     void shouldAppendSpecialSortsWhenLimitPresent() {
         when(special.isEmpty()).thenReturn(false);
@@ -216,6 +223,7 @@ class DynamicQueryTest {
         });
     }
 
+    @DisplayName("Should use page request when present merging sorts")
     @Test
     void shouldUsePageRequestWhenPresentMergingSorts() {
         when(special.isEmpty()).thenReturn(false);
@@ -241,6 +249,7 @@ class DynamicQueryTest {
         });
     }
 
+    @DisplayName("Should return original query when no limit nor page request and not only sort")
     @Test
     void shouldReturnOriginalQueryWhenNoLimitNorPageRequestAndNotOnlySort() {
         when(special.isEmpty()).thenReturn(false);
@@ -254,9 +263,10 @@ class DynamicQueryTest {
         DynamicQuery dynamic = new DynamicQuery(special, query);
         SelectQuery result = dynamic.get();
 
-        assertEquals(query, result); // falls back to original query
+        assertThat(result).isEqualTo(query); // falls back to original query
     }
 
+    @DisplayName("Should throw on null args in factory")
     @Test
     void shouldThrowOnNullArgsInFactory() {
         assertThatThrownBy(() -> DynamicQuery.of(null, query))
@@ -264,10 +274,16 @@ class DynamicQueryTest {
                 .hasMessage("args is required");
     }
 
+    @DisplayName("Should throw on null query in factory")
     @Test
     void shouldThrowOnNullQueryInFactory() {
         assertThatThrownBy(() -> DynamicQuery.of(new Object[]{}, null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("query is required");
+    }
+
+    @Nested
+    @DisplayName("When the dynamic query is tested")
+    class WhenTheDynamicQueryIsTested {
     }
 }
