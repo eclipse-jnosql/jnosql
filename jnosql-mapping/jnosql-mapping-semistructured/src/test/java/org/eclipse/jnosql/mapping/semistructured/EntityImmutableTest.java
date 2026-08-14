@@ -15,6 +15,8 @@
 package org.eclipse.jnosql.mapping.semistructured;
 
 import jakarta.inject.Inject;
+import java.time.Year;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -28,17 +30,12 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import java.time.Year;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -66,42 +63,46 @@ class EntityImmutableTest {
         };
     }
 
+    @DisplayName("Should convert communication entity")
     @Test
     void shouldConvertCommunicationEntity() {
 
         CommunicationEntity entity = converter.toCommunication(car);
-        assertEquals("Car", entity.name());
-        assertEquals(4, entity.size());
+        assertThat(entity.name()).isEqualTo("Car");
+        assertThat(entity.size()).isEqualTo(4);
         assertThat(entity.elements()).contains(Element.of("_id", "123456789"),
                 Element.of("model", "SF90"),
                 Element.of("manufacturer", "Ferrari"));
 
     }
 
+    @DisplayName("Should convert communication entity 2")
     @Test
     void shouldConvertCommunicationEntity2() {
 
         CommunicationEntity entity = converter.toCommunication(car);
-        assertEquals("Car", entity.name());
-        assertEquals(4, entity.size());
+        assertThat(entity.name()).isEqualTo("Car");
+        assertThat(entity.size()).isEqualTo(4);
 
         assertThat(entity.elements()).contains(columns);
     }
 
+    @DisplayName("Should convert entity")
     @Test
     void shouldConvertEntity() {
         CommunicationEntity entity = CommunicationEntity.of("Car");
         Stream.of(columns).forEach(entity::add);
 
         Car ferrari = converter.toEntity(Car.class, entity);
-        assertNotNull(ferrari);
-        assertEquals("123456789", ferrari.plate());
-        assertEquals("SF90", ferrari.model());
-        assertEquals("Ferrari", ferrari.manufacturer());
-        assertEquals(Year.now(), ferrari.year());
+        assertThat(ferrari).isNotNull();
+        assertThat(ferrari.plate()).isEqualTo("123456789");
+        assertThat(ferrari.model()).isEqualTo("SF90");
+        assertThat(ferrari.manufacturer()).isEqualTo("Ferrari");
+        assertThat(ferrari.year()).isEqualTo(Year.now());
 
     }
 
+    @DisplayName("Should convert exist record")
     @Test
     void shouldConvertExistRecord() {
         CommunicationEntity entity = CommunicationEntity.of("Car");
@@ -109,11 +110,11 @@ class EntityImmutableTest {
         Car ferrari = new Car(null, null, null, null);
         Car result = converter.toEntity(ferrari, entity);
 
-        assertEquals("123456789", result.plate());
-        assertEquals("SF90", result.model());
-        assertEquals("Ferrari", result.manufacturer());
-        assertEquals(Year.now(), result.year());
-        assertNotSame(ferrari, car);
+        assertThat(result.plate()).isEqualTo("123456789");
+        assertThat(result.model()).isEqualTo("SF90");
+        assertThat(result.manufacturer()).isEqualTo("Ferrari");
+        assertThat(result.year()).isEqualTo(Year.now());
+        assertThat(car).isNotSameAs(ferrari);
         assertSoftly(soft -> {
             soft.assertThat(ferrari.model()).isNull();
             soft.assertThat(ferrari.manufacturer()).isNull();
@@ -127,6 +128,7 @@ class EntityImmutableTest {
         });
     }
 
+    @DisplayName("Should convert exist")
     @Test
     void shouldConvertExist() {
         CommunicationEntity entity = CommunicationEntity.of("Hero");
@@ -134,7 +136,7 @@ class EntityImmutableTest {
         entity.add("name", "Iron man");
         Hero hero = new Hero(null, null);
         Hero result = converter.toEntity(hero, entity);
-        assertSame(hero, result);
+        assertThat(result).isSameAs(hero);
         assertSoftly(soft -> {
                     soft.assertThat(hero.id()).isEqualTo("2342");
                     soft.assertThat(hero.name()).isEqualTo("Iron man");
@@ -142,6 +144,7 @@ class EntityImmutableTest {
         );
     }
 
+    @DisplayName("Should convert byte array")
     @Test
     void shouldConvertByteArray() {
         var failure = new Failure("test", new byte[]{'a','b','c','d'});
@@ -156,6 +159,7 @@ class EntityImmutableTest {
         });
     }
 
+    @DisplayName("Should convert from byte array")
     @Test
     void shouldConvertFromByteArray() {
         var entity = CommunicationEntity.of("Failure");
@@ -169,5 +173,8 @@ class EntityImmutableTest {
     }
 
 
-
+    @Nested
+    @DisplayName("When the entity immutable is tested")
+    class WhenTheEntityImmutableIsTested {
+    }
 }
