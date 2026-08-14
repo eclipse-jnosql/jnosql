@@ -11,6 +11,8 @@
  */
 package org.eclipse.jnosql.communication;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,33 +20,40 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class QueryExceptionTest {
 
-    @Test
-    void shouldCreateWithMessage() {
-        String message = "query failed";
+    @Nested
+    @DisplayName("When the exception is created")
+    class WhenTheExceptionIsCreated {
 
-        QueryException ex = new QueryException(message);
+        @Test
+        @DisplayName("Should retain the message without a cause")
+        void shouldCreateWithMessage() {
+            String message = "query failed";
 
-        assertThat(ex)
-                .isInstanceOf(CommunicationException.class)
-                .hasMessage(message)
-                .hasNoCause();
-    }
+            QueryException ex = new QueryException(message);
 
-    @Test
-    void shouldCreateWithMessageAndCause() {
-        String message = "bad query";
-        IllegalArgumentException cause = new IllegalArgumentException("boom");
+            assertThat(ex)
+                    .isInstanceOf(CommunicationException.class)
+                    .hasMessage(message)
+                    .hasNoCause();
+        }
 
-        QueryException ex = new QueryException(message, cause);
+        @Test
+        @DisplayName("Should retain the message and cause")
+        void shouldCreateWithMessageAndCause() {
+            String message = "bad query";
+            IllegalArgumentException cause = new IllegalArgumentException("boom");
 
-        assertThat(ex)
-                .isInstanceOf(CommunicationException.class)
-                .hasMessage(message)
-                .hasCause(cause);
+            QueryException ex = new QueryException(message, cause);
 
-        assertThat(ex.getCause())
-                .isSameAs(cause)
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("boom");
+            assertThat(ex)
+                    .isInstanceOf(CommunicationException.class)
+                    .hasMessage(message)
+                    .hasCause(cause);
+
+            assertThat(ex.getCause())
+                    .isSameAs(cause)
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("boom");
+        }
     }
 }
