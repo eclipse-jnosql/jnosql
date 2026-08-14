@@ -10,16 +10,17 @@
  */
 package org.eclipse.jnosql.mapping.semistructured;
 
+import java.util.List;
+import java.util.Optional;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.DefaultSelectQuery;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Optional;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 class SemistructureUpdateQueryTest {
@@ -90,5 +91,10 @@ class SemistructureUpdateQueryTest {
                 new SemistructureUpdateQuery("Book", elements, condition);
 
         assertThat(query.sets()).isEqualTo(elements);
+    }
+
+    @Nested
+    @DisplayName("When the semistructure update query is tested")
+    class WhenTheSemistructureUpdateQueryIsTested {
     }
 }
