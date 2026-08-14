@@ -16,15 +16,16 @@ package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.data.repository.DataRepository;
 import jakarta.enterprise.context.spi.CreationalContext;
+import java.util.Set;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.repository.SemistructuredRepositoryProducer;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
@@ -57,12 +58,14 @@ class RepositoryBeanTest {
 
     }
 
+    @DisplayName("Should return bean class")
     @Test
     void shouldReturnBeanClass() {
         assertThat(repositoryBean.getBeanClass()).isEqualTo(MockRepository.class);
         assertThat(repositoryBeanDefault.getBeanClass()).isEqualTo(MockRepository.class);
     }
 
+    @DisplayName("Should create proxy instance")
     @Test
     void shouldCreateProxyInstance() {
         CreationalContext<MockRepository> context = mock(CreationalContext.class);
@@ -77,12 +80,14 @@ class RepositoryBeanTest {
 
     }
 
+    @DisplayName("Should return correct qualifiers")
     @Test
     void shouldReturnCorrectQualifiers() {
         Set<?> qualifiers = repositoryBean.getQualifiers();
         assertThat(qualifiers).isNotEmpty();
     }
 
+    @DisplayName("Should get id")
     @Test
     void shouldGetId() {
         SoftAssertions.assertSoftly(soft -> {
@@ -91,6 +96,7 @@ class RepositoryBeanTest {
         });
     }
 
+    @DisplayName("Should get types")
     @Test
     void shouldGetTypes() {
         SoftAssertions.assertSoftly(soft -> {
@@ -100,4 +106,9 @@ class RepositoryBeanTest {
     }
 
     interface MockRepository extends DataRepository<MockRepository, String> {}
+
+    @Nested
+    @DisplayName("When the repository bean is tested")
+    class WhenTheRepositoryBeanIsTested {
+    }
 }
