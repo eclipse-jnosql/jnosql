@@ -12,12 +12,20 @@
 package org.eclipse.jnosql.communication.query.data;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class UpdateProviderTest {
 
+    @Nested
+    @DisplayName("When the update provider is used")
+    class WhenTheUpdateProvider {
+    }
+
 
     @Test
+    @DisplayName("Should Generate Update Query")
     void shouldGenerateUpdateQuery() {
         UpdateProvider provider = UpdateProvider.INSTANCE;
 
