@@ -14,15 +14,23 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SemistructuredFindByOperationTest {
 
+    @DisplayName("Should instantiate")
     @Test
     void shouldInstantiate() {
         SemistructuredFindByOperation operation = new SemistructuredFindByOperation();
-        assertNotNull(operation);
+        assertThat(operation).isNotNull();
+    }
+
+    @Nested
+    @DisplayName("When the semistructured find by operation is tested")
+    class WhenTheSemistructuredFindByOperationIsTested {
     }
 }
