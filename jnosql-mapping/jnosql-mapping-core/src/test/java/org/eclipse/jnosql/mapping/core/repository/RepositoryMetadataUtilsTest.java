@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import jakarta.data.Limit;
 import jakarta.data.Order;
 import jakarta.data.Sort;
@@ -34,7 +35,6 @@ import jakarta.data.page.PageRequest;
 import jakarta.data.restrict.Restriction;
 import jakarta.inject.Inject;
 import jakarta.nosql.Template;
-import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.core.VetedConverter;
@@ -89,14 +89,16 @@ class RepositoryMetadataUtilsTest {
                 .orElseThrow();
     }
 
+    @DisplayName("Should map param empty")
     @Test
     @DisplayName("should map param empty")
     void shouldMapParamEmpty() {
         RepositoryMethod method = repositoryMetadata.find(new NameKey("query")).orElseThrow();
         var params = RepositoryMetadataUtils.INSTANCE.getParams(method, new Object[]{});
-        Assertions.assertThat(params).isEmpty();
+        assertThat(params).isEmpty();
     }
 
+    @DisplayName("Should map param empty with parameter")
     @Test
     @DisplayName("should map param empty with special parameter")
     void shouldMapParamEmptyWithParameter() {
@@ -105,9 +107,10 @@ class RepositoryMetadataUtilsTest {
                 Limit.of(10),
                 PageRequest.ofSize(10)});
 
-        Assertions.assertThat(params).isEmpty();
+        assertThat(params).isEmpty();
     }
 
+    @DisplayName("Should map params by name")
     @Test
     @DisplayName("should map params by name")
     void shouldMapParamsByName() {
@@ -116,7 +119,7 @@ class RepositoryMetadataUtilsTest {
                 "John",
                 PageRequest.ofSize(10)});
 
-        Assertions.assertThat(params)
+        assertThat(params)
                 .hasSize(2)
                 .containsEntry("native", "John")
                 .containsEntry("?1", "John");
@@ -124,6 +127,7 @@ class RepositoryMetadataUtilsTest {
 
 
 
+    @DisplayName("Should map params by name2")
     @Test
     @DisplayName("should map params by name")
     void shouldMapParamsByName2() {
@@ -132,12 +136,13 @@ class RepositoryMetadataUtilsTest {
                 "John",
                 PageRequest.ofSize(10)});
 
-        Assertions.assertThat(params)
+        assertThat(params)
                 .hasSize(2)
                 .containsEntry("arg0", "John")
                 .containsEntry("?1", "John");
     }
 
+    @DisplayName("Should map params multiple params")
     @Test
     @DisplayName("should map params with multiple params")
     void shouldMapParamsMultipleParams() {
@@ -147,13 +152,14 @@ class RepositoryMetadataUtilsTest {
                 25,
                 PageRequest.ofSize(10)});
 
-        Assertions.assertThat(params)
+        assertThat(params)
                 .hasSize(4)
                 .containsEntry("name", "John")
                 .containsEntry("?1", "John")
                 .containsEntry("?2", 25);
     }
 
+    @DisplayName("Should map params multiple params from name")
     @Test
     @DisplayName("should map params with multiple params")
     void shouldMapParamsMultipleParamsFromName() {
@@ -163,11 +169,12 @@ class RepositoryMetadataUtilsTest {
                 25,
                 PageRequest.ofSize(10)});
 
-        Assertions.assertThat(params)
+        assertThat(params)
                 .hasSize(1)
                 .containsEntry("native", "John");
     }
 
+    @DisplayName("Should execute")
     @Test
     @DisplayName("should execute")
     void shouldExecute() {
@@ -178,13 +185,14 @@ class RepositoryMetadataUtilsTest {
                 entityMetadata, template, new Object[]{});
         Stream<Person> people = Stream.of(Person.builder().build());
         List<Person> execute = RepositoryMetadataUtils.INSTANCE.execute(context, people);
-        Assertions.assertThat(execute).isNotEmpty().hasSize(1);
+        assertThat(execute).isNotEmpty().hasSize(1);
     }
 
 
     @Nested
     class WhenGetBy {
 
+        @DisplayName("Should ignore special parameters")
         @ParameterizedTest
         @DisplayName("should ignore special parameters")
         @ValueSource(classes = {Limit.class, PageRequest.class, Order.class, Restriction.class,
@@ -197,9 +205,10 @@ class RepositoryMetadataUtilsTest {
             Mockito.when(method.params()).thenReturn(Collections.singletonList(param));
 
             Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{"value"});
-            Assertions.assertThat(valueMap).isEmpty();
+            assertThat(valueMap).isEmpty();
         }
 
+        @DisplayName("Should map equals as default")
         @Test
         @DisplayName("should map equals as default")
         void shouldMapEqualsAsDefault() {
@@ -210,12 +219,13 @@ class RepositoryMetadataUtilsTest {
             Mockito.when(method.params()).thenReturn(Collections.singletonList(param));
             Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{10});
 
-            Assertions.assertThat(valueMap)
+            assertThat(valueMap)
                     .hasSize(1)
                     .containsEntry("age", new ParamValue(Condition.EQUALS, 10, false));
         }
 
 
+        @DisplayName("Should map using is annotation")
         @ParameterizedTest
         @MethodSource("isMappingProvider")
         void shouldMapUsingIsAnnotation(Class<? extends Constraint<?>> constraintType, Condition condition, boolean negate) {
@@ -227,11 +237,12 @@ class RepositoryMetadataUtilsTest {
             Mockito.when(method.params()).thenReturn(Collections.singletonList(param));
             Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{10});
 
-            Assertions.assertThat(valueMap)
+            assertThat(valueMap)
                     .hasSize(1)
                     .containsEntry("age", new ParamValue(condition, 10, negate));
         }
 
+        @DisplayName("Should map using constraint instance")
         @ParameterizedTest
         @MethodSource("constraintProvider")
         void shouldMapUsingConstraintInstance(Constraint<?> constraint, Condition condition, boolean negate, Object expected) {
@@ -242,7 +253,7 @@ class RepositoryMetadataUtilsTest {
             Mockito.when(method.params()).thenReturn(Collections.singletonList(param));
             Map<String, ParamValue> valueMap = RepositoryMetadataUtils.INSTANCE.getBy(method, new Object[]{constraint});
 
-            Assertions.assertThat(valueMap)
+            assertThat(valueMap)
                     .hasSize(1)
                     .containsEntry("age", new ParamValue(condition, expected, negate));
         }
