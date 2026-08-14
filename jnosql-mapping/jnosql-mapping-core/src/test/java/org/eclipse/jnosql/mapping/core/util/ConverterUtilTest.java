@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.util;
 
+import org.junit.jupiter.api.Nested;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
@@ -51,30 +52,36 @@ class ConverterUtilTest {
     @Inject
     private EntitiesMetadata mappings;
 
-    @DisplayName("Should not convert")
-    @Test
-    void shouldNotConvert() {
-        EntityMetadata mapping = mappings.get(Person.class);
-        Object value = 10_000L;
-        Object id = ConverterUtil.getValue(value, mapping, "id", converters);
-        assertThat(id).isEqualTo(value);
-    }
 
-    @DisplayName("Should convert")
-    @Test
-    void shouldConvert() {
-        EntityMetadata mapping = mappings.get(Person.class);
-        String value = "100";
-        Object id = ConverterUtil.getValue(value, mapping, "id", converters);
-        assertThat(id).isEqualTo(100L);
-    }
 
-    @DisplayName("Should use attribute convert")
-    @Test
-    void shouldUseAttributeConvert() {
-        EntityMetadata mapping = mappings.get(Worker.class);
-        Object value = new Money("BRL", BigDecimal.TEN);
-        Object converted = ConverterUtil.getValue(value, mapping, "salary", converters);
-        assertThat(converted).isEqualTo("BRL 10");
+
+    @Nested
+    @DisplayName("When the converter util operates")
+    class WhenTheConverterUtilOperates {
+
+        @DisplayName("Should not convert")
+        @Test
+        void shouldNotConvert() {
+            EntityMetadata mapping = mappings.get(Person.class);
+            Object value = 10_000L;
+            Object id = ConverterUtil.getValue(value, mapping, "id", converters);
+            assertThat(id).isEqualTo(value);
+        }
+        @DisplayName("Should convert")
+        @Test
+        void shouldConvert() {
+            EntityMetadata mapping = mappings.get(Person.class);
+            String value = "100";
+            Object id = ConverterUtil.getValue(value, mapping, "id", converters);
+            assertThat(id).isEqualTo(100L);
+        }
+        @DisplayName("Should use attribute convert")
+        @Test
+        void shouldUseAttributeConvert() {
+            EntityMetadata mapping = mappings.get(Worker.class);
+            Object value = new Money("BRL", BigDecimal.TEN);
+            Object converted = ConverterUtil.getValue(value, mapping, "salary", converters);
+            assertThat(converted).isEqualTo("BRL 10");
+        }
     }
 }
