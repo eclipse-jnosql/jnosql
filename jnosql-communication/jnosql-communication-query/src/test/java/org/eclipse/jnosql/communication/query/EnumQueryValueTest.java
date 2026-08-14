@@ -11,6 +11,7 @@
  */
 package org.eclipse.jnosql.communication.query;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +19,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DisplayName("EnumQueryValue")
 class EnumQueryValueTest {
+
+    @Nested
+    @DisplayName("When the enum query value is used")
+    class WhenTheEnumQueryValue {
+    }
 
     private enum SampleEnum {
         FIRST, SECOND
@@ -52,7 +58,7 @@ class EnumQueryValueTest {
 
     @Test
     @DisplayName("factory method should create an equivalent instance")
-    void factoryMethodShouldCreateEquivalentInstance() {
+    void shouldCreateEquivalentInstanceFromFactoryMethod() {
         EnumQueryValue first = EnumQueryValue.of(SampleEnum.FIRST);
         EnumQueryValue second = new EnumQueryValue(SampleEnum.FIRST);
 
