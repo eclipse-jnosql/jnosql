@@ -19,6 +19,8 @@ import org.eclipse.jnosql.communication.query.EnumQueryValue;
 import org.eclipse.jnosql.communication.query.NullQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -26,6 +28,11 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.time.DayOfWeek;
 
 class DeleteJakartaDataQueryProviderTest {
+
+    @Nested
+    @DisplayName("When the delete jakarta data query provider is used")
+    class WhenTheDeleteJakartaDataQueryProvider {
+    }
 
 
     private DeleteParser deleteParser;
@@ -36,6 +43,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Return Parser Query")
     @ValueSource(strings = {"DELETE FROM entity"})
     void shouldReturnParserQuery(String query) {
         var deleteQuery = deleteParser.apply(query);
@@ -48,6 +56,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Eq")
     @ValueSource(strings = "DELETE FROM entity WHERE age = 10")
     void shouldEq(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -65,6 +74,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Eq Double")
     @ValueSource(strings = "DELETE FROM entity WHERE salary = 10.15")
     void shouldEqDouble(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -82,6 +92,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Eq String")
     @ValueSource(strings = "DELETE FROM entity WHERE name = \"Otavio\"")
     void shouldEqString(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -99,6 +110,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Eq String Single Quote")
     @ValueSource(strings = "DELETE FROM entity WHERE name = 'Otavio'")
     void shouldEqStringSingleQuote(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -116,6 +128,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should EQQuery With Condition")
     @ValueSource(strings = "DELETE FROM entity WHERE name = :name")
     void shouldEQQueryWithCondition(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -133,6 +146,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should EQQuery With Condition Position")
     @ValueSource(strings = "DELETE FROM entity WHERE name = ?1")
     void shouldEQQueryWithConditionPosition(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -150,6 +164,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Use Special Expression True")
     @ValueSource(strings = "DELETE FROM entity WHERE active = TRUE")
     void shouldUseSpecialExpressionTrue(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -167,6 +182,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Use Special Expression False")
     @ValueSource(strings = "DELETE FROM entity WHERE active = FALSE")
     void shouldUseSpecialExpressionFalse(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -184,6 +200,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Use Special Expression Lesser")
     @ValueSource(strings = "DELETE FROM entity WHERE age < 10")
     void shouldUseSpecialExpressionLesser(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -201,6 +218,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Use Special Expression Greater")
     @ValueSource(strings = "DELETE FROM entity WHERE age > 10")
     void shouldUseSpecialExpressionGreater(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -218,6 +236,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Use Special Expression Lesser Than Equals")
     @ValueSource(strings = "DELETE FROM entity WHERE age <= 10")
     void shouldUseSpecialExpressionLesserThanEquals(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -235,6 +254,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Use Special Expression Greater Than Equals")
     @ValueSource(strings = "DELETE FROM entity WHERE age >= 10")
     void shouldUseSpecialExpressionGreaterThanEquals(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -252,6 +272,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Eq Using Enum Literal")
     @ValueSource(strings = "DELETE FROM entity WHERE days = java.time.DayOfWeek.MONDAY")
     void shouldEqUsingEnumLiteral(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -269,6 +290,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Query Is Null")
     @ValueSource(strings = "DELETE FROM entity WHERE hexadecimal IS NULL")
     void shouldQueryIsNull(String query) {
         var deleteQuery = deleteParser.apply(query);
@@ -285,6 +307,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Query Is Not Null")
     @ValueSource(strings = "DELETE FROM entity WHERE hexadecimal IS NOT NULL")
     void shouldQueryIsNotNull(String query) {
 
@@ -304,6 +327,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Use Not Not Equals")
     @ValueSource(strings = "DELETE FROM entity WHERE NOT age <> 10")
     void shouldUseNotNotEquals(String query) {
         var deleteQuery = deleteParser.apply(query);
@@ -321,6 +345,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Use Not Equals")
     @ValueSource(strings = "DELETE FROM entity WHERE age <> 10")
     void shouldUseNotEquals(String query) {
         var deleteQuery = deleteParser.apply(query);
@@ -340,6 +365,7 @@ class DeleteJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Use Not Equals Combined")
     @ValueSource(strings = "DELETE FROM entity WHERE hexadecimal <> ' ORDER BY isn''t a keyword when inside a literal' AND hexadecimal IN ('4a', '4b', '4c')")
     void shouldUseNotEqualsCombined(String query) {
         var deleteQuery = deleteParser.apply(query);
