@@ -14,46 +14,54 @@
  */
 package org.eclipse.jnosql.mapping.core;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.DisplayName;
+
 import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseMetadata;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DatabaseMetadataTest {
 
+    @DisplayName("Should return error when database is null")
     @Test
     void shouldReturnErrorWhenDatabaseIsNull() {
-        assertThrows(NullPointerException.class, () -> DatabaseMetadata.of(null));
+        assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> DatabaseMetadata.of(null));
     }
 
+    @DisplayName("Should return metadata")
     @Test
     void shouldReturnMetadata() {
         Database database = Mockito.mock(Database.class);
         Mockito.when(database.value()).thenReturn(DatabaseType.COLUMN);
         Mockito.when(database.provider()).thenReturn("column");
         DatabaseMetadata metadata = DatabaseMetadata.of(database);
-        assertEquals(DatabaseType.COLUMN, metadata.getType());
-        assertEquals("column", metadata.getProvider());
+        assertThat(metadata.getType()).isEqualTo(DatabaseType.COLUMN);
+        assertThat(metadata.getProvider()).isEqualTo("column");
     }
 
+    @DisplayName("Should return to string")
     @Test
     void shouldReturnToString() {
         Database database = Mockito.mock(Database.class);
         Mockito.when(database.value()).thenReturn(DatabaseType.COLUMN);
         Mockito.when(database.provider()).thenReturn("column");
         DatabaseMetadata metadata = DatabaseMetadata.of(database);
-        assertEquals("COLUMN@column", metadata.toString());
+        assertThat(metadata.toString()).isEqualTo("COLUMN@column");
     }
 
+    @DisplayName("Should return to string2")
     @Test
     void shouldReturnToString2() {
         Database database = Mockito.mock(Database.class);
         Mockito.when(database.value()).thenReturn(DatabaseType.COLUMN);
         DatabaseMetadata metadata = DatabaseMetadata.of(database);
-        assertEquals("COLUMN", metadata.toString());
+        assertThat(metadata.toString()).isEqualTo("COLUMN");
     }
 }
