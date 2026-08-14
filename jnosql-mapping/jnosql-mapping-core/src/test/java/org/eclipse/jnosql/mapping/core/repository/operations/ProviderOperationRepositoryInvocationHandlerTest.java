@@ -102,8 +102,8 @@ class ProviderOperationRepositoryInvocationHandlerTest {
     @DisplayName("When executing a provider-defined operation")
     class WhenExecuteProviderOperation {
 
+        @DisplayName("Should execute provider operation without lifecycle events")
         @Test
-        @DisplayName("Should execute the provider-defined query without lifecycle events")
         void shouldExecuteProviderOperationWithoutLifecycleEvents() {
             String result = comicBookRepository.sampleProvider("test");
 
@@ -118,8 +118,8 @@ class ProviderOperationRepositoryInvocationHandlerTest {
     @DisplayName("When executing an invalid provider-defined operation")
     class WhenExecuteInvalidProviderOperation {
 
+        @DisplayName("Should reject invalid provider operation without lifecycle events")
         @Test
-        @DisplayName("Should reject the invalid provider query without lifecycle events")
         void shouldRejectInvalidProviderOperationWithoutLifecycleEvents() {
             assertThatThrownBy(
                     () -> comicBookRepository.invalidProvider("test"))
