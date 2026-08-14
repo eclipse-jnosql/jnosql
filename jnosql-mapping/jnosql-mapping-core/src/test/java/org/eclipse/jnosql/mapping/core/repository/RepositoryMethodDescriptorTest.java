@@ -14,6 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DisplayName;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
@@ -33,35 +36,44 @@ class RepositoryMethodDescriptorTest {
     @Mock
     private RepositoryMethod anotherMockMethod;
 
-    @Test
-    void shouldCreateDescriptorWithMandatoryTypeAndNonNullMethod() {
-        RepositoryMethodDescriptor descriptor =
-                new RepositoryMethodDescriptor(RepositoryMethodType.FIND_BY, mockMethod);
 
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(descriptor.type())
-                    .isEqualTo(RepositoryMethodType.FIND_BY);
-            softly.assertThat(descriptor.method())
-                    .isSameAs(mockMethod);
-        });
-    }
 
-    @Test
-    void shouldAllowNullMethod() {
-        RepositoryMethodDescriptor descriptor =
-                new RepositoryMethodDescriptor(RepositoryMethodType.DELETE_BY, null);
 
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(descriptor.type()).isEqualTo(RepositoryMethodType.DELETE_BY);
-            softly.assertThat(descriptor.method()).isNull();
-        });
+    @Nested
+    @DisplayName("When the repository method descriptor operates")
+    class WhenTheRepositoryMethodDescriptorOperates {
 
-    }
+        @DisplayName("Should create descriptor with mandatory type and non null method")
+        @Test
+        void shouldCreateDescriptorWithMandatoryTypeAndNonNullMethod() {
+            RepositoryMethodDescriptor descriptor =
+                    new RepositoryMethodDescriptor(RepositoryMethodType.FIND_BY, mockMethod);
 
-    @Test
-    void shouldThrowExceptionWhenTypeIsNull() {
-        assertThatThrownBy(() -> new RepositoryMethodDescriptor(null, mockMethod))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("type is required");
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(descriptor.type())
+                        .isEqualTo(RepositoryMethodType.FIND_BY);
+                softly.assertThat(descriptor.method())
+                        .isSameAs(mockMethod);
+            });
+        }
+        @DisplayName("Should allow null method")
+        @Test
+        void shouldAllowNullMethod() {
+            RepositoryMethodDescriptor descriptor =
+                    new RepositoryMethodDescriptor(RepositoryMethodType.DELETE_BY, null);
+
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(descriptor.type()).isEqualTo(RepositoryMethodType.DELETE_BY);
+                softly.assertThat(descriptor.method()).isNull();
+            });
+
+        }
+        @DisplayName("Should throw exception when type is null")
+        @Test
+        void shouldThrowExceptionWhenTypeIsNull() {
+            assertThatThrownBy(() -> new RepositoryMethodDescriptor(null, mockMethod))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("type is required");
+        }
     }
 }
