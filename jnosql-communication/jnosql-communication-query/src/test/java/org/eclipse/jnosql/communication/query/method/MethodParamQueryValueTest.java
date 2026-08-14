@@ -13,15 +13,21 @@ package org.eclipse.jnosql.communication.query.method;
 
 import org.assertj.core.api.Assertions;
 import org.eclipse.jnosql.communication.query.ValueType;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class MethodParamQueryValueTest {
 
+    @Nested
+    @DisplayName("When the method param query value is used")
+    class WhenTheMethodParamQueryValue {
+    }
+
     @Test
+    @DisplayName("Should Return Type")
     void shouldReturnType() {
         MethodParamQueryValue param = new MethodParamQueryValue("name");
         Assertions.assertThat(param).isNotNull()
@@ -29,6 +35,7 @@ class MethodParamQueryValueTest {
                 .isNotNull().isEqualTo(ValueType.PARAMETER);
     }
     @Test
+    @DisplayName("Should Create Instance")
     void shouldCreateInstance() {
         MethodParamQueryValue param = new MethodParamQueryValue("name");
         Assertions.assertThat(param).isNotNull()
@@ -38,34 +45,39 @@ class MethodParamQueryValueTest {
     }
 
     @Test
+    @DisplayName("Should Equals")
     void shouldEquals() {
         MethodParamQueryValue param = new MethodParamQueryValue("name");
-        assertEquals(param, param);
+        assertThat(param).isEqualTo(param);
     }
 
     @Test
+    @DisplayName("Should Hash Code")
     void shouldHashCode() {
         MethodParamQueryValue param = new MethodParamQueryValue("name");
-        assertEquals(param.hashCode(), param.hashCode());
+        assertThat(param).hasSameHashCodeAs(param);
     }
 
     @Test
+    @DisplayName("Should Equality")
     void shouldEquality() {
         String value = "testValue";
         MethodParamQueryValue queryValue1 = new MethodParamQueryValue(value);
-        assertEquals(queryValue1, queryValue1);
+        assertThat(queryValue1).isEqualTo(queryValue1);
     }
 
     @Test
+    @DisplayName("Should Inequality")
     void shouldInequality() {
         MethodParamQueryValue queryValue1 = new MethodParamQueryValue("value1");
         MethodParamQueryValue queryValue2 = new MethodParamQueryValue("value2");
 
         // Should have inequality
-        assertNotEquals(queryValue1, queryValue2);
+        assertThat(queryValue2).isNotEqualTo(queryValue1);
     }
 
     @Test
+    @DisplayName("Should Consistent Hashcode")
     void shouldConsistentHashcode() {
         String value = "testValue";
         MethodParamQueryValue queryValue1 = new MethodParamQueryValue(value);
@@ -73,6 +85,7 @@ class MethodParamQueryValueTest {
     }
 
     @Test
+    @DisplayName("Should To String Representation")
     void shouldToStringRepresentation() {
         String value = "testValue";
         MethodParamQueryValue queryValue = new MethodParamQueryValue(value);
@@ -81,10 +94,11 @@ class MethodParamQueryValueTest {
     }
 
     @Test
+    @DisplayName("Should Value With Prefix")
     void shouldValueWithPrefix() {
         MethodParamQueryValue queryValue = new MethodParamQueryValue("test");
 
         // Should generate a value with the original prefix and nano time
-        assertTrue(queryValue.get().startsWith("test_"));
+        assertThat(queryValue.get()).startsWith("test_");
     }
 }
