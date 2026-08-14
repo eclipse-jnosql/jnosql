@@ -23,11 +23,13 @@ import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtensi
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, KeyValueEntityConverter.class})
@@ -40,16 +42,23 @@ class KeyValueTemplateProducerTest {
     @Inject
     private KeyValueTemplateProducer producer;
 
+    @Nested
+    @DisplayName("When the producer creates a template")
+    class WhenTheProducerCreatesTemplate {
 
-    @Test
-    void shouldReturnErrorWhenManagerNull() {
-        assertThrows(NullPointerException.class, () -> producer.apply(null));
+        @DisplayName("Should Return Error When Manager Null")
+        @Test
+        void shouldReturnErrorWhenManagerNull() {
+            assertThatThrownBy(() -> producer.apply(null)).isInstanceOf(NullPointerException.class);
+        }
+
+        @DisplayName("Should Return")
+        @Test
+        void shouldReturn() {
+            BucketManager manager = Mockito.mock(BucketManager.class);
+            KeyValueTemplate repository = producer.apply(manager);
+            assertThat(repository).isNotNull();
+        }
     }
 
-    @Test
-    void shouldReturn() {
-        BucketManager manager = Mockito.mock(BucketManager.class);
-        KeyValueTemplate repository = producer.apply(manager);
-        assertNotNull(repository);
-    }
 }
