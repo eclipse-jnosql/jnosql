@@ -13,22 +13,33 @@ package org.eclipse.jnosql.communication.semistructured;
 
 import org.eclipse.jnosql.communication.CommunicationException;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 
 class DatabaseConfigurationTest {
 
 
 
-    @Test
-    void shouldGetErrorConfiguration(){
-        assertThatThrownBy(DatabaseConfiguration::getConfiguration)
-                .isInstanceOf(CommunicationException.class);
+
+    @Nested
+    @DisplayName("When the database configuration is used")
+    class WhenTheDatabaseConfigurationIsUsed {
+
+        @DisplayName("Should Get Error Configuration")
+        @Test
+        void shouldGetErrorConfiguration(){
+            assertThatThrownBy(DatabaseConfiguration::getConfiguration)
+                    .isInstanceOf(CommunicationException.class);
+        }
+
+        @DisplayName("Should Get Error Configuration Class")
+        @Test
+        void shouldGetErrorConfigurationClass(){
+            assertThatThrownBy(() -> DatabaseConfiguration.getConfiguration(DatabaseMock.class))
+                    .isInstanceOf(CommunicationException.class);
+        }
     }
 
-    @Test
-    void shouldGetErrorConfigurationClass(){
-        assertThatThrownBy(() -> DatabaseConfiguration.getConfiguration(DatabaseMock.class))
-                .isInstanceOf(CommunicationException.class);
-    }
 }
