@@ -23,8 +23,11 @@ import org.eclipse.jnosql.mapping.semistructured.MockProducer;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -33,6 +36,7 @@ import org.junit.jupiter.api.Test;
 @AddExtensions({ReflectionEntityMetadataExtension.class})
 class SemistructuredQueryBuilderTest {
 
+    @DisplayName("Should instance default constructor")
     @Test
     void shouldInstanceDefaultConstructor() {
         SemistructuredQueryBuilder builder = new SemistructuredQueryBuilder();
@@ -40,4 +44,8 @@ class SemistructuredQueryBuilderTest {
     }
 
 
+    @Nested
+    @DisplayName("When the semistructured query builder is tested")
+    class WhenTheSemistructuredQueryBuilderIsTested {
+    }
 }
