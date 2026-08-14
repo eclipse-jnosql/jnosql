@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 
 import jakarta.inject.Inject;
+import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
@@ -33,10 +34,11 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("The scenarios to test the feature exist by")
 @EnableAutoWeld
@@ -196,5 +198,10 @@ public class RepositoryExistByTest extends AbstractRepositoryTest {
             soft.assertThat(criteriaCondition.condition()).isEqualTo(Condition.EQUALS);
             soft.assertThat(criteriaCondition.element()).isEqualTo(Element.of("dtype", "photo"));
         });
+    }
+
+    @Nested
+    @DisplayName("When the repository exist by is tested")
+    class WhenTheRepositoryExistByIsTested {
     }
 }
