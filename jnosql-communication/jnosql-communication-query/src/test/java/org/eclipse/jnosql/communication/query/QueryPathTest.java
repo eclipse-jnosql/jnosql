@@ -12,6 +12,7 @@
 package org.eclipse.jnosql.communication.query;
 
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +20,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("QueryPath")
 class QueryPathTest {
+
+    @Nested
+    @DisplayName("When the query path is used")
+    class WhenTheQueryPath {
+    }
 
     @Test
     @DisplayName("should store and expose the path expression")
@@ -40,7 +46,7 @@ class QueryPathTest {
 
     @Test
     @DisplayName("factory method should create an equivalent instance")
-    void factoryMethodShouldCreateEquivalentInstance() {
+    void shouldCreateEquivalentInstanceFromFactoryMethod() {
         QueryPath fromFactory = QueryPath.of("id");
         QueryPath fromConstructor = new QueryPath("id");
 
