@@ -16,59 +16,66 @@ package org.eclipse.jnosql.mapping;
 
 import jakarta.enterprise.inject.spi.AnnotatedMember;
 import jakarta.enterprise.inject.spi.ProcessProducer;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class DatabasesTest {
 
-    @SuppressWarnings("rawtypes")
-    @Test
-    void shouldAddDatabaseValidDatabaseTypeAddsMetadataToSet() {
-        ProcessProducer processProducer = mock(ProcessProducer.class);
-        AnnotatedMember annotatedMember = mock(AnnotatedMember.class);
-        DatabaseType type = DatabaseType.DOCUMENT;
-        Set<DatabaseMetadata> databases = new HashSet<>();
+    @Nested
+    @DisplayName("When the database metadata is added")
+    class WhenTheDatabaseMetadataIsAdded {
 
-        // Creating a Database annotation with a matching type
-        Database databaseAnnotation = mock(Database.class);
-        when(databaseAnnotation.value()).thenReturn(DatabaseType.DOCUMENT);
+        @SuppressWarnings("rawtypes")
+        @Test
+        @DisplayName("Should add metadata when the annotation matches the database type")
+        void shouldAddMetadataWhenTheAnnotationMatchesTheDatabaseType() {
+            ProcessProducer processProducer = mock(ProcessProducer.class);
+            AnnotatedMember annotatedMember = mock(AnnotatedMember.class);
+            DatabaseType type = DatabaseType.DOCUMENT;
+            Set<DatabaseMetadata> databases = new HashSet<>();
 
-        // Mocking the annotations set returned by the processProducer
-        Set<Annotation> annotations = new HashSet<>();
-        annotations.add(databaseAnnotation);
-        when(processProducer.getAnnotatedMember()).thenReturn(annotatedMember);
-        when(annotatedMember.getAnnotations()).thenReturn(annotations);
+            Database databaseAnnotation = mock(Database.class);
+            when(databaseAnnotation.value()).thenReturn(DatabaseType.DOCUMENT);
 
-        Databases.addDatabase(processProducer, type, databases);
+            Set<Annotation> annotations = new HashSet<>();
+            annotations.add(databaseAnnotation);
+            when(processProducer.getAnnotatedMember()).thenReturn(annotatedMember);
+            when(annotatedMember.getAnnotations()).thenReturn(annotations);
 
-        assertEquals(1, databases.size());
-        assertTrue(databases.contains(DatabaseMetadata.of(databaseAnnotation)));
-    }
+            Databases.addDatabase(processProducer, type, databases);
 
-    @SuppressWarnings("rawtypes")
-    @Test
-    void shouldAddDatabase_NoDatabaseAnnotation_NoMetadataAdded() {
-        ProcessProducer processProducer = mock(ProcessProducer.class);
-        DatabaseType type = DatabaseType.DOCUMENT;
-        AnnotatedMember annotatedMember = mock(AnnotatedMember.class);
-        Set<DatabaseMetadata> databases = new HashSet<>();
+            assertSoftly(softly -> {
+                softly.assertThat(databases).hasSize(1);
+                softly.assertThat(databases).contains(DatabaseMetadata.of(databaseAnnotation));
+            });
+        }
 
-        // Mocking the annotations set returned by the processProducer (no Database annotation)
-        Set<Annotation> annotations = new HashSet<>();
-        when(processProducer.getAnnotatedMember()).thenReturn(annotatedMember);
-        when(annotatedMember.getAnnotations()).thenReturn(annotations);
+        @SuppressWarnings("rawtypes")
+        @Test
+        @DisplayName("Should not add metadata when no database annotation exists")
+        void shouldNotAddMetadataWhenNoDatabaseAnnotationExists() {
+            ProcessProducer processProducer = mock(ProcessProducer.class);
+            DatabaseType type = DatabaseType.DOCUMENT;
+            AnnotatedMember annotatedMember = mock(AnnotatedMember.class);
+            Set<DatabaseMetadata> databases = new HashSet<>();
 
-        Databases.addDatabase(processProducer, type, databases);
+            Set<Annotation> annotations = new HashSet<>();
+            when(processProducer.getAnnotatedMember()).thenReturn(annotatedMember);
+            when(annotatedMember.getAnnotations()).thenReturn(annotations);
 
-        assertEquals(0, databases.size());
+            Databases.addDatabase(processProducer, type, databases);
+
+            assertSoftly(softly -> softly.assertThat(databases).isEmpty());
+        }
     }
 
 }
