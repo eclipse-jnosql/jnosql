@@ -26,12 +26,13 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.GRAPH_DATABASE;
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.GRAPH_PROVIDER;
 
@@ -51,37 +52,65 @@ class GraphManagerSupplierTest {
         System.clearProperty(GRAPH_DATABASE.get());
     }
 
-    @Test
-    void shouldGetManager() {
-        System.setProperty(GRAPH_PROVIDER.get(), GraphConfigurationMock.class.getName());
-        System.setProperty(GRAPH_DATABASE.get(), "database");
-        DatabaseManager manager = supplier.get();
-        Assertions.assertNotNull(manager);
-        assertThat(manager).isInstanceOf(GraphConfigurationMock.GraphManagerMock.class);
+    @Nested
+    @DisplayName("When the manager is supplied")
+    class WhenTheManagerIsSupplied {
+
+        @Test
+        @DisplayName("Should get configured manager")
+        void shouldGetManager() {
+            System.setProperty(GRAPH_PROVIDER.get(), GraphConfigurationMock.class.getName());
+            System.setProperty(GRAPH_DATABASE.get(), "database");
+
+            DatabaseManager manager = supplier.get();
+
+            assertSoftly(soft -> {
+                soft.assertThat(manager).isNotNull();
+                soft.assertThat(manager).isInstanceOf(GraphConfigurationMock.GraphManagerMock.class);
+            });
+        }
+
+
+        @Test
+        @DisplayName("Should use default configuration when provider is wrong")
+        void shouldUseDefaultConfigurationWhenProviderIsWrong() {
+            System.setProperty(GRAPH_PROVIDER.get(), Integer.class.getName());
+            System.setProperty(GRAPH_DATABASE.get(), "database");
+
+            DatabaseManager manager = supplier.get();
+
+            assertSoftly(soft -> {
+                soft.assertThat(manager).isNotNull();
+                soft.assertThat(manager).isInstanceOf(GraphConfigurationMock2.GraphManagerMock.class);
+            });
+        }
+
+        @Test
+        @DisplayName("Should use default configuration")
+        void shouldUseDefaultConfiguration() {
+            System.setProperty(GRAPH_DATABASE.get(), "database");
+
+            DatabaseManager manager = supplier.get();
+
+            assertSoftly(soft -> {
+                soft.assertThat(manager).isNotNull();
+                soft.assertThat(manager).isInstanceOf(GraphConfigurationMock2.GraphManagerMock.class);
+            });
+        }
     }
 
+    @Nested
+    @DisplayName("When the manager is disposed")
+    class WhenTheManagerIsDisposed {
 
-    @Test
-    void shouldUseDefaultConfigurationWhenProviderIsWrong() {
-        System.setProperty(GRAPH_PROVIDER.get(), Integer.class.getName());
-        System.setProperty(GRAPH_DATABASE.get(), "database");
-        DatabaseManager manager = supplier.get();
-        Assertions.assertNotNull(manager);
-        assertThat(manager).isInstanceOf(GraphConfigurationMock2.GraphManagerMock.class);
-    }
+        @Test
+        @DisplayName("Should close manager")
+        void shouldClose(){
+            var manager = Mockito.mock(GraphDatabaseManager.class);
 
-    @Test
-    void shouldUseDefaultConfiguration() {
-        System.setProperty(GRAPH_DATABASE.get(), "database");
-        DatabaseManager manager = supplier.get();
-        Assertions.assertNotNull(manager);
-        assertThat(manager).isInstanceOf(GraphConfigurationMock2.GraphManagerMock.class);
-    }
+            supplier.close(manager);
 
-    @Test
-    void shouldClose(){
-        var manager = Mockito.mock(GraphDatabaseManager.class);
-        supplier.close(manager);
-        Mockito.verify(manager).close();
+            Mockito.verify(manager).close();
+        }
     }
 }
