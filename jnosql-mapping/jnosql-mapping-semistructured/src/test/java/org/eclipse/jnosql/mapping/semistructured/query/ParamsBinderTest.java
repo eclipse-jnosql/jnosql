@@ -15,6 +15,9 @@
 package org.eclipse.jnosql.mapping.semistructured.query;
 
 import jakarta.inject.Inject;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.stream.Stream;
 import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.Value;
@@ -36,13 +39,11 @@ import org.eclipse.jnosql.mapping.semistructured.entities.Person;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @EnableAutoWeld
 @AddPackages(value = {Converters.class, EntityConverter.class})
@@ -60,6 +61,7 @@ class ParamsBinderTest {
 
     private ParamsBinder paramsBinder;
 
+    @DisplayName("Should convert")
     @Test
     void shouldConvert() {
 
@@ -79,10 +81,11 @@ class ParamsBinderTest {
         var query = columnQueryParams.query();
         CriteriaCondition columnCondition = query.condition().get();
         Value value = columnCondition.element().value();
-        assertEquals(10, value.get());
+        assertThat(value.get()).isEqualTo(10);
 
     }
 
+    @DisplayName("Should convert 2")
     @Test
     void shouldConvert2() {
 
@@ -105,8 +108,8 @@ class ParamsBinderTest {
         List<Object> values = conditions.stream().map(CriteriaCondition::element)
                 .map(Element::value)
                 .map(Value::get).toList();
-        assertEquals(10, values.get(0));
-        assertEquals("Ada", values.get(1));
+        assertThat(values.get(0)).isEqualTo(10);
+        assertThat(values.get(1)).isEqualTo("Ada");
 
     }
 
@@ -119,4 +122,8 @@ class ParamsBinderTest {
     }
 
 
+    @Nested
+    @DisplayName("When the params binder is tested")
+    class WhenTheParamsBinderIsTested {
+    }
 }
