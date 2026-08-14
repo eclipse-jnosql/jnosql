@@ -18,8 +18,11 @@ package org.eclipse.jnosql.mapping.semistructured;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.mapping.metadata.FieldValue;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class AbstractAttributeFieldValueTest {
 
@@ -82,5 +85,10 @@ class AbstractAttributeFieldValueTest {
 
         SoftAssertions.assertSoftly(soft -> soft.assertThat(fieldValue.toString())
                 .contains("fieldValue"));
+    }
+
+    @Nested
+    @DisplayName("When the abstract attribute field value is tested")
+    class WhenTheAbstractAttributeFieldValueIsTested {
     }
 }
