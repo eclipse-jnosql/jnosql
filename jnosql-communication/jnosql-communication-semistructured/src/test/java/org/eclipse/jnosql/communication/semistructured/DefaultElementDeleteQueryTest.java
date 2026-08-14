@@ -10,46 +10,57 @@
  */
 package org.eclipse.jnosql.communication.semistructured;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 
 class DefaultElementDeleteQueryTest {
 
-    private DeleteQuery query;
 
-    @BeforeEach
-    void setUp() {
-        query = DeleteQuery.delete().from("columnFamily").build();
+    @Nested
+    @DisplayName("When the default element delete query is used")
+    class WhenTheDefaultElementDeleteQueryIsUsed {
+
+        private DeleteQuery query;
+
+        @BeforeEach
+        void setUp() {
+            query = DeleteQuery.delete().from("columnFamily").build();
+        }
+
+        @DisplayName("Should Not Edit Columns")
+        @Test
+        void shouldNotEditColumns() {
+            assertThatThrownBy(() -> {
+                List<String> columns = query.columns();
+                assertTrue(columns.isEmpty());
+                columns.clear();
+            }).isInstanceOf(UnsupportedOperationException.class);
+        }
+
+        @DisplayName("Should Has Code")
+        @Test
+        void shouldHasCode(){
+            var query = DeleteQuery.delete().from("columnFamily").build();
+            var query1 = DeleteQuery.delete().from("columnFamily").build();
+            assertThat(query.hashCode()).isEqualTo(query1.hashCode());
+        }
+
+        @DisplayName("Should Equals")
+        @Test
+        void shouldEquals(){
+            var query = DeleteQuery.delete().from("columnFamily").build();
+            var query1 = DeleteQuery.delete().from("columnFamily").build();
+            assertThat(query).isEqualTo(query1);
+            assertThat(query).isEqualTo(query);
+            assertThat(query).isNotEqualTo("query");
+        }
     }
 
-    @Test
-    void shouldNotEditColumns() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
-            List<String> columns = query.columns();
-            assertTrue(columns.isEmpty());
-            columns.clear();
-        });
-    }
-
-    @Test
-    void shouldHasCode(){
-        var query = DeleteQuery.delete().from("columnFamily").build();
-        var query1 = DeleteQuery.delete().from("columnFamily").build();
-        assertThat(query.hashCode()).isEqualTo(query1.hashCode());
-    }
-
-    @Test
-    void shouldEquals(){
-        var query = DeleteQuery.delete().from("columnFamily").build();
-        var query1 = DeleteQuery.delete().from("columnFamily").build();
-        assertThat(query).isEqualTo(query1);
-        assertThat(query).isEqualTo(query);
-        assertThat(query).isNotEqualTo("query");
-    }
 }
