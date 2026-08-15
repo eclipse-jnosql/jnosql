@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core;
 
+import java.util.Objects;
 import java.util.function.LongSupplier;
 
 
@@ -26,7 +27,8 @@ import java.util.function.LongSupplier;
  * returned for all future invocations.</p>
  *
  * <p>This implementation is thread-safe and guarantees that the delegate
- * supplier is executed at most once.</p>
+ * supplier is executed at most once. A runtime exception or error is cached
+ * and rethrown on subsequent accesses.</p>
  *
  * <p>This utility is useful for expensive operations such as database
  * aggregation queries, count operations, or remote service calls that should
@@ -54,8 +56,10 @@ final class LazyLongSupplier implements LongSupplier {
 
     private RuntimeException failure;
 
+    private Error error;
+
     private LazyLongSupplier(LongSupplier delegate) {
-        this.delegate = delegate;
+        this.delegate = Objects.requireNonNull(delegate, "delegate is required");
     }
 
     @Override
@@ -68,6 +72,8 @@ final class LazyLongSupplier implements LongSupplier {
                         value = delegate.getAsLong();
                     } catch (RuntimeException exception) {
                         failure = exception;
+                    } catch (Error error) {
+                        this.error = error;
                     } finally {
                         loaded = true;
                     }
@@ -77,6 +83,10 @@ final class LazyLongSupplier implements LongSupplier {
 
         if (failure != null) {
             throw failure;
+        }
+
+        if (error != null) {
+            throw error;
         }
 
         return value;

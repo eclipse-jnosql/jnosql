@@ -88,7 +88,11 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
                     var prepare = (org.eclipse.jnosql.mapping.semistructured.PreparedStatement) template().prepare(textQuery, entity);
                     List<Sort<?>> sortsFromAnnotation = getSorts(method, entityMetadata());
                     if (sortsFromAnnotation.isEmpty()) {
-                        prepare.setSelectMapper(query -> updateQueryDynamically(params, query, first));
+                        prepare.setSelectMapper(query -> {
+                            var selectQuery = updateQueryDynamically(params, query, first);
+                            selectQueryAtomicReference.set(selectQuery);
+                            return selectQuery;
+                        });
                     } else {
                         prepare.setSelectMapper(query -> {
                             var selectQuery = updateQueryDynamically(params, query, first);

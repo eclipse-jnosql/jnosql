@@ -32,6 +32,8 @@ import java.util.function.LongSupplier;
  */
 public class NoSQLPage<T> implements Page<T> {
 
+    private static final String TOTALS_UNAVAILABLE = "Total elements were not retrieved for this page";
+
     private final List<T> entities;
 
     private final PageRequest pageRequest;
@@ -46,13 +48,21 @@ public class NoSQLPage<T> implements Page<T> {
 
     @Override
     public long totalElements() {
-        return totalSupplier.getAsLong();
+        if (!pageRequest.requestTotal()) {
+            throw new IllegalStateException(TOTALS_UNAVAILABLE);
+        }
+        try {
+            return totalSupplier.getAsLong();
+        } catch (UnsupportedOperationException exception) {
+            throw new IllegalStateException(TOTALS_UNAVAILABLE, exception);
+        }
     }
 
     @Override
     public long totalPages() {
         long totalElements = totalElements();
-        return (long) Math.ceil((double) totalElements / pageRequest.size());
+        long pageSize = pageRequest.size();
+        return totalElements / pageSize + (totalElements % pageSize == 0 ? 0 : 1);
     }
 
     @Override
@@ -93,14 +103,23 @@ public class NoSQLPage<T> implements Page<T> {
     @Override
     public PageRequest nextPageRequest() {
 
-        if (hasTotals() && !hasNext()) {
+        if (!hasNext()) {
+            if (hasTotals()) {
+                throw new NoSuchElementException(
+                        String.format(
+                                "Unable to navigate to next page. " +
+                                        "Current page: %d, page size: %d, total pages: %d",
+                                this.pageRequest.page(),
+                                this.pageRequest.size(),
+                                totalPages()
+                        )
+                );
+            }
             throw new NoSuchElementException(
                     String.format(
-                            "Unable to navigate to next page. " +
-                                    "Current page: %d, page size: %d, total pages: %d",
+                            "Unable to navigate to next page. Current page: %d, page size: %d",
                             this.pageRequest.page(),
-                            this.pageRequest.size(),
-                            totalPages()
+                            this.pageRequest.size()
                     )
             );
         }
@@ -133,6 +152,9 @@ public class NoSQLPage<T> implements Page<T> {
 
     @Override
     public boolean hasTotals() {
+        if (!pageRequest.requestTotal()) {
+            return false;
+        }
         try {
             totalSupplier.getAsLong();
             return true;
@@ -185,6 +207,7 @@ public class NoSQLPage<T> implements Page<T> {
     public static <T> Page<T> of(List<T> entities, PageRequest pageRequest, LongSupplier totalSupplier) {
         Objects.requireNonNull(entities, "entities is required");
         Objects.requireNonNull(pageRequest, "pageRequest is required");
+        Objects.requireNonNull(totalSupplier, "totalSupplier is required");
         return new NoSQLPage<>(entities, pageRequest, LazyLongSupplier.of(totalSupplier));
     }
 
