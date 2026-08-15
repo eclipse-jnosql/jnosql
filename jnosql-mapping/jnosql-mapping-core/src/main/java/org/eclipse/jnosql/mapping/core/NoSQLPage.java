@@ -21,7 +21,9 @@ import jakarta.data.page.PageRequest;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.LongSupplier;
 
 /**
  * A JNoSQL implementation of {@link  Page}
@@ -30,23 +32,41 @@ import java.util.Objects;
  */
 public class NoSQLPage<T> implements Page<T> {
 
+    private static final String TOTALS_UNAVAILABLE = "Total elements were not retrieved for this page";
+
+    private static final LongSupplier UNSUPPORTED_TOTAL = () -> {
+        throw new UnsupportedOperationException("The database provider does not support page totals");
+    };
+
     private final List<T> entities;
 
     private final PageRequest pageRequest;
 
-    private NoSQLPage(List<T> entities, PageRequest pageRequest) {
+    private final LongSupplier totalSupplier;
+
+    private NoSQLPage(List<T> entities, PageRequest pageRequest, LongSupplier totalSupplier) {
         this.entities = entities;
         this.pageRequest = pageRequest;
+        this.totalSupplier = totalSupplier;
     }
 
     @Override
     public long totalElements() {
-        throw new UnsupportedOperationException("JNoSQL has no support for this feature yet");
+        if (!pageRequest.requestTotal()) {
+            throw new IllegalStateException(TOTALS_UNAVAILABLE);
+        }
+        try {
+            return totalSupplier.getAsLong();
+        } catch (UnsupportedOperationException exception) {
+            throw new IllegalStateException(TOTALS_UNAVAILABLE, exception);
+        }
     }
 
     @Override
     public long totalPages() {
-        throw new UnsupportedOperationException("JNoSQL has no support for this feature yet");
+        long totalElements = totalElements();
+        long pageSize = pageRequest.size();
+        return totalElements / pageSize + (totalElements % pageSize == 0 ? 0 : 1);
     }
 
     @Override
@@ -66,12 +86,15 @@ public class NoSQLPage<T> implements Page<T> {
 
     @Override
     public boolean hasNext() {
-      return hasContent() && this.entities.size() == this.pageRequest.size();
+        if (hasTotals()) {
+            return this.pageRequest.page() < totalPages();
+        }
+        return hasContent() && this.entities.size() == this.pageRequest.size();
     }
 
     @Override
     public boolean hasPrevious() {
-        return hasContent();
+        return this.pageRequest.page() > 1;
     }
 
     @Override
@@ -82,19 +105,41 @@ public class NoSQLPage<T> implements Page<T> {
 
     @Override
     public PageRequest nextPageRequest() {
+        if (!hasNext()) {
+            if (hasTotals()) {
+                throw new NoSuchElementException("Unable to navigate to next page. Current page: "
+                        + this.pageRequest.page() + ", page size: " + this.pageRequest.size()
+                        + ", total pages: " + totalPages());
+            }
+            throw new NoSuchElementException("Unable to navigate to next page. Current page: "
+                    + this.pageRequest.page() + ", page size: " + this.pageRequest.size());
+        }
         return PageRequest.ofPage(this.pageRequest.page() + 1, this.pageRequest.size(), this.pageRequest.requestTotal());
     }
 
 
     @Override
     public PageRequest previousPageRequest() {
+        if (!hasPrevious()) {
+            throw new NoSuchElementException("Unable to navigate to previous page. Current page: "
+                    + this.pageRequest.page() + ", page size: " + this.pageRequest.size()
+                    + ". Page numbers start at 1.");
+        }
         return PageRequest.ofPage(this.pageRequest.page() - 1, this.pageRequest.size(), this.pageRequest.requestTotal());
     }
 
 
     @Override
     public boolean hasTotals() {
-        throw new UnsupportedOperationException("Eclipse JNoSQL has no support for this feature hasTotals");
+        if (!pageRequest.requestTotal()) {
+            return false;
+        }
+        try {
+            totalSupplier.getAsLong();
+            return true;
+        } catch (UnsupportedOperationException exception) {
+            return false;
+        }
     }
 
     @Override
@@ -135,9 +180,24 @@ public class NoSQLPage<T> implements Page<T> {
      * @param <T> the entity type
      */
     public static <T> Page<T> of(List<T> entities, PageRequest pageRequest) {
+        return of(entities, pageRequest, UNSUPPORTED_TOTAL);
+    }
+
+    /**
+     * Creates a {@link Page} implementation whose total element count is evaluated lazily.
+     *
+     * @param entities the entities in the requested page
+     * @param pageRequest the page request
+     * @param totalSupplier supplier for the total number of matching entities
+     * @param <T> the entity type
+     * @return a {@link Page} instance
+     * @throws NullPointerException when any parameter is null
+     */
+    public static <T> Page<T> of(List<T> entities, PageRequest pageRequest, LongSupplier totalSupplier) {
         Objects.requireNonNull(entities, "entities is required");
         Objects.requireNonNull(pageRequest, "pageRequest is required");
-        return new NoSQLPage<>(entities, pageRequest);
+        Objects.requireNonNull(totalSupplier, "totalSupplier is required");
+        return new NoSQLPage<>(entities, pageRequest, LazyLongSupplier.of(totalSupplier));
     }
 
     /**

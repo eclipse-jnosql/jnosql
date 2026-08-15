@@ -568,14 +568,19 @@ class DefaultSemiStructuredTemplateTest {
         SelectQuery query = select().from("Person").orderBy("name").asc().build();
 
         Mockito.when(managerMock.select(Mockito.any())).thenReturn(Stream.empty());
+        Mockito.when(managerMock.count(query)).thenReturn(15L);
 
         Page<Person> result = template.selectOffSet(query, request);
         var captor = ArgumentCaptor.forClass(SelectQuery.class);
         Mockito.verify(managerMock).select(captor.capture());
+        Mockito.verify(managerMock, never()).count(any(SelectQuery.class));
         SelectQuery value = captor.getValue();
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(result).isNotNull();
             soft.assertThat(result.content()).isEmpty();
+            soft.assertThat(result.totalElements()).isEqualTo(15L);
+            soft.assertThat(result.totalPages()).isEqualTo(2L);
+            soft.assertThat(result.hasTotals()).isTrue();
             soft.assertThat(result.hasNext()).isFalse();
             soft.assertThat(value.columns()).isEmpty();
             soft.assertThat(value.name()).isEqualTo("Person");
@@ -584,6 +589,22 @@ class DefaultSemiStructuredTemplateTest {
             soft.assertThat(value.limit()).isEqualTo(10);
 
         });
+        Mockito.verify(managerMock).count(query);
+    }
+
+    @Test
+    void shouldNotCountSelectOffSetWhenTotalsAreDisabled() {
+        PageRequest request = PageRequest.ofPage(1, 10, false);
+        SelectQuery query = select().from("Person").orderBy("name").asc().build();
+        Mockito.when(managerMock.select(Mockito.any())).thenReturn(Stream.empty());
+
+        Page<Person> result = template.selectOffSet(query, request);
+
+        assertFalse(result.hasTotals());
+        assertThrows(IllegalStateException.class, result::totalElements);
+        assertThrows(IllegalStateException.class, result::totalPages);
+        assertFalse(result.hasNext());
+        Mockito.verify(managerMock, never()).count(any(SelectQuery.class));
     }
 
 
