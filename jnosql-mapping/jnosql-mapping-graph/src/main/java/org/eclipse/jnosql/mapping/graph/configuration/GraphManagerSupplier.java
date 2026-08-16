@@ -21,7 +21,7 @@ import org.eclipse.jnosql.communication.CommunicationException;
 import org.eclipse.jnosql.communication.Settings;
 import org.eclipse.jnosql.communication.graph.GraphDatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DatabaseConfiguration;
-import org.eclipse.jnosql.mapping.core.config.MicroProfileSettings;
+import org.eclipse.jnosql.mapping.core.config.MappingSettingsProvider;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 
 import java.util.Optional;
@@ -43,7 +43,7 @@ class GraphManagerSupplier implements Supplier<GraphDatabaseManager> {
     @Produces
     @ApplicationScoped
     public GraphDatabaseManager get() {
-        Settings settings = MicroProfileSettings.INSTANCE;
+        Settings settings = MappingSettingsProvider.resolve();
 
         DatabaseConfiguration configuration = settings.get(GRAPH_PROVIDER, Class.class)
                 .filter(DatabaseConfiguration.class::isAssignableFrom)

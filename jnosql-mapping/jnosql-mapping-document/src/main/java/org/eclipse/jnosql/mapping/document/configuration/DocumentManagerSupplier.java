@@ -20,7 +20,7 @@ import org.eclipse.jnosql.communication.semistructured.DatabaseConfiguration;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseType;
-import org.eclipse.jnosql.mapping.core.config.MicroProfileSettings;
+import org.eclipse.jnosql.mapping.core.config.MappingSettingsProvider;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -45,7 +45,7 @@ class DocumentManagerSupplier implements Supplier<DatabaseManager> {
     @ApplicationScoped
     @Database(DatabaseType.DOCUMENT)
     public DatabaseManager get() {
-        Settings settings = MicroProfileSettings.INSTANCE;
+        Settings settings = MappingSettingsProvider.resolve();
 
         DatabaseConfiguration configuration = settings.get(DOCUMENT_PROVIDER, Class.class)
                 .filter(DatabaseConfiguration.class::isAssignableFrom)
