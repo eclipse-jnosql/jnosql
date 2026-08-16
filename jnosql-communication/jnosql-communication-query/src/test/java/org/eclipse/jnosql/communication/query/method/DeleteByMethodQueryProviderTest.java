@@ -21,6 +21,7 @@ import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.Where;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.converter.ConvertWith;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -32,6 +33,7 @@ import java.util.Optional;
 
 import static org.eclipse.jnosql.communication.query.method.SelectMethodQueryProviderTest.checkPrependedCondition;
 import static org.eclipse.jnosql.communication.query.method.SelectMethodQueryProviderTest.checkTerminalCondition;
+import static org.eclipse.jnosql.communication.query.method.SelectMethodQueryProviderTest.assertConditionTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -479,6 +481,46 @@ class DeleteByMethodQueryProviderTest {
             checkConditions(query, expectedProperty, conditions);
         }
 
+    }
+
+    @Nested
+    @DisplayName("When deleting with mixed logical predicates")
+    class WhenTheMixedLogicalPredicatesAreParsed {
+
+        @Test
+        @DisplayName("Should apply AND before OR when the conjunction comes first")
+        void shouldApplyAndBeforeOrWhenTheConjunctionComesFirst() {
+            // When
+            QueryCondition condition = queryProvider.apply("deleteByNameAndAgeOrCity", "entity")
+                    .where().orElseThrow().condition();
+
+            // Then
+            assertConditionTree(condition, "OR(AND(name,age),city)", "name", "age", "city");
+        }
+
+        @Test
+        @DisplayName("Should apply AND before OR when the conjunction comes last")
+        void shouldApplyAndBeforeOrWhenTheConjunctionComesLast() {
+            // When
+            QueryCondition condition = queryProvider.apply("deleteByNameOrAgeAndCity", "entity")
+                    .where().orElseThrow().condition();
+
+            // Then
+            assertConditionTree(condition, "OR(name,AND(age,city))", "name", "age", "city");
+        }
+
+        @Test
+        @DisplayName("Should keep chained OR branches and their AND groups in lexical order")
+        void shouldKeepChainedBranchesInLexicalOrder() {
+            // When
+            QueryCondition condition = queryProvider.apply(
+                            "deleteByNameAndAgeOrCityAndActiveAndEnabledOrEmail", "entity")
+                    .where().orElseThrow().condition();
+
+            // Then
+            assertConditionTree(condition, "OR(AND(name,age),AND(city,active,enabled),email)",
+                    "name", "age", "city", "active", "enabled", "email");
+        }
     }
 
     private void checkConditions(String query, String variable, Condition... operators) {
