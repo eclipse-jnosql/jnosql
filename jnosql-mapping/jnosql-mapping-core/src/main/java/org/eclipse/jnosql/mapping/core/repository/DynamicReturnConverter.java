@@ -103,7 +103,7 @@ public enum DynamicReturnConverter {
                 .singleResultPagination(p -> prepare.singleResult())
                 .page(p -> {
                     Stream<?> entities = prepare.result();
-                    return NoSQLPage.of(entities.toList(), (PageRequest) p);
+                    return NoSQLPage.of(entities.toList(), (PageRequest) p, dynamicQueryMethod.totalSupplier());
                 }).build();
 
         return convert(dynamicReturn);

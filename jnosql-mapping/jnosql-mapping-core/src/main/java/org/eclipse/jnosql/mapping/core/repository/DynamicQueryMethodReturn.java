@@ -21,11 +21,16 @@ import org.eclipse.jnosql.mapping.PreparedStatement;
 import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.LongSupplier;
 
 /**
  * This instance has the information to run the JNoSQL native query at {@link jakarta.data.repository.CrudRepository}
  */
 public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutable {
+
+    private static final LongSupplier UNSUPPORTED_TOTAL = () -> {
+        throw new UnsupportedOperationException("The database provider does not support page totals");
+    };
 
 
     private final Method method;
@@ -33,15 +38,17 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
     private final Class<?> typeClass;
     private final Function<String, PreparedStatement> prepareConverter;
     private final PageRequest pageRequest;
+    private final LongSupplier totalSupplier;
 
     private DynamicQueryMethodReturn(Method method, Object[] args, Class<?> typeClass,
                                      Function<String, PreparedStatement> prepareConverter,
-                                     PageRequest pageRequest) {
+                                     PageRequest pageRequest, LongSupplier totalSupplier) {
         this.method = method;
         this.args = args;
         this.typeClass = typeClass;
         this.prepareConverter = prepareConverter;
         this.pageRequest = pageRequest;
+        this.totalSupplier = totalSupplier;
     }
 
     Method method() {
@@ -64,6 +71,10 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         return pageRequest;
     }
 
+    LongSupplier totalSupplier() {
+        return totalSupplier;
+    }
+
     boolean hasPagination() {
         return pageRequest != null;
     }
@@ -84,6 +95,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         private Class<?> typeClass;
         private Function<String, PreparedStatement> prepareConverter;
         private PageRequest pageRequest;
+        private LongSupplier totalSupplier = UNSUPPORTED_TOTAL;
 
         private DynamicQueryMethodReturnBuilder() {
         }
@@ -115,11 +127,17 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
             return this;
         }
 
+        public DynamicQueryMethodReturnBuilder<T> totalSupplier(LongSupplier totalSupplier) {
+            this.totalSupplier = totalSupplier;
+            return this;
+        }
+
         public DynamicQueryMethodReturn<T> build() {
             Objects.requireNonNull(method, "method is required");
             Objects.requireNonNull(typeClass, "typeClass is required");
             Objects.requireNonNull(prepareConverter, "prepareConverter is required");
-            return new DynamicQueryMethodReturn<>(method, args, typeClass, prepareConverter, pageRequest);
+            Objects.requireNonNull(totalSupplier, "totalSupplier is required");
+            return new DynamicQueryMethodReturn<>(method, args, typeClass, prepareConverter, pageRequest, totalSupplier);
         }
     }
 

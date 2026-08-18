@@ -31,6 +31,7 @@ import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -61,15 +62,21 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
         var returnType = method.getReturnType();
         LOGGER.finest("Query: " + queryValue + " with type: " + queryType + " and return type: " + returnType);
         queryType.checkValidReturn(returnType, queryValue);
+        var selectQueryReference = new AtomicReference<SelectQuery>();
 
         var methodReturn = DynamicQueryMethodReturn.builder()
                 .args(params)
                 .method(method)
                 .typeClass(type)
                 .pageRequest(pageRequest)
+                .totalSupplier(() -> template().count(selectQueryReference.get()))
                 .prepareConverter(textQuery -> {
                     var prepare = (org.eclipse.jnosql.mapping.semistructured.PreparedStatement) template().prepare(textQuery, entity);
-                    prepare.setSelectMapper(query -> updateQueryDynamically(params, query));
+                    prepare.setSelectMapper(query -> {
+                        var updatedQuery = updateQueryDynamically(params, query);
+                        selectQueryReference.set(updatedQuery);
+                        return updatedQuery;
+                    });
                     return prepare;
                 }).build();
         return methodReturn.execute();

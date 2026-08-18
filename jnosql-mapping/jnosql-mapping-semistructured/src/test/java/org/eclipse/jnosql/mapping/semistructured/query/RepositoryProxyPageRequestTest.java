@@ -61,6 +61,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -788,6 +790,105 @@ public class RepositoryProxyPageRequestTest {
         });
     }
 
+    @Test
+    public void shouldReturnLazyTotalsForFindPage() {
+        Person ada = Person.builder().age(20).name("Ada").build();
+        when(template.select(any(SelectQuery.class))).thenReturn(Stream.of(ada));
+        when(template.count(any(SelectQuery.class))).thenReturn(13L);
+
+        PageRequest pageRequest = PageRequest.ofPage(2, 6, true);
+        Page<Person> page = personRepository.findPageByName("Ada", pageRequest);
+
+        verify(template, Mockito.never()).count(any(SelectQuery.class));
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(page.content()).containsExactly(ada);
+            soft.assertThat(page.totalElements()).isEqualTo(13L);
+            soft.assertThat(page.totalPages()).isEqualTo(3L);
+            soft.assertThat(page.hasTotals()).isTrue();
+        });
+
+        ArgumentCaptor<SelectQuery> countQuery = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).count(countQuery.capture());
+        SelectQuery query = countQuery.getValue();
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.name()).isEqualTo("Person");
+            soft.assertThat(query.skip()).isEqualTo(6L);
+            soft.assertThat(query.limit()).isEqualTo(6L);
+            soft.assertThat(query.condition()).contains(CriteriaCondition.eq(Element.of("name", "Ada")));
+        });
+    }
+
+    @Test
+    public void shouldNotCountFindPageWhenTotalsAreDisabled() {
+        Person ada = Person.builder().age(20).name("Ada").build();
+        when(template.select(any(SelectQuery.class))).thenReturn(Stream.of(ada));
+
+        Page<Person> page = personRepository.findPageByName("Ada", PageRequest.ofPage(1, 1, false));
+
+        assertFalse(page.hasTotals());
+        assertThrows(IllegalStateException.class, page::totalElements);
+        assertThrows(IllegalStateException.class, page::totalPages);
+        assertTrue(page.hasNext());
+        assertThat(page.content()).containsExactly(ada);
+        verify(template, Mockito.never()).count(any(SelectQuery.class));
+    }
+
+    @Test
+    public void shouldReturnLazyTotalsForQueryPageWithoutOrderBy() {
+        Person ada = Person.builder().age(20).name("Ada").build();
+        var prepare = Mockito.mock(org.eclipse.jnosql.mapping.semistructured.PreparedStatement.class);
+        var selectMapper = new AtomicReference<UnaryOperator<SelectQuery>>();
+        SelectQuery parsedQuery = SelectQuery.select().from("Person").where("name").eq("Ada").build();
+
+        Mockito.doAnswer(invocation -> {
+            selectMapper.set(invocation.getArgument(0));
+            return null;
+        }).when(prepare).setSelectMapper(any());
+        when(prepare.result()).thenAnswer(invocation -> {
+            selectMapper.get().apply(parsedQuery);
+            return Stream.of(ada);
+        });
+        when(template.prepare("select * from Person where name = :name", "Person")).thenReturn(prepare);
+        when(template.count(any(SelectQuery.class))).thenReturn(14L);
+
+        PageRequest pageRequest = PageRequest.ofPage(2, 5, true);
+        Page<Person> page = personRepository.pageJdql("Ada", pageRequest);
+
+        verify(template, Mockito.never()).count(any(SelectQuery.class));
+        assertThat(page.content()).containsExactly(ada);
+        assertEquals(14L, page.totalElements());
+        assertEquals(3L, page.totalPages());
+        assertTrue(page.hasTotals());
+
+        ArgumentCaptor<SelectQuery> countQuery = ArgumentCaptor.forClass(SelectQuery.class);
+        verify(template).count(countQuery.capture());
+        SelectQuery query = countQuery.getValue();
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(query.name()).isEqualTo("Person");
+            soft.assertThat(query.skip()).isEqualTo(5L);
+            soft.assertThat(query.limit()).isEqualTo(5L);
+            soft.assertThat(query.condition()).contains(CriteriaCondition.eq(Element.of("name", "Ada")));
+        });
+    }
+
+    @Test
+    public void shouldReturnLazyTotalsForDirectRepositoryFindAll() {
+        Person ada = Person.builder().age(20).name("Ada").build();
+        when(template.select(any(SelectQuery.class))).thenReturn(Stream.of(ada));
+        when(template.count(any(SelectQuery.class))).thenReturn(8L);
+        var repository = SemiStructuredRepositoryProxy.SemiStructuredRepository
+                .<Person, Long>of(template, entities.get(Person.class));
+
+        Page<Person> page = repository.findAll(PageRequest.ofPage(2, 3, true), Order.by(Sort.asc("name")));
+
+        verify(template, Mockito.never()).count(any(SelectQuery.class));
+        assertThat(page.content()).containsExactly(ada);
+        assertEquals(8L, page.totalElements());
+        assertEquals(3L, page.totalPages());
+        assertTrue(page.hasTotals());
+        verify(template).count(any(SelectQuery.class));
+    }
+
     private PageRequest getPageRequest() {
         return PageRequest.ofPage(2).size(6);
     }
@@ -807,6 +908,12 @@ public class RepositoryProxyPageRequestTest {
 
         @Find
         Page<Person> pageAll(PageRequest pageRequest, Sort<Person> order);
+
+        @Find
+        Page<Person> findPageByName(@By("name") String name, PageRequest pageRequest);
+
+        @Query("select * from Person where name = :name")
+        Page<Person> pageJdql(@Param("name") String name, PageRequest pageRequest);
         CursoredPage<Person> findByNameOrderByName(String name, PageRequest pageRequest);
 
         @Find

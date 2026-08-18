@@ -181,7 +181,7 @@ public abstract class BaseSemiStructuredRepository<T, K> extends AbstractReposit
     protected Function<PageRequest, Page<T>> getPage(org.eclipse.jnosql.communication.semistructured.SelectQuery query) {
         return p -> {
             Stream<T> entities = template().select(query);
-            return NoSQLPage.of(entities.toList(), p);
+            return NoSQLPage.of(entities.toList(), p, () -> template().count(query));
         };
     }
 

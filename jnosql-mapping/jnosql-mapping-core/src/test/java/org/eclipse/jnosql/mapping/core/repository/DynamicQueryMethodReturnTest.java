@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 class DynamicQueryMethodReturnTest {
@@ -267,6 +268,7 @@ class DynamicQueryMethodReturnTest {
     @Test
     void shouldReturnPage() throws NoSuchMethodException {
         PreparedStatement preparedStatement = Mockito.mock(PreparedStatement.class);
+        AtomicInteger totalInvocations = new AtomicInteger();
         Mockito.when(preparedStatement.<Person>result())
                 .thenReturn(Stream.of(new Person("Ada")));
 
@@ -279,6 +281,10 @@ class DynamicQueryMethodReturnTest {
                 .args(new Object[]{"Ada", PageRequest.ofPage(10)})
                 .prepareConverter(s -> preparedStatement)
                 .pageRequest(PageRequest.ofPage(10))
+                .totalSupplier(() -> {
+                    totalInvocations.incrementAndGet();
+                    return 23L;
+                })
                 .build();
         Object execute = dynamicReturn.execute();
         SoftAssertions.assertSoftly(soft -> {
@@ -286,6 +292,11 @@ class DynamicQueryMethodReturnTest {
             Page<Person> page = (Page<Person>) execute;
             soft.assertThat(page.content()).containsExactly(new Person("Ada"));
             soft.assertThat(page.pageRequest()).isEqualTo(PageRequest.ofPage(10));
+            soft.assertThat(totalInvocations).hasValue(0);
+            soft.assertThat(page.totalElements()).isEqualTo(23L);
+            soft.assertThat(page.totalPages()).isEqualTo(3L);
+            soft.assertThat(page.hasTotals()).isTrue();
+            soft.assertThat(totalInvocations).hasValue(1);
         });
     }
 
