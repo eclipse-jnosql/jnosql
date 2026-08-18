@@ -19,7 +19,7 @@ import org.eclipse.jnosql.communication.Settings;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.communication.keyvalue.BucketManagerFactory;
 import org.eclipse.jnosql.communication.keyvalue.KeyValueConfiguration;
-import org.eclipse.jnosql.mapping.core.config.MicroProfileSettings;
+import org.eclipse.jnosql.mapping.core.config.MappingSettingsProvider;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -44,7 +44,7 @@ class BucketManagerSupplier implements Supplier<BucketManager> {
     @ApplicationScoped
     public BucketManager get() {
 
-        Settings settings = MicroProfileSettings.INSTANCE;
+        Settings settings = MappingSettingsProvider.resolve();
 
         KeyValueConfiguration configuration = settings.get(KEY_VALUE_PROVIDER, Class.class)
                 .filter(KeyValueConfiguration.class::isAssignableFrom)

@@ -30,7 +30,7 @@ import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.IdNotFoundException;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
-import org.eclipse.jnosql.mapping.core.config.MicroProfileSettings;
+import org.eclipse.jnosql.mapping.core.config.MappingSettingsProvider;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
@@ -330,7 +330,8 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         requireNonNull(query, "query is required");
         requireNonNull(pageRequest, "pageRequest is required");
         LOGGER.finest(() -> "Executing query: " + query);
-        var enableMultipleSorting = MicroProfileSettings.INSTANCE.get(CURSOR_PAGINATION_MULTIPLE_SORTING, Boolean.class)
+        var enableMultipleSorting = MappingSettingsProvider.resolve()
+                .get(CURSOR_PAGINATION_MULTIPLE_SORTING, Boolean.class)
                 .orElse(false);
         LOGGER.finest(() -> "Cursor pagination with multiple sorting is enabled: " + enableMultipleSorting);
 
