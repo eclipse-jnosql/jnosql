@@ -14,6 +14,7 @@ package org.eclipse.jnosql.communication.query.method;
 import jakarta.data.Direction;
 import jakarta.data.Sort;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -671,6 +672,42 @@ class SelectMethodQueryProviderTest {
         checkNotCondition(query, operator, variable);
     }
 
+    @ParameterizedTest(name = "Should apply AND precedence before OR for {0}")
+    @ValueSource(strings = {"findByAAndBOrC", "countByAAndBOrC", "existsByAAndBOrC"})
+    void shouldApplyAndPrecedenceBeforeOr(String query) {
+        QueryCondition condition = queryProvider.apply(query, "entity").where().orElseThrow().condition();
+
+        assertConditionTree(condition, "OR(AND(EQUALS(a),EQUALS(b)),EQUALS(c))", List.of("a", "b", "c"));
+    }
+
+    @ParameterizedTest(name = "Should apply AND precedence after OR for {0}")
+    @ValueSource(strings = {"findByAOrBAndC", "countByAOrBAndC", "existsByAOrBAndC"})
+    void shouldApplyAndPrecedenceAfterOr(String query) {
+        QueryCondition condition = queryProvider.apply(query, "entity").where().orElseThrow().condition();
+
+        assertConditionTree(condition, "OR(EQUALS(a),AND(EQUALS(b),EQUALS(c)))", List.of("a", "b", "c"));
+    }
+
+    @ParameterizedTest(name = "Should apply AND precedence across chained conditions for {0}")
+    @ValueSource(strings = {"findByAAndBOrCAndDOrE", "countByAAndBOrCAndDOrE", "existsByAAndBOrCAndDOrE"})
+    void shouldApplyAndPrecedenceAcrossChainedConditions(String query) {
+        QueryCondition condition = queryProvider.apply(query, "entity").where().orElseThrow().condition();
+
+        assertConditionTree(condition, "OR(AND(EQUALS(a),EQUALS(b)),AND(EQUALS(c),EQUALS(d)),EQUALS(e))",
+                List.of("a", "b", "c", "d", "e"));
+    }
+
+    @ParameterizedTest(name = "Should extend the final AND group after OR for {0}")
+    @ValueSource(strings = {"findByAAndBOrCAndDAndEOrF", "countByAAndBOrCAndDAndEOrF",
+            "existsByAAndBOrCAndDAndEOrF"})
+    void shouldExtendFinalAndGroupAfterOr(String query) {
+        QueryCondition condition = queryProvider.apply(query, "entity").where().orElseThrow().condition();
+
+        assertConditionTree(condition,
+                "OR(AND(EQUALS(a),EQUALS(b)),AND(EQUALS(c),EQUALS(d),EQUALS(e)),EQUALS(f))",
+                List.of("a", "b", "c", "d", "e", "f"));
+    }
+
     private void checkOrderBy(String query, Direction direction, Direction direction2) {
         String entity = "entity";
         SelectQuery selectQuery = queryProvider.apply(query, entity);
@@ -731,6 +768,38 @@ class SelectMethodQueryProviderTest {
         QueryValue<?> param2 = condition2.value();
         assertEquals(condition2.condition(), operator2);
         assertTrue(ParamQueryValue.class.cast(param2).get().contains(variable2));
+    }
+
+    private void assertConditionTree(QueryCondition condition, String expectedTree, List<String> expectedParameters) {
+        assertEquals(expectedTree, conditionTree(condition));
+        List<String> parameters = new ArrayList<>();
+        collectParameters(condition, parameters);
+        assertEquals(expectedParameters, parameters);
+    }
+
+    private String conditionTree(QueryCondition condition) {
+        if (condition.value() instanceof ConditionQueryValue value) {
+            StringBuilder tree = new StringBuilder(condition.condition().name()).append('(');
+            List<QueryCondition> conditions = value.get();
+            for (int index = 0; index < conditions.size(); index++) {
+                if (index > 0) {
+                    tree.append(',');
+                }
+                tree.append(conditionTree(conditions.get(index)));
+            }
+            return tree.append(')').toString();
+        }
+        return condition.condition().name() + '(' + condition.name() + ')';
+    }
+
+    private void collectParameters(QueryCondition condition, List<String> parameters) {
+        if (condition.value() instanceof ConditionQueryValue value) {
+            value.get().forEach(child -> collectParameters(child, parameters));
+            return;
+        }
+        assertTrue(condition.value() instanceof ParamQueryValue);
+        String parameter = ParamQueryValue.class.cast(condition.value()).get();
+        parameters.add(parameter.substring(0, parameter.lastIndexOf('_')));
     }
 
 
