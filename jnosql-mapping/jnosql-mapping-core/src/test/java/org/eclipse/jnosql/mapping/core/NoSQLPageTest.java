@@ -60,6 +60,16 @@ class NoSQLPageTest {
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("entities is required");
         }
+
+        @DisplayName("Should reject null total supplier")
+        @Test
+        void shouldRejectNullTotalSupplier() {
+
+            assertThatThrownBy(() ->
+                    NoSQLPage.of(Collections.emptyList(), PageRequest.ofPage(1), null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessage("totalSupplier is required");
+        }
     }
 
     @Nested
@@ -83,7 +93,9 @@ class NoSQLPageTest {
             Page<Person> page = unsupportedTotalsPage();
 
             assertThatThrownBy(page::totalElements)
-                    .isInstanceOf(UnsupportedOperationException.class);
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Total elements were not retrieved for this page")
+                    .hasCauseInstanceOf(UnsupportedOperationException.class);
         }
 
         @DisplayName("Should execute supplier only once")
@@ -100,6 +112,8 @@ class NoSQLPageTest {
                         return 100L;
                     }
             );
+
+            assertThat(counter.get()).isZero();
 
             page.totalElements();
             page.totalElements();
@@ -142,6 +156,16 @@ class NoSQLPageTest {
                     .isZero();
         }
 
+        @DisplayName("Should calculate large totals without losing precision")
+        @Test
+        void shouldCalculateLargeTotalsWithoutLosingPrecision() {
+
+            Page<Person> page = pageWithTotals(Long.MAX_VALUE, 10);
+
+            assertThat(page.totalPages())
+                    .isEqualTo(Long.MAX_VALUE / 10 + 1);
+        }
+
         @DisplayName("Should throw exception when totals are unsupported")
         @Test
         void shouldThrowExceptionWhenTotalsAreUnsupported() {
@@ -149,7 +173,9 @@ class NoSQLPageTest {
             Page<Person> page = unsupportedTotalsPage();
 
             assertThatThrownBy(page::totalPages)
-                    .isInstanceOf(UnsupportedOperationException.class);
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Total elements were not retrieved for this page")
+                    .hasCauseInstanceOf(UnsupportedOperationException.class);
         }
     }
 
@@ -173,6 +199,57 @@ class NoSQLPageTest {
             Page<Person> page = unsupportedTotalsPage();
 
             assertThat(page.hasTotals()).isFalse();
+        }
+
+        @DisplayName("Should not execute supplier when totals were not requested")
+        @Test
+        void shouldNotExecuteSupplierWhenTotalsWereNotRequested() {
+
+            AtomicInteger counter = new AtomicInteger();
+            Page<Person> page = NoSQLPage.of(
+                    people(),
+                    PageRequest.ofPage(1).withoutTotal(),
+                    () -> {
+                        counter.incrementAndGet();
+                        return 10L;
+                    }
+            );
+
+            assertThat(page.hasTotals()).isFalse();
+            assertThat(page.hasNext()).isFalse();
+            assertThatThrownBy(page::totalElements)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Total elements were not retrieved for this page");
+            assertThatThrownBy(page::totalPages)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Total elements were not retrieved for this page");
+            assertThat(counter.get()).isZero();
+        }
+
+        @DisplayName("Should cache an unsupported provider result")
+        @Test
+        void shouldCacheUnsupportedProviderResult() {
+
+            AtomicInteger counter = new AtomicInteger();
+            UnsupportedOperationException providerFailure =
+                    new UnsupportedOperationException("Count is not supported");
+            Page<Person> page = NoSQLPage.of(
+                    people(),
+                    PageRequest.ofPage(1),
+                    () -> {
+                        counter.incrementAndGet();
+                        throw providerFailure;
+                    }
+            );
+
+            assertThat(page.hasTotals()).isFalse();
+            assertThatThrownBy(page::totalElements)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasCause(providerFailure);
+            assertThatThrownBy(page::totalPages)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasCause(providerFailure);
+            assertThat(counter.get()).isEqualTo(1);
         }
     }
 
@@ -316,6 +393,27 @@ class NoSQLPageTest {
             PageRequest next = page.nextPageRequest();
 
             assertThat(next.page()).isEqualTo(2);
+        }
+
+        @DisplayName("Should reject navigation from a short page without totals")
+        @Test
+        void shouldRejectNavigationFromShortPageWithoutTotals() {
+
+            AtomicInteger counter = new AtomicInteger();
+            Page<Person> page = NoSQLPage.of(
+                    people(),
+                    PageRequest.ofPage(1).size(10).withoutTotal(),
+                    () -> {
+                        counter.incrementAndGet();
+                        return 30L;
+                    }
+            );
+
+            assertThat(page.hasNext()).isFalse();
+            assertThatThrownBy(page::nextPageRequest)
+                    .isInstanceOf(NoSuchElementException.class)
+                    .hasMessageContaining("Current page: 1");
+            assertThat(counter.get()).isZero();
         }
     }
 

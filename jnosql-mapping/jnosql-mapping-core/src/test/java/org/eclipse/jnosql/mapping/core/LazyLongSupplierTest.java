@@ -25,9 +25,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.LongSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
 class LazyLongSupplierTest {
+
+    @DisplayName("Should reject null delegate")
+    @Test
+    void shouldRejectNullDelegate() {
+
+        assertThatThrownBy(() -> LazyLongSupplier.of(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("delegate is required");
+    }
 
     @Nested
     @DisplayName("getAsLong")
@@ -211,6 +221,26 @@ class LazyLongSupplierTest {
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessage("Database failure");
 
+            assertThat(counter.get()).isEqualTo(1);
+        }
+
+        @DisplayName("Should cache error")
+        @Test
+        void shouldCacheError() {
+
+            AtomicInteger counter = new AtomicInteger();
+            AssertionError failure = new AssertionError("Database failure");
+            LongSupplier delegate = () -> {
+                counter.incrementAndGet();
+                throw failure;
+            };
+            LazyLongSupplier supplier = LazyLongSupplier.of(delegate);
+
+            Throwable first = catchThrowable(supplier::getAsLong);
+            Throwable second = catchThrowable(supplier::getAsLong);
+
+            assertThat(first).isSameAs(failure);
+            assertThat(second).isSameAs(failure);
             assertThat(counter.get()).isEqualTo(1);
         }
 
