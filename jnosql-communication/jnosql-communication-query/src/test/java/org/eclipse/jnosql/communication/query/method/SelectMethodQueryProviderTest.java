@@ -687,6 +687,57 @@ class SelectMethodQueryProviderTest {
 
     }
 
+    @Nested
+    @DisplayName("When parsing mixed logical predicates")
+    class WhenTheMixedLogicalPredicatesAreParsed {
+
+        @ParameterizedTest(name = "{0}ByNameAndAgeOrCity")
+        @ValueSource(strings = {"find", "count", "exists"})
+        @DisplayName("Should apply AND before OR when the conjunction comes first")
+        void shouldApplyAndBeforeOrWhenTheConjunctionComesFirst(String operation) {
+            // Given
+            String query = operation + "ByNameAndAgeOrCity";
+
+            // When
+            QueryCondition condition = queryProvider.apply(query, "entity")
+                    .where().orElseThrow().condition();
+
+            // Then
+            assertConditionTree(condition, "OR(AND(name,age),city)", "name", "age", "city");
+        }
+
+        @ParameterizedTest(name = "{0}ByNameOrAgeAndCity")
+        @ValueSource(strings = {"find", "count", "exists"})
+        @DisplayName("Should apply AND before OR when the conjunction comes last")
+        void shouldApplyAndBeforeOrWhenTheConjunctionComesLast(String operation) {
+            // Given
+            String query = operation + "ByNameOrAgeAndCity";
+
+            // When
+            QueryCondition condition = queryProvider.apply(query, "entity")
+                    .where().orElseThrow().condition();
+
+            // Then
+            assertConditionTree(condition, "OR(name,AND(age,city))", "name", "age", "city");
+        }
+
+        @ParameterizedTest(name = "{0}ByNameAndAgeOrCityAndActiveAndEnabledOrEmail")
+        @ValueSource(strings = {"find", "count", "exists"})
+        @DisplayName("Should keep chained OR branches and their AND groups in lexical order")
+        void shouldKeepChainedBranchesInLexicalOrder(String operation) {
+            // Given
+            String query = operation + "ByNameAndAgeOrCityAndActiveAndEnabledOrEmail";
+
+            // When
+            QueryCondition condition = queryProvider.apply(query, "entity")
+                    .where().orElseThrow().condition();
+
+            // Then
+            assertConditionTree(condition, "OR(AND(name,age),AND(city,active,enabled),email)",
+                    "name", "age", "city", "active", "enabled", "email");
+        }
+    }
+
     /*
      Converts from comma-separated values (space around commas is ignored) to an array of Condition instances,
      using Condition.valueOf
@@ -902,6 +953,48 @@ class SelectMethodQueryProviderTest {
                 assertThat(ParamQueryValue.class.cast(value).get().contains(variable)).isTrue();
             }
         }
+    }
+
+    static void assertConditionTree(QueryCondition condition, String expectedTree, String... expectedLeaves) {
+        List<QueryCondition> leaves = leafConditions(condition);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(conditionTree(condition))
+                    .as("logical condition tree")
+                    .isEqualTo(expectedTree);
+            softly.assertThat(leaves)
+                    .as("logical leaves in lexical order")
+                    .extracting(QueryCondition::name)
+                    .containsExactly(expectedLeaves);
+
+            for (int index = 0; index < expectedLeaves.length; index++) {
+                String expectedLeaf = expectedLeaves[index];
+                softly.assertThat(leaves.get(index).value())
+                        .as("value for leaf %s", expectedLeaf)
+                        .isInstanceOf(ParamQueryValue.class);
+                softly.assertThat(ParamQueryValue.class.cast(leaves.get(index).value()).get())
+                        .as("parameter for leaf %s at index %s", expectedLeaf, index)
+                        .startsWith(expectedLeaf + "_");
+            }
+        });
+    }
+
+    private static String conditionTree(QueryCondition condition) {
+        if (Condition.AND.equals(condition.condition()) || Condition.OR.equals(condition.condition())) {
+            return condition.condition().name() + ConditionQueryValue.class.cast(condition.value()).get().stream()
+                    .map(SelectMethodQueryProviderTest::conditionTree)
+                    .collect(java.util.stream.Collectors.joining(",", "(", ")"));
+        }
+        return condition.name();
+    }
+
+    private static List<QueryCondition> leafConditions(QueryCondition condition) {
+        if (Condition.AND.equals(condition.condition()) || Condition.OR.equals(condition.condition())) {
+            return ConditionQueryValue.class.cast(condition.value()).get().stream()
+                    .flatMap(child -> leafConditions(child).stream())
+                    .toList();
+        }
+        return List.of(condition);
     }
 
 

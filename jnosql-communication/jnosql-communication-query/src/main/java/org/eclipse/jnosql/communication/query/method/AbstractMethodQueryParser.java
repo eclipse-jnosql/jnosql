@@ -30,7 +30,6 @@ import org.eclipse.jnosql.query.grammar.method.MethodLexer;
 import org.eclipse.jnosql.query.grammar.method.MethodParser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -238,14 +237,6 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
     }
 
 
-    private boolean isAppendable(QueryCondition condition) {
-        return (AND.equals(condition.condition()) || OR.equals(condition.condition()));
-    }
-
-    private boolean isNotAppendable() {
-        return !isAppendable(this.condition);
-    }
-
     private QueryCondition checkNotCondition(QueryCondition condition, boolean hasNot) {
         if (hasNot) {
             ConditionQueryValue conditions = ConditionQueryValue.of(Collections.singletonList(condition));
@@ -256,40 +247,30 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
     }
 
     private void appendCondition(Condition operator, QueryCondition newCondition) {
-
         if (operator.equals(this.condition.condition())) {
-            ConditionQueryValue conditionValue = ConditionQueryValue.class.cast(this.condition.value());
-            List<QueryCondition> conditions = new ArrayList<>(conditionValue.get());
-            conditions.add(newCondition);
-            this.condition = new MethodCondition(SUB_ENTITY_FLAG + operator.name(), operator, ConditionQueryValue.of(conditions));
-        } else if (isNotAppendable()) {
-            List<QueryCondition> conditions = Arrays.asList(this.condition, newCondition);
-            this.condition = new MethodCondition(SUB_ENTITY_FLAG + operator.name(), operator, ConditionQueryValue.of(conditions));
+            this.condition = appendTo(this.condition, newCondition);
+        } else if (OR.equals(operator)) {
+            this.condition = group(OR, List.of(this.condition, newCondition));
+        } else if (!OR.equals(this.condition.condition())) {
+            this.condition = group(AND, List.of(this.condition, newCondition));
         } else {
-            List<QueryCondition> conditions = ConditionQueryValue.class.cast(this.condition.value()).get();
+            List<QueryCondition> conditions = new ArrayList<>(ConditionQueryValue.class.cast(this.condition.value()).get());
             QueryCondition lastCondition = conditions.getLast();
-
-            if (isAppendable(lastCondition) && Condition.EQUALS.equals(lastCondition.condition())) {
-                List<QueryCondition> lastConditions = new ArrayList<>(ConditionQueryValue.class.cast(lastCondition.value()).get());
-                lastConditions.add(newCondition);
-
-                QueryCondition newAppendable = new MethodCondition(SUB_ENTITY_FLAG + operator.name(),
-                        operator, ConditionQueryValue.of(lastConditions));
-
-                List<QueryCondition> newConditions = new ArrayList<>(conditions.subList(0, conditions.size() - 1));
-                newConditions.add(newAppendable);
-                this.condition = new MethodCondition(this.condition.name(), this.condition.condition(),
-                        ConditionQueryValue.of(newConditions));
-            } else {
-                QueryCondition newAppendable = new MethodCondition(SUB_ENTITY_FLAG + operator.name(),
-                        operator, ConditionQueryValue.of(Collections.singletonList(newCondition)));
-
-                List<QueryCondition> newConditions = new ArrayList<>(conditions);
-                newConditions.add(newAppendable);
-                this.condition = new MethodCondition(this.condition.name(), this.condition.condition(),
-                        ConditionQueryValue.of(newConditions));
-            }
-
+            QueryCondition lastGroup = AND.equals(lastCondition.condition())
+                    ? appendTo(lastCondition, newCondition)
+                    : group(AND, List.of(lastCondition, newCondition));
+            conditions.set(conditions.size() - 1, lastGroup);
+            this.condition = group(OR, conditions);
         }
+    }
+
+    private QueryCondition appendTo(QueryCondition currentCondition, QueryCondition newCondition) {
+        List<QueryCondition> conditions = new ArrayList<>(ConditionQueryValue.class.cast(currentCondition.value()).get());
+        conditions.add(newCondition);
+        return group(currentCondition.condition(), conditions);
+    }
+
+    private QueryCondition group(Condition operator, List<QueryCondition> conditions) {
+        return new MethodCondition(SUB_ENTITY_FLAG + operator.name(), operator, ConditionQueryValue.of(conditions));
     }
 }
