@@ -14,91 +14,121 @@
  */
 package org.eclipse.jnosql.mapping.semistructured.repository;
 
-import jakarta.inject.Inject;
-import org.assertj.core.api.Assertions;
-import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.reflection.Reflections;
-import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
-import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
-import org.eclipse.jnosql.mapping.semistructured.MockProducer;
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.InterceptionFactory;
+import org.eclipse.jnosql.mapping.core.repository.CoreRepositoryInvocationHandler;
+import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.query.Tasks;
-import org.eclipse.jnosql.mapping.semistructured.repository.entities.ComicBookRepository;
-import org.jboss.weld.junit5.auto.AddExtensions;
-import org.jboss.weld.junit5.auto.AddPackages;
-import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.ArgumentCaptor;
+
+import java.lang.reflect.Proxy;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@EnableAutoWeld
-@AddPackages(value = {Converters.class, EntityConverter.class})
-@AddPackages(MockProducer.class)
-@AddPackages(Reflections.class)
-@AddExtensions({ReflectionEntityMetadataExtension.class})
+@DisplayName("SemistructuredRepositoryProducer")
 class SemistructuredRepositoryProducerTest {
 
-    @Inject
+    private final EntitiesMetadata entities = mock(EntitiesMetadata.class);
+    private final InfrastructureOperatorProvider infrastructureOperatorProvider =
+            mock(InfrastructureOperatorProvider.class);
+    private final SemistructuredRepositoryOperationProvider operationProvider =
+            mock(SemistructuredRepositoryOperationProvider.class);
+    private final RepositoriesMetadata repositoriesMetadata = mock(RepositoriesMetadata.class);
+    private final LifecycleEventHandler lifecycleEventHandler = mock(LifecycleEventHandler.class);
+    private final BeanManager beanManager = mock(BeanManager.class);
+    private final CreationalContext<Tasks> creationalContext = mock(CreationalContext.class);
+    private final InterceptionFactory<Tasks> interceptionFactory = mock(InterceptionFactory.class);
+    private final SemiStructuredTemplate template = mock(SemiStructuredTemplate.class);
+    private final RepositoryMetadata repositoryMetadata = mock(RepositoryMetadata.class);
+    private final EntityMetadata entityMetadata = mock(EntityMetadata.class);
+
     private SemistructuredRepositoryProducer producer;
 
-    private SemiStructuredTemplate semiStructuredTemplate;
-
     @BeforeEach
-    void setUP() {
-        this.semiStructuredTemplate = Mockito.mock(SemiStructuredTemplate.class);
+    void setUp() {
+        producer = new SemistructuredRepositoryProducer(entities,
+                infrastructureOperatorProvider,
+                operationProvider,
+                repositoriesMetadata,
+                lifecycleEventHandler,
+                beanManager);
     }
-
-    @DisplayName("Should return instance")
-    @Test
-    void shouldReturnInstance() {
-        Assertions.assertThat(producer).isNotNull();
-    }
-
-
-    @DisplayName("Should return error when template is null")
-    @Test
-    void shouldReturnErrorWhenTemplateIsNull() {
-        Assertions.assertThatThrownBy(() -> producer.get(Tasks.class, null))
-                .isInstanceOf(NullPointerException.class);
-    }
-
-    @DisplayName("Should return error when repository class is null")
-    @Test
-    void shouldReturnErrorWhenRepositoryClassIsNull() {
-        Assertions.assertThatThrownBy(() -> producer.get(null, semiStructuredTemplate))
-                .isInstanceOf(NullPointerException.class);
-    }
-
-    @DisplayName("Should instance default constructor")
-    @Test
-    void shouldInstanceDefaultConstructor() {
-        SemistructuredRepositoryProducer producer = new SemistructuredRepositoryProducer();
-        Assertions.assertThat(producer).isNotNull();
-    }
-
-
-    @DisplayName("Should return custom repository instance")
-    @Test
-    void shouldReturnCustomRepositoryInstance() {
-        var repository = producer.get(Tasks.class, semiStructuredTemplate);
-        Assertions.assertThat(repository).isNotNull();
-    }
-
-    @DisplayName("Should return repository instance")
-    @Test
-    void shouldReturnRepositoryInstance() {
-        var repository = producer.get(ComicBookRepository.class, semiStructuredTemplate);
-        Assertions.assertThat(repository).isNotNull();
-    }
-
 
     @Nested
-    @DisplayName("When the semistructured repository producer is tested")
-    class WhenTheSemistructuredRepositoryProducerIsTested {
+    @DisplayName("when validating repository creation arguments")
+    class Validation {
+
+        @Test
+        @DisplayName("throws NullPointerException when the repository class is null")
+        void shouldRejectNullRepositoryClass() {
+            assertThatThrownBy(() -> producer.get(null, template))
+                    .isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        @DisplayName("throws NullPointerException when the template is null")
+        void shouldRejectNullTemplate() {
+            assertThatThrownBy(() -> producer.get(Tasks.class, null))
+                    .isInstanceOf(NullPointerException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("when repository metadata is resolved")
+    class ProxyCreation {
+
+        @BeforeEach
+        void setUpMetadata() {
+            when(repositoriesMetadata.get(Tasks.class)).thenReturn(Optional.of(repositoryMetadata));
+            when(repositoryMetadata.entity()).thenReturn(Optional.of(Object.class));
+            when(entities.get(Object.class)).thenReturn(entityMetadata);
+        }
+
+        @Test
+        @DisplayName("returns the repository instance created by CDI interception")
+        void shouldCreateCdiInterceptedRepository() {
+            Tasks expected = mock(Tasks.class);
+            doReturn(creationalContext).when(beanManager).createCreationalContext(null);
+            doReturn(interceptionFactory).when(beanManager)
+                    .createInterceptionFactory(creationalContext, Tasks.class);
+            when(interceptionFactory.createInterceptedInstance(any())).thenReturn(expected);
+
+            Tasks result = producer.get(Tasks.class, template);
+
+            ArgumentCaptor<Tasks> repositoryCaptor = ArgumentCaptor.forClass(Tasks.class);
+            verify(interceptionFactory).createInterceptedInstance(repositoryCaptor.capture());
+            assertThat(Proxy.getInvocationHandler(repositoryCaptor.getValue()))
+                    .isInstanceOf(CoreRepositoryInvocationHandler.class);
+            assertThat(result).isSameAs(expected);
+        }
+    }
+
+    @Nested
+    @DisplayName("when instantiated for CDI proxying")
+    class Construction {
+
+        @Test
+        @DisplayName("provides a no-argument constructor")
+        void shouldProvideDefaultConstructor() {
+            assertThat(new SemistructuredRepositoryProducer()).isNotNull();
+        }
     }
 }
