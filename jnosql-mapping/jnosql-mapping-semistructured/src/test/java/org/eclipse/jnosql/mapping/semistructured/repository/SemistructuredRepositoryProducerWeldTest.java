@@ -26,6 +26,7 @@ import jakarta.interceptor.InvocationContext;
 import jakarta.nosql.Column;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Id;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -48,8 +49,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,7 +63,8 @@ import static org.mockito.Mockito.when;
 @AddBeanClasses({
         SemistructuredRepositoryProducerWeldTest.RepositoryBeans.class,
         SemistructuredRepositoryProducerWeldTest.InvocationCounter.class,
-        SemistructuredRepositoryProducerWeldTest.RepositoryInterceptor.class
+        SemistructuredRepositoryProducerWeldTest.RepositoryInterceptor.class,
+        SemistructuredRepositoryProducerWeldTest.MethodInterceptor.class
 })
 @DisplayName("SemistructuredRepositoryProducer with Weld")
 class SemistructuredRepositoryProducerWeldTest {
@@ -77,22 +81,77 @@ class SemistructuredRepositoryProducerWeldTest {
     @BeforeEach
     void setUp() {
         invocationCounter.reset();
+        reset(template);
     }
 
     @Nested
-    @DisplayName("when CDI injects a repository")
-    class RepositoryInjection {
+    @DisplayName("When invoking an injected repository")
+    class WhenTheRepositoryInvocation {
 
         @Test
-        @DisplayName("executes repository operations through the CDI interceptor")
-        void shouldExecuteRepositoryThroughInterceptor() {
+        @DisplayName("Should apply the repository interceptor")
+        void shouldApplyRepositoryInterceptor() {
             when(template.count(WeldEntity.class)).thenReturn(1L);
 
             long result = repository.countAll();
 
-            assertThat(result).isEqualTo(1L);
-            assertThat(invocationCounter.value()).isEqualTo(1);
+            assertSoftly(softly -> {
+                softly.assertThat(result).as("repository result").isEqualTo(1L);
+                softly.assertThat(invocationCounter.repositoryInvocations())
+                        .as("repository interceptor invocations")
+                        .isEqualTo(1);
+            });
             verify(template).count(WeldEntity.class);
+        }
+
+        @Test
+        @DisplayName("Should apply the method interceptor")
+        void shouldApplyMethodInterceptor() {
+            when(template.count(any(SelectQuery.class))).thenReturn(2L);
+
+            long result = repository.countByName("Ada");
+
+            assertSoftly(softly -> {
+                softly.assertThat(result).as("repository result").isEqualTo(2L);
+                softly.assertThat(invocationCounter.methodInvocations())
+                        .as("method interceptor invocations")
+                        .isEqualTo(1);
+            });
+            verify(template).count(any(SelectQuery.class));
+        }
+
+        @Test
+        @DisplayName("Should apply both repository and method interceptors")
+        void shouldApplyBothInterceptors() {
+            when(template.count(any(SelectQuery.class))).thenReturn(2L);
+
+            repository.countByName("Ada");
+
+            assertSoftly(softly -> {
+                softly.assertThat(invocationCounter.repositoryInvocations())
+                        .as("repository interceptor invocations")
+                        .isEqualTo(1);
+                softly.assertThat(invocationCounter.methodInvocations())
+                        .as("method interceptor invocations")
+                        .isEqualTo(1);
+            });
+        }
+
+        @Test
+        @DisplayName("Should not apply the method interceptor without its binding")
+        void shouldNotApplyMethodInterceptorWithoutBinding() {
+            when(template.count(WeldEntity.class)).thenReturn(1L);
+
+            repository.countAll();
+
+            assertSoftly(softly -> {
+                softly.assertThat(invocationCounter.repositoryInvocations())
+                        .as("repository interceptor invocations")
+                        .isEqualTo(1);
+                softly.assertThat(invocationCounter.methodInvocations())
+                        .as("method interceptor invocations")
+                        .isZero();
+            });
         }
     }
 
@@ -101,6 +160,9 @@ class SemistructuredRepositoryProducerWeldTest {
     interface WeldRepository extends NoSQLRepository<WeldEntity, String> {
 
         long countAll();
+
+        @MethodIntercepted
+        long countByName(String name);
     }
 
     @Entity
@@ -114,6 +176,12 @@ class SemistructuredRepositoryProducerWeldTest {
     @interface RepositoryIntercepted {
     }
 
+    @InterceptorBinding
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE, ElementType.METHOD})
+    @interface MethodIntercepted {
+    }
+
     @RepositoryIntercepted
     @Interceptor
     @Priority(Interceptor.Priority.APPLICATION)
@@ -124,7 +192,22 @@ class SemistructuredRepositoryProducerWeldTest {
 
         @AroundInvoke
         Object intercept(InvocationContext context) throws Exception {
-            counter.increment();
+            counter.incrementRepository();
+            return context.proceed();
+        }
+    }
+
+    @MethodIntercepted
+    @Interceptor
+    @Priority(Interceptor.Priority.APPLICATION + 1)
+    static class MethodInterceptor {
+
+        @Inject
+        private InvocationCounter counter;
+
+        @AroundInvoke
+        Object intercept(InvocationContext context) throws Exception {
+            counter.incrementMethod();
             return context.proceed();
         }
     }
@@ -132,18 +215,28 @@ class SemistructuredRepositoryProducerWeldTest {
     @ApplicationScoped
     static class InvocationCounter {
 
-        private final AtomicInteger counter = new AtomicInteger();
+        private final AtomicInteger repositoryCounter = new AtomicInteger();
+        private final AtomicInteger methodCounter = new AtomicInteger();
 
-        void increment() {
-            counter.incrementAndGet();
+        void incrementRepository() {
+            repositoryCounter.incrementAndGet();
         }
 
-        int value() {
-            return counter.get();
+        void incrementMethod() {
+            methodCounter.incrementAndGet();
+        }
+
+        int repositoryInvocations() {
+            return repositoryCounter.get();
+        }
+
+        int methodInvocations() {
+            return methodCounter.get();
         }
 
         void reset() {
-            counter.set(0);
+            repositoryCounter.set(0);
+            methodCounter.set(0);
         }
     }
 
