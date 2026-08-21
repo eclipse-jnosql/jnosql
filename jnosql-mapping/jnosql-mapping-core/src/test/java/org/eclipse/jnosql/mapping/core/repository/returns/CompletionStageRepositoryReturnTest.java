@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class CompletionStageRepositoryReturnTest {
@@ -43,22 +43,17 @@ class CompletionStageRepositoryReturnTest {
     @Test
     @DisplayName("Should return true when return type is CompletionStage")
     void shouldReturnIsCompatible() {
-        assertSoftly(softly -> {
-            softly.assertThat(repositoryReturn.isCompatible(
-                            Person.class, CompletionStage.class))
-                    .as("CompletionStage return type is compatible")
-                    .isTrue();
+        assertThat(repositoryReturn.isCompatible(
+                Person.class, CompletionStage.class))
+                .isTrue();
 
-            softly.assertThat(repositoryReturn.isCompatible(
-                            Object.class, Person.class))
-                    .as("different entity and return types are incompatible")
-                    .isFalse();
+        assertThat(repositoryReturn.isCompatible(
+                Object.class, Person.class))
+                .isFalse();
 
-            softly.assertThat(repositoryReturn.isCompatible(
-                            Person.class, Object.class))
-                    .as("different return type is incompatible")
-                    .isFalse();
-        });
+        assertThat(repositoryReturn.isCompatible(
+                Person.class, Object.class))
+                .isFalse();
     }
 
     @Test
@@ -76,15 +71,11 @@ class CompletionStageRepositoryReturnTest {
         CompletionStage<Person> result =
                 (CompletionStage<Person>) repositoryReturn.convert(dynamic);
 
-        assertSoftly(softly -> {
-            softly.assertThat(result)
-                    .as("repository result")
-                    .isNotNull();
+        assertThat(result)
+                .isNotNull();
 
-            softly.assertThat(result.toCompletableFuture().join())
-                    .as("completion stage value")
-                    .isEqualTo(ada);
-        });
+        assertThat(result.toCompletableFuture().join())
+                .isEqualTo(ada);
     }
 
     @Test
@@ -107,15 +98,11 @@ class CompletionStageRepositoryReturnTest {
                 (CompletionStage<Person>)
                         repositoryReturn.convertPageRequest(dynamic);
 
-        assertSoftly(softly -> {
-            softly.assertThat(result)
-                    .as("repository page result")
-                    .isNotNull();
+        assertThat(result)
+                .isNotNull();
 
-            softly.assertThat(result.toCompletableFuture().join())
-                    .as("completion stage page value")
-                    .isEqualTo(ada);
-        });
+        assertThat(result.toCompletableFuture().join())
+                .isEqualTo(ada);
     }
 
     private interface PersonRepository {
