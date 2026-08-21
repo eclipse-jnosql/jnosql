@@ -14,9 +14,9 @@
  */
 package org.eclipse.jnosql.mapping.metadata;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -40,25 +40,33 @@ import static org.mockito.Mockito.mock;
  */
 class ConstructorBuilderTcclFallbackTest {
 
-    @Test
-    void shouldFallBackToDefiningClassLoaderWhenTcclCannotSeeProvider() {
-        ClassLoader original = Thread.currentThread().getContextClassLoader();
+    @Nested
+    @DisplayName("When loading the ConstructorBuilder supplier")
+    class WhenTheConstructorBuilderSupplierIsLoaded {
 
-        try {
+        @Test
+        @DisplayName("Should fall back to the defining class loader when the TCCL cannot find the provider")
+        void shouldFallBackToDefiningClassLoaderWhenTcclCannotFindProvider() {
+            // Given
+            ClassLoader original = Thread.currentThread().getContextClassLoader();
             ClassLoader isolated = new ClassLoader(null) {
             };
-            Thread.currentThread().setContextClassLoader(isolated);
-
             ConstructorMetadata metadata = mock(ConstructorMetadata.class);
 
-            // First-ever touch of ConstructorBuilder in this JVM fork.
-            // The TCCL cannot see the provider, so this must fall back
-            // to ConstructorBuilder.class.getClassLoader() to succeed.
-            ConstructorBuilder builder = ConstructorBuilder.of(metadata);
+            try {
+                Thread.currentThread().setContextClassLoader(isolated);
 
-            assertThat(builder).isNotNull();
-        } finally {
-            Thread.currentThread().setContextClassLoader(original);
+                // When
+                // First-ever touch of ConstructorBuilder in this JVM fork.
+                // The TCCL cannot see the provider, so this must fall back
+                // to ConstructorBuilder.class.getClassLoader() to succeed.
+                ConstructorBuilder builder = ConstructorBuilder.of(metadata);
+
+                // Then
+                assertThat(builder).isNotNull();
+            } finally {
+                Thread.currentThread().setContextClassLoader(original);
+            }
         }
     }
 }
