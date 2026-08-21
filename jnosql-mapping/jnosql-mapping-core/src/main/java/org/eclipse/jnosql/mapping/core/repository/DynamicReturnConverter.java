@@ -11,6 +11,8 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *
+ *   Mohan Lal
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
@@ -51,11 +53,8 @@ public enum DynamicReturnConverter {
         Class<?> typeClass = dynamic.typeClass();
         Class<?> returnType = method.getReturnType();
 
-        RepositoryReturn repositoryReturn = repositoryReturns
-                .stream()
-                .map(RepositoryReturn.class::cast)
-                .filter(r -> r.isCompatible(typeClass, returnType))
-                .findFirst().orElse(defaultReturn);
+        RepositoryReturn repositoryReturn =
+                findRepositoryReturn(typeClass, returnType);
 
         if (dynamic.hasPagination()) {
             return repositoryReturn.convertPageRequest(dynamic);
@@ -133,6 +132,17 @@ public enum DynamicReturnConverter {
         }
 
         return false;
+    }
+
+    public RepositoryReturn findRepositoryReturn(
+            Class<?> entity, Class<?> returnType) {
+
+        return repositoryReturns
+                .stream()
+                .filter(repositoryReturn ->
+                        repositoryReturn.isCompatible(entity, returnType))
+                .findFirst()
+                .orElse(defaultReturn);
     }
 
     private static boolean isIdentifierStart(final char ch) {
