@@ -61,7 +61,8 @@ class BaseRepositoryBeanTest {
         CreationalContext<MockRepository> context = mock(CreationalContext.class);
         BaseRepositoryBean<MockRepository> spyBean = spy(repositoryBean);
         SemistructuredRepositoryProducer producer = mock(SemistructuredRepositoryProducer.class);
-        Mockito.when(producer.get(eq(MockRepository.class), Mockito.any())).thenReturn(Mockito.mock(MockRepository.class));
+        Mockito.when(producer.get(eq(MockRepository.class), Mockito.any(), eq(context)))
+                .thenReturn(Mockito.mock(MockRepository.class));
 
         doReturn(mock(SemiStructuredTemplate.class)).when(spyBean).getInstance(eq(SemiStructuredTemplate.class), any());
         doReturn(mock(EntitiesMetadata.class)).when(spyBean).getInstance(EntitiesMetadata.class);
