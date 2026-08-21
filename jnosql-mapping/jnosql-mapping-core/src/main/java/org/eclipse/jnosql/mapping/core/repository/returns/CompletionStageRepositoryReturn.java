@@ -23,8 +23,16 @@ import java.lang.reflect.Type;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+/**
+ * A {@link RepositoryReturn} implementation that wraps repository results
+ * in a {@link CompletionStage}.
+ *
+ * <p>The repository method's generic return type determines the underlying
+ * repository return strategy. For example, {@code CompletionStage<Person>}
+ * uses the {@code Person} return strategy, while
+ * {@code CompletionStage<List<Person>>} uses the {@code List} return strategy.</p>
+ */
 public class CompletionStageRepositoryReturn implements RepositoryReturn {
-
     @Override
     public boolean isCompatible(Class<?> entity, Class<?> returnType) {
         return CompletionStage.class.equals(returnType);
