@@ -101,8 +101,8 @@ class CustomRepositoryBeanTest {
 
         SemiStructuredTemplate mockTemplate = mock(SemiStructuredTemplate.class);
         SemistructuredRepositoryProducer producer = mock(SemistructuredRepositoryProducer.class);
-        Mockito.when(producer.get(eq(BaseRepositoryBeanTest.MockRepository.class), Mockito.any()))
-                .thenReturn(Mockito.mock(BaseRepositoryBeanTest.MockRepository.class));
+        Mockito.when(producer.get(eq(MockRepository.class), Mockito.any(), eq(context)))
+                .thenReturn(Mockito.mock(MockRepository.class));
 
         doReturn(producer).when(repositoryBean).getInstance(eq(SemistructuredRepositoryProducer.class), any());
         doReturn(producer).when(repositoryBean).getInstance(eq(SemistructuredRepositoryProducer.class));
