@@ -24,15 +24,20 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /**
- * A {@link RepositoryReturn} implementation that wraps repository results
- * in a {@link CompletionStage}.
+ * A repository return strategy that supports repository methods returning
+ * {@link CompletionStage}.
  *
- * <p>The repository method's generic return type determines the underlying
- * repository return strategy. For example, {@code CompletionStage<Person>}
- * uses the {@code Person} return strategy, while
- * {@code CompletionStage<List<Person>>} uses the {@code List} return strategy.</p>
+ * <p>The generic type declared by the {@link CompletionStage} determines
+ * the repository return strategy used to convert the underlying result.
+ * For example, {@code CompletionStage<Person>} uses the repository return
+ * strategy for {@code Person}, while {@code CompletionStage<List<Person>>}
+ * uses the repository return strategy for {@code List}.</p>
+ *
+ * <p>The converted result is wrapped in a completed
+ * {@link CompletableFuture}.</p>
  */
 public class CompletionStageRepositoryReturn implements RepositoryReturn {
+
     @Override
     public boolean isCompatible(Class<?> entity, Class<?> returnType) {
         return CompletionStage.class.equals(returnType);
@@ -45,7 +50,8 @@ public class CompletionStageRepositoryReturn implements RepositoryReturn {
 
     @Override
     public <T> Object convertPageRequest(DynamicReturn<T> dynamicReturn) {
-        return CompletableFuture.completedFuture(convertPageResult(dynamicReturn));
+        return CompletableFuture.completedFuture(
+                convertPageResult(dynamicReturn));
     }
 
     private <T> Object convertResult(DynamicReturn<T> dynamicReturn) {

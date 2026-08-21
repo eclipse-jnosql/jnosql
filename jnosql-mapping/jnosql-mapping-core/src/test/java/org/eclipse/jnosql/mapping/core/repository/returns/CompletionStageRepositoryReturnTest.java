@@ -18,18 +18,18 @@ import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 class CompletionStageRepositoryReturnTest {
@@ -42,20 +42,38 @@ class CompletionStageRepositoryReturnTest {
 
     @Test
     void shouldReturnIsCompatible() {
-        Assertions.assertTrue(
-                repositoryReturn.isCompatible(Person.class, CompletionStage.class));
-        assertFalse(repositoryReturn.isCompatible(Object.class, Person.class));
-        assertFalse(repositoryReturn.isCompatible(Person.class, Object.class));
+        assertTrue(repositoryReturn.isCompatible(
+                Person.class, CompletionStage.class));
+        assertFalse(repositoryReturn.isCompatible(
+                Object.class, Person.class));
+        assertFalse(repositoryReturn.isCompatible(
+                Person.class, Object.class));
     }
 
     @Test
     void shouldReturnCompletionStage() throws NoSuchMethodException {
-        Method method = PersonRepository.class.getMethod("getPerson");
         Person ada = new Person("Ada");
 
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(method)
+                .methodSource(PersonRepository.class.getMethod("getPerson"))
+                .singleResult(() -> Optional.of(ada))
+                .result(() -> Stream.of(ada))
+                .build();
+
+        CompletionStage<Person> result =
+                (CompletionStage<Person>) repositoryReturn.convert(dynamic);
+
+        assertEquals(ada, result.toCompletableFuture().join());
+    }
+
+    @Test
+    void shouldReturnCompletionStagePage() throws NoSuchMethodException {
+        Person ada = new Person("Ada");
+
+        DynamicReturn<Person> dynamic = DynamicReturn.builder()
+                .classSource(Person.class)
+                .methodSource(PersonRepository.class.getMethod("getPerson"))
                 .singleResult(() -> Optional.of(ada))
                 .result(() -> Stream.of(ada))
                 .singleResultPagination(p -> Optional.of(ada))
@@ -64,42 +82,10 @@ class CompletionStageRepositoryReturnTest {
                 .page(p -> page)
                 .build();
 
-        Object result = repositoryReturn.convert(dynamic);
+        CompletionStage<?> result =
+                (CompletionStage<?>) repositoryReturn.convertPageRequest(dynamic);
 
-        Assertions.assertInstanceOf(CompletionStage.class, result);
-
-        CompletionStage<?> stage = (CompletionStage<?>) result;
-
-        Assertions.assertEquals(
-                ada,
-                stage.toCompletableFuture().join());
-    }
-
-    @Test
-    void shouldReturnCompletionStagePage() throws NoSuchMethodException {
-        Method method = PersonRepository.class.getMethod("getPerson");
-        Person ada = new Person("Ada");
-
-        DynamicReturn<Person> dynamic = DynamicReturn.builder()
-                .classSource(Person.class)
-                .methodSource(method)
-                .singleResult(() -> Optional.of(ada))
-                .result(Stream::empty)
-                .singleResultPagination(p -> Optional.of(ada))
-                .streamPagination(p -> Stream.of(ada))
-                .pagination(PageRequest.ofPage(2).size(2))
-                .page(p -> page)
-                .build();
-
-        Object result = repositoryReturn.convertPageRequest(dynamic);
-
-        Assertions.assertInstanceOf(CompletionStage.class, result);
-
-        CompletionStage<?> stage = (CompletionStage<?>) result;
-
-        Assertions.assertEquals(
-                ada,
-                stage.toCompletableFuture().join());
+        assertEquals(ada, result.toCompletableFuture().join());
     }
 
     private interface PersonRepository {
@@ -107,36 +93,6 @@ class CompletionStageRepositoryReturnTest {
         CompletionStage<Person> getPerson();
     }
 
-    private static class Person {
-
-        private final String name;
-
-        Person(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            Person person = (Person) o;
-            return java.util.Objects.equals(name, person.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return java.util.Objects.hash(name);
-        }
-
-        @Override
-        public String toString() {
-            return "Person{" +
-                    "name='" + name + '\'' +
-                    '}';
-        }
+    private record Person(String name) {
     }
 }
