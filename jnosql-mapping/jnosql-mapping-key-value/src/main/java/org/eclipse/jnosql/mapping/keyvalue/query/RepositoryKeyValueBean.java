@@ -14,7 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.keyvalue.query;
 
-import jakarta.data.repository.BasicRepository;
 import jakarta.data.repository.CrudRepository;
 import jakarta.enterprise.context.spi.CreationalContext;
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
@@ -69,15 +68,15 @@ public class RepositoryKeyValueBean<T extends CrudRepository<?,?>> extends Abstr
     }
 
 
-    @SuppressWarnings("unchecked")
     @Override
+    @SuppressWarnings("unchecked")
     public T create(CreationalContext<T> creationalContext) {
         KeyValueTemplate template = provider.isEmpty() ? getInstance(KeyValueTemplate.class) :
                 getInstance(KeyValueTemplate.class, DatabaseQualifier.ofKeyValue(provider));
 
         var keyValueRepositoryProducer = getInstance(KeyValueRepositoryProducer.class);
-        Class<?  extends BasicRepository<?, ?>> repositoryClass = (Class<? extends BasicRepository<?, ?>>) type;
-        return (T) keyValueRepositoryProducer.get(repositoryClass, template);
+        Class<T> repositoryClass = (Class<T>) type;
+        return keyValueRepositoryProducer.get(repositoryClass, template, creationalContext);
     }
 
 

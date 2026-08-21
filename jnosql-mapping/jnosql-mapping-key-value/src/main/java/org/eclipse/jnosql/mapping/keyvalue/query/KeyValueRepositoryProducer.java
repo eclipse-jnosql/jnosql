@@ -17,6 +17,9 @@ package org.eclipse.jnosql.mapping.keyvalue.query;
 
 import jakarta.data.repository.BasicRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.InterceptionFactory;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.mapping.core.repository.CoreRepositoryInvocationHandler;
@@ -32,29 +35,44 @@ import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
 import java.lang.reflect.Proxy;
 import java.util.Objects;
 
-@ApplicationScoped
 /**
- * CDI producer for key-value repository proxies.
+ * CDI producer for key-value repository proxies. The resulting JNoSQL proxy is
+ * wrapped by CDI so repository interceptor bindings can be applied.
  */
+@ApplicationScoped
 public class KeyValueRepositoryProducer {
 
-    @Inject
-    private KeyValueTemplateProducer producer;
-    @Inject
-    private EntitiesMetadata entities;
-    @Inject
-    private InfrastructureOperatorProvider infrastructureOperatorProvider;
+    private final KeyValueTemplateProducer producer;
+    private final EntitiesMetadata entities;
+    private final InfrastructureOperatorProvider infrastructureOperatorProvider;
+
+    private final CoreBaseRepositoryOperationProvider repositoryOperationProvider;
+
+    private final RepositoriesMetadata repositoriesMetadata;
+
+    private final LifecycleEventHandler lifecycleEventHandler;
+
+    private final BeanManager beanManager;
 
     @Inject
-    private CoreBaseRepositoryOperationProvider repositoryOperationProvider;
-
-    @Inject
-    private RepositoriesMetadata repositoriesMetadata;
-
-    @Inject
-    private LifecycleEventHandler lifecycleEventHandler;
+    KeyValueRepositoryProducer(KeyValueTemplateProducer producer,
+                               EntitiesMetadata entities,
+                               InfrastructureOperatorProvider infrastructureOperatorProvider,
+                               CoreBaseRepositoryOperationProvider repositoryOperationProvider,
+                               RepositoriesMetadata repositoriesMetadata,
+                               LifecycleEventHandler lifecycleEventHandler,
+                               BeanManager beanManager) {
+        this.producer = producer;
+        this.entities = entities;
+        this.infrastructureOperatorProvider = infrastructureOperatorProvider;
+        this.repositoryOperationProvider = repositoryOperationProvider;
+        this.repositoriesMetadata = repositoriesMetadata;
+        this.lifecycleEventHandler = lifecycleEventHandler;
+        this.beanManager = beanManager;
+    }
 
     KeyValueRepositoryProducer() {
+        this(null, null, null, null, null, null, null);
     }
 
     /**
@@ -82,10 +100,26 @@ public class KeyValueRepositoryProducer {
      * @param <R> the repository type
      * @return the repository proxy
      */
-    @SuppressWarnings("unchecked")
     public <R extends BasicRepository<?, ?>> R get(Class<R> repositoryClass, KeyValueTemplate template) {
         Objects.requireNonNull(repositoryClass, "repository class is required");
         Objects.requireNonNull(template, "template class is required");
+        return get(repositoryClass, template, beanManager.createCreationalContext(null));
+    }
+
+    /**
+     * Creates a CDI-intercepted key-value repository backed by a template.
+     *
+     * @param repositoryClass the repository class
+     * @param template the key-value template
+     * @param creationalContext the repository bean creational context
+     * @param <R> the repository type
+     * @return the intercepted repository proxy
+     */
+    public <R extends BasicRepository<?, ?>> R get(Class<R> repositoryClass, KeyValueTemplate template,
+                                                   CreationalContext<R> creationalContext) {
+        Objects.requireNonNull(repositoryClass, "repository class is required");
+        Objects.requireNonNull(template, "template class is required");
+        Objects.requireNonNull(creationalContext, "creational context is required");
         RepositoryMetadata repositoryMetadata = repositoriesMetadata.get(repositoryClass).orElseThrow();
         var entityMetadata = entities.get(repositoryMetadata.entity().orElseThrow());
         DefaultKeyValueRepository<?, ?> executor = DefaultKeyValueRepository.of(template, entityMetadata, lifecycleEventHandler);
@@ -95,8 +129,11 @@ public class KeyValueRepositoryProducer {
                 infrastructureOperatorProvider,
                 repositoryOperationProvider,
                 template);
-        return (R) Proxy.newProxyInstance(repositoryClass.getClassLoader(),
-                new Class[]{repositoryClass},
-                repositoryHandler);
+        R repositoryProxy = repositoryClass.cast(Proxy.newProxyInstance(repositoryClass.getClassLoader(),
+                new Class<?>[]{repositoryClass},
+                repositoryHandler));
+        InterceptionFactory<R> interceptionFactory =
+                beanManager.createInterceptionFactory(creationalContext, repositoryClass);
+        return interceptionFactory.createInterceptedInstance(repositoryProxy);
     }
 }

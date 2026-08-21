@@ -94,7 +94,7 @@ abstract class BaseRepositoryBean<T> extends AbstractBean<T> {
                 ? getInstance(getTemplateClass())
                 : getInstance(getTemplateClass(), getDatabaseQualifier(provider));
 
-        return producer.get(type, template);
+        return producer.get(type, template, context);
     }
 
     @Override
@@ -112,4 +112,3 @@ abstract class BaseRepositoryBean<T> extends AbstractBean<T> {
         return type.getName() + '@' + databaseType + "-" + provider;
     }
 }
-

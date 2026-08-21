@@ -16,6 +16,9 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.InterceptionFactory;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.core.repository.CoreRepositoryInvocationHandler;
 import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
@@ -29,25 +32,43 @@ import java.lang.reflect.Proxy;
 import java.util.Objects;
 
 /**
- * CDI producer responsible for creating runtime implementations of semistructured Jakarta Data repositories.
+ * CDI producer responsible for resolving repository metadata and creating runtime
+ * implementations of semistructured Jakarta Data repositories. The resulting JNoSQL
+ * repository proxy is wrapped by CDI so that repository interceptor bindings are applied.
  */
 @ApplicationScoped
 public class SemistructuredRepositoryProducer {
 
-    @Inject
-    private EntitiesMetadata entities;
+    private final EntitiesMetadata entities;
+
+    private final InfrastructureOperatorProvider infrastructureOperatorProvider;
+
+    private final SemistructuredRepositoryOperationProvider semistructuredRepositoryOperationProvider;
+
+    private final RepositoriesMetadata repositoriesMetadata;
+
+    private final LifecycleEventHandler lifecycleEventHandler;
+
+    private final BeanManager beanManager;
 
     @Inject
-    private InfrastructureOperatorProvider infrastructureOperatorProvider;
+    SemistructuredRepositoryProducer(EntitiesMetadata entities,
+                                     InfrastructureOperatorProvider infrastructureOperatorProvider,
+                                     SemistructuredRepositoryOperationProvider semistructuredRepositoryOperationProvider,
+                                     RepositoriesMetadata repositoriesMetadata,
+                                     LifecycleEventHandler lifecycleEventHandler,
+                                     BeanManager beanManager) {
+        this.entities = entities;
+        this.infrastructureOperatorProvider = infrastructureOperatorProvider;
+        this.semistructuredRepositoryOperationProvider = semistructuredRepositoryOperationProvider;
+        this.repositoriesMetadata = repositoriesMetadata;
+        this.lifecycleEventHandler = lifecycleEventHandler;
+        this.beanManager = beanManager;
+    }
 
-    @Inject
-    private SemistructuredRepositoryOperationProvider semistructuredRepositoryOperationProvider;
-
-    @Inject
-    private RepositoriesMetadata repositoriesMetadata;
-
-    @Inject
-    private LifecycleEventHandler lifecycleEventHandler;
+    SemistructuredRepositoryProducer() {
+        this(null, null, null, null, null, null);
+    }
 
     /**
      * Returns a fully functional repository implementation for the given
@@ -61,10 +82,30 @@ public class SemistructuredRepositoryProducer {
      * @throws java.util.NoSuchElementException if required repository or entity
      *         metadata cannot be resolved
      */
-    @SuppressWarnings("unchecked")
-    public <R> R get(Class<?> repositoryClass, SemiStructuredTemplate template) {
+    public <R> R get(Class<R> repositoryClass, SemiStructuredTemplate template) {
         Objects.requireNonNull(repositoryClass, "repository class is required");
         Objects.requireNonNull(template, "template class is required");
+        return get(repositoryClass, template, beanManager.createCreationalContext(null));
+    }
+
+    /**
+     * Returns a fully functional CDI-intercepted repository implementation using
+     * the repository bean's creational context.
+     *
+     * @param repositoryClass the repository interface to implement
+     * @param template the semistructured template used by the repository
+     * @param creationalContext the repository bean creational context
+     * @param <R> the repository type
+     * @return an intercepted instance implementing the repository interface
+     * @throws NullPointerException if any argument is {@code null}
+     * @throws java.util.NoSuchElementException if required repository or entity
+     *         metadata cannot be resolved
+     */
+    public <R> R get(Class<R> repositoryClass, SemiStructuredTemplate template,
+                     CreationalContext<R> creationalContext) {
+        Objects.requireNonNull(repositoryClass, "repository class is required");
+        Objects.requireNonNull(template, "template class is required");
+        Objects.requireNonNull(creationalContext, "creational context is required");
         RepositoryMetadata repositoryMetadata = repositoriesMetadata.get(repositoryClass).orElseThrow();
         var entityMetadata = entities.get(repositoryMetadata.entity().orElseThrow());
 
@@ -77,9 +118,12 @@ public class SemistructuredRepositoryProducer {
                 semistructuredRepositoryOperationProvider,
                 template);
 
-        return (R) Proxy.newProxyInstance(repositoryClass.getClassLoader(),
-                new Class[]{repositoryClass},
-                repositoryHandler);
+        R repositoryProxy = repositoryClass.cast(Proxy.newProxyInstance(repositoryClass.getClassLoader(),
+                new Class<?>[]{repositoryClass},
+                repositoryHandler));
+        InterceptionFactory<R> interceptionFactory =
+                beanManager.createInterceptionFactory(creationalContext, repositoryClass);
+        return interceptionFactory.createInterceptedInstance(repositoryProxy);
     }
 
 }
