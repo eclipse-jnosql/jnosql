@@ -66,7 +66,7 @@ public class SemistructuredRepositoryProducer {
         this.beanManager = beanManager;
     }
 
-    public SemistructuredRepositoryProducer() {
+    SemistructuredRepositoryProducer() {
         this(null, null, null, null, null, null);
     }
 
