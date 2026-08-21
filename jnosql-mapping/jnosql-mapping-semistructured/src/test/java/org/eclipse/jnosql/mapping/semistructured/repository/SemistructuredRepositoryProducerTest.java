@@ -126,7 +126,7 @@ class SemistructuredRepositoryProducerTest {
     class Construction {
 
         @Test
-        @DisplayName("provides a no-argument constructor")
+        @DisplayName("provides a package-private no-argument constructor for CDI")
         void shouldProvideDefaultConstructor() {
             assertThat(new SemistructuredRepositoryProducer()).isNotNull();
         }
