@@ -18,18 +18,18 @@ import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 @ExtendWith(MockitoExtension.class)
 class CompletionStageRepositoryReturnTest {
@@ -41,51 +41,81 @@ class CompletionStageRepositoryReturnTest {
     private Page<Person> page;
 
     @Test
+    @DisplayName("Should return true when return type is CompletionStage")
     void shouldReturnIsCompatible() {
-        assertTrue(repositoryReturn.isCompatible(
-                Person.class, CompletionStage.class));
-        assertFalse(repositoryReturn.isCompatible(
-                Object.class, Person.class));
-        assertFalse(repositoryReturn.isCompatible(
-                Person.class, Object.class));
+        assertSoftly(softly -> {
+            softly.assertThat(repositoryReturn.isCompatible(
+                            Person.class, CompletionStage.class))
+                    .as("CompletionStage return type is compatible")
+                    .isTrue();
+
+            softly.assertThat(repositoryReturn.isCompatible(
+                            Object.class, Person.class))
+                    .as("different entity and return types are incompatible")
+                    .isFalse();
+
+            softly.assertThat(repositoryReturn.isCompatible(
+                            Person.class, Object.class))
+                    .as("different return type is incompatible")
+                    .isFalse();
+        });
     }
 
     @Test
+    @DisplayName("Should return entity wrapped in CompletionStage")
     void shouldReturnCompletionStage() throws NoSuchMethodException {
         Person ada = new Person("Ada");
 
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
-                .classSource(Person.class)
-                .methodSource(PersonRepository.class.getMethod("getPerson"))
                 .singleResult(() -> Optional.of(ada))
+                .classSource(Person.class)
                 .result(() -> Stream.of(ada))
+                .methodSource(PersonRepository.class.getMethod("getPerson"))
                 .build();
 
         CompletionStage<Person> result =
                 (CompletionStage<Person>) repositoryReturn.convert(dynamic);
 
-        assertEquals(ada, result.toCompletableFuture().join());
+        assertSoftly(softly -> {
+            softly.assertThat(result)
+                    .as("repository result")
+                    .isNotNull();
+
+            softly.assertThat(result.toCompletableFuture().join())
+                    .as("completion stage value")
+                    .isEqualTo(ada);
+        });
     }
 
     @Test
+    @DisplayName("Should return paginated entity wrapped in CompletionStage")
     void shouldReturnCompletionStagePage() throws NoSuchMethodException {
         Person ada = new Person("Ada");
 
         DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
-                .methodSource(PersonRepository.class.getMethod("getPerson"))
-                .singleResult(() -> Optional.of(ada))
-                .result(() -> Stream.of(ada))
+                .singleResult(Optional::empty)
+                .result(Collections::emptyList)
                 .singleResultPagination(p -> Optional.of(ada))
                 .streamPagination(p -> Stream.of(ada))
+                .methodSource(PersonRepository.class.getMethod("getPerson"))
                 .pagination(PageRequest.ofPage(2).size(2))
                 .page(p -> page)
                 .build();
 
-        CompletionStage<?> result =
-                (CompletionStage<?>) repositoryReturn.convertPageRequest(dynamic);
+        CompletionStage<Person> result =
+                (CompletionStage<Person>)
+                        repositoryReturn.convertPageRequest(dynamic);
 
-        assertEquals(ada, result.toCompletableFuture().join());
+        assertSoftly(softly -> {
+            softly.assertThat(result)
+                    .as("repository page result")
+                    .isNotNull();
+
+            softly.assertThat(result.toCompletableFuture().join())
+                    .as("completion stage page value")
+                    .isEqualTo(ada);
+        });
     }
 
     private interface PersonRepository {

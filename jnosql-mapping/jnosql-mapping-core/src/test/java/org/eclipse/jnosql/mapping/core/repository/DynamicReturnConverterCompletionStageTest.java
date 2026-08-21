@@ -14,16 +14,16 @@
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class DynamicReturnConverterCompletionStageTest {
 
@@ -35,66 +35,78 @@ class DynamicReturnConverterCompletionStageTest {
     }
 
     @Test
+    @DisplayName("Should wrap single entity in CompletionStage")
     void shouldWrapSingleEntityInCompletionStage()
-            throws NoSuchMethodException, ExecutionException,
-            InterruptedException {
+            throws NoSuchMethodException {
 
-        Method method = Sample.class.getMethod("findByName", String.class);
+        // Arrange
+        Method method = Sample.class.getMethod(
+                "findByName", String.class);
         Person person = new Person("Ada");
 
-        DynamicReturn.DefaultDynamicReturnBuilder<Person> builder =
-                DynamicReturn.builder();
-
-        DynamicReturn<Person> dynamic = builder
+        DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
                 .methodSource(method)
                 .singleResult(() -> Optional.of(person))
                 .result(() -> Stream.of(person))
                 .build();
 
-        Object result = DynamicReturnConverter.INSTANCE.convert(dynamic);
+        // Act
+        Object result =
+                DynamicReturnConverter.INSTANCE.convert(dynamic);
 
-        assertThat(result).isInstanceOf(CompletionStage.class);
+        // Assert
+        assertSoftly(softly -> {
+            softly.assertThat(result)
+                    .as("converted result")
+                    .isInstanceOf(CompletionStage.class);
 
-        CompletionStage<?> stage = (CompletionStage<?>) result;
+            CompletionStage<?> stage = (CompletionStage<?>) result;
 
-        assertThat(stage.toCompletableFuture().get())
-                .isEqualTo(person);
+            softly.assertThat(stage.toCompletableFuture().join())
+                    .as("completion stage value")
+                    .isEqualTo(person);
+        });
     }
 
     @Test
+    @DisplayName("Should wrap list in CompletionStage")
     void shouldWrapListInCompletionStage()
-            throws NoSuchMethodException, ExecutionException,
-            InterruptedException {
+            throws NoSuchMethodException {
 
-        Method method =
-                Sample.class.getMethod("findAllByName", String.class);
-
+        // Arrange
+        Method method = Sample.class.getMethod(
+                "findAllByName", String.class);
         Person ada = new Person("Ada");
         Person alan = new Person("Alan");
 
-        DynamicReturn.DefaultDynamicReturnBuilder<Person> builder =
-                DynamicReturn.builder();
-
-        DynamicReturn<Person> dynamic = builder
+        DynamicReturn<Person> dynamic = DynamicReturn.builder()
                 .classSource(Person.class)
                 .methodSource(method)
                 .singleResult(() -> Optional.of(ada))
                 .result(() -> Stream.of(ada, alan))
                 .build();
 
-        Object result = DynamicReturnConverter.INSTANCE.convert(dynamic);
+        // Act
+        Object result =
+                DynamicReturnConverter.INSTANCE.convert(dynamic);
 
-        assertThat(result).isInstanceOf(CompletionStage.class);
+        // Assert
+        assertSoftly(softly -> {
+            softly.assertThat(result)
+                    .as("converted result")
+                    .isInstanceOf(CompletionStage.class);
 
-        CompletionStage<?> stage = (CompletionStage<?>) result;
+            CompletionStage<?> stage = (CompletionStage<?>) result;
 
-        @SuppressWarnings("unchecked")
-        List<Person> listResult =
-                (List<Person>) stage.toCompletableFuture().get();
+            @SuppressWarnings("unchecked")
+            List<Person> listResult =
+                    (List<Person>) stage.toCompletableFuture().join();
 
-        assertThat(listResult)
-                .containsExactly(ada, alan);
+            softly.assertThat(listResult)
+                    .as("completion stage list value")
+                    .containsExactly(ada, alan);
+        });
     }
 
     record Person(String name) {
