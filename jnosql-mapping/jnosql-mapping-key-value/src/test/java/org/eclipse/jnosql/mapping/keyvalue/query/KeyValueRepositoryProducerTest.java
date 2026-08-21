@@ -14,56 +14,137 @@
  */
 package org.eclipse.jnosql.mapping.keyvalue.query;
 
-import jakarta.inject.Inject;
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.InterceptionFactory;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
-import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.keyvalue.KeyValueEntityConverter;
+import org.eclipse.jnosql.mapping.core.repository.CoreRepositoryInvocationHandler;
+import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider;
+import org.eclipse.jnosql.mapping.core.repository.operations.CoreBaseRepositoryOperationProvider;
 import org.eclipse.jnosql.mapping.keyvalue.KeyValueTemplate;
-import org.eclipse.jnosql.mapping.keyvalue.MockProducer;
+import org.eclipse.jnosql.mapping.keyvalue.KeyValueTemplateProducer;
+import org.eclipse.jnosql.mapping.keyvalue.entities.Person;
 import org.eclipse.jnosql.mapping.keyvalue.entities.PersonRepository;
-import org.eclipse.jnosql.mapping.keyvalue.spi.KeyValueExtension;
-import org.eclipse.jnosql.mapping.reflection.Reflections;
-import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
-import org.jboss.weld.junit5.auto.AddExtensions;
-import org.jboss.weld.junit5.auto.AddPackages;
-import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoriesMetadata;
+import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
+import org.eclipse.jnosql.mapping.repository.LifecycleEventHandler;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.ArgumentCaptor;
+
+import java.lang.reflect.Proxy;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@EnableAutoWeld
-@AddPackages(value = {Converters.class, KeyValueEntityConverter.class})
-@AddPackages(MockProducer.class)
-@AddPackages(Reflections.class)
-@AddExtensions({ReflectionEntityMetadataExtension.class, KeyValueExtension.class})
+@DisplayName("KeyValueRepositoryProducer")
 class KeyValueRepositoryProducerTest {
 
-    @Inject
+    private final KeyValueTemplateProducer templateProducer = mock(KeyValueTemplateProducer.class);
+    private final EntitiesMetadata entities = mock(EntitiesMetadata.class);
+    private final InfrastructureOperatorProvider infrastructureOperatorProvider =
+            mock(InfrastructureOperatorProvider.class);
+    private final CoreBaseRepositoryOperationProvider operationProvider =
+            mock(CoreBaseRepositoryOperationProvider.class);
+    private final RepositoriesMetadata repositoriesMetadata = mock(RepositoriesMetadata.class);
+    private final LifecycleEventHandler lifecycleEventHandler = mock(LifecycleEventHandler.class);
+    private final BeanManager beanManager = mock(BeanManager.class);
+    private final KeyValueTemplate template = mock(KeyValueTemplate.class);
+    private final RepositoryMetadata repositoryMetadata = mock(RepositoryMetadata.class);
+    private final EntityMetadata entityMetadata = mock(EntityMetadata.class);
+    private final CreationalContext<PersonRepository> creationalContext = mock(CreationalContext.class);
+    private final InterceptionFactory<PersonRepository> interceptionFactory = mock(InterceptionFactory.class);
+
     private KeyValueRepositoryProducer producer;
 
-    @Nested
-    @DisplayName("When the producer creates repositories")
-    class WhenTheProducerCreatesRepositories {
-
-        @Test
-        @DisplayName("Should create from manager")
-        void shouldCreateFromManager() {
-            BucketManager manager = Mockito.mock(BucketManager.class);
-            PersonRepository personRepository = producer.get(PersonRepository.class, manager);
-            assertThat(personRepository).isNotNull();
-        }
-
-        @Test
-        @DisplayName("Should create from template")
-        void shouldCreateFromTemplate() {
-            KeyValueTemplate template = Mockito.mock(KeyValueTemplate.class);
-            PersonRepository personRepository = producer.get(PersonRepository.class, template);
-            assertThat(personRepository).isNotNull();
-        }
-
+    @BeforeEach
+    void setUp() {
+        producer = new KeyValueRepositoryProducer(templateProducer,
+                entities,
+                infrastructureOperatorProvider,
+                operationProvider,
+                repositoriesMetadata,
+                lifecycleEventHandler,
+                beanManager);
     }
 
+    @Nested
+    @DisplayName("When validating repository creation")
+    class WhenTheValidation {
+
+        @Test
+        @DisplayName("Should reject a null repository class")
+        void shouldRejectNullRepositoryClass() {
+            assertThatNullPointerException()
+                    .isThrownBy(() -> producer.get(null, template));
+        }
+
+        @Test
+        @DisplayName("Should reject a null template")
+        void shouldRejectNullTemplate() {
+            assertThatNullPointerException()
+                    .isThrownBy(() -> producer.get(PersonRepository.class, (KeyValueTemplate) null));
+        }
+
+        @Test
+        @DisplayName("Should reject a null manager")
+        void shouldRejectNullManager() {
+            assertThatNullPointerException()
+                    .isThrownBy(() -> producer.get(PersonRepository.class, (BucketManager) null));
+        }
+    }
+
+    @Nested
+    @DisplayName("When creating a repository")
+    class WhenTheCreation {
+
+        @BeforeEach
+        void setUpMetadata() {
+            when(repositoriesMetadata.get(PersonRepository.class)).thenReturn(Optional.of(repositoryMetadata));
+            when(repositoryMetadata.entity()).thenReturn(Optional.of(Person.class));
+            when(entities.get(Person.class)).thenReturn(entityMetadata);
+            doReturn(interceptionFactory).when(beanManager)
+                    .createInterceptionFactory(creationalContext, PersonRepository.class);
+        }
+
+        @Test
+        @DisplayName("Should return the CDI-intercepted repository")
+        void shouldReturnInterceptedRepository() {
+            PersonRepository expected = mock(PersonRepository.class);
+            when(interceptionFactory.createInterceptedInstance(any())).thenReturn(expected);
+
+            PersonRepository result = producer.get(PersonRepository.class, template, creationalContext);
+
+            ArgumentCaptor<PersonRepository> repositoryCaptor = ArgumentCaptor.forClass(PersonRepository.class);
+            verify(interceptionFactory).createInterceptedInstance(repositoryCaptor.capture());
+            assertThat(Proxy.getInvocationHandler(repositoryCaptor.getValue()))
+                    .isInstanceOf(CoreRepositoryInvocationHandler.class);
+            assertThat(result).isSameAs(expected);
+        }
+
+        @Test
+        @DisplayName("Should create the template from the manager")
+        void shouldCreateTemplateFromManager() {
+            BucketManager manager = mock(BucketManager.class);
+            PersonRepository expected = mock(PersonRepository.class);
+            when(templateProducer.apply(manager)).thenReturn(template);
+            doReturn(creationalContext).when(beanManager).createCreationalContext(null);
+            when(interceptionFactory.createInterceptedInstance(any())).thenReturn(expected);
+
+            PersonRepository result = producer.get(PersonRepository.class, manager);
+
+            verify(templateProducer).apply(manager);
+            assertThat(result).isSameAs(expected);
+        }
+    }
 }
