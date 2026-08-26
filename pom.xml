@@ -72,7 +72,7 @@
         <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sonar.jacoco.reportPath>../target/jacoco.exec</sonar.jacoco.reportPath>
-        <sonar.maven.version>5.0.0.4389</sonar.maven.version>
+        <sonar.maven.version>5.7.0.6970</sonar.maven.version>
         <commons.io.version>2.22.0</commons.io.version>
         <checkstyle.excludes>**/jnosql/query/grammar/**,**/_*.java</checkstyle.excludes>
         <weld.se.core.version>6.0.4.Final</weld.se.core.version>
