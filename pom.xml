@@ -54,8 +54,8 @@
         </developer>
     </developers>
     <properties>
-        <apache-rat-plugin.version>0.15</apache-rat-plugin.version>
-        <jacoco.maven.version>0.8.14</jacoco.maven.version>
+        <apache-rat-plugin.version>0.18</apache-rat-plugin.version>
+        <jacoco.maven.version>0.8.15</jacoco.maven.version>
         <jakarta.annotation.version>3.0.0</jakarta.annotation.version>
         <jakarta.enterprise.cdi.version>4.1.0</jakarta.enterprise.cdi.version>
         <jakarta.json.bind.version>3.0.1</jakarta.json.bind.version>
@@ -72,24 +72,24 @@
         <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sonar.jacoco.reportPath>../target/jacoco.exec</sonar.jacoco.reportPath>
-        <sonar.maven.version>5.0.0.4389</sonar.maven.version>
+        <sonar.maven.version>5.7.0.6970</sonar.maven.version>
         <commons.io.version>2.22.0</commons.io.version>
         <checkstyle.excludes>**/jnosql/query/grammar/**,**/_*.java</checkstyle.excludes>
         <weld.se.core.version>6.0.4.Final</weld.se.core.version>
         <yasson.version>3.0.5</yasson.version>
         <microprofile.config.version>3.1</microprofile.config.version>
-        <smallrye.config.version>3.18.1</smallrye.config.version>
+        <smallrye.config.version>3.18.2</smallrye.config.version>
 
-        <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+        <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
-        <checkstyle.version>13.9.0</checkstyle.version>
+        <checkstyle.version>14.0.0</checkstyle.version>
         <!-- testing libraries -->
-        <junit.version>6.1.2</junit.version>
+        <junit.version>6.1.3</junit.version>
         <mockito.verson>5.23.0</mockito.verson>
         <assertj.version>3.27.7</assertj.version>
         <awaitility.version>4.3.0</awaitility.version>
         <datafaker.version>2.7.0</datafaker.version>
-        <pi-test.version>1.21.0</pi-test.version>
+        <pi-test.version>1.25.9</pi-test.version>
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
         <apache.pdm.plugin.version>3.28.0</apache.pdm.plugin.version>
         <pmd.url>https://raw.githubusercontent.com/eclipse/jnosql/refs/heads/main/pmd/pmd-rules.xml</pmd.url>
@@ -476,12 +476,12 @@
                 <artifactId>apache-rat-plugin</artifactId>
                 <version>${apache-rat-plugin.version}</version>
                 <configuration>
-                    <includes>
-                        <include>src/**/*.java</include>
-                        <include>src/**/*.xml</include>
-                        <include>pom.xml</include>
-                    </includes>
-                    <excludes></excludes>
+                    <inputIncludes>
+                        <inputInclude>src/**/*.java</inputInclude>
+                        <inputInclude>src/**/*.xml</inputInclude>
+                        <inputInclude>pom.xml</inputInclude>
+                    </inputIncludes>
+                    <inputExclude>**/*</inputExclude>
                     <licenses>
                         <license implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
                             <licenseFamilyCategory>AL20-EPL20</licenseFamilyCategory>
@@ -588,7 +588,7 @@
                     <plugin>
                         <groupId>org.sonatype.central</groupId>
                         <artifactId>central-publishing-maven-plugin</artifactId>
-                        <version>0.8.0</version>
+                        <version>0.11.0</version>
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>
