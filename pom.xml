@@ -54,7 +54,7 @@
         </developer>
     </developers>
     <properties>
-        <apache-rat-plugin.version>0.15</apache-rat-plugin.version>
+        <apache-rat-plugin.version>0.18</apache-rat-plugin.version>
         <jacoco.maven.version>0.8.15</jacoco.maven.version>
         <jakarta.annotation.version>3.0.0</jakarta.annotation.version>
         <jakarta.enterprise.cdi.version>4.1.0</jakarta.enterprise.cdi.version>
@@ -476,12 +476,12 @@
                 <artifactId>apache-rat-plugin</artifactId>
                 <version>${apache-rat-plugin.version}</version>
                 <configuration>
-                    <includes>
-                        <include>src/**/*.java</include>
-                        <include>src/**/*.xml</include>
-                        <include>pom.xml</include>
-                    </includes>
-                    <excludes></excludes>
+                    <inputIncludes>
+                        <inputInclude>src/**/*.java</inputInclude>
+                        <inputInclude>src/**/*.xml</inputInclude>
+                        <inputInclude>pom.xml</inputInclude>
+                    </inputIncludes>
+                    <inputExclude>**/*</inputExclude>
                     <licenses>
                         <license implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
                             <licenseFamilyCategory>AL20-EPL20</licenseFamilyCategory>
