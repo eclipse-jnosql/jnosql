@@ -139,7 +139,7 @@ class DynamicSelectQueryBuilderTest {
     void shouldIncludePageRequestParameter() {
         var query = select().from(ComicBook.class.getSimpleName()).build();
         var method = repositoryMetadata.find(new NameKey("findByName")).orElseThrow();
-        var parameters = new Object[]{PageRequest.ofSize(10).page(2)};
+        var parameters = new Object[]{PageRequest.ofPage(2).size(10)};
         var context = new RepositoryInvocationContext(method, repositoryMetadata, entityMetadata, template, parameters);
 
         var updatedQuery = DynamicSelectQueryBuilder.INSTANCE.updateDynamicQuery(query, context, parser, converters);
