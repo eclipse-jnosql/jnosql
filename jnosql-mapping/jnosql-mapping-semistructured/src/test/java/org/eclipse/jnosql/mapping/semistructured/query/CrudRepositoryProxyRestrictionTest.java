@@ -146,7 +146,7 @@ class CrudRepositoryProxyRestrictionTest {
             softly.assertThat(condition.condition()).isEqualTo(EQUALS);
             softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
             softly.assertThat(products.pageRequest()).isEqualTo(PageRequest.ofSize(2));
-            softly.assertThat(products.nextPageRequest()).isEqualTo(PageRequest.ofSize(2).page(2));
+            softly.assertThat(products.nextPageRequest()).isEqualTo(PageRequest.ofPage(2).size(2));
         });
     }
 
