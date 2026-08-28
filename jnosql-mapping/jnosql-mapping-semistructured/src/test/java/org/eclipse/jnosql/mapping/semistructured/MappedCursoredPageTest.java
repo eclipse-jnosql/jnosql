@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
@@ -128,6 +129,32 @@ class MappedCursoredPageTest {
     @Nested
     @DisplayName("When creating a mapped cursor page")
     class WhenThePageIsCreated {
+
+        @Test
+        @DisplayName("Should reject null content")
+        void shouldRejectNullContent() {
+            var delegate = new CursoredPageRecord<>(
+                    List.of(1), List.of(PageRequest.Cursor.forKey("Ada")), -1,
+                    PageRequest.ofSize(1), true, true);
+
+            assertThatNullPointerException()
+                    .as("null content")
+                    .isThrownBy(() -> new MappedCursoredPage<>(null, delegate))
+                    .withMessage("content is required");
+        }
+
+        @Test
+        @DisplayName("Should reject content containing null")
+        void shouldRejectContentContainingNull() {
+            var delegate = new CursoredPageRecord<>(
+                    List.of(1), List.of(PageRequest.Cursor.forKey("Ada")), -1,
+                    PageRequest.ofSize(1), true, true);
+            var content = Arrays.asList("Ada", null);
+
+            assertThatNullPointerException()
+                    .as("null content element")
+                    .isThrownBy(() -> new MappedCursoredPage<>(content, delegate));
+        }
 
         @Test
         @DisplayName("Should reject a null delegate")
