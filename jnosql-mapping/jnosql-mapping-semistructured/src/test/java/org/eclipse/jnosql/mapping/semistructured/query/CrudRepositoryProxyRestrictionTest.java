@@ -170,7 +170,7 @@ class CrudRepositoryProxyRestrictionTest {
             softly.assertThat(condition.condition()).isEqualTo(EQUALS);
             softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
             softly.assertThat(query.sorts()).hasSize(1);
-            softly.assertThat(query.sorts()).contains( _Product.name.asc());
+            softly.assertThat(query.sorts()).contains(Sort.asc(_Product.NAME));
         });
     }
     @DisplayName("Should restrict order")
@@ -193,7 +193,7 @@ class CrudRepositoryProxyRestrictionTest {
             softly.assertThat(condition.condition()).isEqualTo(EQUALS);
             softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
             softly.assertThat(query.sorts()).hasSize(2);
-            softly.assertThat(query.sorts()).contains(_Product.name.asc(), _Product.price.asc());
+            softly.assertThat(query.sorts()).contains(Sort.asc(_Product.NAME), Sort.asc(_Product.PRICE));
         });
     }
 
@@ -218,7 +218,7 @@ class CrudRepositoryProxyRestrictionTest {
             softly.assertThat(condition.condition()).isEqualTo(EQUALS);
             softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
             softly.assertThat(query.sorts()).hasSize(1);
-            softly.assertThat(query.sorts()).contains( _Product.price.asc());
+            softly.assertThat(query.sorts()).contains(Sort.asc(_Product.PRICE));
         });
     }
 
@@ -246,7 +246,7 @@ class CrudRepositoryProxyRestrictionTest {
             softly.assertThat(condition.condition()).isEqualTo(EQUALS);
             softly.assertThat(condition.element()).isEqualTo(Element.of(_Product.NAME, "Mac"));
             softly.assertThat(query.sorts()).hasSize(1);
-            softly.assertThat(query.sorts()).contains( _Product.price.asc());
+            softly.assertThat(query.sorts()).contains(Sort.asc(_Product.PRICE));
         });
     }
 

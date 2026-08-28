@@ -517,12 +517,13 @@ class DefaultSemiStructuredTemplateTest {
     void shouldSelectCursor() {
         PageRequest request = PageRequest.ofSize(2);
 
-        PageRequest afterKey = PageRequest.afterCursor(PageRequest.Cursor.forKey("Ada"), 1, 2, false);
+        PageRequest.Cursor cursor = PageRequest.Cursor.forKey("Name");
+        PageRequest afterKey = PageRequest.afterCursor(cursor, 1, 2, false);
         SelectQuery query = select().from("Person").orderBy("name").asc().build();
 
         Mockito.when(managerMock.selectCursor(query, request))
                 .thenReturn(new CursoredPageRecord<>(content(),
-                        Collections.emptyList(), -1, request, afterKey, null));
+                        List.of(cursor), -1, request, afterKey, null));
 
         PageRequest personRequest = PageRequest.ofSize(2);
         CursoredPage<Person> result = template.selectCursor(query, personRequest);
@@ -531,6 +532,8 @@ class DefaultSemiStructuredTemplateTest {
             soft.assertThat(result).isNotNull();
             soft.assertThat(result.content()).hasSize(1);
             soft.assertThat(result.hasNext()).isTrue();
+            soft.assertThat(result.nextPageRequest()).isEqualTo(afterKey);
+            soft.assertThat(result.cursor(0)).isEqualTo(cursor);
             Person person = result.stream().findFirst().orElseThrow();
 
             soft.assertThat(person.getAge()).isEqualTo(10);

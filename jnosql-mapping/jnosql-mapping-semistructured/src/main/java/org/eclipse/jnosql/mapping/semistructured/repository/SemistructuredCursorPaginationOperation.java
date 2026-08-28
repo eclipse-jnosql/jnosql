@@ -17,7 +17,6 @@ package org.eclipse.jnosql.mapping.semistructured.repository;
 
 import jakarta.data.page.CursoredPage;
 import jakarta.data.page.PageRequest;
-import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
@@ -29,6 +28,7 @@ import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.CursorPaginationOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
+import org.eclipse.jnosql.mapping.semistructured.MappedCursoredPage;
 import org.eclipse.jnosql.mapping.semistructured.PreparedStatement;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredParameterBasedQuery;
@@ -114,12 +114,7 @@ class SemistructuredCursorPaginationOperation implements CursorPaginationOperati
         RepositoryMethod method = context.method();
         EntityMetadata entityMetadata = context.entityMetadata();
         var mappedResult = cursoredPage.content().stream().map(returnType.mapper(method, entityMetadata)).toList();
-        var cursorPage = (CursoredPageRecord<?>) cursoredPage;
-        return (T) new CursoredPageRecord<>(mappedResult, cursorPage.cursors(),
-                -1,
-                cursorPage.pageRequest(),
-                cursorPage.hasNext() ? cursorPage.nextPageRequest() : null,
-                cursorPage.hasPrevious() ? cursorPage.previousPageRequest(): null);
+        return (T) new MappedCursoredPage<>(mappedResult, cursoredPage);
     }
 
     private static PageRequest pageRequest(RepositoryMethod method, SpecialParameters special) {

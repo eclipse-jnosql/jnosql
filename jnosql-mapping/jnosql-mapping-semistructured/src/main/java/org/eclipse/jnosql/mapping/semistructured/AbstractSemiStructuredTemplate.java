@@ -20,7 +20,6 @@ import jakarta.data.exceptions.NonUniqueResultException;
 import jakarta.data.page.CursoredPage;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
-import jakarta.data.page.impl.CursoredPageRecord;
 import jakarta.nosql.Query;
 import jakarta.nosql.QueryMapper;
 import jakarta.nosql.TypedQuery;
@@ -339,10 +338,7 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         }
         CursoredPage<CommunicationEntity> cursoredPage = this.manager().selectCursor(query, pageRequest);
         List<T> entities = cursoredPage.stream().<T>map(c -> converter().toEntity(c)).toList();
-        PageRequest nextPageRequest = cursoredPage.hasNext()? cursoredPage.nextPageRequest() : null;
-        PageRequest beforePageRequest = cursoredPage.hasPrevious()? cursoredPage.previousPageRequest() : null;
-        List<PageRequest.Cursor> cursors = ((CursoredPageRecord<CommunicationEntity>) cursoredPage).cursors();
-        return new CursoredPageRecord<>(entities, cursors, -1, pageRequest, nextPageRequest, beforePageRequest);
+        return new MappedCursoredPage<>(entities, cursoredPage);
     }
 
     @Override
