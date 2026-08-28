@@ -32,9 +32,9 @@ import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.ParamValue;
 import org.eclipse.jnosql.mapping.core.repository.RepositoryReflectionUtils;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
-import org.eclipse.jnosql.mapping.semistructured.CursoredPages;
 import org.eclipse.jnosql.mapping.semistructured.MappingDeleteQuery;
 import org.eclipse.jnosql.mapping.semistructured.MappingQuery;
+import org.eclipse.jnosql.mapping.semistructured.MappedCursoredPage;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -143,7 +143,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
             var cursoredPage = this.template().selectCursor(updateQuery, pageRequest);
             if (method.getAnnotation(Select.class) != null) {
                 var mappedResult = cursoredPage.content().stream().map(mapper(method)).toList();
-                return CursoredPages.map(mappedResult, cursoredPage);
+                return new MappedCursoredPage<>(mappedResult, cursoredPage);
             }
             return cursoredPage;
         }
