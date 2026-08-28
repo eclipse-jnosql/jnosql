@@ -22,14 +22,28 @@ import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 
-final class MappedCursoredPage<T> implements CursoredPage<T> {
+/**
+ * A cursor page that replaces the content of another cursor page while
+ * preserving its pagination metadata and behavior.
+ *
+ * @param <T> the mapped content type
+ */
+public final class MappedCursoredPage<T> implements CursoredPage<T> {
 
     private final List<T> content;
 
     private final CursoredPage<?> delegate;
 
-    MappedCursoredPage(List<T> content, CursoredPage<?> delegate) {
-        this.content = List.copyOf(content);
+    /**
+     * Creates a mapped cursor page.
+     *
+     * @param content the mapped page content
+     * @param delegate the cursor page that provides pagination behavior
+     * @throws NullPointerException if content or delegate is {@code null}, or
+     *                              if content contains a {@code null} element
+     */
+    public MappedCursoredPage(List<T> content, CursoredPage<?> delegate) {
+        this.content = List.copyOf(requireNonNull(content, "content is required"));
         this.delegate = requireNonNull(delegate, "delegate is required");
     }
 
