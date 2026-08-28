@@ -1,0 +1,100 @@
+/*
+ *  Copyright (c) 2026 Contributors to the Eclipse Foundation
+ *   All rights reserved. This program and the accompanying materials
+ *   are made available under the terms of the Eclipse Public License 2.0
+ *   and Apache License v2.0 which accompanies this distribution.
+ *   The Eclipse Public License is available at https://www.eclipse.org/legal/epl-2.0
+ *   and the Apache License v2.0 is available at https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ *   You may elect to redistribute this code under either of these licenses.
+ *
+ *   Contributors:
+ *
+ *   Otavio Santana
+ */
+package org.eclipse.jnosql.mapping.semistructured;
+
+import jakarta.data.page.CursoredPage;
+import jakarta.data.page.PageRequest;
+
+import java.util.Iterator;
+import java.util.List;
+
+import static java.util.Objects.requireNonNull;
+
+final class MappedCursoredPage<T> implements CursoredPage<T> {
+
+    private final List<T> content;
+
+    private final CursoredPage<?> delegate;
+
+    MappedCursoredPage(List<T> content, CursoredPage<?> delegate) {
+        this.content = List.copyOf(content);
+        this.delegate = requireNonNull(delegate, "delegate is required");
+    }
+
+    @Override
+    public List<T> content() {
+        return content;
+    }
+
+    @Override
+    public boolean hasContent() {
+        return !content.isEmpty();
+    }
+
+    @Override
+    public int numberOfElements() {
+        return content.size();
+    }
+
+    @Override
+    public boolean hasNext() {
+        return delegate.hasNext();
+    }
+
+    @Override
+    public boolean hasPrevious() {
+        return delegate.hasPrevious();
+    }
+
+    @Override
+    public PageRequest pageRequest() {
+        return delegate.pageRequest();
+    }
+
+    @Override
+    public PageRequest nextPageRequest() {
+        return delegate.nextPageRequest();
+    }
+
+    @Override
+    public PageRequest previousPageRequest() {
+        return delegate.previousPageRequest();
+    }
+
+    @Override
+    public boolean hasTotals() {
+        return delegate.hasTotals();
+    }
+
+    @Override
+    public long totalElements() {
+        return delegate.totalElements();
+    }
+
+    @Override
+    public long totalPages() {
+        return delegate.totalPages();
+    }
+
+    @Override
+    public PageRequest.Cursor cursor(int index) {
+        return delegate.cursor(index);
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return content.iterator();
+    }
+}
