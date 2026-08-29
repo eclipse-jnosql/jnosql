@@ -39,6 +39,30 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 - Remove query method from Eclipse JNoSQL
 - Remove singleQuery from Eclipse JNoSQL
 
+== 1.1.17  - 2026-08-29
+
+=== Added
+
+* Added support for asynchronous repository methods using `CompletionStage`.
+* Added support for opt-in mapping settings providers.
+
+=== Changed
+
+* Improved service discovery across different class-loading environments.
+* Improved class loader fallback behavior for service discovery.
+
+=== Fixed
+
+* Fixed `BigInteger` reading to preserve full numeric precision.
+* Fixed pagination so total result counts are honored correctly.
+* Fixed backward cursor navigation.
+* Fixed query method parsing so `And` expressions use the expected precedence.
+
+=== Maintenance
+
+* Updated project licensing configuration.
+* Updated the project version to `1.1.17`.
+
 == [1.1.16] - 2026-08-10
 
 == [1.1.15] - 2026-07-03
