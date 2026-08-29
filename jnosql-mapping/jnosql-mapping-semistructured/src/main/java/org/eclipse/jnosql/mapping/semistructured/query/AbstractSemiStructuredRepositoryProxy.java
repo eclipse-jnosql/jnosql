@@ -143,7 +143,7 @@ public abstract class AbstractSemiStructuredRepositoryProxy<T, K> extends BaseSe
             var cursoredPage = this.template().selectCursor(updateQuery, pageRequest);
             if (method.getAnnotation(Select.class) != null) {
                 var mappedResult = cursoredPage.content().stream().map(mapper(method)).toList();
-                return new MappedCursoredPage<>(mappedResult, cursoredPage);
+                return MappedCursoredPage.of(mappedResult, cursoredPage);
             }
             return cursoredPage;
         }
