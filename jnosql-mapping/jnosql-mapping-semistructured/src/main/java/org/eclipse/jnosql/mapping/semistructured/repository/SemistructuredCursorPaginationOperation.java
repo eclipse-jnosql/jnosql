@@ -114,7 +114,7 @@ class SemistructuredCursorPaginationOperation implements CursorPaginationOperati
         RepositoryMethod method = context.method();
         EntityMetadata entityMetadata = context.entityMetadata();
         var mappedResult = cursoredPage.content().stream().map(returnType.mapper(method, entityMetadata)).toList();
-        return (T) new MappedCursoredPage<>(mappedResult, cursoredPage);
+        return (T) MappedCursoredPage.of(mappedResult, cursoredPage);
     }
 
     private static PageRequest pageRequest(RepositoryMethod method, SpecialParameters special) {

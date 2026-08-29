@@ -338,7 +338,7 @@ public abstract class AbstractSemiStructuredTemplate implements SemiStructuredTe
         }
         CursoredPage<CommunicationEntity> cursoredPage = this.manager().selectCursor(query, pageRequest);
         List<T> entities = cursoredPage.stream().<T>map(c -> converter().toEntity(c)).toList();
-        return new MappedCursoredPage<>(entities, cursoredPage);
+        return MappedCursoredPage.of(entities, cursoredPage);
     }
 
     @Override
