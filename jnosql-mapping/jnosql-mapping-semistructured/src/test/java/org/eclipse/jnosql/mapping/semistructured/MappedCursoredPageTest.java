@@ -43,7 +43,7 @@ class MappedCursoredPageTest {
             var delegate = new CursoredPageRecord<>(
                     List.of(1), List.of(cursor), 3, pageRequest, nextPageRequest, previousPageRequest);
 
-            var page = new MappedCursoredPage<>(List.of("Ada"), delegate);
+            var page = MappedCursoredPage.of(List.of("Ada"), delegate);
 
             assertSoftly(softly -> {
                 softly.assertThat(page.content()).as("mapped content").containsExactly("Ada");
@@ -71,7 +71,7 @@ class MappedCursoredPageTest {
                     List.of(1), List.of(PageRequest.Cursor.forKey("Ada")), -1,
                     PageRequest.ofSize(1), true, true);
 
-            var page = new MappedCursoredPage<>(content, delegate);
+            var page = MappedCursoredPage.of(content, delegate);
             content.clear();
 
             assertSoftly(softly -> {
@@ -95,7 +95,7 @@ class MappedCursoredPageTest {
             var delegate = new CursoredPageRecord<>(
                     List.of(1), List.of(), -1, pageRequest, nextPageRequest, null);
 
-            var page = new MappedCursoredPage<>(List.of("Ada"), delegate);
+            var page = MappedCursoredPage.of(List.of("Ada"), delegate);
 
             assertSoftly(softly -> {
                 softly.assertThat(page.hasNext()).as("next page availability").isTrue();
@@ -112,7 +112,7 @@ class MappedCursoredPageTest {
                     List.of(1), List.of(PageRequest.Cursor.forKey("Ada")), -1,
                     PageRequest.ofSize(1), true, true);
 
-            var page = new MappedCursoredPage<>(List.of("Ada"), delegate);
+            var page = MappedCursoredPage.of(List.of("Ada"), delegate);
 
             assertSoftly(softly -> {
                 softly.assertThat(page.hasTotals()).as("total availability").isFalse();
@@ -139,7 +139,7 @@ class MappedCursoredPageTest {
 
             assertThatNullPointerException()
                     .as("null content")
-                    .isThrownBy(() -> new MappedCursoredPage<>(null, delegate))
+                    .isThrownBy(() -> MappedCursoredPage.of(null, delegate))
                     .withMessage("content is required");
         }
 
@@ -153,7 +153,7 @@ class MappedCursoredPageTest {
 
             assertThatNullPointerException()
                     .as("null content element")
-                    .isThrownBy(() -> new MappedCursoredPage<>(content, delegate));
+                    .isThrownBy(() -> MappedCursoredPage.of(content, delegate));
         }
 
         @Test
@@ -161,7 +161,7 @@ class MappedCursoredPageTest {
         void shouldRejectNullDelegate() {
             assertThatNullPointerException()
                     .as("null delegate")
-                    .isThrownBy(() -> new MappedCursoredPage<>(List.of("Ada"), null))
+                    .isThrownBy(() -> MappedCursoredPage.of(List.of("Ada"), null))
                     .withMessage("delegate is required");
         }
     }
