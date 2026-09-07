@@ -12,6 +12,7 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *   Mohan Lal
  *
  */
 package org.eclipse.jnosql.communication;
@@ -21,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ServiceLoader;
+import org.eclipse.jnosql.communication.util.ServiceDiscovery;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -37,8 +38,8 @@ public final class ValueReaderDecorator implements ValueReader {
     private final List<ValueReader> readers = new ArrayList<>();
 
     {
-        ServiceLoader.load(ValueReader.class).stream()
-                .map(ServiceLoader.Provider::get)
+        ServiceDiscovery.of(ValueReader.class, ValueReader.class)
+                .all()
                 .forEach(readers::add);
     }
 

@@ -8,17 +8,17 @@
  *  You may elect to redistribute this code under either of these licenses.
  *  Contributors:
  *  Otavio Santana
+ *  Mohan Lal
  */
 package org.eclipse.jnosql.communication.keyvalue;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 
 import org.eclipse.jnosql.communication.CommunicationException;
 import org.eclipse.jnosql.communication.Settings;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.ServiceLoader;
-import java.util.function.Function;
+import org.eclipse.jnosql.communication.util.ServiceDiscovery;
 
 /**
  * It is a function that reads from {@link Settings} and then creates a manager factory instance.
@@ -29,28 +29,30 @@ import java.util.function.Function;
  */
 public interface KeyValueConfiguration extends Function<Settings, BucketManagerFactory> {
 
-    List<KeyValueConfiguration> CONFIGURATIONS = ServiceLoader.load(KeyValueConfiguration.class).stream()
-            .map(ServiceLoader.Provider::get)
-            .toList();
+    List<KeyValueConfiguration> CONFIGURATIONS =
+            ServiceDiscovery.of(KeyValueConfiguration.class, KeyValueConfiguration.class)
+                    .all();
 
     /**
-     * creates and returns a  {@link KeyValueConfiguration}  instance from {@link ServiceLoader}
+     * Creates and returns a {@link KeyValueConfiguration} instance.
      *
      * @param <T> the configuration type
      * @return {@link KeyValueConfiguration} instance
      */
     @SuppressWarnings("unchecked")
     static <T extends KeyValueConfiguration> T getConfiguration() {
-       return (T) CONFIGURATIONS
+        return (T) CONFIGURATIONS
                 .stream()
-               .findFirst().orElseThrow(() -> new CommunicationException("No KeyValueConfiguration implementation found!"));
+                .findFirst()
+                .orElseThrow(() ->
+                        new CommunicationException("No KeyValueConfiguration implementation found!"));
     }
 
     /**
-     * creates and returns a  {@link KeyValueConfiguration} instance from {@link ServiceLoader}
+     * Creates and returns a {@link KeyValueConfiguration} instance
      * for a particular provider implementation.
      *
-     * @param <T>      the configuration type
+     * @param <T>  the configuration type
      * @param type the particular provider
      * @return {@link KeyValueConfiguration} instance
      */
@@ -60,6 +62,9 @@ public interface KeyValueConfiguration extends Function<Settings, BucketManagerF
         return (T) CONFIGURATIONS
                 .stream()
                 .filter(type::isInstance)
-                .findFirst().orElseThrow(() -> new CommunicationException("No KeyValueConfiguration implementation found!"));
+                .findFirst()
+                .orElseThrow(() ->
+                        new CommunicationException(
+                                "No KeyValueConfiguration implementation found!"));
     }
 }

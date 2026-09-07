@@ -11,6 +11,7 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *   Mohan Lal
  */
 package org.eclipse.jnosql.mapping.reflection;
 
@@ -30,14 +31,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.ServiceLoader;
+import org.eclipse.jnosql.communication.util.ServiceDiscovery;
 
 final class DefaultCollectionFieldMetadata extends AbstractFieldMetadata implements CollectionFieldMetadata {
 
     @SuppressWarnings("rawtypes")
-    private static final List<CollectionSupplier> COLLECTION_SUPPLIERS = ServiceLoader.load(CollectionSupplier.class) .stream()
-            .map(ServiceLoader.Provider::get)
-            .toList();
+    private static final List<CollectionSupplier> COLLECTION_SUPPLIERS =
+            ServiceDiscovery.of(CollectionSupplier.class, DefaultCollectionFieldMetadata.class)
+                    .all();
 
     private final TypeSupplier<?> typeSupplier;
     private final boolean entityField;

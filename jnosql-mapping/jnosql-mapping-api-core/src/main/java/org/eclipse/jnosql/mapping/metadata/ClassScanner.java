@@ -33,7 +33,7 @@ public interface ClassScanner {
             .first()
             .orElseThrow(() ->
                     new MetadataException(
-                            "No implementation of ClassScanner found via ServiceLoader"));
+                            "No implementation of ClassScanner found via ServiceDiscovery"));
 
     /**
      * Returns a set of classes that are annotated with the {@link jakarta.nosql.Entity} annotation.

@@ -12,6 +12,7 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *   Mohan Lal
  *
  */
 package org.eclipse.jnosql.communication;
@@ -19,7 +20,7 @@ package org.eclipse.jnosql.communication;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ServiceLoader;
+import org.eclipse.jnosql.communication.util.ServiceDiscovery;
 
 /**
  * Decorators of all {@link TypeReferenceReader}
@@ -33,8 +34,8 @@ public final class TypeReferenceReaderDecorator implements TypeReferenceReader {
     private final List<TypeReferenceReader> readers = new ArrayList<>();
 
     {
-        ServiceLoader.load(TypeReferenceReader.class).stream()
-                .map(ServiceLoader.Provider::get)
+        ServiceDiscovery.of(TypeReferenceReader.class, TypeReferenceReader.class)
+                .all()
                 .forEach(readers::add);
     }
 

@@ -11,6 +11,7 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *   Mohan Lal
  */
 package org.eclipse.jnosql.mapping.reflection;
 
@@ -26,14 +27,14 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.List;
-import java.util.ServiceLoader;
+import org.eclipse.jnosql.communication.util.ServiceDiscovery;
 
 class DefaultCollectionParameterMetaData extends DefaultParameterMetaData implements CollectionParameterMetaData {
 
     @SuppressWarnings("rawtypes")
-    private static final List<CollectionSupplier> COLLECTION_SUPPLIERS = ServiceLoader.load(CollectionSupplier.class).stream()
-            .map(ServiceLoader.Provider::get)
-            .toList();
+    private static final List<CollectionSupplier> COLLECTION_SUPPLIERS =
+            ServiceDiscovery.of(CollectionSupplier.class, DefaultCollectionParameterMetaData.class)
+                    .all();
 
     private final Class<?> elementType;
 

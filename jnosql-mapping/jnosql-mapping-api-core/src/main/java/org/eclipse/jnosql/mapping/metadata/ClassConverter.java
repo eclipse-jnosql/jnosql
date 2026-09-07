@@ -42,7 +42,7 @@ public interface ClassConverter extends Function<Class<?>, EntityMetadata> {
             .first()
             .orElseThrow(() ->
                     new MetadataException(
-                            "No implementation of ClassConverter found via ServiceLoader"));
+                            "No implementation of ClassConverter found via ServiceDiscovery"));
 
     /**
      * Loads and returns an instance of the {@link ClassConverter} implementation using the ServiceLoader mechanism.
