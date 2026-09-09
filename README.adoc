@@ -486,13 +486,10 @@ Map a time-series record as a Jakarta NoSQL entity:
 public class SensorReading {
 
     @Id
-    private String id;
+    private Instant timestamp;
 
     @Column
     private String sensor;
-
-    @Column
-    private Instant timestamp;
 
     @Column
     private double value;
@@ -509,15 +506,14 @@ Inject `TimeSeriesTemplate` to perform persistence and query operations:
 private TimeSeriesTemplate template;
 
 SensorReading reading = new SensorReading(
-        UUID.randomUUID().toString(),
-        "sensor-1",
         Instant.now(),
+        "sensor-1",
         21.5);
 
 template.insert(reading);
 
 Optional<SensorReading> result =
-        template.find(SensorReading.class, reading.getId());
+        template.find(SensorReading.class, reading.getTimestamp());
 
 List<SensorReading> readings = template.select(SensorReading.class)
         .where("sensor").eq("sensor-1")
