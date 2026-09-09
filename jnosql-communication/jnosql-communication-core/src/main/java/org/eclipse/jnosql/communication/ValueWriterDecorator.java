@@ -12,15 +12,15 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *   Mohan Lal
  *
  */
 
 package org.eclipse.jnosql.communication;
 
-
+import org.eclipse.jnosql.communication.util.ServiceDiscovery;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ServiceLoader;
 
 /**
  * Decorators of all {@link ValueWriter} supported by Diana
@@ -36,7 +36,9 @@ public final class ValueWriterDecorator<T, S> implements ValueWriter<T, S> {
     private final List<ValueWriter> writers = new ArrayList<>();
 
     {
-        ServiceLoader.load(ValueWriter.class).forEach(writers::add);
+        ServiceDiscovery.of(ValueWriter.class, ValueWriter.class)
+                .all()
+                .forEach(writers::add);
     }
 
     private ValueWriterDecorator() {
