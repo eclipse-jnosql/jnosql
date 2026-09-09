@@ -24,6 +24,7 @@ import static org.eclipse.jnosql.mapping.DatabaseType.COLUMN;
 import static org.eclipse.jnosql.mapping.DatabaseType.DOCUMENT;
 import static org.eclipse.jnosql.mapping.DatabaseType.GRAPH;
 import static org.eclipse.jnosql.mapping.DatabaseType.KEY_VALUE;
+import static org.eclipse.jnosql.mapping.DatabaseType.TIME_SERIES;
 
 
 /**
@@ -38,6 +39,8 @@ public final class DatabaseQualifier extends AnnotationLiteral<Database> impleme
     private static final DatabaseQualifier DEFAULT_KEY_VALUE_PROVIDER = new DatabaseQualifier("", KEY_VALUE);
 
     private static final DatabaseQualifier DEFAULT_GRAPH_PROVIDER = new DatabaseQualifier("", GRAPH);
+
+    private static final DatabaseQualifier DEFAULT_TIME_SERIES_PROVIDER = new DatabaseQualifier("", TIME_SERIES);
 
     private final String provider;
 
@@ -160,5 +163,31 @@ public final class DatabaseQualifier extends AnnotationLiteral<Database> impleme
             return DEFAULT_KEY_VALUE_PROVIDER;
         }
         return new DatabaseQualifier(provider, GRAPH);
+    }
+
+    /**
+     * Returns the qualifier filter with time-series type {@link DatabaseType#TIME_SERIES}
+     * and the NoSQL provider default.
+     *
+     * @return the default time-series provider
+     */
+    public static DatabaseQualifier ofTimeSeries() {
+        return DEFAULT_TIME_SERIES_PROVIDER;
+    }
+
+    /**
+     * Returns the qualifier filter with time-series type {@link DatabaseType#TIME_SERIES} and the
+     * NoSQL provider defined.
+     *
+     * @param provider the provider
+     * @return the qualifier filter instance
+     * @throws NullPointerException when provider is null
+     */
+    public static DatabaseQualifier ofTimeSeries(String provider) {
+        Objects.requireNonNull(provider, "provider is required");
+        if (StringUtils.isBlank(provider)) {
+            return DEFAULT_TIME_SERIES_PROVIDER;
+        }
+        return new DatabaseQualifier(provider, TIME_SERIES);
     }
 }

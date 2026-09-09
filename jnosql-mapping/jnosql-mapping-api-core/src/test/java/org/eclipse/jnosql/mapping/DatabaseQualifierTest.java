@@ -19,8 +19,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.eclipse.jnosql.mapping.DatabaseType.COLUMN;
 import static org.eclipse.jnosql.mapping.DatabaseType.DOCUMENT;
-import static org.eclipse.jnosql.mapping.DatabaseType.KEY_VALUE;
 import static org.eclipse.jnosql.mapping.DatabaseType.GRAPH;
+import static org.eclipse.jnosql.mapping.DatabaseType.KEY_VALUE;
+import static org.eclipse.jnosql.mapping.DatabaseType.TIME_SERIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -105,5 +106,25 @@ class DatabaseQualifierTest {
         DatabaseQualifier qualifier = DatabaseQualifier.ofGraph();
         assertEquals("", qualifier.provider());
         assertEquals(GRAPH, qualifier.value());
+    }
+
+    @Test
+    void shouldReturnErrorWhenTimeSeriesNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> DatabaseQualifier.ofTimeSeries(null));
+    }
+
+    @Test
+    void shouldReturnTimeSeriesProvider() {
+        String provider = "provider";
+        DatabaseQualifier qualifier = DatabaseQualifier.ofTimeSeries(provider);
+        assertEquals(provider, qualifier.provider());
+        assertEquals(TIME_SERIES, qualifier.value());
+    }
+
+    @Test
+    void shouldReturnDefaultTimeSeries() {
+        DatabaseQualifier qualifier = DatabaseQualifier.ofTimeSeries();
+        assertEquals("", qualifier.provider());
+        assertEquals(TIME_SERIES, qualifier.value());
     }
 }
