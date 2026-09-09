@@ -38,6 +38,7 @@
         <module>jnosql-mapping-semistructured</module>
         <module>jnosql-mapping-graph</module>
         <module>jnosql-mapping-document</module>
+        <module>jnosql-mapping-timeseries</module>
         <module>jnosql-mapping-column</module>
         <module>jnosql-mapping-key-value</module>
     </modules>
