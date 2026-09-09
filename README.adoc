@@ -20,7 +20,7 @@ Eclipse JNoSQL is a compatible implementation of the https://jakarta.ee/specific
 
 == Why Eclipse JNoSQL?
 
-Eclipse JNoSQL is a Java framework that unifies NoSQL access across different database types, including Key-Value, Column Family, Document, and Graph. Built on top of the Jakarta NoSQL and Jakarta Data specifications, it simplifies development through standard annotations, fluent APIs, and full compatibility with Jakarta EE and MicroProfile runtimes.
+Eclipse JNoSQL is a Java framework that unifies NoSQL access across different database types, including Key-Value, Column Family, Document, Graph, and Time Series. Built on top of the Jakarta NoSQL and Jakarta Data specifications, it simplifies development through standard annotations, fluent APIs, and full compatibility with Jakarta EE and MicroProfile runtimes.
 
 Use Eclipse JNoSQL to:
 
@@ -144,14 +144,15 @@ Eclipse JNoSQL requires these minimum requirements:
 
 === NoSQL Database Types
 
-Eclipse JNoSQL provides common annotations and interfaces. Thus, the same annotations and interfaces, ```Template``` and ```Repository```, will work on the four NoSQL database types.
+Eclipse JNoSQL provides common annotations and interfaces. Thus, the same annotations and interfaces, ```Template``` and ```Repository```, will work across the supported NoSQL database types.
 
-As a reference implementation for Jakarta NoSQL, Eclipse JNosql provides particular behavior to the database type required by the specification, including the Graph database type, it means, Eclipse JNoSQL covers the four NoSQL database types:
+As a reference implementation for Jakarta NoSQL, Eclipse JNoSQL provides particular behavior for each database type required by the specification and also supports Graph and Time Series databases:
 
 * Key-Value
 * Column Family
 * Document
 * Graph
+* Time Series
 
 === Key-Value
 
@@ -473,6 +474,120 @@ public DocumentManager getManagerB() {
 }
 ----
 
+=== Time Series
+
+Use the Time Series Mapping module to store, query, and manage Java entities in a time-series database.
+
+Add the module to your project:
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.eclipse.jnosql.mapping</groupId>
+    <artifactId>jnosql-mapping-timeseries</artifactId>
+    <version>1.1.17</version>
+</dependency>
+----
+
+Map a time-series record as a Jakarta NoSQL entity:
+
+[source,java]
+----
+@Entity
+public class SensorReading {
+
+    @Id
+    private String id;
+
+    @Column
+    private String sensor;
+
+    @Column
+    private Instant timestamp;
+
+    @Column
+    private double value;
+
+    // constructors, getters, and setters
+}
+----
+
+Inject `TimeSeriesTemplate` to perform persistence and query operations:
+
+[source,java]
+----
+@Inject
+private TimeSeriesTemplate template;
+
+SensorReading reading = new SensorReading(
+        UUID.randomUUID().toString(),
+        "sensor-1",
+        Instant.now(),
+        21.5);
+
+template.insert(reading);
+
+Optional<SensorReading> result =
+        template.find(SensorReading.class, reading.getId());
+
+List<SensorReading> readings = template.select(SensorReading.class)
+        .where("sensor").eq("sensor-1")
+        .result();
+----
+
+You can also use Jakarta Data repositories:
+
+[source,java]
+----
+@Repository
+public interface SensorReadingRepository
+        extends BasicRepository<SensorReading, String> {
+
+    List<SensorReading> findBySensor(String sensor);
+}
+
+@Inject
+@Database(DatabaseType.TIME_SERIES)
+private SensorReadingRepository repository;
+----
+
+Configure the database name and provider using MicroProfile Config:
+
+[source,properties]
+----
+jnosql.timeseries.database=<DATABASE>
+jnosql.timeseries.provider=<CLASS-DRIVER>
+jnosql.provider.host=<HOST>
+jnosql.provider.user=<USER>
+jnosql.provider.******
+----
+
+TIP: The `jnosql.timeseries.provider` property is necessary when more than one time-series database provider is available in the classpath.
+
+Applications that create the database manager programmatically can expose it through CDI:
+
+[source,java]
+----
+@Produces
+@Database(DatabaseType.TIME_SERIES)
+public DatabaseManager getTimeSeriesManager() {
+    return manager;
+}
+----
+
+Use named providers when the application connects to multiple time-series databases:
+
+[source,java]
+----
+@Inject
+@Database(value = DatabaseType.TIME_SERIES, provider = "metrics")
+private TimeSeriesTemplate metrics;
+
+@Inject
+@Database(value = DatabaseType.TIME_SERIES, provider = "audit")
+private TimeSeriesTemplate audit;
+----
+
 === Graph
 
 Eclipse JNoSQL provides a Graph API that simplifies working with graph databases such as Neo4j and Apache TinkerPop. This API enables seamless integration with graph databases while following the Jakarta NoSQL specifications.
@@ -562,7 +677,7 @@ Eclipse JNoSQL as a https://jakarta.ee/specifications/data/1.0/jakarta-data-1.0[
 
 === Jakarta NoSQL
 
-Eclipse JNoSQL is a https://jakarta.ee/specifications/nosql/1.0/jakarta-nosql-1.0[Jakarta NoSQL] implementation that provides a standard way to access NoSQL databases in Java applications. It offers a set of annotations and APIs to interact with various NoSQL database types, including Key-Value, Column Family, Document, and Graph.
+Eclipse JNoSQL is a https://jakarta.ee/specifications/nosql/1.0/jakarta-nosql-1.0[Jakarta NoSQL] implementation that provides a standard way to access NoSQL databases in Java applications. It offers a set of annotations and APIs to interact with various NoSQL database types, including Key-Value, Column Family, Document, Graph, and Time Series.
 
 === More Information
 

@@ -22,6 +22,7 @@ import static org.eclipse.jnosql.mapping.DatabaseType.COLUMN;
 import static org.eclipse.jnosql.mapping.DatabaseType.DOCUMENT;
 import static org.eclipse.jnosql.mapping.DatabaseType.GRAPH;
 import static org.eclipse.jnosql.mapping.DatabaseType.KEY_VALUE;
+import static org.eclipse.jnosql.mapping.DatabaseType.TIME_SERIES;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
@@ -160,6 +161,40 @@ class DatabaseQualifierTest {
             assertSoftly(softly -> {
                 softly.assertThat(qualifier.provider()).isEmpty();
                 softly.assertThat(qualifier.value()).isEqualTo(GRAPH);
+            });
+        }
+    }
+
+    @Nested
+    @DisplayName("When the time-series qualifier is requested")
+    class WhenTheTimeSeriesQualifierIsRequested {
+
+        @Test
+        @DisplayName("Should reject a null provider")
+        void shouldRejectANullProvider() {
+            assertThatNullPointerException().isThrownBy(() -> DatabaseQualifier.ofTimeSeries(null));
+        }
+
+        @Test
+        @DisplayName("Should return a time-series qualifier with the given provider")
+        void shouldReturnATimeSeriesQualifierWithTheGivenProvider() {
+            String provider = "provider";
+            DatabaseQualifier qualifier = DatabaseQualifier.ofTimeSeries(provider);
+
+            assertSoftly(softly -> {
+                softly.assertThat(qualifier.provider()).isEqualTo(provider);
+                softly.assertThat(qualifier.value()).isEqualTo(TIME_SERIES);
+            });
+        }
+
+        @Test
+        @DisplayName("Should return the default time-series qualifier")
+        void shouldReturnTheDefaultTimeSeriesQualifier() {
+            DatabaseQualifier qualifier = DatabaseQualifier.ofTimeSeries();
+
+            assertSoftly(softly -> {
+                softly.assertThat(qualifier.provider()).isEmpty();
+                softly.assertThat(qualifier.value()).isEqualTo(TIME_SERIES);
             });
         }
     }

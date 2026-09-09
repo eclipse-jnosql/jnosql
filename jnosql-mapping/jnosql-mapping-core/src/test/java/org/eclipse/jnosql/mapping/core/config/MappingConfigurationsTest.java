@@ -58,6 +58,18 @@ class MappingConfigurationsTest {
             String expectedValue = "jnosql.document.database";
             assertThat(MappingConfigurations.DOCUMENT_DATABASE.get()).isEqualTo(expectedValue);
         }
+        @DisplayName("Should return value for time-series provider")
+        @Test
+        void shouldReturnValueForTimeSeriesProvider() {
+            String expectedValue = "jnosql.timeseries.provider";
+            assertThat(MappingConfigurations.TIME_SERIES_PROVIDER.get()).isEqualTo(expectedValue);
+        }
+        @DisplayName("Should return value for time-series database")
+        @Test
+        void shouldReturnValueForTimeSeriesDatabase() {
+            String expectedValue = "jnosql.timeseries.database";
+            assertThat(MappingConfigurations.TIME_SERIES_DATABASE.get()).isEqualTo(expectedValue);
+        }
         @DisplayName("Should return value for column provider")
         @Test
         void shouldReturnValueForColumnProvider() {

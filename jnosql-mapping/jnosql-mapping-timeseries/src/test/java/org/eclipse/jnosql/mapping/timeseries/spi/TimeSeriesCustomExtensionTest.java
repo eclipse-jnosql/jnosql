@@ -12,16 +12,16 @@
  *
  *   Otavio Santana
  */
-package org.eclipse.jnosql.mapping.document.spi;
+package org.eclipse.jnosql.mapping.timeseries.spi;
 
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.document.DocumentTemplate;
-import org.eclipse.jnosql.mapping.document.MockProducer;
-import org.eclipse.jnosql.mapping.document.entities.People;
-import org.eclipse.jnosql.mapping.document.entities.Person;
+import org.eclipse.jnosql.mapping.timeseries.TimeSeriesTemplate;
+import org.eclipse.jnosql.mapping.timeseries.MockProducer;
+import org.eclipse.jnosql.mapping.timeseries.entities.People;
+import org.eclipse.jnosql.mapping.timeseries.entities.Person;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
@@ -36,19 +36,19 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 
 @EnableAutoWeld
-@AddPackages(value = {Converters.class, EntityConverter.class, DocumentTemplate.class})
+@AddPackages(value = {Converters.class, EntityConverter.class, TimeSeriesTemplate.class})
 @AddPackages(MockProducer.class)
 @AddPackages(Reflections.class)
-@AddExtensions({ReflectionEntityMetadataExtension.class, DocumentExtension.class})
-@DisplayName("Document custom extension")
-class DocumentCustomExtensionTest {
+@AddExtensions({ReflectionEntityMetadataExtension.class, TimeSeriesExtension.class})
+@DisplayName("TimeSeries custom extension")
+class TimeSeriesCustomExtensionTest {
 
     @Inject
-    @Database(value = DatabaseType.DOCUMENT)
+    @Database(value = DatabaseType.TIME_SERIES)
     private People people;
 
     @Inject
-    @Database(value = DatabaseType.DOCUMENT, provider = "documentRepositoryMock")
+    @Database(value = DatabaseType.TIME_SERIES, provider = "timeseriesRepositoryMock")
     private People peopleMock;
 
     @Inject
@@ -84,7 +84,7 @@ class DocumentCustomExtensionTest {
             assertSoftly(softly -> {
                 softly.assertThat(peopleMock).isNotNull();
                 softly.assertThat(person).isNotNull();
-                softly.assertThat(person.getName()).isEqualTo("documentRepositoryMock");
+                softly.assertThat(person.getName()).isEqualTo("timeseriesRepositoryMock");
             });
         }
 
