@@ -133,14 +133,15 @@ Eclipse JNoSQL requires these minimum requirements:
 
 === NoSQL Database Types
 
-Eclipse JNoSQL provides common annotations and interfaces. Thus, the same annotations and interfaces, ```Template``` and ```Repository```, will work on the four NoSQL database types.
+Eclipse JNoSQL provides common annotations and interfaces. Thus, the same annotations and interfaces, ```Template``` and ```Repository```, will work across the supported NoSQL database types.
 
-As a reference implementation for Jakarta NoSQL, Eclipse JNosql provides particular behavior to the database type required by the specification, including the Graph database type, it means, Eclipse JNoSQL covers the four NoSQL database types:
+As a reference implementation for Jakarta NoSQL, Eclipse JNoSQL provides particular behavior for each database type required by the specification and also supports Graph and Time Series databases:
 
 * Key-Value
 * Column Family
 * Document
 * Graph
+* Time Series
 
 === Key-Value
 
@@ -460,6 +461,116 @@ public DocumentManager getManagerA() {
 public DocumentManager getManagerB() {
     return manager;
 }
+----
+
+=== Time Series
+
+Use the Time Series Mapping module to store, query, and manage Java entities in a time-series database.
+
+Add the module to your project:
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.eclipse.jnosql.mapping</groupId>
+    <artifactId>jnosql-mapping-timeseries</artifactId>
+    <version>1.1.17</version>
+</dependency>
+----
+
+Map a time-series record as a Jakarta NoSQL entity:
+
+[source,java]
+----
+@Entity
+public class SensorReading {
+
+    @Id
+    private Instant timestamp;
+
+    @Column
+    private String sensor;
+
+    @Column
+    private double value;
+
+    // constructors, getters, and setters
+}
+----
+
+Inject `TimeSeriesTemplate` to perform persistence and query operations:
+
+[source,java]
+----
+@Inject
+private TimeSeriesTemplate template;
+
+SensorReading reading = new SensorReading(
+        Instant.now(),
+        "sensor-1",
+        21.5);
+
+template.insert(reading);
+
+Optional<SensorReading> result =
+        template.find(SensorReading.class, reading.getTimestamp());
+
+List<SensorReading> readings = template.select(SensorReading.class)
+        .where("sensor").eq("sensor-1")
+        .result();
+----
+
+You can also use Jakarta Data repositories:
+
+[source,java]
+----
+@Repository
+public interface SensorReadingRepository
+        extends BasicRepository<SensorReading, String> {
+
+    List<SensorReading> findBySensor(String sensor);
+}
+
+@Inject
+@Database(DatabaseType.TIME_SERIES)
+private SensorReadingRepository repository;
+----
+
+Configure the database name and provider using MicroProfile Config:
+
+[source,properties]
+----
+jnosql.timeseries.database=<DATABASE>
+jnosql.timeseries.provider=<CLASS-DRIVER>
+jnosql.provider.host=<HOST>
+jnosql.provider.user=<USER>
+jnosql.provider.******
+----
+
+TIP: The `jnosql.timeseries.provider` property is necessary when more than one time-series database provider is available in the classpath.
+
+Applications that create the database manager programmatically can expose it through CDI:
+
+[source,java]
+----
+@Produces
+@Database(DatabaseType.TIME_SERIES)
+public DatabaseManager getTimeSeriesManager() {
+    return manager;
+}
+----
+
+Use named providers when the application connects to multiple time-series databases:
+
+[source,java]
+----
+@Inject
+@Database(value = DatabaseType.TIME_SERIES, provider = "metrics")
+private TimeSeriesTemplate metrics;
+
+@Inject
+@Database(value = DatabaseType.TIME_SERIES, provider = "audit")
+private TimeSeriesTemplate audit;
 ----
 
 === Graph

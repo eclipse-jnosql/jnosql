@@ -51,6 +51,11 @@ public enum DatabaseType {
      */
     GRAPH,
     /**
+     * A time-series database is optimized for storing and querying data points indexed in time order.
+     * It is commonly used for metrics, events, telemetry, and other values that change over time.
+     */
+    TIME_SERIES,
+    /**
      * That is not a NoSQL type; it defines resources shared among the NoSQL types.
      */
     SHARED

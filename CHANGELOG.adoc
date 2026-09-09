@@ -8,6 +8,10 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 
 == [Unreleased]
 
+=== Added
+
+- Add the `jnosql-mapping-timeseries` module with `TimeSeriesTemplate`, repository, CDI, and configuration support
+
 == [1.1.17] - 2026-08-29
 
 == [1.1.16] - 2026-08-10

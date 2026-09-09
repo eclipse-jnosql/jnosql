@@ -45,6 +45,18 @@ class MappingConfigurationsTest {
     }
 
     @Test
+    void shouldReturnValueForTimeSeriesProvider() {
+        String expectedValue = "jnosql.timeseries.provider";
+        assertEquals(expectedValue, MappingConfigurations.TIME_SERIES_PROVIDER.get());
+    }
+
+    @Test
+    void shouldReturnValueForTimeSeriesDatabase() {
+        String expectedValue = "jnosql.timeseries.database";
+        assertEquals(expectedValue, MappingConfigurations.TIME_SERIES_DATABASE.get());
+    }
+
+    @Test
     void shouldReturnValueForColumnProvider() {
         String expectedValue = "jnosql.column.provider";
         assertEquals(expectedValue, MappingConfigurations.COLUMN_PROVIDER.get());

@@ -47,7 +47,7 @@ class DocumentCustomExtensionTest {
 
     @Inject
     @Database(value = DatabaseType.DOCUMENT, provider = "documentRepositoryMock")
-    private People pepoleMock;
+    private People peopleMock;
 
     @Inject
     private People repository;
@@ -64,9 +64,9 @@ class DocumentCustomExtensionTest {
 
     @Test
     void shouldUseMock(){
-        assertNotNull(pepoleMock);
+        assertNotNull(peopleMock);
 
-        Person person = pepoleMock.insert(Person.builder().build());
+        Person person = peopleMock.insert(Person.builder().build());
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(person).isNotNull();
             soft.assertThat(person.getName()).isEqualTo("documentRepositoryMock");

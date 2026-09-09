@@ -39,6 +39,15 @@ public enum MappingConfigurations implements Supplier<String> {
      */
     DOCUMENT_DATABASE("jnosql.document.database"),
     /**
+     * Define the DatabaseConfiguration that creates a time-series DatabaseManager instance.
+     * It is necessary when there is more than one implementation; otherwise, it will find one automatically.
+     */
+    TIME_SERIES_PROVIDER("jnosql.timeseries.provider"),
+    /**
+     * Define the time-series database name.
+     */
+    TIME_SERIES_DATABASE("jnosql.timeseries.database"),
+    /**
      * Define the ColumnConfiguration that creates a ColumnManager instance.
      * It is necessary when there is more than one implementation; otherwise,  it will find automatically.
      */

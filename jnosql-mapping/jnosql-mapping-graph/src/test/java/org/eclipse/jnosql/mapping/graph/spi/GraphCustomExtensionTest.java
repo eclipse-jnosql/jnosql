@@ -47,7 +47,7 @@ class GraphCustomExtensionTest {
 
     @Inject
     @Database(value = DatabaseType.GRAPH, provider = "graphRepositoryMock")
-    private People pepoleMock;
+    private People peopleMock;
 
     @Inject
     private People repository;
@@ -64,9 +64,9 @@ class GraphCustomExtensionTest {
 
     @Test
     void shouldUseMock(){
-        assertNotNull(pepoleMock);
+        assertNotNull(peopleMock);
 
-        Person person = pepoleMock.insert(Person.builder().build());
+        Person person = peopleMock.insert(Person.builder().build());
         SoftAssertions.assertSoftly(soft -> {
             soft.assertThat(person).isNotNull();
             soft.assertThat(person.getName()).isEqualTo("graphRepositoryMock");

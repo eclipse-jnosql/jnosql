@@ -71,6 +71,7 @@ abstract class BaseRepositoryBean<T> extends AbstractBean<T> {
             case COLUMN -> DatabaseQualifier.ofColumn();
             case DOCUMENT -> DatabaseQualifier.ofDocument();
             case GRAPH -> DatabaseQualifier.ofGraph();
+            case TIME_SERIES -> DatabaseQualifier.ofTimeSeries();
             default -> throw new IllegalArgumentException("Unsupported database type: " + databaseType);
         };
     }
@@ -80,6 +81,7 @@ abstract class BaseRepositoryBean<T> extends AbstractBean<T> {
             case COLUMN -> DatabaseQualifier.ofColumn(provider);
             case DOCUMENT -> DatabaseQualifier.ofDocument(provider);
             case GRAPH -> DatabaseQualifier.ofGraph(provider);
+            case TIME_SERIES -> DatabaseQualifier.ofTimeSeries(provider);
             default -> throw new IllegalArgumentException("Unsupported database type: " + databaseType);
         };
     }
