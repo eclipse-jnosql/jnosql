@@ -49,7 +49,7 @@ class ColumnCustomExtensionTest {
 
     @Inject
     @Database(value = DatabaseType.COLUMN, provider = "columnRepositoryMock")
-    private People pepoleMock;
+    private People peopleMock;
 
     @Inject
     private People repository;
@@ -79,11 +79,11 @@ class ColumnCustomExtensionTest {
         void shouldInjectProviderCustomRepository() {
 
             // When
-            Person person = pepoleMock.insert(Person.builder().build());
+            Person person = peopleMock.insert(Person.builder().build());
 
             // Then
             assertSoftly(softly -> {
-                softly.assertThat(pepoleMock).isNotNull();
+                softly.assertThat(peopleMock).isNotNull();
                 softly.assertThat(person).isNotNull();
                 softly.assertThat(person.getName()).isEqualTo("columnRepositoryMock");
             });
