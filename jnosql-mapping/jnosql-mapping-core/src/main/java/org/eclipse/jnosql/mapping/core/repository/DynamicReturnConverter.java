@@ -11,17 +11,18 @@
  *   Contributors:
  *
  *   Otavio Santana
+ *   Mohan Lal
  */
 package org.eclipse.jnosql.mapping.core.repository;
 
 import jakarta.data.page.PageRequest;
+import org.eclipse.jnosql.communication.util.ServiceDiscovery;
 import org.eclipse.jnosql.mapping.PreparedStatement;
 import org.eclipse.jnosql.mapping.core.NoSQLPage;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.ServiceLoader;
 import java.util.function.Function;
 import java.util.function.LongSupplier;
 import java.util.stream.Stream;
@@ -35,9 +36,10 @@ public enum DynamicReturnConverter {
 
     private final RepositoryReturn defaultReturn = new DefaultRepositoryReturn();
 
-    private final List<RepositoryReturn> repositoryReturns = ServiceLoader.load(RepositoryReturn.class) .stream()
-            .map(ServiceLoader.Provider::get)
-            .toList();
+    private final List<RepositoryReturn> repositoryReturns =
+            ServiceDiscovery
+                    .of(RepositoryReturn.class, DynamicReturnConverter.class)
+                    .all();
 
     /**
      * Converts the entity from the Method return type.

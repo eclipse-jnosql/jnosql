@@ -19,8 +19,7 @@ package org.eclipse.jnosql.mapping.metadata;
 import jakarta.nosql.NoSQLException;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.ServiceLoader;
+import org.eclipse.jnosql.communication.util.ServiceDiscovery;
 
 /**
  * The ConstructorBuilder interface provides a way to create an entity from a constructor.
@@ -32,27 +31,15 @@ import java.util.ServiceLoader;
  */
 public interface ConstructorBuilder {
 
-    ConstructorBuilderSupplier CONSTRUCTOR_BUILDER_SUPPLIER = loadConstructorBuilderSupplier();
-
-    private static ConstructorBuilderSupplier loadConstructorBuilderSupplier() {
-        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-
-        if (tccl != null) {
-            Optional<ConstructorBuilderSupplier> viaTccl =
-                    ServiceLoader.load(ConstructorBuilderSupplier.class, tccl).findFirst();
-
-            if (viaTccl.isPresent()) {
-                return viaTccl.get();
-            }
-        }
-
-        return ServiceLoader.load(
-                        ConstructorBuilderSupplier.class,
-                        ConstructorBuilder.class.getClassLoader())
-                .findFirst()
-                .orElseThrow(() ->
-                        new NoSQLException("There is not implementation for the ConstructorBuilderSupplier"));
-    }
+    ConstructorBuilderSupplier CONSTRUCTOR_BUILDER_SUPPLIER =
+            ServiceDiscovery
+                    .of(
+                            ConstructorBuilderSupplier.class,
+                            ConstructorBuilder.class)
+                    .first()
+                    .orElseThrow(() ->
+                            new NoSQLException(
+                                    "There is not implementation for the ConstructorBuilderSupplier"));
 
     /**
      * Returns the constructor parameters.
