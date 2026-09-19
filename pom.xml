@@ -66,10 +66,10 @@
         <maven-javadoc-plugin.vesion>3.12.0</maven-javadoc-plugin.vesion>
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
-        <maven.compile.version>3.15.0</maven.compile.version>
+        <maven.compile.version>3.16.0</maven.compile.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
+        <maven.surefire.plugin.version>3.6.0</maven.surefire.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sonar.jacoco.reportPath>../target/jacoco.exec</sonar.jacoco.reportPath>
         <sonar.maven.version>5.7.0.6970</sonar.maven.version>
@@ -82,7 +82,7 @@
 
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
-        <checkstyle.version>14.0.0</checkstyle.version>
+        <checkstyle.version>14.1.0</checkstyle.version>
         <!-- testing libraries -->
         <junit.version>6.1.3</junit.version>
         <mockito.verson>5.23.0</mockito.verson>
