@@ -154,7 +154,7 @@ Eclipse JNoSQL offers a mapping implementation for Key-Value NoSQL types:
 <dependency>
     <groupId>org.eclipse.jnosql.mapping</groupId>
     <artifactId>jnosql-mapping-key-value</artifactId>
-    <version>1.1.17</version>
+    <version>1.1.18</version>
 </dependency>
 ----
 
@@ -277,7 +277,7 @@ Eclipse JNoSQL offers a mapping implementation for Column NoSQL types:
 <dependency>
     <groupId>org.eclipse.jnosql.mapping</groupId>
     <artifactId>jnosql-mapping-column</artifactId>
-    <version>1.1.17</version>
+    <version>1.1.18</version>
 </dependency>
 ----
 
@@ -375,7 +375,7 @@ Eclipse JNoSQL offers a mapping implementation for Document NoSQL types:
 <dependency>
     <groupId>org.eclipse.jnosql.mapping</groupId>
     <artifactId>jnosql-mapping-document</artifactId>
-    <version>1.1.17</version>
+    <version>1.1.18</version>
 </dependency>
 ----
 
@@ -474,7 +474,7 @@ Add the module to your project:
 <dependency>
     <groupId>org.eclipse.jnosql.mapping</groupId>
     <artifactId>jnosql-mapping-timeseries</artifactId>
-    <version>1.1.17</version>
+    <version>1.1.18</version>
 </dependency>
 ----
 
@@ -584,7 +584,7 @@ To start using graph databases with Eclipse JNoSQL, add the required dependency:
 <dependency>
     <groupId>org.eclipse.jnosql.mapping</groupId>
     <artifactId>jnosql-mapping-graph</artifactId>
-    <version>1.1.17</version>
+    <version>1.1.18</version>
 </dependency>
 ----
 
