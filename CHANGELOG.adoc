@@ -40,6 +40,20 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 - Remove query method from Eclipse JNoSQL
 - Remove singleQuery from Eclipse JNoSQL
 
+== [1.1.18] - 2026-09-20
+
+=== Added
+
+- Add Time Series mapping support through the new `jnosql-mapping-timeseries` module.
+- Add `TimeSeriesTemplate` for mapping and querying time-oriented data.
+- Add Jakarta Data repository integration for Time Series databases.
+- Add CDI and configuration support for Time Series persistence.
+
+=== Changed
+
+- Migrate service discovery consumers to the `ServiceDiscovery` mechanism.
+- Update the Jakarta NoSQL API dependency.
+
 == 1.1.17  - 2026-08-29
 
 === Added
