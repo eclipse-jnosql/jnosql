@@ -537,7 +537,7 @@ You can also use Jakarta Data repositories:
 ----
 @Repository
 public interface SensorReadingRepository
-        extends BasicRepository<SensorReading, String> {
+        extends BasicRepository<SensorReading, Instant> {
 
     List<SensorReading> findBySensor(String sensor);
 }
