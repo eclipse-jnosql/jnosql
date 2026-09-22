@@ -59,9 +59,9 @@ public class DocumentExtension implements Extension {
 
         Set<Class<?>> customRepositories = scanner.customRepositories();
 
-        LOGGER.info(() -> String.format("Processing Document extension: %d databases crud %d found, custom repositories: %d",
+        LOGGER.fine(() -> String.format("Processing Document extension: %d databases crud %d found, custom repositories: %d",
                 databases.size(), crudTypes.size(), customRepositories.size()));
-        LOGGER.info(() -> "Processing repositories as a Document implementation: " + crudTypes);
+        LOGGER.fine(() -> "Processing repositories as a Document implementation: " + crudTypes);
 
         databases.forEach(type -> {
             if (!type.getProvider().isBlank()) {
