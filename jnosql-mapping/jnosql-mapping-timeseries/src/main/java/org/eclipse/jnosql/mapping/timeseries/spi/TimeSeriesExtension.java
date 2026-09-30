@@ -60,9 +60,9 @@ public class TimeSeriesExtension implements Extension {
 
         Set<Class<?>> customRepositories = scanner.customRepositories();
 
-        LOGGER.info(() -> String.format("Processing TimeSeries extension: %d databases crud %d found, custom repositories: %d",
+        LOGGER.fine(() -> String.format("Processing TimeSeries extension: %d databases crud %d found, custom repositories: %d",
                 databases.size(), crudTypes.size(), customRepositories.size()));
-        LOGGER.info(() -> "Processing repositories as a TimeSeries implementation: " + crudTypes);
+        LOGGER.fine(() -> "Processing repositories as a TimeSeries implementation: " + crudTypes);
 
         databases.forEach(type -> {
             if (!type.getProvider().isBlank()) {
