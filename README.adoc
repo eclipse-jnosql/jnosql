@@ -739,22 +739,99 @@ link:MIGRATION.adoc[Migration Guide]
 
 == Compatibility and Innovation Strategy
 
-Eclipse JNoSQL balances stability and innovation through a dual-branch strategy, designed to meet the needs of developers working with different versions of Jakarta EE.
 
-The `1.1.x` branch ensures ongoing compatibility with Jakarta EE 11, enabling developers to build reliable applications on a stable API foundation. This branch will continue to receive maintenance and bug fixes, aligning with Jakarta EE 11 specifications.
 
-- Explore the `1.1.x` branch here: https://github.com/eclipse-jnosql/jnosql/tree/1.1.x
+Eclipse JNoSQL preserves stability and drives innovation by using a versioning strategy based on https://semver.org/[Semantic Versioning] and Jakarta EE platform generations.
 
-We will continue maintaining the `1.1.x` branch until the final versions of Jakarta Data 1.1, Jakarta NoSQL 1.1, and Jakarta Query 1.0 are released. It ensures that developers, working with these evolving specifications, can utilize a compatible and stable codebase throughout the transition period.
 
-Meanwhile, the `main` branch is dedicated to innovation. It targets the upcoming JNoSQL 1.2.0 release series and may introduce breaking changes or experimental APIs. Initial versions will be published as `beta` to validate new features and gather community feedback before stabilizing the next major release.
 
-This approach allows the community to:
+The Eclipse JNoSQL version follows the `MAJOR.MINOR.PATCH` format:
 
-- Maintain production-grade compatibility with Jakarta EE 11 and current Jakarta specifications.
-- Experiment with next-generation features in a safe, isolated context.
 
-By keeping these paths separate, Eclipse JNoSQL ensures a smoother transition for users and broader experimentation for contributors.
+
+[source,text]
+----
+MAJOR.MINOR.PATCH
+----
+
+Where:
+
+* *MAJOR* reflects the Jakarta EE generation supported by the Eclipse JNoSQL release line. Upgrading to a new Jakarta EE generation requires a new major version. Because each Jakarta EE platform version may require a different minimum Java version, applications must verify and adopt the necessary Java version when migrating between major versions.
+* *MINOR* introduces backward-compatible features, APIs, and improvements while remaining within the same Jakarta EE generation.
+* *PATCH* delivers backward-compatible bug fixes and maintenance updates without adding new features.
+
+
+
+For example:
+
+
+
+[source,text]
+----
+1.x.x -> Jakarta EE 11
+2.x.x -> Jakarta EE 12
+3.x.x -> next Jakarta EE generation
+----
+
+A new Jakarta EE generation requires a new Eclipse JNoSQL major version.
+
+Within each major version, minor and patch releases follow Semantic Versioning.
+
+The `1.x.x` release line of Eclipse JNoSQL targets Jakarta EE 11.
+
+Within this release line:
+
+* A *patch release*, such as `1.1.19` to `1.1.20`, contains backward-compatible bug fixes, maintenance updates, and compatible corrections.
+* A *minor release*, such as `1.1.x` to `1.2.0`, may add new backward-compatible features, APIs, and improvements while remaining compatible with Jakarta EE 11.
+* A *major release*, such as moving from `1.x.x` to `2.0.0`, upgrades Eclipse JNoSQL to the next Jakarta EE generation and establishes a new compatibility baseline. This migration may also require adopting a newer Java version, as specified by the target Jakarta EE platform.
+
+
+
+For example:
+
+
+
+[source,text]
+----
+1.1.19 -> Jakarta EE 11, maintenance release
+1.1.20 -> Jakarta EE 11, maintenance release
+1.2.0  -> Jakarta EE 11, new backward-compatible features
+1.3.0  -> Jakarta EE 11, additional backward-compatible features
+2.0.0  -> Jakarta EE 12
+----
+
+
+
+Applications can upgrade within the same major version to stay on the same Jakarta EE generation.
+
+
+
+Minor releases add new capabilities without changing the Jakarta EE compatibility baseline. Patch releases provide bug fixes and maintenance updates only.
+
+
+
+A new major version adopts a new Jakarta EE generation. For example, Eclipse JNoSQL `2.x.x` targets Jakarta EE 12. Applications upgrading from `1.x.x` to `2.x.x` must manage the Jakarta EE platform transition, verify the required Java version, and deal with any incompatible API changes.
+
+
+
+The versioning contract can be summarized as follows:
+
+
+
+* *PATCH* releases provide backward-compatible bug fixes and maintenance updates.
+* *MINOR* releases introduce backward-compatible features and improvements within the same Jakarta EE generation.
+* *MAJOR* releases align Eclipse JNoSQL with a new Jakarta EE generation and may introduce backward-incompatible API changes. Migrating to a major version also requires checking the minimum Java version the target Jakarta EE platform supports.
+
+This strategy combines Semantic Versioning with an explicit Jakarta EE compatibility model:
+
+[source,text]
+----
+Eclipse JNoSQL 1.x.x -> Jakarta EE 11
+Eclipse JNoSQL 2.x.x -> Jakarta EE 12
+Eclipse JNoSQL 3.x.x -> next Jakarta EE generation
+----
+
+The major version indicates the Jakarta EE compatibility baseline. Minor and patch versions allow Eclipse JNoSQL to evolve within that baseline according to Semantic Versioning. When upgrading between major versions, developers should consider both the Jakarta EE platform version and its minimum Java requirement as part of the compatibility boundary.
 
 == Learn More
 
