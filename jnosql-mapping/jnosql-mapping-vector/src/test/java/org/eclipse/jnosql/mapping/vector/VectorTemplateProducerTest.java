@@ -16,7 +16,6 @@ package org.eclipse.jnosql.mapping.vector;
 
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
-import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
@@ -59,7 +58,7 @@ class VectorTemplateProducerTest {
         @Test
         @DisplayName("Should use the supplied manager without taking ownership of it")
         void shouldUseSuppliedManager() {
-            DatabaseManager manager = mock(DatabaseManager.class);
+            VectorManager manager = mock(VectorManager.class);
             when(manager.insert(any(CommunicationEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
             Article article = new Article("1", "content", DenseVector.of(1F), new float[]{2F});
 
