@@ -584,6 +584,147 @@ private TimeSeriesTemplate metrics;
 private TimeSeriesTemplate audit;
 ----
 
+=== Vector Database
+
+Use the Vector Mapping module to store and query Java entities in a vector database.
+
+Add the module to your project:
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.eclipse.jnosql.mapping</groupId>
+    <artifactId>jnosql-mapping-vector</artifactId>
+    <version>1.1.19</version>
+</dependency>
+----
+
+A regular Jakarta NoSQL entity can be persisted in a vector database by declaring one `@Column` attribute whose type implements `Vector`.
+
+[source,java]
+----
+@Entity
+public class Article {
+
+    @Id
+    private String id;
+
+    @Column
+    private String content;
+
+    @Column
+    private String author;
+
+    @Column
+    private int year;
+
+    @Column
+    private DenseVector embedding;
+
+    // constructors, getters, and setters
+}
+----
+
+For a vector database, the entity is interpreted conceptually as:
+
+[source,text]
+----
+Article
+├── id        -> identifier
+├── embedding -> vector
+└── payload
+    ├── content
+    ├── author
+    └── year
+----
+
+The vector attribute does not require a predefined name such as `embedding`. It is identified by the `Vector` type hierarchy. All remaining persisted attributes are available to the provider as payload or metadata.
+
+The initial supported representation is `DenseVector`, which represents an ordered sequence of floating-point values:
+
+[source,java]
+----
+DenseVector vector = DenseVector.of(
+        0.12F,
+        0.45F,
+        0.78F
+);
+----
+
+The number of dimensions corresponds to the number of values in the vector.
+
+Vector generation is outside the scope of Eclipse JNoSQL. A vector may be produced by an embedding model, recommendation model, image or audio encoder, feature extractor, or another application-level mechanism. Eclipse JNoSQL is responsible for persisting and querying the resulting vector.
+
+Inject `VectorTemplate` to use vector-native search operations:
+
+[source,java]
+----
+@Inject
+private VectorTemplate template;
+
+Vector queryVector = DenseVector.of(
+        0.10F,
+        0.42F,
+        0.80F
+);
+
+List<Article> articles = template.searchNearestNeighbors(
+        Article.class,
+        queryVector,
+        Limit.of(10)
+);
+----
+
+`VectorTemplate` extends `Template`, so regular persistence operations such as insert, update, find by identifier, and delete remain available:
+
+[source,java]
+----
+Article article = new Article(
+        "article-123",
+        "Jakarta NoSQL and vector databases",
+        "Otavio Santana",
+        2026,
+        vector
+);
+
+template.insert(article);
+
+Optional<Article> result =
+        template.find(Article.class, "article-123");
+----
+
+Vector databases primarily provide similarity-based search rather than traditional lexical or exact-value query operations. Therefore, some regular query operations inherited from `Template` may not be supported by a particular vector database provider and may result in `UnsupportedOperationException`.
+
+Payload attributes can also be used to restrict nearest-neighbor searches:
+
+[source,java]
+----
+List<Article> articles = template.searchNearestNeighbors(
+        Article.class,
+        queryVector,
+        Map.of(
+                "author", "Otavio Santana",
+                "year", 2026
+        ),
+        Limit.of(10)
+);
+----
+
+In the initial API, each entry in the filter map represents an equality predicate, and multiple entries are combined using logical `AND`.
+
+Threshold-based vector searches are also available:
+
+[source,java]
+----
+List<Article> articles = template.searchWithinThreshold(
+        Article.class,
+        queryVector,
+        0.85F
+);
+----
+
+The meaning and valid range of a threshold depend on the similarity or distance metric configured by the underlying vector database.
+
 === Graph
 
 Eclipse JNoSQL provides a Graph API that simplifies working with graph databases such as Neo4j and Apache TinkerPop. This API enables seamless integration with graph databases while following the Jakarta NoSQL specifications.
