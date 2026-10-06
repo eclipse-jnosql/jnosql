@@ -28,6 +28,7 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 import org.eclipse.jnosql.mapping.vector.entities.Article;
+import org.eclipse.jnosql.mapping.vector.entities.ConvertedIdArticle;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -161,6 +162,20 @@ class DefaultVectorTemplateTest {
     @Nested
     @DisplayName("When finding a vector entity by identifier")
     class WhenTheLookup {
+
+        @Test
+        @DisplayName("Should convert identifiers before querying the manager")
+        void shouldConvertIdentifier() {
+            when(manager.select(any(SelectQuery.class))).thenAnswer(invocation -> Stream.empty());
+
+            template.find(ConvertedIdArticle.class, 123L);
+
+            var captured = ArgumentCaptor.forClass(SelectQuery.class);
+            verify(manager).select(captured.capture());
+            assertThat(captured.getValue().condition()).as("converted identifier condition")
+                    .hasValueSatisfying(condition ->
+                            assertThat(condition.element().get()).as("database identifier").isEqualTo("stored:123"));
+        }
 
         @Test
         @DisplayName("Should restore the entity from the manager result")
