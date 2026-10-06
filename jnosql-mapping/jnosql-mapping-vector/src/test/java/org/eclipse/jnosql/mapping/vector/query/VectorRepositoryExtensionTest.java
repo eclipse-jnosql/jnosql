@@ -24,6 +24,7 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredRepositoryProxy;
 import org.eclipse.jnosql.mapping.vector.DenseVector;
 import org.eclipse.jnosql.mapping.vector.MockProducer;
+import org.eclipse.jnosql.mapping.vector.VectorManager;
 import org.eclipse.jnosql.mapping.vector.VectorTemplate;
 import org.eclipse.jnosql.mapping.vector.entities.Article;
 import org.eclipse.jnosql.mapping.vector.entities.ArticleRepository;
@@ -44,6 +45,13 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 @AddExtensions({ReflectionEntityMetadataExtension.class, VectorExtension.class})
 @DisplayName("Vector repository extension")
 class VectorRepositoryExtensionTest {
+
+    @Inject
+    @Database(DatabaseType.VECTOR)
+    private VectorManager vectorManager;
+    @Inject
+    @Database(value = DatabaseType.VECTOR, provider = "named")
+    private VectorManager namedVectorManager;
 
     @Inject
     private ArticleRepository unqualified;
@@ -71,12 +79,13 @@ class VectorRepositoryExtensionTest {
     class WhenTheStandardPersistence {
 
         @Test
-        @DisplayName("Should route unqualified and Vector-qualified repositories to the default manager")
-        void shouldUseDefaultManager() {
+        @DisplayName("Should route unqualified and Vector-qualified repositories to the default vector manager")
+        void shouldUseDefaultVectorManager() {
             Article unqualifiedResult = unqualified.save(article());
             Article qualifiedResult = repository.save(article());
 
             assertSoftly(softly -> {
+                softly.assertThat(vectorManager.name()).as("injected vector manager").isEqualTo("default");
                 softly.assertThat(unqualifiedResult.getContent()).as("unqualified provider").isEqualTo("default");
                 softly.assertThat(qualifiedResult.getContent()).as("qualified provider").isEqualTo("default");
                 softly.assertThat(qualifiedResult.getFeatures()).as("vector").isEqualTo(DenseVector.of(1F, 2F));
@@ -84,11 +93,12 @@ class VectorRepositoryExtensionTest {
         }
 
         @Test
-        @DisplayName("Should route a named repository to its selected manager")
-        void shouldUseNamedManager() {
+        @DisplayName("Should route a named repository to its selected vector manager")
+        void shouldUseNamedVectorManager() {
             Article result = namedRepository.save(article());
 
             assertSoftly(softly -> {
+                softly.assertThat(namedVectorManager.name()).as("injected named vector manager").isEqualTo("named");
                 softly.assertThat(result.getContent()).as("named provider").isEqualTo("named");
                 softly.assertThat(result.getFeatures()).as("vector").isEqualTo(DenseVector.of(1F, 2F));
             });
@@ -100,8 +110,8 @@ class VectorRepositoryExtensionTest {
     class WhenTheCustomPersistence {
 
         @Test
-        @DisplayName("Should route unqualified and Vector-qualified custom repositories to the default manager")
-        void shouldUseDefaultManager() {
+        @DisplayName("Should route unqualified and Vector-qualified custom repositories to the default vector manager")
+        void shouldUseDefaultVectorManager() {
             Article unqualifiedResult = unqualifiedCustom.insert(article());
             Article qualifiedResult = custom.insert(article());
 
@@ -113,8 +123,8 @@ class VectorRepositoryExtensionTest {
         }
 
         @Test
-        @DisplayName("Should route a named custom repository to its selected manager")
-        void shouldUseNamedManager() {
+        @DisplayName("Should route a named custom repository to its selected vector manager")
+        void shouldUseNamedVectorManager() {
             Article result = namedCustom.insert(article());
 
             assertSoftly(softly -> {
