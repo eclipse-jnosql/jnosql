@@ -39,7 +39,7 @@ import static java.util.Objects.requireNonNull;
 class DefaultVectorTemplate extends AbstractSemiStructuredTemplate implements VectorTemplate {
 
     private final EntityConverter converter;
-    private final DatabaseManager manager;
+    private final VectorManager manager;
     private final EventPersistManager eventManager;
     private final EntitiesMetadata entities;
     private final Converters converters;
@@ -47,7 +47,12 @@ class DefaultVectorTemplate extends AbstractSemiStructuredTemplate implements Ve
     @Inject
     DefaultVectorTemplate(EntityConverterFactory factory, @Database(DatabaseType.VECTOR) DatabaseManager manager,
                           EventPersistManager eventManager, EntitiesMetadata entities, Converters converters) {
-        this.manager = requireNonNull(manager, "manager is required");
+
+        if (!(manager instanceof VectorManager vectorManager)) {
+            throw new IllegalStateException(
+                    "The vector database manager must implement VectorManager");
+        }
+        this.manager = requireNonNull(vectorManager, "manager is required");
         this.converter = factory.create(manager);
         this.eventManager = eventManager;
         this.entities = entities;
@@ -88,18 +93,68 @@ class DefaultVectorTemplate extends AbstractSemiStructuredTemplate implements Ve
     }
 
     @Override
-    public <T> List<T> searchNearestNeighbors(Class<T> entityClass, Vector queryVector, Limit limit) {
-        throw new UnsupportedOperationException("Vector nearest-neighbor search is not implemented yet");
+    public <T> List<T> searchNearestNeighbors(Class<T> entityClass,
+                                              Vector queryVector,
+                                              Limit limit) {
+
+        requireNonNull(entityClass, "entityClass is required");
+        requireNonNull(queryVector, "queryVector is required");
+        requireNonNull(limit, "limit is required");
+
+        var entityMetadata = entities.get(entityClass);
+
+        return manager.searchNearestNeighbors(
+                        entityMetadata.name(),
+                        queryVector,
+                        limit)
+                .stream()
+                .map(entity -> converter.toEntity(entityClass, entity))
+                .toList();
     }
 
     @Override
-    public <T> List<T> searchNearestNeighbors(Class<T> entityClass, Vector queryVector,
-                                             Map<String, Object> filters, Limit limit) {
-        throw new UnsupportedOperationException("Filtered vector nearest-neighbor search is not implemented yet");
+    public <T> List<T> searchNearestNeighbors(Class<T> entityClass,
+                                              Vector queryVector,
+                                              Map<String, Object> filters,
+                                              Limit limit) {
+
+        requireNonNull(entityClass, "entityClass is required");
+        requireNonNull(queryVector, "queryVector is required");
+        requireNonNull(filters, "filters is required");
+        requireNonNull(limit, "limit is required");
+
+        var entityMetadata = entities.get(entityClass);
+
+        return manager.searchNearestNeighbors(
+                        entityMetadata.name(),
+                        queryVector,
+                        filters,
+                        limit)
+                .stream()
+                .map(entity -> converter.toEntity(entityClass, entity))
+                .toList();
     }
 
     @Override
-    public <T> List<T> searchWithinThreshold(Class<T> entityClass, Vector queryVector, float threshold) {
-        throw new UnsupportedOperationException("Vector threshold search is not implemented yet");
+    public <T> List<T> searchWithinThreshold(Class<T> entityClass,
+                                             Vector queryVector,
+                                             float threshold) {
+
+        requireNonNull(entityClass, "entityClass is required");
+        requireNonNull(queryVector, "queryVector is required");
+
+        if (!Float.isFinite(threshold)) {
+            throw new IllegalArgumentException("threshold must be finite");
+        }
+
+        var entityMetadata = entities.get(entityClass);
+
+        return manager.searchWithinThreshold(
+                        entityMetadata.name(),
+                        queryVector,
+                        threshold)
+                .stream()
+                .map(entity -> converter.toEntity(entityClass, entity))
+                .toList();
     }
 }
