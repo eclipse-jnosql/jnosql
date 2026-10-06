@@ -14,13 +14,15 @@
  */
 
 /**
- * Defines vector values and the vector mapping template contract.
+ * Maps vector entities and integrates templates and repositories with CDI.
  * Entities retain Jakarta NoSQL's existing identifier and column mapping, with one
  * persisted vector and remaining columns as payload. The shared semi-structured
  * entity converter preserves vector values for provider-native conversion.
  * <p>
- * This initial API module does not supply a database manager, a concrete template,
- * or vector-specific CDI repository registration. Those require provider integration.
+ * The default database and named providers are selected through {@code @Database}.
+ * Standard persistence reuses the existing semi-structured manager. Vector searches
+ * currently throw {@link java.lang.UnsupportedOperationException}; native search,
+ * vector-specific mapping validation, and vendor integrations are not implemented yet.
  * </p>
  */
 package org.eclipse.jnosql.mapping.vector;
