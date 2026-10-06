@@ -26,15 +26,16 @@ import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.config.MicroProfileSettings;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.TIME_SERIES_DATABASE;
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.VECTOR_DATABASE;
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.VECTOR_PROVIDER;
 
+/**
+ * Creates the default vector database manager from MicroProfile Config.
+ */
 @ApplicationScoped
 class VectorManagerSupplier implements Supplier<DatabaseManager> {
 
@@ -47,20 +48,34 @@ class VectorManagerSupplier implements Supplier<DatabaseManager> {
     public DatabaseManager get() {
         Settings settings = MicroProfileSettings.INSTANCE;
 
-        DatabaseConfiguration configuration = settings.get(VECTOR_PROVIDER, Class.class)
-                .filter(DatabaseConfiguration.class::isAssignableFrom)
-                .map(c -> (DatabaseConfiguration) Reflections.newInstance(c)).orElseGet(DatabaseConfiguration::getConfiguration);
-
+        String db = settings.get(VECTOR_DATABASE, String.class)
+                .filter(name -> !name.isBlank())
+                .orElseThrow(() -> new MappingException("Please, configure a non-blank database name using "
+                        + VECTOR_DATABASE.get()));
+        DatabaseConfiguration configuration = configuration(settings);
         var managerFactory = configuration.apply(settings);
-
-        Optional<String> database = settings.get(VECTOR_DATABASE, String.class);
-        String db = database.orElseThrow(() -> new MappingException("Please, inform the database filling up the property "
-                + VECTOR_DATABASE.get()));
         DatabaseManager manager = managerFactory.apply(db);
 
         LOGGER.log(Level.FINEST, "Starting  a VectorManager instance using Eclipse MicroProfile Config," +
                 " database name: " + db);
         return manager;
+    }
+
+    private DatabaseConfiguration configuration(Settings settings) {
+        Class<?> type = settings.get(VECTOR_PROVIDER, Class.class).orElse(null);
+        if (type == null) {
+            return DatabaseConfiguration.getConfiguration();
+        }
+        if (!DatabaseConfiguration.class.isAssignableFrom(type)) {
+            throw new MappingException("The provider configured by " + VECTOR_PROVIDER.get()
+                    + " must implement " + DatabaseConfiguration.class.getName() + ": " + type.getName());
+        }
+        var configuration = (DatabaseConfiguration) Reflections.newInstance(type);
+        if (configuration == null) {
+            throw new MappingException("Unable to instantiate the vector database provider configured by "
+                    + VECTOR_PROVIDER.get() + ": " + type.getName());
+        }
+        return configuration;
     }
 
     /**
