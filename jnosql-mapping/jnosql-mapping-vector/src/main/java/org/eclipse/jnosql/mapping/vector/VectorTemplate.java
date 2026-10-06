@@ -20,19 +20,65 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Specializes {@link Template} with vector-native search operations.
- * Standard insertion, update, identifier lookup, and deletion are inherited.
+ * Specializes {@link Template} for vector databases.
+ *
  * <p>
- * Entities use the existing Jakarta NoSQL annotations and contain a single persisted
- * {@link Vector}. Providers must initially support {@link DenseVector}, identify the
- * vector independently of its property name, and map the other columns as payload.
- * Providers are responsible for rejecting unsupported representations and incompatible
- * dimensions rather than silently converting them.
+ * A vector database stores and retrieves entities using vector representations and
+ * similarity-based search. Unlike traditional lexical or exact-value queries, vector
+ * search evaluates how close one vector is to another according to a configured
+ * similarity or distance metric.
  * </p>
+ *
  * <p>
- * Search uses the database's configured metric; this API does not select an index,
- * generate vectors, or normalize them. A provider supplies the implementation.
+ * An entity handled by this template must contain a persisted {@link Vector} attribute
+ * annotated with {@code @Column}. For example:
  * </p>
+ *
+ * <pre>{@code
+ * @Entity
+ * public class Article {
+ *
+ *     @Id
+ *     private String id;
+ *
+ *     @Column
+ *     private String content;
+ *
+ *     @Column
+ *     private String author;
+ *
+ *     @Column
+ *     private int year;
+ *
+ *     @Column
+ *     private DenseVector embedding;
+ * }
+ * }</pre>
+ *
+ * <p>
+ * The {@code @Id} attribute represents the vector record identifier, the persisted
+ * {@link Vector} attribute represents the vector used by the database, and the remaining
+ * persisted attributes may be mapped by the provider as payload or metadata.
+ * The vector property does not need to use a predefined name such as {@code embedding}.
+ * </p>
+ *
+ * <p>
+ * Standard persistence operations such as insertion, update, identifier lookup, and
+ * deletion are inherited from {@link Template}. However, vector databases primarily
+ * expose similarity-based operations rather than lexical or exact-value queries.
+ * Consequently, some regular query operations inherited from {@link Template} may not
+ * be supported by a provider and may result in {@link UnsupportedOperationException}.
+ * </p>
+ *
+ * <p>
+ * This API does not generate vectors, select indexes, normalize vector values, or define
+ * the similarity metric. Vector generation and database-specific configuration remain
+ * outside the responsibility of this template.
+ * </p>
+ *
+ * @see Vector
+ * @see DenseVector
+ * @see Template
  */
 public interface VectorTemplate extends Template {
 
