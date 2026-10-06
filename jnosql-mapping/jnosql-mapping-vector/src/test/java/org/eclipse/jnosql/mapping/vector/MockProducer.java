@@ -39,14 +39,14 @@ public class MockProducer {
     @Produces
     @ApplicationScoped
     @Database(DatabaseType.VECTOR)
-    public DatabaseManager defaultManager() {
+    public VectorManager defaultManager() {
         return manager("default");
     }
 
     @Produces
     @ApplicationScoped
     @Database(value = DatabaseType.VECTOR, provider = "named")
-    public DatabaseManager namedManager() {
+    public VectorManager namedManager() {
         return manager("named");
     }
 
@@ -56,8 +56,8 @@ public class MockProducer {
         return manager("other");
     }
 
-    private DatabaseManager manager(String provider) {
-        DatabaseManager manager = mock(DatabaseManager.class);
+    private VectorManager manager(String provider) {
+        VectorManager manager = mock(VectorManager.class);
         when(manager.name()).thenReturn(provider);
         when(manager.defaultIdFieldName()).thenReturn(Optional.empty());
         when(manager.singleResult(any(SelectQuery.class))).thenReturn(Optional.empty());
