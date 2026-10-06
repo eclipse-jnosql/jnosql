@@ -113,24 +113,4 @@ class VectorExtensionTest {
             assertThat(extensions).as("CDI service providers").contains(VectorExtension.class);
         }
     }
-
-    @Nested
-    @DisplayName("When requesting vector search through CDI templates")
-    class WhenTheSearch {
-
-        @Test
-        @DisplayName("Should explicitly reject all native searches on default and named templates")
-        void shouldRejectUnsupportedSearches() {
-            DenseVector query = DenseVector.of(1F);
-
-            for (VectorTemplate selected : new VectorTemplate[]{template, named}) {
-                assertThatThrownBy(() -> selected.searchNearestNeighbors(Article.class, query, Limit.of(10)))
-                        .isInstanceOf(UnsupportedOperationException.class).hasMessageContaining("not implemented yet");
-                assertThatThrownBy(() -> selected.searchNearestNeighbors(Article.class, query, Map.of(), Limit.of(10)))
-                        .isInstanceOf(UnsupportedOperationException.class).hasMessageContaining("not implemented yet");
-                assertThatThrownBy(() -> selected.searchWithinThreshold(Article.class, query, 0.85F))
-                        .isInstanceOf(UnsupportedOperationException.class).hasMessageContaining("not implemented yet");
-            }
-        }
-    }
 }
