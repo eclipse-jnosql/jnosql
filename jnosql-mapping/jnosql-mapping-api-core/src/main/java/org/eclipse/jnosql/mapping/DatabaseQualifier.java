@@ -25,6 +25,7 @@ import static org.eclipse.jnosql.mapping.DatabaseType.DOCUMENT;
 import static org.eclipse.jnosql.mapping.DatabaseType.GRAPH;
 import static org.eclipse.jnosql.mapping.DatabaseType.KEY_VALUE;
 import static org.eclipse.jnosql.mapping.DatabaseType.TIME_SERIES;
+import static org.eclipse.jnosql.mapping.DatabaseType.VECTOR;
 
 
 /**
@@ -41,6 +42,8 @@ public final class DatabaseQualifier extends AnnotationLiteral<Database> impleme
     private static final DatabaseQualifier DEFAULT_GRAPH_PROVIDER = new DatabaseQualifier("", GRAPH);
 
     private static final DatabaseQualifier DEFAULT_TIME_SERIES_PROVIDER = new DatabaseQualifier("", TIME_SERIES);
+
+    private static final DatabaseQualifier DEFAULT_VECTOR_PROVIDER = new DatabaseQualifier("", VECTOR);
 
     private final String provider;
 
@@ -189,5 +192,29 @@ public final class DatabaseQualifier extends AnnotationLiteral<Database> impleme
             return DEFAULT_TIME_SERIES_PROVIDER;
         }
         return new DatabaseQualifier(provider, TIME_SERIES);
+    }
+
+    /**
+     * Returns the qualifier for the default vector database.
+     *
+     * @return the default vector provider
+     */
+    public static DatabaseQualifier ofVector() {
+        return DEFAULT_VECTOR_PROVIDER;
+    }
+
+    /**
+     * Returns the qualifier for the selected vector database provider.
+     *
+     * @param provider the provider, or a blank value for the default database
+     * @return the vector qualifier
+     * @throws NullPointerException when provider is null
+     */
+    public static DatabaseQualifier ofVector(String provider) {
+        Objects.requireNonNull(provider, "provider is required");
+        if (StringUtils.isBlank(provider)) {
+            return DEFAULT_VECTOR_PROVIDER;
+        }
+        return new DatabaseQualifier(provider, VECTOR);
     }
 }
