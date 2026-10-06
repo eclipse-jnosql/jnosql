@@ -1,0 +1,237 @@
+/*
+ *  Copyright (c) 2026 Contributors to the Eclipse Foundation
+ *   All rights reserved. This program and the accompanying materials
+ *   are made available under the terms of the Eclipse Public License 2.0
+ *   and Apache License v2.0 which accompanies this distribution.
+ *   The Eclipse Public License is available at https://www.eclipse.org/legal/epl-2.0
+ *   and the Apache License v2.0 is available at https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ *   You may elect to redistribute this code under either of these licenses.
+ *
+ *   Contributors:
+ *
+ *   Otavio Santana
+ */
+package org.eclipse.jnosql.mapping.vector;
+
+import jakarta.data.Limit;
+import jakarta.inject.Inject;
+import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
+import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
+import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.reflection.Reflections;
+import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
+import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
+import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
+import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
+import org.eclipse.jnosql.mapping.vector.entities.Article;
+import org.jboss.weld.junit5.auto.AddExtensions;
+import org.jboss.weld.junit5.auto.AddPackages;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+@EnableAutoWeld
+@AddPackages({Converters.class, EntityConverter.class, Reflections.class})
+@AddExtensions(ReflectionEntityMetadataExtension.class)
+@DisplayName("Default vector template")
+class DefaultVectorTemplateTest {
+
+    @Inject
+    private EntityConverterFactory factory;
+    @Inject
+    private EntitiesMetadata entities;
+    @Inject
+    private Converters converters;
+
+    private DatabaseManager manager;
+    private EventPersistManager events;
+    private DefaultVectorTemplate template;
+    private Article article;
+
+    @BeforeEach
+    void setUp() {
+        manager = mock(DatabaseManager.class);
+        events = mock(EventPersistManager.class);
+        when(manager.defaultIdFieldName()).thenReturn(Optional.empty());
+        template = new DefaultVectorTemplate(factory, manager, events, entities, converters);
+        article = new Article("article-123", "Jakarta NoSQL", DenseVector.of(1F, 2F), new float[]{3F});
+    }
+
+    @Nested
+    @DisplayName("When inserting vector entities")
+    class WhenTheInsertion {
+
+        @Test
+        @DisplayName("Should preserve the vector and payload and publish persistence events")
+        void shouldPersistEntity() {
+            when(manager.insert(any(CommunicationEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Article result = template.insert(article);
+
+            var captured = ArgumentCaptor.forClass(CommunicationEntity.class);
+            var order = inOrder(events, manager);
+            order.verify(events).firePreEntity(article);
+            order.verify(manager).insert(captured.capture());
+            order.verify(events).firePostEntity(article);
+            assertSoftly(softly -> {
+                softly.assertThat(captured.getValue().find("representation", DenseVector.class))
+                        .as("persisted vector").contains(article.getFeatures());
+                softly.assertThat(captured.getValue().find("content", String.class))
+                        .as("payload").contains("Jakarta NoSQL");
+                softly.assertThat(result.getId()).as("identifier").isEqualTo("article-123");
+                softly.assertThat(result.getFeatures()).as("returned vector").isEqualTo(article.getFeatures());
+            });
+        }
+
+        @Test
+        @DisplayName("Should forward the time to live")
+        void shouldPreserveTimeToLive() {
+            Duration ttl = Duration.ofMinutes(5);
+            when(manager.insert(any(CommunicationEntity.class), eq(ttl))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Article result = template.insert(article, ttl);
+
+            verify(manager).insert(any(CommunicationEntity.class), eq(ttl));
+            assertThat(result.getFeatures()).as("returned vector").isEqualTo(article.getFeatures());
+        }
+
+        @Test
+        @DisplayName("Should insert each entity in a batch")
+        void shouldPersistBatch() {
+            when(manager.insert(any(CommunicationEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Iterable<Article> results = template.insert(List.of(article));
+
+            assertThat(results).as("inserted entities").containsExactly(article);
+            verify(manager).insert(any(CommunicationEntity.class));
+        }
+
+        @Test
+        @DisplayName("Should reject a null entity before contacting the manager")
+        void shouldRejectNullEntity() {
+            assertThatNullPointerException().isThrownBy(() -> template.insert((Article) null));
+            verifyNoInteractions(manager, events);
+        }
+    }
+
+    @Nested
+    @DisplayName("When updating a vector entity")
+    class WhenTheUpdate {
+
+        @Test
+        @DisplayName("Should map the updated entity and publish persistence events")
+        void shouldUpdateEntity() {
+            when(manager.update(any(CommunicationEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Article result = template.update(article);
+
+            var order = inOrder(events, manager);
+            order.verify(events).firePreEntity(article);
+            order.verify(manager).update(any(CommunicationEntity.class));
+            order.verify(events).firePostEntity(article);
+            assertThat(result.getFeatures()).as("updated vector").isEqualTo(article.getFeatures());
+        }
+    }
+
+    @Nested
+    @DisplayName("When finding a vector entity by identifier")
+    class WhenTheLookup {
+
+        @Test
+        @DisplayName("Should restore the entity from the manager result")
+        void shouldFindEntity() {
+            CommunicationEntity communication = factory.create(manager).toCommunication(article);
+            when(manager.select(any(SelectQuery.class))).thenAnswer(invocation -> Stream.of(communication));
+
+            Optional<Article> result = template.find(Article.class, "article-123");
+
+            assertThat(result).as("found entity").hasValueSatisfying(found -> assertSoftly(softly -> {
+                softly.assertThat(found.getId()).as("identifier").isEqualTo(article.getId());
+                softly.assertThat(found.getFeatures()).as("vector").isEqualTo(article.getFeatures());
+            }));
+        }
+
+        @Test
+        @DisplayName("Should return empty when the identifier is absent")
+        void shouldReturnEmptyWhenAbsent() {
+            when(manager.select(any(SelectQuery.class))).thenAnswer(invocation -> Stream.empty());
+
+            Optional<Article> result = template.find(Article.class, "missing");
+
+            assertThat(result).as("missing entity").isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("When deleting a vector entity")
+    class WhenTheRemoval {
+
+        @Test
+        @DisplayName("Should delegate deletion by identifier")
+        void shouldDeleteEntity() {
+            template.delete(Article.class, "article-123");
+
+            var captured = ArgumentCaptor.forClass(DeleteQuery.class);
+            verify(manager).delete(captured.capture());
+            assertSoftly(softly -> {
+                softly.assertThat(captured.getValue().name()).as("entity name").isEqualTo("Article");
+                softly.assertThat(captured.getValue().condition()).as("identifier condition").isPresent();
+            });
+        }
+    }
+
+    @Nested
+    @DisplayName("When requesting vector search before native support is implemented")
+    class WhenTheSearch {
+
+        @Test
+        @DisplayName("Should reject nearest-neighbor search without contacting the manager")
+        void shouldRejectNearestNeighbors() {
+            assertThatThrownBy(() -> template.searchNearestNeighbors(Article.class, article.getFeatures(), Limit.of(10)))
+                    .isInstanceOf(UnsupportedOperationException.class).hasMessageContaining("not implemented yet");
+            verifyNoInteractions(manager);
+        }
+
+        @Test
+        @DisplayName("Should reject filtered nearest-neighbor search without contacting the manager")
+        void shouldRejectFilteredNearestNeighbors() {
+            assertThatThrownBy(() -> template.searchNearestNeighbors(Article.class, article.getFeatures(),
+                    Map.of("content", "Jakarta NoSQL"), Limit.of(10)))
+                    .isInstanceOf(UnsupportedOperationException.class).hasMessageContaining("not implemented yet");
+            verifyNoInteractions(manager);
+        }
+
+        @Test
+        @DisplayName("Should reject threshold search without contacting the manager")
+        void shouldRejectThresholdSearch() {
+            assertThatThrownBy(() -> template.searchWithinThreshold(Article.class, article.getFeatures(), 0.85F))
+                    .isInstanceOf(UnsupportedOperationException.class).hasMessageContaining("not implemented yet");
+            verifyNoInteractions(manager);
+        }
+    }
+}
