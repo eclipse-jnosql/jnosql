@@ -76,7 +76,7 @@ class DefaultVectorTemplateTest {
 
     @BeforeEach
     void setUp() {
-        manager = mock(DatabaseManager.class);
+        manager = mock(VectorManager.class);
         events = mock(EventPersistManager.class);
         when(manager.defaultIdFieldName()).thenReturn(Optional.empty());
         template = new DefaultVectorTemplate(factory, manager, events, entities, converters);
@@ -217,36 +217,6 @@ class DefaultVectorTemplateTest {
                 softly.assertThat(captured.getValue().name()).as("entity name").isEqualTo("Article");
                 softly.assertThat(captured.getValue().condition()).as("identifier condition").isPresent();
             });
-        }
-    }
-
-    @Nested
-    @DisplayName("When requesting vector search before native support is implemented")
-    class WhenTheSearch {
-
-        @Test
-        @DisplayName("Should reject nearest-neighbor search without contacting the manager")
-        void shouldRejectNearestNeighbors() {
-            assertThatThrownBy(() -> template.searchNearestNeighbors(Article.class, article.getFeatures(), Limit.of(10)))
-                    .isInstanceOf(UnsupportedOperationException.class).hasMessageContaining("not implemented yet");
-            verifyNoInteractions(manager);
-        }
-
-        @Test
-        @DisplayName("Should reject filtered nearest-neighbor search without contacting the manager")
-        void shouldRejectFilteredNearestNeighbors() {
-            assertThatThrownBy(() -> template.searchNearestNeighbors(Article.class, article.getFeatures(),
-                    Map.of("content", "Jakarta NoSQL"), Limit.of(10)))
-                    .isInstanceOf(UnsupportedOperationException.class).hasMessageContaining("not implemented yet");
-            verifyNoInteractions(manager);
-        }
-
-        @Test
-        @DisplayName("Should reject threshold search without contacting the manager")
-        void shouldRejectThresholdSearch() {
-            assertThatThrownBy(() -> template.searchWithinThreshold(Article.class, article.getFeatures(), 0.85F))
-                    .isInstanceOf(UnsupportedOperationException.class).hasMessageContaining("not implemented yet");
-            verifyNoInteractions(manager);
         }
     }
 }
