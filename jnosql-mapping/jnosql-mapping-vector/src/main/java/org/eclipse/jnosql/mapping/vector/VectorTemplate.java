@@ -118,37 +118,86 @@ public interface VectorTemplate extends Template {
     <T> List<T> searchNearestNeighbors(Class<T> entityClass, Vector queryVector, Limit limit);
 
     /**
-     * Finds the nearest entities satisfying all supplied payload equality filters.
-     * Filter keys are mapped Java attribute names, not database-native field names.
-     * An empty map applies no filtering. Providers must reject unsupported filters
-     * rather than ignore them.
+     * Finds the nearest entities to the supplied query vector while applying payload
+     * attribute filters.
+     * Filter keys represent mapped entity attribute names. Filters are combined using
+     * logical {@code AND}. An empty map applies no additional payload filtering.
+     *
+     * <pre>{@code
+     * Vector queryVector = DenseVector.of(
+     *         0.12F,
+     *         0.45F,
+     *         0.78F
+     * );
+     *
+     * List<Article> articles = vectorTemplate.searchNearestNeighbors(
+     *         Article.class,
+     *         queryVector,
+     *         Map.of(
+     *                 "author", "Otavio Santana",
+     *                 "year", 2026
+     *         ),
+     *         Limit.of(10)
+     * );
+     * }</pre>
      *
      * @param entityClass the mapped entity type
-     * @param queryVector the query vector
-     * @param filters payload attribute names and non-null values, combined with logical AND
-     * @param limit the positive maximum number of results
+     * @param queryVector the vector used as the search reference
+     * @param filters the payload attribute filters
+     * @param limit the maximum number of results to return
      * @param <T> the entity type
-     * @return at most {@code limit} entities, nearest first; an empty list when none match
-     * @throws NullPointerException when entityClass, queryVector, filters, or any filter key or value is {@code null}
-     * @throws IllegalArgumentException when limit is not positive, dimensions are incompatible, or an attribute is not payload
-     * @throws UnsupportedOperationException when the vector representation or a filter is unsupported
+     * @return the matching entities ordered from nearest to farthest
+     * @throws NullPointerException if {@code entityClass}, {@code queryVector},
+     *         {@code filters}, or {@code limit} is {@code null}
+     * @throws IllegalArgumentException if the vector dimensions are incompatible
+     *         with the configured vector space or a filter does not reference
+     *         a valid payload attribute
+     * @throws UnsupportedOperationException if the vector representation, filter,
+     *         or requested limit configuration is not supported by the provider
      */
-    <T> List<T> searchNearestNeighbors(Class<T> entityClass, Vector queryVector, Map<String, Object> filters, int limit);
+    <T> List<T> searchNearestNeighbors(
+            Class<T> entityClass,
+            Vector queryVector,
+            Map<String, Object> filters,
+            Limit limit);
 
     /**
-     * Finds entities meeting a threshold under the database's configured metric.
-     * For distance metrics the threshold is an inclusive upper bound; for similarity
-     * scores it is an inclusive lower bound. Thresholds are not portable between metrics
-     * or providers, and providers must document the metric and its valid threshold range.
+     * Finds entities whose vectors satisfy the supplied threshold according to the
+     * similarity or distance metric configured by the underlying vector database.
+     * For distance-based metrics, the threshold typically represents an upper bound.
+     * For similarity-based metrics, it typically represents a lower bound.
+     * Threshold values are therefore specific to the configured metric and may not
+     * be portable between providers.
+
+     *
+     * <pre>{@code
+     * Vector queryVector = DenseVector.of(
+     *         0.12F,
+     *         0.45F,
+     *         0.78F
+     * );
+     *
+     * List<Article> articles = vectorTemplate.searchWithinThreshold(
+     *         Article.class,
+     *         queryVector,
+     *         0.85F
+     * );
+     * }</pre>
      *
      * @param entityClass the mapped entity type
-     * @param queryVector the query vector
-     * @param threshold a finite threshold in the configured metric's range
+     * @param queryVector the vector used as the search reference
+     * @param threshold the threshold used by the configured similarity or distance metric
      * @param <T> the entity type
-     * @return matching entities, nearest first; an empty list when none match
-     * @throws NullPointerException when entityClass or queryVector is {@code null}
-     * @throws IllegalArgumentException when threshold is invalid or vector dimensions are incompatible
-     * @throws UnsupportedOperationException when the vector representation or threshold search is unsupported
+     * @return the matching entities ordered from nearest to farthest
+     * @throws NullPointerException if {@code entityClass} or {@code queryVector}
+     *         is {@code null}
+     * @throws IllegalArgumentException if {@code threshold} is not finite or the
+     *         vector dimensions are incompatible with the configured vector space
+     * @throws UnsupportedOperationException if the vector representation or
+     *         threshold search is not supported by the provider
      */
-    <T> List<T> searchWithinRadius(Class<T> entityClass, Vector queryVector, float threshold);
+    <T> List<T> searchWithinThreshold(
+            Class<T> entityClass,
+            Vector queryVector,
+            float threshold);
 }
