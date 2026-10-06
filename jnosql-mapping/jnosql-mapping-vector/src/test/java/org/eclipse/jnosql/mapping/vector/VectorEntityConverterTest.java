@@ -29,11 +29,13 @@ import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 @EnableAutoWeld
 @AddPackages({Converters.class, EntityConverter.class, Reflections.class})
@@ -47,67 +49,139 @@ class VectorEntityConverterTest {
     @Inject
     private EntitiesMetadata entities;
 
-    @Test
-    void shouldPreserveDenseVectorAndPayloadWithMappedColumnName() {
-        DenseVector vector = DenseVector.of(0.12F, 0.45F, 0.78F);
-        Article article = new Article("article-123", "Jakarta NoSQL", vector, new float[]{10F, 20F});
-        EntityConverter converter = factory.create(Optional::empty);
+    @Nested
+    @DisplayName("When converting a vector entity to communication data")
+    class WhenTheCommunicationConversion {
 
-        CommunicationEntity communication = converter.toCommunication(article);
+        @Test
+        @DisplayName("Should preserve the vector and payload under their mapped column names")
+        void shouldPreserveMappedColumns() {
+            DenseVector vector = DenseVector.of(0.12F, 0.45F, 0.78F);
+            Article article = new Article("article-123", "Jakarta NoSQL", vector, new float[]{10F, 20F});
+            EntityConverter converter = factory.create(Optional::empty);
 
-        assertThat(communication.name()).isEqualTo("Article");
-        assertThat(communication.size()).isEqualTo(4);
-        assertThat(communication.find("_id", String.class)).contains("article-123");
-        assertThat(communication.find("content", String.class)).contains("Jakarta NoSQL");
-        assertThat(communication.find("representation", DenseVector.class)).containsSame(vector);
-        assertThat(communication.elements().stream().filter(element -> element.get() instanceof Vector))
-                .extracting(Element::name).containsExactly("representation");
+            CommunicationEntity communication = converter.toCommunication(article);
 
-        Article result = converter.toEntity(Article.class, communication);
+            assertSoftly(softly -> {
+                softly.assertThat(communication.name()).as("entity name").isEqualTo("Article");
+                softly.assertThat(communication.size()).as("persisted column count").isEqualTo(4);
+                softly.assertThat(communication.find("_id", String.class)).as("identifier").contains("article-123");
+                softly.assertThat(communication.find("content", String.class)).as("payload content").contains("Jakarta NoSQL");
+                softly.assertThat(communication.find("representation", DenseVector.class))
+                        .as("vector value").containsSame(vector);
+                softly.assertThat(communication.elements().stream().filter(element -> element.get() instanceof Vector))
+                        .as("vector columns exclude raw array payload").extracting(Element::name).containsExactly("representation");
+                softly.assertThat(entities.get(Article.class).columnField("features"))
+                        .as("vector column alias").isEqualTo("representation");
+            });
+        }
 
-        assertThat(result.getId()).isEqualTo(article.getId());
-        assertThat(result.getContent()).isEqualTo(article.getContent());
-        assertThat(result.getFeatures()).isEqualTo(vector);
-        assertThat(result.getMeasurements()).containsExactly(10F, 20F);
-        assertThat(entities.get(Article.class).columnField("features")).isEqualTo("representation");
+        @Test
+        @DisplayName("Should reject a null entity")
+        void shouldRejectNullEntity() {
+            EntityConverter converter = factory.create(Optional::empty);
+
+            assertThatNullPointerException().isThrownBy(() -> converter.toCommunication(null))
+                    .withMessage("entity is required");
+        }
     }
 
-    @Test
-    void shouldReadProviderSuppliedDenseVector() {
-        CommunicationEntity communication = CommunicationEntity.of("Article");
-        communication.add("_id", "article-123");
-        communication.add("content", "Jakarta NoSQL");
-        communication.add("representation", DenseVector.of(1F, 2F));
+    @Nested
+    @DisplayName("When converting communication data to a vector entity")
+    class WhenTheEntityConversion {
 
-        Article result = factory.create(Optional::empty).toEntity(Article.class, communication);
+        @Test
+        @DisplayName("Should restore a provider-supplied dense vector")
+        void shouldRestoreDenseVector() {
+            CommunicationEntity communication = CommunicationEntity.of("Article");
+            communication.add("_id", "article-123");
+            communication.add("content", "Jakarta NoSQL");
+            communication.add("representation", DenseVector.of(1F, 2F));
+            EntityConverter converter = factory.create(Optional::empty);
 
-        assertThat(result.getId()).isEqualTo("article-123");
-        assertThat(result.getFeatures().values()).containsExactly(1F, 2F);
+            Article result = converter.toEntity(Article.class, communication);
+
+            assertSoftly(softly -> {
+                softly.assertThat(result.getId()).as("identifier").isEqualTo("article-123");
+                softly.assertThat(result.getContent()).as("payload content").isEqualTo("Jakarta NoSQL");
+                softly.assertThat(result.getFeatures()).as("restored vector").isEqualTo(DenseVector.of(1F, 2F));
+            });
+        }
+
+        @Test
+        @DisplayName("Should reject null communication data")
+        void shouldRejectNullCommunication() {
+            EntityConverter converter = factory.create(Optional::empty);
+
+            assertThatNullPointerException().isThrownBy(() -> converter.toEntity(Article.class, null))
+                    .withMessage("entity is required");
+        }
+
+        @Test
+        @DisplayName("Should reject a null entity type")
+        void shouldRejectNullEntityType() {
+            CommunicationEntity communication = CommunicationEntity.of("Article");
+            EntityConverter converter = factory.create(Optional::empty);
+
+            assertThatNullPointerException().isThrownBy(() -> converter.toEntity((Class<Article>) null, communication))
+                    .withMessage("type is required");
+        }
     }
 
-    @Test
-    void shouldRoundTripGenericVectorInRecord() {
-        VectorRecord record = new VectorRecord("article-123", DenseVector.of(1F, 2F), "Otavio");
-        EntityConverter converter = factory.create(Optional::empty);
+    @Nested
+    @DisplayName("When round-tripping vector entities through communication data")
+    class WhenTheRoundTrip {
 
-        CommunicationEntity communication = converter.toCommunication(record);
-        VectorRecord result = converter.toEntity(VectorRecord.class, communication);
+        @Test
+        @DisplayName("Should retain the identifier, dense vector, and payload")
+        void shouldRetainEntityValues() {
+            Article article = new Article("article-123", "Jakarta NoSQL", DenseVector.of(0.12F, 0.45F, 0.78F),
+                    new float[]{10F, 20F});
+            EntityConverter converter = factory.create(Optional::empty);
 
-        assertThat(communication.find("embedding", Vector.class)).containsSame(record.embedding());
-        assertThat(result).isEqualTo(record);
-    }
+            CommunicationEntity communication = converter.toCommunication(article);
+            Article result = converter.toEntity(Article.class, communication);
 
-    @Test
-    void shouldHonorProviderIdentifierMapping() {
-        Article article = new Article("article-123", "Jakarta NoSQL", DenseVector.of(1F), new float[]{2F});
-        EntityConverter converter = factory.create(() -> Optional.of("record_id"));
+            assertSoftly(softly -> {
+                softly.assertThat(result.getId()).as("identifier").isEqualTo(article.getId());
+                softly.assertThat(result.getContent()).as("payload content").isEqualTo(article.getContent());
+                softly.assertThat(result.getFeatures()).as("dense vector").isEqualTo(article.getFeatures());
+                softly.assertThat(result.getMeasurements()).as("raw array payload").containsExactly(10F, 20F);
+            });
+        }
 
-        CommunicationEntity communication = converter.toCommunication(article);
-        Article result = converter.toEntity(Article.class, communication);
+        @Test
+        @DisplayName("Should retain a record with a generic Vector column")
+        void shouldRetainGenericVectorRecord() {
+            VectorRecord record = new VectorRecord("article-123", DenseVector.of(1F, 2F), "Otavio");
+            EntityConverter converter = factory.create(Optional::empty);
 
-        assertThat(communication.find("record_id", String.class)).contains("article-123");
-        assertThat(communication.find("_id", String.class)).isEmpty();
-        assertThat(result.getId()).isEqualTo(article.getId());
-        assertThat(result.getFeatures()).isEqualTo(article.getFeatures());
+            CommunicationEntity communication = converter.toCommunication(record);
+            VectorRecord result = converter.toEntity(VectorRecord.class, communication);
+
+            assertSoftly(softly -> {
+                softly.assertThat(communication.find("embedding", Vector.class))
+                        .as("generic vector value").containsSame(record.embedding());
+                softly.assertThat(result).as("restored record").isEqualTo(record);
+            });
+        }
+
+        @Test
+        @DisplayName("Should honor the provider's identifier column without changing the vector")
+        void shouldHonorProviderIdentifier() {
+            Article article = new Article("article-123", "Jakarta NoSQL", DenseVector.of(1F), new float[]{2F});
+            EntityConverter converter = factory.create(() -> Optional.of("record_id"));
+
+            CommunicationEntity communication = converter.toCommunication(article);
+            Article result = converter.toEntity(Article.class, communication);
+
+            assertSoftly(softly -> {
+                softly.assertThat(communication.find("record_id", String.class))
+                        .as("provider identifier column").contains("article-123");
+                softly.assertThat(communication.find("_id", String.class)).as("default identifier column").isEmpty();
+                softly.assertThat(result.getId()).as("restored identifier").isEqualTo(article.getId());
+                softly.assertThat(result.getFeatures()).as("restored vector").isEqualTo(article.getFeatures());
+            });
+        }
     }
 }
