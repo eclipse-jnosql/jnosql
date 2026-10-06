@@ -48,7 +48,7 @@ public enum MappingConfigurations implements Supplier<String> {
      */
     TIME_SERIES_DATABASE("jnosql.timeseries.database"),
     /**
-     * Define the VectorConfiguration that creates a VectorManager instance.
+     * Define the DatabaseConfiguration implementation that creates a DatabaseManager for vector mapping.
      * It is necessary when there is more than one implementation; otherwise,  it will find automatically.
      */
     VECTOR_PROVIDER("jnosql.vector.provider"),
