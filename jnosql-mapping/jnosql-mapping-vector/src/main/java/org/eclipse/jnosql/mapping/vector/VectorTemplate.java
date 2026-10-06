@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.vector;
 
+import jakarta.data.Limit;
 import jakarta.nosql.Template;
 
 import java.util.List;
@@ -83,18 +84,38 @@ import java.util.Map;
 public interface VectorTemplate extends Template {
 
     /**
-     * Finds the nearest entities without payload filtering.
+     * Finds the nearest entities to the supplied query vector.
+     *
+     * Results are ordered according to the similarity or distance metric configured by
+     * the underlying vector database.
+     *
+     * <pre>{@code
+     * Vector queryVector = DenseVector.of(
+     *         0.12F,
+     *         0.45F,
+     *         0.78F
+     * );
+     *
+     * List<Article> articles = vectorTemplate.searchNearestNeighbors(
+     *         Article.class,
+     *         queryVector,
+     *         Limit.of(10)
+     * );
+     * }</pre>
      *
      * @param entityClass the mapped entity type
-     * @param queryVector the query vector
-     * @param limit the positive maximum number of results
+     * @param queryVector the vector used as the search reference
+     * @param limit the maximum number of results to return
      * @param <T> the entity type
-     * @return at most {@code limit} entities, nearest first; an empty list when none match
-     * @throws NullPointerException when entityClass or queryVector is {@code null}
-     * @throws IllegalArgumentException when limit is not positive or vector dimensions are incompatible
-     * @throws UnsupportedOperationException when the vector representation is unsupported
+     * @return the matching entities ordered from nearest to farthest
+     * @throws NullPointerException if {@code entityClass}, {@code queryVector},
+     *         or {@code limit} is {@code null}
+     * @throws IllegalArgumentException if the vector dimensions are incompatible
+     *         with the configured vector space
+     * @throws UnsupportedOperationException if the vector representation or
+     *         requested limit configuration is not supported by the provider
      */
-    <T> List<T> searchNearestNeighbors(Class<T> entityClass, Vector queryVector, int limit);
+    <T> List<T> searchNearestNeighbors(Class<T> entityClass, Vector queryVector, Limit limit);
 
     /**
      * Finds the nearest entities satisfying all supplied payload equality filters.
