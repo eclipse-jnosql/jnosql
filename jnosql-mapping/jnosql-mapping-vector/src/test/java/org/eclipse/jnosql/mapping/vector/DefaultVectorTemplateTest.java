@@ -16,6 +16,8 @@ package org.eclipse.jnosql.mapping.vector;
 
 import jakarta.data.Limit;
 import jakarta.inject.Inject;
+import org.assertj.core.api.SoftAssertionError;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
@@ -470,6 +472,19 @@ class DefaultVectorTemplateTest {
                     converters))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessage("The vector database manager must implement VectorManager");
+        }
+
+        @Test
+        @DisplayName("Should create a DefaultVectorTemplate with default constructor")
+        void shouldCreateDefaultConstructor() {
+            DefaultVectorTemplate vectorTemplate = new DefaultVectorTemplate();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(vectorTemplate.manager()).as("manager").isNull();
+                softly.assertThat(vectorTemplate.converter()).as("converter").isNull();
+                softly.assertThat(vectorTemplate.eventManager()).as("event manager").isNull();
+                softly.assertThat(vectorTemplate.entities()).as("entities metadata").isNull();
+                softly.assertThat(vectorTemplate.converters()).as("converters").isNull();
+            });
         }
     }
 }
