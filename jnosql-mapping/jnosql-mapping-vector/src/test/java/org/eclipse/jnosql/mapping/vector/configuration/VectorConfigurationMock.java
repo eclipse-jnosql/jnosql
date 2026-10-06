@@ -16,8 +16,8 @@ package org.eclipse.jnosql.mapping.vector.configuration;
 
 import org.eclipse.jnosql.communication.Settings;
 import org.eclipse.jnosql.communication.semistructured.DatabaseConfiguration;
-import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManagerFactory;
+import org.eclipse.jnosql.mapping.vector.VectorManager;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -29,7 +29,7 @@ public class VectorConfigurationMock implements DatabaseConfiguration {
     public DatabaseManagerFactory apply(Settings settings) {
         DatabaseManagerFactory factory = mock(DatabaseManagerFactory.class);
         when(factory.apply(anyString())).thenAnswer(invocation -> {
-            DatabaseManager manager = mock(DatabaseManager.class);
+            VectorManager manager = mock(VectorManager.class);
             when(manager.name()).thenReturn(getClass().getSimpleName() + ":" + invocation.getArgument(0));
             return manager;
         });
