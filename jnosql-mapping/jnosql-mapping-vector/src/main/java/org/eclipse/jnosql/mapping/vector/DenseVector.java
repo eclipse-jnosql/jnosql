@@ -15,38 +15,50 @@
 package org.eclipse.jnosql.mapping.vector;
 
 /**
- * A nonempty, ordered sequence of finite floating-point components.
- * The number of dimensions equals the number of components.
+ * Represents a non-empty, ordered sequence of finite floating-point values.
+ *
  * <p>
- * No normalization or distance metric is implied. Database-specific dimension and
- * metric requirements are the provider's responsibility.
+ * The number of dimensions is equal to the number of values in the vector.
+ * No normalization or similarity metric is implied by this type.
+ * Database-specific dimension and metric requirements are defined by the provider.
  * </p>
  */
 public interface DenseVector extends Vector {
 
     /**
-     * Returns the number of components.
+     * Returns the number of dimensions of this vector.
      *
-     * @return the positive dimension count
+     * @return the positive number of dimensions
      */
     int dimensions();
 
     /**
-     * Returns the components in dimension order.
-     * Changing the returned array must not change this vector.
+     * Returns the values of this vector in dimension order.
      *
-     * @return a copy of the components
+     * <p>
+     * Modifying the returned array does not modify this vector.
+     * </p>
+     *
+     * @return a copy of the vector values
      */
     float[] values();
 
     /**
-     * Creates an immutable dense vector by copying the supplied components.
-     * For example, {@code DenseVector.of(0.12F, 0.45F, 0.78F)} has three dimensions.
+     * Creates an immutable dense vector from the supplied values.
      *
-     * @param values the components in dimension order
+     * <pre>{@code
+     * DenseVector vector = DenseVector.of(
+     *         0.12F,
+     *         0.45F,
+     *         0.78F
+     * );
+     * }</pre>
+     *
+     * @param values the values in dimension order
      * @return an immutable dense vector
-     * @throws NullPointerException when values is {@code null}
-     * @throws IllegalArgumentException when values is empty or contains NaN or infinity
+     * @throws NullPointerException if {@code values} is {@code null}
+     * @throws IllegalArgumentException if {@code values} is empty or contains
+     *         {@link Float#NaN}, positive infinity, or negative infinity
      */
     static DenseVector of(float... values) {
         return new DefaultDenseVector(values);
