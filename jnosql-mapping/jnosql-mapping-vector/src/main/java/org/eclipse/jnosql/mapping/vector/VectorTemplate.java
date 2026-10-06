@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.vector;
 
 import jakarta.data.Limit;
 import jakarta.nosql.Template;
+import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -76,12 +77,19 @@ import java.util.Map;
  * the similarity metric. Vector generation and database-specific configuration remain
  * outside the responsibility of this template.
  * </p>
+ * <p>
+ * The default template is available through CDI with {@code @Database(DatabaseType.VECTOR)}.
+ * Applications can also use {@link VectorTemplateProducer} with a programmatically created manager.
+ * The default implementation reuses semi-structured persistence; all three vector search
+ * methods currently throw {@link UnsupportedOperationException}. Native search and
+ * vector-specific mapping validation are deferred to a later implementation.
+ * </p>
  *
  * @see Vector
  * @see DenseVector
  * @see Template
  */
-public interface VectorTemplate extends Template {
+public interface VectorTemplate extends SemiStructuredTemplate {
 
     /**
      * Finds the nearest entities to the supplied query vector.
