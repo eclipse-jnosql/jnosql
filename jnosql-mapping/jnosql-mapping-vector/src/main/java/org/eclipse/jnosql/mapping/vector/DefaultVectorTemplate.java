@@ -30,6 +30,7 @@ import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -125,10 +126,17 @@ class DefaultVectorTemplate extends AbstractSemiStructuredTemplate implements Ve
 
         var entityMetadata = entities.get(entityClass);
 
+        Map<String, Object> mappedFilters = filters.entrySet()
+                .stream()
+                .collect(Collectors.toUnmodifiableMap(
+                        entry -> entityMetadata.columnField(entry.getKey()),
+                        Map.Entry::getValue
+                ));
+
         return manager.searchNearestNeighbors(
                         entityMetadata.name(),
                         queryVector,
-                        filters,
+                        mappedFilters,
                         limit)
                 .stream()
                 .map(entity -> converter.toEntity(entityClass, entity))
