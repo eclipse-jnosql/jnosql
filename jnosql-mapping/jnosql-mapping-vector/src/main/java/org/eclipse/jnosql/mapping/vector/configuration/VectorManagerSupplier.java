@@ -25,6 +25,7 @@ import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.config.MicroProfileSettings;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
+import org.eclipse.jnosql.mapping.vector.VectorManager;
 
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -35,9 +36,10 @@ import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.VECTO
 
 /**
  * Creates the default vector database manager from MicroProfile Config.
+ * The producer declares {@link VectorManager} so CDI proxies retain vector-native operations.
  */
 @ApplicationScoped
-class VectorManagerSupplier implements Supplier<DatabaseManager> {
+class VectorManagerSupplier implements Supplier<VectorManager> {
 
     private static final Logger LOGGER = Logger.getLogger(VectorManagerSupplier.class.getName());
 
@@ -45,7 +47,7 @@ class VectorManagerSupplier implements Supplier<DatabaseManager> {
     @Produces
     @ApplicationScoped
     @Database(DatabaseType.VECTOR)
-    public DatabaseManager get() {
+    public VectorManager get() {
         Settings settings = MicroProfileSettings.INSTANCE;
 
         String db = settings.get(VECTOR_DATABASE, String.class)
@@ -55,10 +57,16 @@ class VectorManagerSupplier implements Supplier<DatabaseManager> {
         DatabaseConfiguration configuration = configuration(settings);
         var managerFactory = configuration.apply(settings);
         DatabaseManager manager = managerFactory.apply(db);
+        if (!(manager instanceof VectorManager vectorManager)) {
+            if (manager != null) {
+                manager.close();
+            }
+            throw new MappingException("The vector database provider must return a VectorManager");
+        }
 
         LOGGER.log(Level.FINEST, "Starting  a VectorManager instance using Eclipse MicroProfile Config," +
                 " database name: " + db);
-        return manager;
+        return vectorManager;
     }
 
     private DatabaseConfiguration configuration(Settings settings) {
@@ -83,7 +91,7 @@ class VectorManagerSupplier implements Supplier<DatabaseManager> {
      *
      * @param manager the manager being removed from the CDI context
      */
-    void close(@Disposes @Database(DatabaseType.VECTOR) DatabaseManager manager) {
+    void close(@Disposes @Database(DatabaseType.VECTOR) VectorManager manager) {
         LOGGER.log(Level.FINEST, "Closing the VectorManager instance using Eclipse MicroProfile Config");
         manager.close();
     }
