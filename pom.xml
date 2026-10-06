@@ -579,7 +579,6 @@
     <modules>
         <module>jnosql-communication</module>
         <module>jnosql-mapping</module>
-        <module>jnosql-mapping-vector</module>
     </modules>
     <profiles>
         <profile>
