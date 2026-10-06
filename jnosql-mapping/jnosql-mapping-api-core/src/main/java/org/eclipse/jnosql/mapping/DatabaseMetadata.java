@@ -23,7 +23,8 @@ import java.util.Objects;
  * CDI qualifiers allow for distinguishing between different instances of the same type.
  *
  * <p>Supported types of NoSQL databases are {@link DatabaseType#KEY_VALUE}, {@link DatabaseType#COLUMN},
- * {@link DatabaseType#DOCUMENT}, {@link DatabaseType#GRAPH}, and {@link DatabaseType#TIME_SERIES}.
+ * {@link DatabaseType#DOCUMENT}, {@link DatabaseType#GRAPH}, {@link DatabaseType#TIME_SERIES},
+ * and {@link DatabaseType#VECTOR}.
  *
  * @see DatabaseType
  */
@@ -53,6 +54,11 @@ public final class DatabaseMetadata {
      * A default DatabaseMetadata instance for time-series databases without a specific provider.
      */
     public static final DatabaseMetadata DEFAULT_TIME_SERIES = new DatabaseMetadata(DatabaseType.TIME_SERIES, "");
+
+    /**
+     * A default DatabaseMetadata instance for vector databases without a specific provider.
+     */
+    public static final DatabaseMetadata DEFAULT_VECTOR = new DatabaseMetadata(DatabaseType.VECTOR, "");
 
 
     private final DatabaseType type;
