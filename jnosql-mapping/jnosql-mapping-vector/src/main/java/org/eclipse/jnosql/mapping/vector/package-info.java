@@ -20,9 +20,9 @@
  * entity converter preserves vector values for provider-native conversion.
  * <p>
  * The default database and named providers are selected through {@code @Database}.
- * Standard persistence reuses the existing semi-structured manager. Vector searches
- * currently throw {@link java.lang.UnsupportedOperationException}; native search,
- * vector-specific mapping validation, and vendor integrations are not implemented yet.
+ * Standard persistence reuses the existing semi-structured manager. Vector searches are
+ * delegated to the configured provider; unsupported representations or capabilities may
+ * result in {@link java.lang.UnsupportedOperationException}.
  * </p>
  */
 package org.eclipse.jnosql.mapping.vector;
