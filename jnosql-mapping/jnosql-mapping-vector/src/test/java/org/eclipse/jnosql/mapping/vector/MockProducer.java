@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.vector;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Alternative;
+import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 import jakarta.interceptor.Interceptor;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
@@ -38,6 +39,7 @@ public class MockProducer {
 
     @Produces
     @ApplicationScoped
+    @Default
     @Database(DatabaseType.VECTOR)
     public VectorManager defaultManager() {
         return manager("default");
