@@ -46,14 +46,10 @@ class DefaultVectorTemplate extends AbstractSemiStructuredTemplate implements Ve
     private final Converters converters;
 
     @Inject
-    DefaultVectorTemplate(EntityConverterFactory factory, @Database(DatabaseType.VECTOR) DatabaseManager manager,
+    DefaultVectorTemplate(EntityConverterFactory factory, VectorManager manager,
                           EventPersistManager eventManager, EntitiesMetadata entities, Converters converters) {
 
-        if (!(manager instanceof VectorManager vectorManager)) {
-            throw new IllegalStateException(
-                    "The vector database manager must implement VectorManager");
-        }
-        this.manager = requireNonNull(vectorManager, "manager is required");
+        this.manager = requireNonNull(manager, "manager is required");
         this.converter = factory.create(manager);
         this.eventManager = eventManager;
         this.entities = entities;
