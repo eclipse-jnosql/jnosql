@@ -17,7 +17,6 @@ package org.eclipse.jnosql.mapping.vector.spi;
 import jakarta.enterprise.context.spi.CreationalContext;
 import jakarta.enterprise.inject.Any;
 import jakarta.nosql.Template;
-import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
