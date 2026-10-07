@@ -21,8 +21,6 @@ import jakarta.enterprise.inject.Produces;
 import org.eclipse.jnosql.communication.Settings;
 import org.eclipse.jnosql.communication.semistructured.DatabaseConfiguration;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
-import org.eclipse.jnosql.mapping.Database;
-import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.config.MicroProfileSettings;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.vector.VectorManager;
@@ -46,7 +44,6 @@ class VectorManagerSupplier implements Supplier<VectorManager> {
     @Override
     @Produces
     @ApplicationScoped
-    @Database(DatabaseType.VECTOR)
     public VectorManager get() {
         Settings settings = MicroProfileSettings.INSTANCE;
 
@@ -91,7 +88,7 @@ class VectorManagerSupplier implements Supplier<VectorManager> {
      *
      * @param manager the manager being removed from the CDI context
      */
-    void close(@Disposes @Database(DatabaseType.VECTOR) VectorManager manager) {
+    void close(@Disposes VectorManager manager) {
         LOGGER.log(Level.FINEST, "Closing the VectorManager instance using Eclipse MicroProfile Config");
         manager.close();
     }
