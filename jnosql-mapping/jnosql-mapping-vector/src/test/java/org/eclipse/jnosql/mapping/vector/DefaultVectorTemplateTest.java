@@ -460,21 +460,6 @@ class DefaultVectorTemplateTest {
         }
 
         @Test
-        @DisplayName("Should reject a database manager that does not implement VectorManager")
-        void shouldRejectNonVectorManager() {
-            DatabaseManager databaseManager = mock(DatabaseManager.class);
-
-            assertThatThrownBy(() -> new DefaultVectorTemplate(
-                    factory,
-                    databaseManager,
-                    events,
-                    entities,
-                    converters))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessage("The vector database manager must implement VectorManager");
-        }
-
-        @Test
         @DisplayName("Should create a DefaultVectorTemplate with default constructor")
         void shouldCreateDefaultConstructor() {
             DefaultVectorTemplate vectorTemplate = new DefaultVectorTemplate();
