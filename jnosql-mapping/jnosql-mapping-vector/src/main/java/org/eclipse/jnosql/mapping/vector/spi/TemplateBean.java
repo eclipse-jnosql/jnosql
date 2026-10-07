@@ -22,6 +22,7 @@ import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
+import org.eclipse.jnosql.mapping.vector.VectorManager;
 import org.eclipse.jnosql.mapping.vector.VectorTemplate;
 import org.eclipse.jnosql.mapping.vector.VectorTemplateProducer;
 
@@ -53,7 +54,7 @@ class TemplateBean extends AbstractBean<VectorTemplate> {
     @Override
     public VectorTemplate create(CreationalContext<VectorTemplate> context) {
         var producer = getInstance(VectorTemplateProducer.class);
-        var manager = getInstance(DatabaseManager.class, DatabaseQualifier.ofVector(provider));
+        var manager = getInstance(VectorManager.class, DatabaseQualifier.ofVector(provider));
         return producer.apply(manager);
     }
 
