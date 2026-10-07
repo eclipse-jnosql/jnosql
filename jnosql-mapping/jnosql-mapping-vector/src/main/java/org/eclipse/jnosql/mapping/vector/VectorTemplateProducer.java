@@ -16,7 +16,6 @@ package org.eclipse.jnosql.mapping.vector;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
@@ -31,7 +30,7 @@ import static java.util.Objects.requireNonNull;
  * The caller retains responsibility for closing an application-managed manager.
  */
 @ApplicationScoped
-public class VectorTemplateProducer implements Function<DatabaseManager, VectorTemplate> {
+public class VectorTemplateProducer implements Function<VectorManager, VectorTemplate> {
 
     @Inject
     private EntityConverterFactory converter;
@@ -47,15 +46,14 @@ public class VectorTemplateProducer implements Function<DatabaseManager, VectorT
 
     /**
      * Creates a template backed by the supplied manager using the shared mapping services.
-     *
      * Vector search operations are not implemented yet and throw {@link UnsupportedOperationException}.
      *
-     * @param manager the manager that executes persistence operations
+     * @param manager the vector manager that executes persistence operations
      * @return a vector template backed by the manager
      * @throws NullPointerException when manager is null
      */
     @Override
-    public VectorTemplate apply(DatabaseManager manager) {
+    public VectorTemplate apply(VectorManager manager) {
         requireNonNull(manager, "manager is required");
         return new DefaultVectorTemplate(converter, manager, eventManager, entities, converters);
     }
