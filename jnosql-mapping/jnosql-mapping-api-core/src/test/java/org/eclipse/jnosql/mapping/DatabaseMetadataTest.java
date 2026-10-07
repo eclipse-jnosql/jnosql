@@ -26,6 +26,25 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 class DatabaseMetadataTest {
 
     @Nested
+    @DisplayName("When resolving default vector metadata")
+    class WhenTheVectorMetadataResolution {
+
+        @Test
+        @DisplayName("Should match the default vector qualifier and distinguish named providers")
+        void shouldMatchVectorQualifier() {
+            DatabaseMetadata metadata = DatabaseMetadata.of(DatabaseQualifier.ofVector());
+
+            assertSoftly(softly -> {
+                softly.assertThat(metadata).as("default metadata").isEqualTo(DatabaseMetadata.DEFAULT_VECTOR);
+                softly.assertThat(metadata.getType()).as("database type").isEqualTo(DatabaseType.VECTOR);
+                softly.assertThat(metadata.getProvider()).as("default provider").isEmpty();
+                softly.assertThat(DatabaseMetadata.of(DatabaseQualifier.ofVector("named")))
+                        .as("named metadata").isNotEqualTo(metadata);
+            });
+        }
+    }
+
+    @Nested
     @DisplayName("When the metadata is created")
     class WhenTheMetadataIsCreated {
 

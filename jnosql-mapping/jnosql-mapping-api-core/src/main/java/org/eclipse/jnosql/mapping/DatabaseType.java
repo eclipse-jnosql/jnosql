@@ -56,6 +56,11 @@ public enum DatabaseType {
      */
     TIME_SERIES,
     /**
+     * A vector database is optimized for storing and querying high-dimensional vectors.
+     * It is commonly used for similarity search, recommendation systems, and machine learning applications.
+     */
+    VECTOR,
+    /**
      * That is not a NoSQL type; it defines resources shared among the NoSQL types.
      */
     SHARED

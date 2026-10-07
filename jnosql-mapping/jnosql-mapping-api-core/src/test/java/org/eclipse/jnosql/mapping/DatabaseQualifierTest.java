@@ -166,6 +166,41 @@ class DatabaseQualifierTest {
     }
 
     @Nested
+    @DisplayName("When the vector qualifier is requested")
+    class WhenTheVectorQualifierIsRequested {
+
+        @Test
+        @DisplayName("Should reject a null provider")
+        void shouldRejectNullProvider() {
+            assertThatNullPointerException().isThrownBy(() -> DatabaseQualifier.ofVector(null));
+        }
+
+        @Test
+        @DisplayName("Should identify the named vector provider")
+        void shouldSelectNamedProvider() {
+            DatabaseQualifier qualifier = DatabaseQualifier.ofVector("articles");
+
+            assertSoftly(softly -> {
+                softly.assertThat(qualifier.provider()).as("provider name").isEqualTo("articles");
+                softly.assertThat(qualifier.value()).as("database type").isEqualTo(DatabaseType.VECTOR);
+            });
+        }
+
+        @Test
+        @DisplayName("Should resolve empty and blank names to the default vector qualifier")
+        void shouldSelectDefaultProvider() {
+            DatabaseQualifier qualifier = DatabaseQualifier.ofVector();
+
+            assertSoftly(softly -> {
+                softly.assertThat(qualifier.provider()).as("default provider").isEmpty();
+                softly.assertThat(qualifier.value()).as("database type").isEqualTo(DatabaseType.VECTOR);
+                softly.assertThat(DatabaseQualifier.ofVector("")).as("empty provider").isSameAs(qualifier);
+                softly.assertThat(DatabaseQualifier.ofVector(" \t")).as("blank provider").isSameAs(qualifier);
+            });
+        }
+    }
+
+    @Nested
     @DisplayName("When the time-series qualifier is requested")
     class WhenTheTimeSeriesQualifierIsRequested {
 
