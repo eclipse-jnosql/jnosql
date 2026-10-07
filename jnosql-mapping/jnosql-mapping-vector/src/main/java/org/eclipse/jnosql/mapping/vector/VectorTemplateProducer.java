@@ -46,7 +46,7 @@ public class VectorTemplateProducer implements Function<VectorManager, VectorTem
 
     /**
      * Creates a template backed by the supplied manager using the shared mapping services.
-     * Vector search operations are not implemented yet and throw {@link UnsupportedOperationException}.
+     * Vector search operations are delegated to the supplied manager.
      *
      * @param manager the vector manager that executes persistence operations
      * @return a vector template backed by the manager
