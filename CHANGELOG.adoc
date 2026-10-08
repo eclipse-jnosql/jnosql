@@ -40,6 +40,8 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 - Remove query method from Eclipse JNoSQL
 - Remove singleQuery from Eclipse JNoSQL
 
+== [1.1.20] - 2026-10-08
+
 == [1.1.19] - 2026-09-29
 
 === Fixed
