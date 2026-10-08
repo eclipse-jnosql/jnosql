@@ -5,9 +5,9 @@ name: Java 17 CI with Maven
 
 on:
   push:
-    branches: [ 1.1.x ]
+    branches: [ 1.x.x ]
   pull_request:
-    branches: [ 1.1.x ]
+    branches: [ 1.x.x ]
 
 jobs:
   build:
