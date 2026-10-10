@@ -696,7 +696,7 @@ IMPORTANT: Vector search extends the regular Jakarta NoSQL query capabilities wi
 
 The supported fluent flows can be summarized as:
 
-[mermaid]
+[source, mermaid]
 ----
 flowchart LR
     V["vector(...)"]
