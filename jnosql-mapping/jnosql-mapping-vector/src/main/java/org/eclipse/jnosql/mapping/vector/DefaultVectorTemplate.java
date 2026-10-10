@@ -28,7 +28,6 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 
 import java.util.List;
-import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
@@ -90,7 +89,7 @@ class DefaultVectorTemplate extends AbstractSemiStructuredTemplate implements Ve
 
     @Override
     public <T> VectorSearch.MapperFrom<T> search(Class<T> entityClass) {
-        Objects.requireNonNull(entityClass, "entityClass is required");
+        requireNonNull(entityClass, "entityClass is required");
         var metadata = entities.get(entityClass);
         return new MapperVectorSearch<>(
                 entityClass,
