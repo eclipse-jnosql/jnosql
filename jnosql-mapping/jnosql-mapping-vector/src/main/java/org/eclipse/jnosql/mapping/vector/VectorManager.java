@@ -40,130 +40,26 @@ import java.util.Map;
 public interface VectorManager extends DatabaseManager {
 
     /**
-     * Finds the nearest communication entities to the supplied query vector.
+     * Executes the supplied vector search query.
      *
      * <p>
-     * Results are ordered according to the similarity or distance metric configured
-     * by the underlying vector database.
+     * Results are ordered according to the similarity or distance metric
+     * configured by the underlying vector database.
      * </p>
      *
      * <pre>{@code
-     * Vector queryVector = DenseVector.of(
-     *         0.12F,
-     *         0.45F,
-     *         0.78F
-     * );
+     * VectorSelectQuery query = ...;
      *
-     * List<CommunicationEntity> entities = manager.searchNearestNeighbors(
-     *         "Article",
-     *         queryVector,
-     *         Limit.of(10)
-     * );
+     * List<CommunicationEntity> entities = manager.search(query);
      * }</pre>
      *
-     * @param entityName the communication entity name
-     * @param queryVector the vector used as the search reference
-     * @param limit the maximum number of results to return
-     * @return the matching entities ordered from nearest to farthest
-     * @throws NullPointerException if {@code entityName}, {@code queryVector},
-     *         or {@code limit} is {@code null}
-     * @throws IllegalArgumentException if {@code entityName} is empty or the
-     *         vector dimensions are incompatible with the configured vector space
-     * @throws UnsupportedOperationException if the vector representation or
-     *         requested limit configuration is not supported by the provider
+     * @param query the vector search query
+     * @return the matching communication entities
+     * @throws NullPointerException if {@code query} is {@code null}
+     * @throws IllegalArgumentException if the vector dimensions or query
+     *         parameters are incompatible with the configured vector space
+     * @throws UnsupportedOperationException if the vector representation
+     *         or requested search capability is not supported by the provider
      */
-    List<CommunicationEntity> searchNearestNeighbors(
-            String entityName,
-            Vector queryVector,
-            Limit limit);
-
-    /**
-     * Finds the nearest communication entities to the supplied query vector while
-     * applying equality-based payload filters.
-     *
-     * <p>
-     * Each map entry represents an equality predicate over a persisted payload field.
-     * Multiple entries are combined using logical {@code AND}. An empty map applies
-     * no additional payload filtering.
-     * </p>
-     *
-     * <pre>{@code
-     * Vector queryVector = DenseVector.of(
-     *         0.12F,
-     *         0.45F,
-     *         0.78F
-     * );
-     *
-     * List<CommunicationEntity> entities = manager.searchNearestNeighbors(
-     *         "Article",
-     *         queryVector,
-     *         Map.of(
-     *                 "author", "Otavio Santana",
-     *                 "year", 2026
-     *         ),
-     *         Limit.of(10)
-     * );
-     * }</pre>
-     *
-     * @param entityName the communication entity name
-     * @param queryVector the vector used as the search reference
-     * @param filters the payload field names and values to match
-     * @param limit the maximum number of results to return
-     * @return the matching entities ordered from nearest to farthest
-     * @throws NullPointerException if {@code entityName}, {@code queryVector},
-     *         {@code filters}, or {@code limit} is {@code null}
-     * @throws IllegalArgumentException if {@code entityName} is empty, the vector
-     *         dimensions are incompatible with the configured vector space, or a
-     *         filter does not represent a valid payload field
-     * @throws UnsupportedOperationException if the vector representation, filter,
-     *         or requested limit configuration is not supported by the provider
-     */
-    List<CommunicationEntity> searchNearestNeighbors(
-            String entityName,
-            Vector queryVector,
-            Map<String, Object> filters,
-            Limit limit);
-
-    /**
-     * Finds communication entities whose vectors satisfy the supplied threshold
-     * according to the similarity or distance metric configured by the underlying
-     * vector database.
-     *
-     * <p>
-     * For distance-based metrics, the threshold typically represents an upper bound.
-     * For similarity-based metrics, it typically represents a lower bound. Threshold
-     * values are therefore specific to the configured metric and may not be portable
-     * between providers.
-     * </p>
-     *
-     * <pre>{@code
-     * Vector queryVector = DenseVector.of(
-     *         0.12F,
-     *         0.45F,
-     *         0.78F
-     * );
-     *
-     * List<CommunicationEntity> entities = manager.searchWithinThreshold(
-     *         "Article",
-     *         queryVector,
-     *         0.85F
-     * );
-     * }</pre>
-     *
-     * @param entityName the communication entity name
-     * @param queryVector the vector used as the search reference
-     * @param threshold the threshold used by the configured similarity or distance metric
-     * @return the matching entities ordered from nearest to farthest
-     * @throws NullPointerException if {@code entityName} or {@code queryVector}
-     *         is {@code null}
-     * @throws IllegalArgumentException if {@code entityName} is empty,
-     *         {@code threshold} is not finite, or the vector dimensions are
-     *         incompatible with the configured vector space
-     * @throws UnsupportedOperationException if the vector representation or
-     *         threshold search is not supported by the provider
-     */
-    List<CommunicationEntity> searchWithinThreshold(
-            String entityName,
-            Vector queryVector,
-            float threshold);
+    List<CommunicationEntity> search(VectorSelectQuery query);
 }
