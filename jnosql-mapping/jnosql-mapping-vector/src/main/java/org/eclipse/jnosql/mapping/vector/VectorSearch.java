@@ -20,11 +20,6 @@ import java.util.List;
 
 /**
  * Defines the fluent API for vector similarity searches.
- *
- * <p>
- * A vector search starts with a query vector and may include payload conditions,
- * a similarity or distance threshold, and a result limit.
- * </p>
  */
 public interface VectorSearch {
 
@@ -46,18 +41,17 @@ public interface VectorSearch {
     }
 
     /**
-     * Represents a vector search after the query vector has been defined.
+     * Represents a search after the query vector has been defined.
      *
      * @param <T> the entity type
      */
-    interface MapperVector<T> extends MapperQueryBuild<T> {
+    interface MapperVector<T> {
 
         /**
          * Starts a payload condition.
          *
          * @param name the mapped entity attribute name
          * @return the condition step
-         * @throws NullPointerException if {@code name} is {@code null}
          */
         MapperNameCondition<T> where(String name);
 
@@ -65,7 +59,7 @@ public interface VectorSearch {
          * Defines the similarity or distance threshold.
          *
          * @param threshold the threshold
-         * @return the next search step
+         * @return the threshold step
          */
         MapperThreshold<T> threshold(float threshold);
 
@@ -73,8 +67,7 @@ public interface VectorSearch {
          * Defines the maximum number of results.
          *
          * @param limit the result limit
-         * @return the next search step
-         * @throws NullPointerException if {@code limit} is {@code null}
+         * @return the executable search
          */
         MapperLimit<T> limit(Limit limit);
     }
@@ -100,17 +93,17 @@ public interface VectorSearch {
     }
 
     /**
-     * Represents a vector search after a payload condition has been defined.
+     * Represents a search after a payload condition has been defined.
      *
      * @param <T> the entity type
      */
-    interface MapperWhere<T> extends MapperQueryBuild<T> {
+    interface MapperWhere<T> {
 
         /**
          * Adds another condition using logical {@code AND}.
          *
          * @param name the mapped entity attribute name
-         * @return the next condition step
+         * @return the condition step
          */
         MapperNameCondition<T> and(String name);
 
@@ -118,7 +111,7 @@ public interface VectorSearch {
          * Adds another condition using logical {@code OR}.
          *
          * @param name the mapped entity attribute name
-         * @return the next condition step
+         * @return the condition step
          */
         MapperNameCondition<T> or(String name);
 
@@ -126,7 +119,7 @@ public interface VectorSearch {
          * Defines the similarity or distance threshold.
          *
          * @param threshold the threshold
-         * @return the next search step
+         * @return the threshold step
          */
         MapperThreshold<T> threshold(float threshold);
 
@@ -134,41 +127,33 @@ public interface VectorSearch {
          * Defines the maximum number of results.
          *
          * @param limit the result limit
-         * @return the next search step
+         * @return the executable search
          */
         MapperLimit<T> limit(Limit limit);
     }
 
     /**
-     * Represents a vector search after a threshold has been defined.
+     * Represents a search after a threshold has been defined.
      *
      * @param <T> the entity type
      */
-    interface MapperThreshold<T> extends MapperQueryBuild<T> {
+    interface MapperThreshold<T> {
 
         /**
          * Defines the maximum number of results.
          *
          * @param limit the result limit
-         * @return the next search step
+         * @return the executable search
          */
         MapperLimit<T> limit(Limit limit);
     }
 
     /**
-     * Represents a vector search after a limit has been defined.
+     * Represents a complete vector search that can be executed.
      *
      * @param <T> the entity type
      */
-    interface MapperLimit<T> extends MapperQueryBuild<T> {
-    }
-
-    /**
-     * Represents a vector search that can be executed.
-     *
-     * @param <T> the entity type
-     */
-    interface MapperQueryBuild<T> {
+    interface MapperLimit<T> {
 
         /**
          * Executes the vector search.
