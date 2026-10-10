@@ -15,15 +15,11 @@
 package org.eclipse.jnosql.mapping.vector.entities;
 
 import jakarta.nosql.Column;
-import jakarta.nosql.DiscriminatorColumn;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Id;
-import jakarta.nosql.Inheritance;
 import org.eclipse.jnosql.mapping.vector.DenseVector;
 
 @Entity
-@Inheritance
-@DiscriminatorColumn("dtype")
 public class Article {
 
     @Id
