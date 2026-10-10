@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *  Copyright (c) 2022-2026 Contributors to the Eclipse Foundation
  *   All rights reserved. This program and the accompanying materials
  *   are made available under the terms of the Eclipse Public License 2.0
  *   and Apache License v2.0 which accompanies this distribution.
@@ -35,18 +35,18 @@ abstract class AbstractMapperQuery {
     protected boolean negate;
 
     /**
-     * Represents only the conditions explicitly defined by the user.
+     * Represents the complete condition sent to the communication layer,
+     * including the inheritance discriminator when applicable.
      */
     protected CriteriaCondition condition;
 
     /**
-     * Represents the discriminator condition required by an inherited entity.
-     *
-     * <p>
-     * This condition is kept separate from {@link #condition} to ensure that
-     * user-defined {@code OR} predicates cannot escape the inheritance
-     * discriminator constraint.
-     * </p>
+     * Represents only the conditions explicitly defined by the query.
+     */
+    private CriteriaCondition userCondition;
+
+    /**
+     * Represents the inheritance discriminator condition when applicable.
      */
     private final CriteriaCondition inheritanceCondition;
 
@@ -68,22 +68,39 @@ abstract class AbstractMapperQuery {
                         Converters converters,
                         SemiStructuredTemplate template) {
 
-        this.mapping = requireNonNull(mapping, "mapping is required");
-        this.converters = requireNonNull(converters, "converters is required");
-        this.template = requireNonNull(template, "template is required");
+        this.mapping = mapping;
+        this.converters = converters;
         this.entity = mapping.name();
-        this.inheritanceCondition = inheritanceCondition(mapping);
+        this.template = template;
+
+        this.inheritanceCondition = mapping.inheritance()
+                .filter(inheritance -> !inheritance.parent().equals(mapping.type()))
+                .map(inheritance -> CriteriaCondition.eq(
+                        Element.of(
+                                inheritance.discriminatorColumn(),
+                                inheritance.discriminatorValue()
+                        )
+                ))
+                .orElse(null);
+
+        this.condition = inheritanceCondition;
     }
 
     protected void appendCondition(CriteriaCondition incomingCondition) {
         CriteriaCondition columnCondition = getCondition(incomingCondition);
 
-        if (nonNull(condition)) {
-            this.condition = and
-                    ? this.condition.and(columnCondition)
-                    : this.condition.or(columnCondition);
+        if (nonNull(userCondition)) {
+            userCondition = and
+                    ? userCondition.and(columnCondition)
+                    : userCondition.or(columnCondition);
         } else {
-            this.condition = columnCondition;
+            userCondition = columnCondition;
+        }
+
+        if (nonNull(inheritanceCondition)) {
+            condition = inheritanceCondition.and(userCondition);
+        } else {
+            condition = userCondition;
         }
 
         this.negate = false;
@@ -107,8 +124,7 @@ abstract class AbstractMapperQuery {
     protected <T> void inImpl(Iterable<T> values) {
         requireNonNull(values, "values is required");
 
-        List<Object> convertedValues = StreamSupport
-                .stream(values.spliterator(), false)
+        List<Object> convertedValues = StreamSupport.stream(values.spliterator(), false)
                 .map(this::getValue)
                 .collect(toList());
 
@@ -239,37 +255,8 @@ abstract class AbstractMapperQuery {
         appendCondition(newCondition);
     }
 
-    protected CriteriaCondition queryCondition() {
-        if (inheritanceCondition == null) {
-            return condition;
-        }
-
-        if (condition == null) {
-            return inheritanceCondition;
-        }
-
-        return inheritanceCondition.and(condition);
-    }
-
     protected Object getValue(Object value) {
-        return ConverterUtil.getValue(
-                value,
-                mapping,
-                name,
-                converters
-        );
-    }
-
-    private CriteriaCondition inheritanceCondition(EntityMetadata mapping) {
-        return mapping.inheritance()
-                .filter(inheritance -> !inheritance.parent().equals(mapping.type()))
-                .map(inheritance -> CriteriaCondition.eq(
-                        Element.of(
-                                inheritance.discriminatorColumn(),
-                                inheritance.discriminatorValue()
-                        )
-                ))
-                .orElse(null);
+        return ConverterUtil.getValue(value, mapping, name, converters);
     }
 
     private CriteriaCondition getCondition(CriteriaCondition newCondition) {
