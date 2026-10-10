@@ -439,6 +439,205 @@ class DefaultVectorTemplateSearchTest {
         }
     }
 
+    @Nested
+    @DisplayName("When searching with comparison conditions")
+    class WhenSearchingWithComparisonConditions {
+
+        @Nested
+        @DisplayName("When searching with not equal")
+        class WhenSearchingWithNotEqual {
+
+            @Test
+            @DisplayName("Should append a not equal condition")
+            void shouldAppendNotEqualCondition() {
+                when(manager.search(any(VectorSelectQuery.class)))
+                        .thenReturn(List.of());
+
+                template.search(Article.class)
+                        .vector(queryVector)
+                        .where("content").ne("Jakarta NoSQL")
+                        .limit(Limit.of(10))
+                        .result();
+
+                var captor = ArgumentCaptor.forClass(VectorSelectQuery.class);
+                verify(manager).search(captor.capture());
+
+                CriteriaCondition condition = captor.getValue()
+                        .condition()
+                        .orElseThrow();
+
+                assertSoftly(softly -> {
+                    softly.assertThat(condition.condition())
+                            .as("condition")
+                            .isEqualTo(Condition.NOT);
+                    softly.assertThat(condition.element().name())
+                            .as("condition field")
+                            .isEqualTo(Condition.NOT.getNameField());
+                    softly.assertThat(condition.element().get(CriteriaCondition.class))
+                            .as("negated condition")
+                            .satisfies(negated -> {
+                                softly.assertThat(negated.condition())
+                                        .as("negated operator")
+                                        .isEqualTo(Condition.EQUALS);
+                                softly.assertThat(negated.element().name())
+                                        .as("column")
+                                        .isEqualTo("content");
+                                softly.assertThat(negated.element().get())
+                                        .as("value")
+                                        .isEqualTo("Jakarta NoSQL");
+                            });
+                });
+            }
+        }
+
+        @Nested
+        @DisplayName("When searching with greater than")
+        class WhenSearchingWithGreaterThan {
+
+            @Test
+            @DisplayName("Should append a greater than condition")
+            void shouldAppendGreaterThanCondition() {
+                when(manager.search(any(VectorSelectQuery.class)))
+                        .thenReturn(List.of());
+
+                template.search(Article.class)
+                        .vector(queryVector)
+                        .where("year").gt(2020)
+                        .limit(Limit.of(10))
+                        .result();
+
+                var captor = ArgumentCaptor.forClass(VectorSelectQuery.class);
+                verify(manager).search(captor.capture());
+
+                CriteriaCondition condition = captor.getValue()
+                        .condition()
+                        .orElseThrow();
+
+                assertSoftly(softly -> {
+                    softly.assertThat(condition.condition())
+                            .as("condition")
+                            .isEqualTo(Condition.GREATER_THAN);
+                    softly.assertThat(condition.element().name())
+                            .as("column")
+                            .isEqualTo("year");
+                    softly.assertThat(condition.element().get())
+                            .as("value")
+                            .isEqualTo(2020);
+                });
+            }
+        }
+
+        @Nested
+        @DisplayName("When searching with greater than or equal")
+        class WhenSearchingWithGreaterThanOrEqual {
+
+            @Test
+            @DisplayName("Should append a greater than or equal condition")
+            void shouldAppendGreaterThanOrEqualCondition() {
+                when(manager.search(any(VectorSelectQuery.class)))
+                        .thenReturn(List.of());
+
+                template.search(Article.class)
+                        .vector(queryVector)
+                        .where("year").gte(2020)
+                        .limit(Limit.of(10))
+                        .result();
+
+                var captor = ArgumentCaptor.forClass(VectorSelectQuery.class);
+                verify(manager).search(captor.capture());
+
+                CriteriaCondition condition = captor.getValue()
+                        .condition()
+                        .orElseThrow();
+
+                assertSoftly(softly -> {
+                    softly.assertThat(condition.condition())
+                            .as("condition")
+                            .isEqualTo(Condition.GREATER_EQUALS_THAN);
+                    softly.assertThat(condition.element().name())
+                            .as("column")
+                            .isEqualTo("year");
+                    softly.assertThat(condition.element().get())
+                            .as("value")
+                            .isEqualTo(2020);
+                });
+            }
+        }
+
+        @Nested
+        @DisplayName("When searching with lesser than")
+        class WhenSearchingWithLesserThan {
+
+            @Test
+            @DisplayName("Should append a lesser than condition")
+            void shouldAppendLesserThanCondition() {
+                when(manager.search(any(VectorSelectQuery.class)))
+                        .thenReturn(List.of());
+
+                template.search(Article.class)
+                        .vector(queryVector)
+                        .where("year").lt(2026)
+                        .limit(Limit.of(10))
+                        .result();
+
+                var captor = ArgumentCaptor.forClass(VectorSelectQuery.class);
+                verify(manager).search(captor.capture());
+
+                CriteriaCondition condition = captor.getValue()
+                        .condition()
+                        .orElseThrow();
+
+                assertSoftly(softly -> {
+                    softly.assertThat(condition.condition())
+                            .as("condition")
+                            .isEqualTo(Condition.LESSER_THAN);
+                    softly.assertThat(condition.element().name())
+                            .as("column")
+                            .isEqualTo("year");
+                    softly.assertThat(condition.element().get())
+                            .as("value")
+                            .isEqualTo(2026);
+                });
+            }
+        }
+
+        @Nested
+        @DisplayName("When searching with lesser than or equal")
+        class WhenSearchingWithLesserThanOrEqual {
+
+            @Test
+            @DisplayName("Should append a lesser than or equal condition")
+            void shouldAppendLesserThanOrEqualCondition() {
+                when(manager.search(any(VectorSelectQuery.class)))
+                        .thenReturn(List.of());
+
+                template.search(Article.class)
+                        .vector(queryVector)
+                        .where("year").lte(2026)
+                        .limit(Limit.of(10))
+                        .result();
+
+                var captor = ArgumentCaptor.forClass(VectorSelectQuery.class);
+                verify(manager).search(captor.capture());
+
+                CriteriaCondition condition = captor.getValue()
+                        .condition()
+                        .orElseThrow();
+
+                assertSoftly(softly -> {
+                    softly.assertThat(condition.condition())
+                            .as("condition")
+                            .isEqualTo(Condition.LESSER_EQUALS_THAN);
+                    softly.assertThat(condition.element().name())
+                            .as("column")
+                            .isEqualTo("year");
+                    softly.assertThat(condition.element().get())
+                            .as("value")
+                            .isEqualTo(2026);
+                });
+            }
+        }
+    }
 
 
 }
