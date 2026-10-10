@@ -42,6 +42,10 @@ final class MapperVectorSearch<T>
 
     private final DefaultVectorTemplate template;
 
+    private final CriteriaCondition inheritanceCondition;
+
+    private CriteriaCondition condition;
+
     private Vector vector;
 
     private Float threshold;
@@ -49,8 +53,6 @@ final class MapperVectorSearch<T>
     private Limit limit;
 
     private String name;
-
-    private CriteriaCondition condition;
 
     private boolean and;
 
@@ -63,18 +65,7 @@ final class MapperVectorSearch<T>
         this.mapping = requireNonNull(mapping, "mapping is required");
         this.converters = requireNonNull(converters, "converters is required");
         this.template = requireNonNull(template, "template is required");
-
-        mapping.inheritance().ifPresent(inheritance -> {
-            if (!inheritance.parent().equals(mapping.type())) {
-                this.condition = CriteriaCondition.eq(
-                        Element.of(
-                                inheritance.discriminatorColumn(),
-                                inheritance.discriminatorValue()
-                        )
-                );
-                this.and = true;
-            }
-        });
+        this.inheritanceCondition = inheritanceCondition(mapping);
     }
 
     @Override
@@ -108,13 +99,14 @@ final class MapperVectorSearch<T>
     public VectorSearch.MapperWhere<T> eq(Object value) {
         requireNonNull(value, "value is required");
 
-        appendCondition(CriteriaCondition.eq(
+        CriteriaCondition newCondition = CriteriaCondition.eq(
                 Element.of(
                         mapping.columnField(name),
                         getValue(value)
                 )
-        ));
+        );
 
+        appendCondition(newCondition);
         return this;
     }
 
@@ -122,15 +114,14 @@ final class MapperVectorSearch<T>
     public VectorSearch.MapperWhere<T> ne(Object value) {
         requireNonNull(value, "value is required");
 
-        appendCondition(
-                CriteriaCondition.eq(
-                        Element.of(
-                                mapping.columnField(name),
-                                getValue(value)
-                        )
-                ).negate()
-        );
+        CriteriaCondition newCondition = CriteriaCondition.eq(
+                Element.of(
+                        mapping.columnField(name),
+                        getValue(value)
+                )
+        ).negate();
 
+        appendCondition(newCondition);
         return this;
     }
 
@@ -138,13 +129,14 @@ final class MapperVectorSearch<T>
     public VectorSearch.MapperWhere<T> gt(Object value) {
         requireNonNull(value, "value is required");
 
-        appendCondition(CriteriaCondition.gt(
+        CriteriaCondition newCondition = CriteriaCondition.gt(
                 Element.of(
                         mapping.columnField(name),
                         getValue(value)
                 )
-        ));
+        );
 
+        appendCondition(newCondition);
         return this;
     }
 
@@ -152,13 +144,14 @@ final class MapperVectorSearch<T>
     public VectorSearch.MapperWhere<T> gte(Object value) {
         requireNonNull(value, "value is required");
 
-        appendCondition(CriteriaCondition.gte(
+        CriteriaCondition newCondition = CriteriaCondition.gte(
                 Element.of(
                         mapping.columnField(name),
                         getValue(value)
                 )
-        ));
+        );
 
+        appendCondition(newCondition);
         return this;
     }
 
@@ -166,13 +159,14 @@ final class MapperVectorSearch<T>
     public VectorSearch.MapperWhere<T> lt(Object value) {
         requireNonNull(value, "value is required");
 
-        appendCondition(CriteriaCondition.lt(
+        CriteriaCondition newCondition = CriteriaCondition.lt(
                 Element.of(
                         mapping.columnField(name),
                         getValue(value)
                 )
-        ));
+        );
 
+        appendCondition(newCondition);
         return this;
     }
 
@@ -180,13 +174,14 @@ final class MapperVectorSearch<T>
     public VectorSearch.MapperWhere<T> lte(Object value) {
         requireNonNull(value, "value is required");
 
-        appendCondition(CriteriaCondition.lte(
+        CriteriaCondition newCondition = CriteriaCondition.lte(
                 Element.of(
                         mapping.columnField(name),
                         getValue(value)
                 )
-        ));
+        );
 
+        appendCondition(newCondition);
         return this;
     }
 
@@ -210,7 +205,7 @@ final class MapperVectorSearch<T>
     public List<T> result() {
         VectorSelectQuery query = new DefaultVectorSelectQuery(
                 mapping.name(),
-                condition,
+                queryCondition(),
                 limit,
                 vector,
                 threshold
@@ -229,6 +224,30 @@ final class MapperVectorSearch<T>
         }
 
         name = null;
+    }
+
+    private CriteriaCondition queryCondition() {
+        if (inheritanceCondition == null) {
+            return condition;
+        }
+
+        if (condition == null) {
+            return inheritanceCondition;
+        }
+
+        return inheritanceCondition.and(condition);
+    }
+
+    private CriteriaCondition inheritanceCondition(EntityMetadata mapping) {
+        return mapping.inheritance()
+                .filter(inheritance -> !inheritance.parent().equals(mapping.type()))
+                .map(inheritance -> CriteriaCondition.eq(
+                        Element.of(
+                                inheritance.discriminatorColumn(),
+                                inheritance.discriminatorValue()
+                        )
+                ))
+                .orElse(null);
     }
 
     private Object getValue(Object value) {
