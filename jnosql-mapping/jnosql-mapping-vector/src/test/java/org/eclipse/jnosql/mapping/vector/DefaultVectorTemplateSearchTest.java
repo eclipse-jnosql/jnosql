@@ -16,7 +16,9 @@ package org.eclipse.jnosql.mapping.vector;
 
 import jakarta.data.Limit;
 import jakarta.inject.Inject;
+import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
+import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
@@ -25,6 +27,7 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 import org.eclipse.jnosql.mapping.vector.entities.Article;
+import org.eclipse.jnosql.mapping.vector.entities.SpecialArticle;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -381,4 +384,61 @@ class DefaultVectorTemplateSearchTest {
             verify(manager, never()).search(any(VectorSelectQuery.class));
         }
     }
+
+    @Nested
+    @DisplayName("When searching inherited entities")
+    class WhenSearchingInheritedEntities {
+
+        @Test
+        @DisplayName("Should include the inheritance discriminator condition")
+        void shouldIncludeInheritanceDiscriminatorCondition() {
+            when(manager.search(any(VectorSelectQuery.class)))
+                    .thenReturn(List.of());
+
+            template.search(SpecialArticle.class)
+                    .vector(queryVector)
+                    .limit(Limit.of(10))
+                    .result();
+
+            var captor = ArgumentCaptor.forClass(VectorSelectQuery.class);
+            verify(manager).search(captor.capture());
+
+            assertThat(captor.getValue().condition())
+                    .as("inheritance discriminator condition")
+                    .isPresent();
+        }
+
+        @Test
+        @DisplayName("Should combine the inheritance discriminator with the search condition")
+        void shouldCombineInheritanceAndSearchCondition() {
+            when(manager.search(any(VectorSelectQuery.class)))
+                    .thenReturn(List.of());
+
+            template.search(SpecialArticle.class)
+                    .vector(queryVector)
+                    .where("content").eq("Jakarta NoSQL")
+                    .limit(Limit.of(10))
+                    .result();
+
+            var captor = ArgumentCaptor.forClass(VectorSelectQuery.class);
+            verify(manager).search(captor.capture());
+
+            CriteriaCondition condition = captor.getValue()
+                    .condition()
+                    .orElseThrow();
+
+            assertSoftly(softly -> {
+                softly.assertThat(condition)
+                        .as("combined inheritance condition")
+                        .isNotNull();
+
+                softly.assertThat(condition.condition())
+                        .as("logical operator")
+                        .isEqualTo(Condition.AND);
+            });
+        }
+    }
+
+
+
 }
