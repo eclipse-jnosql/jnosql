@@ -54,6 +54,10 @@ public final class DatabaseMetadata {
      */
     public static final DatabaseMetadata DEFAULT_TIME_SERIES = new DatabaseMetadata(DatabaseType.TIME_SERIES, "");
 
+    /**
+     * A default DatabaseMetadata instance for vector databases without a specific provider.
+     */
+    public static final DatabaseMetadata DEFAULT_VECTOR = new DatabaseMetadata(DatabaseType.VECTOR, "");
 
     private final DatabaseType type;
     private final String provider;
