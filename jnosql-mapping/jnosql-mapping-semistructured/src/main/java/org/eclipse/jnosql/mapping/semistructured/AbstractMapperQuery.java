@@ -34,7 +34,21 @@ abstract class AbstractMapperQuery {
 
     protected boolean negate;
 
+    /**
+     * Represents only the conditions explicitly defined by the user.
+     */
     protected CriteriaCondition condition;
+
+    /**
+     * Represents the discriminator condition required by an inherited entity.
+     *
+     * <p>
+     * This condition is kept separate from {@link #condition} to ensure that
+     * user-defined {@code OR} predicates cannot escape the inheritance
+     * discriminator constraint.
+     * </p>
+     */
+    private final CriteriaCondition inheritanceCondition;
 
     protected boolean and;
 
@@ -50,25 +64,24 @@ abstract class AbstractMapperQuery {
 
     protected long limit;
 
+    AbstractMapperQuery(EntityMetadata mapping,
+                        Converters converters,
+                        SemiStructuredTemplate template) {
 
-    AbstractMapperQuery(EntityMetadata mapping, Converters converters, SemiStructuredTemplate template) {
-        this.mapping = mapping;
-        this.converters = converters;
+        this.mapping = requireNonNull(mapping, "mapping is required");
+        this.converters = requireNonNull(converters, "converters is required");
+        this.template = requireNonNull(template, "template is required");
         this.entity = mapping.name();
-        this.template = template;
-        mapping.inheritance().ifPresent(i -> {
-            if(!i.parent().equals(mapping.type())){
-                this.condition = CriteriaCondition.eq(Element.of(i.discriminatorColumn(), i.discriminatorValue()));
-                this.and = true;
-            }
-        });
+        this.inheritanceCondition = inheritanceCondition(mapping);
     }
 
     protected void appendCondition(CriteriaCondition incomingCondition) {
         CriteriaCondition columnCondition = getCondition(incomingCondition);
 
         if (nonNull(condition)) {
-            this.condition = and ? this.condition.and(columnCondition) : this.condition.or(columnCondition);
+            this.condition = and
+                    ? this.condition.and(columnCondition)
+                    : this.condition.or(columnCondition);
         } else {
             this.condition = columnCondition;
         }
@@ -80,96 +93,190 @@ abstract class AbstractMapperQuery {
     protected <T> void betweenImpl(T valueA, T valueB) {
         requireNonNull(valueA, "valueA is required");
         requireNonNull(valueB, "valueB is required");
-        CriteriaCondition newCondition = CriteriaCondition
-                .between(Element.of(mapping.columnField(name), asList(getValue(valueA), getValue(valueB))));
+
+        CriteriaCondition newCondition = CriteriaCondition.between(
+                Element.of(
+                        mapping.columnField(name),
+                        asList(getValue(valueA), getValue(valueB))
+                )
+        );
+
         appendCondition(newCondition);
     }
 
-
     protected <T> void inImpl(Iterable<T> values) {
-
         requireNonNull(values, "values is required");
-        List<Object> convertedValues = StreamSupport.stream(values.spliterator(), false)
-                .map(this::getValue).collect(toList());
-        CriteriaCondition newCondition = CriteriaCondition
-                .in(Element.of(mapping.columnField(name), convertedValues));
+
+        List<Object> convertedValues = StreamSupport
+                .stream(values.spliterator(), false)
+                .map(this::getValue)
+                .collect(toList());
+
+        CriteriaCondition newCondition = CriteriaCondition.in(
+                Element.of(
+                        mapping.columnField(name),
+                        convertedValues
+                )
+        );
+
         appendCondition(newCondition);
     }
 
     protected <T> void eqImpl(T value) {
         requireNonNull(value, "value is required");
 
-        CriteriaCondition newCondition = CriteriaCondition
-                .eq(Element.of(mapping.columnField(name), getValue(value)));
+        CriteriaCondition newCondition = CriteriaCondition.eq(
+                Element.of(
+                        mapping.columnField(name),
+                        getValue(value)
+                )
+        );
+
         appendCondition(newCondition);
     }
 
     protected void likeImpl(String value) {
         requireNonNull(value, "value is required");
-        CriteriaCondition newCondition = CriteriaCondition
-                .like(Element.of(mapping.columnField(name), getValue(value)));
+
+        CriteriaCondition newCondition = CriteriaCondition.like(
+                Element.of(
+                        mapping.columnField(name),
+                        getValue(value)
+                )
+        );
+
         appendCondition(newCondition);
     }
 
     protected <T> void gteImpl(T value) {
         requireNonNull(value, "value is required");
-        CriteriaCondition newCondition = CriteriaCondition
-                .gte(Element.of(mapping.columnField(name), getValue(value)));
+
+        CriteriaCondition newCondition = CriteriaCondition.gte(
+                Element.of(
+                        mapping.columnField(name),
+                        getValue(value)
+                )
+        );
+
         appendCondition(newCondition);
     }
 
     protected <T> void gtImpl(T value) {
         requireNonNull(value, "value is required");
-        CriteriaCondition newCondition = CriteriaCondition
-                .gt(Element.of(mapping.columnField(name), getValue(value)));
+
+        CriteriaCondition newCondition = CriteriaCondition.gt(
+                Element.of(
+                        mapping.columnField(name),
+                        getValue(value)
+                )
+        );
+
         appendCondition(newCondition);
     }
 
     protected <T> void ltImpl(T value) {
         requireNonNull(value, "value is required");
-        CriteriaCondition newCondition = CriteriaCondition
-                .lt(Element.of(mapping.columnField(name), getValue(value)));
+
+        CriteriaCondition newCondition = CriteriaCondition.lt(
+                Element.of(
+                        mapping.columnField(name),
+                        getValue(value)
+                )
+        );
+
         appendCondition(newCondition);
     }
 
     protected <T> void lteImpl(T value) {
         requireNonNull(value, "value is required");
-        CriteriaCondition newCondition = CriteriaCondition
-                .lte(Element.of(mapping.columnField(name), getValue(value)));
+
+        CriteriaCondition newCondition = CriteriaCondition.lte(
+                Element.of(
+                        mapping.columnField(name),
+                        getValue(value)
+                )
+        );
+
         appendCondition(newCondition);
     }
 
     protected void containsImpl(String value) {
         requireNonNull(value, "value is required");
-        CriteriaCondition newCondition = CriteriaCondition
-                .contains(Element.of(mapping.columnField(name), getValue(value)));
+
+        CriteriaCondition newCondition = CriteriaCondition.contains(
+                Element.of(
+                        mapping.columnField(name),
+                        getValue(value)
+                )
+        );
+
         appendCondition(newCondition);
     }
 
     protected void startWithImpl(String value) {
         requireNonNull(value, "value is required");
-        CriteriaCondition newCondition = CriteriaCondition
-                .startsWith(Element.of(mapping.columnField(name), getValue(value)));
+
+        CriteriaCondition newCondition = CriteriaCondition.startsWith(
+                Element.of(
+                        mapping.columnField(name),
+                        getValue(value)
+                )
+        );
+
         appendCondition(newCondition);
     }
 
     protected void endsWithImpl(String value) {
         requireNonNull(value, "value is required");
-        CriteriaCondition newCondition = CriteriaCondition
-                .endsWith(Element.of(mapping.columnField(name), getValue(value)));
+
+        CriteriaCondition newCondition = CriteriaCondition.endsWith(
+                Element.of(
+                        mapping.columnField(name),
+                        getValue(value)
+                )
+        );
+
         appendCondition(newCondition);
     }
 
+    protected CriteriaCondition queryCondition() {
+        if (inheritanceCondition == null) {
+            return condition;
+        }
+
+        if (condition == null) {
+            return inheritanceCondition;
+        }
+
+        return inheritanceCondition.and(condition);
+    }
 
     protected Object getValue(Object value) {
-        return ConverterUtil.getValue(value, mapping, name, converters);
+        return ConverterUtil.getValue(
+                value,
+                mapping,
+                name,
+                converters
+        );
+    }
+
+    private CriteriaCondition inheritanceCondition(EntityMetadata mapping) {
+        return mapping.inheritance()
+                .filter(inheritance -> !inheritance.parent().equals(mapping.type()))
+                .map(inheritance -> CriteriaCondition.eq(
+                        Element.of(
+                                inheritance.discriminatorColumn(),
+                                inheritance.discriminatorValue()
+                        )
+                ))
+                .orElse(null);
     }
 
     private CriteriaCondition getCondition(CriteriaCondition newCondition) {
         if (negate) {
             return newCondition.negate();
-        } else {
-            return newCondition;
         }
+
+        return newCondition;
     }
 }
