@@ -22,7 +22,6 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
-import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
 import org.eclipse.jnosql.mapping.vector.entities.Article;
 import org.eclipse.jnosql.mapping.vector.entities.VectorRecord;
 import org.jboss.weld.junit5.auto.AddExtensions;
@@ -32,7 +31,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
@@ -44,7 +42,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 class VectorEntityConverterTest {
 
     @Inject
-    private EntityConverterFactory factory;
+    private EntityConverter converter;
 
     @Inject
     private EntitiesMetadata entities;
@@ -58,7 +56,6 @@ class VectorEntityConverterTest {
         void shouldPreserveMappedColumns() {
             DenseVector vector = DenseVector.of(0.12F, 0.45F, 0.78F);
             Article article = new Article("article-123", "Jakarta NoSQL", vector, new float[]{10F, 20F});
-            EntityConverter converter = factory.create(Optional::empty);
 
             CommunicationEntity communication = converter.toCommunication(article);
 
@@ -79,7 +76,6 @@ class VectorEntityConverterTest {
         @Test
         @DisplayName("Should reject a null entity")
         void shouldRejectNullEntity() {
-            EntityConverter converter = factory.create(Optional::empty);
 
             assertThatNullPointerException().isThrownBy(() -> converter.toCommunication(null))
                     .withMessage("entity is required");
@@ -97,7 +93,6 @@ class VectorEntityConverterTest {
             communication.add("_id", "article-123");
             communication.add("content", "Jakarta NoSQL");
             communication.add("representation", DenseVector.of(1F, 2F));
-            EntityConverter converter = factory.create(Optional::empty);
 
             Article result = converter.toEntity(Article.class, communication);
 
@@ -111,7 +106,6 @@ class VectorEntityConverterTest {
         @Test
         @DisplayName("Should reject null communication data")
         void shouldRejectNullCommunication() {
-            EntityConverter converter = factory.create(Optional::empty);
 
             assertThatNullPointerException().isThrownBy(() -> converter.toEntity(Article.class, null))
                     .withMessage("entity is required");
@@ -121,7 +115,6 @@ class VectorEntityConverterTest {
         @DisplayName("Should reject a null entity type")
         void shouldRejectNullEntityType() {
             CommunicationEntity communication = CommunicationEntity.of("Article");
-            EntityConverter converter = factory.create(Optional::empty);
 
             assertThatNullPointerException().isThrownBy(() -> converter.toEntity((Class<Article>) null, communication))
                     .withMessage("type is required");
@@ -137,7 +130,6 @@ class VectorEntityConverterTest {
         void shouldRetainEntityValues() {
             Article article = new Article("article-123", "Jakarta NoSQL", DenseVector.of(0.12F, 0.45F, 0.78F),
                     new float[]{10F, 20F});
-            EntityConverter converter = factory.create(Optional::empty);
 
             CommunicationEntity communication = converter.toCommunication(article);
             Article result = converter.toEntity(Article.class, communication);
@@ -154,7 +146,6 @@ class VectorEntityConverterTest {
         @DisplayName("Should retain a record with a generic Vector column")
         void shouldRetainGenericVectorRecord() {
             VectorRecord record = new VectorRecord("article-123", DenseVector.of(1F, 2F), "Otavio");
-            EntityConverter converter = factory.create(Optional::empty);
 
             CommunicationEntity communication = converter.toCommunication(record);
             VectorRecord result = converter.toEntity(VectorRecord.class, communication);
@@ -170,7 +161,6 @@ class VectorEntityConverterTest {
         @DisplayName("Should honor the provider's identifier column without changing the vector")
         void shouldHonorProviderIdentifier() {
             Article article = new Article("article-123", "Jakarta NoSQL", DenseVector.of(1F), new float[]{2F});
-            EntityConverter converter = factory.create(() -> Optional.of("record_id"));
 
             CommunicationEntity communication = converter.toCommunication(article);
             Article result = converter.toEntity(Article.class, communication);

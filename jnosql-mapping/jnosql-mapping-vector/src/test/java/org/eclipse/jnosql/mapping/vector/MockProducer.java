@@ -61,7 +61,6 @@ public class MockProducer {
     private VectorManager manager(String provider) {
         VectorManager manager = mock(VectorManager.class);
         when(manager.name()).thenReturn(provider);
-        when(manager.defaultIdFieldName()).thenReturn(Optional.empty());
         when(manager.singleResult(any(SelectQuery.class))).thenReturn(Optional.empty());
         when(manager.insert(any(CommunicationEntity.class))).thenAnswer(invocation -> {
             CommunicationEntity entity = invocation.getArgument(0);
