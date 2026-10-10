@@ -18,7 +18,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
-import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
+import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 
 import java.util.function.Function;
@@ -33,7 +33,7 @@ import static java.util.Objects.requireNonNull;
 public class VectorTemplateProducer implements Function<VectorManager, VectorTemplate> {
 
     @Inject
-    private EntityConverterFactory converter;
+    private EntityConverter converter;
 
     @Inject
     private EventPersistManager eventManager;

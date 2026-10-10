@@ -25,7 +25,6 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.semistructured.AbstractSemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
-import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 
 import java.util.List;
@@ -46,11 +45,11 @@ class DefaultVectorTemplate extends AbstractSemiStructuredTemplate implements Ve
     private final Converters converters;
 
     @Inject
-    DefaultVectorTemplate(EntityConverterFactory factory, VectorManager manager,
+    DefaultVectorTemplate(EntityConverter converter, VectorManager manager,
                           EventPersistManager eventManager, EntitiesMetadata entities, Converters converters) {
 
         this.manager = requireNonNull(manager, "manager is required");
-        this.converter = factory.create(manager);
+        this.converter = requireNonNull(converter, "converter is required");
         this.eventManager = eventManager;
         this.entities = entities;
         this.converters = converters;

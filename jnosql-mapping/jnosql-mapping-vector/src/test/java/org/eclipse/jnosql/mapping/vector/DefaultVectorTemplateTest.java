@@ -16,10 +16,8 @@ package org.eclipse.jnosql.mapping.vector;
 
 import jakarta.data.Limit;
 import jakarta.inject.Inject;
-import org.assertj.core.api.SoftAssertionError;
 import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
-import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -27,7 +25,6 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
-import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 import org.eclipse.jnosql.mapping.vector.entities.Article;
 import org.eclipse.jnosql.mapping.vector.entities.ConvertedIdArticle;
@@ -65,7 +62,7 @@ import static org.mockito.Mockito.when;
 class DefaultVectorTemplateTest {
 
     @Inject
-    private EntityConverterFactory factory;
+    private EntityConverter converter;
     @Inject
     private EntitiesMetadata entities;
     @Inject
@@ -80,8 +77,7 @@ class DefaultVectorTemplateTest {
     void setUp() {
         manager = mock(VectorManager.class);
         events = mock(EventPersistManager.class);
-        when(manager.defaultIdFieldName()).thenReturn(Optional.empty());
-        template = new DefaultVectorTemplate(factory, manager, events, entities, converters);
+        template = new DefaultVectorTemplate(converter, manager, events, entities, converters);
         article = new Article("article-123", "Jakarta NoSQL", DenseVector.of(1F, 2F), new float[]{3F});
     }
 
@@ -182,7 +178,7 @@ class DefaultVectorTemplateTest {
         @Test
         @DisplayName("Should restore the entity from the manager result")
         void shouldFindEntity() {
-            CommunicationEntity communication = factory.create(manager).toCommunication(article);
+            CommunicationEntity communication = converter.toCommunication(article);
             when(manager.select(any(SelectQuery.class))).thenAnswer(invocation -> Stream.of(communication));
 
             Optional<Article> result = template.find(Article.class, "article-123");
@@ -229,7 +225,7 @@ class DefaultVectorTemplateTest {
         @Test
         @DisplayName("Should delegate the vector search and convert the results")
         void shouldSearchNearestNeighbors() {
-            CommunicationEntity communication = factory.create(manager).toCommunication(article);
+            CommunicationEntity communication = converter.toCommunication(article);
             Vector queryVector = DenseVector.of(1F, 2F);
             Limit limit = Limit.of(10);
 
@@ -286,7 +282,7 @@ class DefaultVectorTemplateTest {
         @Test
         @DisplayName("Should map field names and delegate the filtered vector search")
         void shouldSearchNearestNeighborsWithFilters() {
-            CommunicationEntity communication = factory.create(manager).toCommunication(article);
+            CommunicationEntity communication = converter.toCommunication(article);
             Vector queryVector = DenseVector.of(1F, 2F);
             Limit limit = Limit.of(10);
 
@@ -363,7 +359,7 @@ class DefaultVectorTemplateTest {
         @Test
         @DisplayName("Should delegate the threshold search and convert the results")
         void shouldSearchWithinThreshold() {
-            CommunicationEntity communication = factory.create(manager).toCommunication(article);
+            CommunicationEntity communication = converter.toCommunication(article);
             Vector queryVector = DenseVector.of(1F, 2F);
             float threshold = 0.85F;
 
@@ -448,7 +444,7 @@ class DefaultVectorTemplateTest {
             VectorManager vectorManager = mock(VectorManager.class);
 
             DefaultVectorTemplate vectorTemplate = new DefaultVectorTemplate(
-                    factory,
+                    converter,
                     vectorManager,
                     events,
                     entities,
