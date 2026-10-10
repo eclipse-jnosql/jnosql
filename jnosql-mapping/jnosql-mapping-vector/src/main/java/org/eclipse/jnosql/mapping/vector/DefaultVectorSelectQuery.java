@@ -14,5 +14,63 @@
  */
 package org.eclipse.jnosql.mapping.vector;
 
-public record DefaultVectorSelectQuery() {
+import jakarta.data.Limit;
+import jakarta.data.Sort;
+import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
+
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Objects.requireNonNull;
+
+record DefaultVectorSelectQuery(
+        String name,
+        CriteriaCondition conditionValue,
+        Limit limitValue,
+        Vector vector,
+        Float thresholdValue) implements VectorSelectQuery {
+
+    DefaultVectorSelectQuery {
+        requireNonNull(name, "name is required");
+        requireNonNull(limitValue, "limit is required");
+        requireNonNull(vector, "vector is required");
+
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("name cannot be blank");
+        }
+
+        if (thresholdValue != null && !Float.isFinite(thresholdValue)) {
+            throw new IllegalArgumentException("threshold must be finite");
+        }
+    }
+
+    @Override
+    public long limit() {
+        return limitValue.maxResults();
+    }
+
+    @Override
+    public long skip() {
+        return limitValue.startAt() - 1;
+    }
+
+    @Override
+    public Optional<CriteriaCondition> condition() {
+        return Optional.ofNullable(conditionValue);
+    }
+
+    @Override
+    public List<String> columns() {
+        return List.of();
+    }
+
+    @Override
+    public List<Sort<?>> sorts() {
+        return List.of();
+    }
+
+    @Override
+    public Optional<Float> threshold() {
+        return Optional.ofNullable(thresholdValue);
+    }
 }
