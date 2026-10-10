@@ -10,12 +10,10 @@
  */
 package org.eclipse.jnosql.mapping.vector;
 
-import jakarta.data.Limit;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Defines vector-native operations over {@link CommunicationEntity} instances.
