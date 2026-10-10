@@ -21,7 +21,7 @@ import org.eclipse.jnosql.mapping.vector.DenseVector;
 
 @Entity
 @DiscriminatorValue("special")
-public class SpecialArticle extends Article {
+public class SpecialArticle extends Post {
 
     @Column
     private String category;
