@@ -14,7 +14,6 @@
  */
 package org.eclipse.jnosql.mapping.vector;
 
-import jakarta.data.Limit;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
@@ -28,9 +27,7 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
@@ -89,76 +86,10 @@ class DefaultVectorTemplate extends AbstractSemiStructuredTemplate implements Ve
         return converters;
     }
 
-    @Override
-    public <T> List<T> searchNearestNeighbors(Class<T> entityClass,
-                                              Vector queryVector,
-                                              Limit limit) {
-
-        requireNonNull(entityClass, "entityClass is required");
-        requireNonNull(queryVector, "queryVector is required");
-        requireNonNull(limit, "limit is required");
-
-        var entityMetadata = entities.get(entityClass);
-
-        return manager.searchNearestNeighbors(
-                        entityMetadata.name(),
-                        queryVector,
-                        limit)
-                .stream()
-                .map(entity -> converter.toEntity(entityClass, entity))
-                .toList();
-    }
 
     @Override
-    public <T> List<T> searchNearestNeighbors(Class<T> entityClass,
-                                              Vector queryVector,
-                                              Map<String, Object> filters,
-                                              Limit limit) {
-
-        requireNonNull(entityClass, "entityClass is required");
-        requireNonNull(queryVector, "queryVector is required");
-        requireNonNull(filters, "filters is required");
-        requireNonNull(limit, "limit is required");
-
-        var entityMetadata = entities.get(entityClass);
-
-        Map<String, Object> mappedFilters = filters.entrySet()
-                .stream()
-                .collect(Collectors.toUnmodifiableMap(
-                        entry -> entityMetadata.columnField(entry.getKey()),
-                        Map.Entry::getValue
-                ));
-
-        return manager.searchNearestNeighbors(
-                        entityMetadata.name(),
-                        queryVector,
-                        mappedFilters,
-                        limit)
-                .stream()
-                .map(entity -> converter.toEntity(entityClass, entity))
-                .toList();
-    }
-
-    @Override
-    public <T> List<T> searchWithinThreshold(Class<T> entityClass,
-                                             Vector queryVector,
-                                             float threshold) {
-
-        requireNonNull(entityClass, "entityClass is required");
-        requireNonNull(queryVector, "queryVector is required");
-
-        if (!Float.isFinite(threshold)) {
-            throw new IllegalArgumentException("threshold must be finite");
-        }
-
-        var entityMetadata = entities.get(entityClass);
-
-        return manager.searchWithinThreshold(
-                        entityMetadata.name(),
-                        queryVector,
-                        threshold)
-                .stream()
-                .map(entity -> converter.toEntity(entityClass, entity))
-                .toList();
+    public <T> VectorSearch.MapperFrom<T> search(Class<T> entityClass) {
+        Objects.requireNonNull(entityClass, "entityClass is required");
+        return null;
     }
 }
