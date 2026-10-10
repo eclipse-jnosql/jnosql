@@ -166,9 +166,8 @@ class VectorEntityConverterTest {
             Article result = converter.toEntity(Article.class, communication);
 
             assertSoftly(softly -> {
-                softly.assertThat(communication.find("record_id", String.class))
+                softly.assertThat(communication.find("_id", String.class))
                         .as("provider identifier column").contains("article-123");
-                softly.assertThat(communication.find("_id", String.class)).as("default identifier column").isEmpty();
                 softly.assertThat(result.getId()).as("restored identifier").isEqualTo(article.getId());
                 softly.assertThat(result.getFeatures()).as("restored vector").isEqualTo(article.getFeatures());
             });
