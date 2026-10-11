@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.vector;
 import jakarta.data.Limit;
 import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.mapping.core.Converters;
@@ -639,5 +640,99 @@ class DefaultVectorTemplateSearchTest {
         }
     }
 
+    @Nested
+    @DisplayName("When searching inherited entities with OR conditions")
+    class WhenSearchingInheritedEntitiesWithOrConditions {
 
+        @Test
+        @DisplayName("Should keep the inheritance discriminator outside the OR condition")
+        void shouldKeepInheritanceDiscriminatorOutsideOrCondition() {
+            when(manager.search(any(VectorSelectQuery.class)))
+                    .thenReturn(List.of());
+
+            template.search(SpecialArticle.class)
+                    .vector(queryVector)
+                    .where("category").eq("database")
+                    .or("content").eq("Jakarta NoSQL")
+                    .limit(Limit.of(10))
+                    .result();
+
+            var captor = ArgumentCaptor.forClass(VectorSelectQuery.class);
+            verify(manager).search(captor.capture());
+
+            CriteriaCondition condition = captor.getValue()
+                    .condition()
+                    .orElseThrow();
+
+            assertThat(condition.condition())
+                    .as("root condition")
+                    .isEqualTo(Condition.AND);
+
+            List<CriteriaCondition> conditions = condition.element()
+                    .get(new TypeReference<>() {
+                    });
+
+            assertThat(conditions)
+                    .as("root AND conditions")
+                    .hasSize(2);
+
+            CriteriaCondition inheritance = conditions.get(0);
+            CriteriaCondition userCondition = conditions.get(1);
+
+            assertSoftly(softly -> {
+                softly.assertThat(inheritance.condition())
+                        .as("inheritance condition")
+                        .isEqualTo(Condition.EQUALS);
+
+                softly.assertThat(inheritance.element().name())
+                        .as("discriminator column")
+                        .isEqualTo("dtype");
+
+                softly.assertThat(inheritance.element().get())
+                        .as("discriminator value")
+                        .isEqualTo("special");
+
+                softly.assertThat(userCondition.condition())
+                        .as("user condition")
+                        .isEqualTo(Condition.OR);
+            });
+
+            List<CriteriaCondition> userConditions = userCondition.element()
+                    .get(new TypeReference<>() {
+                    });
+
+            assertThat(userConditions)
+                    .as("OR conditions")
+                    .hasSize(2);
+
+            assertSoftly(softly -> {
+                CriteriaCondition category = userConditions.get(0);
+                CriteriaCondition content = userConditions.get(1);
+
+                softly.assertThat(category.condition())
+                        .as("category operator")
+                        .isEqualTo(Condition.EQUALS);
+
+                softly.assertThat(category.element().name())
+                        .as("category field")
+                        .isEqualTo("category");
+
+                softly.assertThat(category.element().get())
+                        .as("category value")
+                        .isEqualTo("database");
+
+                softly.assertThat(content.condition())
+                        .as("content operator")
+                        .isEqualTo(Condition.EQUALS);
+
+                softly.assertThat(content.element().name())
+                        .as("content field")
+                        .isEqualTo("content");
+
+                softly.assertThat(content.element().get())
+                        .as("content value")
+                        .isEqualTo("Jakarta NoSQL");
+            });
+        }
+    }
 }
