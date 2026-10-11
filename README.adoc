@@ -599,7 +599,7 @@ Add the module to your project:
 </dependency>
 ----
 
-A regular Jakarta NoSQL entity can be persisted in a vector database by declaring one `@Column` attribute whose type implements `Vector`.
+A regular Jakarta NoSQL entity can include a vector attribute by declaring one persisted field whose type implements `Vector`.
 
 [source,java]
 ----
@@ -619,7 +619,7 @@ public class Article {
     private int year;
 
     @Column
-    private DenseVector embedding;
+    private Vector embedding;
 
     // constructors, getters, and setters
 }
@@ -638,9 +638,9 @@ Article
     └── year
 ----
 
-The vector attribute does not require a predefined name such as `embedding`. It is identified by the `Vector` type hierarchy. All remaining persisted attributes are available to the provider as payload or metadata.
+The vector attribute does not require a predefined name such as `embedding`. It is identified by the `Vector` type hierarchy.
 
-The initial supported representation is `DenseVector`, which represents an ordered sequence of floating-point values:
+The initial supported representation is `DenseVector`:
 
 [source,java]
 ----
@@ -651,41 +651,20 @@ DenseVector vector = DenseVector.of(
 );
 ----
 
-The number of dimensions corresponds to the number of values in the vector.
+Vector generation is outside the scope of Eclipse JNoSQL. The application can obtain the vector from an embedding model, recommendation model, image or audio encoder, feature extractor, or another mechanism.
 
-Vector generation is outside the scope of Eclipse JNoSQL. A vector may be produced by an embedding model, recommendation model, image or audio encoder, feature extractor, or another application-level mechanism. Eclipse JNoSQL is responsible for persisting and querying the resulting vector.
-
-Inject `VectorTemplate` to use vector-native search operations:
+Inject `VectorTemplate` to use the regular Jakarta NoSQL capabilities together with vector-native operations:
 
 [source,java]
 ----
 @Inject
 private VectorTemplate template;
 
-Vector queryVector = DenseVector.of(
-        0.10F,
-        0.42F,
-        0.80F
-);
-
-List<Article> articles = template.searchNearestNeighbors(
-        Article.class,
-        queryVector,
-        Limit.of(10)
-);
-----
-
-`VectorTemplate` extends `Template`, so regular persistence operations such as insert, update, find by identifier, and delete remain available:
-
-[source,java]
-----
-Article article = new Article(
-        "article-123",
-        "Jakarta NoSQL and vector databases",
-        "Otavio Santana",
-        2026,
-        vector
-);
+Article article = Article.id("article-123")
+        .content("Jakarta NoSQL and vector databases")
+        .author("Otavio Santana")
+        .year(2026)
+        .embedding(vector);
 
 template.insert(article);
 
@@ -693,37 +672,104 @@ Optional<Article> result =
         template.find(Article.class, "article-123");
 ----
 
-Vector databases primarily provide similarity-based search rather than traditional lexical or exact-value query operations. Therefore, some regular query operations inherited from `Template` may not be supported by a particular vector database provider and may result in `UnsupportedOperationException`.
+`VectorTemplate` extends the Jakarta NoSQL `Template` interface, preserving the regular mapping and query capabilities while adding vector similarity search through search(Class).
 
-Payload attributes can also be used to restrict nearest-neighbor searches:
+==== Vector Search
 
-[source,java]
-----
-List<Article> articles = template.searchNearestNeighbors(
-        Article.class,
-        queryVector,
-        Map.of(
-                "author", "Otavio Santana",
-                "year", 2026
-        ),
-        Limit.of(10)
-);
-----
-
-In the initial API, each entry in the filter map represents an equality predicate, and multiple entries are combined using logical `AND`.
-
-Threshold-based vector searches are also available:
+A vector search starts with the entity type and the vector used as the search reference:
 
 [source,java]
 ----
-List<Article> articles = template.searchWithinThreshold(
-        Article.class,
-        queryVector,
-        0.85F
+Vector queryVector = DenseVector.of(
+        0.10F,
+        0.42F,
+        0.80F
 );
+
+List<Article> articles = template.search(Article.class)
+        .vector(queryVector)
+        .limit(Limit.of(10))
+        .result();
 ----
 
-The meaning and valid range of a threshold depend on the similarity or distance metric configured by the underlying vector database.
+IMPORTANT: Vector search extends the regular Jakarta NoSQL query capabilities with two vector-specific concepts: the query `Vector` and an optional similarity or distance `threshold`.
+
+The supported fluent flows can be summarized as:
+
+[source, mermaid]
+----
+flowchart LR
+    V["vector(...)"]
+
+    L1["limit(...)"]
+    R1["result()"]
+
+    W["where(...)"]
+    C["condition"]
+    L2["limit(...)"]
+    R2["result()"]
+
+    T1["threshold(...)"]
+    L3["limit(...)"]
+    R3["result()"]
+
+    WT["where(...)"]
+    CT["condition"]
+    T2["threshold(...)"]
+    L4["limit(...)"]
+    R4["result()"]
+
+    V --> L1 --> R1
+    V --> W --> C --> L2 --> R2
+    V --> T1 --> L3 --> R3
+    V --> WT --> CT --> T2 --> L4 --> R4
+----
+
+==== Filtering Vector Searches
+
+The same Jakarta NoSQL conditions can be combined with vector similarity search:
+
+[source,java]
+----
+List<Article> articles = template.search(Article.class)
+        .vector(queryVector)
+        .where("author").eq("Otavio Santana")
+        .and("year").gte(2024)
+        .limit(Limit.of(10))
+        .result();
+----
+
+This keeps the regular Jakarta NoSQL filtering model while applying it to the vector search operation.
+
+==== Threshold-Based Search
+
+A threshold can restrict the results according to the similarity or distance metric configured by the underlying vector database:
+
+[source,java]
+----
+List<Article> articles = template.search(Article.class)
+        .vector(queryVector)
+        .threshold(0.85F)
+        .limit(Limit.of(10))
+        .result();
+----
+
+The meaning and valid range of the threshold depend on the configured similarity or distance metric.
+
+Payload conditions and thresholds can also be combined:
+
+[source,java]
+----
+List<Article> articles = template.search(Article.class)
+        .vector(queryVector)
+        .where("author").eq("Otavio Santana")
+        .and("year").gte(2024)
+        .threshold(0.85F)
+        .limit(Limit.of(10))
+        .result();
+----
+
+The fluent API keeps the Jakarta NoSQL query model and adds the vector and threshold steps required for vector-native search.
 
 === Graph
 

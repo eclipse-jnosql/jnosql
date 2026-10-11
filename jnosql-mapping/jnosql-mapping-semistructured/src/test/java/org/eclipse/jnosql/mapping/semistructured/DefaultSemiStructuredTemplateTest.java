@@ -697,7 +697,128 @@ class DefaultSemiStructuredTemplateTest {
     }
 
     @Nested
-    @DisplayName("When the default semi structured template is tested")
-    class WhenTheDefaultSemiStructuredTemplateIsTested {
+    @DisplayName("When inherited entities use OR conditions")
+    class WhenInheritedEntitiesUseOrConditions {
+
+        @Test
+        @DisplayName("Should keep the inheritance discriminator outside the OR condition")
+        void shouldKeepInheritanceDiscriminatorOutsideOrCondition() {
+            Mockito.when(managerMock.select(any(SelectQuery.class)))
+                    .thenReturn(Stream.empty());
+
+            template.select(LargeProject.class)
+                    .where("id").eq(1L)
+                    .or("id").eq(2L)
+                    .result();
+
+            var captor = ArgumentCaptor.forClass(SelectQuery.class);
+            Mockito.verify(managerMock).select(captor.capture());
+
+            SelectQuery query = captor.getValue();
+            CriteriaCondition condition = query.condition().orElseThrow();
+
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(query.name())
+                        .as("entity name")
+                        .isEqualTo("Project");
+
+                soft.assertThat(condition.condition())
+                        .as("root condition")
+                        .isEqualTo(Condition.AND);
+            });
+
+            List<CriteriaCondition> conditions = condition.element()
+                    .get(new TypeReference<>() {
+                    });
+
+            assertThat(conditions)
+                    .as("root AND conditions")
+                    .hasSize(2);
+
+            CriteriaCondition inheritanceCondition = conditions.get(0);
+            CriteriaCondition userCondition = conditions.get(1);
+
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(inheritanceCondition.condition())
+                        .as("inheritance condition")
+                        .isEqualTo(Condition.EQUALS);
+
+                soft.assertThat(inheritanceCondition.element())
+                        .as("inheritance discriminator")
+                        .isEqualTo(Element.of("size", "Large"));
+
+                soft.assertThat(userCondition.condition())
+                        .as("user condition")
+                        .isEqualTo(Condition.OR);
+            });
+
+            List<CriteriaCondition> userConditions = userCondition.element()
+                    .get(new TypeReference<>() {
+                    });
+
+            assertThat(userConditions)
+                    .as("OR conditions")
+                    .hasSize(2);
+
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(userConditions.get(0).condition())
+                        .as("first operator")
+                        .isEqualTo(Condition.EQUALS);
+
+                soft.assertThat(userConditions.get(0).element())
+                        .as("first condition")
+                        .isEqualTo(Element.of("id", 1L));
+
+                soft.assertThat(userConditions.get(1).condition())
+                        .as("second operator")
+                        .isEqualTo(Condition.EQUALS);
+
+                soft.assertThat(userConditions.get(1).element())
+                        .as("second condition")
+                        .isEqualTo(Element.of("id", 2L));
+            });
+        }
+
+        @Test
+        @DisplayName("Should preserve the inheritance discriminator with AND and OR conditions")
+        void shouldPreserveInheritanceDiscriminatorWithAndAndOrConditions() {
+            Mockito.when(managerMock.select(any(SelectQuery.class)))
+                    .thenReturn(Stream.empty());
+
+            template.select(LargeProject.class)
+                    .where("id").eq(1L)
+                    .and("id").gt(0L)
+                    .or("id").eq(2L)
+                    .result();
+
+            var captor = ArgumentCaptor.forClass(SelectQuery.class);
+            Mockito.verify(managerMock).select(captor.capture());
+
+            CriteriaCondition condition = captor.getValue()
+                    .condition()
+                    .orElseThrow();
+
+            assertThat(condition.condition())
+                    .as("root condition")
+                    .isEqualTo(Condition.AND);
+
+            List<CriteriaCondition> conditions = condition.element()
+                    .get(new TypeReference<>() {
+                    });
+
+            assertThat(conditions)
+                    .as("root AND conditions")
+                    .hasSize(2);
+
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(conditions.get(0).element())
+                        .as("inheritance discriminator")
+                        .isEqualTo(Element.of("size", "Large"));
+
+                soft.assertThat(conditions.get(1))
+                        .as("user predicate")
+                        .isNotNull();
+            });
+        }
     }
 }
