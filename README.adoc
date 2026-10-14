@@ -18,6 +18,19 @@ Eclipse JNoSQL is a compatible implementation of the https://jakarta.ee/specific
 * Explore the popularity of Apache TinkerPop in Graph API
 * Jakarta NoSQL and Data implementations
 
+== Why Eclipse JNoSQL?
+
+Eclipse JNoSQL is a Java framework that unifies NoSQL access across different database types, including Key-Value, Column Family, Document, Graph, and Time Series. Built on top of the Jakarta NoSQL and Jakarta Data specifications, it simplifies development through standard annotations, fluent APIs, and full compatibility with Jakarta EE and MicroProfile runtimes.
+
+Use Eclipse JNoSQL to:
+
+* Increase productivity with annotation-based object mapping
+* Write expressive queries using a fluent or method-name DSL
+* Reduce boilerplate through CDI-managed components and lifecycle events
+* Switch NoSQL vendors with minimal code changes
+* Align with modern practices like Domain-Driven Design (DDD)
+* Rely on a standards-based solution compatible with Jakarta EE and MicroProfile servers
+
 == One Mapping API to Multiples NoSQL Databases
 
 Eclipse JNoSQL provides one API for each NoSQL database type. However, it incorporates the same annotations from the https://jakarta.ee/specifications/persistence/[Jakarta Persistence] specification and inherits from the Java Persistence Java Persistence API (JPA) to map Java objects. Therefore, with just these annotations that look like JPA, there is support for more than twenty NoSQL databases.
@@ -70,7 +83,6 @@ These annotations from the Mapping API will look familiar to the Jakarta Persist
 |`@jakarta.nosql.DiscriminatorValue`
 |Specifies the value of the discriminator column for entities of the given type.
 
-
 |===
 
 IMPORTANT: Although similar to JPA, Jakarta NoSQL defines persistable fields with either the ```@Id``` or ```@Column``` annotation.
@@ -119,7 +131,6 @@ repository.save(ferrari);
 Optional<Car> idResult = repository.findById(1L);
 Optional<Car> nameResult = repository.findByName("Ferrari");
 ----
-
 
 == Getting Started
 
@@ -526,7 +537,7 @@ You can also use Jakarta Data repositories:
 ----
 @Repository
 public interface SensorReadingRepository
-        extends BasicRepository<SensorReading, String> {
+        extends BasicRepository<SensorReading, Instant> {
 
     List<SensorReading> findBySensor(String sensor);
 }
@@ -572,6 +583,193 @@ private TimeSeriesTemplate metrics;
 @Database(value = DatabaseType.TIME_SERIES, provider = "audit")
 private TimeSeriesTemplate audit;
 ----
+
+=== Vector Database
+
+Use the Vector Mapping module to store and query Java entities in a vector database.
+
+Add the module to your project:
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.eclipse.jnosql.mapping</groupId>
+    <artifactId>jnosql-mapping-vector</artifactId>
+    <version>1.1.20</version>
+</dependency>
+----
+
+A regular Jakarta NoSQL entity can include a vector attribute by declaring one persisted field whose type implements `Vector`.
+
+[source,java]
+----
+@Entity
+public class Article {
+
+    @Id
+    private String id;
+
+    @Column
+    private String content;
+
+    @Column
+    private String author;
+
+    @Column
+    private int year;
+
+    @Column
+    private Vector embedding;
+
+    // constructors, getters, and setters
+}
+----
+
+For a vector database, the entity is interpreted conceptually as:
+
+[source,text]
+----
+Article
+├── id        -> identifier
+├── embedding -> vector
+└── payload
+    ├── content
+    ├── author
+    └── year
+----
+
+The vector attribute does not require a predefined name such as `embedding`. It is identified by the `Vector` type hierarchy.
+
+The initial supported representation is `DenseVector`:
+
+[source,java]
+----
+DenseVector vector = DenseVector.of(
+        0.12F,
+        0.45F,
+        0.78F
+);
+----
+
+Vector generation is outside the scope of Eclipse JNoSQL. The application can obtain the vector from an embedding model, recommendation model, image or audio encoder, feature extractor, or another mechanism.
+
+Inject `VectorTemplate` to use the regular Jakarta NoSQL capabilities together with vector-native operations:
+
+[source,java]
+----
+@Inject
+private VectorTemplate template;
+
+Article article = Article.id("article-123")
+        .content("Jakarta NoSQL and vector databases")
+        .author("Otavio Santana")
+        .year(2026)
+        .embedding(vector);
+
+template.insert(article);
+
+Optional<Article> result =
+        template.find(Article.class, "article-123");
+----
+
+`VectorTemplate` extends the Jakarta NoSQL `Template` interface, preserving the regular mapping and query capabilities while adding vector similarity search through search(Class).
+
+==== Vector Search
+
+A vector search starts with the entity type and the vector used as the search reference:
+
+[source,java]
+----
+Vector queryVector = DenseVector.of(
+        0.10F,
+        0.42F,
+        0.80F
+);
+
+List<Article> articles = template.search(Article.class)
+        .vector(queryVector)
+        .limit(Limit.of(10))
+        .result();
+----
+
+IMPORTANT: Vector search extends the regular Jakarta NoSQL query capabilities with two vector-specific concepts: the query `Vector` and an optional similarity or distance `threshold`.
+
+The supported fluent flows can be summarized as:
+
+[source, mermaid]
+----
+flowchart LR
+    V["vector(...)"]
+
+    L1["limit(...)"]
+    R1["result()"]
+
+    W["where(...)"]
+    C["condition"]
+    L2["limit(...)"]
+    R2["result()"]
+
+    T1["threshold(...)"]
+    L3["limit(...)"]
+    R3["result()"]
+
+    WT["where(...)"]
+    CT["condition"]
+    T2["threshold(...)"]
+    L4["limit(...)"]
+    R4["result()"]
+
+    V --> L1 --> R1
+    V --> W --> C --> L2 --> R2
+    V --> T1 --> L3 --> R3
+    V --> WT --> CT --> T2 --> L4 --> R4
+----
+
+==== Filtering Vector Searches
+
+The same Jakarta NoSQL conditions can be combined with vector similarity search:
+
+[source,java]
+----
+List<Article> articles = template.search(Article.class)
+        .vector(queryVector)
+        .where("author").eq("Otavio Santana")
+        .and("year").gte(2024)
+        .limit(Limit.of(10))
+        .result();
+----
+
+This keeps the regular Jakarta NoSQL filtering model while applying it to the vector search operation.
+
+==== Threshold-Based Search
+
+A threshold can restrict the results according to the similarity or distance metric configured by the underlying vector database:
+
+[source,java]
+----
+List<Article> articles = template.search(Article.class)
+        .vector(queryVector)
+        .threshold(0.85F)
+        .limit(Limit.of(10))
+        .result();
+----
+
+The meaning and valid range of the threshold depend on the configured similarity or distance metric.
+
+Payload conditions and thresholds can also be combined:
+
+[source,java]
+----
+List<Article> articles = template.search(Article.class)
+        .vector(queryVector)
+        .where("author").eq("Otavio Santana")
+        .and("year").gte(2024)
+        .threshold(0.85F)
+        .limit(Limit.of(10))
+        .result();
+----
+
+The fluent API keeps the Jakarta NoSQL query model and adds the vector and threshold steps required for vector-native search.
 
 === Graph
 
@@ -658,79 +856,11 @@ private GraphTemplate graphB;
 
 === Jakarta Data
 
-Eclipse JNoSQL as a Jakarta Data implementations supports the following list of predicate keywords on their repositories.
+Eclipse JNoSQL as a https://jakarta.ee/specifications/data/1.0/jakarta-data-1.0[Jakarta Data] exploring more the NoSQL capabilities, provides a mapping API that allows you to map Java objects to NoSQL databases.
 
+=== Jakarta NoSQL
 
-|===
-|Keyword |Description | Method signature Sample
-
-|And
-|The ```and``` operator.
-|findByNameAndYear
-
-|Or
-|The ```or``` operator.
-|findByNameOrYear
-
-|Between
-|Find results where the property is between the given values
-|findByDateBetween
-
-|LessThan
-|Find results where the property is less than the given value
-|findByAgeLessThan
-
-|GreaterThan
-|Find results where the property is greater than the given value
-|findByAgeGreaterThan
-
-|LessThanEqual
-|Find results where the property is less than or equal to the given value
-|findByAgeLessThanEqual
-
-|GreaterThanEqual
-|Find results where the property is greater than or equal to the given value
-|findByAgeGreaterThanEqual
-
-|Like
-|Finds string values "like" the given expression
-|findByTitleLike
-
-|In
-|Find results where the property is one of the values that are contained within the given list
-|findByIdIn
-
-|True
-|Finds results where the property has a boolean value of true.
-|findBySalariedTrue
-
-|False
-|Finds results where the property has a boolean value of false.
-|findByCompletedFalse
-
-|Not
-|The logical NOT negates all the previous keywords, but True or False. It needs to include as a prefix "Not" to a keyword.
-|findByNameNot, findByAgeNotGreaterThan
-
-|OrderBy
-|Specify a static sorting order followed by the property path and direction of ascending.
-|findByNameOrderByAge
-
-|OrderBy____Desc
-|Specify a static sorting order followed by the property path and direction of descending.
-|findByNameOrderByAgeDesc
-
-|OrderBy____Asc
-|Specify a static sorting order followed by the property path and direction of ascending.
-|findByNameOrderByAgeAsc
-
-|OrderBy____(Asc\|Desc)*(Asc\|Desc)
-|Specify several static sorting orders
-|findByNameOrderByAgeAscNameDescYearAsc
-
-|===
-
-WARNING: Eclipse JNoSQL does not support `OrderBy` annotation.
+Eclipse JNoSQL is a https://jakarta.ee/specifications/nosql/1.0/jakarta-nosql-1.0[Jakarta NoSQL] implementation that provides a standard way to access NoSQL databases in Java applications. It offers a set of annotations and APIs to interact with various NoSQL database types, including Key-Value, Column Family, Document, Graph, and Time Series.
 
 === More Information
 
@@ -752,13 +882,12 @@ templates.
 
 == Building from Source
 
-You don’t need to build from source to use the project, but should you be interested in doing so, you can build it using Maven and Java 11 or higher.
+You don’t need to build from source to use the project, but should you be interested in doing so, you can build it using Maven and Java 21 or higher.
 
 [source, Bash]
 ----
 mvn clean install
 ----
-
 
 == Contributing
 
@@ -795,9 +924,104 @@ This migration guide explains how to upgrade from Eclipse JNoSQL version 1.0.0-b
 
 link:MIGRATION.adoc[Migration Guide]
 
+== Compatibility and Innovation Strategy
+
+
+
+Eclipse JNoSQL preserves stability and drives innovation by using a versioning strategy based on https://semver.org/[Semantic Versioning] and Jakarta EE platform generations.
+
+
+
+The Eclipse JNoSQL version follows the `MAJOR.MINOR.PATCH` format:
+
+
+
+[source,text]
+----
+MAJOR.MINOR.PATCH
+----
+
+Where:
+
+* *MAJOR* reflects the Jakarta EE generation supported by the Eclipse JNoSQL release line. Upgrading to a new Jakarta EE generation requires a new major version. Because each Jakarta EE platform version may require a different minimum Java version, applications must verify and adopt the necessary Java version when migrating between major versions.
+* *MINOR* introduces backward-compatible features, APIs, and improvements while remaining within the same Jakarta EE generation.
+* *PATCH* delivers backward-compatible bug fixes and maintenance updates without adding new features.
+
+
+
+For example:
+
+
+
+[source,text]
+----
+1.x.x -> Jakarta EE 11
+2.x.x -> Jakarta EE 12
+3.x.x -> next Jakarta EE generation
+----
+
+A new Jakarta EE generation requires a new Eclipse JNoSQL major version.
+
+Within each major version, minor and patch releases follow Semantic Versioning.
+
+The `1.x.x` release line of Eclipse JNoSQL targets Jakarta EE 11.
+
+Within this release line:
+
+* A *patch release*, such as `1.1.19` to `1.1.20`, contains backward-compatible bug fixes, maintenance updates, and compatible corrections.
+* A *minor release*, such as `1.1.x` to `1.2.0`, may add new backward-compatible features, APIs, and improvements while remaining compatible with Jakarta EE 11.
+* A *major release*, such as moving from `1.x.x` to `2.0.0`, upgrades Eclipse JNoSQL to the next Jakarta EE generation and establishes a new compatibility baseline. This migration may also require adopting a newer Java version, as specified by the target Jakarta EE platform.
+
+
+
+For example:
+
+
+
+[source,text]
+----
+1.1.19 -> Jakarta EE 11, maintenance release
+1.1.20 -> Jakarta EE 11, maintenance release
+1.2.0  -> Jakarta EE 11, new backward-compatible features
+1.3.0  -> Jakarta EE 11, additional backward-compatible features
+2.0.0  -> Jakarta EE 12
+----
+
+
+
+Applications can upgrade within the same major version to stay on the same Jakarta EE generation.
+
+
+
+Minor releases add new capabilities without changing the Jakarta EE compatibility baseline. Patch releases provide bug fixes and maintenance updates only.
+
+
+
+A new major version adopts a new Jakarta EE generation. For example, Eclipse JNoSQL `2.x.x` targets Jakarta EE 12. Applications upgrading from `1.x.x` to `2.x.x` must manage the Jakarta EE platform transition, verify the required Java version, and deal with any incompatible API changes.
+
+
+
+The versioning contract can be summarized as follows:
+
+
+
+* *PATCH* releases provide backward-compatible bug fixes and maintenance updates.
+* *MINOR* releases introduce backward-compatible features and improvements within the same Jakarta EE generation.
+* *MAJOR* releases align Eclipse JNoSQL with a new Jakarta EE generation and may introduce backward-incompatible API changes. Migrating to a major version also requires checking the minimum Java version the target Jakarta EE platform supports.
+
+This strategy combines Semantic Versioning with an explicit Jakarta EE compatibility model:
+
+[source,text]
+----
+Eclipse JNoSQL 1.x.x -> Jakarta EE 11
+Eclipse JNoSQL 2.x.x -> Jakarta EE 12
+Eclipse JNoSQL 3.x.x -> next Jakarta EE generation
+----
+
+The major version indicates the Jakarta EE compatibility baseline. Minor and patch versions allow Eclipse JNoSQL to evolve within that baseline according to Semantic Versioning. When upgrading between major versions, developers should consider both the Jakarta EE platform version and its minimum Java requirement as part of the compatibility boundary.
+
 == Learn More
 
 If you want to know more about both the communication and mapping layer, there are two complementary files for it each specific topic:
 
-* link:COMMUNICATION.adoc[Communication API]
 * link:MAPPING.adoc[Mapping API]
