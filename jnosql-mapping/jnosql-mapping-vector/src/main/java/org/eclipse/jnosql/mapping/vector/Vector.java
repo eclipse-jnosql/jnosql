@@ -38,7 +38,7 @@ package org.eclipse.jnosql.mapping.vector;
  *     private int year;
  *
  *     @Column
- *     private DenseVector embedding;
+ *     private Vector embedding;
  * }
  * }</pre>
  *
