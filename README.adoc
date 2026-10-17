@@ -832,6 +832,34 @@ flowchart LR
     V --> W --> C --> L2 --> R2
     V --> T1 --> L3 --> R3
     V --> WT --> CT --> T2 --> L4 --> R4
+
+    style V fill:#1D5183,stroke:#1D5183,color:#F8F7F7,stroke-width:2px
+
+    style W fill:#F8F7F7,stroke:#019DDC,color:#1D5183,stroke-width:2px
+    style C fill:#F8F7F7,stroke:#019DDC,color:#1D5183,stroke-width:2px
+    style T1 fill:#F8F7F7,stroke:#019DDC,color:#1D5183,stroke-width:2px
+    style WT fill:#F8F7F7,stroke:#019DDC,color:#1D5183,stroke-width:2px
+    style CT fill:#F8F7F7,stroke:#019DDC,color:#1D5183,stroke-width:2px
+    style T2 fill:#F8F7F7,stroke:#019DDC,color:#1D5183,stroke-width:2px
+
+    style L1 fill:#019DDC,stroke:#019DDC,color:#F8F7F7,stroke-width:2px
+    style L2 fill:#019DDC,stroke:#019DDC,color:#F8F7F7,stroke-width:2px
+    style L3 fill:#019DDC,stroke:#019DDC,color:#F8F7F7,stroke-width:2px
+    style L4 fill:#019DDC,stroke:#019DDC,color:#F8F7F7,stroke-width:2px
+
+    style R1 fill:#F8F7F7,stroke:#1D5183,color:#1D5183,stroke-width:2px
+    style R2 fill:#F8F7F7,stroke:#1D5183,color:#1D5183,stroke-width:2px
+    style R3 fill:#F8F7F7,stroke:#1D5183,color:#1D5183,stroke-width:2px
+    style R4 fill:#F8F7F7,stroke:#1D5183,color:#1D5183,stroke-width:2px
+
+    linkStyle 0 stroke:#1D5183,stroke-width:2px
+    linkStyle 1 stroke:#1D5183,stroke-width:2px
+    linkStyle 2 stroke:#1D5183,stroke-width:2px
+    linkStyle 3 stroke:#1D5183,stroke-width:2px
+    linkStyle 4 stroke:#1D5183,stroke-width:2px
+    linkStyle 5 stroke:#1D5183,stroke-width:2px
+    linkStyle 6 stroke:#1D5183,stroke-width:2px
+    linkStyle 7 stroke:#1D5183,stroke-width:2px
 ----
 
 ==== Filtering Vector Searches
