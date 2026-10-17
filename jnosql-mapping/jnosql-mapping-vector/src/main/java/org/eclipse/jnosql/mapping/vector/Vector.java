@@ -16,10 +16,11 @@ package org.eclipse.jnosql.mapping.vector;
 
 /**
  * Represents a vector value used by a vector database.
+ * <p>
  * A regular Jakarta NoSQL entity can be persisted in a vector database by declaring
- * one persisted attribute whose type implements {@code Vector}.
- * The attribute must be annotated with {@code @Column}.
- *
+ * one persisted attribute whose type implements {@code Vector}. The attribute must be
+ * annotated with {@code @Column}.
+ * </p>
  *
  * <pre>{@code
  * @Entity
@@ -42,11 +43,30 @@ package org.eclipse.jnosql.mapping.vector;
  * }
  * }</pre>
  *
+ * <p>
  * The vector attribute does not require a predefined property name such as
  * {@code embedding}; it is identified by the {@code Vector} type hierarchy.
- * The initial supported representation is {@link DenseVector}.
+ * </p>
+ *
+ * <p>
+ * Eclipse JNoSQL provides different vector representations:
+ * </p>
+ *
+ * <ul>
+ *     <li>{@link DenseVector} represents a vector where every dimension has an explicit value.</li>
+ *     <li>{@link SparseVector} represents a vector where only selected dimensions are stored explicitly.</li>
+ *     <li>{@link MultiVector} represents a value using multiple dense vectors.</li>
+ * </ul>
+ *
+ * <p>
+ * The appropriate representation depends on the vector model and the capabilities
+ * supported by the database provider.
+ * </p>
+ *
+ * <p>
  * Vector generation is outside the scope of Eclipse JNoSQL. Providers are responsible
  * for converting vector values to their database-native representations.
+ * </p>
  */
 public interface Vector {
 }
