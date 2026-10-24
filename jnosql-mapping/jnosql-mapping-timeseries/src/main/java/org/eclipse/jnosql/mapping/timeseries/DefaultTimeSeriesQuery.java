@@ -61,17 +61,6 @@ final class DefaultTimeSeriesQuery implements TimeSeriesQuery.From, TimeSeriesQu
     private static final Set<Class<?>> RELATIVE_TYPES = Set.of(Instant.class, OffsetDateTime.class,
             ZonedDateTime.class);
 
-    private enum Logic {
-        WHERE, AND, OR
-    }
-
-    private record Condition(Logic logic, String name, boolean negate,
-                             BiFunction<MapperNameCondition, Instant, MapperWhere> operator) {
-    }
-
-    private record Sorting(String name, Direction direction) {
-    }
-
     private final EntityMetadata mapping;
     private final Supplier<MapperFrom> source;
     private final Clock clock;
@@ -441,13 +430,26 @@ final class DefaultTimeSeriesQuery implements TimeSeriesQuery.From, TimeSeriesQu
         List<Sorting> result = new ArrayList<>();
         result.add(new Sorting(id.fieldName(), chronological));
         for (Sorting sorting : sortings) {
-            if (!idColumn.equals(mapping.columnField(sorting.name()))) {
+            if (idColumn.equals(mapping.columnField(sorting.name()))) {
+                if (sorting.direction() != chronological) {
+                    throw new IllegalStateException("The explicit " + sorting.direction() + " ordering by "
+                            + sorting.name() + " conflicts with the " + chronological + " chronological ordering");
+                }
+            } else {
                 result.add(sorting);
-            } else if (sorting.direction() != chronological) {
-                throw new IllegalStateException("The explicit " + sorting.direction() + " ordering by "
-                        + sorting.name() + " conflicts with the " + chronological + " chronological ordering");
             }
         }
         return result;
+    }
+
+    private enum Logic {
+        WHERE, AND, OR
+    }
+
+    private record Condition(Logic logic, String name, boolean negate,
+                             BiFunction<MapperNameCondition, Instant, MapperWhere> operator) {
+    }
+
+    private record Sorting(String name, Direction direction) {
     }
 }
