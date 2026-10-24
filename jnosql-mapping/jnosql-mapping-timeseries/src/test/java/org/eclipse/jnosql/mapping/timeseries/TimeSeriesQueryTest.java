@@ -59,6 +59,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
@@ -932,6 +933,62 @@ class TimeSeriesQueryTest {
                 softly.assertThat(stage.<SensorReading>singleResult()).as("single result").isNotNull();
                 softly.assertThat(database.executions()).as("executions").isEqualTo(2);
             });
+        }
+
+        @Test
+        @DisplayName("Should accept offset boundaries representing the same instant")
+        void shouldAcceptEqualInstantOffsetBoundaries() {
+
+            // Given
+            var start = OffsetDateTime.parse("2026-01-10T13:00+01:00");
+            var end = OffsetDateTime.parse("2026-01-10T12:00Z");
+
+            // When
+            assertThatCode(() -> template.select(OffsetReading.class).since(start).until(end).result())
+                    .doesNotThrowAnyException();
+            assertThatCode(() -> template.select(OffsetReading.class).until(end).since(start).result())
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("Should accept zoned boundaries representing the same instant")
+        void shouldAcceptEqualInstantZonedBoundaries() {
+
+            // Given
+            var start = ZonedDateTime.parse("2026-01-10T13:00+01:00[Europe/Paris]");
+            var end = ZonedDateTime.parse("2026-01-10T12:00Z[UTC]");
+
+            // When
+            assertThatCode(() -> template.select(ZonedReading.class).since(start).until(end).result())
+                    .doesNotThrowAnyException();
+            assertThatCode(() -> template.select(ZonedReading.class).until(end).since(start).result())
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("Should reject offset boundaries when since is later on the instant timeline")
+        void shouldRejectLaterOffsetSince() {
+
+            // Given
+            var start = OffsetDateTime.parse("2026-01-10T12:30Z");
+            var end = OffsetDateTime.parse("2026-01-10T13:00+01:00");
+
+            // When / Then
+            assertThatThrownBy(() -> template.select(OffsetReading.class).since(start).until(end))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        @DisplayName("Should reject zoned boundaries when since is later on the instant timeline")
+        void shouldRejectLaterZonedSince() {
+
+            // Given
+            var start = ZonedDateTime.parse("2026-01-10T12:30Z[UTC]");
+            var end = ZonedDateTime.parse("2026-01-10T13:00+01:00[Europe/Paris]");
+
+            // When / Then
+            assertThatThrownBy(() -> template.select(ZonedReading.class).since(start).until(end))
+                    .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
