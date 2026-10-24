@@ -351,6 +351,12 @@ final class DefaultTimeSeriesQuery implements TimeSeriesQuery.From, TimeSeriesQu
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static boolean isAfter(Temporal first, Temporal second) {
+        if (first instanceof OffsetDateTime offset) {
+            return offset.isAfter((OffsetDateTime) second);
+        }
+        if (first instanceof ZonedDateTime zoned) {
+            return zoned.isAfter((ZonedDateTime) second);
+        }
         return ((Comparable) first).compareTo(second) > 0;
     }
 
