@@ -531,6 +531,25 @@ List<SensorReading> readings = template.select(SensorReading.class)
         .result();
 ----
 
+Temporal operations use the attribute annotated with `@Id` (supported types: `Instant`, `LocalDateTime`, `LocalDate`, `OffsetDateTime`, `ZonedDateTime`).
+`since` and `until` are inclusive intermediate operations, `last(Duration)` is relative to the current time (`Instant`, `OffsetDateTime` and `ZonedDateTime` identifiers), while `latest(n)` and `earliest(n)` are terminal operations that order chronologically first, followed by any explicit ordering:
+
+[source,java]
+----
+List<SensorReading> latest = template.select(SensorReading.class)
+        .where("sensor").eq("sensor-1")
+        .latest(3);
+
+List<SensorReading> lastDay = template.select(SensorReading.class)
+        .last(Duration.ofHours(24))
+        .earliest(10);
+
+List<SensorReading> interval = template.select(SensorReading.class)
+        .since(start)
+        .until(end)
+        .result();
+----
+
 You can also use Jakarta Data repositories:
 
 [source,java]

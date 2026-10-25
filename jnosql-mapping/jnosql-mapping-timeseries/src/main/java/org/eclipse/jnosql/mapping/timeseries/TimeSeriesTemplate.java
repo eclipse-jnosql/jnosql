@@ -42,5 +42,25 @@ import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
  */
 public interface TimeSeriesTemplate extends SemiStructuredTemplate {
 
+    /**
+     * Starts a fluent time-series query for the given entity. In addition to the regular query stages, it offers
+     * the temporal operations {@code latest}, {@code earliest}, {@code since}, {@code until} and {@code last},
+     * all of them applied to the attribute annotated with {@link jakarta.nosql.Id}.
+     *
+     * <pre>{@code
+     * List<SensorReading> readings = template.select(SensorReading.class)
+     *         .where("sensor").eq("sensor-1")
+     *         .last(Duration.ofHours(24))
+     *         .latest(10);
+     * }</pre>
+     *
+     * @param type the entity type
+     * @param <T>  the entity type
+     * @return the first stage of the query
+     * @throws NullPointerException if {@code type} is null
+     * @see TimeSeriesQuery
+     */
+    @Override
+    <T> TimeSeriesQuery.From select(Class<T> type);
 
 }

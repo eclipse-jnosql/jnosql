@@ -11,6 +11,7 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 === Added
 
 - Include Vector database support with `VectorTemplate`, repository, CDI, and configuration support
+- Add the time-series fluent query API to `TimeSeriesTemplate` with `latest`, `earliest`, `since`, `until` and `last` operations
 
 == [1.1.20] - 2026-10-08
 
