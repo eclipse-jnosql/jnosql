@@ -25,6 +25,7 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverterFactory;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 
+import java.time.Clock;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -96,6 +97,12 @@ public class TimeSeriesTemplateProducer implements Function<DatabaseManager, Tim
             this.eventManager = null;
             this.entities = null;
             this.converters = null;
+        }
+
+        @Override
+        public <T> TimeSeriesQuery.From select(Class<T> type) {
+            Objects.requireNonNull(type, "type is required");
+            return new DefaultTimeSeriesQuery(entities.get(type), () -> super.select(type), Clock.systemUTC());
         }
 
         @Override
