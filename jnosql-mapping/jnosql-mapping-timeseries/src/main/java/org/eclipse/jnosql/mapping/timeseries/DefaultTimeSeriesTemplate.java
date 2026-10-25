@@ -26,6 +26,10 @@ import org.eclipse.jnosql.mapping.semistructured.AbstractSemiStructuredTemplate;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 
+import java.time.Clock;
+
+import static java.util.Objects.requireNonNull;
+
 
 @Default
 @ApplicationScoped
@@ -43,6 +47,8 @@ class DefaultTimeSeriesTemplate extends AbstractSemiStructuredTemplate implement
 
     private final  Converters converters;
 
+    private final Clock clock;
+
 
 
     @Inject
@@ -50,6 +56,14 @@ class DefaultTimeSeriesTemplate extends AbstractSemiStructuredTemplate implement
                             @Database(DatabaseType.TIME_SERIES) DatabaseManager manager,
                             EventPersistManager eventManager,
                             EntitiesMetadata entities, Converters converters){
+        this(converter, manager, eventManager, entities, converters, Clock.systemUTC());
+    }
+
+    DefaultTimeSeriesTemplate(EntityConverter converter,
+                              DatabaseManager manager,
+                              EventPersistManager eventManager,
+                              EntitiesMetadata entities, Converters converters, Clock clock){
+        this.clock = clock;
         this.converter = converter;
         this.manager = manager;
         this.eventManager = eventManager;
@@ -58,7 +72,13 @@ class DefaultTimeSeriesTemplate extends AbstractSemiStructuredTemplate implement
     }
 
     DefaultTimeSeriesTemplate() {
-        this(null, null, null, null, null);
+        this(null, null, null, null, null, null);
+    }
+
+    @Override
+    public <T> TimeSeriesQuery.From select(Class<T> type) {
+        requireNonNull(type, "type is required");
+        return new DefaultTimeSeriesQuery(entities.get(type), () -> super.select(type), clock);
     }
 
     @Override
