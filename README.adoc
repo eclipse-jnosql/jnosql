@@ -121,7 +121,7 @@ Eclipse JNoSQL provides a specialized template for each database model. `KeyValu
 
 |`TimeSeriesTemplate`
 |Time-oriented queries
-|Module released since 1.1.18; the fluent time-series query API is only on the development branch
+|Released
 
 |`VectorTemplate`
 |Vector similarity operations
