@@ -231,6 +231,7 @@ import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.Disposes;
 import jakarta.enterprise.inject.Produces;
 import jakarta.interceptor.Interceptor;
+import java.util.function.Supplier;
 import org.eclipse.jnosql.communication.Settings;
 import org.eclipse.jnosql.communication.keyvalue.BucketManager;
 import org.eclipse.jnosql.communication.keyvalue.BucketManagerFactory;
@@ -239,11 +240,12 @@ import org.eclipse.jnosql.communication.keyvalue.KeyValueConfiguration;
 @Alternative
 @Priority(Interceptor.Priority.APPLICATION)
 @ApplicationScoped
-public class CustomBucketManagerProducer {
+public class CustomBucketManagerProducer implements Supplier<BucketManager> {
 
+    @Override
     @Produces
     @ApplicationScoped
-    public BucketManager bucketManager() {
+    public BucketManager get() {
         // illustrative: keys and values are specific to each provider
         Settings settings = Settings.builder()
                 .put("<provider-setting-key>", "<value from your secure configuration>")
@@ -262,7 +264,7 @@ public class CustomBucketManagerProducer {
 }
 ----
 
-This example is illustrative rather than executable, because the settings keys and the provider depend on the database integration on the classpath. It does not need `Supplier<BucketManager>`: the default producer implements it only by convention. Do not hard-code credentials; read them from a secure source.
+This example is illustrative rather than executable, because the settings keys and the provider depend on the database integration on the classpath. `Supplier<BucketManager>` follows the convention of JNoSQL's default producers; CDI only requires the `@Produces` method. Do not hard-code credentials; read them from a secure source.
 
 * `@Produces` exposes the returned `BucketManager` as a CDI bean.
 * `@Alternative` marks the bean as an alternative, which is not used unless it is enabled.
@@ -283,6 +285,7 @@ import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.Disposes;
 import jakarta.enterprise.inject.Produces;
 import jakarta.interceptor.Interceptor;
+import java.util.function.Supplier;
 import org.eclipse.jnosql.communication.Settings;
 import org.eclipse.jnosql.communication.semistructured.DatabaseConfiguration;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
@@ -293,12 +296,13 @@ import org.eclipse.jnosql.mapping.DatabaseType;
 @Alternative
 @Priority(Interceptor.Priority.APPLICATION)
 @ApplicationScoped
-public class CustomColumnManagerProducer {
+public class CustomColumnManagerProducer implements Supplier<DatabaseManager> {
 
+    @Override
     @Produces
     @Database(DatabaseType.COLUMN)
     @ApplicationScoped
-    public DatabaseManager databaseManager() {
+    public DatabaseManager get() {
         Settings settings = Settings.builder()
                 .put("<provider-setting-key>", "<value from your secure configuration>")
                 .build();
