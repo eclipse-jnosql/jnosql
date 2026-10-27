@@ -314,7 +314,7 @@ public class CustomColumnManagerProducer {
 }
 ----
 
-`@Database(DatabaseType.COLUMN)` is the CDI qualifier that identifies the Wide-Column manager. Eclipse JNoSQL's default Wide-Column producer carries the same qualifier, and the Wide-Column integration looks up a `DatabaseManager` with it, so the custom producer must declare the same qualifier, and the disposer must match the producer's type and qualifiers. Changing only the qualifier does not switch database models: each model needs its own manager type, configuration API, provider, and qualifier. `DatabaseManager` is shared by the semi-structured models (Document, Wide-Column, Time Series), and the qualifier selects the model; Graph and Vector have their own manager types in their modules.
+`@Database(DatabaseType.COLUMN)` is the CDI qualifier that identifies the Wide-Column manager. Eclipse JNoSQL's default Wide-Column producer carries the same qualifier, and the Wide-Column integration looks up a `DatabaseManager` with it, so the custom producer must declare the same qualifier, and the disposer must match the producer's type and qualifiers. Changing only the qualifier does not switch database models: each model needs its own manager type, configuration API, provider, and qualifier.
 
 [cols="1,1,1"]
 |===
@@ -338,6 +338,69 @@ public class CustomColumnManagerProducer {
 |===
 
 The two examples apply the same extension mechanism to different models; neither supersedes the other. Both customize the communication-level manager only: the Jakarta NoSQL `Template` and the Jakarta Data repositories are used exactly as before. To keep several managers of one model, add a provider name, as in `@Database(value = DatabaseType.COLUMN, provider = "databaseA")`, and inject the template with the same qualifier.
+
+==== Database Model Qualifiers
+
+`@Database` is a CDI qualifier (`org.eclipse.jnosql.mapping.Database`) that JNoSQL uses to distinguish database integrations. Its `value` is a `DatabaseType` constant and its optional `provider` names a specific configured integration. The qualifier names the model, while the manager interface depends on the model:
+
+[cols="1,2,2"]
+|===
+|Database Model |Qualifier |Default manager producer
+
+|Key-Value
+|`@Database(DatabaseType.KEY_VALUE)` on templates and repositories
+|`BucketManager`, unqualified
+
+|Document
+|`@Database(DatabaseType.DOCUMENT)`
+|`DatabaseManager`, qualified
+
+|Wide-Column
+|`@Database(DatabaseType.COLUMN)`
+|`DatabaseManager`, qualified
+
+|Graph
+|`@Database(DatabaseType.GRAPH)` on templates and repositories
+|`GraphDatabaseManager`, unqualified
+
+|Time Series
+|`@Database(DatabaseType.TIME_SERIES)`
+|`DatabaseManager`, qualified
+
+|Vector
+|`@Database(DatabaseType.VECTOR)` (main branch only)
+|`VectorManager`, qualified (`@Default` as well)
+|===
+
+The qualifier selects the CDI bean; the manager interface is a separate concern. Key-Value and Graph manager producers are unqualified in this repository, so a custom producer for them is unqualified too, as in the Key-Value example above.
+
+The qualifier on an injection point must match the qualifier of the produced bean, so the same type can be injected once per model:
+
+[source,java]
+----
+@Inject
+@Database(DatabaseType.COLUMN)
+DatabaseManager columnManager;
+
+@Inject
+@Database(DatabaseType.DOCUMENT)
+DatabaseManager documentManager;
+----
+
+Producer and disposer must carry identical qualifiers, otherwise CDI will not pair them and the manager will not be closed:
+
+[source,java]
+----
+@Produces
+@Database(DatabaseType.COLUMN)
+public DatabaseManager get() { /* programmatic configuration */ }
+
+public void close(@Disposes @Database(DatabaseType.COLUMN) DatabaseManager manager) {
+    manager.close();
+}
+----
+
+A Document producer and disposer use `@Database(DatabaseType.DOCUMENT)` in both places. When adapting an example to another model, change together: the manager type, the configuration and factory APIs, the provider implementation, the producer qualifier, the disposer qualifier and any `provider` name, and keep them consistent with the injection points. Changing only the `@Database` value is not enough.
 
 See the https://www.jnosql.org/docs/key-value.html[Key-Value] and https://www.jnosql.org/docs/column.html[Wide-Column] guides and the https://github.com/eclipse-jnosql/jnosql-databases[database integrations] for provider-specific settings.
 
