@@ -206,22 +206,72 @@ The mapping modules are published under the `org.eclipse.jnosql.mapping` group, 
 
 Database settings are read through MicroProfile Config, using properties such as `jnosql.<model>.database` and `jnosql.<model>.provider`. The provider property is necessary when more than one driver is on the classpath. The property prefixes are `jnosql.keyvalue`, `jnosql.document`, `jnosql.column`, `jnosql.graph` and `jnosql.timeseries`.
 
-To use several databases of the same model, qualify the template and its manager producer with `@Database`:
+To use several databases of the same model, qualify the injection point with `@Database`. The provider name must match a manager producer that carries the same qualifier (see <<Programmatic Configuration>>):
 
 [source,java]
 ----
 @Inject
 @Database(value = DatabaseType.DOCUMENT, provider = "databaseA")
 DocumentTemplate templateA;
+----
 
-@Produces
-@Database(value = DatabaseType.DOCUMENT, provider = "databaseA")
-public DatabaseManager managerA() {
-    return manager; // created by the provider's configuration
+Key-Value databases additionally support injecting `List`, `Set`, `Queue` and `Map` instances backed by a bucket with `@Inject @KeyValueDatabase("bucket")`.
+
+=== Programmatic Configuration
+
+MicroProfile Config is the conventional way to configure a database, and most applications need nothing else. Sometimes more control over the creation of the database manager is needed: custom connection settings, provider-specific initialization, settings assembled in code, or integration with application-managed connection infrastructure. For these cases, Eclipse JNoSQL exposes configuration and factory abstractions, so an application can create the database manager itself and expose it through CDI.
+
+The three mechanisms solve different problems and can be combined: MicroProfile Config externalizes settings, CDI qualifiers select among configured integrations, and programmatic configuration customizes how a manager is built. The example below is for the Key-Value model; other models use their own manager types, providers and settings (for example `DatabaseManager` for the semi-structured models).
+
+[source,java]
+----
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
+import jakarta.enterprise.inject.Disposes;
+import jakarta.enterprise.inject.Produces;
+import jakarta.interceptor.Interceptor;
+import org.eclipse.jnosql.communication.Settings;
+import org.eclipse.jnosql.communication.keyvalue.BucketManager;
+import org.eclipse.jnosql.communication.keyvalue.BucketManagerFactory;
+import org.eclipse.jnosql.communication.keyvalue.KeyValueConfiguration;
+
+@Alternative
+@Priority(Interceptor.Priority.APPLICATION)
+@ApplicationScoped
+public class CustomBucketManagerProducer {
+
+    @Produces
+    @ApplicationScoped
+    public BucketManager bucketManager() {
+        // illustrative: keys and values are specific to each provider
+        Settings settings = Settings.builder()
+                .put("<provider-setting-key>", "<value from your secure configuration>")
+                .build();
+
+        // the first KeyValueConfiguration found on the classpath; use
+        // getConfiguration(ProviderConfiguration.class) to pick a specific provider
+        KeyValueConfiguration configuration = KeyValueConfiguration.getConfiguration();
+        BucketManagerFactory factory = configuration.apply(settings);
+        return factory.apply("database");
+    }
+
+    void close(@Disposes BucketManager manager) {
+        manager.close();
+    }
 }
 ----
 
-Settings can also be applied programmatically by producing the database manager from a CDI bean annotated with `@Alternative` and `@Priority`. Key-Value databases additionally support injecting `List`, `Set`, `Queue` and `Map` instances backed by a bucket with `@Inject @KeyValueDatabase("bucket")`. The https://www.jnosql.org/docs/minimum.html[minimum requirements guide] and the model guides above describe configuration in more detail.
+This example is illustrative rather than executable, because the settings keys and the provider depend on the database integration on the classpath. It does not need `Supplier<BucketManager>`: the default producer implements it only by convention. Do not hard-code credentials; read them from a secure source.
+
+* `@Produces` exposes the returned `BucketManager` as a CDI bean.
+* `@Alternative` marks the bean as an alternative, which is not used unless it is enabled.
+* `@Priority` enables the alternative for the whole application. Eclipse JNoSQL also provides a default, unqualified `BucketManager` producer that reads MicroProfile Config; an enabled alternative takes precedence over it, which avoids ambiguous resolution. A producer without the alternative annotations would be ambiguous with the default one, unless it uses a qualifier such as `@Database`.
+* `@ApplicationScoped` defines the lifecycle of the bean and of the manager.
+
+When the application starts, it creates the settings, the provider creates the manager factory, and the factory creates the manager. CDI then makes that manager available to the Key-Value persistence integration, such as `KeyValueTemplate` and the `@KeyValueDatabase` collections. To keep several managers, produce each one with the `@Database` qualifier instead, for example `@Database(value = DatabaseType.KEY_VALUE, provider = "databaseA")`, and inject the template with the same qualifier.
+
+See the https://www.jnosql.org/docs/key-value.html[Key-Value guide] and the https://github.com/eclipse-jnosql/jnosql-databases[database integrations] for provider-specific settings.
 
 == Requirements and Runtime Integration
 
