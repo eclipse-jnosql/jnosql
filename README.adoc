@@ -269,9 +269,77 @@ This example is illustrative rather than executable, because the settings keys a
 * `@Priority` enables the alternative for the whole application. Eclipse JNoSQL also provides a default, unqualified `BucketManager` producer that reads MicroProfile Config; an enabled alternative takes precedence over it, which avoids ambiguous resolution. A producer without the alternative annotations would be ambiguous with the default one, unless it uses a qualifier such as `@Database`.
 * `@ApplicationScoped` defines the lifecycle of the bean and of the manager.
 
-When the application starts, it creates the settings, the provider creates the manager factory, and the factory creates the manager. CDI then makes that manager available to the Key-Value persistence integration, such as `KeyValueTemplate` and the `@KeyValueDatabase` collections. To keep several managers, produce each one with the `@Database` qualifier instead, for example `@Database(value = DatabaseType.KEY_VALUE, provider = "databaseA")`, and inject the template with the same qualifier.
+The disposer pairs with the producer declared in the same bean class and releases the manager when CDI destroys it. It does not conflict with the framework: Eclipse JNoSQL's own disposer belongs to its default producer class, which is replaced when the alternative is enabled. Because the custom producer owns the manager, it is also responsible for closing it. The producer and the produced bean's lifecycle are separate concerns: `@ApplicationScoped` on the class scopes the producer bean, while `@ApplicationScoped` on the method scopes the produced manager.
 
-See the https://www.jnosql.org/docs/key-value.html[Key-Value guide] and the https://github.com/eclipse-jnosql/jnosql-databases[database integrations] for provider-specific settings.
+When the application starts, it creates the settings, the provider creates the manager factory, and the factory creates the manager. CDI then makes that manager available to the Key-Value persistence integration, such as `KeyValueTemplate` and the `@KeyValueDatabase` collections. The Key-Value default producer is unqualified, so the custom producer is unqualified as well.
+
+The Wide-Column example follows the same mechanism with a different manager type and a model-specific qualifier. It is illustrative for the same reasons:
+
+[source,java]
+----
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
+import jakarta.enterprise.inject.Disposes;
+import jakarta.enterprise.inject.Produces;
+import jakarta.interceptor.Interceptor;
+import org.eclipse.jnosql.communication.Settings;
+import org.eclipse.jnosql.communication.semistructured.DatabaseConfiguration;
+import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
+import org.eclipse.jnosql.communication.semistructured.DatabaseManagerFactory;
+import org.eclipse.jnosql.mapping.Database;
+import org.eclipse.jnosql.mapping.DatabaseType;
+
+@Alternative
+@Priority(Interceptor.Priority.APPLICATION)
+@ApplicationScoped
+public class CustomColumnManagerProducer {
+
+    @Produces
+    @Database(DatabaseType.COLUMN)
+    @ApplicationScoped
+    public DatabaseManager databaseManager() {
+        Settings settings = Settings.builder()
+                .put("<provider-setting-key>", "<value from your secure configuration>")
+                .build();
+
+        DatabaseConfiguration configuration = DatabaseConfiguration.getConfiguration();
+        DatabaseManagerFactory factory = configuration.apply(settings);
+        return factory.apply("database");
+    }
+
+    void close(@Disposes @Database(DatabaseType.COLUMN) DatabaseManager manager) {
+        manager.close();
+    }
+}
+----
+
+`@Database(DatabaseType.COLUMN)` is the CDI qualifier that identifies the Wide-Column manager. Eclipse JNoSQL's default Wide-Column producer carries the same qualifier, and the Wide-Column integration looks up a `DatabaseManager` with it, so the custom producer must declare the same qualifier, and the disposer must match the producer's type and qualifiers. Changing only the qualifier does not switch database models: each model needs its own manager type, configuration API, provider, and qualifier. `DatabaseManager` is shared by the semi-structured models (Document, Wide-Column, Time Series), and the qualifier selects the model; Graph and Vector have their own manager types in their modules.
+
+[cols="1,1,1"]
+|===
+| |Key-Value |Wide-Column
+
+|Manager
+|`BucketManager`
+|`DatabaseManager`
+
+|Configuration
+|`KeyValueConfiguration`
+|`DatabaseConfiguration`
+
+|Factory
+|`BucketManagerFactory`
+|`DatabaseManagerFactory`
+
+|CDI selection
+|Unqualified (default) producer
+|`@Database(DatabaseType.COLUMN)`
+|===
+
+The two examples apply the same extension mechanism to different models; neither supersedes the other. Both customize the communication-level manager only: the Jakarta NoSQL `Template` and the Jakarta Data repositories are used exactly as before. To keep several managers of one model, add a provider name, as in `@Database(value = DatabaseType.COLUMN, provider = "databaseA")`, and inject the template with the same qualifier.
+
+See the https://www.jnosql.org/docs/key-value.html[Key-Value] and https://www.jnosql.org/docs/column.html[Wide-Column] guides and the https://github.com/eclipse-jnosql/jnosql-databases[database integrations] for provider-specific settings.
 
 == Requirements and Runtime Integration
 
