@@ -19,8 +19,6 @@
 package org.eclipse.jnosql.communication;
 
 import org.eclipse.jnosql.communication.util.ServiceDiscovery;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Decorators of all {@link ValueWriter} supported by Diana
@@ -33,13 +31,9 @@ public final class ValueWriterDecorator<T, S> implements ValueWriter<T, S> {
 
     private static final ValueWriter INSTANCE = new ValueWriterDecorator<>();
 
-    private final List<ValueWriter> writers = new ArrayList<>();
-
-    {
-        ServiceDiscovery.of(ValueWriter.class, ValueWriter.class)
-                .all()
-                .forEach(writers::add);
-    }
+    // Asked on every use rather than copied once, so that each application in an application server gets the
+    // writers of its own database driver next to the built-in ones
+    private final ServiceDiscovery<ValueWriter> writers = ServiceDiscovery.of(ValueWriter.class, ValueWriter.class);
 
     private ValueWriterDecorator() {
     }
@@ -55,20 +49,20 @@ public final class ValueWriterDecorator<T, S> implements ValueWriter<T, S> {
 
     @Override
     public boolean test(Class<?> type) {
-        return writers.stream().anyMatch(writerField -> writerField.test(type));
+        return writers.all().stream().anyMatch(writerField -> writerField.test(type));
     }
 
     @Override
     public Object write(Object object) {
         Class<?> type = object.getClass();
-        ValueWriter valueWriter = writers.stream().filter(r -> r.test(type)).findFirst().orElseThrow(
+        ValueWriter valueWriter = writers.all().stream().filter(r -> r.test(type)).findFirst().orElseThrow(
                 () -> new UnsupportedOperationException("The type " + type + " is not supported yet"));
         return valueWriter.write(object);
     }
 
     @Override
     public String toString() {
-        return "ValueWriterDecorator{" + "writers=" + writers +
+        return "ValueWriterDecorator{" + "writers=" + writers.all() +
                 '}';
     }
 

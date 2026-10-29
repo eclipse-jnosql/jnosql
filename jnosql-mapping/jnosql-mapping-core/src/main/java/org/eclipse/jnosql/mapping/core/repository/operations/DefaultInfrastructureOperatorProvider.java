@@ -23,7 +23,7 @@ import org.eclipse.jnosql.mapping.core.repository.InfrastructureOperatorProvider
 import org.eclipse.jnosql.mapping.core.repository.ObjectMethodOperator;
 
 @ApplicationScoped
-class DefaultInfrastructureOperatorProvider implements InfrastructureOperatorProvider {
+public class DefaultInfrastructureOperatorProvider implements InfrastructureOperatorProvider {
 
     private final BuiltInMethodOperator builtInMethodOperator;
 
@@ -44,7 +44,7 @@ class DefaultInfrastructureOperatorProvider implements InfrastructureOperatorPro
         this.defaultMethodOperator = defaultMethodOperator;
     }
 
-    DefaultInfrastructureOperatorProvider() {
+    protected DefaultInfrastructureOperatorProvider() {
         this.builtInMethodOperator = null;
         this.objectMethodOperator = null;
         this.customRepositoryMethodOperator = null;

@@ -21,7 +21,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationCo
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 @ApplicationScoped
-class SemistructuredExistsByOperation implements ExistsByOperation {
+public class SemistructuredExistsByOperation implements ExistsByOperation {
 
     private final SemistructuredQueryBuilder semistructuredQueryBuilder;
 
@@ -30,7 +30,7 @@ class SemistructuredExistsByOperation implements ExistsByOperation {
         this.semistructuredQueryBuilder = semistructuredQueryBuilder;
     }
 
-    SemistructuredExistsByOperation() {
+    protected SemistructuredExistsByOperation() {
         this.semistructuredQueryBuilder = null;
     }
 

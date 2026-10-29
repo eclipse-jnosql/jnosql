@@ -53,7 +53,7 @@ public class ProjectorConverter {
         this.entitiesMetadata = entitiesMetadata;
     }
 
-    ProjectorConverter() {
+    protected ProjectorConverter() {
         this(null);
     }
 

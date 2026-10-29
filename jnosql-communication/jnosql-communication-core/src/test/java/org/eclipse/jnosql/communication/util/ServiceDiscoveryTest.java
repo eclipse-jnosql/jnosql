@@ -18,11 +18,20 @@
 package org.eclipse.jnosql.communication.util;
 
 import org.eclipse.jnosql.communication.TypeReferenceReader;
+import org.eclipse.jnosql.communication.TypeSupplier;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -277,6 +286,132 @@ class ServiceDiscoveryTest {
             assertThat(result)
                     .as("providers discovered through the reference class loader")
                     .isNotEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("When both class loaders provide providers")
+    class WhenBothClassLoadersProvide {
+
+        @TempDir
+        Path tempDir;
+
+        @Test
+        @DisplayName("Should return the providers of the context class loader and of the reference class loader")
+        void shouldMergeContextAndReferenceClassLoaderProviders() throws IOException {
+            // Given
+            var service = TypeReferenceReader.class;
+            var referenceClass = TypeReferenceReader.class;
+            Thread.currentThread().setContextClassLoader(extraServicesClassLoader());
+
+            // When
+            var result = ServiceDiscovery.of(service, referenceClass).all();
+
+            // Then
+            assertThat(result)
+                    .as("the provider of the context class loader and the built-in providers")
+                    .extracting(provider -> provider.getClass().getName())
+                    .contains(ExtraServicesClassLoader.PROVIDER, "org.eclipse.jnosql.communication.reader.ListTypeReferenceReader")
+                    .doesNotHaveDuplicates();
+        }
+
+        @Test
+        @DisplayName("Should return the providers of the current context class loader")
+        void shouldKeepProvidersPerContextClassLoader() throws IOException {
+            // Given
+            var discovery = ServiceDiscovery.of(TypeReferenceReader.class, TypeReferenceReader.class);
+            var extraServicesClassLoader = extraServicesClassLoader();
+
+            // When
+            Thread.currentThread().setContextClassLoader(extraServicesClassLoader);
+            var withExtra = discovery.all();
+            Thread.currentThread().setContextClassLoader(originalClassLoader);
+            var withoutExtra = discovery.all();
+
+            // Then
+            assertThat(withExtra)
+                    .as("providers for the class loader that lists the extra provider")
+                    .extracting(provider -> provider.getClass().getName())
+                    .contains(ExtraServicesClassLoader.PROVIDER);
+            assertThat(withoutExtra)
+                    .as("providers for a class loader that does not list the extra provider")
+                    .isNotEmpty()
+                    .extracting(provider -> provider.getClass().getName())
+                    .doesNotContain(ExtraServicesClassLoader.PROVIDER);
+        }
+
+        private ClassLoader extraServicesClassLoader() throws IOException {
+            Path services = Files.writeString(tempDir.resolve(TypeReferenceReader.class.getName()),
+                    ExtraServicesClassLoader.PROVIDER);
+            return new ExtraServicesClassLoader(services.toUri().toURL());
+        }
+    }
+
+    /**
+     * A class loader whose only {@code META-INF/services} entry lists
+     * {@link ExtraTypeReferenceReader}, like the class loader of an application
+     * that brings its own provider while the built-in providers are only
+     * visible through the reference class loader. It has no parent, so the
+     * built-in providers declared by the module are not visible through it
+     * either; it defines the provider itself, because {@link java.util.ServiceLoader}
+     * ignores providers in named modules that are listed in
+     * {@code META-INF/services}, and leaves all other classes to the test's
+     * class loader.
+     */
+    private static final class ExtraServicesClassLoader extends ClassLoader {
+
+        static final String PROVIDER = ExtraTypeReferenceReader.class.getName();
+
+        private final URL services;
+
+        ExtraServicesClassLoader(URL services) {
+            super(null);
+            this.services = services;
+        }
+
+        @Override
+        protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+            if (!PROVIDER.equals(name)) {
+                return ServiceDiscoveryTest.class.getClassLoader().loadClass(name);
+            }
+            synchronized (getClassLoadingLock(name)) {
+                Class<?> provider = findLoadedClass(name);
+                return provider != null ? provider : defineProvider(name);
+            }
+        }
+
+        private Class<?> defineProvider(String name) throws ClassNotFoundException {
+            String path = name.replace('.', '/') + ".class";
+            try (var in = ServiceDiscoveryTest.class.getClassLoader().getResourceAsStream(path)) {
+                byte[] bytes = Objects.requireNonNull(in, "provider class bytes not found").readAllBytes();
+                return defineClass(name, bytes, 0, bytes.length);
+            } catch (IOException e) {
+                throw new ClassNotFoundException(name, e);
+            }
+        }
+
+        @Override
+        public Enumeration<URL> getResources(String name) {
+            if (name.equals("META-INF/services/" + TypeReferenceReader.class.getName())) {
+                return Collections.enumeration(List.of(services));
+            }
+            return Collections.emptyEnumeration();
+        }
+    }
+
+    /**
+     * A provider that only {@link ExtraServicesClassLoader} lists.
+     */
+    public static final class ExtraTypeReferenceReader implements TypeReferenceReader {
+
+        @Override
+        public boolean test(TypeSupplier<?> typeSupplier) {
+            return false;
+        }
+
+        @Override
+        public <T> T convert(TypeSupplier<T> typeReference, Object value) {
+            throw new UnsupportedOperationException("Not used by the test");
         }
     }
 }

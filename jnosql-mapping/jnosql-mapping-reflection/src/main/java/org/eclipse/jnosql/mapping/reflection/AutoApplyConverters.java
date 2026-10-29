@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.reflection;
 
 import jakarta.nosql.AttributeConverter;
 import jakarta.nosql.Convert;
+import org.eclipse.jnosql.mapping.metadata.ClassScanner;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -28,18 +29,21 @@ final class AutoApplyConverters {
 
     private static final Logger LOGGER = Logger.getLogger(AutoApplyConverters.class.getName());
 
-    static final AutoApplyConverters INSTANCE = new AutoApplyConverters();
-
     private final Map<Class<?>, Class<? extends AttributeConverter<?,?>>> converters;
 
+    /**
+     * Loads the converters from the {@link ClassScanner} on every creation instead of keeping them in a static
+     * field, because the converters belong to the application, and in an application server one JNoSQL serves
+     * several applications.
+     */
     AutoApplyConverters() {
         this.converters = new HashMap<>();
 
-        for (Class<? extends AttributeConverter<?, ?>> converter : ClassGraphClassScanner.INSTANCE.autoApplyConverters()) {
+        for (Class<? extends AttributeConverter<?, ?>> converter : ClassScanner.load().autoApplyConverters()) {
             converters.put(attributeType(converter), converter);
         }
 
-        LOGGER.fine(() -> "Auto apply converters found, the auto apply quantity: " + converters.size());
+        LOGGER.finest(() -> "Auto apply converters found, the auto apply quantity: " + converters.size());
     }
 
 

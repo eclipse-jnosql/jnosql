@@ -21,7 +21,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 @ApplicationScoped
-class CoreDefaultMethodOperator implements DefaultMethodOperator {
+public class CoreDefaultMethodOperator implements DefaultMethodOperator {
 
     @Override
     public Object invokeDefault( Object instance, Method method, Object[] params) throws Throwable {

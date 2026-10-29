@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ApplicationScoped
-class SemistructuredQueryBuilder {
+public class SemistructuredQueryBuilder {
 
     private static final SelectQueryParser SELECT_PARSER = new SelectQueryParser();
     private static final DeleteQueryParser DELETE_PARSER = new DeleteQueryParser();
@@ -51,14 +51,14 @@ class SemistructuredQueryBuilder {
         this.paramsBinderMap = new ConcurrentHashMap<>();
     }
 
-    SemistructuredQueryBuilder() {
+    protected SemistructuredQueryBuilder() {
         this.converters = null;
         this.parsers = new ConcurrentHashMap<>();
         this.paramsBinderMap = new ConcurrentHashMap<>();
     }
 
 
-    SelectQuery selectQuery(RepositoryInvocationContext context) {
+    public SelectQuery selectQuery(RepositoryInvocationContext context) {
         var method = context.method();
         var entityMetadata = context.entityMetadata();
         var parameters = context.parameters();
@@ -73,7 +73,7 @@ class SemistructuredQueryBuilder {
         return DynamicSelectQueryBuilder.includeInheritance(query, entityMetadata);
     }
 
-    DeleteQuery deleteQuery(RepositoryInvocationContext context) {
+    public DeleteQuery deleteQuery(RepositoryInvocationContext context) {
         var entityMetadata = context.entityMetadata();
         var provider = DeleteMethodProvider.INSTANCE;
         var method = context.method();
@@ -87,28 +87,28 @@ class SemistructuredQueryBuilder {
         return includeInheritance(query, entityMetadata);
     }
 
-    SelectQuery applyInheritance(SelectQuery query, RepositoryInvocationContext context) {
+    public SelectQuery applyInheritance(SelectQuery query, RepositoryInvocationContext context) {
         return DynamicSelectQueryBuilder.applyInheritance(query, context);
     }
 
-    SelectQuery updateDynamicQuery(SelectQuery query, RepositoryInvocationContext context) {
+    public SelectQuery updateDynamicQuery(SelectQuery query, RepositoryInvocationContext context) {
         return DynamicSelectQueryBuilder.INSTANCE.updateDynamicQuery(query, context,
                 observer(context.entityMetadata()),
                 converters);
     }
 
 
-    CommunicationObserverParser observer(EntityMetadata entityMetadata) {
+    public CommunicationObserverParser observer(EntityMetadata entityMetadata) {
         Class<?> entityType = entityMetadata.type();
         return parsers.computeIfAbsent(entityType,key -> new RepositorySemiStructuredObserverParser(entityMetadata));
     }
 
-    ParamsBinder paramsBinder(EntityMetadata entityMetadata) {
+    public ParamsBinder paramsBinder(EntityMetadata entityMetadata) {
         Class<?> entityType = entityMetadata.type();
         return paramsBinderMap.computeIfAbsent(entityType,key -> new ParamsBinder(entityMetadata, converters));
     }
 
-    DeleteQuery includeInheritance(DeleteQuery query, EntityMetadata metadata) {
+    public DeleteQuery includeInheritance(DeleteQuery query, EntityMetadata metadata) {
         var condition = DynamicSelectQueryBuilder.includeInheritance(metadata);
         if (condition == null) {
             return query;

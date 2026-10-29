@@ -21,7 +21,7 @@ import org.eclipse.jnosql.mapping.core.repository.CustomRepositoryMethodOperator
 import java.lang.reflect.Method;
 
 @ApplicationScoped
-class DefaultCustomRepositoryMethodOperator implements CustomRepositoryMethodOperator {
+public class DefaultCustomRepositoryMethodOperator implements CustomRepositoryMethodOperator {
     @Override
     public Object invokeCustomRepository(Method method, Object[] params) throws Exception {
         Object customRepository = CDI.current().select(method.getDeclaringClass()).get();

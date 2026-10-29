@@ -102,7 +102,8 @@ enum ClassGraphClassScanner implements ClassScanner {
      *
      * @return the auto-apply converter classes
      */
-    Set<Class<? extends AttributeConverter<?, ?>>> autoApplyConverters() {
+    @Override
+    public Set<Class<? extends AttributeConverter<?, ?>>> autoApplyConverters() {
         return unmodifiableSet(autoApplyConverters);
     }
 

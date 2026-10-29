@@ -65,7 +65,7 @@ public class SemiStructuredDeleteOperation extends CoreDeleteOperation {
         this.converters = converters;
     }
 
-    SemiStructuredDeleteOperation() {
+    protected SemiStructuredDeleteOperation() {
         super(null);
         this.queryBuilder = null;
         this.converters = null;

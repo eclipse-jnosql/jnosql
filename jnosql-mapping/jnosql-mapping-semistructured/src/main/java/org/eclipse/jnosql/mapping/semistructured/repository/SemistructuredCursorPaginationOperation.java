@@ -37,7 +37,7 @@ import java.util.Collections;
 import java.util.function.Function;
 
 @ApplicationScoped
-class SemistructuredCursorPaginationOperation implements CursorPaginationOperation {
+public class SemistructuredCursorPaginationOperation implements CursorPaginationOperation {
 
     private final SemistructuredQueryBuilder queryBuilder;
 
@@ -55,7 +55,7 @@ class SemistructuredCursorPaginationOperation implements CursorPaginationOperati
         this.converters = converters;
     }
 
-    SemistructuredCursorPaginationOperation() {
+    protected SemistructuredCursorPaginationOperation() {
         this.queryBuilder = null;
         this.returnType = null;
         this.converters = null;

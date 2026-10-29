@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 
 
 @ApplicationScoped
-class ReflectionRepositoriesMetadata implements RepositoriesMetadata {
+public class ReflectionRepositoriesMetadata implements RepositoriesMetadata {
 
     private static final Logger LOGGER = Logger.getLogger(ReflectionRepositoriesMetadata.class.getName());
 
@@ -46,7 +46,7 @@ class ReflectionRepositoriesMetadata implements RepositoriesMetadata {
         this.projectionFoundEvent = projectionFoundEvent;
     }
 
-    ReflectionRepositoriesMetadata() {
+    protected ReflectionRepositoriesMetadata() {
         this(null);
     }
 

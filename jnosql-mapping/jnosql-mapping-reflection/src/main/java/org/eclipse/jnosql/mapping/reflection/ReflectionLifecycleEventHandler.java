@@ -42,11 +42,11 @@ import java.util.function.Function;
  * </p>
  */
 @ApplicationScoped
-class ReflectionLifecycleEventHandler implements LifecycleEventHandler {
+public class ReflectionLifecycleEventHandler implements LifecycleEventHandler {
 
     private final Event<Object> events;
 
-    ReflectionLifecycleEventHandler() {
+    protected ReflectionLifecycleEventHandler() {
         this.events = null;
     }
 

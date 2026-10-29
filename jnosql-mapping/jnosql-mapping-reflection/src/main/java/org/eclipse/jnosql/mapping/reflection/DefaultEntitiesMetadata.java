@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  * It's storage the class information in a {@link ConcurrentHashMap}
  */
 @ApplicationScoped
-class DefaultEntitiesMetadata implements EntitiesMetadata {
+public class DefaultEntitiesMetadata implements EntitiesMetadata {
 
     private static final Logger LOGGER = Logger.getLogger(DefaultEntitiesMetadata.class.getName());
     private final Map<String, EntityMetadata> mappings;
@@ -65,7 +65,7 @@ class DefaultEntitiesMetadata implements EntitiesMetadata {
     /**
      * Creates the default entity metadata registry.
      */
-    DefaultEntitiesMetadata() {
+    protected DefaultEntitiesMetadata() {
         this.mappings = new ConcurrentHashMap<>();
         this.classes = new ConcurrentHashMap<>();
         this.findBySimpleName = new ConcurrentHashMap<>();

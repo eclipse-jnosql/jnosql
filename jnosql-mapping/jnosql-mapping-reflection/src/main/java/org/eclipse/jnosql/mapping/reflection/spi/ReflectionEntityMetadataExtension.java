@@ -45,9 +45,11 @@ public class ReflectionEntityMetadataExtension implements Extension {
 
     private static final Logger LOGGER = Logger.getLogger(ReflectionEntityMetadataExtension.class.getName());
 
-    private static final Map<Class<?>, EntityMetadata> ENTITY_METADATA_BY_CLASS = new ConcurrentHashMap<>();
-    private static final Map<String, EntityMetadata> ENTITY_METADATA_BY_ENTITY_NAME = new ConcurrentHashMap<>();
-    private static final Map<Class<?>, ProjectionMetadata> PROJECTOR_METADATA_BY_CLASS = new ConcurrentHashMap<>();
+    // Kept per extension instance, which is one per CDI container, so that the containers in an application
+    // server, one per application, do not share their entities
+    private final Map<Class<?>, EntityMetadata> entityMetadataByClass = new ConcurrentHashMap<>();
+    private final Map<String, EntityMetadata> entityMetadataByEntityName = new ConcurrentHashMap<>();
+    private final Map<Class<?>, ProjectionMetadata> projectorMetadataByClass = new ConcurrentHashMap<>();
 
     /**
      * Registers reflection entity metadata beans after CDI bean discovery.
@@ -64,7 +66,9 @@ public class ReflectionEntityMetadataExtension implements Extension {
                 .beanClass(CDIGroupEntityMetadata.class)
                 .alternative(true)
                 .priority(Interceptor.Priority.APPLICATION)
-                .scope(ApplicationScoped.class);
+                .scope(ApplicationScoped.class)
+                .createWith(context -> new CDIGroupEntityMetadata(entityMetadataByEntityName,
+                        entityMetadataByClass, projectorMetadataByClass));
     }
 
     private void scanEntitiesAndEmbeddableEntities() {
@@ -77,41 +81,59 @@ public class ReflectionEntityMetadataExtension implements Extension {
                 .forEach(entity -> {
                     EntityMetadata entityMetadata = converter.apply(entity);
                     if (entityMetadata.hasEntityName()) {
-                        ENTITY_METADATA_BY_ENTITY_NAME.put(entityMetadata.name(), entityMetadata);
+                        entityMetadataByEntityName.put(entityMetadata.name(), entityMetadata);
                     }
-                    ENTITY_METADATA_BY_CLASS.put(entity, entityMetadata);
+                    entityMetadataByClass.put(entity, entityMetadata);
                 });
 
         scanner.embeddables()
                 .forEach(embeddable -> {
                     EntityMetadata entityMetadata = converter.apply(embeddable);
-                    ENTITY_METADATA_BY_CLASS.put(embeddable, entityMetadata);
+                    entityMetadataByClass.put(embeddable, entityMetadata);
                 });
 
         scanner.projections().forEach(projection -> {
             var projectionMetadata = projectionConverter.apply(projection);
-            PROJECTOR_METADATA_BY_CLASS.put(projection, projectionMetadata);
+            projectorMetadataByClass.put(projection, projectionMetadata);
         });
 
         LOGGER.fine(() ->"Finishing the scanning with: %d Entity and Embeddable scanned classes and %s Named entities"
-                .formatted(ENTITY_METADATA_BY_CLASS.size(), ENTITY_METADATA_BY_ENTITY_NAME.size()));
+                .formatted(entityMetadataByClass.size(), entityMetadataByEntityName.size()));
     }
 
     public static class CDIGroupEntityMetadata implements GroupEntityMetadata {
 
+        private final Map<String, EntityMetadata> mappings;
+        private final Map<Class<?>, EntityMetadata> classes;
+        private final Map<Class<?>, ProjectionMetadata> projections;
+
+        CDIGroupEntityMetadata(Map<String, EntityMetadata> mappings, Map<Class<?>, EntityMetadata> classes,
+                               Map<Class<?>, ProjectionMetadata> projections) {
+            this.mappings = mappings;
+            this.classes = classes;
+            this.projections = projections;
+        }
+
+        /**
+         * Required by CDI for the client proxy.
+         */
+        protected CDIGroupEntityMetadata() {
+            this(Map.of(), Map.of(), Map.of());
+        }
+
         @Override
         public Map<String, EntityMetadata> mappings() {
-            return ENTITY_METADATA_BY_ENTITY_NAME;
+            return mappings;
         }
 
         @Override
         public Map<Class<?>, EntityMetadata> classes() {
-            return ENTITY_METADATA_BY_CLASS;
+            return classes;
         }
 
         @Override
         public Map<Class<?>, ProjectionMetadata> projections() {
-            return PROJECTOR_METADATA_BY_CLASS;
+            return projections;
         }
 
     }

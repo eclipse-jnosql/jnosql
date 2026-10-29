@@ -27,7 +27,7 @@ import java.util.Optional;
  * The default implementation to {@link EntityConverter}
  */
 @ApplicationScoped
-class DefaultEntityConverter extends EntityConverter {
+public class DefaultEntityConverter extends EntityConverter {
     private final EntitiesMetadata entities;
     private final Converters converters;
     private final ProjectorConverter projectorConverter;
@@ -45,7 +45,7 @@ class DefaultEntityConverter extends EntityConverter {
         this.idFieldNameSupplier = idFieldNameSupplier;
     }
 
-    DefaultEntityConverter() {
+    protected DefaultEntityConverter() {
         this(null, null, null, null);
     }
 

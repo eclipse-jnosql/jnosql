@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @ApplicationScoped
-class SemistructuredReturnType {
+public class SemistructuredReturnType {
 
     private static final Page<Object> EMPTY_PAGINATION = NoSQLPage.of(Collections.emptyList(), PageRequest.ofSize(1), () -> 0L);
     private final EntitiesMetadata entitiesMetadata;
@@ -54,7 +54,7 @@ class SemistructuredReturnType {
         this.projectorConverter = projectorConverter;
     }
 
-    SemistructuredReturnType() {
+    protected SemistructuredReturnType() {
         this.entitiesMetadata = null;
         this.projectorConverter = null;
     }

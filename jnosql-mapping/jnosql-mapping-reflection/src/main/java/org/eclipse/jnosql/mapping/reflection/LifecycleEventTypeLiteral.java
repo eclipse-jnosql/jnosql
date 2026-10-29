@@ -67,7 +67,14 @@ final class LifecycleEventTypeLiteral {
 
     private static final Field ACTUAL_TYPE_FIELD = actualTypeField();
 
-    private static final Map<Key, TypeLiteral<?>> CACHE = new ConcurrentHashMap<>();
+    // Kept with the entity class rather than in a static map, so that the cache does not keep the entity classes
+    // of an undeployed application in memory when JNoSQL is shared by an application server
+    private static final ClassValue<Map<Class<?>, TypeLiteral<?>>> CACHE = new ClassValue<>() {
+        @Override
+        protected Map<Class<?>, TypeLiteral<?>> computeValue(Class<?> entityType) {
+            return new ConcurrentHashMap<>();
+        }
+    };
 
     private LifecycleEventTypeLiteral() {
     }
@@ -88,7 +95,7 @@ final class LifecycleEventTypeLiteral {
         if (ACTUAL_TYPE_FIELD == null) {
             return Optional.empty();
         }
-        var literal = CACHE.computeIfAbsent(new Key(eventType, entityType), LifecycleEventTypeLiteral::create);
+        var literal = CACHE.get(entityType).computeIfAbsent(eventType, type -> create(new Key(type, entityType)));
         if (literal == UNAVAILABLE_LITERAL) {
             return Optional.empty();
         }

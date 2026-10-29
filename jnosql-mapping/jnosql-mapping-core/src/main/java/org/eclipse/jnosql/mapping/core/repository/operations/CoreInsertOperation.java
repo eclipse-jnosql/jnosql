@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @ApplicationScoped
-class CoreInsertOperation implements InsertOperation {
+public class CoreInsertOperation implements InsertOperation {
 
     private final LifecycleEventHandler lifecycleEventHandler;
 
@@ -35,7 +35,7 @@ class CoreInsertOperation implements InsertOperation {
         this.lifecycleEventHandler = lifecycleEventHandler;
     }
 
-    CoreInsertOperation() {
+    protected CoreInsertOperation() {
         this.lifecycleEventHandler = null;
     }
 

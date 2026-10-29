@@ -22,7 +22,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.FindAllOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
 @ApplicationScoped
-class SemistructuredFindAllOperation implements FindAllOperation {
+public class SemistructuredFindAllOperation implements FindAllOperation {
 
     private final SemistructuredQueryBuilder semistructuredQueryBuilder;
 
@@ -35,7 +35,7 @@ class SemistructuredFindAllOperation implements FindAllOperation {
         this.semistructuredReturnType = semistructuredReturnType;
     }
 
-    SemistructuredFindAllOperation() {
+    protected SemistructuredFindAllOperation() {
         this.semistructuredQueryBuilder = null;
         this.semistructuredReturnType = null;
     }

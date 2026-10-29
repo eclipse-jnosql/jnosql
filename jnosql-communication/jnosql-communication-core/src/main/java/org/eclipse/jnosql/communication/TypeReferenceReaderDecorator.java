@@ -18,8 +18,6 @@
 package org.eclipse.jnosql.communication;
 
 
-import java.util.ArrayList;
-import java.util.List;
 import org.eclipse.jnosql.communication.util.ServiceDiscovery;
 
 /**
@@ -31,13 +29,10 @@ public final class TypeReferenceReaderDecorator implements TypeReferenceReader {
 
     private static final TypeReferenceReaderDecorator INSTANCE = new TypeReferenceReaderDecorator();
 
-    private final List<TypeReferenceReader> readers = new ArrayList<>();
-
-    {
-        ServiceDiscovery.of(TypeReferenceReader.class, TypeReferenceReader.class)
-                .all()
-                .forEach(readers::add);
-    }
+    // Asked on every use rather than copied once, so that each application in an application server gets the
+    // readers of its own database driver next to the built-in ones
+    private final ServiceDiscovery<TypeReferenceReader> readers =
+            ServiceDiscovery.of(TypeReferenceReader.class, TypeReferenceReader.class);
 
     /**
      * Returns the shared type reference reader decorator instance.
@@ -50,20 +45,20 @@ public final class TypeReferenceReaderDecorator implements TypeReferenceReader {
 
     @Override
     public boolean test(TypeSupplier type) {
-        return readers.stream().anyMatch(r -> r.test(type));
+        return readers.all().stream().anyMatch(r -> r.test(type));
     }
 
     @Override
     public <T> T convert(TypeSupplier<T> typeReference, Object value) {
 
-        TypeReferenceReader valueReader = readers.stream().filter(r -> r.test(typeReference)).findFirst().
+        TypeReferenceReader valueReader = readers.all().stream().filter(r -> r.test(typeReference)).findFirst().
                 orElseThrow(() -> new UnsupportedOperationException("The type " + typeReference + " is not supported yet"));
         return valueReader.convert(typeReference, value);
     }
 
     @Override
     public String toString() {
-        return "TypeReferenceReaderDecorator{" + "readers=" + readers +
+        return "TypeReferenceReaderDecorator{" + "readers=" + readers.all() +
                 '}';
     }
 

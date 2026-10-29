@@ -73,7 +73,7 @@ public class CoreBaseRepositoryOperationProvider implements RepositoryOperationP
         this.providerOperation = providerOperation;
     }
 
-    CoreBaseRepositoryOperationProvider() {
+    protected CoreBaseRepositoryOperationProvider() {
         this(null, null, null, null, null);
     }
 

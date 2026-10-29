@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Objects;
 
 @ApplicationScoped
-class CoreUpdateOperation implements UpdateOperation {
+public class CoreUpdateOperation implements UpdateOperation {
 
     private final LifecycleEventHandler lifecycleEventHandler;
 
@@ -36,7 +36,7 @@ class CoreUpdateOperation implements UpdateOperation {
         this.lifecycleEventHandler = lifecycleEventHandler;
     }
 
-    CoreUpdateOperation() {
+    protected CoreUpdateOperation() {
         this.lifecycleEventHandler = null;
     }
 
