@@ -35,7 +35,7 @@ import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.DOCUM
 import static org.eclipse.jnosql.mapping.core.config.MappingConfigurations.DOCUMENT_PROVIDER;
 
 @ApplicationScoped
-class DocumentManagerSupplier implements Supplier<DatabaseManager> {
+public class DocumentManagerSupplier implements Supplier<DatabaseManager> {
 
     private static final Logger LOGGER = Logger.getLogger(DocumentManagerSupplier.class.getName());
 

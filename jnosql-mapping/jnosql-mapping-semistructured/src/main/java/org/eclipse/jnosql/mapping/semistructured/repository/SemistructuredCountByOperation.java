@@ -25,7 +25,7 @@ import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 import java.util.function.Function;
 
 @ApplicationScoped
-class SemistructuredCountByOperation implements CountByOperation {
+public class SemistructuredCountByOperation implements CountByOperation {
 
     private final SemistructuredQueryBuilder semistructuredQueryBuilder;
 
@@ -34,7 +34,7 @@ class SemistructuredCountByOperation implements CountByOperation {
         this.semistructuredQueryBuilder = semistructuredQueryBuilder;
     }
 
-    SemistructuredCountByOperation() {
+    protected SemistructuredCountByOperation() {
         this.semistructuredQueryBuilder = null;
     }
 

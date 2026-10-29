@@ -28,7 +28,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationCo
 import java.util.List;
 
 @ApplicationScoped
-class CoreProviderOperation implements ProviderOperation {
+public class CoreProviderOperation implements ProviderOperation {
 
     @Inject
     @Any

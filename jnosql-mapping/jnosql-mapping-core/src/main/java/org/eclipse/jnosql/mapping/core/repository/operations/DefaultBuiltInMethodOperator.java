@@ -21,7 +21,7 @@ import org.eclipse.jnosql.mapping.core.repository.BuiltInMethodOperator;
 import java.lang.reflect.Method;
 
 @ApplicationScoped
-class DefaultBuiltInMethodOperator implements BuiltInMethodOperator {
+public class DefaultBuiltInMethodOperator implements BuiltInMethodOperator {
     @Override
     public Object invokeDefault(AbstractRepository<?, ?> repository, Method method, Object[] params) throws Exception {
         return method.invoke(repository, params);

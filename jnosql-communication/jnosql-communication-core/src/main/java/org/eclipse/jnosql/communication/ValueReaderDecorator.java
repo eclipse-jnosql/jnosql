@@ -18,12 +18,8 @@
 package org.eclipse.jnosql.communication;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.eclipse.jnosql.communication.util.ServiceDiscovery;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Decorators of all {@link ValueReader} supported by Jakarta NoSQL
@@ -33,15 +29,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ValueReaderDecorator implements ValueReader {
 
     private static final ValueReaderDecorator INSTANCE = new ValueReaderDecorator();
-    private final Map<Class<?>, ValueReader> cache = new ConcurrentHashMap<>();
 
-    private final List<ValueReader> readers = new ArrayList<>();
-
-    {
-        ServiceDiscovery.of(ValueReader.class, ValueReader.class)
-                .all()
-                .forEach(readers::add);
-    }
+    // Asked on every use rather than copied once, so that each application in an application server gets the
+    // readers of its own database driver next to the built-in ones
+    private final ServiceDiscovery<ValueReader> readers = ServiceDiscovery.of(ValueReader.class, ValueReader.class);
 
     /**
      * Returns the shared value reader decorator instance.
@@ -54,7 +45,7 @@ public final class ValueReaderDecorator implements ValueReader {
 
     @Override
     public boolean test(Class type) {
-        return readers.stream().anyMatch(r -> r.test(type));
+        return readers.all().stream().anyMatch(r -> r.test(type));
     }
 
     @Override
@@ -69,15 +60,13 @@ public final class ValueReaderDecorator implements ValueReader {
     }
 
     private Optional<ValueReader> getReader(Class<?> type) {
-        return Optional.ofNullable(cache.computeIfAbsent(type, t ->
-                readers.stream().filter(r -> r.test(t)).findFirst().orElse(null)
-        ));
+        return readers.all().stream().filter(r -> r.test(type)).findFirst();
     }
 
 
     @Override
     public String toString() {
-        return "ValueReaderDecorator{" + "readers=" + readers +
+        return "ValueReaderDecorator{" + "readers=" + readers.all() +
                 '}';
     }
 

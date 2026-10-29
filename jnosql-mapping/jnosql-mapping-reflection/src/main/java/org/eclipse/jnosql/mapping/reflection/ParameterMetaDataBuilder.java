@@ -36,7 +36,7 @@ class ParameterMetaDataBuilder {
         Id id = parameter.getAnnotation(Id.class);
         Column column = parameter.getAnnotation(Column.class);
         Convert convert = parameter.getAnnotation(Convert.class);
-        var applyConverters = AutoApplyConverters.INSTANCE;
+        var applyConverters = new AutoApplyConverters();
         Class<?> type = parameter.getType();
         String name = Optional.ofNullable(id)
                 .map(Id::value)

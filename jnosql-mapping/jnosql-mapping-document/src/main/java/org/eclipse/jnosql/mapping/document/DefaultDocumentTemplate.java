@@ -31,7 +31,7 @@ import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 @Default
 @ApplicationScoped
 @Database(DatabaseType.DOCUMENT)
-class DefaultDocumentTemplate extends AbstractSemiStructuredTemplate implements DocumentTemplate {
+public class DefaultDocumentTemplate extends AbstractSemiStructuredTemplate implements DocumentTemplate {
 
 
     private final EntityConverter converter;
@@ -58,7 +58,7 @@ class DefaultDocumentTemplate extends AbstractSemiStructuredTemplate implements 
         this.converters = converters;
     }
 
-    DefaultDocumentTemplate() {
+    protected DefaultDocumentTemplate() {
         this.converter = null;
         this.manager = null;
         this.eventManager = null;

@@ -24,7 +24,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.FindByOperation;
 import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationContext;
 
 @ApplicationScoped
-class SemistructuredFindByOperation implements FindByOperation {
+public class SemistructuredFindByOperation implements FindByOperation {
 
     private static final SelectQueryParser SELECT_PARSER = new SelectQueryParser();
 
@@ -39,7 +39,7 @@ class SemistructuredFindByOperation implements FindByOperation {
         this.semistructuredReturnType = semistructuredReturnType;
     }
 
-    SemistructuredFindByOperation() {
+    protected SemistructuredFindByOperation() {
         this.semistructuredQueryBuilder = null;
         this.semistructuredReturnType = null;
     }

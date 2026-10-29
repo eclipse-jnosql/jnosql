@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Objects;
 
 @ApplicationScoped
-class CoreSaveOperation implements SaveOperation {
+public class CoreSaveOperation implements SaveOperation {
 
     private final LifecycleEventHandler lifecycleEventHandler;
 
@@ -38,7 +38,7 @@ class CoreSaveOperation implements SaveOperation {
         this.lifecycleEventHandler = lifecycleEventHandler;
     }
 
-    CoreSaveOperation() {
+    protected CoreSaveOperation() {
         this.lifecycleEventHandler = null;
     }
 

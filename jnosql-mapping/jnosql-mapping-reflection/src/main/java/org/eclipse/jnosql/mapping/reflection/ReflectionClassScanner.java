@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.reflection;
 
 import jakarta.data.repository.DataRepository;
+import jakarta.nosql.AttributeConverter;
 import org.eclipse.jnosql.mapping.metadata.ClassScanner;
 
 import java.util.Set;
@@ -58,5 +59,10 @@ public final class ReflectionClassScanner implements ClassScanner {
     @Override
     public Set<Class<?>> projections() {
         return  ClassGraphClassScanner.INSTANCE.projections();
+    }
+
+    @Override
+    public Set<Class<? extends AttributeConverter<?, ?>>> autoApplyConverters() {
+        return ClassGraphClassScanner.INSTANCE.autoApplyConverters();
     }
 }

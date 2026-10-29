@@ -17,27 +17,38 @@
  */
 package org.eclipse.jnosql.communication.util;
 
+import java.lang.ref.SoftReference;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.WeakHashMap;
 
 /**
  * A lazily initialized handle to service providers of a given type.
  *
- * <p>The thread context class loader (TCCL) is tried first. When it cannot
- * discover a provider, the class loader of the reference class is used as a
- * fallback. This supports environments where the context class loader and
- * the class loader that loaded the API classes are different, such as a
- * Quarkus/Vert.x event-loop thread whose context class loader does not see
- * the application's {@code META-INF/services} entries.</p>
+ * <p>The thread context class loader (TCCL) is tried first, followed by the
+ * class loader of the reference class. This supports environments where the
+ * context class loader and the class loader that loaded the API classes are
+ * different, such as a Quarkus/Vert.x event-loop thread whose context class
+ * loader does not see the application's {@code META-INF/services} entries,
+ * or an application server that shares one JNoSQL between its applications,
+ * where the context class loader sees the providers of the application, for
+ * example those of its database driver, and the reference class loader sees
+ * the built-in providers of JNoSQL.</p>
  *
  * <p>An instance lazily discovers and resolves the providers as a
- * {@code List}. Discovery runs at most once per instance; subsequent calls
- * to {@link #first()} and {@link #all()} reuse the retained list rather
- * than invoking {@link ServiceLoader} again. This class does not maintain a
- * global cache of providers or class loaders; the lifecycle of a
- * {@code ServiceDiscovery} instance belongs to its caller.</p>
+ * {@code List}. Discovery runs at most once per instance and context class
+ * loader; subsequent calls to {@link #first()} and {@link #all()} on a
+ * thread with the same context class loader reuse the retained list rather
+ * than invoking {@link ServiceLoader} again. The lists are kept per context
+ * class loader so that each application in an application server gets its
+ * own providers, and they are referenced weakly so that the applications
+ * can still be unloaded. This class does not maintain a global cache of
+ * providers or class loaders; the lifecycle of a {@code ServiceDiscovery}
+ * instance belongs to its caller.</p>
  *
  * <p>This abstraction is not suitable for service lookups that must execute
  * from within a caller's own named JPMS module. Such call sites may need to
@@ -51,7 +62,7 @@ public final class ServiceDiscovery<T> {
     private final Class<T> service;
     private final Class<?> referenceClass;
 
-    private List<T> services;
+    private final Map<ClassLoader, SoftReference<List<T>>> services = new WeakHashMap<>();
 
     private ServiceDiscovery(
             Class<T> service,
@@ -65,7 +76,8 @@ public final class ServiceDiscovery<T> {
      * Creates a new service discovery structure.
      *
      * @param service the service type
-     * @param referenceClass a class whose class loader is used as a fallback
+     * @param referenceClass a class whose class loader is searched after the
+     *        context class loader
      * @param <T> the service type
      * @return a new {@code ServiceDiscovery} instance
      * @throws NullPointerException if {@code service} or
@@ -93,46 +105,48 @@ public final class ServiceDiscovery<T> {
     }
 
     /**
-     * Returns every available implementation visible through this
-     * discovery's selected class loader (see {@link #first()} for how the
-     * loader is selected). Providers visible only through the other,
-     * non-selected class loader are not included — the two are never
-     * merged.
+     * Returns every available implementation: first those visible through
+     * the context class loader, then those visible only through the class
+     * loader of the reference class. A provider class visible through both
+     * is included once.
      *
-     * @return every available service implementation found through the
-     *         selected class loader; empty when none are found
+     * @return every available service implementation; empty when none are
+     *         found
      */
     public List<T> all() {
         return services();
     }
 
-    private synchronized List<T> services() {
-        if (services == null) {
-            services = discover();
-        }
-        return services;
-    }
-
-    private List<T> discover() {
+    private List<T> services() {
         ClassLoader contextClassLoader =
                 Thread.currentThread().getContextClassLoader();
 
-        if (contextClassLoader != null) {
-            List<T> discovered = ServiceLoader.load(service, contextClassLoader)
-                    .stream()
-                    .map(ServiceLoader.Provider::get)
-                    .toList();
-
-            if (!discovered.isEmpty()) {
-                return discovered;
+        synchronized (services) {
+            SoftReference<List<T>> retained = services.get(contextClassLoader);
+            List<T> found = retained == null ? null : retained.get();
+            if (found == null) {
+                found = discover(contextClassLoader);
+                services.put(contextClassLoader, new SoftReference<>(found));
             }
+            return found;
         }
+    }
 
-        ClassLoader referenceClassLoader = referenceClass.getClassLoader();
+    private List<T> discover(ClassLoader contextClassLoader) {
+        Map<String, T> discovered = new LinkedHashMap<>();
 
-        return ServiceLoader.load(service, referenceClassLoader)
+        if (contextClassLoader != null) {
+            discover(contextClassLoader, discovered);
+        }
+        discover(referenceClass.getClassLoader(), discovered);
+
+        return List.copyOf(discovered.values());
+    }
+
+    private void discover(ClassLoader classLoader, Map<String, T> discovered) {
+        ServiceLoader.load(service, classLoader)
                 .stream()
-                .map(ServiceLoader.Provider::get)
-                .toList();
+                .filter(provider -> !discovered.containsKey(provider.type().getName()))
+                .forEach(provider -> discovered.put(provider.type().getName(), provider.get()));
     }
 }

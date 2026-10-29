@@ -15,10 +15,10 @@
 package org.eclipse.jnosql.mapping.metadata;
 
 import jakarta.nosql.NoSQLException;
+import org.eclipse.jnosql.communication.util.ServiceDiscovery;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.ServiceLoader;
 
 /**
  * Strategy interface for building projection instances from query results.
@@ -32,11 +32,11 @@ import java.util.ServiceLoader;
  */
 public interface ProjectionBuilder {
 
-    ProjectionBuilderSupplier INSTANCE = ServiceLoader
-            .load(ProjectionBuilderSupplier.class)
-            .findFirst()
+    ProjectionBuilderSupplier INSTANCE = ServiceDiscovery
+            .of(ProjectionBuilderSupplier.class, ProjectionBuilderSupplier.class)
+            .first()
             .orElseThrow(() -> new NoSQLException(
-                    "No implementation of ProjectionBuilderSupplier found via ServiceLoader"));
+                    "No implementation of ProjectionBuilderSupplier found via ServiceDiscovery"));
 
     /**
      * Returns the constructor parameters.

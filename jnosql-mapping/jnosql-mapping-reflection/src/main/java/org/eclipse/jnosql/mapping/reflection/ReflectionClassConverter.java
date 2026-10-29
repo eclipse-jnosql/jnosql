@@ -185,7 +185,7 @@ public final class ReflectionClassConverter implements ClassConverter {
         String columnName = id ? reflections.getIdName(field) : reflections.getColumnName(field);
         String udt = reflections.getUDTName(field);
         var type = field.getType();
-        var applyConverters = AutoApplyConverters.INSTANCE;
+        var applyConverters = new AutoApplyConverters();
         var builder = new FieldMappingBuilder()
                 .name(columnName)
                 .field(field)

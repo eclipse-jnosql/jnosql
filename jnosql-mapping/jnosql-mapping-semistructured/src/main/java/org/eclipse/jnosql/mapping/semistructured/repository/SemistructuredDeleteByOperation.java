@@ -22,7 +22,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationCo
 import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 @ApplicationScoped
-class SemistructuredDeleteByOperation implements DeleteByOperation {
+public class SemistructuredDeleteByOperation implements DeleteByOperation {
 
     private final SemistructuredQueryBuilder semistructuredQueryBuilder;
 
@@ -31,7 +31,7 @@ class SemistructuredDeleteByOperation implements DeleteByOperation {
         this.semistructuredQueryBuilder = semistructuredQueryBuilder;
     }
 
-    SemistructuredDeleteByOperation() {
+    protected SemistructuredDeleteByOperation() {
         this.semistructuredQueryBuilder = null;
     }
 

@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.metadata;
 
 
 import jakarta.data.repository.DataRepository;
+import jakarta.nosql.AttributeConverter;
 
 import org.eclipse.jnosql.communication.util.ServiceDiscovery;
 import java.util.Set;
@@ -88,6 +89,16 @@ public interface ClassScanner {
      * @return A set of classes with the {@link jakarta.nosql.Projection} annotation.
      */
     Set<Class<?>> projections();
+
+    /**
+     * Returns a set of {@link AttributeConverter} classes that are annotated with
+     * {@link jakarta.nosql.Converter} and have {@code autoApply} enabled.
+     *
+     * @return A set of auto-apply converter classes, empty by default.
+     */
+    default Set<Class<? extends AttributeConverter<?, ?>>> autoApplyConverters() {
+        return Set.of();
+    }
 
 
     /**

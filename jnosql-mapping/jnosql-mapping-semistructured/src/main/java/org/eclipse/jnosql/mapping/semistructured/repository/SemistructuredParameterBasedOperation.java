@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.Map;
 
 @ApplicationScoped
-class SemistructuredParameterBasedOperation implements ParameterBasedOperation {
+public class SemistructuredParameterBasedOperation implements ParameterBasedOperation {
 
     private final SemistructuredQueryBuilder semistructuredQueryBuilder;
 
@@ -51,7 +51,7 @@ class SemistructuredParameterBasedOperation implements ParameterBasedOperation {
         this.converters = converters;
     }
 
-    SemistructuredParameterBasedOperation() {
+    protected SemistructuredParameterBasedOperation() {
         this.semistructuredQueryBuilder = null;
         this.semistructuredReturnType = null;
         this.entitiesMetadata = null;

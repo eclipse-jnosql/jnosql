@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 @ApplicationScoped
-class SemistructuredQueryOperation implements QueryOperation {
+public class SemistructuredQueryOperation implements QueryOperation {
 
     private static final Logger LOGGER = Logger.getLogger(SemistructuredQueryOperation.class.getName());
 
@@ -52,7 +52,7 @@ class SemistructuredQueryOperation implements QueryOperation {
         this.entitiesMetadata = entitiesMetadata;
     }
 
-    SemistructuredQueryOperation() {
+    protected SemistructuredQueryOperation() {
         this.queryBuilder = null;
         this.semistructuredReturnType = null;
         this.entitiesMetadata = null;

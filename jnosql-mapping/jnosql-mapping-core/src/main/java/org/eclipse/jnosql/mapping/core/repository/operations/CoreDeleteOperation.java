@@ -51,7 +51,7 @@ public class CoreDeleteOperation implements DeleteOperation {
         this.lifecycleEventHandler = lifecycleEventHandler;
     }
 
-    CoreDeleteOperation() {
+    protected CoreDeleteOperation() {
         this.lifecycleEventHandler = null;
     }
 

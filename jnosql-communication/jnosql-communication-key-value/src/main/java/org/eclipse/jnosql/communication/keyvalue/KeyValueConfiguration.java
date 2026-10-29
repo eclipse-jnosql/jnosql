@@ -15,10 +15,10 @@ package org.eclipse.jnosql.communication.keyvalue;
 import org.eclipse.jnosql.communication.CommunicationException;
 import org.eclipse.jnosql.communication.Settings;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * It is a function that reads from {@link Settings} and then creates a manager factory instance.
@@ -29,9 +29,6 @@ import java.util.function.Function;
  */
 public interface KeyValueConfiguration extends Function<Settings, BucketManagerFactory> {
 
-    List<KeyValueConfiguration> CONFIGURATIONS = ServiceLoader.load(KeyValueConfiguration.class).stream()
-            .map(ServiceLoader.Provider::get)
-            .toList();
     /**
      * creates and returns a  {@link KeyValueConfiguration}  instance from {@link ServiceLoader}
      *
@@ -40,8 +37,7 @@ public interface KeyValueConfiguration extends Function<Settings, BucketManagerF
      */
     @SuppressWarnings("unchecked")
     static <T extends KeyValueConfiguration> T getConfiguration() {
-       return (T) CONFIGURATIONS
-                .stream()
+       return (T) configurations()
                .findFirst()
                .orElseThrow(() -> new CommunicationException("No KeyValueConfiguration implementation found!"));
     }
@@ -57,10 +53,16 @@ public interface KeyValueConfiguration extends Function<Settings, BucketManagerF
     @SuppressWarnings("unchecked")
     static <T extends KeyValueConfiguration> T getConfiguration(Class<T> type) {
         Objects.requireNonNull(type, "service is required");
-        return (T) CONFIGURATIONS
-                .stream()
+        return (T) configurations()
                 .filter(type::isInstance)
                 .findFirst()
                 .orElseThrow(() -> new CommunicationException("No KeyValueConfiguration implementation found!"));
+    }
+
+    // Looked up on every call instead of kept in a static field: in an application server each application
+    // brings its own driver, while this interface is shared by all of them
+    private static Stream<KeyValueConfiguration> configurations() {
+        return ServiceLoader.load(KeyValueConfiguration.class).stream()
+                .map(ServiceLoader.Provider::get);
     }
 }
