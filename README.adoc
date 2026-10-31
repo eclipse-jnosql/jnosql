@@ -487,15 +487,10 @@ Eclipse JNoSQL uses https://semver.org/[Semantic Versioning] (`MAJOR.MINOR.PATCH
 |===
 |Release line|Jakarta EE|Status|Notes
 
-|`1.1.x`
+|`1.x.x`
 |11
-|Stable (latest: 1.1.20)
+|Stable (latest: 1.2.0)
 |Java 17 or higher.
-
-|`1.2.0`
-|11
-|Milestones (1.2.0-M1, 1.2.0-M2)
-|Backward-compatible additions; requires Java 21.
 
 |`2.x.x`
 |12
