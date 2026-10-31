@@ -410,7 +410,7 @@ See the https://www.jnosql.org/docs/key-value.html[Key-Value] and https://www.jn
 
 == Requirements and Runtime Integration
 
-The latest stable release line (1.1.x) requires:
+The latest stable release line (1.x.x) requires:
 
 * Java 17 or higher
 * https://jakarta.ee/specifications/cdi/4.1/[Jakarta CDI 4.1]
