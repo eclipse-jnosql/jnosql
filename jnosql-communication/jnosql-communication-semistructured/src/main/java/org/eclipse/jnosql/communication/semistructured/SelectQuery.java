@@ -23,7 +23,23 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
- * Class that contains information to perform a select operation on {@link CommunicationEntity}.
+ * Describes a select operation on {@link CommunicationEntity}: the entity name, optional condition, columns,
+ * sorts, skip and limit. Build it with the fluent API ({@link #select(String...)}) or the builder
+ * ({@link #builder(String...)}), and run it with {@link DatabaseManager#select(SelectQuery)}.
+ *
+ * <p>Options that a database does not support, such as columns, sorts, skip or limit, may be ignored by
+ * its driver.</p>
+ *
+ * <pre>{@code
+ * SelectQuery query = SelectQuery.select("name")
+ *         .from("person")
+ *         .where("age").gte(18)
+ *         .and("city").eq("Lisbon")
+ *         .orderBy("name").asc()
+ *         .limit(10)
+ *         .build();
+ * Stream<CommunicationEntity> people = manager.select(query);
+ * }</pre>
  *
  * @see DatabaseManager#select(SelectQuery)
  * @see CriteriaCondition
