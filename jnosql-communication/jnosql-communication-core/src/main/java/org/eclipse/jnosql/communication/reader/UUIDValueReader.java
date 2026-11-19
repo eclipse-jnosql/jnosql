@@ -21,6 +21,24 @@ import org.eclipse.jnosql.communication.ValueReader;
 
 import java.util.UUID;
 
+/**
+ * Converts values to {@link java.util.UUID} instances.
+ *
+ * <ul>
+ *   <li>a {@link java.util.UUID} is returned as is;</li>
+ *   <li>a {@link CharSequence} is parsed with {@link java.util.UUID#fromString(String)}, so it must use the
+ *   canonical text form, and a malformed text throws {@link CommunicationException};</li>
+ *   <li>any other type produces {@code null}.</li>
+ * </ul>
+ *
+ * <p>A {@code null} {@link org.eclipse.jnosql.communication.Value} converts to {@code null} before reaching this
+ * reader. There is no matching {@link org.eclipse.jnosql.communication.ValueWriter}: a {@link java.util.UUID} is
+ * sent to the database unchanged, and how it is stored is up to the driver.</p>
+ *
+ * <pre>{@code
+ * UUID id = Value.of("123e4567-e89b-12d3-a456-426614174000").get(UUID.class);
+ * }</pre>
+ */
 public class UUIDValueReader implements ValueReader {
 
     @SuppressWarnings("unchecked")
