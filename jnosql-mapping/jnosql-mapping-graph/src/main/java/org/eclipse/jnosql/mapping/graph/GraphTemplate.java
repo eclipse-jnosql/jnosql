@@ -26,18 +26,20 @@ import java.util.function.Supplier;
 
 
 /**
- * This interface extends the {@link SemiStructuredTemplate} and represents a template for performing
- * document-based operations in a semistructured database.
- * <p>
- * Implementations of this interface provide methods for CRUD (Create, Read, Update, Delete) operations
- * on document-based data structures within a semistructured database.
- * </p>
- * <p>
- * Users can utilize implementations of this interface to interact with document-based data in a semistructured database,
- * abstracting away the complexities of the underlying database operations and providing a unified API for database access.
- * </p>
+ * {@link SemiStructuredTemplate} specialization for graph databases.
+ * Entities are stored as vertices, and relationships between them as {@link Edge}s.
+ *
+ * <pre>{@code
+ * @Inject
+ * GraphTemplate template;
+ *
+ * Person ada = template.insert(new Person());
+ * Person grace = template.insert(new Person());
+ * Edge<Person, Person> knows = template.edge(ada, "knows", grace, Map.of("since", 2020));
+ * }</pre>
  *
  * @see SemiStructuredTemplate
+ * @see Edge
  */
 public interface GraphTemplate extends SemiStructuredTemplate {
 
