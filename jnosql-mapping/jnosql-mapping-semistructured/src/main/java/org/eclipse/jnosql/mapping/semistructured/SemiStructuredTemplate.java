@@ -30,9 +30,20 @@ import java.util.stream.Stream;
 
 
 /**
- * Interface representing a template for accessing a semi-structured database.
- * It extends the {@link Template} interface.
- * This interface provides methods for executing queries, counting elements, and preparing statements.
+ * Template for semi-structured databases (document, column and graph).
+ * It extends {@link Template} with {@link SelectQuery}, {@link DeleteQuery} and {@link UpdateQuery}
+ * execution, counting, pagination and text queries through {@link PreparedStatement}.
+ * Inject a model-specific template such as {@code DocumentTemplate} or {@code ColumnTemplate},
+ * or qualify the injection point with {@link org.eclipse.jnosql.mapping.Database}.
+ *
+ * <pre>{@code
+ * @Inject
+ * @Database(DatabaseType.DOCUMENT)
+ * SemiStructuredTemplate template;
+ *
+ * SelectQuery query = SelectQuery.select().from("Person").where("name").eq("Ada").build();
+ * Stream<Person> people = template.select(query);
+ * }</pre>
  */
 public interface SemiStructuredTemplate extends Template {
 
