@@ -21,8 +21,20 @@ import org.eclipse.jnosql.communication.Settings;
 import org.eclipse.jnosql.communication.util.ServiceDiscovery;
 
 /**
- * It is a function that reads from {@link Settings} and then creates a manager factory instance.
- * It should return a {@link NullPointerException} when the {@link Settings} parameter is null.
+ * Entry point of a key-value database driver: reads {@link Settings} and creates a {@link BucketManagerFactory}.
+ * Implementations are discovered through the Java {@link java.util.ServiceLoader}.
+ * It should throw a {@link NullPointerException} when the {@link Settings} parameter is null.
+ *
+ * <pre>{@code
+ * Settings settings = Settings.builder()
+ *         .put(Configurations.HOST, "localhost:6379")
+ *         .build();
+ * KeyValueConfiguration configuration = KeyValueConfiguration.getConfiguration();
+ * try (BucketManagerFactory factory = configuration.apply(settings);
+ *      BucketManager bucket = factory.apply("people")) {
+ *     bucket.put("key", "value");
+ * }
+ * }</pre>
  *
  * @see BucketManagerFactory
  * @see BucketManager
@@ -34,10 +46,11 @@ public interface KeyValueConfiguration extends Function<Settings, BucketManagerF
                     .all();
 
     /**
-     * Creates and returns a {@link KeyValueConfiguration} instance.
+     * Returns the first {@link KeyValueConfiguration} found by the {@link java.util.ServiceLoader}.
      *
      * @param <T> the configuration type
-     * @return {@link KeyValueConfiguration} instance
+     * @return the {@link KeyValueConfiguration} instance
+     * @throws CommunicationException when no implementation is found
      */
     @SuppressWarnings("unchecked")
     static <T extends KeyValueConfiguration> T getConfiguration() {
@@ -49,12 +62,14 @@ public interface KeyValueConfiguration extends Function<Settings, BucketManagerF
     }
 
     /**
-     * Creates and returns a {@link KeyValueConfiguration} instance
-     * for a particular provider implementation.
+     * Returns the first {@link KeyValueConfiguration} found by the {@link java.util.ServiceLoader} that is an instance of
+     * the given provider type.
      *
      * @param <T>  the configuration type
-     * @param type the particular provider
-     * @return {@link KeyValueConfiguration} instance
+     * @param type the provider implementation class
+     * @return the {@link KeyValueConfiguration} instance
+     * @throws NullPointerException   when the type is null
+     * @throws CommunicationException when no implementation of that type is found
      */
     @SuppressWarnings("unchecked")
     static <T extends KeyValueConfiguration> T getConfiguration(Class<T> type) {
