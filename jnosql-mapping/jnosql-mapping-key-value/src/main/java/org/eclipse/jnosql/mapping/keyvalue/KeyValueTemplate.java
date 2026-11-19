@@ -34,6 +34,15 @@ import java.util.stream.StreamSupport;
  * <b>the query syntax belongs to each provider, thus, it is not within Jakarta NoSQL's scope to define it.
  * Accordingly, it might vary between implementations and NoSQL providers.</b>
  * </p>
+ *
+ * <pre>{@code
+ * @Inject
+ * KeyValueTemplate template;
+ *
+ * template.put(session, Duration.ofMinutes(10));
+ * Optional<Session> found = template.get("session-id", Session.class);
+ * template.deleteByKey("session-id");
+ * }</pre>
  */
 public interface KeyValueTemplate extends Template {
     /**
