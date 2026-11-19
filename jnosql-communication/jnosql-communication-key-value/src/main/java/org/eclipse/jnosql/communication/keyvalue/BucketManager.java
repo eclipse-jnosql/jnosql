@@ -23,8 +23,20 @@ import java.time.Duration;
 import java.util.Optional;
 
 /**
- * Interface used to interact with the persistence context to {@link KeyValueEntity}
- * The BucketManager API is used to create and remove persistent {@link KeyValueEntity}.
+ * Stores and retrieves values by key in one bucket of a key-value database.
+ * Keys are given as plain Java objects or wrapped in a {@link KeyValueEntity}; values are returned as
+ * {@link Value}, which converts them to the requested type.
+ * Obtain an instance from {@link BucketManagerFactory} and close it when it is no longer needed.
+ *
+ * <pre>{@code
+ * bucket.put(KeyValueEntity.of("ada", "Ada Lovelace"));
+ * Optional<Value> name = bucket.get("ada");
+ * String text = name.map(v -> v.get(String.class)).orElse("unknown");
+ * bucket.delete("ada");
+ * }</pre>
+ *
+ * @see KeyValueEntity
+ * @see BucketManagerFactory
  */
 public interface BucketManager extends AutoCloseable {
 
@@ -36,7 +48,7 @@ public interface BucketManager extends AutoCloseable {
     String name();
 
     /**
-     * Associates the specified value with the specified key and then storage
+     * Associates the specified value with the specified key and stores it.
      *
      * @param key   the key
      * @param value the value
@@ -83,22 +95,22 @@ public interface BucketManager extends AutoCloseable {
     void put(Iterable<KeyValueEntity> entities, Duration ttl);
 
     /**
-     * Finds the Value from a key
+     * Finds the value associated with a key.
      *
      * @param key the key
      * @param <K> the key type
-     * @return the {@link Optional} when is not found will return a {@link Optional#empty()}
+     * @return the {@link Value}, or {@link Optional#empty()} when the key is not found
      * @throws NullPointerException when the key is null
      */
     <K> Optional<Value> get(K key);
 
     /**
-     * Finds a list of values from keys
+     * Finds the values associated with the given keys.
      *
      * @param keys the keys to be used in this query
      * @param <K>  the key type
-     * @return the list of result
-     * @throws NullPointerException when either the keys or the entities values are null
+     * @return the values found for the keys
+     * @throws NullPointerException when the keys are null
      */
     <K> Iterable<Value> get(Iterable<K> keys);
 
