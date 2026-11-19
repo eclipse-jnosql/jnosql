@@ -15,9 +15,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Defines the structure and behavior of an update query within a database. This interface facilitates
- * updating specified entities based on certain conditions and allows converting the update operation
- * into a corresponding select query to review the affected records.
+ * Describes an update operation: the entity name, the {@link Element} values to set, and an optional condition.
+ * {@link #toSelectQuery()} gives the {@link SelectQuery} that matches the same records.
+ *
+ * <p>Whether an update without a condition is rejected or applies to every record depends on the driver.</p>
+ *
+ * @see Element
+ * @see CriteriaCondition
  */
 public interface UpdateQuery {
 

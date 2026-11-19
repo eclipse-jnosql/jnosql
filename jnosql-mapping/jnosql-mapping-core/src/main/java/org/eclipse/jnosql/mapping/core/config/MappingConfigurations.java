@@ -18,6 +18,17 @@ import java.util.function.Supplier;
 
 /**
  * The properties around Eclipse JNoSQL mapping for define create manager instances.
+ *
+ * <p>The keys are read through MicroProfile Config, for example from {@code microprofile-config.properties}.
+ * A {@code *_PROVIDER} value is the fully qualified class name of the database configuration, and is only
+ * needed when more than one implementation is on the classpath. The {@code *_DATABASE} key names the database
+ * and is required when the corresponding manager is created; a missing value fails with
+ * {@link jakarta.data.exceptions.MappingException}.</p>
+ *
+ * <pre>{@code
+ * jnosql.document.provider=com.example.MyDocumentConfiguration
+ * jnosql.document.database=people
+ * }</pre>
  */
 public enum MappingConfigurations implements Supplier<String> {
     /**

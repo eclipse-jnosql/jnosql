@@ -22,10 +22,26 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * The manager instance bridges between Jakarta NoSQL and the NoSQL vendor, providing operations
- * to interact with a database.
+ * Executes operations on a semi-structured database (document, column, graph, ...), working with
+ * {@link CommunicationEntity} instances, {@link SelectQuery} and {@link DeleteQuery}.
+ * It is the database-independent contract that a driver implements; obtain an instance from a
+ * {@link DatabaseManagerFactory}.
+ *
+ * <p>Operations a database cannot perform throw {@link UnsupportedOperationException}.</p>
+ *
+ * <pre>{@code
+ * CommunicationEntity person = CommunicationEntity.of("person");
+ * person.add("name", "Ada");
+ * manager.insert(person);
+ *
+ * SelectQuery query = SelectQuery.select().from("person").where("name").eq("Ada").build();
+ * Optional<CommunicationEntity> found = manager.singleResult(query);
+ *
+ * manager.delete(DeleteQuery.delete().from("person").where("name").eq("Ada").build());
+ * }</pre>
  *
  * @see CommunicationEntity
+ * @see DatabaseManagerFactory
  */
 public interface DatabaseManager extends AutoCloseable {
 

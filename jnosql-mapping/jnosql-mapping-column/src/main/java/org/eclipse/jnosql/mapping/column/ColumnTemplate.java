@@ -22,16 +22,17 @@ import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
 
 
 /**
- * This interface extends the {@link SemiStructuredTemplate} and represents a template for performing
- * column-based operations in a semistructured database.
- * <p>
- * Implementations of this interface provide methods for CRUD (Create, Read, Update, Delete) operations
- * on column-based data structures within a semistructured database.
- * </p>
- * <p>
- * Users can utilize implementations of this interface to interact with column-based data in a semistructured database,
- * abstracting away the complexities of the underlying database operations and providing a unified API for database access.
- * </p>
+ * {@link SemiStructuredTemplate} specialization for wide-column databases.
+ * Inject it to insert, update, find, query and delete entities mapped with Jakarta NoSQL annotations.
+ * It adds no operations of its own; its contract is inherited from {@link SemiStructuredTemplate}.
+ *
+ * <pre>{@code
+ * @Inject
+ * ColumnTemplate template;
+ *
+ * Person saved = template.insert(person);
+ * long total = template.count(Person.class);
+ * }</pre>
  *
  * @see SemiStructuredTemplate
  */

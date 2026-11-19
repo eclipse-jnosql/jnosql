@@ -19,9 +19,14 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * {@link BucketManager} factory.
- * When the application has finished using the bucket manager factory, and/or at application shutdown,
- * the application should close the column family manager factory.
+ * Factory of {@link BucketManager} instances, created by a {@link KeyValueConfiguration}.
+ * It is a {@link Function} from a bucket name to its {@link BucketManager}, and it also creates the
+ * {@link List}, {@link Set}, {@link Queue} and {@link Map} data structures that some databases provide.
+ * When the application has finished using the factory, and/or at application shutdown, it should close it.
+ *
+ * <pre>{@code
+ * BucketManager bucket = factory.apply("people");
+ * }</pre>
  */
 public interface BucketManagerFactory extends Function<String, BucketManager>, AutoCloseable {
 

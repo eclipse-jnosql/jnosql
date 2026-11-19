@@ -24,27 +24,46 @@ import java.util.stream.Stream;
 
 
 /**
- * Interface representing a template for accessing a semi-structured database.
- * It extends the {@link Template} interface.
- * This interface provides methods for executing queries, counting elements, and preparing statements.
+ * Template for semi-structured databases (document, column and graph).
+ * It extends {@link Template} with {@link SelectQuery} and {@link DeleteQuery}
+ * execution, counting, pagination and text queries through {@link PreparedStatement}.
+ * Inject a model-specific template such as {@code DocumentTemplate} or {@code ColumnTemplate},
+ * or qualify the injection point with {@link org.eclipse.jnosql.mapping.Database}.
+ *
+ * <pre>{@code
+ * @Inject
+ * @Database(DatabaseType.DOCUMENT)
+ * SemiStructuredTemplate template;
+ *
+ * SelectQuery query = SelectQuery.select().from("Person").where("name").eq("Ada").build();
+ * Stream<Person> people = template.select(query);
+ * }</pre>
  */
 public interface SemiStructuredTemplate extends Template {
 
     /**
-     * Returns the number of elements in a specified column family.
+     * Returns the number of elements stored under the given entity name.
      *
-     * @param entity the name of the entity (column family)
+     * <pre>{@code
+     * long people = template.count("Person");
+     * }</pre>
+     *
+     * @param entity the entity (column family, collection) name
      * @return the number of elements
-     * @throws NullPointerException          if the column family name is null
+     * @throws NullPointerException          if the entity name is null
      * @throws UnsupportedOperationException if the database does not support this operation
      */
     long count(String entity);
 
     /**
-     * Returns the number of elements of a specified entity type.
+     * Returns the number of stored entities of the given mapped type.
+     *
+     * <pre>{@code
+     * long people = template.count(Person.class);
+     * }</pre>
      *
      * @param <T>  the entity type
-     * @param type the class representing the entity type (column family)
+     * @param type the mapped entity class
      * @return the number of elements
      * @throws NullPointerException          if the entity type is null
      * @throws UnsupportedOperationException if the database does not support this operation
@@ -114,13 +133,17 @@ public interface SemiStructuredTemplate extends Template {
     <T> Optional<T> singleResult(String query, String entity);
 
     /**
-     * Creates a {@link PreparedStatement} from the specified query.
+     * Creates a {@link PreparedStatement} from a text query. Bind the named parameters, then read the result.
      *
-     * <p>
-     * The query syntax is specific to each provider and may vary between implementations and NoSQL providers.
-     * </p>
+     * <p>The query syntax is specific to each provider and may vary between implementations and NoSQL providers.</p>
      *
-     * @param query the query
+     * <pre>{@code
+     * Stream<Person> adults = template.prepare("FROM Person WHERE age >= :age")
+     *         .bind("age", 18)
+     *         .result();
+     * }</pre>
+     *
+     * @param query the query text
      * @return a {@link PreparedStatement} instance
      * @throws NullPointerException          if the query is null
      * @throws UnsupportedOperationException if the provider does not support query by text
@@ -128,13 +151,18 @@ public interface SemiStructuredTemplate extends Template {
     PreparedStatement prepare(String query);
 
     /**
-     * Creates a {@link PreparedStatement} from the specified query.
+     * Creates a {@link PreparedStatement} from a text query that does not name its entity, using the given
+     * entity name instead.
      *
-     * <p>
-     * The query syntax is specific to each provider and may vary between implementations and NoSQL providers.
-     * </p>
+     * <pre>{@code
+     * long count = template.prepare("SELECT COUNT(1) WHERE age >= :age", "Person")
+     *         .bind("age", 18)
+     *         .count();
+     * }</pre>
      *
-     * @param query  the query
+     * <p>The query syntax is specific to each provider and may vary between implementations and NoSQL providers.</p>
+     *
+     * @param query  the query text
      * @param entity the name of the entity
      * @return a {@link PreparedStatement} instance
      * @throws NullPointerException          if the query or entity is null
@@ -142,62 +170,96 @@ public interface SemiStructuredTemplate extends Template {
      */
     PreparedStatement prepare(String query, String entity);
     /**
-     * Deletes an entity
+     * Deletes the entities that match the query.
      *
-     * @param query query to delete an entity
+     * <pre>{@code
+     * template.delete(DeleteQuery.delete().from("Person").where("name").eq("Ada").build());
+     * }</pre>
+     *
+     * @param query the delete query
      * @throws NullPointerException when query is null
      */
     void delete(DeleteQuery query);
 
     /**
-     * Finds entities from query
+     * Executes the query and converts each result to a mapped entity.
      *
-     * @param query - query to figure out entities
-     * @param <T>   the instance type
-     * @return entities found by query
+     * <pre>{@code
+     * Stream<Person> people = template.select(SelectQuery.select().from("Person").where("name").eq("Ada").build());
+     * }</pre>
+     *
+     * @param query the select query
+     * @param <T>   the entity type
+     * @return the matching entities; an empty stream when nothing matches
      * @throws NullPointerException when query is null
      */
     <T> Stream<T> select(SelectQuery query);
 
     /**
-     * Returns the number of items in the column family that match a specified query.
-     * @param query the query
-     * @return the number of documents from query
-     * @throws NullPointerException when query is null
+     * Returns the number of entities that match the query.
+     *
+     * <pre>{@code
+     * long total = template.count(SelectQuery.select().from("Person").where("age").gte(18).build());
+     * }</pre>
+     *
+     * @param query the select query
+     * @return the number of matching entities
      */
     long count(SelectQuery query);
 
     /**
-     * Returns whether an entity that match a specified query.
-     * @param query the query
-     * @return true if an entity with the given query exists, false otherwise.
-     * @throws NullPointerException when query it null
+     * Checks whether at least one entity matches the query.
+     *
+     * <pre>{@code
+     * boolean taken = template.exists(SelectQuery.select().from("Person").where("name").eq("Ada").build());
+     * }</pre>
+     *
+     * @param query the select query
+     * @return true if an entity matches the query, false otherwise
      */
     boolean exists(SelectQuery query);
 
     /**
-     * Returns a single entity from query
+     * Executes the query expecting at most one entity.
      *
-     * @param query - query to figure out entities
-     * @param <T>   the instance type
-     * @return an entity on {@link Optional} or {@link Optional#empty()} when the result is not found.
-     * @throws NullPointerException     when query is null
+     * <pre>{@code
+     * Optional<Person> ada = template.singleResult(
+     *         SelectQuery.select().from("Person").where("name").eq("Ada").build());
+     * }</pre>
+     *
+     * @param query the select query
+     * @param <T>   the entity type
+     * @return the entity, or {@link Optional#empty()} when nothing matches
+     * @throws NullPointerException                             when query is null
+     * @throws jakarta.data.exceptions.NonUniqueResultException when more than one entity matches
      */
     <T> Optional<T> singleResult(SelectQuery query);
 
     /**
-     * Returns all entities on the database
-     * @param type the entity type filter
-     * @return the {@link Stream}
-     * @param <T> the entity type
+     * Returns all stored entities of the given type.
+     *
+     * <pre>{@code
+     * Stream<Person> everyone = template.findAll(Person.class);
+     * }</pre>
+     *
+     * @param type the entity type
+     * @param <T>  the entity type
+     * @return the entities; an empty stream when there are none
      * @throws NullPointerException when type is null
      */
     <T> Stream<T> findAll(Class<T> type);
 
     /**
-     * delete all entities from the database
-     * @param type the entity type filter
-     * @param <T> the entity type
+     * Deletes all stored entities of the given type. For a subtype in an
+     * {@link jakarta.nosql.Inheritance} hierarchy, only the entities with that subtype's discriminator value
+     * are deleted.
+     *
+     * <pre>{@code
+     * template.deleteAll(Person.class);
+     * }</pre>
+     *
+     * @param type the entity type
+     * @param <T>  the entity type
      * @throws NullPointerException when type is null
      */
     <T> void deleteAll(Class<T> type);
