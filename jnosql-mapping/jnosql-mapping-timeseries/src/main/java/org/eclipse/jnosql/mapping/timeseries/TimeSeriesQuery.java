@@ -56,6 +56,12 @@ public final class TimeSeriesQuery {
         /**
          * Executes the query returning the most recent observations, ordered by the identifier descending.
          *
+         * <pre>{@code
+         * List<SensorReading> newest = template.select(SensorReading.class)
+         *         .where("sensor").eq("sensor-1")
+         *         .latest(5);
+         * }</pre>
+         *
          * @param count the maximum number of observations, must be positive
          * @param <T>   the entity type
          * @return the matching entities, newest first
@@ -67,6 +73,12 @@ public final class TimeSeriesQuery {
 
         /**
          * Executes the query returning the oldest observations, ordered by the identifier ascending.
+         *
+         * <pre>{@code
+         * List<SensorReading> oldest = template.select(SensorReading.class)
+         *         .where("sensor").eq("sensor-1")
+         *         .earliest(5);
+         * }</pre>
          *
          * @param count the maximum number of observations, must be positive
          * @param <T>   the entity type
@@ -88,6 +100,13 @@ public final class TimeSeriesQuery {
         /**
          * Keeps the observations whose identifier is greater than or equal to {@code start} (inclusive).
          *
+         * <pre>{@code
+         * List<SensorReading> readings = template.select(SensorReading.class)
+         *         .since(Instant.parse("2025-01-01T00:00:00Z"))
+         *         .until(Instant.parse("2025-02-01T00:00:00Z"))
+         *         .earliest(100);
+         * }</pre>
+         *
          * @param start the lower boundary
          * @return the next stage
          * @throws NullPointerException     if {@code start} is null
@@ -100,6 +119,7 @@ public final class TimeSeriesQuery {
 
         /**
          * Keeps the observations whose identifier is less than or equal to {@code end} (inclusive).
+         * The argument must have exactly the type of the identifier attribute, for example an {@link java.time.Instant}.
          *
          * @param end the upper boundary
          * @return the next stage
@@ -117,6 +137,12 @@ public final class TimeSeriesQuery {
          * boundaries. It is supported for {@link java.time.Instant}, {@link java.time.OffsetDateTime} and
          * {@link java.time.ZonedDateTime} identifiers (the last two expressed in UTC);
          * local types are rejected because they would require guessing a time zone.
+         *
+         * <pre>{@code
+         * List<SensorReading> lastHour = template.select(SensorReading.class)
+         *         .last(Duration.ofHours(1))
+         *         .latest(100);
+         * }</pre>
          *
          * @param duration the length of the interval, must be positive
          * @return the next stage
