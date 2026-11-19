@@ -20,7 +20,17 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
- * This class is used to pass full generics type information, and avoid problems with type erasure
+ * Carries full generic type information, such as {@code List<String>}, which is otherwise lost to type erasure.
+ * Create an anonymous subclass and pass it to {@link Value#get(TypeSupplier)}; the result is converted by the
+ * {@link TypeReferenceReader} that supports the type, and a type with no reader throws
+ * {@link UnsupportedOperationException}.
+ *
+ * <pre>{@code
+ * List<String> names = Value.of(List.of("Ada", "Grace"))
+ *         .get(new TypeReference<List<String>>() {});
+ * }</pre>
+ *
+ * @param <T> the generic type to be captured
  */
 public abstract class TypeReference<T> implements TypeSupplier<T> {
 
@@ -35,7 +45,7 @@ public abstract class TypeReference<T> implements TypeSupplier<T> {
     }
 
     /**
-     * returns the type
+     * Returns the captured generic type.
      *
      * @return the type
      */
