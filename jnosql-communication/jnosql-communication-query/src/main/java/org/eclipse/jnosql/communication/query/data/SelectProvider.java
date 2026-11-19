@@ -23,6 +23,13 @@ import java.util.function.BiFunction;
  * implementation uses a concurrent map to cache the queries for performance optimization. The queries are parsed using
  * the {@link SelectParser}.
  *
+ * <p>The entity is read from the {@code FROM} clause; when the query has none, the {@code entity} argument is used.</p>
+ *
+ * <pre>{@code
+ * SelectQuery query = SelectProvider.INSTANCE.apply("FROM Person WHERE name = 'Ada'", null);
+ * String entity = query.entity(); // "Person"
+ * }</pre>
+ *
  * @see SelectParser
  */
 public enum SelectProvider implements BiFunction<String, String, SelectQuery> {
