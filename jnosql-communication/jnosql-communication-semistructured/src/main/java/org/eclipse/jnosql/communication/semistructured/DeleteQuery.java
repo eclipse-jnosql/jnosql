@@ -22,9 +22,20 @@ import java.util.stream.Stream;
 
 
 /**
- * A unit that contains the entity and conditions to delete from the database.
- * This instance will be used in:
- * {@link DatabaseManager#delete(DeleteQuery)}
+ * Describes a delete operation: the entity name, an optional condition and, optionally, the columns to remove
+ * instead of the whole record. Build it with {@link #delete(String...)} or {@link #builder(String...)}, and run it with
+ * {@link DatabaseManager#delete(DeleteQuery)}.
+ *
+ * <p>When the condition is absent, a driver may delete every record or reject the query; columns may be ignored
+ * by databases that cannot remove individual fields.</p>
+ *
+ * <pre>{@code
+ * DeleteQuery query = DeleteQuery.delete()
+ *         .from("person")
+ *         .where("city").eq("Lisbon")
+ *         .build();
+ * manager.delete(query);
+ * }</pre>
  */
 public interface DeleteQuery {
 
