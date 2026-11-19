@@ -26,77 +26,94 @@ import java.util.function.Supplier;
 
 
 /**
- * This interface extends the {@link SemiStructuredTemplate} and represents a template for performing
- * document-based operations in a semistructured database.
- * <p>
- * Implementations of this interface provide methods for CRUD (Create, Read, Update, Delete) operations
- * on document-based data structures within a semistructured database.
- * </p>
- * <p>
- * Users can utilize implementations of this interface to interact with document-based data in a semistructured database,
- * abstracting away the complexities of the underlying database operations and providing a unified API for database access.
- * </p>
+ * {@link SemiStructuredTemplate} specialization for graph databases.
+ * Entities are stored as vertices, and relationships between them as {@link Edge}s.
+ *
+ * <pre>{@code
+ * @Inject
+ * GraphTemplate template;
+ *
+ * Person ada = template.insert(new Person());
+ * Person grace = template.insert(new Person());
+ * Edge<Person, Person> knows = template.edge(ada, "knows", grace, Map.of("since", 2020));
+ * }</pre>
  *
  * @see SemiStructuredTemplate
+ * @see Edge
  */
 public interface GraphTemplate extends SemiStructuredTemplate {
 
 
     /**
-     * Creates an edge (relationship) between two entities with additional properties.
+     * Creates and stores an edge (relationship) between two entities.
+     *
+     * <pre>{@code
+     * Edge<Person, Person> knows = template.edge(ada, "knows", grace, Map.of("since", 2020));
+     * Optional<Object> id = knows.id();
+     * }</pre>
      *
      * @param <T>        the source entity type
      * @param <E>        the target entity type
      * @param source     the source entity (starting vertex)
      * @param label      the relationship label
      * @param target     the target entity (ending vertex)
-     * @param properties a map of properties to be associated with the edge
-     * @return the created edge instance with assigned properties
+     * @param properties the properties of the edge; use an empty map for none
+     * @return the stored edge, carrying the identifier assigned by the database
      * @throws NullPointerException if any of the parameters are null
      */
     <T, E> Edge<T, E> edge(T source, String label, E target, Map<String, Object> properties);
 
     /**
-     * Creates an edge (relationship) between two entities with additional properties and a dynamic label.
+     * Creates and stores an edge whose label is computed by the supplier, for example from an enum.
+     *
+     * <pre>{@code
+     * Edge<Person, Person> edge = template.edge(ada, () -> "knows", grace, Map.of());
+     * }</pre>
      *
      * @param <T>        the source entity type
      * @param <E>        the target entity type
      * @param source     the source entity (starting vertex)
-     * @param label      a supplier that dynamically generates the relationship label
+     * @param label      a supplier of the relationship label
      * @param target     the target entity (ending vertex)
-     * @param properties a map of properties to be associated with the edge
-     * @return the created edge instance with assigned properties
+     * @param properties the properties of the edge; use an empty map for none
+     * @return the stored edge, carrying the identifier assigned by the database
      * @throws NullPointerException if any of the parameters are null
      */
     <T, E> Edge<T, E> edge(T source, Supplier<String> label, E target, Map<String, Object> properties);
 
     /**
-     * Saves an edge (relationship) into the graph database.
+     * Stores the given edge, using its source, label, target and properties.
      *
      * @param <T>  the source entity type
      * @param <E>  the target entity type
-     * @param edge the edge entity representing the relationship
-     * @return the saved edge instance with assigned properties or identifiers
+     * @param edge the edge representing the relationship
+     * @return the stored edge, carrying the identifier assigned by the database
      * @throws NullPointerException if the edge is null
      */
     <T, E> Edge<T, E> edge(Edge<T, E> edge);
 
     /**
-     * Deletes a specified edge from the graph.
+     * Deletes the edge, identified by {@link Edge#id()}. The vertices are not removed.
      *
-     * <p>This method removes the given edge, including its properties and relationship, from the graph database.
-     * If the edge does not exist, the operation is safely ignored.</p>
+     * <pre>{@code
+     * template.delete(knows);
+     * }</pre>
      *
      * @param <T>   the source entity type
      * @param <E>   the target entity type
-     * @param edge  the edge to be deleted
-     * @throws NullPointerException if the edge is null
+     * @param edge  the edge to be deleted, as returned by a store or find operation
+     * @throws NullPointerException     if the edge is null
+     * @throws IllegalArgumentException if the edge has no identifier
      */
     <T, E> void delete(Edge<T, E> edge);
 
 
     /**
-     * Deletes an edge (relationship) from the graph database by its unique identifier.
+     * Deletes an edge (relationship) by its unique identifier.
+     *
+     * <pre>{@code
+     * template.deleteEdge(edgeId);
+     * }</pre>
      *
      * @param <K> the type of the edge identifier
      * @param id  the unique identifier of the edge to delete
@@ -105,13 +122,17 @@ public interface GraphTemplate extends SemiStructuredTemplate {
     <K> void deleteEdge(K id);
 
     /**
-     * Finds an edge (relationship) in the graph database by its unique identifier.
+     * Finds an edge (relationship) by its unique identifier.
+     *
+     * <pre>{@code
+     * Optional<Edge<Person, Person>> edge = template.findEdgeById(edgeId);
+     * }</pre>
      *
      * @param <K> the type of the edge identifier
      * @param <T> the source entity type
      * @param <E> the target entity type
      * @param id  the unique identifier of the edge
-     * @return an {@link Optional} containing the edge if found, otherwise an empty {@link Optional}
+     * @return the edge, or {@link Optional#empty()} when it is not found
      * @throws NullPointerException if the ID is null
      */
     <K, T, E> Optional<Edge<T, E>> findEdgeById(K id);
