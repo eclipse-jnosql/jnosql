@@ -27,6 +27,12 @@ import java.lang.annotation.Target;
 /**
  * The database qualifier used on Jakarta NoSQL Mapping such as defines which interpreter will be used on {@link Template}
  * with {@link Database}
+ *
+ * <pre>{@code
+ * @Inject
+ * @Database(DatabaseType.DOCUMENT)
+ * Template template;
+ * }</pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
@@ -42,7 +48,8 @@ public @interface Database {
     DatabaseType value();
 
     /**
-     * Defines the database provider.
+     * Defines the database provider, used to select one of several databases of the same type.
+     * The default empty value selects the default provider.
      *
      * @return the provider
      */
