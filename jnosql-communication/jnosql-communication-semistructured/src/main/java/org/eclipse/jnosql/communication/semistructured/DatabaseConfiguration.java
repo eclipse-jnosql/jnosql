@@ -20,19 +20,20 @@ import java.util.stream.Stream;
 
 
 /**
- * This interface represents a function that reads from {@link Settings} and then creates a manager factory instance.
- * It should throw a {@link NullPointerException} when the {@link Settings} parameter is null.
+ * Entry point of a semi-structured database driver: reads {@link Settings} and creates a
+ * {@link DatabaseManagerFactory}. It should throw a {@link NullPointerException} when the {@link Settings}
+ * parameter is null.
  *
- * <p>This interface extends {@link java.util.function.Function}, providing a way to create database manager factory instances
- * based on settings. Implementations of this interface are expected to provide the necessary logic to read settings and
- * instantiate appropriate database manager factories.</p>
+ * <p>Drivers are discovered through the Java {@link ServiceLoader}; use {@link #getConfiguration()} for the first
+ * one found or {@link #getConfiguration(Class)} for a specific driver.</p>
  *
- * <p>Two static factory methods are provided for obtaining instances of {@link DatabaseConfiguration}: {@link #getConfiguration()}
- * and {@link #getConfiguration(Class)}. These methods utilize Java's {@link ServiceLoader} mechanism to discover available
- * implementations of {@link DatabaseConfiguration}.</p>
- *
- * <p>Implementations of this interface should be aware of the underlying provider implementation they represent,
- * and ensure that the correct configuration is returned based on the provided type.</p>
+ * <pre>{@code
+ * Settings settings = Settings.builder()
+ *         .put(Configurations.HOST, "localhost:27017")
+ *         .build();
+ * DatabaseConfiguration configuration = DatabaseConfiguration.getConfiguration();
+ * DatabaseManagerFactory factory = configuration.apply(settings);
+ * }</pre>
  *
  * @see DatabaseManagerFactory
  * @see DatabaseManager
@@ -42,8 +43,7 @@ public interface DatabaseConfiguration extends Function<Settings, DatabaseManage
     /**
      * Creates and returns a {@link DatabaseConfiguration} instance using Java's {@link ServiceLoader} mechanism.
      *
-     * <p>This method discovers and loads an implementation of {@link DatabaseConfiguration} using the {@link ServiceLoader}.
-     * It returns the first implementation found. If no implementation is found, it throws a {@link CommunicationException}.</p>
+     * <p>It returns the first implementation found.</p>
      *
      * @param <R> the {@link DatabaseManagerFactory} type
      * @param <T> the configuration type
@@ -60,9 +60,7 @@ public interface DatabaseConfiguration extends Function<Settings, DatabaseManage
      * Creates and returns a {@link DatabaseConfiguration} instance using Java's {@link ServiceLoader} mechanism,
      * filtered by a particular provider implementation.
      *
-     * <p>This method discovers and loads an implementation of {@link DatabaseConfiguration} using the {@link ServiceLoader},
-     * filtering by the provided type. It returns the first implementation found matching the specified type.
-     * If no implementation is found, it throws a {@link CommunicationException}.</p>
+     * <p>It returns the first implementation that is an instance of the given type.</p>
      *
      * @param <R> the {@link DatabaseManagerFactory} type
      * @param <T> the configuration type
