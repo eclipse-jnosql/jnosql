@@ -24,7 +24,15 @@ import java.util.Optional;
  * instances. It manages classes annotated with
  * {@link jakarta.nosql.Entity} and offers lookup
  * operations by class, name, simple name, or discriminator hierarchy.
+ * Inject it with CDI; the metadata is loaded once and cached.
  *
+ * <pre>{@code
+ * @Inject
+ * EntitiesMetadata entities;
+ *
+ * EntityMetadata metadata = entities.get(Person.class);
+ * Optional<EntityMetadata> byName = entities.findBySimpleName("Person");
+ * }</pre>
  */
 public interface EntitiesMetadata {
 

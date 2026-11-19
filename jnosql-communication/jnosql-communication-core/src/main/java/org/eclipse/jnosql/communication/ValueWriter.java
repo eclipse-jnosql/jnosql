@@ -19,21 +19,29 @@ package org.eclipse.jnosql.communication;
 import java.util.function.Predicate;
 
 /**
- * This interface represents the writer on the {@link Value} instance.
- * Before sending the information to the NoSQL database, it will load the implementations from SPI,
- * Java Service Provider, and write to the proper format.
- * The {@link Predicate} verifies if the writer has the support of instance from this class.
+ * Converts a Java value to the representation that is sent to the database.
  *
- * @param <T> current type
- * @param <S> the converted type
+ * <p>When {@link ValueUtil} prepares a {@link Value} for a database, the first writer found through the Java
+ * {@link java.util.ServiceLoader} whose {@link java.util.function.Predicate#test(Object) test} accepts the value's class converts it. The built-in
+ * writers convert an {@link Enum} to its {@link Enum#name()}, a {@link java.time.temporal.Temporal} to its
+ * {@code toString()} text, and an {@link java.util.Optional} to its content (or {@code null} when empty).
+ * A value with no matching writer, such as a {@link java.util.UUID}, is passed unchanged.</p>
+ *
+ * <p>Implement this interface to change how an additional Java type is stored, for example in a database driver.
+ * {@link java.util.function.Predicate#test(Object) test} must return {@code true} only for the types the writer can convert.</p>
+ *
+ * @param <T> the Java type to be converted
+ * @param <S> the converted type sent to the database
+ * @see Value
+ * @see ValueReader
  */
 public interface ValueWriter<T, S> extends Predicate<Class<?>> {
 
     /**
-     * Converts a specific structure to a new one.
+     * Converts the instance to the database representation.
      *
-     * @param object the instance to be converted
-     * @return a new instance with the new class
+     * @param object the instance to be converted; not {@code null}
+     * @return the converted instance
      */
     S write(T object);
 

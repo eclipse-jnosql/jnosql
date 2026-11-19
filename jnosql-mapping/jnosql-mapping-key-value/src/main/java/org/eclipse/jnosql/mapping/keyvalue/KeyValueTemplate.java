@@ -34,12 +34,32 @@ import java.util.stream.StreamSupport;
  * <b>the query syntax belongs to each provider, thus, it is not within Jakarta NoSQL's scope to define it.
  * Accordingly, it might vary between implementations and NoSQL providers.</b>
  * </p>
+ *
+ * <p>
+ * The inherited {@code insert}, {@code update}, {@code find} and {@code delete} operations are mapped onto the
+ * key-based methods of this interface. The fluent {@code update(Class)} API and {@code typedQuery} are not
+ * supported and throw {@link UnsupportedOperationException}.
+ * </p>
+ *
+ * <pre>{@code
+ * @Inject
+ * KeyValueTemplate template;
+ *
+ * template.put(session, Duration.ofMinutes(10));
+ * Optional<Session> found = template.get("session-id", Session.class);
+ * template.deleteByKey("session-id");
+ * }</pre>
  */
 public interface KeyValueTemplate extends Template {
     /**
-     * Saves an entity.
+     * Saves an entity under the key of its {@link jakarta.nosql.Id} attribute, replacing any existing value.
+     * {@code insert(T)} and {@code update(T)} inherited from {@link Template} behave the same way.
      *
-     * @param entity the entity to be inserted
+     * <pre>{@code
+     * Session saved = template.put(new Session("session-id", "ada"));
+     * }</pre>
+     *
+     * @param entity the entity to be saved
      * @param <T>    the entity type
      * @return the saved entity
      * @throws NullPointerException when the entity is null
@@ -47,23 +67,31 @@ public interface KeyValueTemplate extends Template {
     <T> T put(T entity);
 
     /**
-     * Saves an entity with a specified time to live (TTL).
+     * Saves an entity that expires after the given time to live (TTL).
      *
-     * @param entity the entity to be inserted
+     * <pre>{@code
+     * template.put(new Session("session-id", "ada"), Duration.ofMinutes(10));
+     * }</pre>
+     *
+     * @param entity the entity to be saved
      * @param ttl    the time to live
      * @param <T>    the entity type
      * @return the saved entity
-     * @throws NullPointerException          when the entity is null
-     * @throws UnsupportedOperationException when expired time is not supported
+     * @throws NullPointerException          when the entity or ttl is null
+     * @throws UnsupportedOperationException when expired time is not supported by the provider
      */
     <T> T put(T entity, Duration ttl);
 
     /**
-     * Saves an {@link Iterable} of entities.
+     * Saves each entity of the {@link Iterable} with {@link #put(Object)}.
      *
-     * @param entities the entities to be inserted
+     * <pre>{@code
+     * Iterable<Session> saved = template.put(List.of(first, second));
+     * }</pre>
+     *
+     * @param entities the entities to be saved
      * @param <T>      the entity type
-     * @return the saved entities
+     * @return the saved entities, in iteration order
      * @throws NullPointerException when the iterable is null
      */
     default <T> Iterable<T> put(Iterable<T> entities) {
@@ -72,14 +100,18 @@ public interface KeyValueTemplate extends Template {
     }
 
     /**
-     * Saves an {@link Iterable} of entities with a specified time to live (TTL).
+     * Saves each entity of the {@link Iterable} with {@link #put(Object, Duration)}, all with the same TTL.
      *
-     * @param entities the entities to be inserted
+     * <pre>{@code
+     * template.put(List.of(first, second), Duration.ofHours(1));
+     * }</pre>
+     *
+     * @param entities the entities to be saved
      * @param ttl      the time to live
      * @param <T>      the entity type
-     * @return the saved entities
+     * @return the saved entities, in iteration order
      * @throws NullPointerException          when the iterable or ttl is null
-     * @throws UnsupportedOperationException when expired time is not supported
+     * @throws UnsupportedOperationException when expired time is not supported by the provider
      */
     default <T> Iterable<T> put(Iterable<T> entities, Duration ttl) {
         Objects.requireNonNull(entities, "entities is required");
@@ -88,44 +120,61 @@ public interface KeyValueTemplate extends Template {
     }
 
     /**
-     * Finds the value associated with a key.
+     * Finds the entity stored under a key.
+     * {@code find(Class, Object)} inherited from {@link Template} behaves the same way.
+     *
+     * <pre>{@code
+     * Optional<Session> session = template.get("session-id", Session.class);
+     * }</pre>
      *
      * @param key  the key
      * @param <K>  the key type
      * @param <T>  the entity type
      * @param type the entity class to convert the result
-     * @return an {@link Optional} containing the value, or {@link Optional#empty()} if not found
-     * @throws NullPointerException when the key is null
+     * @return an {@link Optional} containing the entity, or {@link Optional#empty()} if the key is not found
+     * @throws NullPointerException when the key or type is null
      */
     <K, T> Optional<T> get(K key, Class<T> type);
 
     /**
-     * Finds a list of values associated with the specified keys.
+     * Finds the entities stored under the given keys. Keys with no stored value are skipped.
      *
-     * @param type the entity class
+     * <pre>{@code
+     * Iterable<Session> sessions = template.get(List.of("a", "b"), Session.class);
+     * }</pre>
+     *
      * @param keys the keys to be used in this query
+     * @param type the entity class
      * @param <K>  the key type
      * @param <T>  the entity type
-     * @return a list of results
-     * @throws NullPointerException when either the keys or the entity values are null
+     * @return the entities found, in key order; empty when none is found
+     * @throws NullPointerException when the keys or type is null
      */
     <K, T> Iterable<T> get(Iterable<K> keys, Class<T> type);
 
     /**
-     * Removes an entity associated with the specified key.
+     * Removes the entity stored under the key.
      *
-     * @param key the key to be used
+     * <pre>{@code
+     * template.deleteByKey("session-id");
+     * }</pre>
+     *
+     * @param key the key to be removed
      * @param <K> the key type
      * @throws NullPointerException when the key is null
      */
     <K> void deleteByKey(K key);
 
     /**
-     * Removes entities associated with the specified keys.
+     * Removes the entities stored under the keys.
      *
-     * @param keys the keys to be used
+     * <pre>{@code
+     * template.deleteByKeys(List.of("a", "b"));
+     * }</pre>
+     *
+     * @param keys the keys to be removed
      * @param <K>  the key type
-     * @throws NullPointerException when the key is null
+     * @throws NullPointerException when the keys are null
      */
     <K> void deleteByKeys(Iterable<K> keys);
 

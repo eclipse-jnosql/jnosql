@@ -21,6 +21,14 @@ import java.util.stream.Stream;
 
 /**
  * Represents a precompiled Query statement.
+ * Obtain it from a template, bind the named parameters, then read the result. The query syntax belongs to the
+ * provider.
+ *
+ * <pre>{@code
+ * Optional<Person> person = template.prepare("FROM Person WHERE name = :name")
+ *         .bind("name", "Ada")
+ *         .singleResult();
+ * }</pre>
  */
 public interface PreparedStatement {
 
@@ -47,6 +55,7 @@ public interface PreparedStatement {
      *
      * @param <T> the type of the result
      * @return the single result wrapped in an {@link Optional}; empty if no result is found
+     * @throws jakarta.data.exceptions.NonUniqueResultException if the query returns more than one entity
      */
     <T> Optional<T> singleResult();
 

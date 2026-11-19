@@ -23,17 +23,29 @@ import java.util.Optional;
 /**
  * This instance is the meta-info of a loaded class that has the  {@link jakarta.nosql.Entity} annotation.
  * It represents the information of an entity on Jakarta NoSQL as metadata.
+ * Obtain it from {@link EntitiesMetadata}; do not implement it in application code.
+ *
+ * <pre>{@code
+ * EntityMetadata metadata = entities.get(Person.class);
+ * String entityName = metadata.name();
+ * Optional<FieldMetadata> id = metadata.id();
+ * String nativeName = metadata.columnField("salary");
+ * }</pre>
  */
 public interface EntityMetadata {
 
 
     /**
-     * @return the {@link jakarta.nosql.Entity#value()} name
+     * Returns the entity name, defined by {@link jakarta.nosql.Entity#value()}.
+     *
+     * @return the entity name
      */
     String name();
 
     /**
-     * @return the data structure type {@link jakarta.nosql.Entity#name()}
+     * Returns the name of the data structure the entity is mapped to.
+     *
+     * @return the mapping name
      */
     String mappingName();
 
@@ -50,11 +62,15 @@ public interface EntityMetadata {
     String className();
 
     /**
+     * Returns the names of the mapped fields.
+     *
      * @return the fields name
      */
     List<String> fieldsName();
 
     /**
+     * Returns the entity class.
+     *
      * @return a {@code Class} object identifying the declared
      * type of the entity represented by this object
      */
@@ -77,11 +93,15 @@ public interface EntityMetadata {
     boolean hasEntityName();
 
     /**
+     * Indicates whether the entity class is annotated with {@link jakarta.nosql.Inheritance}.
+     *
      * @return true if the entity class has the {@link jakarta.nosql.Inheritance} annotation
      */
     boolean isInheritance();
 
     /**
+     * Returns the mapped fields of this entity.
+     *
      * @return The fields from this class
      */
     List<FieldMetadata> fields();
@@ -104,10 +124,12 @@ public interface EntityMetadata {
 
 
     /**
-     * Gets the native column name from the Java field name
+     * Gets the native column name from the Java field name.
+     * A dotted path such as {@code job.city} resolves to the native name of the embedded attribute. When the
+     * name refers to an embeddable or embedded attribute itself, the result is its native names joined by a comma.
      *
      * @param javaField the java field
-     * @return the column name or column
+     * @return the native column name, or {@code javaField} unchanged when it does not match a mapped field
      * @throws NullPointerException when javaField is null
      */
     String columnField(String javaField);

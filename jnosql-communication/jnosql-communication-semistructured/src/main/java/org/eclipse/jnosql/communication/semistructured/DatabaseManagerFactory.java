@@ -13,19 +13,20 @@ package org.eclipse.jnosql.communication.semistructured;
 import java.util.function.Function;
 
 /**
- * This interface represents a factory for creating database manager instances based on a database name.
- * It should throw a {@link NullPointerException} when the {@link String} parameter is null.
+ * Creates {@link DatabaseManager} instances from a database name. It is created by a
+ * {@link DatabaseConfiguration} and should throw a {@link NullPointerException} when the database name is null.
  *
- * <p>The {@link DatabaseManagerFactory} extends {@link java.util.function.Function}, indicating that it can be
- * used as a function to create database manager instances from database names.</p>
+ * <p>The factory may hold resources, such as connections, so call {@link #close()} when the application no longer
+ * needs it.</p>
  *
- * <p>Implementations of this interface are expected to provide the necessary logic to instantiate appropriate
- * {@link DatabaseManager} instances based on the provided database name.</p>
+ * <pre>{@code
+ * try (DatabaseManagerFactory factory = configuration.apply(settings);
+ *      DatabaseManager manager = factory.apply("school")) {
+ *     manager.count("person");
+ * }
+ * }</pre>
  *
- * <p>Additionally, this interface extends {@link AutoCloseable}, indicating that implementations may manage
- * resources that require cleanup. The {@link #close()} method should be called to release any resources
- * held by the factory.</p>
- *
+ * @see DatabaseConfiguration
  * @see DatabaseManager
  */
 public interface DatabaseManagerFactory extends Function<String, DatabaseManager>, AutoCloseable {
