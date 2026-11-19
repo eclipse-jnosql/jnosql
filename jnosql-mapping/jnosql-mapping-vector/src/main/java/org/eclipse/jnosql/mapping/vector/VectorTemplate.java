@@ -76,9 +76,9 @@ import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
  * <p>
  * The default template is available through CDI with {@code @Database(DatabaseType.VECTOR)}.
  * Applications can also use {@link VectorTemplateProducer} with a programmatically created manager.
-     * The default implementation reuses semi-structured persistence and delegates vector search
-     * operations to the configured {@link VectorManager}. Unsupported representations or search
-     * capabilities may result in {@link UnsupportedOperationException} from the provider.
+ * The default implementation reuses semi-structured persistence and delegates vector search
+ * operations to the configured {@link VectorManager}. Unsupported representations or search
+ * capabilities may result in {@link UnsupportedOperationException} from the provider.
  * </p>
  *
  * @see Vector
