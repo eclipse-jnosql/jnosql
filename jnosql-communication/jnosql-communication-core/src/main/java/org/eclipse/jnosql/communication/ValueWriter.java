@@ -22,13 +22,13 @@ import java.util.function.Predicate;
  * Converts a Java value to the representation that is sent to the database.
  *
  * <p>When {@link ValueUtil} prepares a {@link Value} for a database, the first writer found through the Java
- * {@link java.util.ServiceLoader} whose {@link #test(Class)} accepts the value's class converts it. The built-in
+ * {@link java.util.ServiceLoader} whose {@link java.util.function.Predicate#test(Object) test} accepts the value's class converts it. The built-in
  * writers convert an {@link Enum} to its {@link Enum#name()}, a {@link java.time.temporal.Temporal} to its
  * {@code toString()} text, and an {@link java.util.Optional} to its content (or {@code null} when empty).
  * A value with no matching writer, such as a {@link java.util.UUID}, is passed unchanged.</p>
  *
  * <p>Implement this interface to change how an additional Java type is stored, for example in a database driver.
- * {@link #test(Class)} must return {@code true} only for the types the writer can convert.</p>
+ * {@link java.util.function.Predicate#test(Object) test} must return {@code true} only for the types the writer can convert.</p>
  *
  * @param <T> the Java type to be converted
  * @param <S> the converted type sent to the database
