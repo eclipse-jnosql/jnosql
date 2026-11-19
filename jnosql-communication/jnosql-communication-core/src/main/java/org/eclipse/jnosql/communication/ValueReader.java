@@ -24,7 +24,7 @@ import java.util.function.Predicate;
  *
  * <p>{@link Value#get(Class)} delegates to the readers found through the Java {@link java.util.ServiceLoader}
  * (see {@code module-info} {@code provides} or {@code META-INF/services}). The first reader whose
- * {@link #test(Class)} accepts the requested type performs the conversion. A value that is already an instance of
+ * {@link java.util.function.Predicate#test(Object) test} accepts the requested type performs the conversion. A value that is already an instance of
  * the requested type is returned as is, without calling any reader. If no reader supports the type,
  * {@link Value#get(Class)} throws {@link UnsupportedOperationException}.</p>
  *
@@ -35,7 +35,7 @@ import java.util.function.Predicate;
  * }</pre>
  *
  * <p>Implement this interface to support an additional target type, for example in a database driver.
- * {@link #test(Class)} must return {@code true} only for the types the reader can produce.</p>
+ * {@link java.util.function.Predicate#test(Object) test} must return {@code true} only for the types the reader can produce.</p>
  *
  * @see Value
  * @see Value#get(Class)
@@ -49,7 +49,7 @@ public interface ValueReader extends Predicate<Class<?>> {
      * <p>How a value that cannot be converted is handled is defined by each implementation. For example,
      * the UUID reader throws {@link CommunicationException} for malformed text.</p>
      *
-     * @param type  the target class; a type accepted by {@link #test(Class)}
+     * @param type  the target class; a type accepted by {@link java.util.function.Predicate#test(Object) test}
      * @param value the instance to be converted
      * @param <T>   the target type
      * @return the converted instance
