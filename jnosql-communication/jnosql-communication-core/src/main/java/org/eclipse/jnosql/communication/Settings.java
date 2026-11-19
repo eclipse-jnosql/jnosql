@@ -27,7 +27,16 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * It represents a configuration in a NoSQL database, such as user, password, credential, and so on.
- * It is an immutable class.
+ * It is an immutable class; create it with {@link #builder()} or {@link #of(Map)}, using the keys of
+ * {@link Configurations} or driver-specific keys.
+ *
+ * <pre>{@code
+ * Settings settings = Settings.builder()
+ *         .put(Configurations.HOST, "localhost:27017")
+ *         .put(Configurations.USER, "admin")
+ *         .build();
+ * Optional<String> host = settings.get(Configurations.HOST, String.class);
+ * }</pre>
  * <p>
  * It is a temporary solution, and as soon as the Jakarta Configuration has been created,
  * this interface will be deprecated and removed.
