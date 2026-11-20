@@ -18,6 +18,8 @@ import org.eclipse.jnosql.communication.Settings;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -27,6 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
@@ -100,13 +103,22 @@ class ThreadPoolAsyncExecutorTest {
             }
         }
 
-        @Test
+        @ParameterizedTest
+        @ValueSource(strings = {"zero", "0", "-1", ""})
         @DisplayName("Should reject an invalid pool size")
-        void shouldRejectInvalidSize() {
-            var settings = Settings.of(Map.of("jnosql.repository.async.pool-size", "zero"));
+        void shouldRejectInvalidSize(String value) {
+            var settings = Settings.of(Map.of("jnosql.repository.async.pool-size", value));
 
             assertThatThrownBy(() -> ThreadPoolAsyncExecutor.owning(settings))
                     .isInstanceOf(IllegalStateException.class).hasMessageContaining("positive integer");
+        }
+
+        @Test
+        @DisplayName("Should default the pool size to the available processors")
+        void shouldDefaultSize() {
+            try (var async = ThreadPoolAsyncExecutor.owning(Settings.of(Map.of()))) {
+                assertSoftly(softly -> softly.assertThat(async.execute(() -> 1).join()).isEqualTo(1));
+            }
         }
     }
 
@@ -122,6 +134,30 @@ class ThreadPoolAsyncExecutorTest {
             new ThreadPoolAsyncExecutor(pool).close();
 
             assertSoftly(softly -> softly.assertThat(pool.isShutdown()).isTrue());
+        }
+
+        @Test
+        @DisplayName("Should ignore close when the executor is not a service")
+        void shouldIgnoreCloseForPlainExecutor() {
+            var ran = new AtomicInteger();
+            var async = new ThreadPoolAsyncExecutor(Runnable::run);
+
+            async.close();
+            async.execute(ran::incrementAndGet);
+
+            assertSoftly(softly -> softly.assertThat(ran).hasValue(1));
+        }
+
+        @Test
+        @DisplayName("Should require an executor and an operation")
+        void shouldRequireArguments() {
+            var async = new ThreadPoolAsyncExecutor(Runnable::run);
+
+            assertSoftly(softly -> {
+                softly.assertThatThrownBy(() -> new ThreadPoolAsyncExecutor(null))
+                        .isInstanceOf(NullPointerException.class);
+                softly.assertThatThrownBy(() -> async.execute(null)).isInstanceOf(NullPointerException.class);
+            });
         }
     }
 
