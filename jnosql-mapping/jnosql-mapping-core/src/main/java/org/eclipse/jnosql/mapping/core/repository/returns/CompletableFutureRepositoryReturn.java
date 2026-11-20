@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.core.repository.returns;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 /**
  * Converts repository results to {@link CompletableFuture} return values.
@@ -31,23 +32,24 @@ import java.util.concurrent.CompletableFuture;
  */
 public class CompletableFutureRepositoryReturn extends AbstractRepositoryReturn {
 
-    private final AsyncExecutorProvider asyncExecutor;
+    private final Supplier<AsyncExecutorProvider> asyncExecutor;
 
     /**
-     * Creates a handler that uses the shared {@link RepositoryAsyncExecutor}.
+     * Creates a handler that uses the {@link RepositoryAsyncExecutor} of the current application class loader.
      */
     public CompletableFutureRepositoryReturn() {
-        this(AsyncExecutorProvider.shared());
+        super(CompletableFuture.class);
+        this.asyncExecutor = AsyncExecutorProvider::shared;
     }
 
     CompletableFutureRepositoryReturn(AsyncExecutorProvider asyncExecutor) {
         super(CompletableFuture.class);
-        this.asyncExecutor = asyncExecutor;
+        this.asyncExecutor = () -> asyncExecutor;
     }
 
     @Override
     public <T> Object convert(DynamicReturn<T> dynamicReturn) {
-        return asyncExecutor.execute(dynamicReturn);
+        return asyncExecutor.get().execute(dynamicReturn);
     }
 
     @Override
