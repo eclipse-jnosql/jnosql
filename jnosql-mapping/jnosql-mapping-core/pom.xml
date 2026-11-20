@@ -33,6 +33,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>jakarta.enterprise.concurrent</groupId>
+            <artifactId>jakarta.enterprise.concurrent-api</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.jnosql.mapping</groupId>
             <artifactId>jnosql-mapping-api-core</artifactId>
             <version>${project.version}</version>
