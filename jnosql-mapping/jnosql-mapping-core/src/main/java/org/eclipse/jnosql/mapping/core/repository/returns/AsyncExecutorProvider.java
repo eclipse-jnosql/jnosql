@@ -85,11 +85,11 @@ final class AsyncExecutorProvider implements AutoCloseable {
      * @throws IllegalStateException when the nested type is unknown or is itself asynchronous
      */
     CompletableFuture<Object> execute(DynamicReturn<?> dynamicReturn) {
-        dynamicReturn.asyncResultType().filter(CompletionStage.class::isAssignableFrom).ifPresent(type -> {
+        var synchronous = dynamicReturn.unwrap();
+        synchronous.returnDescriptor().filter(type -> type.isA(CompletionStage.class)).ifPresent(type -> {
             throw new IllegalStateException("Nested asynchronous return types are not supported at: "
                     + dynamicReturn.methodName());
         });
-        var synchronous = dynamicReturn.unwrapAsync();
         try {
             var stage = get().<Object>execute(() -> DynamicReturnConverter.INSTANCE.convert(synchronous));
             return toFuture(stage);
