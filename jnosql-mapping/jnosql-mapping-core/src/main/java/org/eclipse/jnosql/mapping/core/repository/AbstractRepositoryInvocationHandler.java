@@ -283,6 +283,15 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         return repositoryMethodType;
     }
 
+    private void checkAsyncSupport(Method method, RepositoryMethodType type) {
+        var returnType = method.getReturnType();
+        boolean async = CompletionStage.class.equals(returnType) || CompletableFuture.class.equals(returnType);
+        if (async && !RepositoryMethodType.DEFAULT_METHOD.equals(type) && !ASYNC_SUPPORTED_TYPES.contains(type)) {
+            throw new UnsupportedOperationException("Asynchronous return types are supported only by find and select"
+                    + " query methods, but the " + type + " method " + method + " returns " + returnType.getSimpleName());
+        }
+    }
+
     /**
      * Resolves the method descriptor when the method type cannot be determined
      * from repository metadata.
@@ -297,15 +306,6 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
      * @return the resolved descriptor, or {@code null} if the method type
      *         cannot be determined
      */
-    private void checkAsyncSupport(Method method, RepositoryMethodType type) {
-        var returnType = method.getReturnType();
-        boolean async = CompletionStage.class.equals(returnType) || CompletableFuture.class.equals(returnType);
-        if (async && !ASYNC_SUPPORTED_TYPES.contains(type)) {
-            throw new UnsupportedOperationException("Asynchronous return types are supported only by find and select"
-                    + " query methods, but the " + type + " method " + method + " returns " + returnType.getSimpleName());
-        }
-    }
-
     protected RepositoryMethodDescriptor resolveUnknownMethodType(Method method) {
         if (Object.class.equals(method.getDeclaringClass())) {
             return new RepositoryMethodDescriptor(RepositoryMethodType.OBJECT_METHOD, null);
