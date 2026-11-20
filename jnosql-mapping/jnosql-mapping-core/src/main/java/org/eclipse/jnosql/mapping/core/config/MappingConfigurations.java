@@ -88,7 +88,21 @@ public enum MappingConfigurations implements Supplier<String> {
     /**
      * Activate the automatic transaction at Graph database. By default it is true.
      */
-    GRAPH_TRANSACTION_AUTOMATIC("jnosql.graph.transaction.automatic");
+    GRAPH_TRANSACTION_AUTOMATIC("jnosql.graph.transaction.automatic"),
+    /**
+     * Selects the executor that runs asynchronous repository methods, those declared with
+     * {@link java.util.concurrent.CompletionStage} or {@link java.util.concurrent.CompletableFuture}.
+     * The default is {@code auto}: a Jakarta Concurrency {@code ManagedExecutorService} is used when available,
+     * otherwise a JNoSQL-owned bounded thread pool. Any other value is the {@code @Named} CDI bean name or the
+     * JNDI name (for example {@code java:comp/DefaultManagedExecutorService}) of an
+     * {@link java.util.concurrent.Executor}; an unresolvable value fails instead of falling back.
+     */
+    REPOSITORY_ASYNC_EXECUTOR("jnosql.repository.async.executor"),
+    /**
+     * Defines the thread count of the JNoSQL-owned executor used when no managed executor is selected.
+     * It is ignored otherwise. The default is twice the number of available processors.
+     */
+    REPOSITORY_ASYNC_POOL_SIZE("jnosql.repository.async.pool-size");
 
 
     private final String value;
