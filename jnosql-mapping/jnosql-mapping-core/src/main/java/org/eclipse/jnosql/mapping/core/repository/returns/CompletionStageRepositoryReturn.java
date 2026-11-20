@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.core.repository.returns;
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 
 import java.util.concurrent.CompletionStage;
+import java.util.function.Supplier;
 
 /**
  * Converts repository results to {@link CompletionStage} return values.
@@ -39,23 +40,24 @@ import java.util.concurrent.CompletionStage;
  */
 public class CompletionStageRepositoryReturn extends AbstractRepositoryReturn {
 
-    private final AsyncExecutorProvider asyncExecutor;
+    private final Supplier<AsyncExecutorProvider> asyncExecutor;
 
     /**
-     * Creates a handler that uses the shared {@link RepositoryAsyncExecutor}.
+     * Creates a handler that uses the {@link RepositoryAsyncExecutor} of the current application class loader.
      */
     public CompletionStageRepositoryReturn() {
-        this(AsyncExecutorProvider.shared());
+        super(CompletionStage.class);
+        this.asyncExecutor = AsyncExecutorProvider::shared;
     }
 
     CompletionStageRepositoryReturn(AsyncExecutorProvider asyncExecutor) {
         super(CompletionStage.class);
-        this.asyncExecutor = asyncExecutor;
+        this.asyncExecutor = () -> asyncExecutor;
     }
 
     @Override
     public <T> Object convert(DynamicReturn<T> dynamicReturn) {
-        return asyncExecutor.execute(dynamicReturn).minimalCompletionStage();
+        return asyncExecutor.get().execute(dynamicReturn).minimalCompletionStage();
     }
 
     @Override
