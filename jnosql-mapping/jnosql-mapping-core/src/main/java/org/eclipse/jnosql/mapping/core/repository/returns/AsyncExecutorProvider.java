@@ -37,11 +37,6 @@ import java.util.function.Supplier;
  */
 final class AsyncExecutorProvider implements AutoCloseable {
 
-    private static final class SharedHolder {
-        private static final AsyncExecutorProvider INSTANCE = new AsyncExecutorProvider(
-                AsyncExecutorProvider::loadProviders, () -> ThreadPoolAsyncExecutor.owning(MicroProfileSettings.INSTANCE));
-    }
-
     private final Supplier<List<RepositoryAsyncExecutor>> providers;
     private final Supplier<ThreadPoolAsyncExecutor> fallback;
 
@@ -52,6 +47,11 @@ final class AsyncExecutorProvider implements AutoCloseable {
                           Supplier<ThreadPoolAsyncExecutor> fallback) {
         this.providers = Objects.requireNonNull(providers, "providers is required");
         this.fallback = Objects.requireNonNull(fallback, "fallback is required");
+    }
+
+    private static final class SharedHolder {
+        private static final AsyncExecutorProvider INSTANCE = new AsyncExecutorProvider(
+                AsyncExecutorProvider::loadProviders, () -> ThreadPoolAsyncExecutor.owning(MicroProfileSettings.INSTANCE));
     }
 
     static AsyncExecutorProvider shared() {
