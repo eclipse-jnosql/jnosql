@@ -81,6 +81,7 @@ public class SemistructuredQueryOperation implements QueryOperation {
                 .args(params)
                 .methodName(method.name())
                 .returnType(method.returnType().orElseThrow())
+                .asyncResultType(method.asyncResultType().orElse(null))
                 .querySupplier(() -> queryValue)
                 .paramsSupplier(() -> RepositoryMetadataUtils.INSTANCE.getParams(method, params))
                 .typeClass(type)
