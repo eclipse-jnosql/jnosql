@@ -163,6 +163,7 @@ public enum RepositoryMetadataUtils {
                 .methodName(method.name())
                 .classSource(metadata.type())
                 .returnType(method.returnType().orElseThrow())
+                .asyncResultType(method.asyncResultType().orElse(null))
                 .result(() ->  result)
                 .singleResult(toSingleResult(method.name()).apply(() -> result))
                 .build()
