@@ -21,9 +21,9 @@ import java.util.concurrent.CompletionStage;
 /**
  * Converts repository results to {@link CompletionStage} return values.
  *
- * <p>The repository method returns immediately and the operation runs on an executor: a Jakarta Concurrency
- * managed executor when available, otherwise a JNoSQL-owned bounded thread pool. See
- * {@link org.eclipse.jnosql.mapping.core.config.MappingConfigurations#REPOSITORY_ASYNC_EXECUTOR}.
+ * <p>The repository method returns immediately and the operation is scheduled by the registered
+ * {@link RepositoryAsyncExecutor} provider, or by a JNoSQL-owned bounded thread pool when there is none; see
+ * {@link org.eclipse.jnosql.mapping.core.config.MappingConfigurations#REPOSITORY_ASYNC_POOL_SIZE}.
  * The type argument is mapped exactly as the synchronous method would be:</p>
  *
  * <pre>{@code
@@ -34,21 +34,21 @@ import java.util.concurrent.CompletionStage;
  * }</pre>
  *
  * <p>Failures complete the stage exceptionally. The work is asynchronous, but the database call is still
- * blocking and no transaction or caller context is propagated beyond what the managed executor provides.
+ * blocking and no transaction or caller context is propagated beyond what the provider offers.
  * This is a JNoSQL feature, not part of the Jakarta Data specification.</p>
  */
 public class CompletionStageRepositoryReturn extends AbstractRepositoryReturn {
 
-    private final RepositoryAsyncExecutor asyncExecutor;
+    private final AsyncExecutorProvider asyncExecutor;
 
     /**
-     * Creates a handler that uses the shared executor.
+     * Creates a handler that uses the shared {@link RepositoryAsyncExecutor}.
      */
     public CompletionStageRepositoryReturn() {
-        this(RepositoryAsyncExecutor.shared());
+        this(AsyncExecutorProvider.shared());
     }
 
-    CompletionStageRepositoryReturn(RepositoryAsyncExecutor asyncExecutor) {
+    CompletionStageRepositoryReturn(AsyncExecutorProvider asyncExecutor) {
         super(CompletionStage.class);
         this.asyncExecutor = asyncExecutor;
     }
