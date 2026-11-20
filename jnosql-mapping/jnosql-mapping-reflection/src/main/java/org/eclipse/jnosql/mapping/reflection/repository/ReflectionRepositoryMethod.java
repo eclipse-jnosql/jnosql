@@ -30,6 +30,7 @@ record ReflectionRepositoryMethod(String name,
                                   Integer firstValue,
                                   Class<?> returnTypeValue,
                                   Class<?> elementTypeValue,
+                                  Class<?> asyncResultTypeValue,
                                   Class<?> findValue,
                                   List<RepositoryParam> params,
                                   List<Sort<?>> sorts,
@@ -56,6 +57,11 @@ record ReflectionRepositoryMethod(String name,
     @Override
     public Optional<Class<?>> elementType() {
         return Optional.ofNullable(elementTypeValue);
+    }
+
+    @Override
+    public Optional<Class<?>> asyncResultType() {
+        return Optional.ofNullable(asyncResultTypeValue);
     }
 
     @Override
