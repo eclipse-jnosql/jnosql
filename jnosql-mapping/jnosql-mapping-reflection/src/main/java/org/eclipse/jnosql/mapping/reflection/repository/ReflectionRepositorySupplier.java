@@ -49,6 +49,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.logging.Logger;
 
 import static java.util.Optional.ofNullable;
@@ -148,6 +150,7 @@ public enum ReflectionRepositorySupplier {
                 .map(Find::value).orElse(null);
         Class<?> returnTypeValue = method.getReturnType();
         Class<?> elementTypeValue = getElementTypeValue(method);
+        Class<?> asyncResultTypeValue = getAsyncResultType(method);
         if (projectionFoundEvent != null) {
             checkProjectionFound(returnTypeValue, projectionFoundEvent);
             checkProjectionFound(elementTypeValue, projectionFoundEvent);
@@ -175,6 +178,7 @@ public enum ReflectionRepositorySupplier {
                 firstValue,
                 returnTypeValue,
                 elementTypeValue,
+                asyncResultTypeValue,
                 findValue,
                 params,
                 sorts,
@@ -197,15 +201,46 @@ public enum ReflectionRepositorySupplier {
     }
 
     private static Class<?> getElementTypeValue(Method method) {
-        if (method.getGenericReturnType() instanceof ParameterizedType parameterizedType) {
+        Type returnType = method.getGenericReturnType();
+        Class<?> rawType = method.getReturnType();
+        boolean async = isAsync(rawType);
+        if (async) {
+            returnType = asyncArgument(method);
+            rawType = rawType(returnType);
+        }
+        if (returnType instanceof ParameterizedType parameterizedType) {
             Type[] arguments = parameterizedType.getActualTypeArguments();
             if (arguments.length > 0 && arguments[0] instanceof Class<?>) {
                 return (Class<?>) arguments[0];
             }
         }
-        Class<?> returnType = method.getReturnType();
-        if (returnType.isArray()) {
-            return returnType.getComponentType();
+        if (rawType != null && rawType.isArray()) {
+            return rawType.getComponentType();
+        }
+        return async ? rawType : null;
+    }
+
+    private static Class<?> getAsyncResultType(Method method) {
+        return isAsync(method.getReturnType()) ? rawType(asyncArgument(method)) : null;
+    }
+
+    private static boolean isAsync(Class<?> returnType) {
+        return CompletionStage.class.equals(returnType) || CompletableFuture.class.equals(returnType);
+    }
+
+    private static Type asyncArgument(Method method) {
+        if (method.getGenericReturnType() instanceof ParameterizedType parameterizedType) {
+            return parameterizedType.getActualTypeArguments()[0];
+        }
+        return null;
+    }
+
+    private static Class<?> rawType(Type type) {
+        if (type instanceof Class<?> clazz) {
+            return clazz;
+        }
+        if (type instanceof ParameterizedType parameterizedType) {
+            return (Class<?>) parameterizedType.getRawType();
         }
         return null;
     }
