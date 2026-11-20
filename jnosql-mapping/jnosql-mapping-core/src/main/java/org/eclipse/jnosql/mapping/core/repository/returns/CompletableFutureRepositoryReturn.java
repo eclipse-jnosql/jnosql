@@ -31,16 +31,16 @@ import java.util.concurrent.CompletableFuture;
  */
 public class CompletableFutureRepositoryReturn extends AbstractRepositoryReturn {
 
-    private final RepositoryAsyncExecutor asyncExecutor;
+    private final AsyncExecutorProvider asyncExecutor;
 
     /**
-     * Creates a handler that uses the shared executor.
+     * Creates a handler that uses the shared {@link RepositoryAsyncExecutor}.
      */
     public CompletableFutureRepositoryReturn() {
-        this(RepositoryAsyncExecutor.shared());
+        this(AsyncExecutorProvider.shared());
     }
 
-    CompletableFutureRepositoryReturn(RepositoryAsyncExecutor asyncExecutor) {
+    CompletableFutureRepositoryReturn(AsyncExecutorProvider asyncExecutor) {
         super(CompletableFuture.class);
         this.asyncExecutor = asyncExecutor;
     }
