@@ -27,6 +27,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
+import org.eclipse.jnosql.mapping.metadata.repository.ReturnType;
 import org.eclipse.jnosql.mapping.reflection.entities.Person;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -652,5 +655,54 @@ class ReflectionRepositorySupplierTest {
         RepositoryMetadata metadata = supplier.apply(PersonRepository.class);
         var method = metadata.find(new NameKey("insertAll")).orElseThrow();
         Assertions.assertThat(method.type()).isEqualTo(RepositoryMethodType.BUILT_IN_METHOD);
+    }
+
+    @Test
+    @DisplayName("Should describe nested return types level by level")
+    void shouldDescribeNestedReturnTypes() {
+        var metadata = supplier.apply(PersonNestedReturnCustomRepository.class);
+
+        var stage = descriptor(metadata, "findByName");
+        var future = descriptor(metadata, "findByAge");
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(stage).isEqualTo(ReturnType.of(CompletionStage.class,
+                    ReturnType.of(Optional.class, ReturnType.of(Person.class))));
+            soft.assertThat(future).isEqualTo(ReturnType.of(CompletableFuture.class,
+                    ReturnType.of(List.class, ReturnType.of(Person.class))));
+            soft.assertThat(stage.element().rawType()).isEqualTo(Person.class);
+            soft.assertThat(descriptor(metadata, "findByEmail"))
+                    .isEqualTo(ReturnType.of(CompletionStage.class, ReturnType.of(Person.class)));
+            soft.assertThat(metadata.find(new NameKey("findByEmail")).orElseThrow().elementType())
+                    .contains(Person.class);
+        });
+    }
+
+    @Test
+    @DisplayName("Should describe wildcards and type variables by their bound")
+    void shouldDescribeBoundedTypes() {
+        var metadata = supplier.apply(PersonNestedReturnCustomRepository.class);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(descriptor(metadata, "findByCity")).isEqualTo(ReturnType.of(CompletionStage.class,
+                    ReturnType.of(List.class, ReturnType.of(Person.class))));
+            soft.assertThat(descriptor(metadata, "findByType")).isEqualTo(ReturnType.of(List.class,
+                    ReturnType.of(Person.class)));
+        });
+    }
+
+    @Test
+    @DisplayName("Should describe unresolvable generic arrays and raw types without arguments")
+    void shouldDescribeArraysAndRawTypes() {
+        var metadata = supplier.apply(PersonNestedReturnCustomRepository.class);
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(descriptor(metadata, "findByTags")).isEqualTo(ReturnType.of(Object.class));
+            soft.assertThat(descriptor(metadata, "findByRaw")).isEqualTo(ReturnType.of(CompletionStage.class));
+        });
+    }
+
+    private ReturnType descriptor(RepositoryMetadata metadata, String name) {
+        return metadata.find(new NameKey(name)).orElseThrow().returnDescriptor().orElseThrow();
     }
 }
