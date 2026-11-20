@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
 import org.eclipse.jnosql.mapping.core.repository.returns.AsyncReturnFixtures.Product;
-import org.eclipse.jnosql.mapping.core.repository.returns.RepositoryExecutorResolver.ResolvedExecutor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -41,7 +40,7 @@ class CompletableFutureRepositoryReturnTest {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private final CompletableFutureRepositoryReturn repositoryReturn = new CompletableFutureRepositoryReturn(
-            new RepositoryAsyncExecutor(() -> new ResolvedExecutor(executor, false)));
+            new AsyncExecutorProvider(List::of, () -> new ThreadPoolAsyncExecutor(executor)));
 
     @AfterEach
     void shutdown() {
