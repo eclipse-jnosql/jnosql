@@ -70,6 +70,7 @@ public class SemistructuredReturnType {
                 .classSource(typeClass)
                 .methodName(method.name())
                 .returnType(method.returnType().orElseThrow())
+                .asyncResultType(method.asyncResultType().orElse(null))
 
                 .result(() -> {
                     Stream<Object> select = template.select(query);
@@ -97,6 +98,7 @@ public class SemistructuredReturnType {
                 .classSource(typeClass)
                 .methodName(method.name())
                 .returnType(method.returnType().orElseThrow())
+                .asyncResultType(method.asyncResultType().orElse(null))
 
                 .result(() -> Stream.empty().map(mapper(method, entityMetadata)))
                 .singleResult(() -> Optional.empty().map(mapper(method, entityMetadata)))
