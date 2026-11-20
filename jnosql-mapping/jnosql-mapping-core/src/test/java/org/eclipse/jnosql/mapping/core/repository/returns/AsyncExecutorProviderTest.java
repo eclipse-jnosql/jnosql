@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -229,6 +230,23 @@ class AsyncExecutorProviderTest {
         }
 
         @Test
+        @DisplayName("Should propagate a failure from a foreign stage")
+        void shouldPropagateForeignFailure() {
+            var failure = new IllegalStateException("boom");
+            var provider = new AsyncExecutorProvider(() -> List.of(new RepositoryAsyncExecutor() {
+                @Override
+                public <T> CompletionStage<T> execute(Supplier<T> operation) {
+                    return CompletableFuture.<T>failedFuture(failure).minimalCompletionStage();
+                }
+            }), () -> new ThreadPoolAsyncExecutor(Runnable::run));
+            var dynamic = asynchronous(CompletionStage.class, Optional.class, Optional::empty, Stream::empty);
+
+            var future = provider.execute(dynamic);
+
+            assertThatThrownBy(() -> future.get(5, TimeUnit.SECONDS)).hasCause(failure);
+        }
+
+        @Test
         @DisplayName("Should not run a provider that returns a stage without toCompletableFuture support")
         void shouldAdaptForeignStages() {
             var provider = new AsyncExecutorProvider(() -> List.of(new RepositoryAsyncExecutor() {
@@ -246,6 +264,59 @@ class AsyncExecutorProviderTest {
     }
 
     @Nested
+    @DisplayName("When sharing the provider")
+    class WhenTheSharing {
+
+        @Test
+        @DisplayName("Should share one lazily selected fallback when no provider is registered")
+        void shouldShareSelection() {
+            var shared = AsyncExecutorProvider.shared();
+
+            assertSoftly(softly -> {
+                softly.assertThat(AsyncExecutorProvider.shared()).isSameAs(shared);
+                softly.assertThat(shared.get()).isInstanceOf(ThreadPoolAsyncExecutor.class);
+                softly.assertThat(shared.get()).isSameAs(shared.get());
+            });
+        }
+
+        @Test
+        @DisplayName("Should select once when callers race")
+        void shouldSelectOnceWhenRacing() throws Exception {
+            var lookups = new AtomicInteger();
+            var entered = new CountDownLatch(1);
+            var release = new CountDownLatch(1);
+            var provider = new AsyncExecutorProvider(() -> {
+                lookups.incrementAndGet();
+                entered.countDown();
+                await(release);
+                return List.of(new StubProvider());
+            }, () -> new ThreadPoolAsyncExecutor(Runnable::run));
+            var first = new Thread(provider::get);
+            var second = new Thread(provider::get);
+
+            first.start();
+            entered.await();
+            second.start();
+            while (second.getState() != Thread.State.BLOCKED) {
+                Thread.onSpinWait();
+            }
+            release.countDown();
+            first.join();
+            second.join();
+
+            assertSoftly(softly -> softly.assertThat(lookups).hasValue(1));
+        }
+
+        private void await(CountDownLatch latch) {
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    @Nested
     @DisplayName("When closing")
     class WhenTheClose {
 
@@ -259,6 +330,17 @@ class AsyncExecutorProviderTest {
             provider.close();
 
             assertSoftly(softly -> softly.assertThat(service.isShutdown()).isTrue());
+        }
+
+        @Test
+        @DisplayName("Should close safely before any selection")
+        void shouldCloseBeforeSelection() {
+            var creations = new AtomicInteger();
+            var provider = fallbackOnly(creations);
+
+            provider.close();
+
+            assertSoftly(softly -> softly.assertThat(creations).hasValue(0));
         }
 
         @Test
