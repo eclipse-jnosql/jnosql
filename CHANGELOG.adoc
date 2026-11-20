@@ -28,7 +28,7 @@ and this project adheres to https://semver.org/spec/v2.0.0.html[Semantic Version
 - Add the time-series fluent query API to `TimeSeriesTemplate` with `latest`, `earliest`, `since`, `until` and `last` operations
 - Add the `jnosql-mapping-timeseries` module with `TimeSeriesTemplate`, repository, CDI, and configuration support
 - Add CDI interceptor support to semistructured and key-value repositories
-- Add asynchronous Jakarta Data repository methods returning `CompletionStage<T>` and `CompletableFuture<T>` for find, `@Query` and parameter-based methods, executed on a Jakarta Concurrency `ManagedExecutorService` (CDI or `java:comp/DefaultManagedExecutorService`) with a bounded Java SE fallback; configurable with `jnosql.repository.async.executor` and `jnosql.repository.async.pool-size`. Asynchronous execution does not propagate transactions, and cancelling the result does not interrupt a running database call
+- Add asynchronous Jakarta Data repository methods returning `CompletionStage<T>` and `CompletableFuture<T>` for find, `@Query` and parameter-based methods. They run on a bounded Java SE pool (size set by `jnosql.repository.async.pool-size`) unless a single `RepositoryAsyncExecutor` provider is registered with the `ServiceLoader`, which is how external modules such as a Jakarta Concurrency integration plug in; several providers fail explicitly. Asynchronous execution does not propagate transactions, and cancelling the result does not interrupt a running database call
 - Add support for scalar function expressions (UPPER, LOWER, LEFT, RIGHT, LENGTH, ABS) in JDQL string queries
 - Include support to Restriction interface
 - Include support to record projector
