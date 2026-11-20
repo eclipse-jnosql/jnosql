@@ -74,6 +74,18 @@ class CompletionStageRepositoryReturnTest {
     class WhenTheSearch {
 
         @Test
+        @DisplayName("Should handle a page request like an ordinary asynchronous result")
+        void shouldHandlePageRequest() {
+            var dynamic = asynchronous(CompletionStage.class, Optional.class,
+                    () -> Optional.of(new Product("Pen")), Stream::empty);
+
+            var result = ((CompletionStage<?>) repositoryReturn.convertPageRequest(dynamic))
+                    .toCompletableFuture().orTimeout(5, TimeUnit.SECONDS).join();
+
+            assertThat(result).isEqualTo(Optional.of(new Product("Pen")));
+        }
+
+        @Test
         @DisplayName("Should return the optional result on the executor thread")
         void shouldReturnOptional() throws Exception {
             var thread = new AtomicReference<String>();
