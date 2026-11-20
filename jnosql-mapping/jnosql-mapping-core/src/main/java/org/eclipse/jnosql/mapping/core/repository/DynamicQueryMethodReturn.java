@@ -36,6 +36,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
     private final Supplier<String> querySupplier;
     private final Supplier<Map<String, Object>> paramsSupplier;
     private final Class<?> returnType;
+    private final Class<?> asyncResultType;
     private final String methodName;
     private final LongSupplier totalSupplier;
 
@@ -47,6 +48,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
                                      Supplier<String> querySupplier,
                                      Supplier<Map<String, Object>> paramsSupplier,
                                      Class<?> returnType,
+                                     Class<?> asyncResultType,
                                      String methodName,
                                      LongSupplier totalSupplier) {
         this.querySupplier = querySupplier;
@@ -57,6 +59,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         this.queryMapper = queryMapper;
         this.paramsSupplier = paramsSupplier;
         this.returnType = returnType;
+        this.asyncResultType = asyncResultType;
         this.methodName = methodName;
         this.totalSupplier = totalSupplier;
     }
@@ -71,6 +74,10 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
 
     Class<?> returnType() {
         return returnType;
+    }
+
+    Class<?> asyncResultType() {
+        return asyncResultType;
     }
 
     Object[] args() {
@@ -140,6 +147,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         @SuppressWarnings("unchecked")
         private Function<Object, T> queryMapper = (Function<Object, T>) Function.identity();
         private Class<?> returnType;
+        private Class<?> asyncResultType;
 
         private String methodName;
         private LongSupplier totalSupplier;
@@ -238,6 +246,17 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         }
 
         /**
+         * Sets the raw type produced by an asynchronous repository method.
+         *
+         * @param asyncResultType the asynchronous result type, or {@code null} for synchronous methods
+         * @return this builder
+         */
+        public DynamicQueryMethodReturnBuilder<T> asyncResultType(Class<?> asyncResultType) {
+            this.asyncResultType = asyncResultType;
+            return this;
+        }
+
+        /**
          * Sets the repository method name.
          *
          * @param methodName the method name
@@ -281,6 +300,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
                     querySupplier,
                     paramsSupplier,
                     returnType,
+                    asyncResultType,
                     methodName,
                     totalSupplier);
         }
