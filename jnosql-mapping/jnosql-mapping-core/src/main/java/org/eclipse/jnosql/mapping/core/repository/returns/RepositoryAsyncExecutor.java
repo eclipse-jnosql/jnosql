@@ -14,108 +14,48 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
-import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
-import org.eclipse.jnosql.mapping.core.repository.DynamicReturnConverter;
-
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.function.Supplier;
 
 /**
- * Runs repository operations on the resolved executor. It is shared by the asynchronous
- * {@link org.eclipse.jnosql.mapping.core.repository.RepositoryReturn} handlers.
+ * Service provider interface that decides how asynchronous repository methods, those returning
+ * {@link CompletionStage} or {@link java.util.concurrent.CompletableFuture}, are scheduled.
  *
- * <p>The executor is resolved on the first use and then reused. Failures, including resolution failures and
- * executor rejection, complete the returned future exceptionally with the original exception. Cancelling the
- * future only prevents an operation that has not started; a running database call is not interrupted.</p>
+ * <p>Implementations are discovered once with {@link java.util.ServiceLoader} by registering the fully
+ * qualified class name in {@code META-INF/services/org.eclipse.jnosql.mapping.core.repository.returns.RepositoryAsyncExecutor}.
+ * The implementation needs a public no-argument constructor. When no provider is registered, JNoSQL uses a
+ * bounded Java SE thread pool; when more than one provider is registered, the first asynchronous call fails
+ * with an {@link IllegalStateException} naming the conflicting providers.</p>
+ *
+ * <p>A provider owns its resources: JNoSQL never shuts a provider down. The operation already contains the
+ * repository query and the result mapping, so a provider only schedules it. For example, a provider backed
+ * by an {@link java.util.concurrent.ExecutorService}:</p>
+ *
+ * <pre>{@code
+ * public final class PoolAsyncExecutor implements RepositoryAsyncExecutor {
+ *
+ *     private final ExecutorService pool = Executors.newFixedThreadPool(4);
+ *
+ *     public <T> CompletionStage<T> execute(Supplier<T> operation) {
+ *         return CompletableFuture.supplyAsync(operation, pool);
+ *     }
+ * }
+ * }</pre>
+ *
+ * <p>Implementations must run the operation exactly once, must not run it on the calling thread, and should
+ * complete the returned stage exceptionally, with the original exception, when the operation fails or the
+ * task cannot be scheduled. Asynchronous execution is not native non-blocking I/O, and transactions or caller
+ * context are propagated only if the provider does it.</p>
  */
-final class RepositoryAsyncExecutor implements AutoCloseable {
-
-    private static final class SharedHolder {
-        private static final RepositoryAsyncExecutor INSTANCE =
-                new RepositoryAsyncExecutor(RepositoryExecutorResolver.container()::resolve);
-    }
-
-    private final Supplier<RepositoryExecutorResolver.ResolvedExecutor> resolver;
-
-    private volatile RepositoryExecutorResolver.ResolvedExecutor resolved;
-
-    RepositoryAsyncExecutor(Supplier<RepositoryExecutorResolver.ResolvedExecutor> resolver) {
-        this.resolver = Objects.requireNonNull(resolver, "resolver is required");
-    }
-
-    static RepositoryAsyncExecutor shared() {
-        return SharedHolder.INSTANCE;
-    }
+public interface RepositoryAsyncExecutor {
 
     /**
-     * Converts the dynamic return as its asynchronous result type, using the ordinary synchronous handlers.
+     * Schedules the repository operation without blocking the caller.
      *
-     * @param dynamicReturn the asynchronous dynamic return
-     * @return a future completed with the converted result
-     * @throws IllegalStateException when the nested type is unknown or is itself asynchronous
+     * @param operation the repository operation, executed at most once
+     * @param <T>       the result type
+     * @return a stage completed with the operation result, or exceptionally when it fails
+     * @throws NullPointerException when the operation is null
      */
-    CompletableFuture<Object> execute(DynamicReturn<?> dynamicReturn) {
-        dynamicReturn.asyncResultType().filter(CompletionStage.class::isAssignableFrom).ifPresent(type -> {
-            throw new IllegalStateException("Nested asynchronous return types are not supported at: "
-                    + dynamicReturn.methodName());
-        });
-        var synchronous = dynamicReturn.unwrapAsync();
-        return supply(() -> DynamicReturnConverter.INSTANCE.convert(synchronous));
-    }
-
-    <T> CompletableFuture<T> supply(Supplier<T> operation) {
-        var future = new CompletableFuture<T>();
-        RepositoryExecutorResolver.ResolvedExecutor current;
-        try {
-            current = executor();
-        } catch (RuntimeException e) {
-            future.completeExceptionally(e);
-            return future;
-        }
-        try {
-            current.executor().execute(() -> {
-                if (future.isDone()) {
-                    return;
-                }
-                try {
-                    future.complete(operation.get());
-                } catch (Throwable e) {
-                    future.completeExceptionally(e);
-                }
-            });
-        } catch (RejectedExecutionException e) {
-            future.completeExceptionally(e);
-        }
-        return future;
-    }
-
-    /**
-     * Shuts down the executor only when JNoSQL created it; container and application executors are left running.
-     */
-    @Override
-    public synchronized void close() {
-        var current = resolved;
-        resolved = null;
-        if (current != null && current.owned() && current.executor() instanceof ExecutorService service) {
-            service.shutdown();
-        }
-    }
-
-    private RepositoryExecutorResolver.ResolvedExecutor executor() {
-        var current = resolved;
-        if (current == null) {
-            synchronized (this) {
-                current = resolved;
-                if (current == null) {
-                    current = resolver.get();
-                    resolved = current;
-                }
-            }
-        }
-        return current;
-    }
+    <T> CompletionStage<T> execute(Supplier<T> operation);
 }
