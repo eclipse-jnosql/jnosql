@@ -15,7 +15,6 @@
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
 import org.eclipse.jnosql.mapping.core.repository.returns.AsyncReturnFixtures.Product;
-import org.eclipse.jnosql.mapping.core.repository.returns.RepositoryExecutorResolver.ResolvedExecutor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -45,7 +44,7 @@ class CompletionStageRepositoryReturnTest {
             runnable -> new Thread(runnable, "test-async"));
 
     private final CompletionStageRepositoryReturn repositoryReturn = new CompletionStageRepositoryReturn(
-            new RepositoryAsyncExecutor(() -> new ResolvedExecutor(executor, false)));
+            new AsyncExecutorProvider(List::of, () -> new ThreadPoolAsyncExecutor(executor)));
 
     @AfterEach
     void shutdown() {
@@ -192,10 +191,10 @@ class CompletionStageRepositoryReturnTest {
         @Test
         @DisplayName("Should complete exceptionally when the executor rejects the task")
         void shouldCompleteExceptionallyOnRejection() {
-            var rejecting = new CompletionStageRepositoryReturn(new RepositoryAsyncExecutor(
-                    () -> new ResolvedExecutor(task -> {
+            var rejecting = new CompletionStageRepositoryReturn(new AsyncExecutorProvider(List::of,
+                    () -> new ThreadPoolAsyncExecutor(task -> {
                         throw new RejectedExecutionException("full");
-                    }, false)));
+                    })));
             var dynamic = asynchronous(CompletionStage.class, Optional.class, Optional::empty, Stream::empty);
 
             var stage = (CompletionStage<?>) rejecting.convert(dynamic);
