@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.core.repository;
 import jakarta.data.exceptions.NonUniqueResultException;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import org.eclipse.jnosql.mapping.metadata.repository.ReturnType;
 
 import java.util.Iterator;
 import java.util.List;
@@ -56,7 +57,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
 
     private final Class<?> returnType;
 
-    private final Class<?> asyncResultType;
+    private final ReturnType returnDescriptor;
 
     private final LongSupplier totalSupplier;
 
@@ -124,28 +125,29 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
     }
 
     /**
-     * Returns the raw type produced by an asynchronous repository method, such as {@code Optional.class} for
+     * Returns the description of the declared return type with its type arguments, for example
      * {@code CompletionStage<Optional<Person>>}.
      *
-     * @return the asynchronous result type, or empty when the method is not asynchronous or the type is unknown
+     * @return the description, or empty when it is unknown
      */
-    public Optional<Class<?>> asyncResultType() {
-        return Optional.ofNullable(asyncResultType);
+    public Optional<ReturnType> returnDescriptor() {
+        return Optional.ofNullable(returnDescriptor);
     }
 
     /**
-     * Creates a copy of this dynamic return whose return type is the asynchronous result type,
-     * so that it is converted by the ordinary synchronous return handlers.
+     * Creates a copy of this dynamic return one level down: its return type is the first type argument of the
+     * current one, so a wrapper such as {@code CompletionStage<Optional<Person>>} is handled as
+     * {@code Optional<Person>} by the ordinary return handlers.
      *
-     * @return a synchronous view of this dynamic return
-     * @throws IllegalStateException when there is no asynchronous result type
+     * @return the dynamic return for the first type argument
+     * @throws IllegalStateException when the return type has no type argument
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public DynamicReturn<T> unwrapAsync() {
-        var resultType = asyncResultType().orElseThrow(() -> new IllegalStateException(
-                "The asynchronous result type could not be resolved for the method: " + methodName));
+    public DynamicReturn<T> unwrap() {
+        var inner = returnDescriptor().flatMap(ReturnType::argument).orElseThrow(() -> new IllegalStateException(
+                "The nested return type could not be resolved for the method: " + methodName));
         return new DynamicReturn(classSource, singleResult, result, pageRequest, singleResultPagination,
-                streamPagination, page, methodName, resultType, null, totalSupplier);
+                streamPagination, page, methodName, inner.rawType(), inner, totalSupplier);
     }
 
     @Override
@@ -182,7 +184,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
                           BiFunction<PageRequest, LongSupplier, Page<T>> page,
                           String methodName,
                           Class<?> returnType,
-                          Class<?> asyncResultType,
+                          ReturnType returnDescriptor,
                           LongSupplier totalSupplier) {
         this.classSource = classSource;
         this.singleResult = singleResult;
@@ -193,7 +195,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
         this.page = page;
         this.methodName = methodName;
         this.returnType = returnType;
-        this.asyncResultType = asyncResultType;
+        this.returnDescriptor = returnDescriptor;
         this.totalSupplier = totalSupplier;
     }
 
@@ -295,7 +297,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
 
         private Class<?> returnType;
 
-        private Class<?> asyncResultType;
+        private ReturnType returnDescriptor;
 
         private LongSupplier totalSupplier;
 
@@ -336,11 +338,11 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
         /**
          * Sets the raw type produced by an asynchronous repository method.
          *
-         * @param asyncResultType the asynchronous result type, or {@code null} for synchronous methods
+         * @param returnDescriptor the nested return type description, or {@code null} when unknown
          * @return this builder
          */
-        public DefaultDynamicReturnBuilder<T> asyncResultType(Class<?> asyncResultType) {
-            this.asyncResultType = asyncResultType;
+        public DefaultDynamicReturnBuilder<T> returnDescriptor(ReturnType returnDescriptor) {
+            this.returnDescriptor = returnDescriptor;
             return this;
         }
 
@@ -433,7 +435,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
 
             return new DynamicReturn(classSource, singleResult, result,
                     pageRequest, singleResultPagination, streamPagination, page, methodName, returnType,
-                    asyncResultType, totalSupplier);
+                    returnDescriptor, totalSupplier);
         }
     }
 
