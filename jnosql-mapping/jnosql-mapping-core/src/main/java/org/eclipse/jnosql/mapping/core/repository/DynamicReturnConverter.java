@@ -23,6 +23,9 @@ import org.eclipse.jnosql.mapping.core.NoSQLPage;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.function.LongSupplier;
 import java.util.stream.Stream;
@@ -88,6 +91,16 @@ public enum DynamicReturnConverter {
                         .forEach(param -> prepare.bind(param.getKey(), param.getValue()));
 
         if (prepare.isCount()) {
+            if (isAsynchronous(dynamicQueryMethod.returnType())) {
+                return convert(DynamicReturn.builder()
+                        .classSource(typeClass)
+                        .methodName(dynamicQueryMethod.methodName())
+                        .returnType(dynamicQueryMethod.returnType())
+                        .returnDescriptor(dynamicQueryMethod.returnDescriptor())
+                        .result(Stream::empty)
+                        .singleResult(() -> Optional.of(prepare.count()))
+                        .build());
+            }
             return prepare.count();
         }
 
@@ -97,6 +110,7 @@ public enum DynamicReturnConverter {
                 .classSource(typeClass)
                 .methodName(dynamicQueryMethod.methodName())
                 .returnType(dynamicQueryMethod.returnType())
+                .returnDescriptor(dynamicQueryMethod.returnDescriptor())
                 .result(() -> prepare.result().map(dynamicQueryMethod.queryMapper()))
                 .singleResult(() -> prepare.singleResult().map(dynamicQueryMethod.queryMapper()))
                 .pagination(pageRequest)
@@ -109,6 +123,10 @@ public enum DynamicReturnConverter {
                 }).build();
 
         return convert(dynamicReturn);
+    }
+
+    private static boolean isAsynchronous(Class<?> returnType) {
+        return CompletionStage.class.equals(returnType) || CompletableFuture.class.equals(returnType);
     }
 
     /**

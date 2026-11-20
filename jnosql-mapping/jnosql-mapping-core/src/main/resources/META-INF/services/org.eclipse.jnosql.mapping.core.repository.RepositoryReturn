@@ -1,3 +1,5 @@
+org.eclipse.jnosql.mapping.core.repository.returns.CompletionStageRepositoryReturn
+org.eclipse.jnosql.mapping.core.repository.returns.CompletableFutureRepositoryReturn
 org.eclipse.jnosql.mapping.core.repository.returns.InstanceRepositoryReturn
 org.eclipse.jnosql.mapping.core.repository.returns.ListRepositoryReturn
 org.eclipse.jnosql.mapping.core.repository.returns.OptionalRepositoryReturn

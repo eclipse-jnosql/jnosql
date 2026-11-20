@@ -44,6 +44,29 @@ class DynamicReturnConverterTest {
     @DisplayName("When the dynamic return converter operates")
     class WhenTheDynamicReturnConverterOperates {
 
+        @DisplayName("Should select the asynchronous handler before the instance handler")
+        @Test
+        void shouldSelectAsynchronousHandler() {
+            for (Class<?> wrapper : new Class<?>[]{java.util.concurrent.CompletionStage.class,
+                    java.util.concurrent.CompletableFuture.class}) {
+                var dynamic = DynamicReturn.builder()
+                        .classSource(String.class)
+                        .methodName("find")
+                        .returnType(wrapper)
+                        .returnDescriptor(org.eclipse.jnosql.mapping.metadata.repository.ReturnType.of(wrapper,
+                                org.eclipse.jnosql.mapping.metadata.repository.ReturnType.of(String.class)))
+                        .result(java.util.stream.Stream::empty)
+                        .singleResult(() -> java.util.Optional.of("Ada"))
+                        .build();
+
+                var result = DynamicReturnConverter.INSTANCE.convert(dynamic);
+
+                assertThat(result).isInstanceOf(java.util.concurrent.CompletionStage.class);
+                assertThat(((java.util.concurrent.CompletionStage<?>) result).toCompletableFuture()
+                        .orTimeout(5, java.util.concurrent.TimeUnit.SECONDS).join()).isEqualTo("Ada");
+            }
+        }
+
         @DisplayName("Should return false when null")
         @Test
         void shouldReturnFalseWhenNull() {

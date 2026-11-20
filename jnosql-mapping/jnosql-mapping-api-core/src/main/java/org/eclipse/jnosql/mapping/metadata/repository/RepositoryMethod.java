@@ -94,6 +94,18 @@ public interface RepositoryMethod {
     Optional<Class<?>> elementType();
 
     /**
+     * Describes the declared return type with its type arguments, for example the {@code CompletionStage},
+     * {@code Optional} and {@code Person} levels of {@code CompletionStage<Optional<Person>>}.
+     * It is the extension point for return types that hold other types. The default implementation describes
+     * only the raw {@link #returnType()}, without arguments.
+     *
+     * @return the description, or empty when the return type is unknown
+     */
+    default Optional<ReturnType> returnDescriptor() {
+        return returnType().map(ReturnType::of);
+    }
+
+    /**
      * The representation of the {@link jakarta.data.repository.Select} annotations at the method.
      * @return the attributes at the select annotation
      */

@@ -101,6 +101,9 @@ class DynamicQueryMethodReturnTest {
         @Query("select count(this) from Person")
         long count();
 
+        @Query("select count(this) from Person")
+        java.util.concurrent.CompletionStage<Long> countAsync();
+
         @Query("query")
         Page<Person> page(@Param("name") String name, PageRequest pageRequest);
     }
@@ -412,6 +415,36 @@ class DynamicQueryMethodReturnTest {
                 Page<Person> page = (Page<Person>) execute;
                 soft.assertThat(page.content()).containsExactly(new Person("Ada"));
                 soft.assertThat(page.pageRequest()).isEqualTo(PageRequest.ofPage(10));
+            });
+        }
+
+        @DisplayName("Should defer an asynchronous count to the asynchronous handler")
+        @Test
+        void shouldCountAsynchronously() throws Exception {
+            PreparedStatement preparedStatement = Mockito.mock(PreparedStatement.class);
+            Mockito.when(preparedStatement.isCount()).thenReturn(true);
+            Mockito.when(preparedStatement.count()).thenReturn(7L);
+            Method method = getMethod(PersonRepository.class, "countAsync");
+
+            var dynamicReturn = DynamicQueryMethodReturn.builder()
+                    .typeClass(Person.class)
+                    .methodName(method.getName())
+                    .returnType(method.getReturnType())
+                    .returnDescriptor(org.eclipse.jnosql.mapping.metadata.repository.ReturnType.of(
+                            java.util.concurrent.CompletionStage.class,
+                            org.eclipse.jnosql.mapping.metadata.repository.ReturnType.of(Long.class)))
+                    .querySupplier(() -> RepositoryReflectionUtils.INSTANCE.getQuery(method))
+                    .paramsSupplier(() -> RepositoryReflectionUtils.INSTANCE.getParams(method, new Object[0]))
+                    .prepareConverter(s -> preparedStatement)
+                    .totalSupplier(() -> 0L)
+                    .build();
+
+            Object execute = dynamicReturn.execute();
+
+            SoftAssertions.assertSoftly(soft -> {
+                soft.assertThat(execute).isInstanceOf(java.util.concurrent.CompletionStage.class);
+                soft.assertThat(((java.util.concurrent.CompletionStage<?>) execute).toCompletableFuture()
+                        .orTimeout(5, java.util.concurrent.TimeUnit.SECONDS).join()).isEqualTo(7L);
             });
         }
     }

@@ -17,6 +17,7 @@ package org.eclipse.jnosql.mapping.core.repository;
 import jakarta.data.exceptions.NonUniqueResultException;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
+import org.eclipse.jnosql.mapping.metadata.repository.ReturnType;
 
 import java.util.Iterator;
 import java.util.List;
@@ -55,6 +56,8 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
     private final String methodName;
 
     private final Class<?> returnType;
+
+    private final ReturnType returnDescriptor;
 
     private final LongSupplier totalSupplier;
 
@@ -121,6 +124,31 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
         return returnType;
     }
 
+    /**
+     * Returns the description of the declared return type with its type arguments, for example
+     * {@code CompletionStage<Optional<Person>>}.
+     *
+     * @return the description, or empty when it is unknown
+     */
+    public Optional<ReturnType> returnDescriptor() {
+        return Optional.ofNullable(returnDescriptor);
+    }
+
+    /**
+     * Creates a copy of this dynamic return one level down: its return type is the first type argument of the
+     * current one, so a wrapper such as {@code CompletionStage<Optional<Person>>} is handled as
+     * {@code Optional<Person>} by the ordinary return handlers.
+     *
+     * @return the dynamic return for the first type argument
+     * @throws IllegalStateException when the return type has no type argument
+     */
+    public DynamicReturn<T> unwrap() {
+        var inner = returnDescriptor().flatMap(ReturnType::argument).orElseThrow(() -> new IllegalStateException(
+                "The nested return type could not be resolved for the method: " + methodName));
+        return new DynamicReturn<>(classSource, singleResult, result, pageRequest, singleResultPagination,
+                streamPagination, page, methodName, inner.rawType(), inner, totalSupplier);
+    }
+
     @Override
     public Object execute() {
         return DynamicReturnConverter.INSTANCE.convert(this);
@@ -155,6 +183,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
                           BiFunction<PageRequest, LongSupplier, Page<T>> page,
                           String methodName,
                           Class<?> returnType,
+                          ReturnType returnDescriptor,
                           LongSupplier totalSupplier) {
         this.classSource = classSource;
         this.singleResult = singleResult;
@@ -165,6 +194,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
         this.page = page;
         this.methodName = methodName;
         this.returnType = returnType;
+        this.returnDescriptor = returnDescriptor;
         this.totalSupplier = totalSupplier;
     }
 
@@ -266,6 +296,8 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
 
         private Class<?> returnType;
 
+        private ReturnType returnDescriptor;
+
         private LongSupplier totalSupplier;
 
         private DefaultDynamicReturnBuilder() {
@@ -299,6 +331,17 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
          */
         public DefaultDynamicReturnBuilder<T> returnType(Class<?> returnType) {
             this.returnType = returnType;
+            return this;
+        }
+
+        /**
+         * Sets the raw type produced by an asynchronous repository method.
+         *
+         * @param returnDescriptor the nested return type description, or {@code null} when unknown
+         * @return this builder
+         */
+        public DefaultDynamicReturnBuilder<T> returnDescriptor(ReturnType returnDescriptor) {
+            this.returnDescriptor = returnDescriptor;
             return this;
         }
 
@@ -391,7 +434,7 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
 
             return new DynamicReturn(classSource, singleResult, result,
                     pageRequest, singleResultPagination, streamPagination, page, methodName, returnType,
-                    totalSupplier);
+                    returnDescriptor, totalSupplier);
         }
     }
 

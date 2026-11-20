@@ -19,6 +19,7 @@ import org.eclipse.jnosql.mapping.metadata.repository.RepositoryAnnotation;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
+import org.eclipse.jnosql.mapping.metadata.repository.ReturnType;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,7 @@ record ReflectionRepositoryMethod(String name,
                                   Integer firstValue,
                                   Class<?> returnTypeValue,
                                   Class<?> elementTypeValue,
+                                  ReturnType returnDescriptorValue,
                                   Class<?> findValue,
                                   List<RepositoryParam> params,
                                   List<Sort<?>> sorts,
@@ -56,6 +58,11 @@ record ReflectionRepositoryMethod(String name,
     @Override
     public Optional<Class<?>> elementType() {
         return Optional.ofNullable(elementTypeValue);
+    }
+
+    @Override
+    public Optional<ReturnType> returnDescriptor() {
+        return Optional.ofNullable(returnDescriptorValue);
     }
 
     @Override

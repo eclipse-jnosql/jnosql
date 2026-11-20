@@ -33,12 +33,15 @@ import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMetadata;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethod;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryMethodType;
 import org.eclipse.jnosql.mapping.metadata.repository.RepositoryParam;
+import org.eclipse.jnosql.mapping.metadata.repository.ReturnType;
 import org.eclipse.jnosql.mapping.reflection.ProjectionFound;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,6 +52,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.logging.Logger;
 
 import static java.util.Optional.ofNullable;
@@ -148,6 +153,7 @@ public enum ReflectionRepositorySupplier {
                 .map(Find::value).orElse(null);
         Class<?> returnTypeValue = method.getReturnType();
         Class<?> elementTypeValue = getElementTypeValue(method);
+        ReturnType returnDescriptor = describe(method.getGenericReturnType());
         if (projectionFoundEvent != null) {
             checkProjectionFound(returnTypeValue, projectionFoundEvent);
             checkProjectionFound(elementTypeValue, projectionFoundEvent);
@@ -175,6 +181,7 @@ public enum ReflectionRepositorySupplier {
                 firstValue,
                 returnTypeValue,
                 elementTypeValue,
+                returnDescriptor,
                 findValue,
                 params,
                 sorts,
@@ -197,15 +204,61 @@ public enum ReflectionRepositorySupplier {
     }
 
     private static Class<?> getElementTypeValue(Method method) {
-        if (method.getGenericReturnType() instanceof ParameterizedType parameterizedType) {
+        Type returnType = method.getGenericReturnType();
+        Class<?> rawType = method.getReturnType();
+        boolean async = isAsync(rawType);
+        if (async) {
+            returnType = asyncArgument(method);
+            rawType = rawType(returnType);
+        }
+        if (returnType instanceof ParameterizedType parameterizedType) {
             Type[] arguments = parameterizedType.getActualTypeArguments();
             if (arguments.length > 0 && arguments[0] instanceof Class<?>) {
                 return (Class<?>) arguments[0];
             }
         }
-        Class<?> returnType = method.getReturnType();
-        if (returnType.isArray()) {
-            return returnType.getComponentType();
+        if (rawType != null && rawType.isArray()) {
+            return rawType.getComponentType();
+        }
+        return async ? rawType : null;
+    }
+
+    private static ReturnType describe(Type type) {
+        if (type instanceof ParameterizedType parameterizedType) {
+            ReturnType[] arguments = Arrays.stream(parameterizedType.getActualTypeArguments())
+                    .map(ReflectionRepositorySupplier::describe)
+                    .toArray(ReturnType[]::new);
+            return ReturnType.of((Class<?>) parameterizedType.getRawType(), arguments);
+        }
+        if (type instanceof WildcardType wildcardType) {
+            return describe(wildcardType.getUpperBounds()[0]);
+        }
+        if (type instanceof TypeVariable<?> typeVariable) {
+            return describe(typeVariable.getBounds()[0]);
+        }
+        if (type instanceof Class<?> clazz) {
+            return ReturnType.of(clazz);
+        }
+        return ReturnType.of(Object.class);
+    }
+
+    private static boolean isAsync(Class<?> returnType) {
+        return CompletionStage.class.equals(returnType) || CompletableFuture.class.equals(returnType);
+    }
+
+    private static Type asyncArgument(Method method) {
+        if (method.getGenericReturnType() instanceof ParameterizedType parameterizedType) {
+            return parameterizedType.getActualTypeArguments()[0];
+        }
+        return null;
+    }
+
+    private static Class<?> rawType(Type type) {
+        if (type instanceof Class<?> clazz) {
+            return clazz;
+        }
+        if (type instanceof ParameterizedType parameterizedType) {
+            return (Class<?>) parameterizedType.getRawType();
         }
         return null;
     }
