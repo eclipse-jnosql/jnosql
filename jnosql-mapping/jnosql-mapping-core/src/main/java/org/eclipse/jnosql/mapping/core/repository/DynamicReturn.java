@@ -142,11 +142,10 @@ public final class DynamicReturn<T> implements MethodDynamicExecutable {
      * @return the dynamic return for the first type argument
      * @throws IllegalStateException when the return type has no type argument
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public DynamicReturn<T> unwrap() {
         var inner = returnDescriptor().flatMap(ReturnType::argument).orElseThrow(() -> new IllegalStateException(
                 "The nested return type could not be resolved for the method: " + methodName));
-        return new DynamicReturn(classSource, singleResult, result, pageRequest, singleResultPagination,
+        return new DynamicReturn<>(classSource, singleResult, result, pageRequest, singleResultPagination,
                 streamPagination, page, methodName, inner.rawType(), inner, totalSupplier);
     }
 
