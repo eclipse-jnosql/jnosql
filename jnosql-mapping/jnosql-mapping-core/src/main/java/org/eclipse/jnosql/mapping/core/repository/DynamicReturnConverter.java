@@ -97,6 +97,7 @@ public enum DynamicReturnConverter {
                 .classSource(typeClass)
                 .methodName(dynamicQueryMethod.methodName())
                 .returnType(dynamicQueryMethod.returnType())
+                .asyncResultType(dynamicQueryMethod.asyncResultType())
                 .result(() -> prepare.result().map(dynamicQueryMethod.queryMapper()))
                 .singleResult(() -> prepare.singleResult().map(dynamicQueryMethod.queryMapper()))
                 .pagination(pageRequest)
