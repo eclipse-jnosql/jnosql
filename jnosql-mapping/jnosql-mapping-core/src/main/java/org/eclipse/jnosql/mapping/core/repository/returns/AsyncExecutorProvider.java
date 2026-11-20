@@ -20,9 +20,11 @@ import org.eclipse.jnosql.mapping.core.repository.DynamicReturnConverter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
+import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Supplier;
@@ -37,6 +39,8 @@ import java.util.function.Supplier;
  */
 final class AsyncExecutorProvider implements AutoCloseable {
 
+    private static final Map<ClassLoader, AsyncExecutorProvider> SHARED = new WeakHashMap<>();
+
     private final Supplier<List<RepositoryAsyncExecutor>> providers;
     private final Supplier<ThreadPoolAsyncExecutor> fallback;
 
@@ -49,13 +53,14 @@ final class AsyncExecutorProvider implements AutoCloseable {
         this.fallback = Objects.requireNonNull(fallback, "fallback is required");
     }
 
-    private static final class SharedHolder {
-        private static final AsyncExecutorProvider INSTANCE = new AsyncExecutorProvider(
-                AsyncExecutorProvider::loadProviders, () -> ThreadPoolAsyncExecutor.owning(MicroProfileSettings.INSTANCE));
-    }
-
+    // one provider per class loader so applications sharing JNoSQL neither reuse nor retain each other's executor
     static AsyncExecutorProvider shared() {
-        return SharedHolder.INSTANCE;
+        var loader = Thread.currentThread().getContextClassLoader();
+        var key = loader == null ? ClassLoader.getSystemClassLoader() : loader;
+        synchronized (SHARED) {
+            return SHARED.computeIfAbsent(key, k -> new AsyncExecutorProvider(AsyncExecutorProvider::loadProviders,
+                    () -> ThreadPoolAsyncExecutor.owning(MicroProfileSettings.INSTANCE)));
+        }
     }
 
     /**
@@ -90,12 +95,20 @@ final class AsyncExecutorProvider implements AutoCloseable {
             throw new IllegalStateException("Nested asynchronous return types are not supported at: "
                     + dynamicReturn.methodName());
         });
+        var future = new CompletableFuture<Object>();
         try {
-            var stage = get().<Object>execute(() -> DynamicReturnConverter.INSTANCE.convert(synchronous));
-            return toFuture(stage);
+            get().<Object>execute(() -> future.isDone() ? null : DynamicReturnConverter.INSTANCE.convert(synchronous))
+                    .whenComplete((value, error) -> {
+                        if (error == null) {
+                            future.complete(value);
+                        } else {
+                            future.completeExceptionally(error);
+                        }
+                    });
         } catch (RuntimeException e) {
-            return CompletableFuture.failedFuture(e);
+            future.completeExceptionally(e);
         }
+        return future;
     }
 
     @Override
@@ -119,23 +132,6 @@ final class AsyncExecutorProvider implements AutoCloseable {
         }
         owned = fallback.get();
         return owned;
-    }
-
-    // subclasses such as the minimal stage reject mutating methods, so only a plain future is exposed as is
-    @SuppressWarnings("unchecked")
-    private static CompletableFuture<Object> toFuture(CompletionStage<Object> stage) {
-        if (stage.getClass() == CompletableFuture.class) {
-            return (CompletableFuture<Object>) stage;
-        }
-        var future = new CompletableFuture<Object>();
-        stage.whenComplete((value, error) -> {
-            if (error == null) {
-                future.complete(value);
-            } else {
-                future.completeExceptionally(error);
-            }
-        });
-        return future;
     }
 
     static List<RepositoryAsyncExecutor> loadProviders() {
