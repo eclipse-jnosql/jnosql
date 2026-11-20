@@ -15,6 +15,7 @@
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
 import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
+import org.eclipse.jnosql.mapping.metadata.repository.ReturnType;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -39,7 +40,8 @@ final class AsyncReturnFixtures {
                 .classSource(Product.class)
                 .methodName("find")
                 .returnType(wrapper)
-                .asyncResultType(nested)
+                .returnDescriptor(nested == null ? ReturnType.of(wrapper)
+                        : ReturnType.of(wrapper, ReturnType.of(nested)))
                 .singleResult((Supplier) single)
                 .result((Supplier) result)
                 .build();
