@@ -94,17 +94,15 @@ public interface RepositoryMethod {
     Optional<Class<?>> elementType();
 
     /**
-     * Returns the raw type produced by an asynchronous repository method.
-     * When the declared return type is {@link java.util.concurrent.CompletionStage} or
-     * {@link java.util.concurrent.CompletableFuture}, this is the raw type of its type argument, for example
-     * {@code Optional.class} for {@code CompletionStage<Optional<Person>>}.
-     * The default implementation reports a synchronous method.
+     * Describes the declared return type with its type arguments, for example the {@code CompletionStage},
+     * {@code Optional} and {@code Person} levels of {@code CompletionStage<Optional<Person>>}.
+     * It is the extension point for return types that hold other types. The default implementation describes
+     * only the raw {@link #returnType()}, without arguments.
      *
-     * @return an {@link Optional} containing the raw asynchronous result type,
-     * or empty when the method is not asynchronous.
+     * @return the description, or empty when the return type is unknown
      */
-    default Optional<Class<?>> asyncResultType() {
-        return Optional.empty();
+    default Optional<ReturnType> returnDescriptor() {
+        return returnType().map(ReturnType::of);
     }
 
     /**
