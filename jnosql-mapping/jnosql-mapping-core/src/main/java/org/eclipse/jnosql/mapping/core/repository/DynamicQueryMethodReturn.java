@@ -16,6 +16,7 @@ package org.eclipse.jnosql.mapping.core.repository;
 
 
 import jakarta.data.page.PageRequest;
+import org.eclipse.jnosql.mapping.metadata.repository.ReturnType;
 import org.eclipse.jnosql.mapping.PreparedStatement;
 
 import java.util.Map;
@@ -36,7 +37,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
     private final Supplier<String> querySupplier;
     private final Supplier<Map<String, Object>> paramsSupplier;
     private final Class<?> returnType;
-    private final Class<?> asyncResultType;
+    private final ReturnType returnDescriptor;
     private final String methodName;
     private final LongSupplier totalSupplier;
 
@@ -48,7 +49,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
                                      Supplier<String> querySupplier,
                                      Supplier<Map<String, Object>> paramsSupplier,
                                      Class<?> returnType,
-                                     Class<?> asyncResultType,
+                                     ReturnType returnDescriptor,
                                      String methodName,
                                      LongSupplier totalSupplier) {
         this.querySupplier = querySupplier;
@@ -59,7 +60,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         this.queryMapper = queryMapper;
         this.paramsSupplier = paramsSupplier;
         this.returnType = returnType;
-        this.asyncResultType = asyncResultType;
+        this.returnDescriptor = returnDescriptor;
         this.methodName = methodName;
         this.totalSupplier = totalSupplier;
     }
@@ -76,8 +77,8 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         return returnType;
     }
 
-    Class<?> asyncResultType() {
-        return asyncResultType;
+    ReturnType returnDescriptor() {
+        return returnDescriptor;
     }
 
     Object[] args() {
@@ -147,7 +148,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         @SuppressWarnings("unchecked")
         private Function<Object, T> queryMapper = (Function<Object, T>) Function.identity();
         private Class<?> returnType;
-        private Class<?> asyncResultType;
+        private ReturnType returnDescriptor;
 
         private String methodName;
         private LongSupplier totalSupplier;
@@ -248,11 +249,11 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
         /**
          * Sets the raw type produced by an asynchronous repository method.
          *
-         * @param asyncResultType the asynchronous result type, or {@code null} for synchronous methods
+         * @param returnDescriptor the nested return type description, or {@code null} when unknown
          * @return this builder
          */
-        public DynamicQueryMethodReturnBuilder<T> asyncResultType(Class<?> asyncResultType) {
-            this.asyncResultType = asyncResultType;
+        public DynamicQueryMethodReturnBuilder<T> returnDescriptor(ReturnType returnDescriptor) {
+            this.returnDescriptor = returnDescriptor;
             return this;
         }
 
@@ -300,7 +301,7 @@ public final class DynamicQueryMethodReturn<T> implements MethodDynamicExecutabl
                     querySupplier,
                     paramsSupplier,
                     returnType,
-                    asyncResultType,
+                    returnDescriptor,
                     methodName,
                     totalSupplier);
         }
