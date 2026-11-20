@@ -30,9 +30,13 @@ import org.eclipse.jnosql.mapping.metadata.repository.spi.RepositoryInvocationCo
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
 
 /**
@@ -49,6 +53,8 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
             .or(Predicate.isEqual(BasicRepository.class))
             .or(Predicate.isEqual(NoSQLRepository.class));
     private static final Object[] EMPTY = new Object[0];
+    private static final Set<RepositoryMethodType> ASYNC_SUPPORTED_TYPES = EnumSet.of(RepositoryMethodType.FIND_BY,
+            RepositoryMethodType.FIND_ALL, RepositoryMethodType.QUERY, RepositoryMethodType.PARAMETER_BASED);
 
     protected final Map<Method, RepositoryMethodDescriptor> methodRepositoryTypeMap = new HashMap<>();
 
@@ -266,6 +272,7 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
         var repositoryMethod = repositoryMetadata().find(new ReflectionMethodKey(method));
         var type = repositoryMethod.map(RepositoryMethod::type).orElse(RepositoryMethodType.UNKNOWN);
         if (!RepositoryMethodType.UNKNOWN.equals(type)) {
+            checkAsyncSupport(method, type);
             RepositoryMethodDescriptor repositoryMethodType = new RepositoryMethodDescriptor(type, repositoryMethod.orElseThrow());
             this.methodRepositoryTypeMap.put(method, repositoryMethodType);
             return repositoryMethodType;
@@ -290,6 +297,15 @@ public abstract class AbstractRepositoryInvocationHandler<T, K> implements Invoc
      * @return the resolved descriptor, or {@code null} if the method type
      *         cannot be determined
      */
+    private void checkAsyncSupport(Method method, RepositoryMethodType type) {
+        var returnType = method.getReturnType();
+        boolean async = CompletionStage.class.equals(returnType) || CompletableFuture.class.equals(returnType);
+        if (async && !ASYNC_SUPPORTED_TYPES.contains(type)) {
+            throw new UnsupportedOperationException("Asynchronous return types are supported only by find and select"
+                    + " query methods, but the " + type + " method " + method + " returns " + returnType.getSimpleName());
+        }
+    }
+
     protected RepositoryMethodDescriptor resolveUnknownMethodType(Method method) {
         if (Object.class.equals(method.getDeclaringClass())) {
             return new RepositoryMethodDescriptor(RepositoryMethodType.OBJECT_METHOD, null);
