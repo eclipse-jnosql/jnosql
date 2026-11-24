@@ -61,6 +61,9 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
     }
 
     private QueryCondition toCondition(JDQLParser.Conditional_expressionContext ctx) {
+        if (Objects.nonNull(ctx.LPAREN())) {
+            return toCondition(ctx.conditional_expression(0));
+        }
         if (Objects.nonNull(ctx.AND())) {
             return logical(AND, ctx);
         }
@@ -111,14 +114,6 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
         var value = contexts.get(1);
         var literal = PrimaryFunction.INSTANCE.apply(value.primary_expression());
         return negateIf(new DefaultQueryCondition(name, contextCondition, literal), hasNot);
-    }
-
-    @Override
-    public void exitConditional_expression(JDQLParser.Conditional_expressionContext ctx) {
-        super.exitConditional_expression(ctx);
-       if(Objects.nonNull(ctx.LPAREN()) || Objects.nonNull(ctx.RPAREN())) {
-           throw new UnsupportedOperationException("Eclipse JNoSQL does not support parenthesis is not supported in the query: " + ctx.getText());
-        }
     }
 
     private QueryCondition nullComparison(JDQLParser.Null_comparison_expressionContext ctx) {
