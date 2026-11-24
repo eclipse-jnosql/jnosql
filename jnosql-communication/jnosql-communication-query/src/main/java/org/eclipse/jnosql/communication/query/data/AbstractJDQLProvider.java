@@ -15,6 +15,8 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
+import org.eclipse.jnosql.communication.QueryException;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.eclipse.jnosql.communication.query.QueryErrorListener;
 import org.eclipse.jnosql.query.grammar.data.JDQLBaseListener;
@@ -37,6 +39,11 @@ abstract class AbstractJDQLProvider extends JDQLBaseListener {
         parser.addErrorListener(QueryErrorListener.INSTANCE);
 
         var tree = getTree(parser);
+        var unconsumed = tokens.LT(1);
+        if (unconsumed.getType() != Token.EOF) {
+            throw new QueryException("line " + unconsumed.getLine() + ":" + unconsumed.getCharPositionInLine()
+                    + " extraneous input '" + unconsumed.getText() + "' expecting end of query");
+        }
         ParseTreeWalker.DEFAULT.walk(this, tree);
     }
 

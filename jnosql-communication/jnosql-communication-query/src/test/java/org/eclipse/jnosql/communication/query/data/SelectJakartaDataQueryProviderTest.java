@@ -24,6 +24,7 @@ import org.eclipse.jnosql.communication.query.SelectQuery;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -530,8 +531,16 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "Select id Where isOdd = true and (id = :id or id < :exclusiveMax) Order by id Desc")
-    void shouldReturnErrorWhenUseParenthesis(String query) {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> selectParser.apply(query, "entity"));
+    @DisplayName("Should Group Conditions With Parenthesis")
+    void shouldUseParenthesis(String query) {
+        var selectQuery = selectParser.apply(query, "entity");
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(selectQuery.fields()).containsExactly("id");
+            soft.assertThat(selectQuery.orderBy()).hasSize(1);
+            soft.assertThat(BooleanOperatorPrecedenceTest.render(selectQuery.where().orElseThrow()))
+                    .isEqualTo("AND(isOdd EQUALS true, OR(id EQUALS id, id LESSER_THAN exclusiveMax))");
+        });
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")

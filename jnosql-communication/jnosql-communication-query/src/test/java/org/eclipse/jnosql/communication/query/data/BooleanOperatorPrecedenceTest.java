@@ -11,6 +11,7 @@
  */
 package org.eclipse.jnosql.communication.query.data;
 
+import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.NullQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
@@ -19,6 +20,7 @@ import org.eclipse.jnosql.communication.query.Where;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
@@ -91,7 +93,7 @@ class BooleanOperatorPrecedenceTest {
     }
 
     @ParameterizedTest(name = "SELECT: {0}")
-    @MethodSource({"expressions", "predicateOperators"})
+    @MethodSource({"expressions", "predicateOperators", "grouped"})
     @DisplayName("Should resolve precedence in SELECT")
     void shouldResolveSelect(String predicate, String expected) {
         var query = new SelectParser().apply("FROM Person WHERE " + predicate, "Person");
@@ -99,7 +101,7 @@ class BooleanOperatorPrecedenceTest {
     }
 
     @ParameterizedTest(name = "DELETE: {0}")
-    @MethodSource({"expressions", "predicateOperators"})
+    @MethodSource({"expressions", "predicateOperators", "grouped"})
     @DisplayName("Should resolve precedence in DELETE")
     void shouldResolveDelete(String predicate, String expected) {
         var query = new DeleteParser().apply("DELETE FROM Person WHERE " + predicate);
@@ -107,7 +109,7 @@ class BooleanOperatorPrecedenceTest {
     }
 
     @ParameterizedTest(name = "UPDATE: {0}")
-    @MethodSource({"expressions", "predicateOperators"})
+    @MethodSource({"expressions", "predicateOperators", "grouped"})
     @DisplayName("Should resolve precedence in UPDATE")
     void shouldResolveUpdate(String predicate, String expected) {
         var query = new UpdateParser().apply("UPDATE Person SET active = true WHERE " + predicate);
@@ -124,16 +126,80 @@ class BooleanOperatorPrecedenceTest {
         assertThat(render(query.where().orElseThrow())).isEqualTo(expected);
     }
 
-    @DisplayName("Should keep rejecting parentheses")
-    @ParameterizedTest
-    @MethodSource("parenthesis")
-    void shouldRejectParenthesis(String predicate) {
-        assertThatThrownBy(() -> new SelectParser().apply("FROM Person WHERE " + predicate, "Person"))
-                .isInstanceOf(UnsupportedOperationException.class);
+    static Stream<Arguments> grouped() {
+        return Stream.of(
+                Arguments.of("(age = 10)", "age EQUALS 10"),
+                Arguments.of("((age = 10))", "age EQUALS 10"),
+                Arguments.of("(age = 10 AND salary > 1000)", "AND(age EQUALS 10, salary GREATER_THAN 1000)"),
+                Arguments.of("(age = 10 OR salary > 1000)", "OR(age EQUALS 10, salary GREATER_THAN 1000)"),
+                Arguments.of("age = 10 OR salary > 1000 AND active = TRUE",
+                        "OR(age EQUALS 10, AND(salary GREATER_THAN 1000, active EQUALS true))"),
+                Arguments.of("(age = 10 OR salary > 1000) AND active = TRUE",
+                        "AND(OR(age EQUALS 10, salary GREATER_THAN 1000), active EQUALS true)"),
+                Arguments.of("active = TRUE AND (age = 10 OR salary > 1000)",
+                        "AND(active EQUALS true, OR(age EQUALS 10, salary GREATER_THAN 1000))"),
+                Arguments.of("(age = 10 AND salary > 1000) OR active = TRUE",
+                        "OR(AND(age EQUALS 10, salary GREATER_THAN 1000), active EQUALS true)"),
+                Arguments.of("active = TRUE OR (age = 10 AND salary > 1000)",
+                        "OR(active EQUALS true, AND(age EQUALS 10, salary GREATER_THAN 1000))"),
+                Arguments.of("(age = 10 OR age = 20) AND (active = TRUE OR salary > 1000)",
+                        "AND(OR(age EQUALS 10, age EQUALS 20), OR(active EQUALS true, salary GREATER_THAN 1000))"),
+                Arguments.of("(age = 10 AND salary = 1000) OR (name = 'John' AND city = 'Rome')",
+                        "OR(AND(age EQUALS 10, salary EQUALS 1000), AND(name EQUALS John, city EQUALS Rome))"),
+                Arguments.of("active = TRUE AND (age = 10 OR (name = 'John' AND city = 'Rome'))",
+                        "AND(active EQUALS true, OR(age EQUALS 10, AND(name EQUALS John, city EQUALS Rome)))"),
+                Arguments.of("(age = 10 AND salary = 1000) AND name = 'John'",
+                        "AND(age EQUALS 10, salary EQUALS 1000, name EQUALS John)"),
+                Arguments.of("age = 10 OR (salary = 1000 OR name = 'John')",
+                        "OR(age EQUALS 10, salary EQUALS 1000, name EQUALS John)"),
+                Arguments.of("NOT (age = 10 AND active = TRUE)", "NOT(AND(age EQUALS 10, active EQUALS true))"),
+                Arguments.of("NOT (age = 10 OR active = TRUE)", "NOT(OR(age EQUALS 10, active EQUALS true))"),
+                Arguments.of("NOT (NOT age = 10)", "age EQUALS 10"),
+                Arguments.of("NOT (age = 10 OR salary = 1000) AND name = 'John'",
+                        "AND(NOT(OR(age EQUALS 10, salary EQUALS 1000)), name EQUALS John)"),
+                Arguments.of("(age BETWEEN 10 AND 20 OR active = TRUE) AND salary > 1000",
+                        "AND(OR(age BETWEEN [10, 20], active EQUALS true), salary GREATER_THAN 1000)"),
+                Arguments.of("NOT (age IN (10, 20) OR active = TRUE)",
+                        "NOT(OR(age IN [10, 20], active EQUALS true))"),
+                Arguments.of("(name NOT LIKE 'John%' OR name IS NULL) AND active = TRUE",
+                        "AND(OR(NOT(name LIKE John%), name EQUALS null), active EQUALS true)"),
+                Arguments.of("(age = :age OR salary > :salary) AND active = :active",
+                        "AND(OR(age EQUALS age, salary GREATER_THAN salary), active EQUALS active)"),
+                Arguments.of("(age = ?1 OR salary > ?2) AND active = ?3",
+                        "AND(OR(age EQUALS ?1, salary GREATER_THAN ?2), active EQUALS ?3)")
+        );
     }
 
-    static Stream<String> parenthesis() {
-        return Stream.of("(age = 10 OR salary = 1000) AND name = 'John'", "NOT (age = 10)");
+    @DisplayName("Should reject malformed conditional parentheses")
+    @ParameterizedTest
+    @MethodSource("malformedParenthesis")
+    void shouldRejectMalformedParenthesis(String predicate) {
+        assertThatThrownBy(() -> new SelectParser().apply("FROM Person WHERE " + predicate, "Person"))
+                .isInstanceOf(RuntimeException.class);
+    }
+
+    @DisplayName("Should reject unconsumed trailing input in SELECT, DELETE and UPDATE")
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "FROM Person WHERE (age = 10)) AND active = TRUE",
+            "FROM Person WHERE age = 10)",
+            "DELETE FROM Person WHERE (age = 10)) AND active = TRUE",
+            "UPDATE Person SET active = FALSE WHERE (age = 10)) AND salary < 1000"
+    })
+    void shouldRejectExtraClosingParenthesis(String query) {
+        assertThatThrownBy(() -> {
+            if (query.startsWith("DELETE")) {
+                new DeleteParser().apply(query);
+            } else if (query.startsWith("UPDATE")) {
+                new UpdateParser().apply(query);
+            } else {
+                new SelectParser().apply(query, "Person");
+            }
+        }).isInstanceOf(QueryException.class);
+    }
+
+    static Stream<String> malformedParenthesis() {
+        return Stream.of("()", "(age = 10", "(age = 10 OR)");
     }
 
     static String render(Where where) {
