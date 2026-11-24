@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
+import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
 import org.eclipse.jnosql.mapping.core.repository.returns.AsyncReturnFixtures.Product;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +23,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
@@ -155,6 +159,107 @@ class CompletableFutureRepositoryReturnTest {
             var future = (CompletableFuture<?>) repositoryReturn.convert(dynamic);
 
             assertThatThrownBy(() -> future.get(5, TimeUnit.SECONDS)).hasCause(failure);
+        }
+    }
+
+    @Nested
+    @DisplayName("When running on virtual threads")
+    class WhenTheVirtualExecution {
+
+        private final ThreadPoolAsyncExecutor virtual = new ThreadPoolAsyncExecutor(
+                Executors.newVirtualThreadPerTaskExecutor());
+
+        private final CompletableFutureRepositoryReturn virtualReturn = new CompletableFutureRepositoryReturn(
+                new AsyncExecutorProvider(List::of, () -> virtual));
+
+        @AfterEach
+        void close() {
+            virtual.close();
+        }
+
+        private CompletableFuture<?> convert(DynamicReturn<?> dynamic) {
+            return (CompletableFuture<?>) virtualReturn.convert(dynamic);
+        }
+
+        @Test
+        @DisplayName("Should run the operation on a virtual thread, not on the caller")
+        void shouldRunOnVirtualThread() {
+            var thread = new AtomicReference<Thread>();
+            var dynamic = asynchronous(CompletableFuture.class, Optional.class, () -> {
+                thread.set(Thread.currentThread());
+                return Optional.of(new Product("Notebook"));
+            }, Stream::empty);
+
+            var result = convert(dynamic).toCompletableFuture().orTimeout(5, TimeUnit.SECONDS).join();
+
+            assertSoftly(softly -> {
+                softly.assertThat(result).as("result").isEqualTo(Optional.of(new Product("Notebook")));
+                softly.assertThat(thread.get().isVirtual()).as("virtual").isTrue();
+                softly.assertThat(thread.get()).as("caller").isNotSameAs(Thread.currentThread());
+            });
+        }
+
+        @Test
+        @DisplayName("Should return an empty result")
+        void shouldReturnEmpty() {
+            var dynamic = asynchronous(CompletableFuture.class, Optional.class, Optional::empty, Stream::empty);
+
+            var result = convert(dynamic).toCompletableFuture().orTimeout(5, TimeUnit.SECONDS).join();
+
+            assertThat(result).isEqualTo(Optional.empty());
+        }
+
+        @Test
+        @DisplayName("Should return the list result")
+        void shouldReturnList() {
+            var dynamic = asynchronous(CompletableFuture.class, List.class, Optional::empty,
+                    () -> Stream.of(new Product("Notebook"), new Product("Pen")));
+
+            var result = convert(dynamic).toCompletableFuture().orTimeout(5, TimeUnit.SECONDS).join();
+
+            assertThat(result).isEqualTo(List.of(new Product("Notebook"), new Product("Pen")));
+        }
+
+        @Test
+        @DisplayName("Should complete exceptionally with the original exception")
+        void shouldCompleteExceptionally() {
+            var failure = new IllegalStateException("down");
+            var dynamic = asynchronous(CompletableFuture.class, Optional.class, () -> {
+                throw failure;
+            }, Stream::empty);
+
+            var future = convert(dynamic).toCompletableFuture();
+
+            assertThatThrownBy(() -> future.get(5, TimeUnit.SECONDS)).hasCause(failure);
+        }
+
+        @Test
+        @DisplayName("Should honour cancellation of the returned result while the operation runs")
+        void shouldHonourCancellation() throws Exception {
+            var started = new CountDownLatch(1);
+            var release = new CountDownLatch(1);
+            var finished = new CountDownLatch(1);
+            var dynamic = asynchronous(CompletableFuture.class, Optional.class, () -> {
+                started.countDown();
+                try {
+                    release.await(5, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                finished.countDown();
+                return Optional.empty();
+            }, Stream::empty);
+
+            var future = convert(dynamic).toCompletableFuture();
+            started.await(5, TimeUnit.SECONDS);
+            future.cancel(true);
+            release.countDown();
+
+            assertSoftly(softly -> {
+                softly.assertThat(future.isCancelled()).as("cancelled").isTrue();
+                softly.assertThatThrownBy(future::join).as("join").isInstanceOf(CancellationException.class);
+            });
+            assertThat(finished.await(5, TimeUnit.SECONDS)).as("operation finished untouched").isTrue();
         }
     }
 }

@@ -30,6 +30,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
@@ -111,6 +112,59 @@ class ThreadPoolAsyncExecutorTest {
 
             assertThatThrownBy(() -> ThreadPoolAsyncExecutor.owning(settings))
                     .isInstanceOf(IllegalStateException.class).hasMessageContaining("positive integer");
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"zero", "0", "-1", "", "1.5"})
+        @DisplayName("Should reject an invalid queue capacity")
+        void shouldRejectInvalidQueueCapacity(String value) {
+            var settings = Settings.of(Map.of("jnosql.repository.async.queue-capacity", value));
+
+            assertThatThrownBy(() -> ThreadPoolAsyncExecutor.owning(settings))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("jnosql.repository.async.queue-capacity")
+                    .hasMessageContaining("positive integer");
+        }
+
+        @Test
+        @DisplayName("Should queue as many operations as the default capacity of 1000 before rejecting")
+        void shouldUseDefaultQueueCapacity() {
+            var release = new CompletableFuture<Void>();
+            try (var async = ThreadPoolAsyncExecutor.owning(Settings.of(Map.of(
+                    "jnosql.repository.async.pool-size", "1")))) {
+                async.execute(release::join);
+                var queued = IntStream.range(0, 1_000).mapToObj(index -> async.execute(() -> index)).toList();
+                var rejected = async.execute(() -> "never runs");
+                release.complete(null);
+
+                assertSoftly(softly -> {
+                    softly.assertThat(queued).as("queued").noneMatch(CompletableFuture::isCompletedExceptionally);
+                    softly.assertThat(rejected.isCompletedExceptionally()).as("rejected").isTrue();
+                    softly.assertThat(queued.get(999).orTimeout(5, TimeUnit.SECONDS).join()).as("last").isEqualTo(999);
+                });
+            }
+        }
+
+        @Test
+        @DisplayName("Should respect the configured queue capacity")
+        void shouldUseConfiguredQueueCapacity() {
+            var release = new CompletableFuture<Void>();
+            try (var async = ThreadPoolAsyncExecutor.owning(Settings.of(Map.of(
+                    "jnosql.repository.async.pool-size", "1",
+                    "jnosql.repository.async.queue-capacity", "2")))) {
+                async.execute(release::join);
+                var first = async.execute(() -> 1);
+                var second = async.execute(() -> 2);
+                var rejected = async.execute(() -> 3);
+                release.complete(null);
+
+                assertSoftly(softly -> {
+                    softly.assertThat(rejected.isCompletedExceptionally()).as("rejected").isTrue();
+                    softly.assertThatThrownBy(rejected::join).hasCauseInstanceOf(RejectedExecutionException.class);
+                    softly.assertThat(first.orTimeout(5, TimeUnit.SECONDS).join()).isEqualTo(1);
+                    softly.assertThat(second.orTimeout(5, TimeUnit.SECONDS).join()).isEqualTo(2);
+                });
+            }
         }
 
         @Test

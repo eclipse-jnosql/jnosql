@@ -90,11 +90,28 @@ public enum MappingConfigurations implements Supplier<String> {
      */
     GRAPH_TRANSACTION_AUTOMATIC("jnosql.graph.transaction.automatic"),
     /**
-     * Defines the thread count of the JNoSQL-owned executor used by asynchronous repository methods, those declared
+     * Selects the JNoSQL-owned executor used by asynchronous repository methods, those declared
      * with {@link java.util.concurrent.CompletionStage} or {@link java.util.concurrent.CompletableFuture},
-     * when no {@code RepositoryAsyncExecutor} provider is registered. It is ignored otherwise. The default is twice the number of available processors.
+     * when no {@code RepositoryAsyncExecutor} provider is registered. It is ignored otherwise.
+     * The supported values are {@code platform}, a bounded pool of platform threads, and {@code virtual},
+     * one virtual thread per operation. The default is {@code platform}.
      */
-    REPOSITORY_ASYNC_POOL_SIZE("jnosql.repository.async.pool-size");
+    REPOSITORY_ASYNC_EXECUTOR("jnosql.repository.async.executor"),
+    /**
+     * Defines the thread count of the JNoSQL-owned platform-thread executor used by asynchronous repository methods,
+     * those declared with {@link java.util.concurrent.CompletionStage} or {@link java.util.concurrent.CompletableFuture}.
+     * It is ignored when a {@code RepositoryAsyncExecutor} provider is registered or when
+     * {@link #REPOSITORY_ASYNC_EXECUTOR} is {@code virtual}. It must be a positive integer.
+     * The default is twice the number of available processors.
+     */
+    REPOSITORY_ASYNC_POOL_SIZE("jnosql.repository.async.pool-size"),
+    /**
+     * Defines the capacity of the queue of the JNoSQL-owned platform-thread executor used by asynchronous repository
+     * methods. Operations submitted while the queue is full complete exceptionally.
+     * It is ignored when a {@code RepositoryAsyncExecutor} provider is registered or when
+     * {@link #REPOSITORY_ASYNC_EXECUTOR} is {@code virtual}. It must be a positive integer. The default is 1000.
+     */
+    REPOSITORY_ASYNC_QUEUE_CAPACITY("jnosql.repository.async.queue-capacity");
 
 
     private final String value;

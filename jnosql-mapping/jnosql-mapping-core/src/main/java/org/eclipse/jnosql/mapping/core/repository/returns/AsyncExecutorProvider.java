@@ -33,9 +33,11 @@ import java.util.function.Supplier;
  * Selects the {@link RepositoryAsyncExecutor} once and runs asynchronous repository operations on it.
  *
  * <p>Providers are discovered with {@link ServiceLoader} on first use and the choice is then reused: a single
- * provider is used as is, no provider selects the JNoSQL-owned Java SE pool, and several providers or an
- * unloadable provider fail with an {@link IllegalStateException}. Failures are not cached, so a corrected
- * environment can succeed later. Only the fallback pool is shut down by {@link #close()}.</p>
+ * provider is used as is without reading any built-in executor setting, no provider selects the JNoSQL-owned
+ * Java SE executor configured by {@code jnosql.repository.async.executor} (platform threads by default), and
+ * several providers, an unloadable provider or an invalid built-in setting fail with an
+ * {@link IllegalStateException}. Failures are not cached, so a corrected environment can succeed later.
+ * Only the JNoSQL-owned executor is shut down by {@link #close()}.</p>
  */
 final class AsyncExecutorProvider implements AutoCloseable {
 
@@ -59,7 +61,8 @@ final class AsyncExecutorProvider implements AutoCloseable {
         var key = loader == null ? ClassLoader.getSystemClassLoader() : loader;
         synchronized (SHARED) {
             return SHARED.computeIfAbsent(key, k -> new AsyncExecutorProvider(AsyncExecutorProvider::loadProviders,
-                    () -> ThreadPoolAsyncExecutor.owning(MicroProfileSettings.INSTANCE)));
+                    () -> AsyncExecutorStrategy.from(MicroProfileSettings.INSTANCE)
+                            .create(MicroProfileSettings.INSTANCE)));
         }
     }
 

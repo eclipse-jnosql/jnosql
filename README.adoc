@@ -150,6 +150,44 @@ List<Product> keyboards = repository.findByName("Keyboard");
 
 Use a `Template` for direct programmatic persistence operations and a repository for a declarative interface. Neither replaces the other: repositories do not remove the need for specialized templates when you need model-specific operations.
 
+=== Asynchronous Repository Methods
+
+Repository methods declared with `CompletionStage<T>` or `CompletableFuture<T>` run off the calling thread. By default they use a bounded pool of platform threads. Virtual threads are opt-in through a single property:
+
+[source,properties]
+----
+# platform threads (default)
+jnosql.repository.async.executor=platform
+jnosql.repository.async.pool-size=16
+jnosql.repository.async.queue-capacity=1000
+----
+
+[source,properties]
+----
+# one virtual thread per operation
+jnosql.repository.async.executor=virtual
+----
+
+[cols="3,1,1,1"]
+|===
+|Property |Default |Platform |Virtual
+
+|`jnosql.repository.async.executor`
+|`platform`
+|Applicable
+|Applicable
+
+|`jnosql.repository.async.pool-size`
+|CPUs × 2
+|Applicable
+|Ignored
+
+|`jnosql.repository.async.queue-capacity`
+|`1000`
+|Applicable
+|Ignored
+|===
+
 == Querying with Jakarta Query
 
 https://github.com/jakartaee/query[Jakarta Query] defines a common object-oriented query language for Jakarta persistence APIs, such as Jakarta Data repositories. It has two levels:
