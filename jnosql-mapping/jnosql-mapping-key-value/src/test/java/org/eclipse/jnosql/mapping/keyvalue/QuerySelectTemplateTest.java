@@ -98,10 +98,17 @@ public class QuerySelectTemplateTest {
 
         @ParameterizedTest
         @DisplayName("Should error when select is not support key-value")
-        @ValueSource(strings = {"SELECT name, age FROM User", "FROM User", "From User skip 10", "From User limit 10", "From User ORDER BY name",
+        @ValueSource(strings = {"SELECT name, age FROM User", "FROM User", "From User ORDER BY name",
                 "From User ORDER BY name DESC", "From User ORDER BY name ASC", "select count(this) FROM User"})
         void shouldErrorWhenSelectIsNotSupportKeyValue(String text) {
             assertThatThrownBy(() -> template.query(text)).isInstanceOf(UnsupportedOperationException.class);
+        }
+
+        @ParameterizedTest
+        @DisplayName("Should reject skip and limit as they are not part of the query grammar")
+        @ValueSource(strings = {"From User skip 10", "From User limit 10"})
+        void shouldRejectSkipAndLimitSyntax(String text) {
+            assertThatThrownBy(() -> template.query(text)).isInstanceOf(QueryException.class);
         }
 
         @ParameterizedTest

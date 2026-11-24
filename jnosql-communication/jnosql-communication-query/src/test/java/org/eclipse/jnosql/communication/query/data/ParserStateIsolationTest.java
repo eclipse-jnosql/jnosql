@@ -82,8 +82,8 @@ class ParserStateIsolationTest {
         var parser = new DeleteParser();
         assertThatThrownBy(() -> parser.apply("DELETE FROM Person WHERE age = 10 AND AND"))
                 .isInstanceOf(RuntimeException.class);
-        assertThatThrownBy(() -> parser.apply("DELETE FROM Person WHERE (age = 10)"))
-                .isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> parser.apply("DELETE FROM Person WHERE (age = 10"))
+                .isInstanceOf(RuntimeException.class);
         assertThat(parser.apply("DELETE FROM Person").where()).isEmpty();
     }
 
@@ -149,5 +149,31 @@ class ParserStateIsolationTest {
         var query = new DeleteParser().apply("DELETE FROM Person WHERE NOT age NOT IN (10, 20)");
         assertThat(BooleanOperatorPrecedenceTest.render(query.where().orElseThrow()))
                 .isEqualTo("age IN [10, 20]");
+    }
+
+    @Test
+    @DisplayName("Parenthesized conditions must not leak into following queries")
+    void shouldNotLeakParenthesizedGrouping() {
+        var parser = new SelectParser();
+        var grouped = parser.apply("FROM Person WHERE (age = 10 OR age = 20) AND active = TRUE", "Person");
+        assertThat(BooleanOperatorPrecedenceTest.render(grouped.where().orElseThrow()))
+                .isEqualTo("AND(OR(age EQUALS 10, age EQUALS 20), active EQUALS true)");
+
+        var plain = parser.apply("FROM Person WHERE age = 10 OR age = 20 AND active = TRUE", "Person");
+        assertThat(BooleanOperatorPrecedenceTest.render(plain.where().orElseThrow()))
+                .isEqualTo("OR(age EQUALS 10, AND(age EQUALS 20, active EQUALS true))");
+
+        assertThat(parser.apply("FROM Person", "Person").where()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("A valid query after a malformed parenthesized one must have no residual state")
+    void shouldRecoverAfterMalformedParenthesis() {
+        var parser = new DeleteParser();
+        assertThatThrownBy(() -> parser.apply("DELETE FROM Person WHERE (age = 10 OR"))
+                .isInstanceOf(RuntimeException.class);
+        var query = parser.apply("DELETE FROM Person WHERE (age = 10 OR age = 20) AND active = FALSE");
+        assertThat(BooleanOperatorPrecedenceTest.render(query.where().orElseThrow()))
+                .isEqualTo("AND(OR(age EQUALS 10, age EQUALS 20), active EQUALS false)");
     }
 }
