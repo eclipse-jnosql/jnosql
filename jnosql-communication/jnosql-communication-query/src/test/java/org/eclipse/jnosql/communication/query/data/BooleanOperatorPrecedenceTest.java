@@ -11,6 +11,7 @@
  */
 package org.eclipse.jnosql.communication.query.data;
 
+import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.NullQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
@@ -19,6 +20,7 @@ import org.eclipse.jnosql.communication.query.Where;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
@@ -174,6 +176,26 @@ class BooleanOperatorPrecedenceTest {
     void shouldRejectMalformedParenthesis(String predicate) {
         assertThatThrownBy(() -> new SelectParser().apply("FROM Person WHERE " + predicate, "Person"))
                 .isInstanceOf(RuntimeException.class);
+    }
+
+    @DisplayName("Should reject unconsumed trailing input in SELECT, DELETE and UPDATE")
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "FROM Person WHERE (age = 10)) AND active = TRUE",
+            "FROM Person WHERE age = 10)",
+            "DELETE FROM Person WHERE (age = 10)) AND active = TRUE",
+            "UPDATE Person SET active = FALSE WHERE (age = 10)) AND salary < 1000"
+    })
+    void shouldRejectExtraClosingParenthesis(String query) {
+        assertThatThrownBy(() -> {
+            if (query.startsWith("DELETE")) {
+                new DeleteParser().apply(query);
+            } else if (query.startsWith("UPDATE")) {
+                new UpdateParser().apply(query);
+            } else {
+                new SelectParser().apply(query, "Person");
+            }
+        }).isInstanceOf(QueryException.class);
     }
 
     static Stream<String> malformedParenthesis() {
