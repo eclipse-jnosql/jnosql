@@ -569,9 +569,16 @@ class SelectJakartaDataQueryProviderTest {
 
     @ParameterizedTest(name = "Should parser the query {0}")
     @ValueSource(strings = "Select id Where isOdd = true and (id = :id or id < :exclusiveMax) Order by id Desc")
-    @DisplayName("Should Return Error When Use Parenthesis")
-    void shouldReturnErrorWhenUseParenthesis(String query) {
-        assertThatThrownBy(() -> selectParser.apply(query, "entity")).isInstanceOf(UnsupportedOperationException.class);
+    @DisplayName("Should Group Conditions With Parenthesis")
+    void shouldUseParenthesis(String query) {
+        var selectQuery = selectParser.apply(query, "entity");
+
+        SoftAssertions.assertSoftly(soft -> {
+            soft.assertThat(selectQuery.fields()).containsExactly("id");
+            soft.assertThat(selectQuery.orderBy()).hasSize(1);
+            soft.assertThat(BooleanOperatorPrecedenceTest.render(selectQuery.where().orElseThrow()))
+                    .isEqualTo("AND(isOdd EQUALS true, OR(id EQUALS id, id LESSER_THAN exclusiveMax))");
+        });
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
