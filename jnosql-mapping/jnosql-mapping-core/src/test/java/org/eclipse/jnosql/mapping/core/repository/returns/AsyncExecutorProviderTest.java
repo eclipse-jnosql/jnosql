@@ -14,6 +14,7 @@
  */
 package org.eclipse.jnosql.mapping.core.repository.returns;
 
+import org.eclipse.jnosql.communication.Settings;
 import org.eclipse.jnosql.mapping.core.repository.returns.AsyncReturnFixtures.Product;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,6 +27,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -34,6 +36,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -412,6 +415,162 @@ class AsyncExecutorProviderTest {
             provider.close();
 
             assertSoftly(softly -> softly.assertThat(closed).hasValue(0));
+        }
+    }
+
+    @Nested
+    @DisplayName("When resolving the built-in strategy")
+    class WhenTheStrategyResolution {
+
+        private static final String EXECUTOR = "jnosql.repository.async.executor";
+
+        private AsyncExecutorProvider configured(Settings settings, AtomicInteger creations,
+                                                 List<RepositoryAsyncExecutor> found) {
+            return new AsyncExecutorProvider(() -> found, () -> {
+                creations.incrementAndGet();
+                return AsyncExecutorStrategy.from(settings).create(settings);
+            });
+        }
+
+        @Test
+        @DisplayName("Should use platform threads when no executor is configured")
+        void shouldDefaultToPlatform() {
+            try (var provider = configured(Settings.of(Map.of()), new AtomicInteger(), List.of())) {
+                var thread = provider.get().execute(Thread::currentThread).toCompletableFuture().join();
+
+                assertSoftly(softly -> softly.assertThat(thread.isVirtual()).isFalse());
+            }
+        }
+
+        @Test
+        @DisplayName("Should use platform threads when configured")
+        void shouldUsePlatform() {
+            try (var provider = configured(Settings.of(Map.of(EXECUTOR, "platform")), new AtomicInteger(), List.of())) {
+                var thread = provider.get().execute(Thread::currentThread).toCompletableFuture().join();
+
+                assertSoftly(softly -> softly.assertThat(thread.isVirtual()).isFalse());
+            }
+        }
+
+        @Test
+        @DisplayName("Should use virtual threads when configured")
+        void shouldUseVirtual() {
+            try (var provider = configured(Settings.of(Map.of(EXECUTOR, "virtual")), new AtomicInteger(), List.of())) {
+                var thread = provider.get().execute(Thread::currentThread).toCompletableFuture().join();
+
+                assertSoftly(softly -> softly.assertThat(thread.isVirtual()).isTrue());
+            }
+        }
+
+        @Test
+        @DisplayName("Should fail on an unsupported executor and retry once it is corrected")
+        void shouldFailOnUnsupportedExecutor() {
+            var value = new AtomicReference<String>("fixed");
+            var provider = new AsyncExecutorProvider(List::of, () -> {
+                var settings = Settings.of(Map.of(EXECUTOR, value.get()));
+                return AsyncExecutorStrategy.from(settings).create(settings);
+            });
+
+            assertThatThrownBy(provider::get).isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining(EXECUTOR).hasMessageContaining("fixed");
+            value.set("virtual");
+            try (provider) {
+                assertSoftly(softly -> softly.assertThat(provider.get()).isInstanceOf(ThreadPoolAsyncExecutor.class));
+            }
+        }
+
+        @Test
+        @DisplayName("Should give a custom provider precedence without reading any built-in setting")
+        void shouldPreferCustomProvider() {
+            var stub = new StubProvider();
+            var settings = new RecordingSettings(Settings.of(Map.of(EXECUTOR, "invalid",
+                    "jnosql.repository.async.pool-size", "invalid", "jnosql.repository.async.queue-capacity", "-1")));
+            var creations = new AtomicInteger();
+
+            var provider = configured(settings.settings, creations, List.of(stub));
+
+            assertSoftly(softly -> {
+                softly.assertThat(provider.get()).isSameAs(stub);
+                softly.assertThat(creations).hasValue(0);
+                softly.assertThat(settings.accesses).isEmpty();
+            });
+        }
+
+        @Test
+        @DisplayName("Should keep failing on conflicting providers without reading any built-in setting")
+        void shouldKeepConflictBehaviour() {
+            var settings = new RecordingSettings(Settings.of(Map.of(EXECUTOR, "virtual")));
+            var provider = configured(settings.settings, new AtomicInteger(),
+                    List.of(new StubProvider(), new OtherProvider()));
+
+            assertSoftly(softly -> {
+                softly.assertThatThrownBy(provider::get).isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining(StubProvider.class.getName())
+                        .hasMessageContaining(OtherProvider.class.getName());
+                softly.assertThat(settings.accesses).isEmpty();
+            });
+        }
+
+        @Test
+        @DisplayName("Should shut the owned virtual executor down on close")
+        void shouldShutDownOwnedVirtualExecutor() {
+            var provider = configured(Settings.of(Map.of(EXECUTOR, "virtual")), new AtomicInteger(), List.of());
+            var executor = provider.get();
+
+            provider.close();
+
+            assertSoftly(softly -> softly.assertThat(executor.execute(() -> "late").toCompletableFuture()
+                    .isCompletedExceptionally()).isTrue());
+        }
+
+        @Test
+        @DisplayName("Should shut the owned platform executor down on close")
+        void shouldShutDownOwnedPlatformExecutor() {
+            var provider = configured(Settings.of(Map.of(EXECUTOR, "platform")), new AtomicInteger(), List.of());
+            var executor = provider.get();
+
+            provider.close();
+
+            assertSoftly(softly -> softly.assertThat(executor.execute(() -> "late").toCompletableFuture()
+                    .isCompletedExceptionally()).isTrue());
+        }
+
+        @Test
+        @DisplayName("Should resolve one executor when callers race")
+        void shouldResolveOnceWhenRacing() throws Exception {
+            int callers = 8;
+            var creations = new AtomicInteger();
+            var start = new CountDownLatch(1);
+            var provider = configured(Settings.of(Map.of(EXECUTOR, "virtual")), creations, List.of());
+            try (provider; var pool = Executors.newFixedThreadPool(callers)) {
+                var futures = Stream.generate(() -> pool.submit(() -> {
+                    start.await();
+                    return provider.get();
+                })).limit(callers).toList();
+                start.countDown();
+                var resolved = new java.util.HashSet<RepositoryAsyncExecutor>();
+                for (var future : futures) {
+                    resolved.add(future.get(5, TimeUnit.SECONDS));
+                }
+
+                assertSoftly(softly -> {
+                    softly.assertThat(resolved).hasSize(1);
+                    softly.assertThat(creations).hasValue(1);
+                });
+            }
+        }
+    }
+
+    private static final class RecordingSettings {
+        private final List<String> accesses = new java.util.concurrent.CopyOnWriteArrayList<>();
+        private final Settings settings;
+
+        private RecordingSettings(Settings delegate) {
+            this.settings = (Settings) java.lang.reflect.Proxy.newProxyInstance(Settings.class.getClassLoader(),
+                    new Class<?>[]{Settings.class}, (proxy, method, args) -> {
+                        accesses.add(method.getName());
+                        return method.invoke(delegate, args);
+                    });
         }
     }
 
