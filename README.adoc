@@ -150,6 +150,51 @@ List<Product> keyboards = repository.findByName("Keyboard");
 
 Use a `Template` for direct programmatic persistence operations and a repository for a declarative interface. Neither replaces the other: repositories do not remove the need for specialized templates when you need model-specific operations.
 
+=== Asynchronous Repository Methods
+
+Repository methods declared with `CompletionStage<T>` or `CompletableFuture<T>` run off the calling thread. By default they use a bounded pool of platform threads. Virtual threads are opt-in through a single property:
+
+[source,properties]
+----
+# platform threads (default)
+jnosql.repository.async.executor=platform
+jnosql.repository.async.pool-size=16
+jnosql.repository.async.queue-capacity=1000
+----
+
+[source,properties]
+----
+# one virtual thread per operation
+jnosql.repository.async.executor=virtual
+----
+
+[cols="3,1,1,1"]
+|===
+|Property |Default |Platform |Virtual
+
+|`jnosql.repository.async.executor`
+|`platform`
+|Applicable
+|Applicable
+
+|`jnosql.repository.async.pool-size`
+|CPUs × 2
+|Applicable
+|Ignored
+
+|`jnosql.repository.async.queue-capacity`
+|`1000`
+|Applicable
+|Ignored
+|===
+
+* Platform threads remain the default; virtual threads are opt-in. Any value other than `platform` or `virtual` is rejected with an `IllegalStateException`.
+* The pool size and queue capacity must be positive integers. They are not read, and so not validated, when `virtual` is selected, which lets you switch strategy by changing one property.
+* A custom `RepositoryAsyncExecutor` registered through the `ServiceLoader` takes precedence over the built-in configuration: none of these properties are read, and the provider owns its own lifecycle. Several providers fail explicitly.
+* Virtual threads improve the scalability of concurrent blocking I/O operations, but they do not turn a blocking database driver into a non-blocking one. See https://openjdk.org/jeps/444[JEP 444 — Virtual Threads].
+* Virtual threads do not propagate Jakarta EE transaction, security, or CDI request contexts. Applications that need container-managed execution should register a custom `RepositoryAsyncExecutor`, for example one backed by a Jakarta Concurrency managed executor.
+* Cancelling the returned future only prevents an operation that has not started; a running database call is not interrupted.
+
 == Querying with Jakarta Query
 
 https://github.com/jakartaee/query[Jakarta Query] defines a common object-oriented query language for Jakarta persistence APIs, such as Jakarta Data repositories. It has two levels:
