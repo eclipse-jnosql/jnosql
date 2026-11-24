@@ -22,8 +22,6 @@ import org.eclipse.jnosql.communication.query.Where;
 import org.eclipse.jnosql.query.grammar.data.JDQLParser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,8 +35,6 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
     protected Where where;
 
     protected QueryCondition condition;
-
-    protected boolean and = true;
 
     protected String entity;
 
@@ -57,15 +53,51 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
     }
 
     @Override
-    public void exitComparison_expression(JDQLParser.Comparison_expressionContext ctx) {
-        super.exitComparison_expression(ctx);
-        boolean hasNot = false;
-        boolean andCondition = true;
-        if (ctx.getParent() instanceof JDQLParser.Conditional_expressionContext ctxParent
-                && ctxParent.getParent() instanceof JDQLParser.Conditional_expressionContext grandParent) {
-            hasNot = Objects.nonNull(grandParent.NOT());
-            andCondition = Objects.isNull(grandParent.OR());
+    public void exitWhere_clause(JDQLParser.Where_clauseContext ctx) {
+        super.exitWhere_clause(ctx);
+        this.condition = toCondition(ctx.conditional_expression());
+    }
+
+    private QueryCondition toCondition(JDQLParser.Conditional_expressionContext ctx) {
+        if (Objects.nonNull(ctx.AND())) {
+            return logical(AND, ctx);
         }
+        if (Objects.nonNull(ctx.OR())) {
+            return logical(OR, ctx);
+        }
+        if (Objects.nonNull(ctx.NOT())) {
+            return negate(toCondition(ctx.conditional_expression(0)));
+        }
+        if (Objects.nonNull(ctx.null_comparison_expression())) {
+            return nullComparison(ctx.null_comparison_expression());
+        }
+        if (Objects.nonNull(ctx.in_expression())) {
+            return inCondition(ctx.in_expression());
+        }
+        if (Objects.nonNull(ctx.between_expression())) {
+            return betweenCondition(ctx.between_expression());
+        }
+        if (Objects.nonNull(ctx.like_expression())) {
+            return likeCondition(ctx.like_expression());
+        }
+        return comparison(ctx.comparison_expression());
+    }
+
+    private QueryCondition logical(Condition operator, JDQLParser.Conditional_expressionContext ctx) {
+        List<QueryCondition> operands = new ArrayList<>();
+        for (var operand : ctx.conditional_expression()) {
+            var condition = toCondition(operand);
+            if (operator.equals(condition.condition())) {
+                operands.addAll(((ConditionQueryValue) condition.value()).get());
+            } else {
+                operands.add(condition);
+            }
+        }
+        return new DefaultQueryCondition("_" + operator.name(), operator, ConditionQueryValue.of(operands));
+    }
+
+    private QueryCondition comparison(JDQLParser.Comparison_expressionContext ctx) {
+        boolean hasNot = false;
         var contexts = ctx.scalar_expression();
         var contextCondition = getCondition(ctx);
 
@@ -76,11 +108,7 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
         var name = contexts.get(0).getText();
         var value = contexts.get(1);
         var literal = PrimaryFunction.INSTANCE.apply(value.primary_expression());
-        if (this.condition != null && this.condition.value() instanceof ConditionQueryValue) {
-            and = andCondition;
-        }
-        checkCondition(new DefaultQueryCondition(name, contextCondition, literal), hasNot);
-        and = andCondition;
+        return negateIf(new DefaultQueryCondition(name, contextCondition, literal), hasNot);
     }
 
     @Override
@@ -91,81 +119,38 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
         }
     }
 
-    @Override
-    public void exitNull_comparison_expression(JDQLParser.Null_comparison_expressionContext ctx) {
-        super.exitNull_comparison_expression(ctx);
+    private QueryCondition nullComparison(JDQLParser.Null_comparison_expressionContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.NOT());
-        boolean andCondition = true;
-        if (ctx.getParent() instanceof JDQLParser.Conditional_expressionContext ctxParent
-                && ctxParent.getParent() instanceof JDQLParser.Conditional_expressionContext grandParent) {
-            andCondition = Objects.isNull(grandParent.OR());
-        }
         var stateFieldPathExpressionContext = ctx.state_field_path_expression();
         var name = stateFieldPathExpressionContext.getText();
-        if (this.condition != null && this.condition.value() instanceof ConditionQueryValue) {
-            and = andCondition;
-        }
-        checkCondition(new DefaultQueryCondition(name, EQUALS, NullQueryValue.INSTANCE), hasNot);
-        and = andCondition;
+        return negateIf(new DefaultQueryCondition(name, EQUALS, NullQueryValue.INSTANCE), hasNot);
     }
 
-    @Override
-    public void exitLike_expression(JDQLParser.Like_expressionContext ctx) {
-        super.exitLike_expression(ctx);
+    private QueryCondition likeCondition(JDQLParser.Like_expressionContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.NOT());
-        boolean andCondition = true;
-
-        if (ctx.getParent() instanceof JDQLParser.Conditional_expressionContext ctxParent
-                && ctxParent.getParent() instanceof JDQLParser.Conditional_expressionContext grandParent) {
-            andCondition = Objects.isNull(grandParent.OR());
-        }
 
         var contexts = ctx.scalar_expression();
         var name = contexts.getText();
         var contextCondition = Condition.LIKE;
         QueryValue<?> value = likeQueryValue(ctx, contexts);
 
-        if (this.condition != null && this.condition.value() instanceof ConditionQueryValue) {
-            and = andCondition;
-        }
-        checkCondition(new DefaultQueryCondition(name, contextCondition, value), hasNot);
-        and = andCondition;
+        return negateIf(new DefaultQueryCondition(name, contextCondition, value), hasNot);
     }
 
-    @Override
-    public void exitBetween_expression(JDQLParser.Between_expressionContext ctx) {
-        super.exitBetween_expression(ctx);
+    private QueryCondition betweenCondition(JDQLParser.Between_expressionContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.NOT());
-        boolean andCondition = true;
-
-        if (ctx.getParent() instanceof JDQLParser.Conditional_expressionContext ctxParent
-                && ctxParent.getParent() instanceof JDQLParser.Conditional_expressionContext grandParent) {
-            andCondition = Objects.isNull(grandParent.OR());
-        }
 
         var contexts = ctx.scalar_expression();
         var name = contexts.get(0).getText();
         var firstValue = PrimaryFunction.INSTANCE.apply(contexts.get(1).primary_expression());
         var secondValue = PrimaryFunction.INSTANCE.apply(contexts.get(2).primary_expression());
         var contextCondition = Condition.BETWEEN;
-        if (this.condition != null && this.condition.value() instanceof ConditionQueryValue) {
-            and = andCondition;
-        }
         DataArrayQueryValue value = new DataArrayQueryValue(List.of(firstValue, secondValue));
-        checkCondition(new DefaultQueryCondition(name, contextCondition, value), hasNot);
-        and = andCondition;
+        return negateIf(new DefaultQueryCondition(name, contextCondition, value), hasNot);
     }
 
-    @Override
-    public void exitIn_expression(JDQLParser.In_expressionContext ctx) {
-        super.exitIn_expression(ctx);
+    private QueryCondition inCondition(JDQLParser.In_expressionContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.NOT());
-        boolean andCondition = true;
-
-        if (ctx.getParent() instanceof JDQLParser.Conditional_expressionContext ctxParent
-                && ctxParent.getParent() instanceof JDQLParser.Conditional_expressionContext grandParent) {
-            andCondition = Objects.isNull(grandParent.OR());
-        }
 
         var name = ctx.state_field_path_expression().getText();
         var contextCondition = Condition.IN;
@@ -178,12 +163,8 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
             values.add(InItemFunction.INSTANCE.apply(item));
         }
 
-        if (this.condition != null && this.condition.value() instanceof ConditionQueryValue) {
-            and = andCondition;
-        }
         DataArrayQueryValue value = new DataArrayQueryValue(values);
-        checkCondition(new DefaultQueryCondition(name, contextCondition, value), hasNot);
-        and = andCondition;
+        return negateIf(new DefaultQueryCondition(name, contextCondition, value), hasNot);
     }
 
     private Condition getCondition(JDQLParser.Comparison_expressionContext ctx) {
@@ -204,74 +185,15 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
         throw new UnsupportedOperationException("The operation does not support: " + ctx.getText());
     }
 
-    private void checkCondition(QueryCondition condition, boolean hasNot) {
-        QueryCondition newCondition = checkNotCondition(condition, hasNot);
-        if (Objects.isNull(this.condition)) {
-            this.condition = newCondition;
-            return;
-        }
-        if (and) {
-            appendCondition(AND, newCondition);
-        } else {
-            appendCondition(OR, newCondition);
-        }
-
+    private QueryCondition negateIf(QueryCondition condition, boolean hasNot) {
+        return hasNot ? negate(condition) : condition;
     }
 
-    private void appendCondition(Condition operator, QueryCondition newCondition) {
-
-        if (operator.equals(this.condition.condition())) {
-            ConditionQueryValue conditionValue = ConditionQueryValue.class.cast(this.condition.value());
-            List<QueryCondition> conditions = new ArrayList<>(conditionValue.get());
-            conditions.add(newCondition);
-            this.condition = new DefaultQueryCondition("_" + operator.name(), operator, ConditionQueryValue.of(conditions));
-        } else if (isNotAppendable()) {
-            List<QueryCondition> conditions = Arrays.asList(this.condition, newCondition);
-            this.condition = new DefaultQueryCondition("_" + operator.name(), operator, ConditionQueryValue.of(conditions));
-        } else {
-            List<QueryCondition> conditions = ConditionQueryValue.class.cast(this.condition.value()).get();
-            QueryCondition lastCondition = conditions.getLast();
-
-            if (isAppendable(lastCondition) && operator.equals(lastCondition.condition())) {
-                List<QueryCondition> lastConditions = new ArrayList<>(ConditionQueryValue.class
-                        .cast(lastCondition.value()).get());
-                lastConditions.add(newCondition);
-
-                QueryCondition newAppendable = new DefaultQueryCondition("_" + operator.name(),
-                        operator, ConditionQueryValue.of(lastConditions));
-
-                List<QueryCondition> newConditions = new ArrayList<>(conditions.subList(0, conditions.size() - 1));
-                newConditions.add(newAppendable);
-                this.condition = new DefaultQueryCondition(this.condition.name(), this.condition.condition(),
-                        ConditionQueryValue.of(newConditions));
-            } else {
-                QueryCondition newAppendable = new DefaultQueryCondition("_" + operator.name(),
-                        operator, ConditionQueryValue.of(Collections.singletonList(newCondition)));
-
-                List<QueryCondition> newConditions = new ArrayList<>(conditions);
-                newConditions.add(newAppendable);
-                this.condition = new DefaultQueryCondition(this.condition.name(), this.condition.condition(),
-                        ConditionQueryValue.of(newConditions));
-            }
-
+    private QueryCondition negate(QueryCondition condition) {
+        if (NOT.equals(condition.condition())) {
+            return ((ConditionQueryValue) condition.value()).get().getFirst();
         }
-    }
-
-    private boolean isAppendable(QueryCondition condition) {
-        return (AND.equals(condition.condition()) || OR.equals(condition.condition()));
-    }
-
-    private boolean isNotAppendable() {
-        return !isAppendable(this.condition);
-    }
-
-    private QueryCondition checkNotCondition(QueryCondition condition, boolean hasNot) {
-        if (hasNot) {
-            ConditionQueryValue conditions = ConditionQueryValue.of(Collections.singletonList(condition));
-            return new DefaultQueryCondition("_NOT", NOT, conditions);
-        } else {
-            return condition;
-        }
+        return new DefaultQueryCondition("_NOT", NOT, ConditionQueryValue.of(List.of(condition)));
     }
 
     private static QueryValue<?> likeQueryValue(JDQLParser.Like_expressionContext ctx, JDQLParser.Scalar_expressionContext contexts) {
