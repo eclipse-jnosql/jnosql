@@ -32,14 +32,16 @@ import java.util.function.Supplier;
 /**
  * The Java SE {@link RepositoryAsyncExecutor} used when no provider is registered.
  *
- * <p>It runs operations on a bounded pool of daemon threads whose size comes from
- * {@link MappingConfigurations#REPOSITORY_ASYNC_POOL_SIZE}. Failures, including executor rejection, complete the
+ * <p>It delegates to a Java SE {@link Executor}: by default a bounded pool of daemon platform threads sized by
+ * {@link MappingConfigurations#REPOSITORY_ASYNC_POOL_SIZE} with a queue of
+ * {@link MappingConfigurations#REPOSITORY_ASYNC_QUEUE_CAPACITY} operations, or a virtual-thread-per-task
+ * executor when selected by {@link AsyncExecutorStrategy}. Failures, including executor rejection, complete the
  * returned future exceptionally with the original exception, and nothing runs on the calling thread. Cancelling
  * the future only prevents an operation that has not started; a running database call is not interrupted.</p>
  */
 final class ThreadPoolAsyncExecutor implements RepositoryAsyncExecutor, AutoCloseable {
 
-    static final int QUEUE_CAPACITY = 1_000;
+    static final int DEFAULT_QUEUE_CAPACITY = 1_000;
     private static final long KEEP_ALIVE_SECONDS = 60;
 
     private final Executor executor;
@@ -49,19 +51,19 @@ final class ThreadPoolAsyncExecutor implements RepositoryAsyncExecutor, AutoClos
     }
 
     /**
-     * Creates an executor that owns a new bounded pool.
+     * Creates an executor that owns a new bounded pool of platform threads.
      *
-     * @param settings the settings holding the optional pool size
+     * @param settings the settings holding the optional pool size and queue capacity
      * @return the executor, which must be closed to release its threads
-     * @throws IllegalStateException when the configured pool size is not a positive integer
+     * @throws IllegalStateException when the configured pool size or queue capacity is not a positive integer
      */
     static ThreadPoolAsyncExecutor owning(Settings settings) {
-        int size = settings.get(MappingConfigurations.REPOSITORY_ASYNC_POOL_SIZE.get())
-                .map(Object::toString)
-                .map(ThreadPoolAsyncExecutor::parsePoolSize)
-                .orElseGet(() -> 2 * Runtime.getRuntime().availableProcessors());
+        int size = positive(settings, MappingConfigurations.REPOSITORY_ASYNC_POOL_SIZE,
+                2 * Runtime.getRuntime().availableProcessors());
+        int capacity = positive(settings, MappingConfigurations.REPOSITORY_ASYNC_QUEUE_CAPACITY,
+                DEFAULT_QUEUE_CAPACITY);
         var pool = new ThreadPoolExecutor(size, size, KEEP_ALIVE_SECONDS, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(QUEUE_CAPACITY), new DaemonThreadFactory());
+                new LinkedBlockingQueue<>(capacity), new DaemonThreadFactory());
         pool.allowCoreThreadTimeOut(true);
         return new ThreadPoolAsyncExecutor(pool);
     }
@@ -94,16 +96,23 @@ final class ThreadPoolAsyncExecutor implements RepositoryAsyncExecutor, AutoClos
         }
     }
 
-    private static int parsePoolSize(String value) {
+    private static int positive(Settings settings, MappingConfigurations configuration, int defaultValue) {
+        return settings.get(configuration.get())
+                .map(Object::toString)
+                .map(value -> parsePositive(configuration, value))
+                .orElse(defaultValue);
+    }
+
+    private static int parsePositive(MappingConfigurations configuration, String value) {
         try {
-            int size = Integer.parseInt(value.trim());
-            if (size > 0) {
-                return size;
+            int number = Integer.parseInt(value.trim());
+            if (number > 0) {
+                return number;
             }
         } catch (NumberFormatException e) {
             // reported below
         }
-        throw new IllegalStateException("'" + MappingConfigurations.REPOSITORY_ASYNC_POOL_SIZE.get()
+        throw new IllegalStateException("'" + configuration.get()
                 + "' must be a positive integer but was '" + value + "'");
     }
 
