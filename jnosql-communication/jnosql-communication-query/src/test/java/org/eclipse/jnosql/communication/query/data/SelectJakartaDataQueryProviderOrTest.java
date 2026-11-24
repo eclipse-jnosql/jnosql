@@ -101,21 +101,18 @@ class SelectJakartaDataQueryProviderOrTest {
 
             var values = (ConditionQueryValue) condition.value();
             var conditions = values.get();
-            soft.assertThat(conditions).hasSize(3);
+            soft.assertThat(conditions).hasSize(2);
             soft.assertThat(conditions.get(0).name()).isEqualTo("age");
             soft.assertThat(conditions.get(0).value()).isEqualTo(NumberQueryValue.of(10));
 
-            soft.assertThat(conditions.get(1).name()).isEqualTo("salary");
-            soft.assertThat(conditions.get(1).value()).isEqualTo(NumberQueryValue.of(10.15));
-
-            condition = conditions.get(2);
-            values = (ConditionQueryValue) condition.value();
-            conditions = values.get();
-            soft.assertThat(condition.condition()).isEqualTo(Condition.AND);
-            soft.assertThat(conditions).hasSize(1);
-
-            soft.assertThat(conditions.get(0).name()).isEqualTo("name");
-            soft.assertThat(conditions.get(0).value()).isEqualTo(DefaultQueryValue.of("?1"));
+            var andCondition = conditions.get(1);
+            soft.assertThat(andCondition.condition()).isEqualTo(Condition.AND);
+            var andConditions = ((ConditionQueryValue) andCondition.value()).get();
+            soft.assertThat(andConditions).hasSize(2);
+            soft.assertThat(andConditions.get(0).name()).isEqualTo("salary");
+            soft.assertThat(andConditions.get(0).value()).isEqualTo(NumberQueryValue.of(10.15));
+            soft.assertThat(andConditions.get(1).name()).isEqualTo("name");
+            soft.assertThat(andConditions.get(1).value()).isEqualTo(DefaultQueryValue.of("?1"));
 
         });
     }
