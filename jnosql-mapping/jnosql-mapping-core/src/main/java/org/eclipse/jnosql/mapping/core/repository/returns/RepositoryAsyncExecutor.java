@@ -24,8 +24,11 @@ import java.util.function.Supplier;
  * <p>Implementations are discovered once with {@link java.util.ServiceLoader} by registering the fully
  * qualified class name in {@code META-INF/services/org.eclipse.jnosql.mapping.core.repository.returns.RepositoryAsyncExecutor}.
  * The implementation needs a public no-argument constructor. When no provider is registered, JNoSQL uses a
- * bounded Java SE thread pool; when more than one provider is registered, the first asynchronous call fails
- * with an {@link IllegalStateException} naming the conflicting providers.</p>
+ * built-in Java SE executor selected by {@code jnosql.repository.async.executor}: a bounded platform-thread pool
+ * ({@code platform}, the default) or one virtual thread per operation ({@code virtual}). A registered provider
+ * takes precedence, so none of the built-in executor properties are read. When more than one provider is
+ * registered, the first asynchronous call fails with an {@link IllegalStateException} naming the conflicting
+ * providers.</p>
  *
  * <p>A provider owns its resources: JNoSQL never shuts a provider down. The operation already contains the
  * repository query and the result mapping, so a provider only schedules it. For example, a provider backed
@@ -45,7 +48,9 @@ import java.util.function.Supplier;
  * <p>Implementations must run the operation exactly once, must not run it on the calling thread, and should
  * complete the returned stage exceptionally, with the original exception, when the operation fails or the
  * task cannot be scheduled. Asynchronous execution is not native non-blocking I/O, and transactions or caller
- * context are propagated only if the provider does it.</p>
+ * context, such as Jakarta EE transaction, security or CDI request contexts, are propagated only if the provider
+ * does it. The built-in virtual threads do not propagate them, so applications that need container-managed
+ * execution should register a provider.</p>
  */
 public interface RepositoryAsyncExecutor {
 
