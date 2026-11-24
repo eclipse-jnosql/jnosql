@@ -40,6 +40,8 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
 
     @Override
     protected void runQuery(String query) {
+        this.condition = null;
+        this.where = null;
         super.runQuery(query);
 
         if (Objects.nonNull(condition)) {

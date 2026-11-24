@@ -39,11 +39,14 @@ public final class SelectParser extends AbstractWhere implements BiFunction<Stri
     public SelectQuery apply(String query, String entity) {
         Objects.requireNonNull(query, " query is required");
         this.entity = entity;
+        this.sorts.clear();
+        this.fields.clear();
+        this.count = false;
         runQuery(query);
         if(this.entity == null) {
             throw new IllegalArgumentException("The entity is required in the query");
         }
-        return new JDQLSelectQuery(fields, this.entity, sorts, where, count);
+        return new JDQLSelectQuery(List.copyOf(fields), this.entity, List.copyOf(sorts), where, count);
     }
 
     @Override

@@ -38,11 +38,12 @@ public final class UpdateParser extends AbstractWhere implements Function<String
     @Override
     public UpdateQuery apply(String query) {
         Objects.requireNonNull(query, " query is required");
+        this.items.clear();
         runQuery(query);
         if(this.entity == null) {
             throw new IllegalArgumentException("The entity is required in the query");
         }
-        return new JDQLUpdateQuery(this.entity, items, where);
+        return new JDQLUpdateQuery(this.entity, List.copyOf(items), where);
     }
 
     @Override
