@@ -56,7 +56,13 @@ class ConditionsBooleanStructureTest {
                         "OR(AND(a EQUALS 1, b EQUALS 2), AND(c EQUALS 3, d EQUALS 4))"),
                 Arguments.of("NOT a = 1 AND b = 2", "AND(NOT(a EQUALS 1), b EQUALS 2)"),
                 Arguments.of("a = 1 AND NOT b = 2 OR c = 3", "OR(AND(a EQUALS 1, NOT(b EQUALS 2)), c EQUALS 3)"),
-                Arguments.of("a = 1 AND b = 2 AND c = 3", "AND(a EQUALS 1, b EQUALS 2, c EQUALS 3)")
+                Arguments.of("a = 1 AND b = 2 AND c = 3", "AND(a EQUALS 1, b EQUALS 2, c EQUALS 3)"),
+                Arguments.of("(a = 1 OR b = 2) AND c = 3", "AND(OR(a EQUALS 1, b EQUALS 2), c EQUALS 3)"),
+                Arguments.of("a = 1 AND (b = 2 OR c = 3)", "AND(a EQUALS 1, OR(b EQUALS 2, c EQUALS 3))"),
+                Arguments.of("(a = 1 OR b = 2) AND (c = 3 OR d = 4)",
+                        "AND(OR(a EQUALS 1, b EQUALS 2), OR(c EQUALS 3, d EQUALS 4))"),
+                Arguments.of("NOT (a = 1 AND b = 2)", "NOT(AND(a EQUALS 1, b EQUALS 2))"),
+                Arguments.of("NOT (a = 1 OR b = 2)", "NOT(OR(a EQUALS 1, b EQUALS 2))")
         );
     }
 
