@@ -68,9 +68,63 @@ import org.eclipse.jnosql.communication.Value;
  * validates the structure without resolving any argument. Argument types known only at evaluation time are
  * validated then.
  *
+ * <h2>Standard implementation</h2>
+ * {@link #of(String, FunctionArgument...)} creates the lazy, memoized implementation of the six standard functions
+ * (the semantics are those of {@link StandardFunction}, with the choices below). Intended usage, expressed in JDQL
+ * terms (JDQL parser execution is <strong>not</strong> supported yet): {@code UPPER(LEFT('otavio', 19))} is
+ * {@code "OTAVIO"}, {@code LENGTH(UPPER('Jakarta'))} is {@code 7} and {@code LEFT('Jakarta', LENGTH('Java'))} is
+ * {@code "Jaka"}.
+ * <ul>
+ *   <li>Arguments are resolved in order on the first value access, once each: literals, {@link FunctionArgument.ValueArgument}
+ *   values and nested evaluable functions. A parameter whose binding is owned elsewhere is represented by a lazy
+ *   {@code ValueArgument}; an unresolved {@code NamedParameter} or {@code PositionalParameter} fails the
+ *   evaluation with {@link IllegalStateException}, and it is never treated as null.</li>
+ *   <li>Arguments are validated strictly (Jakarta Query, no implicit conversion): a wrong type fails with
+ *   {@link IllegalArgumentException} naming the function, position, expected and actual type; a negative LEFT/RIGHT
+ *   length fails with {@link IllegalArgumentException}; a numeric overflow in ABS ({@code Byte.MIN_VALUE},
+ *   {@code Short.MIN_VALUE}, {@code Integer.MIN_VALUE}, {@code Long.MIN_VALUE}) fails with
+ *   {@link ArithmeticException}. A null argument yields null only after every argument resolved and validated
+ *   successfully, so null never hides a failure.</li>
+ *   <li>Result types are exact: LENGTH returns {@code Integer}; ABS returns the same numeric type, keeping
+ *   {@code BigDecimal} scale and never widening. Float and double {@code NaN} stay {@code NaN}, infinities become
+ *   positive infinity and {@code -0.0} becomes {@code 0.0} (JNoSQL decision, as {@link Math#abs(double)}).
+ *   {@code Number} types outside the supported ones are rejected.</li>
+ *   <li>LOWER and UPPER use {@link java.util.Locale#ROOT}. LENGTH, LEFT and RIGHT count Unicode code points
+ *   (JNoSQL decision; the Jakarta Query specification does not define it) and never split surrogate pairs.
+ *   LEFT/RIGHT with a length above the string length return the same string without copying; lengths beyond
+ *   {@code Integer.MAX_VALUE} are valid and do not overflow.</li>
+ *   <li>A failed evaluation is not memoized; a later access evaluates again, although nested functions that
+ *   already succeeded keep their results. The standard implementation is not thread-safe.</li>
+ * </ul>
+ * Reading the result follows the normal {@code Value} conversions, and a failing conversion does not invalidate the
+ * memoized result. A new logical execution context requires a new instance, including a new nested tree.
+ *
  * @see NativeFunction
  */
 public non-sealed interface EvaluableFunction extends Function, Value {
+
+    /**
+     * Creates a lazy, memoized evaluable function for one of the six standard functions. Only the structure is
+     * validated (name, argument count, statically known literal and nested result types, and the absence of
+     * stored-record dependencies); no argument is resolved here. The arguments are copied.
+     *
+     * @param name      the standard function name, case-insensitive
+     * @param arguments the arguments
+     * @return a new, unevaluated function whose memoized result belongs to that instance only
+     * @throws NullPointerException     when a parameter or an argument is null
+     * @throws IllegalArgumentException when the name is not a standard function, the structure is invalid or an
+     *                                  argument depends on stored records
+     */
+    static EvaluableFunction of(String name, FunctionArgument... arguments) {
+        java.util.Objects.requireNonNull(name, "name is required");
+        java.util.Objects.requireNonNull(arguments, "arguments are required");
+        StandardFunction function = StandardFunction.find(name).orElseThrow(() ->
+                new IllegalArgumentException("Unsupported evaluable function: " + name));
+        java.util.List<FunctionArgument> copy = java.util.List.of(arguments);
+        function.validate(copy);
+        requireEvaluable(copy);
+        return new DefaultEvaluableFunction(function, copy);
+    }
 
     /**
      * Structural check for implementations: every argument must be evaluable, which means that the function
