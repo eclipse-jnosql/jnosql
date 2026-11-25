@@ -39,9 +39,15 @@ final class NativeFunctions {
     static NativeFunction convert(org.eclipse.jnosql.communication.query.Function definition, Params params,
                                   CommunicationObserverParser observer, String entity) {
         var arguments = new ArrayList<FunctionArgument>(definition.params().length);
+        var typed = new ArrayList<FunctionArgument>(definition.params().length);
         for (Object param : definition.params()) {
-            arguments.add(argument(param, params, observer, entity));
+            var argument = argument(param, params, observer, entity);
+            arguments.add(argument);
+            // the evaluable form exposes the nested result type to the structural validation, without evaluating it
+            typed.add(argument instanceof FunctionArgument.ValueArgument(Value value) && value instanceof FunctionValue evaluable
+                    ? new FunctionArgument.EvaluableArgument(evaluable.function()) : argument);
         }
+        NativeFunction.of(definition.name(), typed.toArray(FunctionArgument[]::new));
         return NativeFunction.of(definition.name(), arguments.toArray(FunctionArgument[]::new));
     }
 
