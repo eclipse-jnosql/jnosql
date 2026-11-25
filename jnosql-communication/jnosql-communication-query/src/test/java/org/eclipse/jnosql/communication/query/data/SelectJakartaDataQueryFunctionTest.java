@@ -111,6 +111,17 @@ class SelectJakartaDataQueryFunctionTest {
         }
     }
 
+    @org.junit.jupiter.api.Test
+    @DisplayName("Should keep a function over a function-named field as a structured left operand")
+    void shouldKeepFunctionOverFieldNamedLikeFunction() {
+        QueryCondition condition = selectParser.apply("FROM Box WHERE ABS(length) = 10", "Box")
+                .where().orElseThrow().condition();
+        Function function = ((FunctionQueryValue) condition.leftOperand()).get();
+        org.assertj.core.api.Assertions.assertThat(function.name()).isEqualTo("ABS");
+        org.assertj.core.api.Assertions.assertThat(function.params()[0])
+                .isEqualTo(org.eclipse.jnosql.communication.query.QueryPath.of("length"));
+    }
+
     @Nested
     @DisplayName("WhenTheFunctionIsInvalid")
     class WhenTheFunctionIsInvalid {
@@ -163,7 +174,6 @@ class SelectJakartaDataQueryFunctionTest {
     static Stream<Arguments> fieldCollisionProvider() {
         return Stream.of(
                 Arguments.of("FROM Box WHERE length = 10", "length"),
-                Arguments.of("FROM Box WHERE ABS(length) = 10", "ABS(length)"),
                 Arguments.of("FROM Box WHERE left = 'a'", "left")
         );
     }

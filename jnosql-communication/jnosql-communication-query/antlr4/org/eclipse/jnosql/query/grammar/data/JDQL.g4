@@ -87,7 +87,7 @@ entity_name : identifier; // no ambiguity
 
 enum_literal : IDENTIFIER (DOT IDENTIFIER)* | FULLY_QUALIFIED_IDENTIFIER; // ambiguity with state_field_path_expression resolvable semantically
 
-input_parameter : COLON IDENTIFIER | QUESTION INTEGER;
+input_parameter : COLON identifier | QUESTION INTEGER;
 
 literal : STRING | INTEGER | DOUBLE;
 

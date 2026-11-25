@@ -28,4 +28,26 @@ public interface Function {
      * @return the params
      */
     Object[] params();
+
+    /**
+     * Classifies this function by the meaning of its arguments, without evaluating it.
+     * A function is native when any argument, at any depth, refers to an attribute of a stored record.
+     * Literals, parameters and nested evaluable functions can be resolved independently of the database,
+     * for example {@code UPPER(LEFT(:name, 19))}, while {@code UPPER(name)} or {@code LEFT(name, LENGTH(:prefix))}
+     * require native execution.
+     *
+     * @return {@code true} when the function depends on a stored attribute
+     */
+    default boolean isNative() {
+        for (Object param : params()) {
+            if (param instanceof QueryPath) {
+                return true;
+            }
+            if (param instanceof QueryValue<?> value && value.type() == ValueType.FUNCTION
+                    && ((Function) value.get()).isNative()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

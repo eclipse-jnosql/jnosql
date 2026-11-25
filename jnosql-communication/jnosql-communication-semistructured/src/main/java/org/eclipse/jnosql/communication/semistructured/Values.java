@@ -70,6 +70,9 @@ public final class Values {
             case TEMPORAL -> {
                 return new TemporalValue((TemporalQueryValue) value, reference);
             }
+            case FUNCTION -> {
+                return FunctionValue.of((org.eclipse.jnosql.communication.query.Function) value.get(), parameters);
+            }
             case NULL -> {
                 return null;
             } case PATH -> {
