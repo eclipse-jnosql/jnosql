@@ -98,7 +98,7 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
                 operands.add(condition);
             }
         }
-        return new DefaultQueryCondition("_" + operator.name(), operator, ConditionQueryValue.of(operands));
+        return new LogicalQueryCondition(operator, ConditionQueryValue.of(operands));
     }
 
     private QueryCondition comparison(JDQLParser.Comparison_expressionContext ctx) {
@@ -122,7 +122,7 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
         var primary = unwrap(left).primary_expression();
         if (primary != null && primary.function_expression() != null) {
             var function = ((FunctionQueryValue) PrimaryFunction.INSTANCE.apply(primary)).get();
-            return new FunctionQueryCondition(name, condition, value, function);
+            return new DefaultQueryCondition(new FunctionQueryValue(function), condition, value);
         }
         return new DefaultQueryCondition(name, condition, value);
     }
@@ -209,7 +209,7 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
         if (NOT.equals(condition.condition())) {
             return ((ConditionQueryValue) condition.value()).get().getFirst();
         }
-        return new DefaultQueryCondition("_NOT", NOT, ConditionQueryValue.of(List.of(condition)));
+        return new LogicalQueryCondition(NOT, ConditionQueryValue.of(List.of(condition)));
     }
 
     private static QueryValue<?> likeQueryValue(JDQLParser.Like_expressionContext ctx, JDQLParser.Scalar_expressionContext contexts) {
