@@ -16,11 +16,18 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class UpdateJakartaDataQueryProviderTest {
+
+    @Nested
+    @DisplayName("When the update jakarta data query provider is used")
+    class WhenTheUpdateJakartaDataQueryProvider {
+    }
 
     private UpdateParser updateParser;
 
@@ -30,6 +37,7 @@ class UpdateJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Return Parser Query")
     @ValueSource(strings = "UPDATE entity SET name = 'Ada'")
     void shouldReturnParserQuery(String query) {
         var updateQuery = updateParser.apply(query);
@@ -43,6 +51,7 @@ class UpdateJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Return Parser Query Age")
     @ValueSource(strings = "UPDATE entity SET name = 'Ada', age = 10, salary = 10.15")
     void shouldReturnParserQueryAge(String query) {
         var updateQuery = updateParser.apply(query);
@@ -59,6 +68,7 @@ class UpdateJakartaDataQueryProviderTest {
 
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Return Parser Param")
     @ValueSource(strings = "UPDATE entity SET name = :param")
     void shouldReturnParserParam(String query) {
         var updateQuery = updateParser.apply(query);
@@ -72,6 +82,7 @@ class UpdateJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Return Parser Param Index")
     @ValueSource(strings = "UPDATE entity SET name = ?1")
     void shouldReturnParserParamIndex(String query) {
         var updateQuery = updateParser.apply(query);
@@ -86,6 +97,7 @@ class UpdateJakartaDataQueryProviderTest {
 
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Eq")
     @ValueSource(strings = "UPDATE entity SET name = 'Ada' WHERE age = 10")
     void shouldEq(String query){
         var updateQuery = updateParser.apply(query);
@@ -105,6 +117,7 @@ class UpdateJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Eq Double")
     @ValueSource(strings = "UPDATE entity SET name = 'Ada' WHERE salary = 10.15")
     void shouldEqDouble(String query){
         var updateQuery = updateParser.apply(query);
@@ -124,6 +137,7 @@ class UpdateJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Eq String")
     @ValueSource(strings = {"UPDATE entity SET name = 'Ada' WHERE name = \"Otavio\""})
     void shouldEqString(String query){
         var updateQuery = updateParser.apply(query);
@@ -143,6 +157,7 @@ class UpdateJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Eq String Single Quote")
     @ValueSource(strings = {"UPDATE entity SET name = 'Ada' WHERE name = 'Otavio'"})
     void shouldEqStringSingleQuote(String query){
         var updateQuery = updateParser.apply(query);
@@ -162,6 +177,7 @@ class UpdateJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Return Error At Plus Operation In Update")
     @ValueSource(strings = {"UPDATE Box SET length = length + ?1"})
     void shouldReturnErrorAtPlusOperationInUpdate(String query) {
         Assertions.assertThatThrownBy(() -> updateParser.apply(query))
@@ -169,6 +185,7 @@ class UpdateJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Return Error At Minus Operation In Update")
     @ValueSource(strings = {"UPDATE Box SET length = length - ?1"})
     void shouldReturnErrorAtMinusOperationInUpdate(String query) {
         Assertions.assertThatThrownBy(() -> updateParser.apply(query))
@@ -176,6 +193,7 @@ class UpdateJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Return Error At Multiply Operation In Update")
     @ValueSource(strings = {"UPDATE Box SET length = length * ?1"})
     void shouldReturnErrorAtMultiplyOperationInUpdate(String query) {
         Assertions.assertThatThrownBy(() -> updateParser.apply(query))
@@ -183,6 +201,7 @@ class UpdateJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Return Error At Div Operation In Update")
     @ValueSource(strings = {"UPDATE Box SET length = length / ?1"})
     void shouldReturnErrorAtDivOperationInUpdate(String query) {
         Assertions.assertThatThrownBy(() -> updateParser.apply(query))
@@ -190,6 +209,7 @@ class UpdateJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Return Error At Concat Operation In Update")
     @ValueSource(strings = {"UPDATE Box SET length = length || ?1"})
     void shouldReturnErrorAtConcatOperationInUpdate(String query) {
         Assertions.assertThatThrownBy(() -> updateParser.apply(query))
@@ -197,6 +217,7 @@ class UpdateJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Return Error When Have Parenthesis")
     @ValueSource(strings = {"UPDATE Box SET length = (length)"})
     void shouldReturnErrorWhenHaveParenthesis(String query) {
         Assertions.assertThatThrownBy(() -> updateParser.apply(query))
@@ -204,6 +225,7 @@ class UpdateJakartaDataQueryProviderTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Return Error When Have Operation")
     @ValueSource(strings = {"UPDATE Coordinate SET x = :newX, y = y / :yDivisor WHERE id = :id"})
     void shouldReturnErrorWhenHaveOperation(String query) {
         Assertions.assertThatThrownBy(() -> updateParser.apply(query))
