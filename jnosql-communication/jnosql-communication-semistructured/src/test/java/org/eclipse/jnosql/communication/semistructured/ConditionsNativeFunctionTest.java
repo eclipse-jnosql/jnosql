@@ -248,6 +248,13 @@ class ConditionsNativeFunctionTest {
         }
 
         @Test
+        @DisplayName("Should reject a nested evaluable function whose result type does not fit the argument")
+        void shouldRejectIncompatibleNestedResult() {
+            assertThatThrownBy(() -> select("FROM Person WHERE LEFT(name, UPPER(:prefix)) = 'a'"))
+                    .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("UPPER");
+        }
+
+        @Test
         @DisplayName("Should reject an unsupported argument kind in a native function")
         void shouldRejectUnsupportedArgument() {
             assertThatThrownBy(() -> select("FROM Person WHERE LEFT(name, LOCAL DATE) = 'a'").result())
@@ -553,6 +560,22 @@ class ConditionsNativeFunctionTest {
                 softly.assertThat(valueArgument(function(lastSelectCondition().leftOperand()).arguments().get(1)))
                         .as("second").isEqualTo(5);
             });
+        }
+
+        @Test
+        @DisplayName("Should capture a bound parameter used as the constant operand")
+        void shouldIsolateConstantOperand() {
+
+            // Given
+            var statement = select("FROM Person WHERE LEFT(name, LENGTH(:prefix)) = :prefix");
+            statement.bind("prefix", "ota").result();
+            var first = lastSelectCondition();
+
+            // When
+            statement.bind("prefix", "jakarta").result();
+
+            // Then
+            assertThat(constant(first.rightOperand())).isEqualTo("ota");
         }
 
         @Test
