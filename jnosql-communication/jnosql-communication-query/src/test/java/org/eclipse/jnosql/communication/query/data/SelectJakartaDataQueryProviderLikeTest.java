@@ -18,11 +18,18 @@ import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.SelectQuery;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class SelectJakartaDataQueryProviderLikeTest {
+
+    @Nested
+    @DisplayName("When the select jakarta data query provider like is used")
+    class WhenTheSelectJakartaDataQueryProviderLike {
+    }
 
 
     private SelectParser selectParser;
@@ -33,6 +40,7 @@ class SelectJakartaDataQueryProviderLikeTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Like")
     @ValueSource(strings = {"WHERE  name LIKE 'A%'", "FROM entity WHERE name LIKE 'A%'"})
     void shouldLike(String query){
         SelectQuery selectQuery = selectParser.apply(query, "entity");
@@ -52,6 +60,7 @@ class SelectJakartaDataQueryProviderLikeTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Like Double Quote")
     @ValueSource(strings = {"WHERE  name LIKE \"A%\"", "FROM entity WHERE name LIKE \"A%\""})
     void shouldLikeDoubleQuote(String query){
         SelectQuery selectQuery = selectParser.apply(query, "entity");
@@ -71,6 +80,7 @@ class SelectJakartaDataQueryProviderLikeTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Negate Like")
     @ValueSource(strings = {"WHERE  name NOT LIKE 'A%'", "FROM entity WHERE name NOT LIKE 'A%'"})
     void shouldNegateLike(String query){
         SelectQuery selectQuery = selectParser.apply(query, "entity");
@@ -94,6 +104,7 @@ class SelectJakartaDataQueryProviderLikeTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Combine And")
     @ValueSource(strings = {"WHERE  age = 10 AND name LIKE 'test'", "FROM entity WHERE  age = 10 AND name LIKE 'test'"})
     void shouldCombineAnd(String query){
         SelectQuery selectQuery = selectParser.apply(query, "entity");
@@ -119,6 +130,7 @@ class SelectJakartaDataQueryProviderLikeTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Combine And2")
     @ValueSource(strings = {"WHERE name LIKE 'test' AND age = 10", "FROM entity WHERE name LIKE 'test' AND age = 10"})
     void shouldCombineAnd2(String query){
         SelectQuery selectQuery = selectParser.apply(query, "entity");
@@ -145,6 +157,7 @@ class SelectJakartaDataQueryProviderLikeTest {
 
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Combine Or")
     @ValueSource(strings = {"WHERE  age = 10 OR name LIKE 'test'", "FROM entity WHERE  age = 10 OR name LIKE 'test'"})
     void shouldCombineOr(String query){
         SelectQuery selectQuery = selectParser.apply(query, "entity");
@@ -170,6 +183,7 @@ class SelectJakartaDataQueryProviderLikeTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Combine Or2")
     @ValueSource(strings = {"WHERE name LIKE 'test' OR age = 10", "FROM entity WHERE name LIKE 'test' OR age = 10"})
     void shouldCombineOr2(String query){
         SelectQuery selectQuery = selectParser.apply(query, "entity");
