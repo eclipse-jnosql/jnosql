@@ -68,12 +68,7 @@ primary_expression
     ;
 
 function_expression
-    : ('abs(' | 'ABS(') scalar_expression ')'
-    | ('length(' | 'LENGTH(') scalar_expression ')'
-    | ('lower(' | 'LOWER(') scalar_expression ')'
-    | ('upper(' | 'UPPER(') scalar_expression ')'
-    | ('left(' | 'LEFT(') scalar_expression ',' scalar_expression ')'
-    | ('right(' | 'RIGHT(') scalar_expression ',' scalar_expression ')'
+    : (ABS | LENGTH | LOWER | UPPER | LEFT | RIGHT) '(' scalar_expression (',' scalar_expression)* ')'
     ;
 
 special_expression
@@ -84,13 +79,15 @@ special_expression
     | FALSE
     ;
 
-state_field_path_expression : IDENTIFIER (DOT IDENTIFIER)* | FULLY_QUALIFIED_IDENTIFIER;
+state_field_path_expression : identifier (DOT identifier)* | FULLY_QUALIFIED_IDENTIFIER | FUNCTION_ID;
 
-entity_name : IDENTIFIER; // no ambiguity
+identifier : IDENTIFIER | ABS | LENGTH | LOWER | UPPER | LEFT | RIGHT;
+
+entity_name : identifier; // no ambiguity
 
 enum_literal : IDENTIFIER (DOT IDENTIFIER)* | FULLY_QUALIFIED_IDENTIFIER; // ambiguity with state_field_path_expression resolvable semantically
 
-input_parameter : COLON IDENTIFIER | QUESTION INTEGER;
+input_parameter : COLON identifier | QUESTION INTEGER;
 
 literal : STRING | INTEGER | DOUBLE;
 
@@ -117,11 +114,17 @@ OR              : [oO][rR];
 BETWEEN         : [bB][eE][tT][wW][eE][eE][nN];
 LIKE            : [lL][iI][kK][eE];
 THIS            : [tT][hH][iI][sS];
+ABS             : [aA][bB][sS];
+LENGTH          : [lL][eE][nN][gG][tT][hH];
+LOWER           : [lL][oO][wW][eE][rR];
+UPPER           : [uU][pP][pP][eE][rR];
+LEFT            : [lL][eE][fF][tT];
+RIGHT           : [rR][iI][gG][hH][tT];
 LOCAL           : [lL][oO][cC][aA][lL];
 DATE            : [dD][aA][tT][eE];
 DATETIME        : [dD][aA][tT][eE][tT][iI][mM][eE];
 TIME            : [tT][iI][mM][eE];
-
+FUNCTION_ID     : [iI][dD]LPAREN[tT][hH][iI][sS]RPAREN;
 // Operators
 EQ              : '=';
 GT              : '>';
