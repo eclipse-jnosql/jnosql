@@ -23,6 +23,9 @@ enum EnumConverter implements Function<String, Enum<?>> {
     public Enum<?> apply(String text) {
         try {
             var lastDotIndex = text.lastIndexOf('.');
+            if (lastDotIndex == -1) {
+                throw new QueryException("Invalid enum format, expected 'com.example.EnumClass.ENUM_VALUE' but got: " + text);
+            }
             var enumClassName = text.substring(0, lastDotIndex);
             var enumValueName = text.substring(lastDotIndex + 1);
 
