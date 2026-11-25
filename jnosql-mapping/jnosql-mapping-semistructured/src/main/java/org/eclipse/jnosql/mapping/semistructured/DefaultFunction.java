@@ -25,6 +25,7 @@ import java.util.Objects;
  */
 record DefaultFunction(String name, String field, Object... arguments) implements Function {
 
+    @SuppressWarnings("PMD.UnusedAssignment")
     DefaultFunction {
         Objects.requireNonNull(name, "name is required");
         Objects.requireNonNull(field, "field is required");
