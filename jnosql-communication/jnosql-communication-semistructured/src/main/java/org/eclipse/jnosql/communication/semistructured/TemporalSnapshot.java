@@ -52,6 +52,11 @@ final class TemporalSnapshot {
     }
 
     private CriteriaCondition condition(CriteriaCondition criteria) {
+        if (criteria.isNative()) {
+            this.temporal = true;
+            return CriteriaCondition.of(operand(criteria.leftOperand()), criteria.condition(),
+                    operand(criteria.rightOperand()));
+        }
         var element = criteria.element();
         Object converted = switch (criteria.condition()) {
             case AND, OR -> ((List<?>) element.value().get()).stream()
@@ -60,6 +65,18 @@ final class TemporalSnapshot {
             default -> value(element.value());
         };
         return CriteriaCondition.of(Element.of(element.name(), converted), criteria.condition());
+    }
+
+    private CriteriaOperand operand(CriteriaOperand operand) {
+        return switch (operand) {
+            case CriteriaOperand.Function function ->
+                    new CriteriaOperand.Function(NativeFunctions.materialize(function.function()));
+            case CriteriaOperand.Constant constant -> {
+                var resolved = value(constant.value());
+                yield new CriteriaOperand.Constant(resolved instanceof Value v ? v : Value.of(resolved));
+            }
+            case CriteriaOperand.Attribute attribute -> attribute;
+        };
     }
 
     private Object value(Value value) {
