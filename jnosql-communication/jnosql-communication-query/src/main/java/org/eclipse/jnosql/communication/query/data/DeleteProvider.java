@@ -18,6 +18,9 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
+/**
+ * Provides delete query parsers for supported delete query forms.
+ */
 public enum DeleteProvider implements Function<String, DeleteQuery> {
     INSTANCE;
 
