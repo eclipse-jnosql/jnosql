@@ -240,6 +240,27 @@ class ConditionsNativeFunctionTest {
             });
         }
 
+        @Test
+        @DisplayName("Should reject a native function with an invalid structure when preparing")
+        void shouldRejectInvalidStructure() {
+            assertThatThrownBy(() -> select("FROM Person WHERE LEFT(name) = 'a'"))
+                    .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("LEFT");
+        }
+
+        @Test
+        @DisplayName("Should reject an unsupported argument kind in a native function")
+        void shouldRejectUnsupportedArgument() {
+            assertThatThrownBy(() -> select("FROM Person WHERE LEFT(name, LOCAL DATE) = 'a'").result())
+                    .isInstanceOf(QueryException.class);
+        }
+
+        @Test
+        @DisplayName("Should reject an evaluable function against an attribute on the left")
+        void shouldRejectEvaluableOnTheLeft() {
+            assertThatThrownBy(() -> select("FROM Person WHERE UPPER('a') = name").result())
+                    .isInstanceOf(QueryException.class).hasMessageContaining("left operand");
+        }
+
         @ParameterizedTest(name = "{0}")
         @CsvSource(delimiter = '|', value = {
                 "UPPER(name) IN ('JAVA', 'JAKARTA')",
@@ -496,6 +517,21 @@ class ConditionsNativeFunctionTest {
                         .as("third length").isEqualTo(4);
                 softly.assertThat(constant(third.rightOperand())).as("third value").isEqualTo("JAVA");
             });
+        }
+
+        @Test
+        @DisplayName("Should capture a parameter bound before the execution as a plain value")
+        void shouldCaptureBoundParameter() {
+
+            // Given
+            var statement = select("FROM Person WHERE LEFT(name, :size) = 'ot'").bind("size", 2);
+
+            // When
+            statement.result();
+
+            // Then
+            assertThat(valueArgument(function(lastSelectCondition().leftOperand()).arguments().get(1)))
+                    .isEqualTo(2);
         }
 
         @Test
