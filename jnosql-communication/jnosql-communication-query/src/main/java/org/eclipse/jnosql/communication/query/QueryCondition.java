@@ -14,6 +14,8 @@ package org.eclipse.jnosql.communication.query;
 
 import org.eclipse.jnosql.communication.Condition;
 
+import java.util.Optional;
+
 /**
  * Condition performs different computations or actions depending on whether a boolean query
  * condition evaluates to true or false.
@@ -48,4 +50,14 @@ public interface QueryCondition {
      * @return the value
      */
     QueryValue<?> value();
+
+    /**
+     * The function used as the left operand of the condition, for example {@code UPPER(name) = 'X'}.
+     * In that case {@link #name()} only holds the textual form of the expression and must not be used as an attribute.
+     *
+     * @return the left operand function, or empty when the left operand is an ordinary attribute
+     */
+    default Optional<Function> leftFunction() {
+        return Optional.empty();
+    }
 }
