@@ -70,22 +70,53 @@ class PreparedTemporalLifecycleTest {
     }
 
     @Test
-    @DisplayName("should give each execution its own value across a date boundary")
+    @DisplayName("should give each execution its own immutable value across a date boundary")
     void shouldRefreshEachExecution() {
         var statement = select("FROM Subscription WHERE expirationDate < LOCAL DATE");
 
         clock.set(T1);
         statement.result();
         var first = lastSelect().condition().orElseThrow();
-        assertThat(valueOf(first)).isEqualTo(LocalDate.of(2026, 3, 4));
 
         clock.set(T2);
         statement.result();
-        assertThat(valueOf(first)).isEqualTo(LocalDate.of(2026, 3, 5));
+        var second = lastSelect().condition().orElseThrow();
 
         clock.set(T3);
         statement.result();
-        assertThat(valueOf(first)).isEqualTo(LocalDate.of(2026, 3, 6));
+        var third = lastSelect().condition().orElseThrow();
+
+        assertThat(valueOf(first)).isEqualTo(LocalDate.of(2026, 3, 4));
+        assertThat(valueOf(second)).isEqualTo(LocalDate.of(2026, 3, 5));
+        assertThat(valueOf(third)).isEqualTo(LocalDate.of(2026, 3, 6));
+    }
+
+    @Test
+    @DisplayName("should not change a query already handed to the driver")
+    void shouldKeepEarlierQueryStable() {
+        var statement = select("FROM Task WHERE scheduledAt < LOCAL DATETIME");
+        statement.result();
+        var earlier = lastSelect().condition().orElseThrow();
+        clock.set(T3);
+        statement.result();
+        assertThat(valueOf(earlier)).isEqualTo(T1);
+        assertThat(valueOf(earlier)).isEqualTo(T1);
+    }
+
+    @Test
+    @DisplayName("should snapshot the query exposed to cursor pagination")
+    void shouldSnapshotSelectAccessor() {
+        var statement = select("FROM Event WHERE eventDate = LOCAL DATE AND eventTime < LOCAL TIME");
+        clock.set(T2);
+        var query = statement.select().orElseThrow();
+        clock.set(T3);
+        @SuppressWarnings("unchecked")
+        var children = (List<CriteriaCondition>) query.condition().orElseThrow().element().value().get();
+        assertThat(valueOf(children.get(0))).isEqualTo(T2.toLocalDate());
+        assertThat(valueOf(children.get(1))).isEqualTo(T2.toLocalTime());
+        assertThat(valueOf(statement.select().orElseThrow().condition().orElseThrow()
+                .element().value().get() instanceof List<?> l ? (CriteriaCondition) l.get(0) : null))
+                .isEqualTo(T3.toLocalDate());
     }
 
     @Test
@@ -185,7 +216,9 @@ class PreparedTemporalLifecycleTest {
 
         clock.set(T3);
         statement.result();
-        assertThat(valueOf(condition)).isEqualTo(T3);
+        Mockito.verify(manager, Mockito.times(2)).delete(captor.capture());
+        assertThat(valueOf(condition)).isEqualTo(T2);
+        assertThat(valueOf(captor.getValue().condition().orElseThrow())).isEqualTo(T3);
     }
 
     @Test
@@ -208,8 +241,11 @@ class PreparedTemporalLifecycleTest {
         assertThat(valueOf(condition)).isEqualTo(T2);
 
         statement.result();
-        assertThat(set.value().get()).isEqualTo(T3);
-        assertThat(valueOf(condition)).isEqualTo(T3);
+        Mockito.verify(manager, Mockito.times(2)).update(captor.capture());
+        var next = captor.getValue();
+        assertThat(next.sets().getFirst().value().get()).isEqualTo(T3);
+        assertThat(valueOf(next.where().orElseThrow())).isEqualTo(T3);
+        assertThat(set.value().get()).isEqualTo(T2);
     }
 
     @Test
@@ -224,6 +260,8 @@ class PreparedTemporalLifecycleTest {
         assertThat(valueOf(condition)).isEqualTo(LocalTime.of(0, 0, 1));
         clock.set(T3);
         statement.count();
-        assertThat(valueOf(condition)).isEqualTo(T3.toLocalTime());
+        Mockito.verify(manager, Mockito.times(2)).count(captor.capture());
+        assertThat(valueOf(captor.getValue().condition().orElseThrow())).isEqualTo(T3.toLocalTime());
+        assertThat(valueOf(condition)).isEqualTo(LocalTime.of(0, 0, 1));
     }
 }
