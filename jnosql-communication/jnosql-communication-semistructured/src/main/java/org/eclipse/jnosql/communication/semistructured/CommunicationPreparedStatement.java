@@ -47,6 +47,8 @@ public final class CommunicationPreparedStatement {
 
     private final DatabaseManager manager;
 
+    private final TemporalReference temporalReference;
+
     private UnaryOperator<SelectQuery> selectMapper = SELECT_MAPPER_DEFAULT;
 
     private CommunicationPreparedStatement(SelectQuery selectQuery,
@@ -56,7 +58,8 @@ public final class CommunicationPreparedStatement {
                                            Params params,
                                            String query,
                                            List<String> paramsLeft,
-                                           DatabaseManager manager) {
+                                           DatabaseManager manager,
+                                           TemporalReference temporalReference) {
         this.selectQuery = selectQuery;
         this.deleteQuery = deleteQuery;
         this.updateQuery = updateQuery;
@@ -65,6 +68,7 @@ public final class CommunicationPreparedStatement {
         this.query = query;
         this.paramsLeft = paramsLeft;
         this.manager = manager;
+        this.temporalReference = temporalReference;
     }
 
     /**
@@ -125,6 +129,7 @@ public final class CommunicationPreparedStatement {
         if (!paramsLeft.isEmpty()) {
             throw new QueryException("Check all the parameters before execute the query, params left: " + paramsLeft);
         }
+        temporalReference.refresh();
         switch (type) {
             case SELECT -> {
                 return manager.select(operator().apply(selectQuery));
@@ -170,6 +175,7 @@ public final class CommunicationPreparedStatement {
         if (!paramsLeft.isEmpty()) {
             throw new QueryException("Check all the parameters before execute the query, params left: " + paramsLeft);
         }
+        temporalReference.refresh();
         return switch (type) {
             case COUNT -> manager.count(selectQuery);
             case DELETE -> manager.deleteAndCount(deleteQuery);
@@ -216,15 +222,16 @@ public final class CommunicationPreparedStatement {
             SelectQuery selectQuery,
             Params params,
             String query,
-            DatabaseManager manager) {
+            DatabaseManager manager,
+            TemporalReference reference) {
         if (selectQuery.isCount()) {
             return new CommunicationPreparedStatement(selectQuery,
                     null, null, PreparedStatementType.COUNT, params, query,
-                    params.getParametersNames(), manager);
+                    params.getParametersNames(), manager, reference);
         } else {
             return new CommunicationPreparedStatement(selectQuery,
                     null, null, PreparedStatementType.SELECT, params, query,
-                    params.getParametersNames(), manager);
+                    params.getParametersNames(), manager, reference);
         }
 
     }
@@ -232,24 +239,42 @@ public final class CommunicationPreparedStatement {
     static CommunicationPreparedStatement delete(DeleteQuery deleteQuery,
                                                  Params params,
                                                  String query,
-                                                 DatabaseManager manager) {
+                                                 DatabaseManager manager,
+                                                 TemporalReference reference) {
 
         return new CommunicationPreparedStatement(null,
                 deleteQuery, null, PreparedStatementType.DELETE, params,
                 query,
                 params.getParametersNames(),
-                manager);
+                manager,
+                reference);
 
     }
 
     static CommunicationPreparedStatement update(UpdateQuery updateQuery,
                                                  Params params,
                                                  String query,
-                                                 DatabaseManager manager) {
+                                                 DatabaseManager manager,
+                                                 TemporalReference reference) {
         return new CommunicationPreparedStatement(null, null,
                 updateQuery,
                 PreparedStatementType.UPDATE, params, query,
-                params.getParametersNames(),  manager);
+                params.getParametersNames(), manager, reference);
 
+    }
+
+    static CommunicationPreparedStatement select(SelectQuery selectQuery, Params params, String query,
+                                                 DatabaseManager manager) {
+        return select(selectQuery, params, query, manager, TemporalReference.live());
+    }
+
+    static CommunicationPreparedStatement delete(DeleteQuery deleteQuery, Params params, String query,
+                                                 DatabaseManager manager) {
+        return delete(deleteQuery, params, query, manager, TemporalReference.live());
+    }
+
+    static CommunicationPreparedStatement update(UpdateQuery updateQuery, Params params, String query,
+                                                 DatabaseManager manager) {
+        return update(updateQuery, params, query, manager, TemporalReference.live());
     }
 }
