@@ -57,7 +57,6 @@ public final class UpdateParser extends AbstractWhere implements Function<String
         if (hasParenthesis(scalarContext)) {
             throw new UnsupportedOperationException("Eclipse JNoSQL does not support parenthesis in the UPDATE clause: " + scalarContext.getText());
         }
-
         if (scalarContext != null) {
             var primaryExpression = scalarContext.primary_expression();
             var value = PrimaryFunction.INSTANCE.apply(primaryExpression);
@@ -65,7 +64,6 @@ public final class UpdateParser extends AbstractWhere implements Function<String
         } else {
             items.add(JDQLUpdateItem.of(name, NullQueryValue.INSTANCE));
         }
-
     }
 
 

@@ -18,7 +18,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Copies a query replacing every temporal expression by an ordinary value resolved at one instant.
+ * Copies a query replacing every temporal expression by an ordinary value resolved at one instant and every
+ * function by a fresh instance of its evaluation tree, so no memoized result is shared between executions.
  * The copy is immutable with respect to time, so a later execution of the same prepared statement
  * cannot change a query already handed to a driver. Parameters and all other values are kept as they are,
  * and a query without temporal expressions is returned unchanged.
@@ -51,21 +52,50 @@ final class TemporalSnapshot {
     }
 
     private CriteriaCondition condition(CriteriaCondition criteria) {
+        if (criteria.isNative()) {
+            this.temporal = true;
+            return CriteriaCondition.of(operand(criteria.leftOperand()), criteria.condition(),
+                    operand(criteria.rightOperand()));
+        }
         var element = criteria.element();
-        Object value = element.value().get();
         Object converted = switch (criteria.condition()) {
-            case AND, OR -> ((List<?>) value).stream()
+            case AND, OR -> ((List<?>) element.value().get()).stream()
                     .map(c -> condition((CriteriaCondition) c)).toList();
-            case NOT -> condition((CriteriaCondition) value);
+            case NOT -> condition((CriteriaCondition) element.value().get());
             default -> value(element.value());
         };
         return CriteriaCondition.of(Element.of(element.name(), converted), criteria.condition());
+    }
+
+    private CriteriaOperand operand(CriteriaOperand operand) {
+        if (operand instanceof CriteriaOperand.Function function) {
+            return new CriteriaOperand.Function(NativeFunctions.materialize(function.function()));
+        }
+        if (operand instanceof CriteriaOperand.Constant constant) {
+            var resolved = value(constant.value());
+            return new CriteriaOperand.Constant(capture(resolved instanceof Value v ? v : Value.of(resolved)));
+        }
+        return operand;
+    }
+
+    private static Value capture(Value value) {
+        if (value instanceof ParamValue param) {
+            return Value.of(param.get());
+        }
+        if (value.get() instanceof List<?> items) {
+            return Value.of(items.stream().map(item -> item instanceof Value v ? capture(v).get() : item).toList());
+        }
+        return value;
     }
 
     private Object value(Value value) {
         if (value instanceof TemporalValue expression) {
             this.temporal = true;
             return Value.of(expression.resolve(now));
+        }
+        if (value instanceof FunctionValue function) {
+            this.temporal = true;
+            return function.materialize();
         }
         if (value instanceof ParamValue) {
             return value;

@@ -14,7 +14,17 @@ package org.eclipse.jnosql.communication.query;
 import java.util.Objects;
 
 /**
- *The {@link String} as value
+ * Represents a string literal used as a {@link QueryValue} in a query condition.
+ * <p>
+ * This type models textual values as <em>literals</em>, typically appearing on the right-hand side of a conditional
+ * operator, for example:
+ *
+ * <pre>{@code
+ * name = "Otavio"
+ * }
+ * </pre>
+ * <p>
+ * The value is treated as an immutable literal and does not represent a path, parameter, or expression.
  */
 public final class StringQueryValue implements QueryValue<String> {
 
@@ -55,10 +65,15 @@ public final class StringQueryValue implements QueryValue<String> {
         return ValueType.STRING;
     }
 
+    /**
+     * Creates a string query value.
+     *
+     * @param text the string value
+     * @return the query value
+     */
     public static StringQueryValue of(String text) {
         return new StringQueryValue(text);
     }
-
 
 
 }

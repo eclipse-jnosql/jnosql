@@ -13,7 +13,9 @@
 package org.eclipse.jnosql.communication.query.method;
 
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
+import org.eclipse.jnosql.communication.query.QueryPath;
 import org.eclipse.jnosql.communication.query.QueryValue;
 
 import java.util.Objects;
@@ -49,7 +51,15 @@ final class MethodCondition implements QueryCondition {
     }
 
     @Override
-    public QueryValue<?> value() {
+    public QueryValue<?> leftOperand() {
+        if (value instanceof ConditionQueryValue) {
+            throw new UnsupportedOperationException("A logical condition has no left operand: " + condition);
+        }
+        return QueryPath.of(name);
+    }
+
+    @Override
+    public QueryValue<?> rightOperand() {
         return value;
     }
 

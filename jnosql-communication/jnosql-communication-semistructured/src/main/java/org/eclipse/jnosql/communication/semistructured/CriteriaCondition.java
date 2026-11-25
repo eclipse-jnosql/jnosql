@@ -12,6 +12,7 @@ package org.eclipse.jnosql.communication.semistructured;
 
 
 import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.Value;
 
@@ -35,26 +36,91 @@ public final class CriteriaCondition {
     private final Element element;
     private final Condition condition;
     private final boolean readOnly;
+    private final CriteriaOperand left;
+    private final CriteriaOperand right;
 
     private CriteriaCondition(Element element, Condition condition) {
-        this.element = element;
-        this.condition = condition;
-        this.readOnly = false;
+        this(element, condition, false);
     }
 
     private CriteriaCondition(Element element, Condition condition, boolean readOnly) {
         this.element = element;
         this.condition = condition;
         this.readOnly = readOnly;
+        this.left = null;
+        this.right = null;
+    }
+
+    private CriteriaCondition(CriteriaOperand left, Condition condition, CriteriaOperand right, boolean readOnly) {
+        this.element = null;
+        this.condition = condition;
+        this.readOnly = readOnly;
+        this.left = left;
+        this.right = right;
     }
 
     /**
      * Retrieves the element used in the condition.
      *
      * @return the element
+     * @throws UnsupportedOperationException when the predicate has a native function operand: such a predicate is
+     *                                       not an attribute-value pair, so it is never exposed through this legacy
+     *                                       contract, which prevents drivers that cannot translate functions from
+     *                                       silently dropping or weakening it
      */
     public Element element() {
+        if (isNative()) {
+            throw new UnsupportedOperationException("This condition has a native function operand ("
+                    + left + " " + condition + " " + right + ") that cannot be exposed as an attribute-value element."
+                    + " Read it through leftOperand() and rightOperand(), or reject the query.");
+        }
         return element;
+    }
+
+    /**
+     * Returns the left operand of a predicate. For an ordinary predicate this is the {@link CriteriaOperand.Attribute}
+     * named by {@link #element()}; for a native function predicate it is the attribute or
+     * {@link CriteriaOperand.Function} given at construction. The result is derived from the canonical state, so it
+     * is always consistent with {@link #element()} when that is available.
+     *
+     * @return the left operand
+     * @throws UnsupportedOperationException when this is a logical condition (AND, OR, NOT, IGNORE_CASE),
+     *                                       which has nested conditions rather than operands
+     */
+    public CriteriaOperand leftOperand() {
+        requirePredicate();
+        return isNative() ? left : new CriteriaOperand.Attribute(element.name());
+    }
+
+    /**
+     * Returns the right operand of a predicate. For an ordinary predicate this is the
+     * {@link CriteriaOperand.Constant} wrapping {@code element().value()}.
+     *
+     * @return the right operand
+     * @throws UnsupportedOperationException when this is a logical condition
+     */
+    public CriteriaOperand rightOperand() {
+        requirePredicate();
+        return isNative() ? right : new CriteriaOperand.Constant(element.value());
+    }
+
+    /**
+     * Indicates whether this predicate has a {@link CriteriaOperand.Function} operand and therefore cannot be
+     * consumed through the legacy {@link #element()} contract. Logical conditions are never native themselves;
+     * inspect their nested conditions.
+     *
+     * @return {@code true} when {@link #element()} would fail because of a native function operand
+     */
+    public boolean isNative() {
+        return left != null;
+    }
+
+    private void requirePredicate() {
+        if (condition == Condition.AND || condition == Condition.OR
+                || condition == Condition.NOT || condition == Condition.IGNORE_CASE) {
+            throw new UnsupportedOperationException(
+                    "A " + condition + " condition has nested conditions, not operands");
+        }
     }
 
     /**
@@ -141,16 +207,21 @@ public final class CriteriaCondition {
         }
         CriteriaCondition that = (CriteriaCondition) o;
         return Objects.equals(element, that.element)
-                && condition == that.condition;
+                && condition == that.condition
+                && Objects.equals(left, that.left)
+                && Objects.equals(right, that.right);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(element, condition, readOnly);
+        return Objects.hash(element, condition, readOnly, left, right);
     }
 
     @Override
     public String toString() {
+        if (isNative()) {
+            return "CriteriaCondition{left=" + left + ", condition=" + condition + ", right=" + right + '}';
+        }
         return "CriteriaCondition{" +
                 "element=" + element +
                 ", condition=" + condition +
@@ -166,6 +237,9 @@ public final class CriteriaCondition {
      */
     public static CriteriaCondition readOnly(CriteriaCondition condition) {
         Objects.requireNonNull(condition, "Condition is required");
+        if (condition.isNative()) {
+            return new CriteriaCondition(condition.left, condition.condition, condition.right, true);
+        }
         return new CriteriaCondition(condition.element(), condition.condition(), true);
     }
 
@@ -173,6 +247,79 @@ public final class CriteriaCondition {
         return new CriteriaCondition(Objects.requireNonNull(element, "Column is required"), condition);
     }
 
+
+    /**
+     * Creates a predicate from two operands, the single operand-oriented way to build a predicate with a
+     * {@link CriteriaOperand.Function}. Attribute and value operands give the same condition as the element-based
+     * factories, for example {@code of(new Attribute("name"), EQUALS, new Constant(Value.of("OTAVIO")))} equals
+     * {@code eq("name", "OTAVIO")}. Examples:
+     * <pre>{@code
+     * // WHERE UPPER(name) = 'OTAVIO'
+     * var upper = NativeFunction.of("UPPER", new FunctionArgument.AttributePath("name"));
+     * CriteriaCondition.of(new CriteriaOperand.Function(upper), Condition.EQUALS,
+     *         new CriteriaOperand.Constant(Value.of("OTAVIO")));
+     *
+     * // WHERE name = UPPER(otherName)
+     * CriteriaCondition.of(new CriteriaOperand.Attribute("name"), Condition.EQUALS,
+     *         new CriteriaOperand.Function(NativeFunction.of("UPPER", new FunctionArgument.AttributePath("otherName"))));
+     * }</pre>
+     * Supported conditions are EQUALS, GREATER_THAN, GREATER_EQUALS_THAN, LESSER_THAN and LESSER_EQUALS_THAN with any
+     * attribute, value or function operands, and LIKE, IN and BETWEEN with an attribute or function on the left and a
+     * value on the right. A value cannot be the left operand, and a predicate with no function must be an attribute
+     * compared with a value (field-to-field comparison is not supported). Negation (NOT EQUALS, IS NULL and so on)
+     * is expressed with {@link #negate()} or an equality with a null value, as for ordinary predicates.
+     * This only represents the predicate; executing a native function is the responsibility of the database driver.
+     *
+     * @param left      the left operand
+     * @param condition the comparison condition
+     * @param right     the right operand
+     * @return the predicate
+     * @throws NullPointerException if any argument is null
+     * @throws QueryException       if the combination of condition and operands is not supported
+     */
+    public static CriteriaCondition of(CriteriaOperand left, Condition condition, CriteriaOperand right) {
+        Objects.requireNonNull(left, "left is required");
+        Objects.requireNonNull(condition, "condition is required");
+        Objects.requireNonNull(right, "right is required");
+        if (left instanceof CriteriaOperand.Attribute attribute && right instanceof CriteriaOperand.Constant constant) {
+            return fromElement(Element.of(attribute.name(), constant.value()), condition);
+        }
+        if (left instanceof CriteriaOperand.Constant) {
+            throw new QueryException("A value cannot be the left operand of " + condition + ": " + left);
+        }
+        if (!(left instanceof CriteriaOperand.Function || right instanceof CriteriaOperand.Function)) {
+            throw new QueryException("Comparing " + left + " with " + right + " is not supported: "
+                    + "at least one operand must be a native function");
+        }
+        switch (condition) {
+            case EQUALS, GREATER_THAN, GREATER_EQUALS_THAN, LESSER_THAN, LESSER_EQUALS_THAN -> {
+            }
+            case LIKE, IN, BETWEEN -> {
+                if (!(right instanceof CriteriaOperand.Constant constant)) {
+                    throw new QueryException("A native function predicate " + condition
+                            + " requires a value as the right operand: " + right);
+                }
+                if (condition == Condition.IN) {
+                    checkInClause(constant.value());
+                } else if (condition == Condition.BETWEEN) {
+                    checkBetweenClause(constant.value().get());
+                }
+            }
+            default -> throw new QueryException("The condition " + condition
+                    + " is not supported with a native function operand: " + left + " " + condition + " " + right);
+        }
+        return new CriteriaCondition(left, condition, right, false);
+    }
+
+    private static CriteriaCondition fromElement(Element element, Condition condition) {
+        return switch (condition) {
+            case IN -> in(element);
+            case BETWEEN -> between(element);
+            case AND, OR, NOT, IGNORE_CASE -> throw new QueryException("The logical condition " + condition
+                    + " cannot be built from operands");
+            default -> new CriteriaCondition(element, condition);
+        };
+    }
 
     /**
      * Creates a new {@link CriteriaCondition} with a {@link Condition#EQUALS} condition.

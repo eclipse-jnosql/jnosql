@@ -12,19 +12,28 @@
 package org.eclipse.jnosql.communication.query.method;
 
 import org.eclipse.jnosql.communication.query.DeleteQuery;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 class DeleteMethodProviderTest {
 
+    @Nested
+    @DisplayName("When the delete method provider is used")
+    class WhenTheDeleteMethodProvider {
+    }
+
     @Test
+    @DisplayName("Should Create")
     void shouldCreate() {
         Method method = PersonRepository.class.getDeclaredMethods()[0];
         DeleteQuery query = DeleteMethodProvider.INSTANCE.apply(method, "Person");
-        Assertions.assertNotNull(query);
-        Assertions.assertEquals("Person", query.entity());
+        assertThat(query).isNotNull();
+        assertThat(query.entity()).isEqualTo("Person");
     }
 
     interface PersonRepository{

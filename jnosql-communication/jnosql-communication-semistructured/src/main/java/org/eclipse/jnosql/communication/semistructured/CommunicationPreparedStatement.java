@@ -83,7 +83,7 @@ public final class CommunicationPreparedStatement {
         Objects.requireNonNull(name, "name is required");
         Objects.requireNonNull(value, "value is required");
 
-        paramsLeft.remove(name);
+        paramsLeft.removeIf(name::equals);
         params.bind(name, value);
         return this;
     }
@@ -105,7 +105,7 @@ public final class CommunicationPreparedStatement {
         }
 
         var name = "?" + index;
-        paramsLeft.remove("?" + index);
+        paramsLeft.removeIf(name::equals);
         params.bind(name, value);
         return this;
     }

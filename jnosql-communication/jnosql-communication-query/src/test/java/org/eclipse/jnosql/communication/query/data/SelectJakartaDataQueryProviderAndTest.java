@@ -16,11 +16,18 @@ import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.SelectQuery;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class SelectJakartaDataQueryProviderAndTest {
+
+    @Nested
+    @DisplayName("When the select jakarta data query provider and is used")
+    class WhenTheSelectJakartaDataQueryProviderAnd {
+    }
 
 
     private SelectParser selectParser;
@@ -33,6 +40,7 @@ class SelectJakartaDataQueryProviderAndTest {
 
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should And Two Conditions")
     @ValueSource(strings = {"WHERE age = 10 AND salary = 10.15", "FROM entity WHERE age = 10 AND salary = 10.15"})
     void shouldAndTwoConditions(String query){
         SelectQuery selectQuery = selectParser.apply(query, "entity");
@@ -58,6 +66,7 @@ class SelectJakartaDataQueryProviderAndTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should And Three Conditions")
     @ValueSource(strings = {"WHERE age = 10 AND salary = 10.15 AND name =?1", "FROM entity WHERE age = 10 AND salary = 10.15 AND name =?1"})
     void shouldAndThreeConditions(String query){
         SelectQuery selectQuery = selectParser.apply(query, "entity");
@@ -86,6 +95,7 @@ class SelectJakartaDataQueryProviderAndTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should ORMix Conditions")
     @ValueSource(strings = {"WHERE age = 10 AND salary = 10.15 OR name =?1", "FROM entity WHERE age = 10 AND salary = 10.15 OR name =?1"})
     void shouldORMixConditions(String query){
         SelectQuery selectQuery = selectParser.apply(query, "entity");

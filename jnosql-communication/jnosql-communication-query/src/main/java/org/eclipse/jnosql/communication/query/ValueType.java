@@ -79,6 +79,25 @@ public enum ValueType {
      */
     NULL,
     /**
+     * Represents a state field path expression used in a query.
+     * <p>
+     * A {@code PATH} does <strong>not</strong> represent a literal value. Instead, it
+     * identifies a reference to a field or attribute of the query source, typically
+     * appearing in comparisons where one field is evaluated against another, for example:
+     *
+     * <pre>{@code
+     * numBitsRequired = floorOfSquareRoot
+     * order.total > order.discount
+     * }</pre>
+     *
+     * Path operands are resolved against the query model and evaluated at runtime.
+     * They must not be quoted, bound as parameters, or treated as constants by
+     * query engines.
+     *
+     * @see QueryPath
+     */
+    PATH,
+    /**
      * Represents a temporal special expression such as {@code LOCAL DATE}, {@code LOCAL TIME}
      * or {@code LOCAL DATETIME}. The expression is not a literal: it is resolved to an ordinary
      * {@link java.time.LocalDate}, {@link java.time.LocalTime} or {@link java.time.LocalDateTime}

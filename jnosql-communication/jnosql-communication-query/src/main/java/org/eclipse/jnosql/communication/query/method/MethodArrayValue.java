@@ -24,29 +24,29 @@ record MethodArrayValue(QueryValue<?>[] values) implements ArrayQueryValue {
         return values;
     }
 
+    static ArrayQueryValue of(String name) {
+        return new MethodArrayValue(new QueryValue[] {new MethodParamQueryValue(name),
+                new MethodParamQueryValue(name)});
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof MethodArrayValue that)) {
+        if (!(o instanceof MethodArrayValue other)) {
             return false;
         }
-        return Arrays.equals(values, that.values);
+        return Arrays.equals(this.values, other.values);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(values);
+        return Arrays.hashCode(this.values);
     }
 
     @Override
     public String toString() {
-        return Arrays.toString(values);
-    }
-
-    static ArrayQueryValue of(String name) {
-        return new MethodArrayValue(new QueryValue[] {new MethodParamQueryValue(name),
-                new MethodParamQueryValue(name)});
+        return "{values=" + Arrays.toString(this.values) + '}';
     }
 }

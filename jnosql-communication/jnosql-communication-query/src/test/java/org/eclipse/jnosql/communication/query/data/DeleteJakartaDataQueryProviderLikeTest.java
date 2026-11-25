@@ -17,11 +17,18 @@ import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class DeleteJakartaDataQueryProviderLikeTest {
+
+    @Nested
+    @DisplayName("When the delete jakarta data query provider like is used")
+    class WhenTheDeleteJakartaDataQueryProviderLike {
+    }
 
 
     private DeleteParser deleteParser;
@@ -32,6 +39,7 @@ class DeleteJakartaDataQueryProviderLikeTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Like")
     @ValueSource(strings = "DELETE FROM entity WHERE  name LIKE 'A%'")
     void shouldLike(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -50,6 +58,7 @@ class DeleteJakartaDataQueryProviderLikeTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Like Double Quote")
     @ValueSource(strings = "DELETE FROM entity WHERE  name LIKE \"A%\"")
     void shouldLikeDoubleQuote(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -68,6 +77,7 @@ class DeleteJakartaDataQueryProviderLikeTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Negate Like")
     @ValueSource(strings = "DELETE FROM entity WHERE  name NOT LIKE 'A%'")
     void shouldNegateLike(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -90,6 +100,7 @@ class DeleteJakartaDataQueryProviderLikeTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Combine And")
     @ValueSource(strings = "DELETE FROM entity WHERE  age = 10 AND name LIKE 'test'")
     void shouldCombineAnd(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -114,6 +125,7 @@ class DeleteJakartaDataQueryProviderLikeTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Combine And2")
     @ValueSource(strings = "DELETE FROM entity WHERE name LIKE 'test' AND age = 10")
     void shouldCombineAnd2(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -139,6 +151,7 @@ class DeleteJakartaDataQueryProviderLikeTest {
 
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Combine Or")
     @ValueSource(strings = "DELETE FROM entity WHERE  age = 10 OR name LIKE 'test'")
     void shouldCombineOr(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -163,6 +176,7 @@ class DeleteJakartaDataQueryProviderLikeTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Combine Or2")
     @ValueSource(strings = "DELETE FROM entity WHERE name LIKE 'test' OR age = 10")
     void shouldCombineOr2(String query){
         var deleteQuery = deleteParser.apply(query);

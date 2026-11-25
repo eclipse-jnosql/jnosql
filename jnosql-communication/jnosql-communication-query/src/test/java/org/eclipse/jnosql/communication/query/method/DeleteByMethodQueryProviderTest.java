@@ -19,418 +19,529 @@ import org.eclipse.jnosql.communication.query.ParamQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.Where;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.converter.ConvertWith;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.eclipse.jnosql.communication.query.method.SelectMethodQueryProviderTest.checkPrependedCondition;
+import static org.eclipse.jnosql.communication.query.method.SelectMethodQueryProviderTest.checkTerminalCondition;
+import static org.eclipse.jnosql.communication.query.method.SelectMethodQueryProviderTest.assertConditionTree;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DisplayName("DeleteByMethodQueryProvider")
 class DeleteByMethodQueryProviderTest {
 
     private final DeleteByMethodQueryParser queryProvider = new DeleteByMethodQueryParser();
 
 
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteBy"})
-    void shouldReturnParserQuery(String query) {
+    @Nested
+    @DisplayName("WhenTheDeleteMethodQueryIsParsed")
+    class WhenTheDeleteMethodQueryIsParsed {
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteBy"})
+        @DisplayName("Should Parse Delete Prefix")
+        void shouldParseDeletePrefix(String query) {
+            String entity = "entity";
+            DeleteQuery deleteQuery = queryProvider.apply(query, entity);
+            assertThat(deleteQuery).isNotNull();
+            assertThat(deleteQuery.entity()).isEqualTo(entity);
+            assertThat(deleteQuery.fields().isEmpty()).isTrue();
+            Optional<Where> where = deleteQuery.where();
+            assertThat(where.isPresent()).isFalse();
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"delete"})
+        @DisplayName("Should Parse Default Delete")
+        void shouldParseDefaultDelete(String query) {
+            String entity = "entity";
+            DeleteQuery deleteQuery = queryProvider.apply(query, entity);
+            assertThat(deleteQuery).isNotNull();
+            assertThat(deleteQuery.entity()).isEqualTo(entity);
+            assertThat(deleteQuery.fields().isEmpty()).isTrue();
+            Optional<Where> where = deleteQuery.where();
+            assertThat(where.isPresent()).isFalse();
+        }
+
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByName"})
+        @DisplayName("Should Parse Delete By Name")
+        void shouldParseDeleteByName(String query) {
+            String entity = "entity";
+            checkEqualsQuery(query, entity);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByNameEquals"})
+        @DisplayName("Should Parse Delete By Name Equals")
+        void shouldParseDeleteByNameEquals(String query) {
+            String entity = "entity";
+            checkEqualsQuery(query, entity);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByNameNotEquals"})
+        @DisplayName("Should Parse Delete By Name Not Equals")
+        void shouldParseDeleteByNameNotEquals(String query) {
+            checkNotCondition(query, Condition.EQUALS, "name");
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeGreaterThan"})
+        @DisplayName("Should Parse Delete By Age Greater Than")
+        void shouldParseDeleteByAgeGreaterThan(String query) {
+
+            Condition operator = Condition.GREATER_THAN;
+            String variable = "age";
+            checkCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeNotGreaterThan"})
+        @DisplayName("Should Parse Delete By Age Not Greater Than")
+        void shouldParseDeleteByAgeNotGreaterThan(String query) {
+            Condition operator = Condition.GREATER_THAN;
+            String variable = "age";
+            checkNotCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeGreaterThanEqual"})
+        @DisplayName("Should Parse Delete By Age Greater Than Equal")
+        void shouldParseDeleteByAgeGreaterThanEqual(String query) {
+
+            Condition operator = Condition.GREATER_EQUALS_THAN;
+            String variable = "age";
+            checkCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeNotGreaterThanEqual"})
+        @DisplayName("Should Parse Delete By Age Not Greater Than Equal")
+        void shouldParseDeleteByAgeNotGreaterThanEqual(String query) {
+            Condition operator = Condition.GREATER_EQUALS_THAN;
+            String variable = "age";
+            checkNotCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeLessThan"})
+        @DisplayName("Should Parse Delete By Age Less Than")
+        void shouldParseDeleteByAgeLessThan(String query) {
+
+            Condition operator = Condition.LESSER_THAN;
+            String variable = "age";
+            checkCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeNotLessThan"})
+        @DisplayName("Should Parse Delete By Age Not Less Than")
+        void shouldParseDeleteByAgeNotLessThan(String query) {
+            Condition operator = Condition.LESSER_THAN;
+            String variable = "age";
+            checkNotCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeLessThanEqual"})
+        @DisplayName("Should Parse Delete By Age Less Than Equal")
+        void shouldParseDeleteByAgeLessThanEqual(String query) {
+
+            Condition operator = Condition.LESSER_EQUALS_THAN;
+            String variable = "age";
+            checkCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeNotLessThanEqual"})
+        @DisplayName("Should Parse Delete By Age Not Less Than Equal")
+        void shouldParseDeleteByAgeNotLessThanEqual(String query) {
+            Condition operator = Condition.LESSER_EQUALS_THAN;
+            String variable = "age";
+            checkNotCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeLike"})
+        @DisplayName("Should Parse Delete By Age Like")
+        void shouldParseDeleteByAgeLike(String query) {
+
+            Condition operator = Condition.LIKE;
+            String variable = "age";
+            checkCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeNotLike"})
+        @DisplayName("Should Parse Delete By Age Not Like")
+        void shouldParseDeleteByAgeNotLike(String query) {
+            Condition operator = Condition.LIKE;
+            String variable = "age";
+            checkNotCondition(query, operator, variable);
+        }
+
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeIn"})
+        @DisplayName("Should Parse Delete By Age In")
+        void shouldParseDeleteByAgeIn(String query) {
+
+            Condition operator = Condition.IN;
+            String variable = "age";
+            checkCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeNotIn"})
+        @DisplayName("Should Parse Delete By Age Not In")
+        void shouldParseDeleteByAgeNotIn(String query) {
+            Condition operator = Condition.IN;
+            String variable = "age";
+            checkNotCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeAndName"})
+        @DisplayName("Should Parse Delete By Age And Name")
+        void shouldParseDeleteByAgeAndName(String query) {
+
+            Condition operator = Condition.EQUALS;
+            Condition operator2 = Condition.EQUALS;
+            String variable = "age";
+            String variable2 = "name";
+            Condition operatorAppender = Condition.AND;
+            checkAppendCondition(query, operator, operator2, variable, variable2, operatorAppender);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeOrName"})
+        @DisplayName("Should Parse Delete By Age Or Name")
+        void shouldParseDeleteByAgeOrName(String query) {
+
+            Condition operator = Condition.EQUALS;
+            Condition operator2 = Condition.EQUALS;
+            String variable = "age";
+            String variable2 = "name";
+            Condition operatorAppender = Condition.OR;
+            checkAppendCondition(query, operator, operator2, variable, variable2, operatorAppender);
+        }
+
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeOrNameLessThan"})
+        @DisplayName("Should Parse Delete By Age Or Name Less Than")
+        void shouldParseDeleteByAgeOrNameLessThan(String query) {
+
+            Condition operator = Condition.EQUALS;
+            Condition operator2 = Condition.LESSER_THAN;
+            String variable = "age";
+            String variable2 = "name";
+            Condition operatorAppender = Condition.OR;
+            checkAppendCondition(query, operator, operator2, variable, variable2, operatorAppender);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeGreaterThanOrNameIn"})
+        @DisplayName("Should Parse Delete By Age Greater Than Or Name In")
+        void shouldParseDeleteByAgeGreaterThanOrNameIn(String query) {
+
+            Condition operator = Condition.GREATER_THAN;
+            Condition operator2 = Condition.IN;
+            String variable = "age";
+            String variable2 = "name";
+            Condition operatorAppender = Condition.OR;
+            checkAppendCondition(query, operator, operator2, variable, variable2, operatorAppender);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeBetween"})
+        @DisplayName("Should Parse Delete By Age Between")
+        void shouldParseDeleteByAgeBetween(String query) {
+
+            Condition operator = Condition.BETWEEN;
+            String entity = "entity";
+            DeleteQuery deleteQuery = queryProvider.apply(query, entity);
+            assertThat(deleteQuery).isNotNull();
+            assertThat(deleteQuery.entity()).isEqualTo(entity);
+            assertThat(deleteQuery.fields().isEmpty()).isTrue();
+            Optional<Where> where = deleteQuery.where();
+            assertThat(where.isPresent()).isTrue();
+            QueryCondition condition = where.get().condition();
+            QueryValue<?> value = condition.value();
+            assertThat(condition.condition()).isEqualTo(operator);
+            QueryValue<?>[] values = MethodArrayValue.class.cast(value).get();
+            ParamQueryValue param1 = (ParamQueryValue) values[0];
+            ParamQueryValue param2 = (ParamQueryValue) values[1];
+            assertThat(param1.get()).isNotEqualTo(param2.get());
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByAgeNotBetween"})
+        @DisplayName("Should Parse Delete By Age Not Between")
+        void shouldParseDeleteByAgeNotBetween(String query) {
+
+            String entity = "entity";
+            DeleteQuery deleteQuery = queryProvider.apply(query, entity);
+            assertThat(deleteQuery).isNotNull();
+            assertThat(deleteQuery.entity()).isEqualTo(entity);
+            assertThat(deleteQuery.fields().isEmpty()).isTrue();
+            Optional<Where> where = deleteQuery.where();
+            assertThat(where.isPresent()).isTrue();
+            QueryCondition condition = where.get().condition();
+            QueryValue<?> value = condition.value();
+            assertThat(condition.condition()).isEqualTo(Condition.NOT);
+            QueryCondition notCondition =  ConditionQueryValue.class.cast(value).get().get(0);
+            assertThat(notCondition.condition()).isEqualTo(Condition.BETWEEN);
+
+            QueryValue<?>[] values = MethodArrayValue.class.cast(notCondition.value()).get();
+            ParamQueryValue param1 = (ParamQueryValue) values[0];
+            ParamQueryValue param2 = (ParamQueryValue) values[1];
+            assertThat(param1.get()).isNotEqualTo(param2.get());
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteBySalary_Currency"})
+        @DisplayName("Should Parse Delete By Salary Currency")
+        void shouldParseDeleteBySalaryCurrency(String query) {
+            String entity = "entity";
+            DeleteQuery deleteQuery = queryProvider.apply(query, entity);
+            assertThat(deleteQuery).isNotNull();
+            assertThat(deleteQuery.entity()).isEqualTo(entity);
+            assertThat(deleteQuery.fields().isEmpty()).isTrue();
+            Optional<Where> where = deleteQuery.where();
+            assertThat(where.isPresent()).isTrue();
+            QueryCondition condition = where.get().condition();
+            assertThat(condition.name()).isEqualTo("salary.currency");
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteBySalary_CurrencyAndCredential_Role"})
+        @DisplayName("Should Parse Delete By Salary Currency And Credential Role")
+        void shouldParseDeleteBySalaryCurrencyAndCredentialRole(String query) {
+            String entity = "entity";
+            DeleteQuery deleteQuery = queryProvider.apply(query, entity);
+            assertThat(deleteQuery).isNotNull();
+            assertThat(deleteQuery.entity()).isEqualTo(entity);
+            assertThat(deleteQuery.fields().isEmpty()).isTrue();
+            Optional<Where> where = deleteQuery.where();
+            assertThat(where.isPresent()).isTrue();
+            QueryCondition condition = where.get().condition();
+            assertThat(condition.condition()).isEqualTo(Condition.AND);
+            final QueryValue<?> value = condition.value();
+            QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().get(0);
+            QueryCondition condition2 = ConditionQueryValue.class.cast(value).get().get(1);
+            assertThat(condition1.name()).isEqualTo("salary.currency");
+            assertThat(condition2.name()).isEqualTo("credential.role");
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteBySalary_CurrencyAndName"})
+        @DisplayName("Should Parse Delete By Salary Currency And Name")
+        void shouldParseDeleteBySalaryCurrencyAndName(String query) {
+            String entity = "entity";
+            DeleteQuery deleteQuery = queryProvider.apply(query, entity);
+            assertThat(deleteQuery).isNotNull();
+            assertThat(deleteQuery.entity()).isEqualTo(entity);
+            assertThat(deleteQuery.fields().isEmpty()).isTrue();
+            Optional<Where> where = deleteQuery.where();
+            assertThat(where.isPresent()).isTrue();
+            QueryCondition condition = where.get().condition();
+            assertThat(condition.condition()).isEqualTo(Condition.AND);
+            final QueryValue<?> value = condition.value();
+            QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().get(0);
+            QueryCondition condition2 = ConditionQueryValue.class.cast(value).get().get(1);
+            assertThat(condition1.name()).isEqualTo("salary.currency");
+            assertThat(condition2.name()).isEqualTo("name");
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByActiveTrue"})
+        @DisplayName("Should Parse Delete By Active True")
+        void shouldParseDeleteByActiveTrue(String query) {
+            String entity = "entity";
+            DeleteQuery deleteQuery = queryProvider.apply(query, entity);
+            assertThat(deleteQuery).isNotNull();
+            assertThat(deleteQuery.entity()).isEqualTo(entity);
+            assertThat(deleteQuery.fields().isEmpty()).isTrue();
+            Optional<Where> where = deleteQuery.where();
+            assertThat(where.isPresent()).isTrue();
+            QueryCondition condition = where.orElseThrow().condition();
+            assertThat(condition.name()).isEqualTo("active");
+            assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            assertThat(condition.value()).isEqualTo(BooleanQueryValue.TRUE);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByActiveFalse"})
+        @DisplayName("Should Parse Delete By Active False")
+        void shouldParseDeleteByActiveFalse(String query) {
+            String entity = "entity";
+            DeleteQuery deleteQuery = queryProvider.apply(query, entity);
+            assertThat(deleteQuery).isNotNull();
+            assertThat(deleteQuery.entity()).isEqualTo(entity);
+            Optional<Where> where = deleteQuery.where();
+            assertThat(where.isPresent()).isTrue();
+            QueryCondition condition = where.orElseThrow().condition();
+            assertThat(condition.name()).isEqualTo("active");
+            assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+            assertThat(condition.value()).isEqualTo(BooleanQueryValue.FALSE);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByNameContains"})
+        @DisplayName("Should Parse Delete By Name Contains")
+        void shouldParseDeleteByNameContains(String query) {
+            Condition operator = Condition.CONTAINS;
+            String variable = "name";
+            checkCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByNameEndsWith"})
+        @DisplayName("Should Parse Delete By Name Ends With")
+        void shouldParseDeleteByNameEndsWith(String query) {
+            Condition operator = Condition.ENDS_WITH;
+            String variable = "name";
+            checkCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByNameStartsWith"})
+        @DisplayName("Should Parse Delete By Name Starts With")
+        void shouldParseDeleteByNameStartsWith(String query) {
+            Condition operator = Condition.STARTS_WITH;
+            String variable = "name";
+            checkCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByNameNotContains"})
+        @DisplayName("Should Parse Delete By Name Not Contains")
+        void shouldParseDeleteByNameNotContains(String query) {
+            Condition operator = Condition.CONTAINS;
+            String variable = "name";
+            checkNotCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByNameNotEndsWith"})
+        @DisplayName("Should Parse Delete By Name Not Ends With")
+        void shouldParseDeleteByNameNotEndsWith(String query) {
+            Condition operator = Condition.ENDS_WITH;
+            String variable = "name";
+            checkNotCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @ValueSource(strings = {"deleteByNameNotStartsWith"})
+        @DisplayName("Should Parse Delete By Name Not Starts With")
+        void shouldParseDeleteByNameNotStartsWith(String query) {
+            Condition operator = Condition.STARTS_WITH;
+            String variable = "name";
+            checkNotCondition(query, operator, variable);
+        }
+
+        @ParameterizedTest(name = "Should parser the query {0}")
+        @CsvSource(useHeadersInDisplayName = true, delimiter = '|',
+                textBlock = """
+                query                                      | expectedProperty   | expectedConditions
+                deleteByStreetNameIgnoreCase                 | streetName         | IGNORE_CASE, EQUALS
+                deleteByAddress_StreetNameIgnoreCase         | address.streetName | IGNORE_CASE, EQUALS
+                deleteByHexadecimalIgnoreCase                | hexadecimal        | IGNORE_CASE, EQUALS
+                deleteByStreetNameIgnoreCaseNot              | streetName         | NOT, IGNORE_CASE, EQUALS
+                deleteByAddress_StreetNameIgnoreCaseNot      | address.streetName | NOT, IGNORE_CASE, EQUALS
+                deleteByHexadecimalIgnoreCaseNot             | hexadecimal        | NOT, IGNORE_CASE, EQUALS
+                deleteByStreetNameIgnoreCaseLike             | streetName         | IGNORE_CASE, LIKE
+                deleteByStreetNameIgnoreCaseNotLike          | streetName         | NOT, IGNORE_CASE, LIKE
+                deleteByStreetNameIgnoreCaseBetween          | streetName         | IGNORE_CASE, BETWEEN
+                deleteByStreetNameIgnoreCaseIn               | streetName         | IGNORE_CASE, IN
+                deleteByStreetNameIgnoreCaseGreaterThan      | streetName         | IGNORE_CASE, GREATER_THAN
+                deleteByStreetNameIgnoreCaseGreaterThanEqual | streetName         | IGNORE_CASE, GREATER_EQUALS_THAN
+                deleteByStreetNameIgnoreCaseLessThan         | streetName         | IGNORE_CASE, LESSER_THAN
+                deleteByStreetNameIgnoreCaseLessThanEqual    | streetName         | IGNORE_CASE, LESSER_EQUALS_THAN
+                deleteByStreetNameIgnoreCaseContains         | streetName         | IGNORE_CASE, CONTAINS
+                deleteByStreetNameIgnoreCaseEndsWith         | streetName         | IGNORE_CASE, ENDS_WITH
+                deleteByStreetNameIgnoreCaseStartsWith       | streetName         | IGNORE_CASE, STARTS_WITH
+                            """)
+        @DisplayName("Should Delete By Street Name Ignore Case Conditions")
+        void shouldDeleteByStreetNameIgnoreCaseConditions(String query, String expectedProperty,
+                                                        @ConvertWith(SelectMethodQueryProviderTest.ConditionConverter.class) Condition[] conditions) {
+            checkConditions(query, expectedProperty, conditions);
+        }
+
+    }
+
+    @Nested
+    @DisplayName("When deleting with mixed logical predicates")
+    class WhenTheMixedLogicalPredicatesAreParsed {
+
+        @Test
+        @DisplayName("Should apply AND before OR when the conjunction comes first")
+        void shouldApplyAndBeforeOrWhenTheConjunctionComesFirst() {
+            // When
+            QueryCondition condition = queryProvider.apply("deleteByNameAndAgeOrCity", "entity")
+                    .where().orElseThrow().condition();
+
+            // Then
+            assertConditionTree(condition, "OR(AND(name,age),city)", "name", "age", "city");
+        }
+
+        @Test
+        @DisplayName("Should apply AND before OR when the conjunction comes last")
+        void shouldApplyAndBeforeOrWhenTheConjunctionComesLast() {
+            // When
+            QueryCondition condition = queryProvider.apply("deleteByNameOrAgeAndCity", "entity")
+                    .where().orElseThrow().condition();
+
+            // Then
+            assertConditionTree(condition, "OR(name,AND(age,city))", "name", "age", "city");
+        }
+
+        @Test
+        @DisplayName("Should keep chained OR branches and their AND groups in lexical order")
+        void shouldKeepChainedBranchesInLexicalOrder() {
+            // When
+            QueryCondition condition = queryProvider.apply(
+                            "deleteByNameAndAgeOrCityAndActiveAndEnabledOrEmail", "entity")
+                    .where().orElseThrow().condition();
+
+            // Then
+            assertConditionTree(condition, "OR(AND(name,age),AND(city,active,enabled),email)",
+                    "name", "age", "city", "active", "enabled", "email");
+        }
+    }
+
+    private void checkConditions(String query, String variable, Condition... operators) {
         String entity = "entity";
-        DeleteQuery deleteQuery = queryProvider.apply(query, entity);
-        assertNotNull(deleteQuery);
-        assertEquals(entity, deleteQuery.entity());
-        assertTrue(deleteQuery.fields().isEmpty());
-        Optional<Where> where = deleteQuery.where();
-        assertFalse(where.isPresent());
-    }
-
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByName"})
-    void shouldReturnParserQuery1(String query) {
-        String entity = "entity";
-        checkEqualsQuery(query, entity);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByNameEquals"})
-    void shouldReturnParserQuery2(String query) {
-        String entity = "entity";
-        checkEqualsQuery(query, entity);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByNameNotEquals"})
-    void shouldReturnParserQuery3(String query) {
-        checkNotCondition(query, Condition.EQUALS, "name");
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeGreaterThan"})
-    void shouldReturnParserQuery4(String query) {
-
-        Condition operator = Condition.GREATER_THAN;
-        String variable = "age";
-        checkCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeNotGreaterThan"})
-    void shouldReturnParserQuery5(String query) {
-        Condition operator = Condition.GREATER_THAN;
-        String variable = "age";
-        checkNotCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeGreaterThanEqual"})
-    void shouldReturnParserQuery6(String query) {
-
-        Condition operator = Condition.GREATER_EQUALS_THAN;
-        String variable = "age";
-        checkCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeNotGreaterThanEqual"})
-    void shouldReturnParserQuery7(String query) {
-        Condition operator = Condition.GREATER_EQUALS_THAN;
-        String variable = "age";
-        checkNotCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeLessThan"})
-    void shouldReturnParserQuery8(String query) {
-
-        Condition operator = Condition.LESSER_THAN;
-        String variable = "age";
-        checkCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeNotLessThan"})
-    void shouldReturnParserQuery9(String query) {
-        Condition operator = Condition.LESSER_THAN;
-        String variable = "age";
-        checkNotCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeLessThanEqual"})
-    void shouldReturnParserQuery10(String query) {
-
-        Condition operator = Condition.LESSER_EQUALS_THAN;
-        String variable = "age";
-        checkCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeNotLessThanEqual"})
-    void shouldReturnParserQuery11(String query) {
-        Condition operator = Condition.LESSER_EQUALS_THAN;
-        String variable = "age";
-        checkNotCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeLike"})
-    void shouldReturnParserQuery12(String query) {
-
-        Condition operator = Condition.LIKE;
-        String variable = "age";
-        checkCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeNotLike"})
-    void shouldReturnParserQuery13(String query) {
-        Condition operator = Condition.LIKE;
-        String variable = "age";
-        checkNotCondition(query, operator, variable);
-    }
-
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeIn"})
-    void shouldReturnParserQuery14(String query) {
-
-        Condition operator = Condition.IN;
-        String variable = "age";
-        checkCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeNotIn"})
-    void shouldReturnParserQuery15(String query) {
-        Condition operator = Condition.IN;
-        String variable = "age";
-        checkNotCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeAndName"})
-    void shouldReturnParserQuery16(String query) {
-
-        Condition operator = Condition.EQUALS;
-        Condition operator2 = Condition.EQUALS;
-        String variable = "age";
-        String variable2 = "name";
-        Condition operatorAppender = Condition.AND;
-        checkAppendCondition(query, operator, operator2, variable, variable2, operatorAppender);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeOrName"})
-    void shouldReturnParserQuery17(String query) {
-
-        Condition operator = Condition.EQUALS;
-        Condition operator2 = Condition.EQUALS;
-        String variable = "age";
-        String variable2 = "name";
-        Condition operatorAppender = Condition.OR;
-        checkAppendCondition(query, operator, operator2, variable, variable2, operatorAppender);
-    }
-
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeOrNameLessThan"})
-    void shouldReturnParserQuery18(String query) {
-
-        Condition operator = Condition.EQUALS;
-        Condition operator2 = Condition.LESSER_THAN;
-        String variable = "age";
-        String variable2 = "name";
-        Condition operatorAppender = Condition.OR;
-        checkAppendCondition(query, operator, operator2, variable, variable2, operatorAppender);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeGreaterThanOrNameIn"})
-    void shouldReturnParserQuery19(String query) {
-
-        Condition operator = Condition.GREATER_THAN;
-        Condition operator2 = Condition.IN;
-        String variable = "age";
-        String variable2 = "name";
-        Condition operatorAppender = Condition.OR;
-        checkAppendCondition(query, operator, operator2, variable, variable2, operatorAppender);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeBetween"})
-    void shouldReturnParserQuery27(String query) {
-
-        Condition operator = Condition.BETWEEN;
-        String entity = "entity";
-        DeleteQuery deleteQuery = queryProvider.apply(query, entity);
-        assertNotNull(deleteQuery);
-        assertEquals(entity, deleteQuery.entity());
-        assertTrue(deleteQuery.fields().isEmpty());
-        Optional<Where> where = deleteQuery.where();
-        assertTrue(where.isPresent());
+        var selectQuery = queryProvider.apply(query, entity);
+        assertThat(selectQuery).isNotNull();
+        assertThat(selectQuery.entity()).isEqualTo(entity);
+        assertThat(selectQuery.fields().isEmpty()).isTrue();
+        Optional<Where> where = selectQuery.where();
+        assertThat(where.isPresent()).isTrue();
         QueryCondition condition = where.get().condition();
-        QueryValue<?> value = condition.value();
-        assertEquals(operator, condition.condition());
-        QueryValue<?>[] values = MethodArrayValue.class.cast(value).get();
-        ParamQueryValue param1 = (ParamQueryValue) values[0];
-        ParamQueryValue param2 = (ParamQueryValue) values[1];
-        assertNotEquals(param2.get(), param1.get());
-    }
 
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByAgeNotBetween"})
-    void shouldReturnParserQuery28(String query) {
+        LinkedList<Condition> prependedOperators = new LinkedList<>(Arrays.asList(operators));
+        Condition lastOperator = prependedOperators.getLast();
+        prependedOperators.removeLast();
 
-        String entity = "entity";
-        DeleteQuery deleteQuery = queryProvider.apply(query, entity);
-        assertNotNull(deleteQuery);
-        assertEquals(entity, deleteQuery.entity());
-        assertTrue(deleteQuery.fields().isEmpty());
-        Optional<Where> where = deleteQuery.where();
-        assertTrue(where.isPresent());
-        QueryCondition condition = where.get().condition();
-        QueryValue<?> value = condition.value();
-        assertEquals(Condition.NOT, condition.condition());
-        QueryCondition notCondition =  ConditionQueryValue.class.cast(value).get().get(0);
-        assertEquals(Condition.BETWEEN, notCondition.condition());
+        for (Condition operator : prependedOperators) {
+            condition = checkPrependedCondition(operator, condition);
+        }
 
-        QueryValue<?>[] values = MethodArrayValue.class.cast(notCondition.value()).get();
-        ParamQueryValue param1 = (ParamQueryValue) values[0];
-        ParamQueryValue param2 = (ParamQueryValue) values[1];
-        assertNotEquals(param2.get(), param1.get());
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteBySalary_Currency"})
-    void shouldRunQuery29(String query) {
-        String entity = "entity";
-        DeleteQuery deleteQuery = queryProvider.apply(query, entity);
-        assertNotNull(deleteQuery);
-        assertEquals(entity, deleteQuery.entity());
-        assertTrue(deleteQuery.fields().isEmpty());
-        Optional<Where> where = deleteQuery.where();
-        assertTrue(where.isPresent());
-        QueryCondition condition = where.get().condition();
-        Assertions.assertEquals("salary.currency", condition.name());
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteBySalary_CurrencyAndCredential_Role"})
-    void shouldRunQuery30(String query) {
-        String entity = "entity";
-        DeleteQuery deleteQuery = queryProvider.apply(query, entity);
-        assertNotNull(deleteQuery);
-        assertEquals(entity, deleteQuery.entity());
-        assertTrue(deleteQuery.fields().isEmpty());
-        Optional<Where> where = deleteQuery.where();
-        assertTrue(where.isPresent());
-        QueryCondition condition = where.get().condition();
-        Assertions.assertEquals(Condition.AND, condition.condition());
-        final QueryValue<?> value = condition.value();
-        QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().get(0);
-        QueryCondition condition2 = ConditionQueryValue.class.cast(value).get().get(1);
-        assertEquals("salary.currency", condition1.name());
-        assertEquals("credential.role", condition2.name());
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteBySalary_CurrencyAndName"})
-    void shouldRunQuery31(String query) {
-        String entity = "entity";
-        DeleteQuery deleteQuery = queryProvider.apply(query, entity);
-        assertNotNull(deleteQuery);
-        assertEquals(entity, deleteQuery.entity());
-        assertTrue(deleteQuery.fields().isEmpty());
-        Optional<Where> where = deleteQuery.where();
-        assertTrue(where.isPresent());
-        QueryCondition condition = where.get().condition();
-        Assertions.assertEquals(Condition.AND, condition.condition());
-        final QueryValue<?> value = condition.value();
-        QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().get(0);
-        QueryCondition condition2 = ConditionQueryValue.class.cast(value).get().get(1);
-        assertEquals("salary.currency", condition1.name());
-        assertEquals("name", condition2.name());
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByActiveTrue"})
-    void shouldRunQuery32(String query) {
-        String entity = "entity";
-        DeleteQuery deleteQuery = queryProvider.apply(query, entity);
-        assertNotNull(deleteQuery);
-        assertEquals(entity, deleteQuery.entity());
-        assertTrue(deleteQuery.fields().isEmpty());
-        Optional<Where> where = deleteQuery.where();
-        assertTrue(where.isPresent());
-        QueryCondition condition = where.orElseThrow().condition();
-        assertEquals("active", condition.name());
-        assertEquals(Condition.EQUALS, condition.condition());
-        assertEquals(BooleanQueryValue.TRUE, condition.value());
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByActiveFalse"})
-    void shouldRunQuery33(String query) {
-        String entity = "entity";
-        DeleteQuery deleteQuery = queryProvider.apply(query, entity);
-        assertNotNull(deleteQuery);
-        assertEquals(entity, deleteQuery.entity());
-        Optional<Where> where = deleteQuery.where();
-        assertTrue(where.isPresent());
-        QueryCondition condition = where.orElseThrow().condition();
-        assertEquals("active", condition.name());
-        assertEquals(Condition.EQUALS, condition.condition());
-        assertEquals(BooleanQueryValue.FALSE, condition.value());
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByNameContains"})
-    void shouldRunQuery34(String query) {
-        Condition operator = Condition.CONTAINS;
-        String variable = "name";
-        checkCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByNameEndsWith"})
-    void shouldRunQuery35(String query) {
-        Condition operator = Condition.ENDS_WITH;
-        String variable = "name";
-        checkCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByNameStartsWith"})
-    void shouldRunQuery36(String query) {
-        Condition operator = Condition.STARTS_WITH;
-        String variable = "name";
-        checkCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByNameNotContains"})
-    void shouldRunQuery37(String query) {
-        Condition operator = Condition.CONTAINS;
-        String variable = "name";
-        checkNotCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByNameNotEndsWith"})
-    void shouldRunQuery38(String query) {
-        Condition operator = Condition.ENDS_WITH;
-        String variable = "name";
-        checkNotCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should parser the query {0}")
-    @ValueSource(strings = {"deleteByNameNotStartsWith"})
-    void shouldRunQuery39(String query) {
-        Condition operator = Condition.STARTS_WITH;
-        String variable = "name";
-        checkNotCondition(query, operator, variable);
-    }
-
-    @ParameterizedTest(name = "Should apply AND precedence before OR for {0}")
-    @ValueSource(strings = {"deleteByAAndBOrC"})
-    void shouldApplyAndPrecedenceBeforeOr(String query) {
-        QueryCondition condition = queryProvider.apply(query, "entity").where().orElseThrow().condition();
-
-        assertConditionTree(condition, "OR(AND(EQUALS(a),EQUALS(b)),EQUALS(c))", List.of("a", "b", "c"));
-    }
-
-    @ParameterizedTest(name = "Should apply AND precedence after OR for {0}")
-    @ValueSource(strings = {"deleteByAOrBAndC"})
-    void shouldApplyAndPrecedenceAfterOr(String query) {
-        QueryCondition condition = queryProvider.apply(query, "entity").where().orElseThrow().condition();
-
-        assertConditionTree(condition, "OR(EQUALS(a),AND(EQUALS(b),EQUALS(c)))", List.of("a", "b", "c"));
-    }
-
-    @ParameterizedTest(name = "Should apply AND precedence across chained conditions for {0}")
-    @ValueSource(strings = {"deleteByAAndBOrCAndDOrE"})
-    void shouldApplyAndPrecedenceAcrossChainedConditions(String query) {
-        QueryCondition condition = queryProvider.apply(query, "entity").where().orElseThrow().condition();
-
-        assertConditionTree(condition, "OR(AND(EQUALS(a),EQUALS(b)),AND(EQUALS(c),EQUALS(d)),EQUALS(e))",
-                List.of("a", "b", "c", "d", "e"));
-    }
-
-    @ParameterizedTest(name = "Should extend the final AND group after OR for {0}")
-    @ValueSource(strings = {"deleteByAAndBOrCAndDAndEOrF"})
-    void shouldExtendFinalAndGroupAfterOr(String query) {
-        QueryCondition condition = queryProvider.apply(query, "entity").where().orElseThrow().condition();
-
-        assertConditionTree(condition,
-                "OR(AND(EQUALS(a),EQUALS(b)),AND(EQUALS(c),EQUALS(d),EQUALS(e)),EQUALS(f))",
-                List.of("a", "b", "c", "d", "e", "f"));
+        checkTerminalCondition(condition, lastOperator, variable);
     }
 
 
@@ -438,109 +549,77 @@ class DeleteByMethodQueryProviderTest {
                                       String variable2, Condition operatorAppender) {
         String entity = "entity";
         DeleteQuery deleteQuery = queryProvider.apply(query, entity);
-        assertNotNull(deleteQuery);
-        assertEquals(entity, deleteQuery.entity());
-        assertTrue(deleteQuery.fields().isEmpty());
+        assertThat(deleteQuery).isNotNull();
+        assertThat(deleteQuery.entity()).isEqualTo(entity);
+        assertThat(deleteQuery.fields().isEmpty()).isTrue();
         Optional<Where> where = deleteQuery.where();
-        assertTrue(where.isPresent());
+        assertThat(where.isPresent()).isTrue();
         QueryCondition condition = where.get().condition();
         QueryValue<?> value = condition.value();
-        assertEquals(operatorAppender, condition.condition());
-        assertTrue(value instanceof ConditionQueryValue);
+        assertThat(condition.condition()).isEqualTo(operatorAppender);
+        assertThat(value).isInstanceOf(ConditionQueryValue.class);
         QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().get(0);
         QueryCondition condition2 = ConditionQueryValue.class.cast(value).get().get(1);
 
-        assertEquals(operator, condition1.condition());
+        assertThat(condition1.condition()).isEqualTo(operator);
         QueryValue<?> param = condition1.value();
-        assertEquals(operator, condition1.condition());
-        assertTrue(ParamQueryValue.class.cast(param).get().contains(variable));
+        assertThat(condition1.condition()).isEqualTo(operator);
+        assertThat(ParamQueryValue.class.cast(param).get().contains(variable)).isTrue();
 
-        assertEquals(operator2, condition2.condition());
+        assertThat(condition2.condition()).isEqualTo(operator2);
         QueryValue<?> param2 = condition2.value();
-        assertEquals(condition2.condition(), operator2);
-        assertTrue(ParamQueryValue.class.cast(param2).get().contains(variable2));
-    }
-
-    private void assertConditionTree(QueryCondition condition, String expectedTree, List<String> expectedParameters) {
-        assertEquals(expectedTree, conditionTree(condition));
-        List<String> parameters = new ArrayList<>();
-        collectParameters(condition, parameters);
-        assertEquals(expectedParameters, parameters);
-    }
-
-    private String conditionTree(QueryCondition condition) {
-        if (condition.value() instanceof ConditionQueryValue value) {
-            StringBuilder tree = new StringBuilder(condition.condition().name()).append('(');
-            List<QueryCondition> conditions = value.get();
-            for (int index = 0; index < conditions.size(); index++) {
-                if (index > 0) {
-                    tree.append(',');
-                }
-                tree.append(conditionTree(conditions.get(index)));
-            }
-            return tree.append(')').toString();
-        }
-        return condition.condition().name() + '(' + condition.name() + ')';
-    }
-
-    private void collectParameters(QueryCondition condition, List<String> parameters) {
-        if (condition.value() instanceof ConditionQueryValue value) {
-            value.get().forEach(child -> collectParameters(child, parameters));
-            return;
-        }
-        assertTrue(condition.value() instanceof ParamQueryValue);
-        String parameter = ParamQueryValue.class.cast(condition.value()).get();
-        parameters.add(parameter.substring(0, parameter.lastIndexOf('_')));
+        assertThat(operator2).isEqualTo(condition2.condition());
+        assertThat(ParamQueryValue.class.cast(param2).get().contains(variable2)).isTrue();
     }
 
 
     private void checkNotCondition(String query, Condition operator, String variable) {
         String entity = "entity";
         DeleteQuery deleteQuery = queryProvider.apply(query, entity);
-        assertNotNull(deleteQuery);
-        assertEquals(entity, deleteQuery.entity());
-        assertTrue(deleteQuery.fields().isEmpty());
+        assertThat(deleteQuery).isNotNull();
+        assertThat(deleteQuery.entity()).isEqualTo(entity);
+        assertThat(deleteQuery.fields().isEmpty()).isTrue();
         Optional<Where> where = deleteQuery.where();
-        assertTrue(where.isPresent());
+        assertThat(where.isPresent()).isTrue();
         QueryCondition condition = where.get().condition();
         QueryValue<?> value = condition.value();
-        assertEquals(Condition.NOT, condition.condition());
+        assertThat(condition.condition()).isEqualTo(Condition.NOT);
 
 
-        assertEquals("_NOT", condition.name());
-        assertTrue(value instanceof ConditionQueryValue);
+        assertThat(condition.name()).isEqualTo("_NOT");
+        assertThat(value).isInstanceOf(ConditionQueryValue.class);
         QueryCondition condition1 = ConditionQueryValue.class.cast(value).get().get(0);
         QueryValue<?> param = condition1.value();
-        assertEquals(operator, condition1.condition());
-        assertTrue(ParamQueryValue.class.cast(param).get().contains(variable));
+        assertThat(condition1.condition()).isEqualTo(operator);
+        assertThat(ParamQueryValue.class.cast(param).get().contains(variable)).isTrue();
     }
 
     private void checkEqualsQuery(String query, String entity) {
         DeleteQuery deleteQuery = queryProvider.apply(query, entity);
-        assertNotNull(deleteQuery);
-        assertEquals(entity, deleteQuery.entity());
-        assertTrue(deleteQuery.fields().isEmpty());
+        assertThat(deleteQuery).isNotNull();
+        assertThat(deleteQuery.entity()).isEqualTo(entity);
+        assertThat(deleteQuery.fields().isEmpty()).isTrue();
         Optional<Where> where = deleteQuery.where();
-        assertTrue(where.isPresent());
+        assertThat(where.isPresent()).isTrue();
         QueryCondition condition = where.get().condition();
         QueryValue<?> value = condition.value();
-        assertEquals(Condition.EQUALS, condition.condition());
-        assertEquals("name", condition.name());
-        assertTrue(value instanceof ParamQueryValue);
-        assertTrue(ParamQueryValue.class.cast(value).get().contains("name"));
+        assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
+        assertThat(condition.name()).isEqualTo("name");
+        assertThat(value).isInstanceOf(ParamQueryValue.class);
+        assertThat(ParamQueryValue.class.cast(value).get().contains("name")).isTrue();
     }
 
     private void checkCondition(String query, Condition operator, String variable) {
         String entity = "entity";
         DeleteQuery deleteQuery = queryProvider.apply(query, entity);
-        assertNotNull(deleteQuery);
-        assertEquals(entity, deleteQuery.entity());
-        assertTrue(deleteQuery.fields().isEmpty());
+        assertThat(deleteQuery).isNotNull();
+        assertThat(deleteQuery.entity()).isEqualTo(entity);
+        assertThat(deleteQuery.fields().isEmpty()).isTrue();
         Optional<Where> where = deleteQuery.where();
-        assertTrue(where.isPresent());
+        assertThat(where.isPresent()).isTrue();
         QueryCondition condition = where.get().condition();
         QueryValue<?> value = condition.value();
-        assertEquals(operator, condition.condition());
-        assertTrue(ParamQueryValue.class.cast(value).get().contains(variable));
+        assertThat(condition.condition()).isEqualTo(operator);
+        assertThat(ParamQueryValue.class.cast(value).get().contains(variable)).isTrue();
     }
 }

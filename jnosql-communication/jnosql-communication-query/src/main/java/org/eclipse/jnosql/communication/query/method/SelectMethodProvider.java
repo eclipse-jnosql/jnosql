@@ -20,6 +20,9 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
+/**
+ * Provides select query parsers for repository method names.
+ */
 public enum SelectMethodProvider implements BiFunction<Method, String, SelectQuery> {
 
     INSTANCE;
@@ -34,6 +37,13 @@ public enum SelectMethodProvider implements BiFunction<Method, String, SelectQue
         return apply(method.getName(), entity);
     }
 
+    /**
+     * Parses a repository method name into a select query.
+     *
+     * @param methodName the repository method name
+     * @param entity the entity name
+     * @return the select query
+     */
     public SelectQuery apply(String methodName, String entity) {
         Objects.requireNonNull(methodName, "method is required");
         Objects.requireNonNull(entity, "entity is required");

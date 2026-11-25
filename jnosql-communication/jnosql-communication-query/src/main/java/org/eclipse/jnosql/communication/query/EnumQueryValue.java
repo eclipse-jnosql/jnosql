@@ -12,6 +12,11 @@
 package org.eclipse.jnosql.communication.query;
 
 
+/**
+ * Query value wrapper for enum values.
+ *
+ * @param value the enum value
+ */
 public record EnumQueryValue(Enum<?> value) implements QueryValue<Enum<?>> {
 
     @Override
@@ -21,9 +26,15 @@ public record EnumQueryValue(Enum<?> value) implements QueryValue<Enum<?>> {
 
     @Override
     public ValueType type() {
-        return ValueType.NUMBER;
+        return ValueType.ENUM;
     }
 
+    /**
+     * Creates an enum query value.
+     *
+     * @param value the enum value
+     * @return the query value
+     */
     public static EnumQueryValue of(Enum<?> value) {
         return new EnumQueryValue(value);
     }

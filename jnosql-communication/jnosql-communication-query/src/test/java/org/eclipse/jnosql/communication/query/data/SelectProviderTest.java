@@ -12,13 +12,21 @@
 package org.eclipse.jnosql.communication.query.data;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 
 class SelectProviderTest {
 
+    @Nested
+    @DisplayName("When the select provider is used")
+    class WhenTheSelectProvider {
+    }
+
 
     @Test
+    @DisplayName("Should Execute Query Without Entity")
     void shouldExecuteQueryWithoutEntity(){
         SelectProvider provider = SelectProvider.INSTANCE;
 
@@ -32,6 +40,7 @@ class SelectProviderTest {
     }
 
     @Test
+    @DisplayName("Should Execute Query With Entity")
     void shouldExecuteQueryWithEntity(){
         SelectProvider provider = SelectProvider.INSTANCE;
 
