@@ -67,6 +67,10 @@ final class FunctionValue implements Value {
         return new FunctionValue(definition, arguments);
     }
 
+    EvaluableFunction function() {
+        return function;
+    }
+
     /**
      * Creates an independent copy for one execution. Bound parameters are captured by value; unbound ones are kept
      * so that evaluating them fails explicitly.
