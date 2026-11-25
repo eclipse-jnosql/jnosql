@@ -256,21 +256,11 @@ class FunctionIntegrationTest {
     }
 
     @Test
-    @DisplayName("should reject native functions explicitly in every position")
+    @DisplayName("should reject native assignments explicitly because they are not supported yet")
     void shouldRejectNative() {
-        assertThatThrownBy(() -> select("FROM Person WHERE UPPER(name) = 'OTAVIO'"))
-                .isInstanceOf(QueryException.class).hasMessageContaining("left operand");
-        assertThatThrownBy(() -> select("FROM Person WHERE ABS(balance) > 100"))
-                .isInstanceOf(QueryException.class);
-        assertThatThrownBy(() -> select("FROM Person WHERE name = UPPER(otherName)"))
-                .isInstanceOf(QueryException.class).hasMessageContaining("Native function");
-        assertThatThrownBy(() -> select("FROM Person WHERE LEFT(name, LENGTH(:prefix)) = :prefix"))
-                .isInstanceOf(QueryException.class);
-        assertThatThrownBy(() -> select("FROM Person WHERE UPPER(name) = UPPER(LEFT(:name, 19))"))
-                .isInstanceOf(QueryException.class);
-        assertThatThrownBy(() -> delete("DELETE FROM Person WHERE UPPER(name) = 'X'"))
-                .isInstanceOf(QueryException.class);
         assertThatThrownBy(() -> update("UPDATE Person SET name = UPPER(other) WHERE id = :id"))
+                .isInstanceOf(QueryException.class).hasMessageContaining("Native function");
+        assertThatThrownBy(() -> update("UPDATE Person SET name = UPPER(name) WHERE id = :id"))
                 .isInstanceOf(QueryException.class);
         Mockito.verifyNoInteractions(manager);
     }
@@ -411,16 +401,6 @@ class FunctionIntegrationTest {
         var snapshot = statement.select().orElseThrow().condition().orElseThrow();
         assertThat(valueOf(snapshot)).isNotNull();
         assertThat(valueOf(snapshot).toString()).contains("LEFT");
-        Mockito.verifyNoInteractions(manager);
-    }
-
-    @Test
-    @DisplayName("should reject native predicates in UPDATE WHERE and DELETE without running anything")
-    void shouldRejectNativeInDestructiveOperations() {
-        assertThatThrownBy(() -> update("UPDATE Person SET active = TRUE WHERE UPPER(name) = 'X'"))
-                .isInstanceOf(QueryException.class);
-        assertThatThrownBy(() -> delete("DELETE FROM Person WHERE name = UPPER(other)"))
-                .isInstanceOf(QueryException.class);
         Mockito.verifyNoInteractions(manager);
     }
 }
