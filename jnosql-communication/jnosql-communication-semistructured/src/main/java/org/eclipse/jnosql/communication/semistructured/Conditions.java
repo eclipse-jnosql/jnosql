@@ -13,9 +13,11 @@ package org.eclipse.jnosql.communication.semistructured;
 
 import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.QueryException;
+import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryPath;
+import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.ValueType;
 import org.eclipse.jnosql.communication.query.Where;
 
@@ -52,6 +54,9 @@ public final class Conditions {
 
     static CriteriaCondition getCondition(QueryCondition condition, Params parameters, CommunicationObserverParser observer,
                                           String entity, TemporalReference reference) {
+        if (hasNativeOperand(condition)) {
+            return nativeCondition(condition, parameters, observer, entity, reference);
+        }
         return switch (condition.condition()) {
             case EQUALS -> CriteriaCondition.eq(Element.of(getName(condition, observer, entity),
                     Values.get(condition.rightOperand(), parameters, reference)));
@@ -91,6 +96,35 @@ public final class Conditions {
                     .stream().map(v -> getCondition(v, parameters, observer, entity, reference))
                     .findAny().orElseThrow());
         };
+    }
+
+    private static boolean hasNativeOperand(QueryCondition condition) {
+        return switch (condition.condition()) {
+            case AND, OR, NOT, IGNORE_CASE -> false;
+            default -> NativeFunctions.isNative(condition.leftOperand())
+                    || NativeFunctions.isNative(condition.rightOperand());
+        };
+    }
+
+    private static CriteriaCondition nativeCondition(QueryCondition condition, Params parameters,
+                                                     CommunicationObserverParser observer, String entity,
+                                                     TemporalReference reference) {
+        var left = operand(condition.leftOperand(), parameters, observer, entity, reference);
+        var right = operand(condition.rightOperand(), parameters, observer, entity, reference);
+        return CriteriaCondition.of(left, condition.condition(), right);
+    }
+
+    private static CriteriaOperand operand(QueryValue<?> value, Params parameters, CommunicationObserverParser observer,
+                                           String entity, TemporalReference reference) {
+        if (value.type() == ValueType.PATH) {
+            return new CriteriaOperand.Attribute(observer.fireConditionField(entity, ((QueryPath) value).get()));
+        }
+        if (NativeFunctions.isNative(value)) {
+            return new CriteriaOperand.Function(NativeFunctions.convert(
+                    (org.eclipse.jnosql.communication.query.Function) value.get(), parameters, observer, entity));
+        }
+        var converted = Values.get(value, parameters, reference);
+        return new CriteriaOperand.Constant(converted instanceof Value constant ? constant : Value.of(converted));
     }
 
     private static String getName(QueryCondition condition, CommunicationObserverParser observer, String entity) {
