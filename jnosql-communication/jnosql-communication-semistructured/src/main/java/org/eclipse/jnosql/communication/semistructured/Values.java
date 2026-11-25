@@ -16,6 +16,7 @@ import org.eclipse.jnosql.communication.query.ArrayQueryValue;
 import org.eclipse.jnosql.communication.query.EnumQueryValue;
 import org.eclipse.jnosql.communication.query.ParamQueryValue;
 import org.eclipse.jnosql.communication.query.QueryValue;
+import org.eclipse.jnosql.communication.query.TemporalQueryValue;
 import org.eclipse.jnosql.communication.query.ValueType;
 
 import java.util.stream.Stream;
@@ -28,6 +29,10 @@ final class Values {
     }
 
     static Object get(QueryValue<?> value, Params parameters) {
+        return get(value, parameters, TemporalReference.live());
+    }
+
+    static Object get(QueryValue<?> value, Params parameters, TemporalReference reference) {
 
         ValueType type = value.type();
         switch (type) {
@@ -39,11 +44,14 @@ final class Values {
             }
             case ARRAY -> {
                 return Stream.of(((ArrayQueryValue) value).get())
-                        .map(v -> get(v, parameters))
+                        .map(v -> get(v, parameters, reference))
                         .collect(toList());
             }
             case ENUM -> {
                 return ((EnumQueryValue) value).get().name();
+            }
+            case TEMPORAL -> {
+                return new TemporalValue((TemporalQueryValue) value, reference);
             }
             case NULL -> {
                 return null;
