@@ -38,6 +38,10 @@ final class TemporalReference {
         return current != null ? current : LocalDateTime.now(clock);
     }
 
+    LocalDateTime now() {
+        return LocalDateTime.now(clock);
+    }
+
     void refresh() {
         this.pinned = LocalDateTime.now(clock);
     }
