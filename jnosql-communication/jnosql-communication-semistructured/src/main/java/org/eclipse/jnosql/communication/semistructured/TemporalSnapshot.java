@@ -73,10 +73,20 @@ final class TemporalSnapshot {
                     new CriteriaOperand.Function(NativeFunctions.materialize(function.function()));
             case CriteriaOperand.Constant constant -> {
                 var resolved = value(constant.value());
-                yield new CriteriaOperand.Constant(resolved instanceof Value v ? v : Value.of(resolved));
+                yield new CriteriaOperand.Constant(capture(resolved instanceof Value v ? v : Value.of(resolved)));
             }
             case CriteriaOperand.Attribute attribute -> attribute;
         };
+    }
+
+    private static Value capture(Value value) {
+        if (value instanceof ParamValue param) {
+            return Value.of(param.get());
+        }
+        if (value.get() instanceof List<?> items) {
+            return Value.of(items.stream().map(item -> item instanceof Value v ? capture(v).get() : item).toList());
+        }
+        return value;
     }
 
     private Object value(Value value) {
