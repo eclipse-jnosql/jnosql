@@ -11,6 +11,7 @@
  */
 package org.eclipse.jnosql.communication.semistructured;
 
+import org.eclipse.jnosql.communication.ParamValue;
 import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.Value;
@@ -41,18 +42,12 @@ final class NativeFunctions {
         for (Object param : definition.params()) {
             arguments.add(argument(param, params, observer, entity));
         }
-        try {
-            return NativeFunction.of(definition.name(), arguments.toArray(FunctionArgument[]::new));
-        } catch (IllegalArgumentException | UnsupportedOperationException exp) {
-            throw new QueryException("Invalid function " + definition.name() + ": " + exp.getMessage(), exp);
-        }
+        return NativeFunction.of(definition.name(), arguments.toArray(FunctionArgument[]::new));
     }
 
     private static FunctionArgument argument(Object param, Params params, CommunicationObserverParser observer,
                                              String entity) {
-        if (!(param instanceof QueryValue<?> value)) {
-            throw new QueryException("Unsupported function argument: " + param);
-        }
+        var value = (QueryValue<?>) param;
         return switch (value.type()) {
             case PATH -> new FunctionArgument.AttributePath(
                     observer.fireConditionField(entity, ((QueryPath) value).get()));
@@ -81,8 +76,8 @@ final class NativeFunctions {
                         new FunctionArgument.NativeArgument(materialize(nested.function()));
                 case FunctionArgument.ValueArgument(Value value) when value instanceof FunctionValue evaluable ->
                         new FunctionArgument.ValueArgument(evaluable.materialize());
-                case FunctionArgument.ValueArgument(Value value) when value instanceof org.eclipse.jnosql.communication.ParamValue param
-                        && !param.isEmpty() -> new FunctionArgument.ValueArgument(Value.of(param.get()));
+                case FunctionArgument.ValueArgument(Value value) -> new FunctionArgument.ValueArgument(
+                        Value.of(((ParamValue) value).get()));
                 default -> argument;
             });
         }
