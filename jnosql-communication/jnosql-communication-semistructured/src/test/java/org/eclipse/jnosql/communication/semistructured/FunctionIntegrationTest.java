@@ -394,4 +394,33 @@ class FunctionIntegrationTest {
         new SelectQueryParser().query("FROM Person WHERE name = UPPER('otavio')", null, manager, observer);
         assertThat(valueOf(lastSelect().condition().orElseThrow()).get()).isEqualTo("OTAVIO");
     }
+
+    @Test
+    @DisplayName("should inspect operands and metadata without evaluating the function")
+    void shouldInspectWithoutEvaluating() {
+        var query = org.eclipse.jnosql.communication.query.data.SelectProvider.INSTANCE
+                .apply("FROM Person WHERE UPPER(name) = UPPER(:name) AND alias = LEFT(:alias, 3)", "Person");
+        var and = query.where().orElseThrow().condition();
+        var operands = ((org.eclipse.jnosql.communication.query.ConditionQueryValue) and.rightOperand()).get();
+        var left = (org.eclipse.jnosql.communication.query.Function) operands.get(0).leftOperand().get();
+        var right = (org.eclipse.jnosql.communication.query.Function) operands.get(0).rightOperand().get();
+        assertThat(left.isNative()).isTrue();
+        assertThat(right.isNative()).isFalse();
+
+        var statement = select("FROM Person WHERE alias = LEFT(:alias, 3)");
+        var snapshot = statement.select().orElseThrow().condition().orElseThrow();
+        assertThat(valueOf(snapshot)).isNotNull();
+        assertThat(valueOf(snapshot).toString()).contains("LEFT");
+        Mockito.verifyNoInteractions(manager);
+    }
+
+    @Test
+    @DisplayName("should reject native predicates in UPDATE WHERE and DELETE without running anything")
+    void shouldRejectNativeInDestructiveOperations() {
+        assertThatThrownBy(() -> update("UPDATE Person SET active = TRUE WHERE UPPER(name) = 'X'"))
+                .isInstanceOf(QueryException.class);
+        assertThatThrownBy(() -> delete("DELETE FROM Person WHERE name = UPPER(other)"))
+                .isInstanceOf(QueryException.class);
+        Mockito.verifyNoInteractions(manager);
+    }
 }
