@@ -11,9 +11,9 @@
  */
 package org.eclipse.jnosql.communication.query.method;
 
-import org.antlr.v4.runtime.tree.ParseTree;
-import jakarta.data.Sort;
 import jakarta.data.Direction;
+import jakarta.data.Sort;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.eclipse.jnosql.communication.query.SelectQuery;
 import org.eclipse.jnosql.query.grammar.method.MethodParser;
 
@@ -23,6 +23,9 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+/**
+ * Parses repository method names into select queries.
+ */
 public final class SelectMethodQueryParser extends AbstractMethodQueryParser implements BiFunction<String, String, SelectQuery> {
 
     private final List<Sort<?>> sorts = new ArrayList<>();
