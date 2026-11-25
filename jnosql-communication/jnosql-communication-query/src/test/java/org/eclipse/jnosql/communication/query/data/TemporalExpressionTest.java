@@ -157,10 +157,12 @@ class TemporalExpressionTest {
     }
 
     @Test
-    @DisplayName("Should not accept a contiguous LOCALDATE as a temporal expression")
+    @DisplayName("Should treat a contiguous LOCALDATE as an ordinary field path")
     void shouldNotTreatContiguousKeywordAsTemporal() {
-        assertThatThrownBy(() -> new SelectParser().apply("FROM Person WHERE birth < LOCALDATE", "Person"))
-                .isInstanceOf(RuntimeException.class);
+        var condition = new SelectParser().apply("FROM Person WHERE birth < LOCALDATE", "Person")
+                .where().orElseThrow().condition();
+
+        assertThat(condition.value().type()).isEqualTo(ValueType.PATH);
     }
 
     @Test
