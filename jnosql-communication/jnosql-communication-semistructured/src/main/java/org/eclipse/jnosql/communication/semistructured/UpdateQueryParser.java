@@ -16,6 +16,7 @@ import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.query.UpdateItem;
 import org.eclipse.jnosql.communication.query.data.UpdateProvider;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -37,10 +38,16 @@ public final class UpdateQueryParser implements BiFunction<org.eclipse.jnosql.co
 
     CommunicationPreparedStatement prepare(String query, DatabaseManager manager,
                                            CommunicationObserverParser observer) {
+        return prepare(query, manager, observer, Clock.systemDefaultZone());
+    }
+
+    CommunicationPreparedStatement prepare(String query, DatabaseManager manager,
+                                           CommunicationObserverParser observer, Clock clock) {
 
         Params params = Params.newParams();
-        var updateQuery = getQuery(query, params, observer);
-        return CommunicationPreparedStatement.update(updateQuery, params, query, manager);
+        var reference = TemporalReference.live(clock);
+        var updateQuery = getQuery(query, params, observer, reference);
+        return CommunicationPreparedStatement.update(updateQuery, params, query, manager, reference);
     }
 
 
@@ -52,25 +59,28 @@ public final class UpdateQueryParser implements BiFunction<org.eclipse.jnosql.co
         requireNonNull(updateQuery, "updateQuery is required");
         requireNonNull(communicationObserverParser, "columnObserverParser is required");
         Params params = Params.newParams();
-        var query = getQuery(params, communicationObserverParser, updateQuery);
+        var query = getQuery(params, communicationObserverParser, updateQuery, TemporalReference.live());
         return new UpdateQueryParams(query, params);
     }
 
-    private UpdateQuery getQuery(String query, Params params, CommunicationObserverParser observer) {
+    private UpdateQuery getQuery(String query, Params params, CommunicationObserverParser observer,
+                                 TemporalReference reference) {
         var updateQuery = UpdateProvider.INSTANCE.apply(query);
-        return getQuery(params, observer, updateQuery);
+        return getQuery(params, observer, updateQuery, reference);
     }
 
-    private UpdateQuery getQuery(Params params, CommunicationObserverParser observer, org.eclipse.jnosql.communication.query.UpdateQuery updateQuery) {
+    private UpdateQuery getQuery(Params params, CommunicationObserverParser observer,
+                                 org.eclipse.jnosql.communication.query.UpdateQuery updateQuery,
+                                 TemporalReference reference) {
         var entity = observer.fireEntity(updateQuery.entity());
 
         List<Element> set = new ArrayList<>();
         for (UpdateItem updateItem : updateQuery.set()) {
             var field = observer.fireSelectField(entity, updateItem.name());
-            var value = Values.get(updateItem.value(), params);
+            var value = Values.get(updateItem.value(), params, reference);
             set.add(Element.of(field, value));
         }
-        CriteriaCondition condition = updateQuery.where().map(c -> Conditions.getCondition(c, params, observer, entity))
+        CriteriaCondition condition = updateQuery.where().map(c -> Conditions.getCondition(c, params, observer, entity, reference))
                 .orElse(null);
 
         return new DefaultUpdateQuery(entity, set, condition);
@@ -82,17 +92,18 @@ public final class UpdateQueryParser implements BiFunction<org.eclipse.jnosql.co
 
         var entity = observer.fireEntity(updateQuery.entity());
         Params params = Params.newParams();
+        var reference = TemporalReference.pinned(Clock.systemDefaultZone());
 
         List<Element> set = new ArrayList<>();
 
         for (UpdateItem updateItem : updateQuery.set()) {
             var field = observer.fireSelectField(entity, updateItem.name());
-            var value = Values.get(updateItem.value(), params);
+            var value = Values.get(updateItem.value(), params, reference);
             set.add(Element.of(field, value));
         }
 
         CriteriaCondition condition = updateQuery.where()
-                .map(c -> Conditions.getCondition(c, params, observer, entity)).orElse(null);
+                .map(c -> Conditions.getCondition(c, params, observer, entity, reference)).orElse(null);
 
         if (params.isNotEmpty()) {
             throw new QueryException("To run a query with a parameter use a PrepareStatement instead.");
