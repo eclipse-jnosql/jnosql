@@ -119,12 +119,13 @@ public final class CommunicationPreparedStatement {
     }
 
     /**
-     * Returns the select query if present.
+     * Returns the select query if present. Temporal expressions such as {@code LOCAL DATE} are resolved
+     * at the moment of the call, so each call returns an independent query with its own immutable time reference.
      *
      * @return the select query
      */
     public Optional<SelectQuery> select() {
-        return Optional.ofNullable(selectQuery);
+        return Optional.ofNullable(selectQuery).map(q -> new TemporalSnapshot(temporalReference.now()).select(q));
     }
 
     /**
@@ -137,17 +138,17 @@ public final class CommunicationPreparedStatement {
         if (!paramsLeft.isEmpty()) {
             throw new QueryException("Check all the parameters before execute the query, params left: " + paramsLeft);
         }
-        temporalReference.refresh();
+        var snapshot = new TemporalSnapshot(temporalReference.now());
         switch (type) {
             case SELECT -> {
-                return manager.select(operator().apply(selectQuery));
+                return manager.select(operator().apply(snapshot.select(selectQuery)));
             }
             case DELETE -> {
-                manager.delete(deleteQuery);
+                manager.delete(snapshot.delete(deleteQuery));
                 return Stream.empty();
             }
             case UPDATE -> {
-                manager.update(updateQuery);
+                manager.update(snapshot.update(updateQuery));
                 return Stream.empty();
             }
             default -> throw new UnsupportedOperationException("there is not support to operation type: " + type);
@@ -184,10 +185,10 @@ public final class CommunicationPreparedStatement {
         if (!paramsLeft.isEmpty()) {
             throw new QueryException("Check all the parameters before execute the query, params left: " + paramsLeft);
         }
-        temporalReference.refresh();
+        var snapshot = new TemporalSnapshot(temporalReference.now());
         return switch (type) {
-            case COUNT -> manager.count(selectQuery);
-            case DELETE -> manager.deleteAndCount(deleteQuery);
+            case COUNT -> manager.count(snapshot.select(selectQuery));
+            case DELETE -> manager.deleteAndCount(snapshot.delete(deleteQuery));
             default -> throw new IllegalArgumentException(
                     "The count operation is only allowed for COUNT and DELETE queries");
         };
