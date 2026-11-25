@@ -96,5 +96,14 @@ public enum ValueType {
      *
      * @see QueryPath
      */
-    PATH;
+    PATH,
+    /**
+     * Represents a temporal special expression such as {@code LOCAL DATE}, {@code LOCAL TIME}
+     * or {@code LOCAL DATETIME}. The expression is not a literal: it is resolved to an ordinary
+     * {@link java.time.LocalDate}, {@link java.time.LocalTime} or {@link java.time.LocalDateTime}
+     * each time the query is executed.
+     *
+     * @see TemporalQueryValue
+     */
+    TEMPORAL;
 }
