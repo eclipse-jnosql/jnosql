@@ -137,6 +137,25 @@ class CriteriaOperandTest {
         }
 
         @Test
+        @DisplayName("Should create IN and BETWEEN from an attribute and a value like the element factories")
+        void shouldCreateInAndBetween() {
+
+            // Given
+            var attribute = new CriteriaOperand.Attribute("age");
+            var values = new CriteriaOperand.Constant(Value.of(List.of(1, 2)));
+
+            // When
+            var in = CriteriaCondition.of(attribute, Condition.IN, values);
+            var between = CriteriaCondition.of(attribute, Condition.BETWEEN, values);
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(in).as("in").isEqualTo(CriteriaCondition.in("age", List.of(1, 2)));
+                softly.assertThat(between).as("between").isEqualTo(CriteriaCondition.between("age", List.of(1, 2)));
+            });
+        }
+
+        @Test
         @DisplayName("Should compose native predicates with AND and OR")
         void shouldCompose() {
 
@@ -168,6 +187,28 @@ class CriteriaOperandTest {
             assertSoftly(softly -> {
                 softly.assertThat(readOnly).as("equal").isEqualTo(condition);
                 softly.assertThat(readOnly.isNative()).as("native").isTrue();
+            });
+        }
+
+        @Test
+        @DisplayName("Should differ from a condition with another operand, another type or null")
+        void shouldDifferFromOthers() {
+
+            // Given
+            var condition = CriteriaCondition.of(UPPER_OPERAND, Condition.EQUALS,
+                    new CriteriaOperand.Constant(Value.of("A")));
+
+            // Then
+            assertSoftly(softly -> {
+                softly.assertThat(condition).as("same").isEqualTo(condition);
+                softly.assertThat(condition).as("null").isNotEqualTo(null);
+                softly.assertThat(condition).as("type").isNotEqualTo("A");
+                softly.assertThat(CriteriaCondition.eq("a", 1)).as("operator")
+                        .isNotEqualTo(CriteriaCondition.gt("a", 1));
+                softly.assertThat(condition).as("right").isNotEqualTo(CriteriaCondition.of(UPPER_OPERAND,
+                        Condition.EQUALS, new CriteriaOperand.Constant(Value.of("B"))));
+                softly.assertThat(condition).as("left").isNotEqualTo(CriteriaCondition.of(
+                        new CriteriaOperand.Attribute("name"), Condition.EQUALS, UPPER_OPERAND));
             });
         }
 
@@ -253,7 +294,7 @@ class CriteriaOperandTest {
         }
 
         @ParameterizedTest
-        @EnumSource(value = Condition.class, names = {"AND", "OR"})
+        @EnumSource(value = Condition.class, names = {"AND", "OR", "NOT", "IGNORE_CASE"})
         @DisplayName("Should reject building a logical condition from attribute and value operands")
         void shouldRejectLogicalFromOperands(Condition condition) {
             assertThatThrownBy(() -> CriteriaCondition.of(new CriteriaOperand.Attribute("a"), condition,
