@@ -15,6 +15,7 @@ import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.query.data.DeleteProvider;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -40,9 +41,15 @@ public final class DeleteQueryParser implements BiFunction<org.eclipse.jnosql.co
 
     CommunicationPreparedStatement prepare(String query, DatabaseManager manager,
                                            CommunicationObserverParser observer) {
+        return prepare(query, manager, observer, Clock.systemDefaultZone());
+    }
+
+    CommunicationPreparedStatement prepare(String query, DatabaseManager manager,
+                                           CommunicationObserverParser observer, Clock clock) {
         Params params = Params.newParams();
-        DeleteQuery deleteQuery = getQuery(query, params, observer);
-        return CommunicationPreparedStatement.delete(deleteQuery, params, query, manager);
+        var reference = TemporalReference.live(clock);
+        DeleteQuery deleteQuery = getQuery(query, params, observer, reference);
+        return CommunicationPreparedStatement.delete(deleteQuery, params, query, manager, reference);
     }
 
 
@@ -54,22 +61,26 @@ public final class DeleteQueryParser implements BiFunction<org.eclipse.jnosql.co
         requireNonNull(deleteQuery, "deleteQuery is required");
         requireNonNull(communicationObserverParser, "columnObserverParser is required");
         Params params = Params.newParams();
-        DeleteQuery query = getQuery(params, communicationObserverParser, deleteQuery);
+        DeleteQuery query = getQuery(params, communicationObserverParser, deleteQuery, TemporalReference.live());
         return new DeleteQueryParams(query, params);
     }
 
-    private DeleteQuery getQuery(String query, Params params, CommunicationObserverParser observer) {
+    private DeleteQuery getQuery(String query, Params params, CommunicationObserverParser observer,
+                                 TemporalReference reference) {
         org.eclipse.jnosql.communication.query.DeleteQuery deleteQuery = DeleteProvider.INSTANCE.apply(query);
 
-        return getQuery(params, observer, deleteQuery);
+        return getQuery(params, observer, deleteQuery, reference);
     }
 
-    private DeleteQuery getQuery(Params params, CommunicationObserverParser observer, org.eclipse.jnosql.communication.query.DeleteQuery deleteQuery) {
+    private DeleteQuery getQuery(Params params, CommunicationObserverParser observer,
+                                 org.eclipse.jnosql.communication.query.DeleteQuery deleteQuery,
+                                 TemporalReference reference) {
         String columnFamily = observer.fireEntity(deleteQuery.entity());
         List<String> columns = deleteQuery.fields().stream()
                 .map(f -> observer.fireSelectField(columnFamily, f))
                 .collect(Collectors.toList());
-        CriteriaCondition condition = deleteQuery.where().map(c -> Conditions.getCondition(c, params, observer, columnFamily))
+        CriteriaCondition condition = deleteQuery.where()
+                .map(c -> Conditions.getCondition(c, params, observer, columnFamily, reference))
                 .orElse(null);
 
         return new DefaultDeleteQuery(columnFamily, condition, columns);
@@ -84,9 +95,10 @@ public final class DeleteQueryParser implements BiFunction<org.eclipse.jnosql.co
                 .map(f -> observer.fireSelectField(columnFamily, f))
                 .collect(Collectors.toList());
         Params params = Params.newParams();
+        var reference = TemporalReference.pinned(Clock.systemDefaultZone());
 
         CriteriaCondition condition = deleteQuery.where()
-                .map(c -> Conditions.getCondition(c, params, observer, columnFamily)).orElse(null);
+                .map(c -> Conditions.getCondition(c, params, observer, columnFamily, reference)).orElse(null);
 
         if (params.isNotEmpty()) {
             throw new QueryException("To run a query with a parameter use a PrepareStatement instead.");

@@ -17,6 +17,7 @@ import org.eclipse.jnosql.communication.Params;
 import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.query.data.SelectProvider;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -36,12 +37,18 @@ public final class SelectQueryParser implements BiFunction<org.eclipse.jnosql.co
 
 
     CommunicationPreparedStatement prepare(String query, String entity, DatabaseManager manager, CommunicationObserverParser observer) {
+        return prepare(query, entity, manager, observer, Clock.systemDefaultZone());
+    }
+
+    CommunicationPreparedStatement prepare(String query, String entity, DatabaseManager manager,
+                                           CommunicationObserverParser observer, Clock clock) {
 
         Params params = Params.newParams();
-        var selectQuery =  SelectProvider.INSTANCE.apply(query, entity);
+        var reference = TemporalReference.live(clock);
+        var selectQuery = SelectProvider.INSTANCE.apply(query, entity);
 
-        var prepareQuery = query(params, selectQuery, observer);
-        return CommunicationPreparedStatement.select(prepareQuery, params, query, manager);
+        var prepareQuery = query(params, selectQuery, observer, reference);
+        return CommunicationPreparedStatement.select(prepareQuery, params, query, manager, reference);
     }
 
 
@@ -51,7 +58,7 @@ public final class SelectQueryParser implements BiFunction<org.eclipse.jnosql.co
         Objects.requireNonNull(observer, "observer is required");
 
         Params params = Params.newParams();
-        SelectQuery columnQuery = query(params, selectQuery, observer);
+        SelectQuery columnQuery = query(params, selectQuery, observer, TemporalReference.live());
         return new QueryParams(columnQuery, params);
     }
 
@@ -68,8 +75,9 @@ public final class SelectQueryParser implements BiFunction<org.eclipse.jnosql.co
                 .collect(toList());
 
         var params = Params.newParams();
+        var reference = TemporalReference.pinned(Clock.systemDefaultZone());
         var condition = selectQuery.where()
-                .map(c -> Conditions.getCondition(c, params, observer, entityName)).orElse(null);
+                .map(c -> Conditions.getCondition(c, params, observer, entityName, reference)).orElse(null);
 
         if (params.isNotEmpty()) {
             throw new QueryException("To run a query with a parameter use a PrepareStatement instead.");
@@ -78,7 +86,8 @@ public final class SelectQueryParser implements BiFunction<org.eclipse.jnosql.co
         return new DefaultSelectQuery(limit, skip, entityName, columns, sorts, condition, count);
     }
 
-    private SelectQuery query(Params params, org.eclipse.jnosql.communication.query.SelectQuery selectQuery, CommunicationObserverParser observer) {
+    private SelectQuery query(Params params, org.eclipse.jnosql.communication.query.SelectQuery selectQuery,
+                              CommunicationObserverParser observer, TemporalReference reference) {
 
         var entity = observer.fireEntity(selectQuery.entity());
         long limit = selectQuery.limit();
@@ -89,7 +98,7 @@ public final class SelectQueryParser implements BiFunction<org.eclipse.jnosql.co
 
         List<Sort<?>> sorts = selectQuery.orderBy().stream().map(s -> toSort(s, observer, entity)).collect(toList());
         CriteriaCondition condition = selectQuery.where()
-                .map(c -> Conditions.getCondition(c, params, observer, entity))
+                .map(c -> Conditions.getCondition(c, params, observer, entity, reference))
                 .orElse(null);
 
         boolean count = selectQuery.isCount();

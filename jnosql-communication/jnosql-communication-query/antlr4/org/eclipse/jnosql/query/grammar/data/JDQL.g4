@@ -77,9 +77,9 @@ function_expression
     ;
 
 special_expression
-    : LOCAL_DATE
-    | LOCAL_DATETIME
-    | LOCAL_TIME
+    : LOCAL DATE
+    | LOCAL DATETIME
+    | LOCAL TIME
     | TRUE
     | FALSE
     ;
@@ -114,9 +114,6 @@ ASC             : [aA][sS][cC];
 DESC            : [dD][eE][sS][cC];
 AND             : [aA][nN][dD];
 OR              : [oO][rR];
-LOCAL_DATE      : [lL][oO][cC][aA][lL] [dD][aA][tT][eE];
-LOCAL_DATETIME  : [lL][oO][cC][aA][lL] [dD][aA][tT][eE][tT][iI][mM][eE];
-LOCAL_TIME      : [lL][oO][cC][aA][lL] [tT][iI][mM][eE];
 BETWEEN         : [bB][eE][tT][wW][eE][eE][nN];
 LIKE            : [lL][iI][kK][eE];
 THIS            : [tT][hH][iI][sS];

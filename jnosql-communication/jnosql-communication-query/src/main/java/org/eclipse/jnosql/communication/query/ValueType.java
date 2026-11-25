@@ -77,5 +77,14 @@ public enum ValueType {
      * indicates the absence of a value. Used in queries to handle missing or
      * unknown data, or to represent the absence of a value in a specific context.
      */
-    NULL
+    NULL,
+    /**
+     * Represents a temporal special expression such as {@code LOCAL DATE}, {@code LOCAL TIME}
+     * or {@code LOCAL DATETIME}. The expression is not a literal: it is resolved to an ordinary
+     * {@link java.time.LocalDate}, {@link java.time.LocalTime} or {@link java.time.LocalDateTime}
+     * each time the query is executed.
+     *
+     * @see TemporalQueryValue
+     */
+    TEMPORAL;
 }

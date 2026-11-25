@@ -17,6 +17,7 @@ import org.eclipse.jnosql.communication.query.EnumQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
+import org.eclipse.jnosql.communication.query.TemporalQueryValue;
 import org.eclipse.jnosql.query.grammar.data.JDQLParser;
 
 import java.util.Locale;
@@ -44,7 +45,14 @@ enum PrimaryFunction implements Function<JDQLParser.Primary_expressionContext, Q
         } else if (context.input_parameter() != null) {
             return DefaultQueryValue.of(context.input_parameter().getText());
         } else if (context.special_expression() != null) {
-            var specialExpression = context.special_expression().getText();
+            var special = context.special_expression();
+            if (special.LOCAL() != null) {
+                if (special.DATETIME() != null) {
+                    return TemporalQueryValue.LOCAL_DATETIME;
+                }
+                return special.DATE() != null ? TemporalQueryValue.LOCAL_DATE : TemporalQueryValue.LOCAL_TIME;
+            }
+            var specialExpression = special.getText();
             return switch (specialExpression.toUpperCase(Locale.US)) {
                 case "TRUE" -> BooleanQueryValue.TRUE;
                 case "FALSE" -> BooleanQueryValue.FALSE;
