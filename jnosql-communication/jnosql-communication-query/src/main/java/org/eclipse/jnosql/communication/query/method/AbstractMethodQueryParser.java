@@ -100,13 +100,13 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
     @Override
     public void exitTruth(MethodParser.TruthContext ctx) {
         String variable = getVariable(ctx.variable());
-        checkCondition(new MethodCondition(variable, EQUALS, BooleanQueryValue.TRUE), false);
+        checkCondition(new MethodCondition(variable, EQUALS, BooleanQueryValue.TRUE), false, false);
     }
 
     @Override
     public void exitUntruth(MethodParser.UntruthContext ctx) {
         String variable = getVariable(ctx.variable());
-        checkCondition(new MethodCondition(variable, EQUALS, BooleanQueryValue.FALSE), false);
+        checkCondition(new MethodCondition(variable, EQUALS, BooleanQueryValue.FALSE), false, false);
     }
 
     @Override
@@ -149,6 +149,7 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
         exitOperationWithASingleVariable(STARTS_WITH, ctx.not(), ctx.variable(), ctx.ignoreCase());
     }
 
+
     @Override
     public void exitIn(MethodParser.InContext ctx) {
         exitOperationWithASingleVariable(IN, ctx.not(), ctx.variable(), ctx.ignoreCase());
@@ -159,16 +160,15 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
         boolean hasNot = Objects.nonNull(ctx.not());
         boolean ignoreCase = Objects.nonNull(ctx.ignoreCase());
         String variable = getVariable(ctx.variable());
-        Condition operator = BETWEEN;
         ArrayQueryValue value = MethodArrayValue.of(variable);
-        checkCondition(new MethodCondition(variable, operator, value), hasNot, ignoreCase);
+        checkCondition(new MethodCondition(variable, BETWEEN, value), hasNot, ignoreCase);
     }
 
     @Override
     public void exitNullable(MethodParser.NullableContext ctx) {
         boolean hasNot = Objects.nonNull(ctx.not());
         String variable = getVariable(ctx.variable());
-        checkCondition(new MethodCondition(variable, EQUALS, StringQueryValue.of(null)), hasNot);
+        checkCondition(new MethodCondition(variable, EQUALS, StringQueryValue.of(null)), hasNot, false);
     }
 
     @Override
@@ -194,9 +194,6 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
         checkCondition(new MethodCondition(variable, operator, queryValue), hasNot, ignoreCase);
     }
 
-    private void checkCondition(QueryCondition condition, boolean hasNot) {
-        checkCondition(condition, hasNot, false);
-    }
 
     private void checkCondition(QueryCondition condition, boolean hasNot, boolean ignoreCase) {
         QueryCondition newCondition = checkIgnoreCaseCondition(condition, ignoreCase);
@@ -211,6 +208,16 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
             appendCondition(OR, newCondition);
         }
     }
+
+    private QueryCondition checkIgnoreCaseCondition(QueryCondition condition, boolean ignoreCase) {
+        if (ignoreCase) {
+            ConditionQueryValue conditions = ConditionQueryValue.of(Collections.singletonList(condition));
+            return new MethodCondition("_IGNORE_CASE", IGNORE_CASE, conditions);
+        } else {
+            return condition;
+        }
+    }
+
 
     private String getVariable(MethodParser.VariableContext ctx) {
         return getFormatField(ctx.getText());
@@ -239,48 +246,31 @@ abstract class AbstractMethodQueryParser extends MethodBaseListener {
         }
     }
 
-    private QueryCondition checkIgnoreCaseCondition(QueryCondition condition, boolean ignoreCase) {
-        if (ignoreCase) {
-            ConditionQueryValue conditions = ConditionQueryValue.of(Collections.singletonList(condition));
-            return new MethodCondition("_IGNORE_CASE", IGNORE_CASE, conditions);
-        } else {
-            return condition;
-        }
-    }
-
     private void appendCondition(Condition operator, QueryCondition newCondition) {
-        if (OR.equals(operator)) {
-            this.condition = OR.equals(this.condition.condition())
-                    ? appendToGroup(this.condition, newCondition)
-                    : createGroup(OR, List.of(this.condition, newCondition));
-            return;
+        if (operator.equals(this.condition.condition())) {
+            this.condition = appendTo(this.condition, newCondition);
+        } else if (OR.equals(operator)) {
+            this.condition = group(OR, List.of(this.condition, newCondition));
+        } else if (!OR.equals(this.condition.condition())) {
+            this.condition = group(AND, List.of(this.condition, newCondition));
+        } else {
+            List<QueryCondition> conditions = new ArrayList<>(ConditionQueryValue.class.cast(this.condition.value()).get());
+            QueryCondition lastCondition = conditions.get(conditions.size() - 1);
+            QueryCondition lastGroup = AND.equals(lastCondition.condition())
+                    ? appendTo(lastCondition, newCondition)
+                    : group(AND, List.of(lastCondition, newCondition));
+            conditions.set(conditions.size() - 1, lastGroup);
+            this.condition = group(OR, conditions);
         }
-
-        if (!OR.equals(this.condition.condition())) {
-            this.condition = AND.equals(this.condition.condition())
-                    ? appendToGroup(this.condition, newCondition)
-                    : createGroup(AND, List.of(this.condition, newCondition));
-            return;
-        }
-
-        List<QueryCondition> conditions = new ArrayList<>(
-                ConditionQueryValue.class.cast(this.condition.value()).get());
-        int lastIndex = conditions.size() - 1;
-        QueryCondition lastCondition = conditions.get(lastIndex);
-        QueryCondition conjunction = AND.equals(lastCondition.condition())
-                ? appendToGroup(lastCondition, newCondition)
-                : createGroup(AND, List.of(lastCondition, newCondition));
-        conditions.set(lastIndex, conjunction);
-        this.condition = createGroup(OR, conditions);
     }
 
-    private QueryCondition appendToGroup(QueryCondition group, QueryCondition newCondition) {
-        List<QueryCondition> conditions = new ArrayList<>(ConditionQueryValue.class.cast(group.value()).get());
+    private QueryCondition appendTo(QueryCondition currentCondition, QueryCondition newCondition) {
+        List<QueryCondition> conditions = new ArrayList<>(ConditionQueryValue.class.cast(currentCondition.value()).get());
         conditions.add(newCondition);
-        return createGroup(group.condition(), conditions);
+        return group(currentCondition.condition(), conditions);
     }
 
-    private QueryCondition createGroup(Condition operator, List<QueryCondition> conditions) {
+    private QueryCondition group(Condition operator, List<QueryCondition> conditions) {
         return new MethodCondition(SUB_ENTITY_FLAG + operator.name(), operator, ConditionQueryValue.of(conditions));
     }
 }
