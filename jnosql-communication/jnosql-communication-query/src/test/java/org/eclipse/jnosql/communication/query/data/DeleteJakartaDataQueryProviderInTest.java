@@ -20,6 +20,8 @@ import org.eclipse.jnosql.communication.query.NumberQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.QueryValue;
 import org.eclipse.jnosql.communication.query.StringQueryValue;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -27,6 +29,11 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.time.DayOfWeek;
 
 class DeleteJakartaDataQueryProviderInTest {
+
+    @Nested
+    @DisplayName("When the delete jakarta data query provider in is used")
+    class WhenTheDeleteJakartaDataQueryProviderIn {
+    }
 
 
     private DeleteParser deleteParser;
@@ -37,6 +44,7 @@ class DeleteJakartaDataQueryProviderInTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should In")
     @ValueSource(strings = {"DELETE FROM entity WHERE age IN (10, 12.12, 'otavio', ?1, :param)"})
     void shouldIn(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -60,6 +68,7 @@ class DeleteJakartaDataQueryProviderInTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should In Enum Literal")
     @ValueSource(strings = {"DELETE FROM entity WHERE days IN (java.time.DayOfWeek.MONDAY, java.time.DayOfWeek.SUNDAY)"})
     void shouldInEnumLiteral(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -82,6 +91,7 @@ class DeleteJakartaDataQueryProviderInTest {
 
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Negate Between")
     @ValueSource(strings = {"DELETE FROM entity WHERE age NOT IN (10, 20)"})
     void shouldNegateBetween(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -106,6 +116,7 @@ class DeleteJakartaDataQueryProviderInTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Combine And")
     @ValueSource(strings = {"DELETE FROM entity WHERE name = 'Otavio' AND age IN (10, 20)"})
     void shouldCombineAnd(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -136,6 +147,7 @@ class DeleteJakartaDataQueryProviderInTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Combine And2")
     @ValueSource(strings = "DELETE FROM entity WHERE age IN (10, 20) AND name = 'Otavio'")
     void shouldCombineAnd2(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -164,6 +176,7 @@ class DeleteJakartaDataQueryProviderInTest {
 
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Combine Or")
     @ValueSource(strings = {"DELETE FROM entity WHERE  name = 'Otavio' OR name IN (10, 20)"})
     void shouldCombineOr(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -191,6 +204,7 @@ class DeleteJakartaDataQueryProviderInTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should Combine Or2")
     @ValueSource(strings = "DELETE FROM entity WHERE age IN (10, 20) OR name = 'Otavio'")
     void shouldCombineOr2(String query){
         var deleteQuery = deleteParser.apply(query);
