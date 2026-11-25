@@ -112,8 +112,27 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
         }
         var name = contexts.get(0).getText();
         var value = contexts.get(1);
+        var left = contexts.get(0);
         var literal = PrimaryFunction.INSTANCE.apply(value.primary_expression());
-        return negateIf(new DefaultQueryCondition(name, contextCondition, literal), hasNot);
+        return negateIf(leaf(left, name, contextCondition, literal), hasNot);
+    }
+
+    private QueryCondition leaf(JDQLParser.Scalar_expressionContext left, String name, Condition condition,
+                                QueryValue<?> value) {
+        var primary = unwrap(left).primary_expression();
+        if (primary != null && primary.function_expression() != null) {
+            var function = ((FunctionQueryValue) PrimaryFunction.INSTANCE.apply(primary)).get();
+            return new FunctionQueryCondition(name, condition, value, function);
+        }
+        return new DefaultQueryCondition(name, condition, value);
+    }
+
+    private static JDQLParser.Scalar_expressionContext unwrap(JDQLParser.Scalar_expressionContext context) {
+        var current = context;
+        while (current.LPAREN() != null && current.scalar_expression().size() == 1) {
+            current = current.scalar_expression(0);
+        }
+        return current;
     }
 
     private QueryCondition nullComparison(JDQLParser.Null_comparison_expressionContext ctx) {
@@ -131,7 +150,7 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
         var contextCondition = Condition.LIKE;
         QueryValue<?> value = likeQueryValue(ctx, contexts);
 
-        return negateIf(new DefaultQueryCondition(name, contextCondition, value), hasNot);
+        return negateIf(leaf(contexts, name, contextCondition, value), hasNot);
     }
 
     private QueryCondition betweenCondition(JDQLParser.Between_expressionContext ctx) {
@@ -143,7 +162,7 @@ abstract class AbstractWhere extends AbstractJDQLProvider {
         var secondValue = PrimaryFunction.INSTANCE.apply(contexts.get(2).primary_expression());
         var contextCondition = Condition.BETWEEN;
         DataArrayQueryValue value = new DataArrayQueryValue(List.of(firstValue, secondValue));
-        return negateIf(new DefaultQueryCondition(name, contextCondition, value), hasNot);
+        return negateIf(leaf(contexts.get(0), name, contextCondition, value), hasNot);
     }
 
     private QueryCondition inCondition(JDQLParser.In_expressionContext ctx) {
