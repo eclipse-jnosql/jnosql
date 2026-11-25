@@ -116,11 +116,10 @@ public final class CriteriaCondition {
     }
 
     private void requirePredicate() {
-        switch (condition) {
-            case AND, OR, NOT, IGNORE_CASE -> throw new UnsupportedOperationException(
+        if (condition == Condition.AND || condition == Condition.OR
+                || condition == Condition.NOT || condition == Condition.IGNORE_CASE) {
+            throw new UnsupportedOperationException(
                     "A " + condition + " condition has nested conditions, not operands");
-            default -> {
-            }
         }
     }
 
