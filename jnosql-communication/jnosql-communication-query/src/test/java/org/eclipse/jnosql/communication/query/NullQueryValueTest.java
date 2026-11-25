@@ -12,12 +12,20 @@
 package org.eclipse.jnosql.communication.query;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class NullQueryValueTest {
 
+    @Nested
+    @DisplayName("When the null query value is used")
+    class WhenTheNullQueryValue {
+    }
+
 
     @Test
+    @DisplayName("Should Return Null Query Value")
     void shouldReturnNullQueryValue() {
         QueryValue<NullQueryValue> nullQueryValue = NullQueryValue.INSTANCE.get();
 
