@@ -15,11 +15,18 @@ import org.assertj.core.api.SoftAssertions;
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.NumberQueryValue;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class DeleteJakartaDataQueryProviderOrTest {
+
+    @Nested
+    @DisplayName("When the delete jakarta data query provider or is used")
+    class WhenTheDeleteJakartaDataQueryProviderOr {
+    }
 
 
     private DeleteParser deleteParser;
@@ -32,6 +39,7 @@ class DeleteJakartaDataQueryProviderOrTest {
 
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should ORTwo Conditions")
     @ValueSource(strings = "DELETE FROM entity WHERE age = 10 OR salary = 10.15")
     void shouldORTwoConditions(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -56,6 +64,7 @@ class DeleteJakartaDataQueryProviderOrTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should ORThree Conditions")
     @ValueSource(strings = "DELETE FROM entity WHERE age = 10 OR salary = 10.15 OR name =?1")
     void shouldORThreeConditions(String query){
         var deleteQuery = deleteParser.apply(query);
@@ -83,6 +92,7 @@ class DeleteJakartaDataQueryProviderOrTest {
     }
 
     @ParameterizedTest(name = "Should parser the query {0}")
+    @DisplayName("Should ORMix Conditions")
     @ValueSource(strings = "DELETE FROM entity WHERE age = 10 OR salary = 10.15 AND name =?1")
     void shouldORMixConditions(String query){
         var deleteQuery = deleteParser.apply(query);
