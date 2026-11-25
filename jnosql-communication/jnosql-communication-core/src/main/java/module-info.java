@@ -19,6 +19,7 @@ module org.eclipse.jnosql.communication.core {
     requires jakarta.json;
     exports org.eclipse.jnosql.communication;
     exports org.eclipse.jnosql.communication.util;
+    exports org.eclipse.jnosql.communication.function;
     opens org.eclipse.jnosql.communication;
     opens org.eclipse.jnosql.communication.reader;
     opens org.eclipse.jnosql.communication.writer;
