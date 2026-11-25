@@ -15,6 +15,7 @@ import org.eclipse.jnosql.communication.TypeSupplier;
 import org.eclipse.jnosql.communication.Value;
 import org.eclipse.jnosql.communication.query.TemporalQueryValue;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -63,7 +64,11 @@ final class TemporalValue implements Value {
         return expression.name();
     }
 
+    Object resolve(LocalDateTime instant) {
+        return expression.from(instant);
+    }
+
     private Value resolve() {
-        return Value.of(expression.from(reference.get()));
+        return Value.of(resolve(reference.get()));
     }
 }
