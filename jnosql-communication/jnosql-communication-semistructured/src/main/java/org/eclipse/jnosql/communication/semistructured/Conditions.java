@@ -12,6 +12,7 @@ package org.eclipse.jnosql.communication.semistructured;
 
 
 import org.eclipse.jnosql.communication.Params;
+import org.eclipse.jnosql.communication.QueryException;
 import org.eclipse.jnosql.communication.query.ConditionQueryValue;
 import org.eclipse.jnosql.communication.query.QueryCondition;
 import org.eclipse.jnosql.communication.query.Where;
@@ -49,6 +50,10 @@ public final class Conditions {
 
     static CriteriaCondition getCondition(QueryCondition condition, Params parameters, CommunicationObserverParser observer,
                                           String entity, TemporalReference reference) {
+        condition.leftFunction().ifPresent(function -> {
+            throw new QueryException("Functions as the left operand of a condition are not supported yet: "
+                    + condition.name() + ". The communication model cannot represent a function predicate");
+        });
         return switch (condition.condition()) {
             case EQUALS -> CriteriaCondition.eq(Element.of(getName(condition, observer, entity),
                     Values.get(condition.value(), parameters, reference)));
