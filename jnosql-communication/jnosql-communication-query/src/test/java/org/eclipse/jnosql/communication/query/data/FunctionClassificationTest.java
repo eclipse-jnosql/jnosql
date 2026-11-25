@@ -85,7 +85,7 @@ class FunctionClassificationTest {
         var condition = parser.apply("FROM Person WHERE UPPER(name) = UPPER(LEFT(:name, 19))", "Person")
                 .where().orElseThrow().condition();
         assertThat(condition.condition()).isEqualTo(Condition.EQUALS);
-        var left = condition.leftFunction().orElseThrow();
+        var left = ((FunctionQueryValue) condition.leftOperand()).get();
         assertThat(left.name()).isEqualTo("UPPER");
         assertThat(left.isNative()).isTrue();
         assertThat(left.params()[0]).isEqualTo(QueryPath.of("name"));
@@ -96,7 +96,7 @@ class FunctionClassificationTest {
     @DisplayName("should not mark ordinary attributes as function operands")
     void shouldNotMarkAttributes() {
         var condition = parser.apply("FROM Person WHERE name = 'a'", "Person").where().orElseThrow().condition();
-        assertThat(condition.leftFunction()).isEmpty();
+        assertThat(condition.leftOperand()).isEqualTo(QueryPath.of("name"));
     }
 
     @Test
@@ -106,7 +106,7 @@ class FunctionClassificationTest {
                 .where().orElseThrow().condition();
         var or = ((org.eclipse.jnosql.communication.query.ConditionQueryValue) condition.value()).get().getFirst();
         var operands = ((org.eclipse.jnosql.communication.query.ConditionQueryValue) or.value()).get();
-        assertThat(operands.get(1).leftFunction()).isPresent();
+        assertThat(operands.get(1).leftOperand()).isInstanceOf(FunctionQueryValue.class);
         assertThat(operands.get(1).condition()).isEqualTo(Condition.GREATER_THAN);
     }
 
